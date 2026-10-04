@@ -1,0 +1,207 @@
+{
+  "projects": [
+    {
+      "slug": "wells",
+      "title": "Clean wells for six hillside villages",
+      "theme": "Water",
+      "location": "Kigoma, Tanzania",
+      "organization": "Kigoma Water Circle",
+      "started": "March 2025",
+      "status": "Active",
+      "reach": "2,400 residents",
+      "summary": "Villagers walk up to two hours a day for water. This project drills and maintains six shallow wells, run by local water committees.",
+      "cover": "",
+      "quote": "Now my daughter is at school before the bell, not carrying jerrycans.",
+      "story": "## The problem\n\nIn the dry season, families in the six hillside villages above Lake Tanganyika rely on a single seasonal stream. Children, mostly girls, make the trip before school and often arrive late or not at all.\n\n## What we're doing\n\nEach well is sited with the village water committee, drilled by a local crew, and fitted with a hand pump that can be repaired with parts sold in Kigoma town. Committees collect a small monthly fee that covers repairs.\n\n## Long-term impact\n\nWithin a year of a well opening, school attendance in the first pilot village rose noticeably, and clinic visits for waterborne illness fell.",
+      "impact": [
+        {
+          "value": "6",
+          "label": "wells planned"
+        },
+        {
+          "value": "3",
+          "label": "completed"
+        }
+      ],
+      "updates": [
+        {
+          "date": "2026-09-12",
+          "title": "Third well is running",
+          "body": "The Mwamgongo well passed its water-quality test and opened to the village on Saturday."
+        },
+        {
+          "date": "2026-06-03",
+          "title": "Committee training finished",
+          "body": "Twenty-four committee members completed pump repair and bookkeeping training."
+        }
+      ],
+      "photos": [],
+      "media": []
+    },
+    {
+      "slug": "reading",
+      "title": "Reading corners in rural primary schools",
+      "theme": "Education",
+      "location": "Chiapas, Mexico",
+      "organization": "Libros del Monte",
+      "started": "Jan 2026",
+      "status": "Active",
+      "reach": "1,100 students",
+      "summary": "Stocking 20 classrooms with books in Spanish and Tsotsil, and training teachers to run daily reading time.",
+      "cover": "",
+      "quote": "The children argue over who gets the shelf first in the morning.",
+      "story": "## The problem\n\nMany rural schools have textbooks but no books children choose to read for fun, and almost nothing in their home language.\n\n## What we're doing\n\nEach classroom gets a shelf of 180 books, a reading mat, and a teacher trained to run 20 minutes of daily free reading. Local authors translate picture books into Tsotsil.\n\n## Long-term impact\n\nStudents who read daily for a full year improved reading fluency well beyond the regional average.",
+      "impact": [
+        {
+          "value": "20",
+          "label": "classrooms"
+        },
+        {
+          "value": "3,600",
+          "label": "books delivered"
+        }
+      ],
+      "updates": [
+        {
+          "date": "2026-08-20",
+          "title": "Twelve new shelves installed",
+          "body": "Schools in Chenalhó received their reading corners before the new term."
+        }
+      ],
+      "photos": [],
+      "media": []
+    },
+    {
+      "slug": "clinic",
+      "title": "Mobile clinic for remote river communities",
+      "theme": "Health",
+      "location": "Loreto, Peru",
+      "organization": "Río Salud",
+      "started": "Nov 2024",
+      "status": "Active",
+      "reach": "3,800 patients a year",
+      "summary": "A boat clinic that visits 14 riverside communities every month with a nurse, a midwife and basic medicines.",
+      "cover": "",
+      "quote": "We know the boat comes on the second Tuesday. People wait at the bank.",
+      "story": "## The problem\n\nThe nearest hospital is a two-day boat ride for most communities along the upper river.\n\n## What we're doing\n\nA converted cargo boat carries a nurse and a midwife on a fixed monthly route, with prenatal checks, vaccinations and a radio link to a doctor in Iquitos.\n\n## Long-term impact\n\nRegular visits mean problems are caught early, and expectant mothers have a plan before labor begins.",
+      "impact": [
+        {
+          "value": "14",
+          "label": "communities"
+        },
+        {
+          "value": "312",
+          "label": "visits this year"
+        }
+      ],
+      "updates": [
+        {
+          "date": "2026-09-01",
+          "title": "New solar fridge on board",
+          "body": "Vaccines can now stay cold for the full nine-day route."
+        }
+      ],
+      "photos": [],
+      "media": []
+    },
+    {
+      "slug": "seeds",
+      "title": "Seed banks for women farmers",
+      "theme": "Livelihoods",
+      "location": "Tamale, Ghana",
+      "organization": "Northern Seed Collective",
+      "started": "May 2025",
+      "status": "Active",
+      "reach": "420 farmers",
+      "summary": "Community seed banks that store drought-tolerant millet and sorghum, managed by women's farming groups.",
+      "cover": "",
+      "quote": "The seed belongs to us now, not to the trader.",
+      "story": "## The problem\n\nAfter a poor harvest, farmers often eat their seed stock and must buy expensive seed on credit the next season.\n\n## What we're doing\n\nEach group builds a sealed storage room and lends seed to members, who return it with a small share after harvest.\n\n## Long-term impact\n\nGroups now hold reserves through a bad year and choose varieties suited to their own fields.",
+      "impact": [
+        {
+          "value": "9",
+          "label": "seed banks"
+        },
+        {
+          "value": "11 t",
+          "label": "seed stored"
+        }
+      ],
+      "updates": [
+        {
+          "date": "2026-07-15",
+          "title": "Harvest returns recorded",
+          "body": "Members returned 94% of borrowed seed after the early millet harvest."
+        }
+      ],
+      "photos": [],
+      "media": []
+    },
+    {
+      "slug": "repair",
+      "title": "Neighborhood repair café",
+      "theme": "Community",
+      "location": "Hamilton, Ontario",
+      "organization": "Fix It Together",
+      "started": "Feb 2026",
+      "status": "Planning",
+      "reach": "Monthly drop-in",
+      "summary": "Volunteer fixers repair lamps, bikes and clothes for free once a month at the local library.",
+      "cover": "",
+      "quote": "I came in with a broken toaster and left knowing three new people.",
+      "story": "## The problem\n\nSmall household items get thrown out because repairs cost more than replacing them.\n\n## What we're doing\n\nVolunteers with sewing, electrical and bike skills sit with each visitor and fix the item together, so people learn as they go.\n\n## Long-term impact\n\nFewer items go to landfill, and neighbors meet people they would not otherwise talk to.",
+      "impact": [
+        {
+          "value": "38",
+          "label": "volunteers"
+        },
+        {
+          "value": "510",
+          "label": "items fixed"
+        }
+      ],
+      "updates": [
+        {
+          "date": "2026-09-27",
+          "title": "Bike stand donated",
+          "body": "A local shop donated a second repair stand for the bike table."
+        }
+      ],
+      "photos": [],
+      "media": []
+    },
+    {
+      "slug": "trees",
+      "title": "Mangrove replanting along the delta",
+      "theme": "Environment",
+      "location": "Ayeyarwady, Myanmar",
+      "organization": "Delta Green",
+      "started": "Aug 2024",
+      "status": "Active",
+      "reach": "5 fishing villages",
+      "summary": "Fishing families replant mangroves that protect the coast from storm surge and bring back fish nurseries.",
+      "cover": "",
+      "quote": "My grandfather fished here. Now my son may too.",
+      "story": "## The problem\n\nDecades of clearing left villages exposed to storm surge, and fish catches dropped as nursery habitat disappeared.\n\n## What we're doing\n\nVillagers raise seedlings in nurseries and plant them at low tide, paid per surviving tree after twelve months.\n\n## Long-term impact\n\nReplanted stretches already show crab and juvenile fish returning.",
+      "impact": [
+        {
+          "value": "48,000",
+          "label": "seedlings"
+        },
+        {
+          "value": "71%",
+          "label": "survival rate"
+        }
+      ],
+      "updates": [
+        {
+          "date": "2026-08-30",
+          "title": "One-year survival count",
+          "body": "71% of last year's seedlings survived the monsoon season."
+        }
+      ],
+      "photos": [],
+      "media": []
+    }
+  ]
+}
