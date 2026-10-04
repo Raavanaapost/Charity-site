@@ -237,3 +237,13 @@ footer .wrap{padding-block:28px;display:flex;justify-content:space-between;gap:1
 @media (max-width:640px){.stage::before{inset:-6px}}
 @media (prefers-reduced-motion:reduce){.stage::before{animation:none}}
 @media (max-width:640px){.stage span{font-size:9.5px;letter-spacing:.04em}.stage i{width:32px;height:32px}.stage b{font-size:22px}}
+
+/* rotating home messages */
+.sayings{display:grid;gap:12px}
+.sayings-track{display:grid;max-width:62ch}
+.saying{grid-area:1/1;margin:0;color:var(--ink);opacity:0;transform:translateY(6px);transition:opacity .7s ease,transform .7s ease;pointer-events:none}
+.saying.on{opacity:1;transform:none;pointer-events:auto}
+.sayings-dots{display:flex;gap:8px}
+.sayings-dots button{width:8px;height:8px;padding:0;border:0;border-radius:999px;background:var(--line);cursor:pointer;transition:width .3s,background .3s}
+.sayings-dots button[aria-current="true"]{width:22px;background:var(--sun)}
+@media (prefers-reduced-motion:reduce){.saying,.sayings-dots button{transition:none}}

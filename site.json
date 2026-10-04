@@ -3,5 +3,12 @@
   "tagline": "Community – Creating Impact",
   "intro": "Come join us in creating smiles and moments that kids will remember. Stand with us, feel proud, and together we will change lives, one project at a time.",
   "about": "Fieldnotes shares first-hand stories from community projects, written by the people running them.\n\nReplace this text with your own mission statement from the admin page.",
-  "footer": "Example projects shown. Replace them from the admin page."
+  "footer": "Example projects shown. Replace them from the admin page.",
+  "sayings": [
+    "Come join us in creating smiles and moments that kids will remember. Stand with us, feel proud, and together we will change lives, one project at a time.",
+    "Every smile we help create starts with someone like you. Give an hour, share a story or lend a hand, and watch a small moment grow into something big.",
+    "Kids remember the day someone showed up for them. Join us in making those days happen, and feel proud of the moments you helped create.",
+    "Together we turn good intentions into real change. A classroom stocked, a family supported, a child laughing again. Come be part of it.",
+    "No act of kindness is too small. When we come together as a community, every effort adds up to lives changed and smiles that last."
+  ]
 }

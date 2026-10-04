@@ -329,6 +329,19 @@
               "widget": "text"
             },
             {
+              "name": "sayings",
+              "label": "Rotating home page messages",
+              "label_singular": "Message",
+              "widget": "list",
+              "required": false,
+              "hint": "Shown one at a time under the headline, changing every few seconds. Keep each to about two sentences. If empty, the Home page intro is shown instead.",
+              "field": {
+                "name": "text",
+                "label": "Message",
+                "widget": "text"
+              }
+            },
+            {
               "name": "highlights",
               "label": "Extra home page numbers",
               "label_singular": "Number",

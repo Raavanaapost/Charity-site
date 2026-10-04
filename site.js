@@ -169,7 +169,7 @@
     app.innerHTML = `
       <section class="intro">
         <h1 class="headline">${headline(site.tagline)}</h1>
-        <p>${esc(site.intro)}</p>
+        ${sayingsHTML(site)}
       </section>
       <nav class="stages" aria-label="Our projects by stage">
         ${Object.entries(STAGES).map(([slug, st]) => `
@@ -183,6 +183,43 @@
       <section class="signup-band">${signupHTML("home")}</section>`;
     wireForms(app);
     fitHeadline();
+    startSayings(app);
+  }
+
+  // Rotating messages under the home headline.
+  function sayingsHTML(site) {
+    const list = (site.sayings || []).map(x => typeof x === "string" ? x : x && x.text).filter(Boolean);
+    if (list.length < 2) return `<p>${esc(list[0] || site.intro)}</p>`;
+    return `<div class="sayings" aria-roledescription="carousel" aria-label="Our message">
+      <div class="sayings-track">${list.map((t, i) => `<p class="saying${i ? "" : " on"}" aria-hidden="${i ? "true" : "false"}">${esc(t)}</p>`).join("")}</div>
+      <div class="sayings-dots">${list.map((_, i) => `<button type="button" aria-label="Message ${i + 1}" aria-current="${i === 0}"></button>`).join("")}</div>
+    </div>`;
+  }
+
+  let sayingsTimer;
+  function startSayings(root) {
+    const box = root.querySelector(".sayings");
+    clearInterval(sayingsTimer);
+    if (!box) return;
+    const items = [...box.querySelectorAll(".saying")], dots = [...box.querySelectorAll(".sayings-dots button")];
+    const track = box.querySelector(".sayings-track");
+    const fit = () => { track.style.minHeight = Math.max(...items.map(el => el.scrollHeight)) + "px"; };
+    fit(); window.addEventListener("resize", fit); if (document.fonts) document.fonts.ready.then(fit);
+    let cur = 0, paused = false;
+    const show = n => {
+      cur = (n + items.length) % items.length;
+      items.forEach((el, i) => { el.classList.toggle("on", i === cur); el.setAttribute("aria-hidden", String(i !== cur)); });
+      dots.forEach((d, i) => d.setAttribute("aria-current", String(i === cur)));
+    };
+    dots.forEach((d, i) => d.onclick = () => { show(i); restart(); });
+    let x0 = null;
+    track.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; paused = true; }, { passive: true });
+    track.addEventListener("touchend", e => { if (x0 !== null) { const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) show(cur + (dx < 0 ? 1 : -1)); } x0 = null; paused = false; restart(); });
+    box.addEventListener("mouseenter", () => paused = true);
+    box.addEventListener("mouseleave", () => paused = false);
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const restart = () => { clearInterval(sayingsTimer); if (!reduce) sayingsTimer = setInterval(() => { if (!paused && !document.hidden) show(cur + 1); }, 6500); };
+    restart();
   }
 
   // Stage pages: projects (or impact updates) in sections by theme, with theme filters.
