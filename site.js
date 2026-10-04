@@ -94,8 +94,19 @@
     }));
   }
 
-  // Hand-drawn circle drawn around each home page number (colored per number in CSS).
-  const SKETCH = `<svg class="sketch" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M54 7C80 6 96 27 94 51 92 78 70 94 46 93 21 92 5 72 7 47 9 23 29 8 57 10 66 11 73 15 78 20"/><path d="M47 4C26 7 12 22 11 40" opacity=".45"/></svg>`;
+  // Home page totals: a duotone icon inside a hand-drawn circle, in the logo's colors.
+  const SKETCH = `<svg class="sketch" viewBox="0 0 100 100" aria-hidden="true"><path d="M54 7C80 6 96 27 94 51 92 78 70 94 46 93 21 92 5 72 7 47 9 23 29 8 57 10 66 11 73 15 78 20"/><path d="M45 5C27 8 13 21 11 38" opacity=".4"/></svg>`;
+  const icon = d => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+  const ICONS = {
+    // heart holding people: projects that help people
+    projects: icon('<path class="fill" d="M12 21s-8-4.9-8-10.9A4.6 4.6 0 0 1 12 7.2a4.6 4.6 0 0 1 8 2.9C20 16.1 12 21 12 21z"/><circle cx="9.3" cy="11" r="1.5"/><circle cx="14.7" cy="11" r="1.5"/><path d="M7.2 15.6c.5-1.4 1.2-2.1 2.1-2.1s1.6.7 2.1 2.1M12.6 15.6c.5-1.4 1.2-2.1 2.1-2.1s1.6.7 2.1 2.1"/>'),
+    // spark burst: work happening now
+    active: icon('<circle class="fill" cx="12" cy="12" r="5"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/><path d="M10.2 12.2l1.3 1.3 2.4-2.8"/>'),
+    // megaphone: news shared
+    updates: icon('<path class="fill" d="M3.5 10v4a1 1 0 0 0 1 1H7l6.5 4.5v-15L7 9H4.5a1 1 0 0 0-1 1z"/><path d="M17 9.2a3.8 3.8 0 0 1 0 5.6M19.4 6.6a7.3 7.3 0 0 1 0 10.8"/><path d="M7.5 15l1.2 4.5h2.2L10 15.8"/>'),
+    // star: extra numbers added in the admin page
+    extra: icon('<path class="fill" d="m12 3 2.7 5.5 6 .9-4.4 4.2 1 6-5.3-2.8-5.3 2.8 1-6-4.4-4.2 6-.9z"/>')
+  };
 
   function card(p, i) {
     return `
@@ -131,7 +142,7 @@
           <p>${esc(site.intro)}</p>
         </section>
         ${projects.length ? `<section class="totals" aria-label="At a glance">
-          ${stats.map(([v, l, k]) => `<div class="stat-${k}"><b>${SKETCH}<em>${esc(v)}</em></b><span>${esc(l)}</span></div>`).join("")}
+          ${stats.map(([v, l, k]) => `<div class="stat-${k}"><i>${SKETCH}${ICONS[k]}</i><p><b>${esc(v)}</b><span>${esc(l)}</span></p></div>`).join("")}
         </section>` : ""}
         ${featured ? `<a class="feature" href="/projects/${slugOf(featured)}">
           <div class="cover" style="${coverStyle(featured, fi)}">${coverHTML(featured, fi, "", 1400)}</div>
