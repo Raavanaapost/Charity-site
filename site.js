@@ -182,7 +182,7 @@
   function renderHome(app, site, projects) {
     const counts = {
       initiated: projects.length,
-      activated: projects.filter(isActive).length,
+      activated: projects.filter(p => stageNum(p) >= 2).length,
       impact: projects.reduce((n, p) => n + (p.updates || []).length, 0)
     };
     const extras = (site.highlights || []).filter(h => h && h.value);
@@ -313,99 +313,110 @@
   };
   const stageNav = slug => `<nav class="stage-steps" aria-label="Stages">${Object.entries(STAGES).map(([k, s], i) =>
     `${i ? '<span class="arrow" aria-hidden="true">→</span>' : ""}<a class="stage-tab stat-${s.key}" href="/${k}" ${k === slug ? 'aria-current="page"' : ""}>${s.label}</a>`).join("")}</nav>`;
-  const MEANING = [
-    ["Reaching out", '<path d="M4 6.5h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H10l-4 3v-3H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z"/><path d="M7 10.5h8M7 13.5h5"/>'],
-    ["Spotting an opportunity", '<circle cx="10" cy="10" r="6"/><path d="m14.5 14.5 5.5 5.5"/><path d="m10 6.8.9 2 2.2.3-1.6 1.5.4 2.1-1.9-1-1.9 1 .4-2.1L6.9 9.1l2.2-.3z" fill="currentColor" stroke="none"/>'],
-    ["Opening a relationship", '<circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2.5 19c.6-3.4 2.6-5 5.5-5 1.6 0 2.9.5 4 1.5 1.100-1 2.400-1.500 4-1.500 2.900 0 4.900 1.600 5.500 5"/>'.replace("1.100","1.1").replace("2.400","2.4").replace("1.500","1.5").replace("2.900","2.9").replace("4.900","4.9").replace("1.600","1.6").replace("5.500","5.5")],
-    ["Starting an initiative", '<path d="M12 21v-9"/><path d="M12 14c-4 0-6-2.200-6.500-6 3.900 0 6 2 6.500 6z"/><path d="M12 11c0-4 2.300-6 6.500-6.500 0 4-2.300 6-6.500 6.500z"/>'.replace("2.200","2.2").replace("3.900","3.9").replace("2.300","2.3")]
-  ];
+  const ICON = d => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+  // What each stage page says and shows. A project appears on a stage page once it has reached that stage.
+  const STAGE_PAGES = {
+    initiated: {
+      n: 1, title: "Initiated", hero: "/img/hero-initiated.svg",
+      lead: "Every project begins here. An idea is shared, a hand is reached out, and a connection is made.",
+      tags: [
+        ["Reaching out", '<path d="M4 6.5h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H10l-4 3v-3H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z"/><path d="M7 10.5h8M7 13.5h5"/>'],
+        ["Spotting an opportunity", '<circle cx="10" cy="10" r="6"/><path d="m14.5 14.5 5.5 5.5"/><path d="m10 6.8.9 2 2.2.3-1.6 1.5.4 2.1-1.9-1-1.9 1 .4-2.1L6.9 9.1l2.2-.3z" fill="currentColor" stroke="none"/>'],
+        ["Opening a relationship", '<circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2.5 19c.6-3.4 2.6-5 5.5-5 1.6 0 2.9.5 4 1.5 1.1-1 2.4-1.5 4-1.5 2.9 0 4.9 1.6 5.5 5"/>'],
+        ["Starting an initiative", '<path d="M12 21v-9"/><path d="M12 14c-4 0-6-2.2-6.5-6 3.9 0 6 2 6.5 6z"/><path d="M12 11c0-4 2.3-6 6.5-6.5 0 4-2.3 6-6.5 6.500z"/>']
+      ],
+      heading: "Projects we have started", empty: "No projects yet. Add one from the admin page.",
+      cta: { title: "Have an idea for a project?", text: "Every project on this page began with someone reaching out. Tell us about a need you see, and we'll explore it together.", btn: "Suggest a project", href: "/contact" },
+      next: { slug: "activated", kicker: "Next stage", label: "Activated", text: "See the projects that have moved into action." }
+    },
+    activated: {
+      n: 2, title: "Activated", hero: "/img/hero-activated.svg",
+      lead: "This is where an idea turns into action. People show up, plans come together, and things start happening.",
+      tags: [
+        ["Taking part", '<circle cx="12" cy="6" r="2.6"/><path d="M5 5l4.5 5.500h5L19 5"/><path d="M9.5 10.500V20M14.5 10.500V20"/>'],
+        ["Getting organized", '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.500h6v-2H9z"/><path d="m8.5 11 1.5 1.5 2.5-2.500M8.5 16l1.5 1.5 2.5-2.500M14.5 11.500h2M14.5 16.500h2"/>'],
+        ["Working together", '<circle cx="9" cy="12" r="5.5"/><circle cx="15" cy="12" r="5.5"/>'],
+        ["Making it happen", '<path d="M13 2.5 5 13.500h6l-1 8 8-11h-6z"/>']
+      ],
+      heading: "Projects in action", empty: "No projects are in action yet. They appear here once their status is Active.",
+      cta: { title: "Want to take part?", text: "Projects move because people show up. Lend an hour, a skill or a helping hand, and be part of what's happening.", btn: "Volunteer with us", href: "/contact" },
+      next: { slug: "impact", kicker: "Next stage", label: "Impact", text: "See the difference these projects are making." }
+    },
+    impact: {
+      n: 3, title: "Impact", hero: "/img/hero-impact.svg",
+      lead: "This is what it all adds up to: smiles created, everyone included, and a difference that lasts beyond the day.",
+      tags: [
+        ["Smiles created", '<circle cx="12" cy="12" r="9"/><path d="M8 14c1 1.8 2.4 2.7 4 2.700s3-.9 4-2.7"/><path d="M8.5 9.500h.01M15.5 9.500h.01" stroke-width="2.6"/>'],
+        ["Everyone included", '<circle cx="12" cy="6" r="2.4"/><circle cx="5.5" cy="9" r="2"/><circle cx="18.5" cy="9" r="2"/><path d="M7.5 20c.4-4 2-6 4.5-6s4.1 2 4.5 6M2 18c.3-2.6 1.4-4 3.5-4M22 18c-.3-2.6-1.4-4-3.5-4"/>'],
+        ["Real connection", '<path d="M12 20s-7.5-4.6-7.5-10.200A4.3 4.3 0 0 1 12 7.600a4.3 4.3 0 0 1 7.5 2.200c0 5.6-7.5 10.2-7.5 10.200z"/>'],
+        ["Lasting difference", '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/>']
+      ],
+      heading: "Stories of impact", empty: "No impact updates yet. Add them to a project in the admin page.",
+      cta: { title: "Be part of the next one", text: "Every smile on this page started with people who cared. Stay close and see what we create together next.", btn: "Keep me posted", href: "/#keep-posted" },
+      next: { slug: "initiated", kicker: "Back to the start", label: "Initiated", text: "See every project from where it began." }
+    }
+  };
 
-  // Initiated: where every project begins.
-  function renderInitiated(app, site, projects) {
-    document.title = `Initiated · ${site.name}`;
-    const items = projects.map((p, i) => ({ p, i }));
+  function renderStage(app, site, projects, slug) {
+    const cfg = STAGE_PAGES[slug], key = STAGES[slug].key;
+    document.title = `${cfg.title} · ${site.name}`;
+    const reached = projects.filter(p => stageNum(p) >= Math.min(cfg.n, 2));
+    const stories = projects.flatMap((p, i) => (p.updates || []).map(u => ({ p, i, u }))).sort((a, b) => String(b.u.date).localeCompare(String(a.u.date)));
+    const numbers = projects.flatMap(p => (p.impact || []).filter(x => x && x.value).map(x => ({ p, x })));
+    const items = slug === "impact" ? stories : reached.map(p => ({ p, i: projects.indexOf(p) }));
     const themes = [...new Set(items.map(x => x.p.theme || "Other"))];
+    const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
     const fresh = projects.filter(p => stageNum(p) === 1).length;
+    const sub = slug === "initiated" ? `${plural(projects.length, "project")} started${fresh ? ` · ${fresh} just beginning` : ""}`
+      : slug === "activated" ? `${plural(reached.length, "project")} in action`
+      : `${stories.length === 1 ? "1 story" : stories.length + " stories"} of impact · ${plural(new Set(stories.map(x => x.p)).size, "project")}`;
     let filter = "All";
     const draw = () => {
+      const shown = items.filter(x => filter === "All" || (x.p.theme || "Other") === filter);
       const groups = themes.filter(t => filter === "All" || t === filter).map(t => [t, items.filter(x => (x.p.theme || "Other") === t)]);
-      app.innerHTML = `
-        ${stageNav("initiated")}
-        <header class="stage-hero s1">
-          <img src="/img/hero-initiated.svg" alt="" width="400" height="200">
-          <div class="stage-hero-text">
-            <h1>Initiated</h1>
-            <p>${projects.length} project${projects.length === 1 ? "" : "s"} started${fresh ? ` · ${fresh} just beginning` : ""}</p>
-          </div>
-        </header>
-        <section class="stage-lead">
-          <p class="big">Every project begins here. An idea is shared, a hand is reached out, and a connection is made.</p>
-          <ul class="meaning">${MEANING.map(([t, d]) => `<li><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg><span>${t}</span></li>`).join("")}</ul>
-        </section>
-        <h2 class="section-title lined">Projects we have started</h2>
-        ${themes.length > 1 ? `<div class="filters" role="group" aria-label="Filter by theme">
-          ${["All", ...themes].map(t => `<button class="chip" aria-pressed="${t === filter}" data-t="${esc(t)}">${esc(t)}</button>`).join("")}
-        </div>` : ""}
-        ${items.length ? groups.map(([t, xs]) => `
+      const body = !items.length ? `<p class="empty">${cfg.empty}</p>`
+        : slug === "impact" ? `<div class="impact-list">${shown.map(({ p, u }) => `
+            <a class="impact-item" href="/projects/${slugOf(p)}#updates">
+              <div class="meta">${fmtDate(u.date)}${p.theme ? ` · ${esc(p.theme)}` : ""}</div>
+              <h3>${esc(u.title)}</h3>
+              <div class="excerpt">${md(u.body)}</div>
+              <div class="from">${esc(p.title)} →</div>
+            </a>`).join("")}</div>`
+        : groups.map(([t, xs]) => `
           <section class="theme-group">
             <h3 class="theme-title">${esc(t)} <span class="count">${xs.length}</span></h3>
             <div class="grid">${xs.map(({ p, i }) => card(p, i, journey(p))).join("")}</div>
-          </section>`).join("") : `<p class="empty">No projects yet. Add one from the admin page.</p>`}
+          </section>`).join("");
+      app.innerHTML = `
+        ${stageNav(slug)}
+        <header class="stage-hero s${cfg.n}">
+          <img src="${cfg.hero}" alt="" width="400" height="200">
+          <div class="stage-hero-text"><h1>${cfg.title}</h1><p>${sub}</p></div>
+        </header>
+        <section class="stage-lead s${cfg.n}">
+          <p class="big">${cfg.lead}</p>
+          <ul class="meaning">${cfg.tags.map(([t, d]) => `<li>${ICON(d)}<span>${t}</span></li>`).join("")}</ul>
+        </section>
+        ${slug === "impact" && numbers.length ? `
+          <h2 class="section-title lined">Impact in numbers</h2>
+          <div class="impact-numbers">${numbers.map(({ p, x }) => `<a href="/projects/${slugOf(p)}"><b>${esc(x.value)}</b><span>${esc(x.label)}</span><small>${esc(p.title)}</small></a>`).join("")}</div>` : ""}
+        <h2 class="section-title lined">${cfg.heading}</h2>
+        ${themes.length > 1 ? `<div class="filters" role="group" aria-label="Filter by theme">
+          ${["All", ...themes].map(t => `<button class="chip" aria-pressed="${t === filter}" data-t="${esc(t)}">${esc(t)}</button>`).join("")}
+        </div>` : ""}
+        ${body}
         <section class="stage-next">
           <div class="panel idea">
-            <h2>Have an idea for a project?</h2>
-            <p>Every project on this page began with someone reaching out. Tell us about a need you see, and we'll explore it together.</p>
-            <a class="btn" href="/contact">Suggest a project</a>
+            <h2>${cfg.cta.title}</h2>
+            <p>${cfg.cta.text}</p>
+            <a class="btn" href="${cfg.cta.href}">${cfg.cta.btn}</a>
           </div>
-          <a class="next-stage stat-active" href="/activated"><span>Next stage</span><b>Activated →</b><small>See the projects that have moved into action.</small></a>
+          <a class="next-stage to-${cfg.next.slug}" href="/${cfg.next.slug}"><span>${cfg.next.kicker}</span><b>${cfg.next.label} →</b><small>${cfg.next.text}</small></a>
         </section>`;
       app.querySelectorAll(".chip").forEach(b => b.onclick = () => { filter = b.dataset.t; draw(); });
     };
     draw();
   }
-
-  // Stage pages: projects (or impact updates) in sections by theme, with theme filters.
-  function renderStage(app, site, projects, slug) {
-    if (slug === "initiated") return renderInitiated(app, site, projects);
-    const st = STAGES[slug];
-    document.title = `${st.title} · ${site.name}`;
-    const list = slug === "activated" ? projects.filter(isActive) : projects;
-    const items = slug === "impact"
-      ? projects.flatMap((p, i) => (p.updates || []).map(u => ({ p, i, u }))).sort((a, b) => String(b.u.date).localeCompare(String(a.u.date)))
-      : list.map(p => ({ p, i: projects.indexOf(p) }));
-    const themes = [...new Set(items.map(x => x.p.theme || "Other"))];
-    let filter = "All";
-    const tabs = Object.entries(STAGES).map(([k, s]) => `<a class="stage-tab stat-${s.key}" href="/${k}" ${k === slug ? 'aria-current="page"' : ""}>${s.label}</a>`).join("");
-    const draw = () => {
-      const groups = themes.filter(t => filter === "All" || t === filter)
-        .map(t => [t, items.filter(x => (x.p.theme || "Other") === t)]);
-      const body = groups.map(([t, xs]) => `
-        <section class="theme-group">
-          <h2 class="section-title">${esc(t)} <span class="count">${xs.length}</span></h2>
-          ${slug === "impact"
-            ? `<div class="impact-list">${xs.map(({ p, u }) => `
-                <a class="impact-item" href="/projects/${slugOf(p)}#updates">
-                  <div class="meta">${fmtDate(u.date)} · ${esc(p.title)}</div>
-                  <h3>${esc(u.title)}</h3>
-                  <div class="excerpt">${md(u.body)}</div>
-                </a>`).join("")}</div>`
-            : `<div class="grid">${xs.map(({ p, i }) => card(p, i)).join("")}</div>`}
-        </section>`).join("");
-      app.innerHTML = `
-        ${stageNav(slug)}
-        <section class="intro">
-          <h1>${esc(st.title)}</h1>
-          <p>${esc(st.intro)}</p>
-        </section>
-        ${themes.length > 1 ? `<div class="filters" role="group" aria-label="Filter by theme">
-          ${["All", ...themes].map(t => `<button class="chip" aria-pressed="${t === filter}" data-t="${esc(t)}">${esc(t)}</button>`).join("")}
-        </div>` : ""}
-        ${items.length ? body : `<p class="empty">Nothing here yet.</p>`}`;
-      app.querySelectorAll(".chip").forEach(b => b.onclick = () => { filter = b.dataset.t; draw(); });
-    };
-    draw();
-  }
-
 
   function embedFor(url) {
     try {
