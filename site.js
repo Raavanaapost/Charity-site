@@ -173,9 +173,10 @@
       </section>
       <nav class="stages" aria-label="Our projects by stage">
         ${Object.entries(STAGES).map(([slug, st]) => `
-          <a class="stage-art stat-${st.key}" href="/${slug}" aria-label="${st.label}: ${counts[slug]}">
-            <picture><source srcset="/img/stage-${slug}.webp" type="image/webp"><img src="/img/stage-${slug}.jpg" alt="${st.label}" width="640" height="640"></picture>
+          <a class="stage stat-${st.key}" href="/${slug}">
+            <i>${ICONS[st.key]}</i>
             <b>${counts[slug]}</b>
+            <span>${st.label}</span>
           </a>`).join("")}
       </nav>
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
