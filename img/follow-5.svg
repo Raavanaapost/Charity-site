@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" role="img" aria-label="People gathered around a heart">
+<rect width="400" height="160" fill="#7c2d12"/>
+<path d="M0 136C80 118 160 124 230 132 300 140 350 126 400 130V160H0Z" fill="#fff" opacity=".07"/>
+<circle cx="322" cy="80" r="64" fill="#fff" opacity=".1"/>
+<g transform="translate(322.0 39.0)"><circle cx="0" cy="-5" r="7" fill="#fff3d6"/><path d="M-10 13A10 10 0 0 1 10 13Z" fill="#fff3d6"/></g><g transform="translate(359.2 60.5)"><circle cx="0" cy="-5" r="7" fill="#f7c63a"/><path d="M-10 13A10 10 0 0 1 10 13Z" fill="#f7c63a"/></g><g transform="translate(359.2 103.5)"><circle cx="0" cy="-5" r="7" fill="#f0a24a"/><path d="M-10 13A10 10 0 0 1 10 13Z" fill="#f0a24a"/></g><g transform="translate(322.0 125.0)"><circle cx="0" cy="-5" r="7" fill="#fff3d6"/><path d="M-10 13A10 10 0 0 1 10 13Z" fill="#fff3d6"/></g><g transform="translate(284.8 103.5)"><circle cx="0" cy="-5" r="7" fill="#f7c63a"/><path d="M-10 13A10 10 0 0 1 10 13Z" fill="#f7c63a"/></g><g transform="translate(284.8 60.5)"><circle cx="0" cy="-5" r="7" fill="#f0a24a"/><path d="M-10 13A10 10 0 0 1 10 13Z" fill="#f0a24a"/></g><path d="M0 3.2C-5.5-3.4-13 2.6 0 12.5 13 2.6 5.5-3.4 0 3.2Z" transform="translate(322 70) rotate(0) scale(1.9)" fill="#f7c63a"/>
+</svg>

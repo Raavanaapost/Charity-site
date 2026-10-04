@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" role="img" aria-label="A smiling bell">
+<rect width="400" height="160" fill="#8f6200"/>
+<path d="M0 136C80 118 160 124 230 132 300 140 350 126 400 130V160H0Z" fill="#fff" opacity=".07"/>
+<circle cx="322" cy="80" r="64" fill="#fff" opacity=".1"/>
+<g transform="translate(320 82)"><path d="M-36 30C-25 19-25 6-25-8A25 25 0 0 1 25-8C25 6 25 19 36 30Z" fill="#fff3d6"/><circle cx="0" cy="-37" r="5.5" fill="#fff3d6"/><circle cx="0" cy="38" r="8" fill="#f7c63a"/><g fill="none" stroke="#8f6200" stroke-width="2.8" stroke-linecap="round"><path d="M-12 0q3.4-5 6.8 0M5.2 0q3.4-5 6.8 0"/><path d="M-11 9Q0 21 11 9"/></g></g><g fill="none" stroke="#f7c63a" stroke-width="4" stroke-linecap="round"><path d="M270 56q-9 22 0 44M374 56q9 22 0 44"/><path d="M258 46q-14 32 0 64M386 46q14 32 0 64" opacity=".55"/></g><circle cx="352" cy="50" r="11" fill="#c8381e"/><path d="M0 3.2C-5.5-3.4-13 2.6 0 12.5 13 2.6 5.5-3.4 0 3.2Z" transform="translate(352 45.5) rotate(0) scale(0.72)" fill="#fff3d6"/>
+</svg>

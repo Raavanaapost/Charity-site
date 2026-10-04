@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" role="img" aria-label="Two snapshots">
+<rect width="400" height="160" fill="#a82c16"/>
+<path d="M0 136C80 118 160 124 230 132 300 140 350 126 400 130V160H0Z" fill="#fff" opacity=".07"/>
+<circle cx="322" cy="80" r="64" fill="#fff" opacity=".1"/>
+<g transform="translate(296 80) rotate(-11)"><rect x="-29" y="-36" width="58" height="72" rx="4" fill="#fff3d6"/><rect x="-23" y="-30" width="46" height="44" rx="2" fill="#fde3b0"/><circle cx="0" cy="-6" r="11" fill="#f7c63a"/><path d="M-23 4C-10-4 6-2 23 6V14H-23Z" fill="#3f9a5f"/></g><g transform="translate(350 86) rotate(9)"><rect x="-29" y="-36" width="58" height="72" rx="4" fill="#fff3d6"/><rect x="-23" y="-30" width="46" height="44" rx="2" fill="#fde3b0"/><path d="M0 3.2C-5.5-3.4-13 2.6 0 12.5 13 2.6 5.5-3.4 0 3.2Z" transform="translate(0 -19) rotate(0) scale(1.9)" fill="#c8381e"/></g><polygon points="0.0,-5.5 1.5,-1.5 5.5,0.0 1.5,1.5 0.0,5.5 -1.5,1.5 -5.5,0.0 -1.5,-1.5" transform="translate(322 26) rotate(0)" fill="#f7c63a"/><polygon points="0.0,-4.0 1.1,-1.1 4.0,0.0 1.1,1.1 0.0,4.0 -1.1,1.1 -4.0,0.0 -1.1,-1.1" transform="translate(378 34) rotate(15)" fill="#fff3d6"/><polygon points="0.0,-4.0 1.1,-1.1 4.0,0.0 1.1,1.1 0.0,4.0 -1.1,1.1 -4.0,0.0 -1.1,-1.1" transform="translate(268 132) rotate(10)" fill="#f7c63a"/>
+</svg>

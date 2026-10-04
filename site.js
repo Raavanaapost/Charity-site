@@ -168,6 +168,8 @@
     const extras = (site.highlights || []).filter(h => h && h.value);
     const slides = (site.sayings || []).map(x => typeof x === "string" ? { text: x } : x).filter(x => x && x.text);
     const start = slides.length ? Math.floor(Math.random() * slides.length) : 0; // a different slide comes first on each visit
+    const follow = (site.follow || []).filter(x => x && x.title && x.text);
+    const fstart = follow.length ? Math.floor(Math.random() * follow.length) : 0;
     app.innerHTML = `
       <section class="intro">
         <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
@@ -182,10 +184,12 @@
           </a>`).join("")}
       </nav>
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
-      <section class="signup-band">${signupHTML("home")}</section>`;
+      <section class="signup-band">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
     wireForms(app);
     fitHeadline();
+    rotTimers.forEach(clearInterval); rotTimers = [];
     startSayings(app);
+    startFollow(app);
   }
 
   // Rotating messages under the home headline.
@@ -201,41 +205,77 @@
     </div>`;
   }
 
-  let sayingsTimer;
-  function startSayings(root) {
-    const box = root.querySelector(".sayings");
-    clearInterval(sayingsTimer);
-    if (!box) return;
-    const items = [...box.querySelectorAll(".saying")], dots = [...box.querySelectorAll(".sayings-dots button")];
-    const track = box.querySelector(".sayings-track");
-    const fit = () => { track.style.minHeight = Math.max(...items.map(el => el.scrollHeight)) + "px"; };
-    fit(); window.addEventListener("resize", fit); if (document.fonts) document.fonts.ready.then(fit);
-    box.querySelectorAll("img").forEach(im => im.addEventListener("load", fit));
+  // Shared slideshow engine: fades between items, with dots, swipe, and pauses while touched, hovered or typed in.
+  let rotTimers = [];
+  function rotator(box, o) {
+    const items = [...box.querySelectorAll(o.item)], dots = [...box.querySelectorAll(o.dots)];
     if (items.length < 2) return;
-    const head = root.querySelector(".headline");
-    let cur = Number(box.dataset.start) || 0, paused = false, headTimer;
+    let cur = o.start || 0, paused = false, timer;
     const show = n => {
       const next = (n + items.length) % items.length;
       if (next === cur) return;
       cur = next;
       items.forEach((el, i) => { el.classList.toggle("on", i === cur); el.setAttribute("aria-hidden", String(i !== cur)); });
       dots.forEach((d, i) => d.setAttribute("aria-current", String(i === cur)));
-      // the headline changes with its slide
-      if (head) {
-        clearTimeout(headTimer);
-        head.style.opacity = "0";
-        headTimer = setTimeout(() => { head.innerHTML = headline(items[cur].dataset.title); fitHeadline(); head.style.opacity = "1"; }, 320);
-      }
+      if (o.onShow) o.onShow(items[cur]);
     };
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const restart = () => { clearInterval(timer); if (!reduce) { timer = setInterval(() => { if (!paused && !document.hidden) show(cur + 1); }, o.interval || 6500); rotTimers.push(timer); } };
     dots.forEach((d, i) => d.onclick = () => { show(i); restart(); });
-    let x0 = null;
+    const track = items[0].parentNode; let x0 = null;
     track.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; paused = true; }, { passive: true });
     track.addEventListener("touchend", e => { if (x0 !== null) { const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) show(cur + (dx < 0 ? 1 : -1)); } x0 = null; paused = false; restart(); });
     box.addEventListener("mouseenter", () => paused = true);
     box.addEventListener("mouseleave", () => paused = false);
-    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const restart = () => { clearInterval(sayingsTimer); if (!reduce) sayingsTimer = setInterval(() => { if (!paused && !document.hidden) show(cur + 1); }, 6500); };
+    box.addEventListener("focusin", e => { if (e.target.matches("input,textarea,select")) paused = true; });
+    box.addEventListener("focusout", () => paused = false);
     restart();
+  }
+
+  // Swap a heading's text with a short fade.
+  function fadeText(el, html, after) {
+    if (!el) return;
+    clearTimeout(el._t); el.style.opacity = "0";
+    el._t = setTimeout(() => { el.innerHTML = html; if (after) after(); el.style.opacity = "1"; }, 320);
+  }
+
+  function startSayings(root) {
+    const box = root.querySelector(".sayings");
+    if (!box) return;
+    const head = root.querySelector(".headline");
+    rotator(box, { item: ".saying", dots: ".sayings-dots button", start: Number(box.dataset.start) || 0, interval: 6500,
+      onShow: el => fadeText(head, headline(el.dataset.title), fitHeadline) });
+  }
+
+  // Sign-up box on the home page: rotating title + message on a small picture.
+  function followHTML(site, list, start) {
+    const cur = list[start];
+    const slide = (x, i) => `<figure class="follow-slide${i === start ? " on" : ""}${x.image && !/\.svg$/i.test(x.image) ? " photo" : ""}" aria-hidden="${i !== start}" data-title="${esc(x.title)}">
+        ${x.image ? `<img src="${esc(/\.svg$/i.test(x.image) ? x.image : imgUrl(x.image, 900))}" alt="" width="400" height="160">` : ""}
+        <figcaption>${esc(x.text)}</figcaption>
+      </figure>`;
+    return `
+    <form class="panel follow follow-rot" name="updates" data-ajax data-start="${start}" data-done="Thank you! We'll email you when we post new updates.">
+      <h2 class="follow-title">${esc(cur.title)}</h2>
+      <div class="follow-track">${list.map(slide).join("")}</div>
+      ${list.length > 1 ? `<div class="sayings-dots follow-dots">${list.map((_, i) => `<button type="button" aria-label="Message ${i + 1}" aria-current="${i === start}"></button>`).join("")}</div>` : ""}
+      <input type="hidden" name="form-name" value="updates">
+      <input type="hidden" name="page" value="home">
+      <p hidden><label>Leave empty <input name="bot-field"></label></p>
+      <label class="sr" for="su-name-home">Name</label>
+      <input id="su-name-home" name="name" autocomplete="name" placeholder="Your name (optional)">
+      <label class="sr" for="su-email-home">Email</label>
+      <input id="su-email-home" name="email" type="email" required autocomplete="email" placeholder="you@example.com">
+      <button class="btn" type="submit">Keep me posted</button>
+      <p class="note" data-msg hidden></p>
+    </form>`;
+  }
+  function startFollow(root) {
+    const box = root.querySelector(".follow-rot");
+    if (!box) return;
+    const title = box.querySelector(".follow-title");
+    rotator(box, { item: ".follow-slide", dots: ".follow-dots button", start: Number(box.dataset.start) || 0, interval: 7600,
+      onShow: el => fadeText(title, esc(el.dataset.title)) });
   }
 
   // Stage pages: projects (or impact updates) in sections by theme, with theme filters.

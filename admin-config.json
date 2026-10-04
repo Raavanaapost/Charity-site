@@ -360,6 +360,35 @@
               ]
             },
             {
+              "name": "follow",
+              "label": "Sign-up box slides",
+              "label_singular": "Slide",
+              "widget": "list",
+              "required": false,
+              "summary": "{{fields.title}}",
+              "hint": "The box where visitors leave their email. Each slide has a title and a short message shown on top of a small picture. A different one comes first on each visit.",
+              "fields": [
+                {
+                  "name": "title",
+                  "label": "Title",
+                  "widget": "string"
+                },
+                {
+                  "name": "text",
+                  "label": "Message",
+                  "widget": "text",
+                  "hint": "One or two short sentences."
+                },
+                {
+                  "name": "image",
+                  "label": "Picture",
+                  "widget": "image",
+                  "required": false,
+                  "hint": "Wide and not too busy, so the message stays readable on top."
+                }
+              ]
+            },
+            {
               "name": "highlights",
               "label": "Extra home page numbers",
               "label_singular": "Number",

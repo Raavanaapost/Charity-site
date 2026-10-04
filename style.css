@@ -274,3 +274,19 @@ footer .wrap{padding-block:28px;display:flex;justify-content:space-between;gap:1
 .stage.art.stat-active{--c:#eaa21c;--c2:#f8d572}
 .stage.art.stat-active span,.stage.art.stat-active b{color:#3b2400;text-shadow:0 1px 0 rgba(255,255,255,.4)}
 .stage.art.stat-updates{--c2:#e0694f}
+
+/* sign-up box: no gap under the title; message runs on top of a small picture */
+.follow h2{margin-bottom:0}
+.follow{gap:8px}
+.follow > .note{margin-top:-2px}
+.follow-title{transition:opacity .32s ease}
+.follow-track{display:grid}
+.follow-slide{grid-area:1/1;margin:0;position:relative;display:flex;align-items:center;min-height:124px;border-radius:12px;overflow:hidden;background:var(--brand);opacity:0;transition:opacity .7s ease;pointer-events:none}
+.follow-slide.on{opacity:1;pointer-events:auto}
+.follow-slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:right center}
+.follow-slide.photo::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.62),rgba(0,0,0,.25) 70%,rgba(0,0,0,.1))}
+.follow-slide figcaption{position:relative;z-index:1;width:59%;padding:14px 0 14px 16px;color:#fff;font-size:15.5px;line-height:1.42;font-weight:500;text-shadow:0 1px 2px rgba(0,0,0,.28)}
+.follow-slide.photo figcaption{width:auto;padding-right:16px}
+.follow-dots{margin-bottom:4px}
+@media (min-width:480px){.follow-slide{min-height:136px}.follow-slide figcaption{font-size:16.5px}}
+@media (prefers-reduced-motion:reduce){.follow-slide,.follow-title{transition:none}}

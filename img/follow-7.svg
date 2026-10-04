@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" role="img" aria-label="An open book">
+<rect width="400" height="160" fill="#0f5132"/>
+<path d="M0 136C80 118 160 124 230 132 300 140 350 126 400 130V160H0Z" fill="#fff" opacity=".07"/>
+<circle cx="322" cy="80" r="64" fill="#fff" opacity=".1"/>
+<g transform="translate(322 104)"><path d="M-50 18V-18Q-25-30 0-16V22Q-25 8-50 18Z" fill="#fff3d6"/><path d="M50 18V-18Q25-30 0-16V22Q25 8 50 18Z" fill="#ffe2a6"/><g stroke="#0f5132" stroke-width="2" stroke-linecap="round" opacity=".35"><path d="M-40-10Q-24-17-9-9M-40-1Q-24-8-9 0M-40 8Q-24 1-9 9M40-10Q24-17 9-9M40-1Q24-8 9 0M40 8Q24 1 9 9"/></g></g><path d="M0 0C6-5 8-13 4-20C-3-15-5-7 0 0Z" transform="translate(284 70) rotate(-30) scale(1.15)" fill="#3f9a5f"/><path d="M0 0C6-5 8-13 4-20C-3-15-5-7 0 0Z" transform="translate(284 70) rotate(40) scale(.95)" fill="#6cc58f"/><polygon points="0.0,-9.0 2.4,-2.4 9.0,0.0 2.4,2.4 0.0,9.0 -2.4,2.4 -9.0,0.0 -2.4,-2.4" transform="translate(322 44) rotate(0)" fill="#f7c63a"/><path d="M0 3.2C-5.5-3.4-13 2.6 0 12.5 13 2.6 5.5-3.4 0 3.2Z" transform="translate(360 52) rotate(10) scale(1.25)" fill="#e0694f"/><path d="M290 82Q322 60 356 78" fill="none" stroke="#f7c63a" stroke-width="2.6" stroke-dasharray="1 8" stroke-linecap="round"/>
+</svg>
