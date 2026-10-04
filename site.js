@@ -82,13 +82,14 @@
       e.preventDefault();
       const btn = f.querySelector("button[type=submit]"), msg = f.querySelector("[data-msg]");
       btn.disabled = true;
+      const fd = new FormData(f); // read the entries before the fields are disabled
       try {
-        const r = await fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams(new FormData(f)).toString() });
+        const r = await fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams(fd).toString() });
         if (!r.ok) throw new Error(r.status);
         f.querySelectorAll("input:not([type=hidden]),textarea,select").forEach(el => el.disabled = true);
         msg.textContent = f.dataset.done; msg.className = "toast";
         if (f.hasAttribute("data-comment")) {
-          const fd = new FormData(f), art = document.createElement("article");
+          const art = document.createElement("article");
           const nm = String(fd.get("name") || "Anonymous");
           art.className = "comment";
           art.innerHTML = `<div class="who"><span class="avatar">${esc(nm.trim().charAt(0).toUpperCase() || "?")}</span><strong>${esc(nm)}</strong><span class="meta">Just now</span></div><p>${esc(fd.get("comment"))}</p>`;
