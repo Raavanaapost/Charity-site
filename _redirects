@@ -1,3 +1,6 @@
+/initiated  /stage.html  200
+/activated  /stage.html  200
+/impact  /stage.html  200
 /projects/*  /project.html  200
 /about  /about.html  200
 /contact  /contact.html  200

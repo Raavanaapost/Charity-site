@@ -151,52 +151,81 @@
       </a>`;
   }
 
-  function renderList(app, site, projects) {
+  const isActive = p => /active/i.test(p.status || "");
+  const STAGES = {
+    initiated: { label: "Initiated", key: "projects", title: "Initiated projects", intro: "Every project we have started, grouped by what it works on." },
+    activated: { label: "Activated", key: "active", title: "Activated projects", intro: "Projects that are running right now." },
+    impact: { label: "Impact", key: "updates", title: "Impact", intro: "News and results from our projects, newest first." }
+  };
+
+  // Home: headline, intro, then the three stage circles. Each circle opens its own page.
+  function renderHome(app, site, projects) {
+    const counts = {
+      initiated: projects.length,
+      activated: projects.filter(isActive).length,
+      impact: projects.reduce((n, p) => n + (p.updates || []).length, 0)
+    };
+    const extras = (site.highlights || []).filter(h => h && h.value);
+    app.innerHTML = `
+      <section class="intro">
+        <h1 class="headline">${headline(site.tagline)}</h1>
+        <p>${esc(site.intro)}</p>
+      </section>
+      <nav class="stages" aria-label="Our projects by stage">
+        ${Object.entries(STAGES).map(([slug, st]) => `
+          <a class="stage stat-${st.key}" href="/${slug}">
+            <i>${ICONS[st.key]}</i>
+            <b>${counts[slug]}</b>
+            <span>${st.label}</span>
+          </a>`).join("")}
+      </nav>
+      ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
+      <section class="signup-band">${signupHTML("home")}</section>`;
+    wireForms(app);
+    fitHeadline();
+  }
+
+  // Stage pages: projects (or impact updates) in sections by theme, with theme filters.
+  function renderStage(app, site, projects, slug) {
+    const st = STAGES[slug];
+    document.title = `${st.title} · ${site.name}`;
+    const list = slug === "activated" ? projects.filter(isActive) : projects;
+    const items = slug === "impact"
+      ? projects.flatMap((p, i) => (p.updates || []).map(u => ({ p, i, u }))).sort((a, b) => String(b.u.date).localeCompare(String(a.u.date)))
+      : list.map(p => ({ p, i: projects.indexOf(p) }));
+    const themes = [...new Set(items.map(x => x.p.theme || "Other"))];
     let filter = "All";
-    const themes = ["All", ...new Set(projects.map(p => p.theme).filter(Boolean))];
-    const fi = Math.max(0, projects.findIndex(p => p.featured));
-    const featured = projects[fi];
-    const active = projects.filter(p => /active/i.test(p.status || "")).length;
-    const updates = projects.reduce((n, p) => n + (p.updates || []).length, 0);
-    const stats = [
-      [projects.length, "Initiated", "projects"],
-      [active, "Activated", "active"],
-      [updates, "Impact", "updates"],
-      ...(site.highlights || []).filter(h => h && h.value).map(h => [h.value, h.label, "extra"])
-    ];
+    const tabs = Object.entries(STAGES).map(([k, s]) => `<a class="stage-tab stat-${s.key}" href="/${k}" ${k === slug ? 'aria-current="page"' : ""}>${s.label}</a>`).join("");
     const draw = () => {
-      const rest = projects.map((p, i) => [p, i]).filter(([p, i]) => (filter !== "All" || i !== fi) && (filter === "All" || p.theme === filter));
+      const groups = themes.filter(t => filter === "All" || t === filter)
+        .map(t => [t, items.filter(x => (x.p.theme || "Other") === t)]);
+      const body = groups.map(([t, xs]) => `
+        <section class="theme-group">
+          <h2 class="section-title">${esc(t)} <span class="count">${xs.length}</span></h2>
+          ${slug === "impact"
+            ? `<div class="impact-list">${xs.map(({ p, u }) => `
+                <a class="impact-item" href="/projects/${slugOf(p)}#updates">
+                  <div class="meta">${fmtDate(u.date)} · ${esc(p.title)}</div>
+                  <h3>${esc(u.title)}</h3>
+                  <div class="excerpt">${md(u.body)}</div>
+                </a>`).join("")}</div>`
+            : `<div class="grid">${xs.map(({ p, i }) => card(p, i)).join("")}</div>`}
+        </section>`).join("");
       app.innerHTML = `
-        ${projects.length ? `<section class="totals" aria-label="At a glance">
-          ${stats.map(([v, l, k]) => `<div class="stat-${k}"><i>${ICONS[k]}</i><p><b>${esc(v)}</b><span>${esc(l)}</span></p></div>`).join("")}
-        </section>` : ""}
+        <nav class="stage-tabs" aria-label="Stages">${tabs}</nav>
         <section class="intro">
-          <h1 class="headline">${headline(site.tagline)}</h1>
-          <p>${esc(site.intro)}</p>
+          <h1>${esc(st.title)}</h1>
+          <p>${esc(st.intro)}</p>
         </section>
-        ${featured ? `<a class="feature" href="/projects/${slugOf(featured)}">
-          <div class="cover" style="${coverStyle(featured, fi)}">${coverHTML(featured, fi, "", 1400)}</div>
-          <div class="body">
-            <span class="eyebrow">Featured project${featured.location ? ` · ${esc(featured.location)}` : ""}</span>
-            <h2>${esc(featured.title)}</h2>
-            <p>${esc(featured.summary)}</p>
-            ${(featured.impact || []).length ? `<div class="mini-stats">${featured.impact.slice(0, 2).map(s => `<div><b>${esc(s.value)}</b><span>${esc(s.label)}</span></div>`).join("")}</div>` : ""}
-            <span class="more">Read the story →</span>
-          </div>
-        </a>` : ""}
-        <h2 class="section-title">${filter === "All" ? "All projects" : esc(filter) + " projects"}</h2>
-        ${themes.length > 2 ? `<div class="filters" role="group" aria-label="Filter by theme">
-          ${themes.map(t => `<button class="chip" aria-pressed="${t === filter}" data-t="${esc(t)}">${esc(t)}</button>`).join("")}
+        ${themes.length > 1 ? `<div class="filters" role="group" aria-label="Filter by theme">
+          ${["All", ...themes].map(t => `<button class="chip" aria-pressed="${t === filter}" data-t="${esc(t)}">${esc(t)}</button>`).join("")}
         </div>` : ""}
-        ${rest.length ? `<section class="grid">${rest.map(([p, i]) => card(p, i)).join("")}</section>`
-          : `<p class="empty">${projects.length ? "No other projects here yet." : "No projects yet. Add one from the admin page."}</p>`}
-        <section class="signup-band">${signupHTML("home")}</section>`;
+        ${items.length ? body : `<p class="empty">Nothing here yet.</p>`}`;
       app.querySelectorAll(".chip").forEach(b => b.onclick = () => { filter = b.dataset.t; draw(); });
-      wireForms(app);
-      fitHeadline();
     };
     draw();
   }
+
 
   function embedFor(url) {
     try {
@@ -338,9 +367,12 @@
       } else if (page === "about") {
         document.title = `About · ${site.name}`;
         renderAbout(app, site);
+      } else if (page === "stage") {
+        const slug = location.pathname.replace(/\/+$/, "").split("/").pop();
+        renderStage(app, site, projects, STAGES[slug] ? slug : "initiated");
       } else {
         document.title = site.name;
-        renderList(app, site, projects);
+        renderHome(app, site, projects);
       }
     } catch (e) {
       app.innerHTML = `<p class="empty">The page couldn't load its content. Refresh to try again.</p>`;
