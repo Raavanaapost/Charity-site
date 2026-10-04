@@ -362,7 +362,7 @@
         ["Real connection", '<path d="M12 20s-7.5-4.6-7.5-10.200A4.3 4.3 0 0 1 12 7.600a4.3 4.3 0 0 1 7.5 2.200c0 5.6-7.5 10.2-7.5 10.200z"/>'],
         ["Lasting difference", '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/>']
       ],
-      heading: 'Projects that created <span class="stage-word s3">Impact</span>', empty: "No impact updates yet. Add them to a project in the admin page.",
+      heading: '<span class="stage-word s3">Impact</span> Stories', empty: "No impact updates yet. Add them to a project in the admin page.",
       cta: { title: "Be part of the next one", text: "Every smile on this page started with people who cared. Stay close and see what we create together next.", btn: "Keep me posted", href: "/#keep-posted" },
       next: { slug: "initiated", kicker: "Back to the start", label: "Initiated", text: "See every project from where it began." }
     }
