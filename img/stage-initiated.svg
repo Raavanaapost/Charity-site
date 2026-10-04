@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Initiated: a sunrise and a new sprout">
+<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffaf0"/><stop offset="1" stop-color="#fde3b0"/></linearGradient>
+<linearGradient id="sun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7c63a"/><stop offset="1" stop-color="#e5851a"/></linearGradient>
+<linearGradient id="rise" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#f2b21c"/><stop offset=".55" stop-color="#e5851a"/><stop offset="1" stop-color="#c8381e"/></linearGradient>
+<clipPath id="c"><circle cx="100" cy="100" r="100"/></clipPath>
+<clipPath id="h"><path d="M0 3.2C-5.5-3.4-13 2.6 0 12.5 13 2.6 5.5-3.4 0 3.2Z"/></clipPath>
+</defs>
+<g clip-path="url(#c)">
+<rect width="200" height="200" fill="url(#sky)"/>
+<g stroke="#e5851a" stroke-width="4.6" stroke-linecap="round" opacity="1"><line x1="65.4" y1="76.0" x2="42.8" y2="63.0"/><line x1="74.3" y1="65.4" x2="64.0" y2="53.1"/><line x1="86.3" y1="58.4" x2="77.4" y2="34.0"/><line x1="100.0" y1="56.0" x2="100.0" y2="40.0"/><line x1="113.7" y1="58.4" x2="122.6" y2="34.0"/><line x1="125.7" y1="65.4" x2="136.0" y2="53.1"/><line x1="134.6" y1="76.0" x2="157.2" y2="63.0"/></g><circle cx="100" cy="96" r="31" fill="url(#sun)"/><path d="M0 3.2C-5.5-3.4-13 2.6 0 12.5 13 2.6 5.5-3.4 0 3.2Z" transform="translate(52 32) rotate(-14) scale(.95)" fill="#c8381e"/><path d="M0 3.2C-5.5-3.4-13 2.6 0 12.5 13 2.6 5.5-3.4 0 3.2Z" transform="translate(150 28) rotate(12) scale(.75)" fill="#e5851a"/><path d="M0 3.2C-5.5-3.4-13 2.6 0 12.5 13 2.6 5.5-3.4 0 3.2Z" transform="translate(102 10) rotate(-4) scale(.55)" fill="#f2b21c"/><g transform="translate(30 114) scale(1)"><circle cx="0" cy="-31" r="6.6" fill="#c8381e"/><path d="M-4.5-19-13-31M4.5-19 13-31" stroke="#c8381e" stroke-width="5.4" stroke-linecap="round" fill="none"/><rect x="-6.5" y="-23" width="13" height="30" rx="5.5" fill="#c8381e"/></g><g transform="translate(171 111) scale(0.94)"><circle cx="0" cy="-31" r="6.6" fill="#e5851a"/><path d="M-4.5-19-13-31M4.5-19 13-31" stroke="#e5851a" stroke-width="5.4" stroke-linecap="round" fill="none"/><rect x="-6.5" y="-23" width="13" height="30" rx="5.5" fill="#e5851a"/></g>
+<path d="M0 112C35 94 70 96 100 106 130 116 165 94 200 102V200H0Z" fill="#3f9a5f"/>
+
+<path d="M0 126C40 108 75 110 105 118 135 126 168 112 200 118V200H0Z" fill="#0f5132"/>
+<path d="M100 122C100 108 99.4 94 100 76" stroke="#0f5132" stroke-width="4.6" stroke-linecap="round" fill="none"/><path d="M100 98C86 98 73 89 70 73 87 73 98 83 100 98Z" fill="#1f7a47"/><path d="M100 89C114 89 128 79 131 61 113 62 101 74 100 89Z" fill="#3f9a5f"/>
+</g>
+</svg>

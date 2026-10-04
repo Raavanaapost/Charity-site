@@ -173,7 +173,7 @@
       </section>
       <nav class="stages" aria-label="Our projects by stage">
         ${Object.entries(STAGES).map(([slug, st]) => `
-          <a class="stage stat-${st.key}" href="/${slug}">
+          <a class="stage art stat-${st.key}" href="/${slug}">
             <i>${ICONS[st.key]}</i>
             <b>${counts[slug]}</b>
             <span>${st.label}</span>

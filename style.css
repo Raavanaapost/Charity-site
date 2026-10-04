@@ -247,3 +247,12 @@ footer .wrap{padding-block:28px;display:flex;justify-content:space-between;gap:1
 .sayings-dots button{width:8px;height:8px;padding:0;border:0;border-radius:999px;background:var(--line);cursor:pointer;transition:width .3s,background .3s}
 .sayings-dots button[aria-current="true"]{width:22px;background:var(--sun)}
 @media (prefers-reduced-motion:reduce){.saying,.sayings-dots button{transition:none}}
+
+/* stage circles with illustrations (img/stage-*.svg); the label and count are text on top, so counts update on their own */
+.stage.art{background:var(--art) center/cover padding-box,conic-gradient(from 210deg,var(--c),var(--c2),var(--c)) border-box;justify-content:flex-end;padding-bottom:clamp(6px,1.7vw,17px);gap:1px}
+.stage.art.stat-projects{--art:url(/img/stage-initiated.svg)}
+.stage.art.stat-active{--art:url(/img/stage-activated.svg)}
+.stage.art.stat-updates{--art:url(/img/stage-impact.svg)}
+.stage.art i{display:none}
+.stage.art span{order:1;font-family:"Inter",var(--display);font-weight:900;font-size:clamp(11.5px,3.15vw,19px);letter-spacing:.03em;color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.28)}
+.stage.art b{order:2;font-family:"Inter",var(--display);font-weight:900;font-size:clamp(19px,5vw,32px);color:#ffd76a;text-shadow:0 1px 0 rgba(0,0,0,.25)}
