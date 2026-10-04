@@ -165,7 +165,7 @@ footer .wrap{padding-block:28px;display:flex;justify-content:space-between;gap:1
 .intro .headline{max-width:100%;font-size:clamp(22px,6.4vw,58px)}
 .headline{font-family:"Merriweather",Georgia,"Times New Roman",serif;font-weight:900;color:var(--brand);font-size:clamp(20px,5.8vw,56px);line-height:1.15;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;padding-top:.12em}
 .headline .dash{color:var(--sun);font-weight:700;margin-inline:.05em}
-.headline .initial{font-family:"Kaushan Script","Brush Script MT",cursive;font-weight:400;font-size:1.55em;line-height:.7;display:inline-block;margin-right:.03em;vertical-align:-.06em;color:var(--flame);background:linear-gradient(165deg,var(--gold) 5%,var(--sun) 40%,var(--flame) 85%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding:.08em .04em 0 0}
+.headline .initial{font-family:"Playfair Display",Didot,"Bodoni MT",Georgia,serif;font-weight:800;font-size:1.45em;line-height:.7;display:inline-block;margin-right:.03em;vertical-align:-.06em;color:var(--flame);background:linear-gradient(165deg,var(--gold) 5%,var(--sun) 40%,var(--flame) 85%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding:.08em .04em 0 0}
 
 /* comments under the Impact tab */
 .comments{max-width:65ch;margin-top:36px;padding-top:24px;border-top:2px solid var(--line);display:grid;gap:14px}
@@ -224,3 +224,6 @@ footer .wrap{padding-block:28px;display:flex;justify-content:space-between;gap:1
 .impact-item{display:block;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--flame);border-radius:var(--r);padding:14px 18px;text-decoration:none;color:inherit}
 .impact-item h3{font-size:19px;margin:4px 0 6px}
 .impact-item .excerpt p{margin:0;color:var(--muted)}
+
+/* home: headline sits closer to the top */
+.wrap > .intro:first-child{padding-block:22px 22px}
