@@ -1,6 +1,7 @@
 /* Shared site script: loads content/*.json and renders the current page.
    Content is edited from /admin — no code changes needed for new projects. */
 (function () {
+  let COMMENTS = [];
   const PALETTES = [
     ["#2f7f8f", "#163a45", "#f2c14e"], ["#c0583a", "#5a2a2a", "#f6d79a"],
     ["#3d7a4f", "#1b3a2a", "#9fd3c7"], ["#b07d2b", "#4a3418", "#f1e3b5"],
@@ -202,6 +203,31 @@
     return null;
   }
 
+  // Visitor comments: shown only after an admin approves them in the admin page.
+  function commentsHTML(slug) {
+    const list = COMMENTS.filter(c => c && c.approved && c.project === slug && c.comment)
+      .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+    return `
+      <section class="comments" aria-labelledby="c-title">
+        <h2 id="c-title">Comments${list.length ? ` (${list.length})` : ""}</h2>
+        ${list.length ? list.map(c => `<article class="comment">
+            <div class="who"><span class="avatar">${esc(String(c.name || "?").trim().charAt(0).toUpperCase() || "?")}</span><strong>${esc(c.name || "Anonymous")}</strong><span class="meta">${fmtDate(c.date)}</span></div>
+            <p>${esc(c.comment)}</p>
+          </article>`).join("") : `<p class="note">No comments yet. Be the first to share a few kind words.</p>`}
+        <form class="panel form comment-form" name="comments" data-ajax data-done="Thank you! Your comment will appear after our team reviews it.">
+          <h3>Leave a comment</h3>
+          <input type="hidden" name="form-name" value="comments">
+          <input type="hidden" name="project" value="${esc(slug)}">
+          <p hidden><label>Leave empty <input name="bot-field"></label></p>
+          <label for="cm-name">Your name<input id="cm-name" name="name" required maxlength="80" autocomplete="name"></label>
+          <label for="cm-text">Comment<textarea id="cm-text" name="comment" required maxlength="2000"></textarea></label>
+          <button class="btn" type="submit">Post comment</button>
+          <p class="note">Comments are checked by our team before they appear.</p>
+          <p class="note" data-msg hidden></p>
+        </form>
+      </section>`;
+  }
+
   function renderProject(app, site, projects, slug) {
     const i = projects.findIndex(p => slugOf(p) === slug);
     const p = projects[i];
@@ -224,7 +250,7 @@
 
     const panes = {
       story: `<div class="story">${p.quote ? `<p class="pull">“${esc(p.quote)}”</p>` : ""}${md(p.story)}</div>`,
-      updates: updates.length ? updates.map(u => `<article class="update"><div class="meta">${fmtDate(u.date)}</div><h3>${esc(u.title)}</h3><div>${md(u.body)}</div></article>`).join("") : `<p class="empty">No impact updates yet.</p>`,
+      updates: (updates.length ? updates.map(u => `<article class="update"><div class="meta">${fmtDate(u.date)}</div><h3>${esc(u.title)}</h3><div>${md(u.body)}</div></article>`).join("") : `<p class="empty">No impact updates yet.</p>`) + commentsHTML(slugOf(p)),
       pictures: photos.length ? `<div class="photos">${photos.map((ph, k) => `<figure><button data-src="${esc(imgUrl(ph.image, 1600))}" aria-label="Open picture"><div class="cover"><img src="${esc(imgUrl(ph.image, 600))}" alt="${esc(ph.caption)}" loading="lazy"></div></button>${ph.caption ? `<figcaption>${esc(ph.caption)}</figcaption>` : ""}</figure>`).join("")}</div>` : `<p class="empty">No pictures yet.</p>`,
       video: media.length ? `<div class="media">${media.map(m => { const e = embedFor(m.url); return e ? `<figure style="margin:0"><div class="embed"><iframe src="${esc(e)}" title="${esc(m.title)}" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy"></iframe></div>${m.title ? `<figcaption class="note" style="padding-top:6px">${esc(m.title)}</figcaption>` : ""}</figure>` : `<a class="media-link" href="${esc(m.url)}" target="_blank" rel="noopener">▶ ${esc(m.title || m.url)}</a>`; }).join("")}</div>` : `<p class="empty">No videos yet.</p>`
     };
@@ -281,7 +307,8 @@
     const app = document.getElementById("app");
     const page = document.body.dataset.page;
     try {
-      const [site, data] = await Promise.all([load("/site.json"), load("/projects.json")]);
+      const [site, data, cm] = await Promise.all([load("/site.json"), load("/projects.json"), load("/comments.json").catch(() => ({}))]);
+      COMMENTS = (cm && cm.comments) || [];
       frame(site);
       const projects = (data.projects || []).filter(p => p && p.title && !p.hidden);
       if (page === "contact") {

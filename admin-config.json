@@ -242,6 +242,66 @@
       ]
     },
     {
+      "name": "comments",
+      "label": "Comments",
+      "icon": "forum",
+      "files": [
+        {
+          "name": "all-comments",
+          "label": "Visitor comments",
+          "file": "comments.json",
+          "format": "json",
+          "fields": [
+            {
+              "name": "comments",
+              "label": "Comments",
+              "label_singular": "Comment",
+              "widget": "list",
+              "collapsed": true,
+              "summary": "{{fields.approved}} \u00b7 {{fields.name}} on {{fields.project}}",
+              "hint": "New comments arrive here automatically with Approved switched off. Read them, switch on Approved to show one on the site, or delete it.",
+              "fields": [
+                {
+                  "name": "approved",
+                  "label": "Approved (show on the site)",
+                  "widget": "boolean",
+                  "default": false
+                },
+                {
+                  "name": "name",
+                  "label": "Name",
+                  "widget": "string"
+                },
+                {
+                  "name": "project",
+                  "label": "Project link name",
+                  "widget": "string",
+                  "hint": "Which project this comment belongs to."
+                },
+                {
+                  "name": "comment",
+                  "label": "Comment",
+                  "widget": "text"
+                },
+                {
+                  "name": "date",
+                  "label": "Date",
+                  "widget": "string",
+                  "required": false
+                },
+                {
+                  "name": "id",
+                  "label": "Reference",
+                  "widget": "hidden",
+                  "required": false
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "settings",
       "label": "Site settings",
       "icon": "settings",

@@ -171,3 +171,13 @@ footer .wrap{padding-block:28px;display:flex;justify-content:space-between;gap:1
 .headline{font-family:"Merriweather",Georgia,"Times New Roman",serif;font-weight:900;color:var(--brand);font-size:clamp(20px,5.8vw,56px);line-height:1.15;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;padding-top:.12em}
 .headline .dash{color:var(--sun);font-weight:700;margin-inline:.05em}
 .headline .initial{font-family:"Kaushan Script","Brush Script MT",cursive;font-weight:400;font-size:1.55em;line-height:.7;display:inline-block;margin-right:.03em;vertical-align:-.06em;color:var(--flame);background:linear-gradient(165deg,var(--gold) 5%,var(--sun) 40%,var(--flame) 85%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding:.08em .04em 0 0}
+
+/* comments under the Impact tab */
+.comments{max-width:65ch;margin-top:36px;padding-top:24px;border-top:2px solid var(--line);display:grid;gap:14px}
+.comments h2{font-size:22px}
+.comment{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.comment .who{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--display)}
+.comment .avatar{width:30px;height:30px;font-size:14px}
+.comment p{margin:8px 0 0}
+.comment-form h3{font-size:18px}
+.comment-form textarea{min-height:110px}
