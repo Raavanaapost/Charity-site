@@ -124,5 +124,25 @@
       "text": "A kind word means a lot to our team and the kids. We read every message.",
       "image": "/img/contact-5.svg"
     }
+  ],
+  "impact": [
+    {
+      "label": "Trips & Events",
+      "count": "trips"
+    },
+    {
+      "label": "Volunteers",
+      "count": "manual",
+      "value": "25"
+    },
+    {
+      "label": "Local visits",
+      "count": "manual",
+      "value": "12"
+    },
+    {
+      "label": "Stories",
+      "count": "stories"
+    }
   ]
 }

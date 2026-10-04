@@ -373,7 +373,20 @@
     document.title = `${cfg.title} · ${site.name}`;
     const reached = projects.filter(p => stageNum(p) >= Math.min(cfg.n, 2));
     const stories = projects.flatMap((p, i) => (p.updates || []).map(u => ({ p, i, u }))).sort((a, b) => String(b.u.date).localeCompare(String(a.u.date)));
-    const numbers = projects.flatMap(p => (p.impact || []).filter(x => x && x.value).map(x => ({ p, x })));
+    // "Impact in numbers": the tiles set in the admin page (Site settings). Some count themselves from the site;
+    // the rest show the number typed in. With none set, each project's own numbers are shown instead.
+    const auto = {
+      trips: () => projects.filter(p => p.theme === "Trips & Events").length,
+      projects: () => projects.length,
+      stories: () => projects.reduce((n, p) => n + (p.updates || []).length, 0)
+    };
+    const tiles = (site.impact || []).filter(x => x && x.label).map(x => ({
+      label: x.label,
+      value: auto[x.count] ? String(auto[x.count]()) : String(x.value == null ? "" : x.value),
+      href: x.count === "trips" || x.count === "projects" ? "/initiated" : x.count === "stories" ? "#stories" : /volunteer/i.test(x.label) ? "/volunteer" : ""
+    })).filter(x => x.value !== "");
+    const numbers = tiles.length ? tiles.map(x => ({ x }))
+      : projects.flatMap(p => (p.impact || []).filter(x => x && x.value).map(x => ({ p, x })));
     const items = slug === "impact" ? stories : reached.map(p => ({ p, i: projects.indexOf(p) }));
     // Categories always appear in this order; any others follow, with Other last.
     const ORDER = ["Trips & Events", "Education"];
@@ -413,8 +426,8 @@
         </section>
         ${slug === "impact" && numbers.length ? `
           <h2 class="section-title lined"><span class="stage-word s3">Impact</span> in numbers</h2>
-          <div class="impact-numbers">${numbers.map(({ p, x }) => `<a href="/projects/${slugOf(p)}"><b>${esc(x.value)}</b><span>${esc(x.label)}</span><small>${esc(p.title)}</small></a>`).join("")}</div>` : ""}
-        <h2 class="section-title lined">${cfg.heading}</h2>
+          <div class="impact-numbers">${numbers.map(({ p, x }) => { const href = p ? `/projects/${slugOf(p)}` : x.href; return `<${href ? `a href="${esc(href)}"` : "div"}><b>${esc(x.value)}</b><span>${esc(x.label)}</span>${p ? `<small>${esc(p.title)}</small>` : ""}</${href ? "a" : "div"}>`; }).join("")}</div>` : ""}
+        <h2 class="section-title lined" id="stories">${cfg.heading}</h2>
         ${themes.length > 1 ? `<div class="filters" role="group" aria-label="Filter by theme">
           ${["All", ...themes].map(t => `<button class="chip" aria-pressed="${t === filter}" data-t="${esc(t)}">${esc(t)}</button>`).join("")}
         </div>` : ""}

@@ -442,6 +442,54 @@
               ]
             },
             {
+              "name": "impact",
+              "label": "Impact in numbers",
+              "label_singular": "Number",
+              "widget": "list",
+              "required": false,
+              "summary": "{{fields.label}}",
+              "hint": "The number tiles at the top of the Impact page. Type a number yourself, or let the site count it for you.",
+              "fields": [
+                {
+                  "name": "label",
+                  "label": "What it counts",
+                  "widget": "string",
+                  "hint": "For example: Volunteers"
+                },
+                {
+                  "name": "count",
+                  "label": "Where the number comes from",
+                  "widget": "select",
+                  "default": "manual",
+                  "options": [
+                    {
+                      "label": "I type the number below",
+                      "value": "manual"
+                    },
+                    {
+                      "label": "Count the Trips & Events projects",
+                      "value": "trips"
+                    },
+                    {
+                      "label": "Count the stories posted",
+                      "value": "stories"
+                    },
+                    {
+                      "label": "Count all projects",
+                      "value": "projects"
+                    }
+                  ]
+                },
+                {
+                  "name": "value",
+                  "label": "Number",
+                  "widget": "string",
+                  "required": false,
+                  "hint": "Only needed when you type the number yourself, e.g. 25"
+                }
+              ]
+            },
+            {
               "name": "highlights",
               "label": "Extra home page numbers",
               "label_singular": "Number",
