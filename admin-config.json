@@ -457,6 +457,13 @@
                   "hint": "For example: Volunteers"
                 },
                 {
+                  "name": "note",
+                  "label": "Short message",
+                  "widget": "string",
+                  "required": false,
+                  "hint": "A few words shown under the title, e.g. Friends who show up"
+                },
+                {
                   "name": "count",
                   "label": "Where the number comes from",
                   "widget": "select",

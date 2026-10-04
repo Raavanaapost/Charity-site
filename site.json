@@ -128,21 +128,25 @@
   "impact": [
     {
       "label": "Trips & Events",
-      "count": "trips"
+      "count": "trips",
+      "note": "Days out the kids remember"
     },
     {
       "label": "Volunteers",
       "count": "manual",
-      "value": "25"
+      "value": "25",
+      "note": "Friends who show up"
     },
     {
       "label": "Local visits",
       "count": "manual",
-      "value": "12"
+      "value": "12",
+      "note": "Time with our neighbours"
     },
     {
       "label": "Stories",
-      "count": "stories"
+      "count": "stories",
+      "note": "Moments worth sharing"
     }
   ]
 }

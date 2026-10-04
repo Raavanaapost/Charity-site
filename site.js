@@ -381,7 +381,7 @@
       stories: () => projects.reduce((n, p) => n + (p.updates || []).length, 0)
     };
     const tiles = (site.impact || []).filter(x => x && x.label).map(x => ({
-      label: x.label,
+      label: x.label, note: x.note || "",
       value: auto[x.count] ? String(auto[x.count]()) : String(x.value == null ? "" : x.value),
       href: x.count === "trips" || x.count === "projects" ? "/initiated" : x.count === "stories" ? "#stories" : /volunteer/i.test(x.label) ? "/volunteer" : ""
     })).filter(x => x.value !== "");
@@ -426,7 +426,7 @@
         </section>
         ${slug === "impact" && numbers.length ? `
           <h2 class="section-title lined"><span class="stage-word s3">Impact</span> in numbers</h2>
-          <div class="impact-numbers">${numbers.map(({ p, x }) => { const href = p ? `/projects/${slugOf(p)}` : x.href; return `<${href ? `a href="${esc(href)}"` : "div"}><b>${esc(x.value)}</b><span>${esc(x.label)}</span>${p ? `<small>${esc(p.title)}</small>` : ""}</${href ? "a" : "div"}>`; }).join("")}</div>` : ""}
+          <div class="impact-numbers">${numbers.map(({ p, x }) => { const href = p ? `/projects/${slugOf(p)}` : x.href; return `<${href ? `a href="${esc(href)}"` : "div"}><b>${esc(x.value)}</b><span>${esc(x.label)}</span>${p ? `<small>${esc(p.title)}</small>` : x.note ? `<small>${esc(x.note)}</small>` : ""}</${href ? "a" : "div"}>`; }).join("")}</div>` : ""}
         <h2 class="section-title lined" id="stories">${cfg.heading}</h2>
         ${themes.length > 1 ? `<div class="filters" role="group" aria-label="Filter by theme">
           ${["All", ...themes].map(t => `<button class="chip" aria-pressed="${t === filter}" data-t="${esc(t)}">${esc(t)}</button>`).join("")}
