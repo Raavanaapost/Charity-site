@@ -70,5 +70,32 @@
   ],
   "facebook": "",
   "instagram": "",
-  "email": ""
+  "email": "",
+  "volunteer": [
+    {
+      "title": "Give an Hour",
+      "text": "One hour of your time can make a child's whole day. Come help at an event and see it for yourself.",
+      "image": "/img/volunteer-1.svg"
+    },
+    {
+      "title": "Share a Skill",
+      "text": "Coaching, cooking, driving, organizing, taking photos. Whatever you're good at, we have a place for it.",
+      "image": "/img/volunteer-2.svg"
+    },
+    {
+      "title": "Bring a Friend",
+      "text": "Volunteering is better together. Bring a friend, a family member or your whole team.",
+      "image": "/img/volunteer-3.svg"
+    },
+    {
+      "title": "Lead an Activity",
+      "text": "Run a game, host a bowling lane or guide a group of kids. We'll show you how.",
+      "image": "/img/volunteer-4.svg"
+    },
+    {
+      "title": "Join the Family",
+      "text": "Our volunteers come back because of the smiles. Join once and you'll understand why.",
+      "image": "/img/volunteer-5.svg"
+    }
+  ]
 }

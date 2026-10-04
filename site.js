@@ -70,7 +70,7 @@
         <nav class="foot-cols" aria-label="Footer">
           ${col("Explore", [["Home", "/"], ["About us", "/about"], ["Contact", "/contact"]])}
           ${col("Our stages", [["Initiated", "/initiated"], ["Activated", "/activated"], ["Impact", "/impact"]])}
-          ${col("Get involved", [["Volunteer with us", "/contact"], ["Suggest a project", "/contact"], ["Partner with us", "/contact"]])}
+          ${col("Get involved", [["Volunteer with us", "/volunteer"], ["Suggest a project", "/contact"], ["Partner with us", "/contact"]])}
           ${follow.length ? col("Follow us", follow) : ""}
         </nav>
       </div></div>
@@ -293,11 +293,22 @@
     </form>`;
   }
   function startFollow(root) {
-    const box = root.querySelector(".follow-rot");
-    if (!box) return;
-    const title = box.querySelector(".follow-title");
-    rotator(box, { item: ".follow-slide", dots: ".follow-dots button", start: Number(box.dataset.start) || 0, interval: 7600,
-      onShow: el => fadeText(title, headline(el.dataset.title)) });
+    root.querySelectorAll(".follow-rot").forEach(box => {
+      const title = box.querySelector(".follow-title");
+      rotator(box, { item: ".follow-slide", dots: ".follow-dots button", start: Number(box.dataset.start) || 0, interval: 7600,
+        onShow: el => fadeText(title, headline(el.dataset.title)) });
+    });
+  }
+
+  // A rotating title with its message on a small picture (used at the top of the Volunteer page).
+  function slideBoxHTML(list, start, tag = "h2") {
+    const slide = (x, i) => `<figure class="follow-slide${i === start ? " on" : ""}${x.image && !/\.svg$/i.test(x.image) ? " photo" : ""}" aria-hidden="${i !== start}" data-title="${esc(x.title)}">
+        ${x.image ? `<img src="${esc(/\.svg$/i.test(x.image) ? x.image : imgUrl(x.image, 900))}" alt="" width="400" height="160">` : ""}
+        <figcaption>${esc(x.text)}</figcaption>
+      </figure>`;
+    return `<${tag} class="follow-title">${headline(list[start].title)}</${tag}>
+      <div class="follow-track">${list.map(slide).join("")}</div>
+      ${list.length > 1 ? `<div class="sayings-dots follow-dots">${list.map((_, i) => `<button type="button" aria-label="Message ${i + 1}" aria-current="${i === start}"></button>`).join("")}</div>` : ""}`;
   }
 
   // How far a project has come: 1 Initiated, 2 Activated, 3 Impact (from its Status in the admin page).
@@ -339,7 +350,7 @@
         ["Making it happen", '<path d="M13 2.5 5 13.500h6l-1 8 8-11h-6z"/>']
       ],
       heading: "Projects in action", empty: "No projects are in action yet. They appear here once their status is Active.",
-      cta: { title: "Want to take part?", text: "Projects move because people show up. Lend an hour, a skill or a helping hand, and be part of what's happening.", btn: "Volunteer with us", href: "/contact" },
+      cta: { title: "Want to take part?", text: "Projects move because people show up. Lend an hour, a skill or a helping hand, and be part of what's happening.", btn: "Volunteer with us", href: "/volunteer" },
       next: { slug: "impact", kicker: "Next stage", label: "Impact", text: "See the difference these projects are making." }
     },
     impact: {
@@ -554,6 +565,17 @@
       const projects = (data.projects || []).filter(p => p && p.title && !p.hidden);
       if (page === "contact") {
         document.title = `Contact · ${site.name}`;
+        wireForms(document);
+      } else if (page === "volunteer") {
+        document.title = `Volunteer · ${site.name}`;
+        const list = (site.volunteer || []).filter(x => x && x.title && x.text), box = document.getElementById("vol-slides");
+        if (list.length && box) {
+          const start = Math.floor(Math.random() * list.length); // a different slide comes first on each visit
+          box.classList.add("follow-rot"); box.dataset.start = start;
+          box.innerHTML = `<span class="eyebrow">Volunteer with us</span>${slideBoxHTML(list, start, "h1")}
+            <p class="slide-note">Tell us how you'd like to help and one of our team will reply.</p>`;
+          startFollow(document);
+        }
         wireForms(document);
       } else if (page === "project") {
         const slug = decodeURIComponent(location.pathname.replace(/\/+$/, "").split("/").pop());

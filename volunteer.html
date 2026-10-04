@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Volunteer · Raavanaa · Beyond the Lanes</title>
+<meta name="description" content="Raavanaa Beyond the Lanes: community projects creating smiles. Stories, updates, pictures and videos from each project.">
+<meta name="theme-color" content="#0f5132">
+<link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png?v=2">
+<link rel="icon" type="image/png" sizes="192x192" href="/img/icon-192.png?v=2">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png?v=2">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Raavanaa · Beyond the Lanes">
+<meta property="og:title" content="Raavanaa · Beyond the Lanes">
+<meta property="og:description" content="Creating smiles. See our community projects, updates, pictures and videos.">
+<meta property="og:image" content="https://raavanaa.org/img/og-image.jpg?v=2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Inter:wght@900&family=Playfair+Display:ital,wght@0,800;0,900;1,900&family=Merriweather:wght@900&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="volunteer">
+<header class="bar">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="Raavanaa Beyond the Lanes, home">
+      <picture><source srcset="/img/logo.webp?v=2" type="image/webp"><img src="/img/logo.jpg?v=2" alt="Raavanaa · Beyond the Lanes · Creating Smiles" width="900" height="277"></picture>
+    </a>
+    <button class="menu-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="site-nav"><span></span><span></span><span></span></button>
+    <nav class="nav" id="site-nav"><a href="/">Home</a><a href="/initiated">Projects</a><a href="/about">About</a><a href="/contact">Contact</a></nav>
+  </div>
+</header>
+<main id="app" class="wrap">
+  <div class="contact-layout">
+    <section class="slide-box" id="vol-slides" aria-label="Volunteer with us">
+      <h1 class="follow-title">Volunteer with us</h1>
+      <p>Give an hour, share a skill, or bring a friend. Tell us how you'd like to help and one of our team will reply.</p>
+    </section>
+    <form class="panel form" name="volunteer" method="POST" action="/volunteer?sent=1" data-netlify="true" netlify-honeypot="bot-field" data-ajax data-done="Thank you for stepping up! One of our team will be in touch soon.">
+      <input type="hidden" name="form-name" value="volunteer">
+      <p hidden><label>Leave empty <input name="bot-field"></label></p>
+      <label for="v-name">Your name<input id="v-name" name="name" required autocomplete="name"></label>
+      <label for="v-email">Email<input id="v-email" name="email" type="email" required autocomplete="email"></label>
+      <label for="v-phone">Phone <span class="opt">(optional)</span><input id="v-phone" name="phone" type="tel" autocomplete="tel"></label>
+      <fieldset class="checks">
+        <legend>How would you like to help?</legend>
+        <label><input type="checkbox" id="v-h1" name="help[]" value="Help at events"> Help at events</label>
+        <label><input type="checkbox" id="v-h2" name="help[]" value="Share a skill"> Share a skill</label>
+        <label><input type="checkbox" id="v-h3" name="help[]" value="Lead an activity"> Lead an activity</label>
+        <label><input type="checkbox" id="v-h4" name="help[]" value="Drive or carry things"> Drive or carry things</label>
+        <label><input type="checkbox" id="v-h5" name="help[]" value="Wherever needed"> Wherever I'm needed</label>
+      </fieldset>
+      <label for="v-when">When are you usually free?
+        <select id="v-when" name="availability">
+          <option>Weekends</option>
+          <option>Weekday evenings</option>
+          <option>Weekdays</option>
+          <option>It varies</option>
+        </select>
+      </label>
+      <label for="v-message">Anything you'd like us to know <span class="opt">(optional)</span><textarea id="v-message" name="message"></textarea></label>
+      <button class="btn" type="submit">I want to volunteer</button>
+      <p class="note" data-msg hidden></p>
+    </form>
+  </div>
+</main>
+<footer><div class="wrap"><span>© <span data-year></span> <span data-site-name></span></span><span data-site-footer></span></div></footer>
+<script src="/site.js"></script>
+</body>
+</html>
