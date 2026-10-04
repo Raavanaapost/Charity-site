@@ -65,12 +65,9 @@
                   "label": "Theme",
                   "widget": "select",
                   "options": [
-                    "Water",
                     "Education",
-                    "Health",
                     "Livelihoods",
                     "Community",
-                    "Environment",
                     "Other"
                   ],
                   "required": false
