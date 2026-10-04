@@ -94,8 +94,7 @@
     }));
   }
 
-  // Home page totals: a duotone icon inside a hand-drawn circle, in the logo's colors.
-  const SKETCH = `<svg class="sketch" viewBox="0 0 100 100" aria-hidden="true"><path d="M54 7C80 6 96 27 94 51 92 78 70 94 46 93 21 92 5 72 7 47 9 23 29 8 57 10 66 11 73 15 78 20"/><path d="M45 5C27 8 13 21 11 38" opacity=".4"/></svg>`;
+  // Home page totals: a white icon on a tile shaded in the logo's colors.
   const icon = d => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
   const ICONS = {
     // heart holding people: projects that help people
@@ -142,7 +141,7 @@
           <p>${esc(site.intro)}</p>
         </section>
         ${projects.length ? `<section class="totals" aria-label="At a glance">
-          ${stats.map(([v, l, k]) => `<div class="stat-${k}"><i>${SKETCH}${ICONS[k]}</i><p><b>${esc(v)}</b><span>${esc(l)}</span></p></div>`).join("")}
+          ${stats.map(([v, l, k]) => `<div class="stat-${k}"><i>${ICONS[k]}</i><p><b>${esc(v)}</b><span>${esc(l)}</span></p></div>`).join("")}
         </section>` : ""}
         ${featured ? `<a class="feature" href="/projects/${slugOf(featured)}">
           <div class="cover" style="${coverStyle(featured, fi)}">${coverHTML(featured, fi, "", 1400)}</div>
