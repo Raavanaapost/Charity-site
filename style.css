@@ -1,7 +1,8 @@
-/* Layout: sticky brand bar → listing grid of project cards; project page = wide story column + narrow "at a glance" sidebar, tabs for Story / Updates / Photos */
+/* Layout: sticky logo bar with the logo's orange-red-gold swoosh as its edge → project card grid; project page = story column + "at a glance" sidebar, tabs Story / Updates / Pictures / Video.
+   Palette taken from the Raavanaa logo: deep green wordmark, orange, flame red, gold. */
 :root{
   --bg:#f7f8f6; --surface:#ffffff; --ink:#1d2622; --muted:#5d6b64; --line:#dfe4e0;
-  --brand:#1f6b52; --brand-ink:#ffffff; --sun:#e3a72f; --sun-soft:#fbf1dc; --brand-soft:#e5f0eb;
+  --brand:#0f5132; --brand-ink:#ffffff; --sun:#e5851a; --flame:#c8381e; --gold:#f2b21c; --sun-soft:#fdf0dc; --brand-soft:#e2efe6;
   --display:"Familjen Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
   --body:"Literata",Georgia,"Times New Roman",serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
@@ -9,10 +10,10 @@
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#121815; --surface:#19211d; --ink:#e7ece9; --muted:#9aa8a1; --line:#2b3530;
-  --brand:#5fbf97; --brand-ink:#0f1512; --sun:#f0bd55; --sun-soft:#2c2618; --brand-soft:#1e2d26; color-scheme:dark}}
+  --brand:#6cc58f; --brand-ink:#0f1512; --sun:#f3a03a; --flame:#ec6a4c; --gold:#f5c04a; --sun-soft:#2e2414; --brand-soft:#1b2d22; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#121815; --surface:#19211d; --ink:#e7ece9; --muted:#9aa8a1; --line:#2b3530;
-  --brand:#5fbf97; --brand-ink:#0f1512; --sun:#f0bd55; --sun-soft:#2c2618; --brand-soft:#1e2d26; color-scheme:dark}
+  --brand:#6cc58f; --brand-ink:#0f1512; --sun:#f3a03a; --flame:#ec6a4c; --gold:#f5c04a; --sun-soft:#2e2414; --brand-soft:#1b2d22; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6}
 a{color:var(--brand)}
@@ -21,11 +22,13 @@ h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
 :focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:4px}
 
 /* header */
-.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
-.bar .wrap{display:flex;align-items:center;gap:20px;min-height:64px;flex-wrap:wrap}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface)}
+.bar::after{content:"";display:block;height:3px;background:linear-gradient(90deg,var(--sun),var(--flame) 45%,var(--gold))}
+.bar .wrap{display:flex;align-items:center;gap:16px;min-height:68px;flex-wrap:wrap;padding-block:6px}
 .logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-family:var(--display);font-weight:700;font-size:20px}
-.logo i{width:30px;height:30px;border-radius:8px;background:var(--brand);position:relative;display:inline-block}
-.logo i::after{content:"";position:absolute;inset:8px 8px auto auto;width:9px;height:9px;border-radius:50%;background:var(--sun)}
+.logo picture{display:block;background:#fff;border-radius:8px;padding:2px 6px}
+.logo img{display:block;height:52px;width:auto;max-width:min(62vw,240px);object-fit:contain}
+@media (max-width:420px){.logo img{height:44px}}
 .nav{display:flex;gap:18px;margin-left:auto;font-family:var(--display);font-weight:600;font-size:15px}
 .nav a{color:var(--muted);text-decoration:none}.nav a:hover{color:var(--ink)}
 
@@ -65,7 +68,7 @@ h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
 .story{max-width:65ch}
 .story h2{font-size:24px;margin-block:28px 8px}
 .story p{margin-block:0 14px}
-.pull{border-left:4px solid var(--sun);padding:4px 0 4px 18px;font-size:20px;font-style:italic;margin-block:24px}
+.pull{border-left:4px solid var(--flame);padding:4px 0 4px 18px;font-size:20px;font-style:italic;margin-block:24px}
 .update{border-bottom:1px solid var(--line);padding-block:0 22px;margin-block:0 22px;max-width:65ch}
 .update h3{font-size:20px;margin-block:4px 8px}
 .update p{margin:0}

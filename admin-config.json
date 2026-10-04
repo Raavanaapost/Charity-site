@@ -202,7 +202,8 @@
                       "widget": "string",
                       "required": false
                     }
-                  ]
+                  ],
+                  "hint": "Only post pictures of people who agreed to be shown. For children, get a parent's permission."
                 },
                 {
                   "name": "media",

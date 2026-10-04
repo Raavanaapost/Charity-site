@@ -35,9 +35,14 @@
     const dt = new Date(String(d).length === 10 ? d + "T12:00:00" : d);
     return isNaN(dt) ? esc(d) : dt.toLocaleDateString("en-CA", { year: "numeric", month: "short", day: "numeric" });
   };
+  // Resize uploaded photos through Netlify's image service so pages load fast on phones.
+  const imgUrl = (src, w) => {
+    const u = String(src || "");
+    return u.startsWith("/") && !u.startsWith("//") ? `/.netlify/images?url=${encodeURIComponent(u)}&w=${w}&q=75` : u;
+  };
   const art = i => { const [a, b, c] = PALETTES[i % PALETTES.length]; return `background:radial-gradient(circle at 78% 28%, ${c} 0 12%, transparent 13%),linear-gradient(160deg, ${a} 0%, ${b} 100%)`; };
-  const coverHTML = (p, i, label) => p.cover
-    ? `<img src="${esc(p.cover)}" alt="" loading="lazy">${label ? `<span>${esc(label)}</span>` : ""}`
+  const coverHTML = (p, i, label, w = 800) => p.cover
+    ? `<img src="${esc(imgUrl(p.cover, w))}" alt="" loading="lazy">${label ? `<span>${esc(label)}</span>` : ""}`
     : (label ? `<span>${esc(label)}</span>` : "");
   const coverStyle = (p, i) => p.cover ? "" : art(i);
 
@@ -123,7 +128,7 @@
     const panes = {
       story: `<div class="story">${p.quote ? `<p class="pull">“${esc(p.quote)}”</p>` : ""}${md(p.story)}</div>`,
       updates: updates.length ? updates.map(u => `<article class="update"><div class="meta">${fmtDate(u.date)}</div><h3>${esc(u.title)}</h3><div>${md(u.body)}</div></article>`).join("") : `<p class="empty">No updates yet.</p>`,
-      pictures: photos.length ? `<div class="photos">${photos.map((ph, k) => `<figure><button data-src="${esc(ph.image)}" aria-label="Open photo"><div class="cover"><img src="${esc(ph.image)}" alt="${esc(ph.caption)}" loading="lazy"></div></button>${ph.caption ? `<figcaption>${esc(ph.caption)}</figcaption>` : ""}</figure>`).join("")}</div>` : `<p class="empty">No pictures yet.</p>`,
+      pictures: photos.length ? `<div class="photos">${photos.map((ph, k) => `<figure><button data-src="${esc(imgUrl(ph.image, 1600))}" aria-label="Open picture"><div class="cover"><img src="${esc(imgUrl(ph.image, 600))}" alt="${esc(ph.caption)}" loading="lazy"></div></button>${ph.caption ? `<figcaption>${esc(ph.caption)}</figcaption>` : ""}</figure>`).join("")}</div>` : `<p class="empty">No pictures yet.</p>`,
       video: media.length ? `<div class="media">${media.map(m => { const e = embedFor(m.url); return e ? `<figure style="margin:0"><div class="embed"><iframe src="${esc(e)}" title="${esc(m.title)}" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy"></iframe></div>${m.title ? `<figcaption class="note" style="padding-top:6px">${esc(m.title)}</figcaption>` : ""}</figure>` : `<a class="media-link" href="${esc(m.url)}" target="_blank" rel="noopener">▶ ${esc(m.title || m.url)}</a>`; }).join("")}</div>` : `<p class="empty">No videos yet.</p>`
     };
 
@@ -138,7 +143,7 @@
         </header>
         <div class="layout">
           <div style="min-width:0">
-            <div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.cover ? "" : "Cover photo")}</div>
+            <div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.cover ? "" : "Cover photo", 1400)}</div>
             <div class="tabs" role="tablist">
               ${tabs.map(([k, l]) => `<button class="tab" role="tab" aria-selected="${k === tab}" data-t="${k}">${l}</button>`).join("")}
             </div>
