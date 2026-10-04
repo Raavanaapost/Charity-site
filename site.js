@@ -158,7 +158,7 @@
   window.addEventListener("resize", () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitHeadline, 120); });
   if (document.fonts) document.fonts.ready.then(fitHeadline);
 
-  function card(p, i) {
+  function card(p, i, extra = "") {
     return `
       <a class="card" href="/projects/${slugOf(p)}">
         <div class="cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.location)}</div>
@@ -166,7 +166,7 @@
           ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
           <h3>${esc(p.title)}</h3>
           <p>${esc(p.summary)}</p>
-          <div class="meta"><span>${esc(p.organization)}</span>${p.status ? `<span>· ${esc(p.status)}</span>` : ""}</div>
+          ${extra || `<div class="meta"><span>${esc(p.organization)}</span>${p.status ? `<span>· ${esc(p.status)}</span>` : ""}</div>`}
         </div>
       </a>`;
   }
@@ -300,8 +300,73 @@
       onShow: el => fadeText(title, headline(el.dataset.title)) });
   }
 
+  // How far a project has come: 1 Initiated, 2 Activated, 3 Impact (from its Status in the admin page).
+  const stageNum = p => /complete/i.test(p.status || "") ? 3 : /active|pause/i.test(p.status || "") ? 2 : 1;
+  const STAGE_NAMES = ["Initiated", "Activated", "Impact"];
+  const journey = p => {
+    const n = stageNum(p);
+    return `<div class="journey" aria-label="Stage: ${STAGE_NAMES[n - 1]}">
+      <span class="j-dots">${[1, 2, 3].map(k => `<i class="${k <= n ? "done s" + k : ""}"></i>`).join("")}</span>
+      <span class="j-now s${n}">${STAGE_NAMES[n - 1]}</span>
+      <span class="j-org">${esc(p.organization)}</span>
+    </div>`;
+  };
+  const stageNav = slug => `<nav class="stage-steps" aria-label="Stages">${Object.entries(STAGES).map(([k, s], i) =>
+    `${i ? '<span class="arrow" aria-hidden="true">→</span>' : ""}<a class="stage-tab stat-${s.key}" href="/${k}" ${k === slug ? 'aria-current="page"' : ""}>${s.label}</a>`).join("")}</nav>`;
+  const MEANING = [
+    ["Reaching out", '<path d="M4 6.5h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H10l-4 3v-3H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z"/><path d="M7 10.5h8M7 13.5h5"/>'],
+    ["Spotting an opportunity", '<circle cx="10" cy="10" r="6"/><path d="m14.5 14.5 5.5 5.5"/><path d="m10 6.8.9 2 2.2.3-1.6 1.5.4 2.1-1.9-1-1.9 1 .4-2.1L6.9 9.1l2.2-.3z" fill="currentColor" stroke="none"/>'],
+    ["Opening a relationship", '<circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2.5 19c.6-3.4 2.6-5 5.5-5 1.6 0 2.9.5 4 1.5 1.100-1 2.400-1.500 4-1.500 2.900 0 4.900 1.600 5.500 5"/>'.replace("1.100","1.1").replace("2.400","2.4").replace("1.500","1.5").replace("2.900","2.9").replace("4.900","4.9").replace("1.600","1.6").replace("5.500","5.5")],
+    ["Starting an initiative", '<path d="M12 21v-9"/><path d="M12 14c-4 0-6-2.200-6.500-6 3.900 0 6 2 6.500 6z"/><path d="M12 11c0-4 2.300-6 6.500-6.500 0 4-2.300 6-6.500 6.500z"/>'.replace("2.200","2.2").replace("3.900","3.9").replace("2.300","2.3")]
+  ];
+
+  // Initiated: where every project begins.
+  function renderInitiated(app, site, projects) {
+    document.title = `Initiated · ${site.name}`;
+    const items = projects.map((p, i) => ({ p, i }));
+    const themes = [...new Set(items.map(x => x.p.theme || "Other"))];
+    const fresh = projects.filter(p => stageNum(p) === 1).length;
+    let filter = "All";
+    const draw = () => {
+      const groups = themes.filter(t => filter === "All" || t === filter).map(t => [t, items.filter(x => (x.p.theme || "Other") === t)]);
+      app.innerHTML = `
+        ${stageNav("initiated")}
+        <header class="stage-hero s1">
+          <img src="/img/hero-initiated.svg" alt="" width="400" height="200">
+          <div class="stage-hero-text">
+            <h1>Initiated</h1>
+            <p>${projects.length} project${projects.length === 1 ? "" : "s"} started${fresh ? ` · ${fresh} just beginning` : ""}</p>
+          </div>
+        </header>
+        <section class="stage-lead">
+          <p class="big">Every project begins here. An idea is shared, a hand is reached out, and a connection is made.</p>
+          <ul class="meaning">${MEANING.map(([t, d]) => `<li><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg><span>${t}</span></li>`).join("")}</ul>
+        </section>
+        <h2 class="section-title lined">Projects we have started</h2>
+        ${themes.length > 1 ? `<div class="filters" role="group" aria-label="Filter by theme">
+          ${["All", ...themes].map(t => `<button class="chip" aria-pressed="${t === filter}" data-t="${esc(t)}">${esc(t)}</button>`).join("")}
+        </div>` : ""}
+        ${items.length ? groups.map(([t, xs]) => `
+          <section class="theme-group">
+            <h3 class="theme-title">${esc(t)} <span class="count">${xs.length}</span></h3>
+            <div class="grid">${xs.map(({ p, i }) => card(p, i, journey(p))).join("")}</div>
+          </section>`).join("") : `<p class="empty">No projects yet. Add one from the admin page.</p>`}
+        <section class="stage-next">
+          <div class="panel idea">
+            <h2>Have an idea for a project?</h2>
+            <p>Every project on this page began with someone reaching out. Tell us about a need you see, and we'll explore it together.</p>
+            <a class="btn" href="/contact">Suggest a project</a>
+          </div>
+          <a class="next-stage stat-active" href="/activated"><span>Next stage</span><b>Activated →</b><small>See the projects that have moved into action.</small></a>
+        </section>`;
+      app.querySelectorAll(".chip").forEach(b => b.onclick = () => { filter = b.dataset.t; draw(); });
+    };
+    draw();
+  }
+
   // Stage pages: projects (or impact updates) in sections by theme, with theme filters.
   function renderStage(app, site, projects, slug) {
+    if (slug === "initiated") return renderInitiated(app, site, projects);
     const st = STAGES[slug];
     document.title = `${st.title} · ${site.name}`;
     const list = slug === "activated" ? projects.filter(isActive) : projects;
@@ -327,7 +392,7 @@
             : `<div class="grid">${xs.map(({ p, i }) => card(p, i)).join("")}</div>`}
         </section>`).join("");
       app.innerHTML = `
-        <nav class="stage-tabs" aria-label="Stages">${tabs}</nav>
+        ${stageNav(slug)}
         <section class="intro">
           <h1>${esc(st.title)}</h1>
           <p>${esc(st.intro)}</p>
