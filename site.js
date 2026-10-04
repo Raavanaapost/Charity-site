@@ -159,21 +159,21 @@
     const active = projects.filter(p => /active/i.test(p.status || "")).length;
     const updates = projects.reduce((n, p) => n + (p.updates || []).length, 0);
     const stats = [
-      [projects.length, projects.length === 1 ? "project" : "projects", "projects"],
-      [active, "active now", "active"],
-      [updates, updates === 1 ? "update posted" : "updates posted", "updates"],
+      [projects.length, "Initiated", "projects"],
+      [active, "Activated", "active"],
+      [updates, "Impact", "updates"],
       ...(site.highlights || []).filter(h => h && h.value).map(h => [h.value, h.label, "extra"])
     ];
     const draw = () => {
       const rest = projects.map((p, i) => [p, i]).filter(([p, i]) => (filter !== "All" || i !== fi) && (filter === "All" || p.theme === filter));
       app.innerHTML = `
+        ${projects.length ? `<section class="totals" aria-label="At a glance">
+          ${stats.map(([v, l, k]) => `<div class="stat-${k}"><i>${ICONS[k]}</i><p><b>${esc(v)}</b><span>${esc(l)}</span></p></div>`).join("")}
+        </section>` : ""}
         <section class="intro">
           <h1 class="headline">${headline(site.tagline)}</h1>
           <p>${esc(site.intro)}</p>
         </section>
-        ${projects.length ? `<section class="totals" aria-label="At a glance">
-          ${stats.map(([v, l, k]) => `<div class="stat-${k}"><i>${ICONS[k]}</i><p><b>${esc(v)}</b><span>${esc(l)}</span></p></div>`).join("")}
-        </section>` : ""}
         ${featured ? `<a class="feature" href="/projects/${slugOf(featured)}">
           <div class="cover" style="${coverStyle(featured, fi)}">${coverHTML(featured, fi, "", 1400)}</div>
           <div class="body">

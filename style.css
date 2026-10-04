@@ -115,7 +115,7 @@ footer .wrap{padding-block:28px;display:flex;justify-content:space-between;gap:1
 
 /* home page: totals, featured project, sign-up */
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.totals{display:flex;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-block:0 32px;position:relative;overflow:hidden}
+.totals{display:flex;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-block:24px 0;position:relative;overflow:hidden}
 .totals::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--brand),var(--sun) 40%,var(--flame) 75%,var(--gold))}
 .totals>div{--c:var(--brand);--c2:#3f9a5f;--soft:var(--brand-soft);flex:1 1 0;min-width:96px;display:flex;align-items:center;justify-content:center;gap:12px;padding:20px 12px 16px;min-width:0}
 .totals>div+div{border-left:1px dashed var(--line)}
@@ -195,3 +195,5 @@ footer .wrap{padding-block:28px;display:flex;justify-content:space-between;gap:1
   .nav a:last-child{border-bottom:0}
 }
 @media (prefers-reduced-motion:reduce){.menu-btn span{transition:none}}
+
+.totals + .intro{padding-block:30px 28px}
