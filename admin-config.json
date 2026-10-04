@@ -260,7 +260,8 @@
             {
               "name": "tagline",
               "label": "Home page headline",
-              "widget": "string"
+              "widget": "string",
+              "hint": "Keep it short. The first letter is shown large in the logo's script style."
             },
             {
               "name": "intro",

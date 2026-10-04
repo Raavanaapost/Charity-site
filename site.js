@@ -107,6 +107,14 @@
     extra: icon('<path class="fill" d="m12 3 2.7 5.5 6 .9-4.4 4.2 1 6-5.3-2.8-5.3 2.8 1-6-4.4-4.2 6-.9z"/>')
   };
 
+  // Home headline: first letter always uppercase, set in the logo's script style.
+  const headline = t => {
+    const str = String(t || "").trim();
+    if (!str) return "";
+    const first = [...str][0];
+    return `<span class="initial">${esc(first.toUpperCase())}</span>${esc(str.slice(first.length))}`;
+  };
+
   function card(p, i) {
     return `
       <a class="card" href="/projects/${slugOf(p)}">
@@ -137,7 +145,7 @@
       const rest = projects.map((p, i) => [p, i]).filter(([p, i]) => (filter !== "All" || i !== fi) && (filter === "All" || p.theme === filter));
       app.innerHTML = `
         <section class="intro">
-          <h1>${esc(site.tagline)}</h1>
+          <h1 class="headline">${headline(site.tagline)}</h1>
           <p>${esc(site.intro)}</p>
         </section>
         ${projects.length ? `<section class="totals" aria-label="At a glance">
