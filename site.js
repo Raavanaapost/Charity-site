@@ -364,7 +364,10 @@
     const stories = projects.flatMap((p, i) => (p.updates || []).map(u => ({ p, i, u }))).sort((a, b) => String(b.u.date).localeCompare(String(a.u.date)));
     const numbers = projects.flatMap(p => (p.impact || []).filter(x => x && x.value).map(x => ({ p, x })));
     const items = slug === "impact" ? stories : reached.map(p => ({ p, i: projects.indexOf(p) }));
-    const themes = [...new Set(items.map(x => x.p.theme || "Other"))];
+    // Categories always appear in this order; any others follow, with Other last.
+    const ORDER = ["Events", "Livelihoods", "Community"];
+    const rank = t => t === "Other" ? 999 : ORDER.indexOf(t) < 0 ? 500 : ORDER.indexOf(t);
+    const themes = [...new Set(items.map(x => x.p.theme || "Other"))].sort((a, b) => rank(a) - rank(b));
     const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
     const fresh = projects.filter(p => stageNum(p) === 1).length;
     const sub = slug === "initiated" ? `${plural(projects.length, "project")} started${fresh ? ` · ${fresh} just beginning` : ""}`
