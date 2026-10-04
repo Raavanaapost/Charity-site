@@ -163,9 +163,10 @@ footer .wrap{padding-block:28px;display:flex;justify-content:space-between;gap:1
 
 /* home headline: script initial in the logo's orange-red, bold serif like the "Raavanaa" wordmark */
 .intro .headline{max-width:100%;font-size:clamp(22px,6.4vw,58px)}
-.headline{font-family:"Merriweather",Georgia,"Times New Roman",serif;font-weight:900;color:var(--brand);font-size:clamp(20px,5.8vw,56px);line-height:1.15;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;padding-top:.12em}
+.wrap > .intro:first-child p{color:var(--ink)}
+.headline{font-family:"Playfair Display",Didot,"Bodoni MT","Times New Roman",serif;font-weight:900;color:var(--ink);font-size:clamp(20px,5.8vw,56px);line-height:1.2;letter-spacing:-.005em;white-space:nowrap;overflow:hidden;padding-block:.08em .14em}
 .headline .dash{color:var(--sun);font-weight:700;margin-inline:.05em}
-.headline .initial{font-family:"Playfair Display",Didot,"Bodoni MT",Georgia,serif;font-weight:800;font-size:1.45em;line-height:.7;display:inline-block;margin-right:.03em;vertical-align:-.06em;color:var(--flame);background:linear-gradient(165deg,var(--gold) 5%,var(--sun) 40%,var(--flame) 85%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding:.08em .04em 0 0}
+.headline .initial{font-family:"Playfair Display",Didot,"Bodoni MT",Georgia,serif;font-weight:900;font-size:1.32em;line-height:1;display:inline-block;vertical-align:-.04em;margin-right:.02em;padding:0 .03em .06em 0;color:var(--flame);background:linear-gradient(165deg,var(--gold) 5%,var(--sun) 40%,var(--flame) 85%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
 /* comments under the Impact tab */
 .comments{max-width:65ch;margin-top:36px;padding-top:24px;border-top:2px solid var(--line);display:grid;gap:14px}
@@ -198,8 +199,8 @@ footer .wrap{padding-block:28px;display:flex;justify-content:space-between;gap:1
 @media (max-width:640px){.totals{gap:8px}}
 
 /* home: three stage circles that link to their pages */
-.stages{display:flex;justify-content:center;gap:clamp(10px,3vw,40px);margin-block:6px 40px;flex-wrap:nowrap}
-.stage{--c:var(--brand);--c2:#3f9a5f;flex:0 1 168px;min-width:0;aspect-ratio:1;border-radius:50%;border:1.5px solid var(--c);background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-decoration:none;color:var(--ink);transition:transform .15s,box-shadow .15s}
+.stages{display:flex;justify-content:center;gap:clamp(16px,4vw,44px);margin-block:14px 44px;flex-wrap:nowrap;padding-inline:6px}
+.stage{--c:var(--brand);--c2:#3f9a5f;flex:0 1 168px;min-width:0;aspect-ratio:1;border-radius:50%;position:relative;border:3px solid transparent;background:radial-gradient(circle at 50% 30%,var(--surface) 55%,var(--soft,var(--surface))) padding-box,conic-gradient(from 210deg,var(--c),var(--c2),var(--c)) border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-decoration:none;color:var(--ink);transition:transform .15s,box-shadow .15s}
 .stage:hover{transform:translateY(-3px);box-shadow:0 12px 24px -14px var(--c)}
 .stage.stat-active{--c:var(--sun);--c2:var(--gold)}
 .stage.stat-updates{--c:var(--flame);--c2:var(--sun)}
@@ -227,3 +228,12 @@ footer .wrap{padding-block:28px;display:flex;justify-content:space-between;gap:1
 
 /* home: headline sits closer to the top */
 .wrap > .intro:first-child{padding-block:22px 22px}
+
+.stage{--soft:var(--brand-soft)}
+.stage.stat-active{--soft:var(--sun-soft)}
+.stage.stat-updates{--soft:color-mix(in srgb,var(--flame) 12%,var(--surface))}
+.stage::before{content:"";position:absolute;inset:-8px;border-radius:50%;border:2px dotted var(--c);opacity:.6;animation:spin 40s linear infinite;pointer-events:none}
+.stage.stat-active::before{animation-direction:reverse}
+@media (max-width:640px){.stage::before{inset:-6px}}
+@media (prefers-reduced-motion:reduce){.stage::before{animation:none}}
+@media (max-width:640px){.stage span{font-size:9.5px;letter-spacing:.04em}.stage i{width:32px;height:32px}.stage b{font-size:22px}}
