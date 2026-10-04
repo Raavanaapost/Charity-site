@@ -1,6 +1,6 @@
 // Runs automatically when Netlify receives a form entry it has checked for spam.
-// New comments are added to comments.json with approved: false.
-// Admins approve them in the admin page (Comments), and only approved comments are shown on the site.
+// New comments are added to comments.json and shown on the site right away.
+// Admins can hide one (switch off "Show on the site") or delete it in the admin page (Comments).
 // Needs the COMMENTS_GITHUB_TOKEN environment variable in Netlify (a GitHub key with Contents: Read and write on this repository).
 const REPO = "Raavanaapost/Charity-site";
 const FILE = "comments.json";
@@ -24,7 +24,7 @@ export const handler = async (event) => {
     id: String(payload.id || Date.now()),
     project, name, comment,
     date: String(payload.created_at || new Date().toISOString()).slice(0, 10),
-    approved: false
+    approved: true
   };
 
   const api = `https://api.github.com/repos/${REPO}/contents/${FILE}`;
@@ -47,7 +47,7 @@ export const handler = async (event) => {
     const put = await fetch(api, {
       method: "PUT", headers,
       body: JSON.stringify({
-        message: `New comment on ${project} awaiting approval`,
+        message: `New comment on ${project}`,
         content: Buffer.from(JSON.stringify(data, null, 2) + "\n").toString("base64"),
         branch: BRANCH, ...(sha ? { sha } : {})
       })

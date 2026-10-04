@@ -87,6 +87,14 @@
         if (!r.ok) throw new Error(r.status);
         f.querySelectorAll("input:not([type=hidden]),textarea,select").forEach(el => el.disabled = true);
         msg.textContent = f.dataset.done; msg.className = "toast";
+        if (f.hasAttribute("data-comment")) {
+          const fd = new FormData(f), art = document.createElement("article");
+          const nm = String(fd.get("name") || "Anonymous");
+          art.className = "comment";
+          art.innerHTML = `<div class="who"><span class="avatar">${esc(nm.trim().charAt(0).toUpperCase() || "?")}</span><strong>${esc(nm)}</strong><span class="meta">Just now</span></div><p>${esc(fd.get("comment"))}</p>`;
+          f.parentNode.insertBefore(art, f);
+          const empty = f.parentNode.querySelector(":scope > p.note"); if (empty) empty.remove();
+        }
       } catch (err) {
         btn.disabled = false;
         msg.textContent = "That didn't go through. Check your connection and try again."; msg.className = "note error";
@@ -203,9 +211,9 @@
     return null;
   }
 
-  // Visitor comments: shown only after an admin approves them in the admin page.
+  // Visitor comments: shown right away; admins can hide or delete them in the admin page.
   function commentsHTML(slug) {
-    const list = COMMENTS.filter(c => c && c.approved && c.project === slug && c.comment)
+    const list = COMMENTS.filter(c => c && c.approved !== false && c.project === slug && c.comment)
       .sort((a, b) => String(a.date).localeCompare(String(b.date)));
     return `
       <section class="comments" aria-labelledby="c-title">
@@ -214,7 +222,7 @@
             <div class="who"><span class="avatar">${esc(String(c.name || "?").trim().charAt(0).toUpperCase() || "?")}</span><strong>${esc(c.name || "Anonymous")}</strong><span class="meta">${fmtDate(c.date)}</span></div>
             <p>${esc(c.comment)}</p>
           </article>`).join("") : `<p class="note">No comments yet. Be the first to share a few kind words.</p>`}
-        <form class="panel form comment-form" name="comments" data-ajax data-done="Thank you! Your comment will appear after our team reviews it.">
+        <form class="panel form comment-form" name="comments" data-ajax data-done="Thank you! Your comment is posted. It may take a minute to show for everyone." data-comment>
           <h3>Leave a comment</h3>
           <input type="hidden" name="form-name" value="comments">
           <input type="hidden" name="project" value="${esc(slug)}">
@@ -222,7 +230,6 @@
           <label for="cm-name">Your name<input id="cm-name" name="name" required maxlength="80" autocomplete="name"></label>
           <label for="cm-text">Comment<textarea id="cm-text" name="comment" required maxlength="2000"></textarea></label>
           <button class="btn" type="submit">Post comment</button>
-          <p class="note">Comments are checked by our team before they appear.</p>
           <p class="note" data-msg hidden></p>
         </form>
       </section>`;

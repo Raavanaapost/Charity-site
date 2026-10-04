@@ -258,14 +258,14 @@
               "label_singular": "Comment",
               "widget": "list",
               "collapsed": true,
-              "summary": "{{fields.approved}} \u00b7 {{fields.name}} on {{fields.project}}",
-              "hint": "New comments arrive here automatically with Approved switched off. Read them, switch on Approved to show one on the site, or delete it.",
+              "summary": "{{fields.name}} on {{fields.project}} \u00b7 shown: {{fields.approved}}",
+              "hint": "New comments appear here and on the site automatically. To hide one, switch off \"Show on the site\" and save, or delete it.",
               "fields": [
                 {
                   "name": "approved",
-                  "label": "Approved (show on the site)",
+                  "label": "Show on the site",
                   "widget": "boolean",
-                  "default": false
+                  "default": true
                 },
                 {
                   "name": "name",
