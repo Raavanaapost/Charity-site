@@ -147,7 +147,7 @@ footer .wrap{padding-block:28px;display:flex;justify-content:space-between;gap:1
 .feature:hover .more{text-decoration:underline}
 @media (max-width:760px){.feature{grid-template-columns:minmax(0,1fr)}.feature .cover{min-height:0;aspect-ratio:16/9}.feature .body{border-top:0}}
 .section-title{font-size:22px;margin-bottom:6px}
-.signup-band{max-width:520px;margin:0 auto;padding-block:0 64px}
+.signup-band{max-width:520px;margin:0 auto;padding-block:0 28px}
 .note.error{color:var(--flame)}
 .follow button:disabled{opacity:.6}
 
