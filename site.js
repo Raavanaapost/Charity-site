@@ -60,33 +60,95 @@
     if (y) y.textContent = new Date().getFullYear();
   }
 
+  // "Follow our updates" box. The matching hidden form in index.html lets Netlify collect it.
+  const signupHTML = (where, title = "Follow our updates") => `
+    <form class="panel follow" name="updates" data-ajax data-done="Thank you! We'll email you when we post new updates.">
+      <h2>${esc(title)}</h2>
+      <p class="note" style="margin:0">Get an email when we post news from our projects.</p>
+      <input type="hidden" name="form-name" value="updates">
+      <input type="hidden" name="page" value="${esc(where)}">
+      <p hidden><label>Leave empty <input name="bot-field"></label></p>
+      <label class="sr" for="su-name-${esc(where)}">Name</label>
+      <input id="su-name-${esc(where)}" name="name" autocomplete="name" placeholder="Your name (optional)">
+      <label class="sr" for="su-email-${esc(where)}">Email</label>
+      <input id="su-email-${esc(where)}" name="email" type="email" required autocomplete="email" placeholder="you@example.com">
+      <button class="btn" type="submit">Follow</button>
+      <p class="note" data-msg hidden></p>
+    </form>`;
+
+  function wireForms(root) {
+    root.querySelectorAll("form[data-ajax]").forEach(f => f.addEventListener("submit", async e => {
+      e.preventDefault();
+      const btn = f.querySelector("button[type=submit]"), msg = f.querySelector("[data-msg]");
+      btn.disabled = true;
+      try {
+        const r = await fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams(new FormData(f)).toString() });
+        if (!r.ok) throw new Error(r.status);
+        f.querySelectorAll("input:not([type=hidden]),textarea,select").forEach(el => el.disabled = true);
+        msg.textContent = f.dataset.done; msg.className = "toast";
+      } catch (err) {
+        btn.disabled = false;
+        msg.textContent = "That didn't go through. Check your connection and try again."; msg.className = "note error";
+      }
+      msg.hidden = false;
+    }));
+  }
+
+  function card(p, i) {
+    return `
+      <a class="card" href="/projects/${slugOf(p)}">
+        <div class="cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.location)}</div>
+        <div class="body">
+          ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
+          <h3>${esc(p.title)}</h3>
+          <p>${esc(p.summary)}</p>
+          <div class="meta"><span>${esc(p.organization)}</span>${p.status ? `<span>· ${esc(p.status)}</span>` : ""}</div>
+        </div>
+      </a>`;
+  }
+
   function renderList(app, site, projects) {
     let filter = "All";
     const themes = ["All", ...new Set(projects.map(p => p.theme).filter(Boolean))];
+    const fi = Math.max(0, projects.findIndex(p => p.featured));
+    const featured = projects[fi];
+    const active = projects.filter(p => /active/i.test(p.status || "")).length;
+    const updates = projects.reduce((n, p) => n + (p.updates || []).length, 0);
+    const stats = [
+      [projects.length, projects.length === 1 ? "project" : "projects"],
+      [active, "active now"],
+      [updates, updates === 1 ? "update posted" : "updates posted"],
+      ...(site.highlights || []).filter(h => h && h.value).map(h => [h.value, h.label])
+    ];
     const draw = () => {
-      const shown = projects.map((p, i) => [p, i]).filter(([p]) => filter === "All" || p.theme === filter);
+      const rest = projects.map((p, i) => [p, i]).filter(([p, i]) => (filter !== "All" || i !== fi) && (filter === "All" || p.theme === filter));
       app.innerHTML = `
         <section class="intro">
-          <span class="eyebrow">${projects.length} project${projects.length === 1 ? "" : "s"}</span>
           <h1>${esc(site.tagline)}</h1>
           <p>${esc(site.intro)}</p>
         </section>
+        ${projects.length ? `<section class="totals" aria-label="At a glance">
+          ${stats.map(([v, l]) => `<div><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("")}
+        </section>` : ""}
+        ${featured ? `<a class="feature" href="/projects/${slugOf(featured)}">
+          <div class="cover" style="${coverStyle(featured, fi)}">${coverHTML(featured, fi, "", 1400)}</div>
+          <div class="body">
+            <span class="eyebrow">Featured project${featured.location ? ` · ${esc(featured.location)}` : ""}</span>
+            <h2>${esc(featured.title)}</h2>
+            <p>${esc(featured.summary)}</p>
+            ${(featured.impact || []).length ? `<div class="mini-stats">${featured.impact.slice(0, 2).map(s => `<div><b>${esc(s.value)}</b><span>${esc(s.label)}</span></div>`).join("")}</div>` : ""}
+            <span class="more">Read the story →</span>
+          </div>
+        </a>` : ""}
+        <h2 class="section-title">${filter === "All" ? "All projects" : esc(filter) + " projects"}</h2>
         ${themes.length > 2 ? `<div class="filters" role="group" aria-label="Filter by theme">
           ${themes.map(t => `<button class="chip" aria-pressed="${t === filter}" data-t="${esc(t)}">${esc(t)}</button>`).join("")}
         </div>` : ""}
-        ${shown.length ? `<section class="grid">
-          ${shown.map(([p, i]) => `
-            <a class="card" href="/projects/${slugOf(p)}">
-              <div class="cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.location)}</div>
-              <div class="body">
-                ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
-                <h3>${esc(p.title)}</h3>
-                <p>${esc(p.summary)}</p>
-                <div class="meta"><span>${esc(p.organization)}</span>${p.status ? `<span>· ${esc(p.status)}</span>` : ""}</div>
-              </div>
-            </a>`).join("")}
-        </section>` : `<p class="empty">No projects yet. Add one from the admin page.</p>`}`;
+        ${rest.length ? `<section class="grid">${rest.map(([p, i]) => card(p, i)).join("")}</section>`
+          : `<p class="empty">${projects.length ? "No other projects here yet." : "No projects yet. Add one from the admin page."}</p>`}
+        <section class="signup-band">${signupHTML("home")}</section>`;
       app.querySelectorAll(".chip").forEach(b => b.onclick = () => { filter = b.dataset.t; draw(); });
+      wireForms(app);
     };
     draw();
   }
@@ -160,9 +222,11 @@
               </dl>
               ${(p.impact || []).length ? `<div class="stats">${p.impact.map(s => `<div class="stat"><b>${esc(s.value)}</b><span>${esc(s.label)}</span></div>`).join("")}</div>` : ""}
             </div>
+            ${signupHTML(slugOf(p), "Follow this project")}
             <a class="btn ghost" href="/">Back to all projects</a>
           </aside>
         </div>`;
+      wireForms(app);
       app.querySelectorAll(".tab").forEach(b => b.onclick = () => { draw(b.dataset.t); history.replaceState(null, "", "#" + b.dataset.t); });
       app.querySelectorAll(".photos button").forEach(b => b.onclick = () => {
         const lb = document.createElement("div");
@@ -185,7 +249,10 @@
       const [site, data] = await Promise.all([load("/site.json"), load("/projects.json")]);
       frame(site);
       const projects = (data.projects || []).filter(p => p && p.title && !p.hidden);
-      if (page === "project") {
+      if (page === "contact") {
+        document.title = `Contact · ${site.name}`;
+        wireForms(document);
+      } else if (page === "project") {
         const slug = decodeURIComponent(location.pathname.replace(/\/+$/, "").split("/").pop());
         renderProject(app, site, projects, slugify(slug));
       } else if (page === "about") {

@@ -28,10 +28,14 @@
     <a class="logo" href="/" aria-label="Raavanaa Beyond the Lanes, home">
       <picture><source srcset="/img/logo.webp" type="image/webp"><img src="/img/logo.jpg" alt="Raavanaa · Beyond the Lanes · Creating Smiles" width="900" height="274"></picture>
     </a>
-    <nav class="nav"><a href="/">Projects</a><a href="/about">About</a></nav>
+    <nav class="nav"><a href="/">Projects</a><a href="/about">About</a><a href="/contact">Contact</a></nav>
   </div>
 </header>
 <main id="app" class="wrap"></main>
+<!-- Lets Netlify detect the "Follow our updates" form that the page builds with JavaScript -->
+<form name="updates" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input name="name"><input name="email" type="email"><input name="page"><input name="bot-field">
+</form>
 <footer><div class="wrap"><span>© <span data-year></span> <span data-site-name></span></span><span data-site-footer></span></div></footer>
 <script src="/site.js"></script>
 </body>

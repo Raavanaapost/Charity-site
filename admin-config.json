@@ -53,6 +53,14 @@
                   "required": false
                 },
                 {
+                  "name": "featured",
+                  "label": "Feature this project on the home page",
+                  "widget": "boolean",
+                  "default": false,
+                  "required": false,
+                  "hint": "Turn this on for one project. If none is chosen, the first project is featured."
+                },
+                {
                   "name": "theme",
                   "label": "Theme",
                   "widget": "select",
@@ -258,6 +266,27 @@
               "name": "intro",
               "label": "Home page intro",
               "widget": "text"
+            },
+            {
+              "name": "highlights",
+              "label": "Extra home page numbers",
+              "label_singular": "Number",
+              "widget": "list",
+              "required": false,
+              "hint": "Project, active and update counts are added automatically. Add your own here, e.g. 12,000 / people reached.",
+              "summary": "{{fields.value}} {{fields.label}}",
+              "fields": [
+                {
+                  "name": "value",
+                  "label": "Number",
+                  "widget": "string"
+                },
+                {
+                  "name": "label",
+                  "label": "What it counts",
+                  "widget": "string"
+                }
+              ]
             },
             {
               "name": "about",

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Raavanaa · Beyond the Lanes</title>
+<title>Contact · Raavanaa · Beyond the Lanes</title>
 <meta name="description" content="Raavanaa Beyond the Lanes: community projects creating smiles. Stories, updates, pictures and videos from each project.">
 <meta name="theme-color" content="#0f5132">
 <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
@@ -22,7 +22,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&family=IBM+Plex+Mono:wght@500&display=swap">
 <link rel="stylesheet" href="/style.css">
 </head>
-<body data-page="about">
+<body data-page="contact">
 <header class="bar">
   <div class="wrap">
     <a class="logo" href="/" aria-label="Raavanaa Beyond the Lanes, home">
@@ -31,7 +31,34 @@
     <nav class="nav"><a href="/">Projects</a><a href="/about">About</a><a href="/contact">Contact</a></nav>
   </div>
 </header>
-<main id="app" class="wrap"></main>
+<main id="app" class="wrap">
+  <div class="contact-layout">
+    <section class="intro">
+      <span class="eyebrow">Contact</span>
+      <h1>Get involved</h1>
+      <p>Want to volunteer, suggest a project, partner with us, or just ask a question? Send us a message and one of our team will reply.</p>
+    </section>
+    <form class="panel form" name="contact" method="POST" action="/contact?sent=1" data-netlify="true" netlify-honeypot="bot-field" data-ajax data-done="Thank you! Your message has been sent. We'll get back to you soon.">
+      <input type="hidden" name="form-name" value="contact">
+      <p hidden><label>Leave empty <input name="bot-field"></label></p>
+      <label for="c-name">Your name<input id="c-name" name="name" required autocomplete="name"></label>
+      <label for="c-email">Email<input id="c-email" name="email" type="email" required autocomplete="email"></label>
+      <label for="c-phone">Phone <span class="opt">(optional)</span><input id="c-phone" name="phone" type="tel" autocomplete="tel"></label>
+      <label for="c-reason">I'd like to
+        <select id="c-reason" name="reason">
+          <option>Volunteer</option>
+          <option>Ask a question</option>
+          <option>Partner with you</option>
+          <option>Suggest a project</option>
+          <option>Something else</option>
+        </select>
+      </label>
+      <label for="c-message">Message<textarea id="c-message" name="message" required></textarea></label>
+      <button class="btn" type="submit">Send message</button>
+      <p class="note" data-msg hidden></p>
+    </form>
+  </div>
+</main>
 <footer><div class="wrap"><span>© <span data-year></span> <span data-site-name></span></span><span data-site-footer></span></div></footer>
 <script src="/site.js"></script>
 </body>
