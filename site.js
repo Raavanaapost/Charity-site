@@ -166,10 +166,12 @@
       impact: projects.reduce((n, p) => n + (p.updates || []).length, 0)
     };
     const extras = (site.highlights || []).filter(h => h && h.value);
+    const slides = (site.sayings || []).map(x => typeof x === "string" ? { text: x } : x).filter(x => x && x.text);
+    const start = slides.length ? Math.floor(Math.random() * slides.length) : 0; // a different slide comes first on each visit
     app.innerHTML = `
       <section class="intro">
-        <h1 class="headline">${headline(site.tagline)}</h1>
-        ${sayingsHTML(site)}
+        <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
+        ${sayingsHTML(site, slides, start)}
       </section>
       <nav class="stages" aria-label="Our projects by stage">
         ${Object.entries(STAGES).map(([slug, st]) => `
@@ -187,12 +189,15 @@
   }
 
   // Rotating messages under the home headline.
-  function sayingsHTML(site) {
-    const list = (site.sayings || []).map(x => typeof x === "string" ? x : x && x.text).filter(Boolean);
-    if (list.length < 2) return `<p>${esc(list[0] || site.intro)}</p>`;
-    return `<div class="sayings" aria-roledescription="carousel" aria-label="Our message">
-      <div class="sayings-track">${list.map((t, i) => `<p class="saying${i ? "" : " on"}" aria-hidden="${i ? "true" : "false"}">${esc(t)}</p>`).join("")}</div>
-      <div class="sayings-dots">${list.map((_, i) => `<button type="button" aria-label="Message ${i + 1}" aria-current="${i === 0}"></button>`).join("")}</div>
+  function sayingsHTML(site, list, start) {
+    if (!list.length) return `<p>${esc(site.intro)}</p>`;
+    const slide = (x, i) => `<figure class="saying${i === start ? " on" : ""}${x.image ? " has-img" : ""}" aria-hidden="${i !== start}" data-title="${esc(x.title || site.tagline)}">
+        ${x.image ? `<img src="${esc(/\.svg$/i.test(x.image) ? x.image : imgUrl(x.image, 1000))}" alt="" width="400" height="200">` : ""}
+        <figcaption>${esc(x.text)}</figcaption>
+      </figure>`;
+    return `<div class="sayings" aria-roledescription="carousel" aria-label="Our message" data-start="${start}">
+      <div class="sayings-track">${list.map(slide).join("")}</div>
+      ${list.length > 1 ? `<div class="sayings-dots">${list.map((_, i) => `<button type="button" aria-label="Slide ${i + 1}" aria-current="${i === start}"></button>`).join("")}</div>` : ""}
     </div>`;
   }
 
@@ -205,11 +210,22 @@
     const track = box.querySelector(".sayings-track");
     const fit = () => { track.style.minHeight = Math.max(...items.map(el => el.scrollHeight)) + "px"; };
     fit(); window.addEventListener("resize", fit); if (document.fonts) document.fonts.ready.then(fit);
-    let cur = 0, paused = false;
+    box.querySelectorAll("img").forEach(im => im.addEventListener("load", fit));
+    if (items.length < 2) return;
+    const head = root.querySelector(".headline");
+    let cur = Number(box.dataset.start) || 0, paused = false, headTimer;
     const show = n => {
-      cur = (n + items.length) % items.length;
+      const next = (n + items.length) % items.length;
+      if (next === cur) return;
+      cur = next;
       items.forEach((el, i) => { el.classList.toggle("on", i === cur); el.setAttribute("aria-hidden", String(i !== cur)); });
       dots.forEach((d, i) => d.setAttribute("aria-current", String(i === cur)));
+      // the headline changes with its slide
+      if (head) {
+        clearTimeout(headTimer);
+        head.style.opacity = "0";
+        headTimer = setTimeout(() => { head.innerHTML = headline(items[cur].dataset.title); fitHeadline(); head.style.opacity = "1"; }, 320);
+      }
     };
     dots.forEach((d, i) => d.onclick = () => { show(i); restart(); });
     let x0 = null;

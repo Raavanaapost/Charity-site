@@ -321,7 +321,7 @@
               "name": "tagline",
               "label": "Home page headline",
               "widget": "string",
-              "hint": "Keep it short. The first letter is shown large in the logo's script style."
+              "hint": "Used when a slide has no headline of its own. The first letter is shown large."
             },
             {
               "name": "intro",
@@ -330,16 +330,34 @@
             },
             {
               "name": "sayings",
-              "label": "Rotating home page messages",
-              "label_singular": "Message",
+              "label": "Home page slideshow",
+              "label_singular": "Slide",
               "widget": "list",
               "required": false,
-              "hint": "Shown one at a time under the headline, changing every few seconds. Keep each to about two sentences. If empty, the Home page intro is shown instead.",
-              "field": {
-                "name": "text",
-                "label": "Message",
-                "widget": "text"
-              }
+              "hint": "Each slide has a headline, a picture and a message. Slides change every few seconds and a different one comes first on each visit.",
+              "summary": "{{fields.title}}",
+              "fields": [
+                {
+                  "name": "title",
+                  "label": "Headline",
+                  "widget": "string",
+                  "required": false,
+                  "hint": "Keep it short so it fits on one line, e.g. Together \u2013 Real Change. If empty, the Home page headline is used."
+                },
+                {
+                  "name": "text",
+                  "label": "Message",
+                  "widget": "text",
+                  "hint": "About two sentences."
+                },
+                {
+                  "name": "image",
+                  "label": "Picture",
+                  "widget": "image",
+                  "required": false,
+                  "hint": "Wide pictures work best (twice as wide as tall)."
+                }
+              ]
             },
             {
               "name": "highlights",

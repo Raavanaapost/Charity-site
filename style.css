@@ -256,3 +256,21 @@ footer .wrap{padding-block:28px;display:flex;justify-content:space-between;gap:1
 .stage.art i{display:none}
 .stage.art span{order:1;font-family:"Inter",var(--display);font-weight:900;font-size:clamp(11.5px,3.15vw,19px);letter-spacing:.03em;color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.28)}
 .stage.art b{order:2;font-family:"Inter",var(--display);font-weight:900;font-size:clamp(19px,5vw,32px);color:#ffd76a;text-shadow:0 1px 0 rgba(0,0,0,.25)}
+
+/* home slideshow: headline + picture + message change together */
+.headline{transition:opacity .32s ease}
+.sayings-track{max-width:none}
+.saying{display:grid;gap:14px;align-content:start}
+.saying img{display:block;width:100%;height:auto;aspect-ratio:2/1;object-fit:cover;border-radius:14px;border:1px solid var(--line);background:var(--surface)}
+.saying figcaption{color:var(--ink);max-width:62ch}
+@media (min-width:820px){
+  .saying.has-img{grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);align-items:center;gap:36px}
+  .saying.has-img img{order:2}
+  .saying.has-img figcaption{font-size:19px;line-height:1.6}
+}
+@media (prefers-reduced-motion:reduce){.headline{transition:none}}
+
+/* Activated is gold so the three stages read green, gold, red */
+.stage.art.stat-active{--c:#eaa21c;--c2:#f8d572}
+.stage.art.stat-active span,.stage.art.stat-active b{color:#3b2400;text-shadow:0 1px 0 rgba(255,255,255,.4)}
+.stage.art.stat-updates{--c2:#e0694f}
