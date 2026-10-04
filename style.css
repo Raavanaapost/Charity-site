@@ -421,7 +421,7 @@ footer.foot .foot-main .wrap{grid-template-columns:minmax(0,1fr)}
 .wrap > .intro.about-page:first-child{padding-block:18px 28px}
 .about-page .eyebrow{margin-bottom:2px}
 .about-page h1.follow-title{max-width:none;margin-bottom:6px}
-.about-page h1 .org{color:var(--brand);letter-spacing:.02em}
+.about-page h1 .org{color:var(--brand)}
 .checks{border:1px solid var(--line);border-radius:8px;margin:0;padding:10px 12px 12px;display:grid;gap:8px}
 .checks legend{font-family:var(--display);font-weight:600;font-size:15px;padding:0 4px}
 .form .checks label{display:flex;align-items:center;gap:10px;font-family:var(--body);font-weight:400;font-size:16px}

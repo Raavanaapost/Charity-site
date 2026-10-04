@@ -70,7 +70,7 @@
         <nav class="foot-cols" aria-label="Footer">
           ${col("Explore", [["Home", "/"], ["About us", "/about"], ["Contact", "/contact"]])}
           ${col("Our stages", [["Initiated", "/initiated"], ["Activated", "/activated"], ["Impact", "/impact"]])}
-          ${col("Get involved", [["Volunteer with us", "/volunteer"], ["Suggest a project", "/contact"], ["Partner with us", "/contact"]])}
+          ${col("Get involved", [["Volunteer with us", "/volunteer"], ["Suggest a project", "/contact?topic=suggest"], ["Partner with us", "/contact?topic=partner"]])}
           ${follow.length ? col("Follow us", follow) : ""}
         </nav>
       </div></div>
@@ -337,7 +337,7 @@
         ["Starting an initiative", '<path d="M12 21v-9"/><path d="M12 14c-4 0-6-2.2-6.5-6 3.9 0 6 2 6.5 6z"/><path d="M12 11c0-4 2.3-6 6.5-6.5 0 4-2.3 6-6.5 6.500z"/>']
       ],
       heading: "Projects we have started", empty: "No projects yet. Add one from the admin page.",
-      cta: { title: "Have an idea for a project?", text: "Every project on this page began with someone reaching out. Tell us about a need you see, and we'll explore it together.", btn: "Suggest a project", href: "/contact" },
+      cta: { title: "Have an idea for a project?", text: "Every project on this page began with someone reaching out. Tell us about a need you see, and we'll explore it together.", btn: "Suggest a project", href: "/contact?topic=suggest" },
       next: { slug: "activated", kicker: "Next stage", label: "Activated", text: "See the projects that have moved into action." }
     },
     activated: {
@@ -542,7 +542,8 @@
   }
 
   function renderAbout(app, site) {
-    app.innerHTML = `<section class="intro about-page"><span class="eyebrow">About</span><h1 class="follow-title"><span class="initial">A</span>bout <span class="org">${esc(site.name)}</span></h1><div class="story">${md(site.about)}</div><p><a href="/initiated">See our projects</a></p></section>`;
+    const org = site.name.charAt(0).toUpperCase() + site.name.slice(1).toLowerCase();
+    app.innerHTML = `<section class="intro about-page"><span class="eyebrow">About us</span><h1 class="follow-title"><span class="initial">${esc(org.charAt(0))}</span><span class="org">${esc(org.slice(1))}</span> Community</h1><div class="story">${md(site.about)}</div><p><a href="/initiated">See our projects</a></p></section>`;
   }
 
   // Phone menu button
@@ -566,22 +567,36 @@
       if (page === "contact" || page === "volunteer") {
         // Rotating slides at the top of the Contact and Volunteer pages; a different one comes first on each visit.
         const isVol = page === "volunteer";
-        document.title = `${isVol ? "Volunteer" : "Contact"} · ${site.name}`;
-        const list = ((isVol ? site.volunteer : site.contact) || []).filter(x => x && x.title && x.text);
+        // The footer's "Suggest a project" and "Partner with us" links open the Contact page under their own name.
+        const TOPICS = {
+          suggest: { label: "Suggest a project", match: /suggest/i, reason: "Suggest a project", note: "Tell us about the need you see and one of our team will reply." },
+          partner: { label: "Partner with us", match: /partner/i, reason: "Partner with you", note: "Tell us about your group or business and one of our team will reply." }
+        };
+        const topic = isVol ? null : TOPICS[new URLSearchParams(location.search).get("topic")];
+        const label = isVol ? "Volunteer with us" : topic ? topic.label : "Contact us";
+        document.title = `${isVol ? "Volunteer" : topic ? topic.label : "Contact us"} · ${site.name}`;
+        let list = ((isVol ? site.volunteer : site.contact) || []).filter(x => x && x.title && x.text);
+        // A topic page keeps to its own slide, so the title always matches the link that was tapped.
+        const own = topic ? list.find(x => topic.match.test(x.title)) : null;
+        if (own) list = [own];
         const box = document.getElementById(isVol ? "vol-slides" : "contact-slides");
         if (list.length && box) {
           const start = Math.floor(Math.random() * list.length);
           box.classList.add("follow-rot"); box.dataset.start = start;
-          box.innerHTML = `<span class="eyebrow">${isVol ? "Volunteer with us" : "Contact us"}</span>${slideBoxHTML(list, start, "h1")}
-            <p class="slide-note">${isVol ? "Tell us how you'd like to help and one of our team will reply." : "Send us a message and one of our team will reply."}</p>`;
+          box.innerHTML = `<span class="eyebrow">${label}</span>${slideBoxHTML(list, start, "h1")}
+            <p class="slide-note">${isVol ? "Tell us how you'd like to help and one of our team will reply." : topic ? topic.note : "Send us a message and one of our team will reply."}</p>`;
           startFollow(document);
+        }
+        if (topic) {
+          const sel = document.getElementById("c-reason");
+          if (sel) [...sel.options].forEach(o => { if (o.text === topic.reason) sel.value = o.value; });
         }
         wireForms(document);
       } else if (page === "project") {
         const slug = decodeURIComponent(location.pathname.replace(/\/+$/, "").split("/").pop());
         renderProject(app, site, projects, slugify(slug));
       } else if (page === "about") {
-        document.title = `About · ${site.name}`;
+        document.title = `About us · ${site.name}`;
         renderAbout(app, site);
       } else if (page === "stage") {
         const slug = location.pathname.replace(/\/+$/, "").split("/").pop();
