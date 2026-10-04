@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" role="img" aria-label="Two speech bubbles with a heart">
+<rect width="400" height="160" fill="#0f5132"/>
+<path d="M0 136C80 118 160 124 230 132 300 140 350 126 400 130V160H0Z" fill="#fff" opacity=".07"/>
+<circle cx="322" cy="80" r="64" fill="#fff" opacity=".1"/>
+<rect x="307.0" y="40.0" width="62" height="44" rx="14" fill="#f7c63a"/><path d="M355.0 83.0l4 15-17-15z" fill="#f7c63a"/><rect x="265.0" y="61.0" width="78" height="54" rx="14" fill="#fff3d6"/><path d="M279.0 114.0l-4 15 17-15z" fill="#fff3d6"/><path d="M0 3.2C-5.5-3.4-13 2.6 0 12.5 13 2.6 5.5-3.4 0 3.2Z" transform="translate(304 78) rotate(0) scale(1.5)" fill="#c8381e"/><g fill="#0f5132" opacity=".55"><circle cx="328" cy="62" r="3.4"/><circle cx="340" cy="62" r="3.4"/><circle cx="352" cy="62" r="3.4"/></g><polygon points="0.0,-5.0 1.3,-1.3 5.0,0.0 1.3,1.3 0.0,5.0 -1.3,1.3 -5.0,0.0 -1.3,-1.3" transform="translate(376 118) rotate(0)" fill="#fff3d6"/><polygon points="0.0,-4.0 1.1,-1.1 4.0,0.0 1.1,1.1 0.0,4.0 -1.1,1.1 -4.0,0.0 -1.1,-1.1" transform="translate(270 36) rotate(12)" fill="#f7c63a"/>
+</svg>

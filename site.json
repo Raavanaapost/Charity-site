@@ -97,5 +97,32 @@
       "text": "Our volunteers come back because of the smiles. Join once and you'll understand why.",
       "image": "/img/volunteer-5.svg"
     }
+  ],
+  "contact": [
+    {
+      "title": "Get Involved",
+      "text": "Volunteer, share an idea, partner with us or just ask. Send us a message and one of our team will reply.",
+      "image": "/img/contact-1.svg"
+    },
+    {
+      "title": "Suggest a Project",
+      "text": "Seen a need in your community? Tell us about it and we'll explore it together.",
+      "image": "/img/contact-2.svg"
+    },
+    {
+      "title": "Partner With Us",
+      "text": "Businesses, schools and clubs help us reach further. Let's see what we can do together.",
+      "image": "/img/contact-3.svg"
+    },
+    {
+      "title": "Ask a Question",
+      "text": "Curious how we work or where help is needed? Ask us anything.",
+      "image": "/img/contact-4.svg"
+    },
+    {
+      "title": "Say Hello",
+      "text": "A kind word means a lot to our team and the kids. We read every message.",
+      "image": "/img/contact-5.svg"
+    }
   ]
 }

@@ -563,17 +563,17 @@
       COMMENTS = (cm && cm.comments) || [];
       frame(site);
       const projects = (data.projects || []).filter(p => p && p.title && !p.hidden);
-      if (page === "contact") {
-        document.title = `Contact · ${site.name}`;
-        wireForms(document);
-      } else if (page === "volunteer") {
-        document.title = `Volunteer · ${site.name}`;
-        const list = (site.volunteer || []).filter(x => x && x.title && x.text), box = document.getElementById("vol-slides");
+      if (page === "contact" || page === "volunteer") {
+        // Rotating slides at the top of the Contact and Volunteer pages; a different one comes first on each visit.
+        const isVol = page === "volunteer";
+        document.title = `${isVol ? "Volunteer" : "Contact"} · ${site.name}`;
+        const list = ((isVol ? site.volunteer : site.contact) || []).filter(x => x && x.title && x.text);
+        const box = document.getElementById(isVol ? "vol-slides" : "contact-slides");
         if (list.length && box) {
-          const start = Math.floor(Math.random() * list.length); // a different slide comes first on each visit
+          const start = Math.floor(Math.random() * list.length);
           box.classList.add("follow-rot"); box.dataset.start = start;
-          box.innerHTML = `<span class="eyebrow">Volunteer with us</span>${slideBoxHTML(list, start, "h1")}
-            <p class="slide-note">Tell us how you'd like to help and one of our team will reply.</p>`;
+          box.innerHTML = `<span class="eyebrow">${isVol ? "Volunteer with us" : "Contact us"}</span>${slideBoxHTML(list, start, "h1")}
+            <p class="slide-note">${isVol ? "Tell us how you'd like to help and one of our team will reply." : "Send us a message and one of our team will reply."}</p>`;
           startFollow(document);
         }
         wireForms(document);
