@@ -115,10 +115,18 @@ footer .wrap{padding-block:28px;display:flex;justify-content:space-between;gap:1
 
 /* home page: totals, featured project, sign-up */
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-block:4px 28px}
-.totals div{background:var(--surface);padding:16px 18px;display:grid;gap:2px}
-.totals b{font-family:var(--display);font-size:clamp(26px,5vw,34px);line-height:1;color:var(--brand);font-variant-numeric:tabular-nums}
+.totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px;margin-block:4px 32px}
+.totals>div{--c:var(--brand);--soft:var(--brand-soft);display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:var(--r);padding:16px 18px}
+.totals .stat-active{--c:var(--sun);--soft:var(--sun-soft)}
+.totals .stat-updates{--c:var(--flame);--soft:color-mix(in srgb,var(--flame) 14%,var(--surface))}
+.totals .stat-extra{--c:var(--gold);--soft:color-mix(in srgb,var(--gold) 18%,var(--surface))}
+.totals i{flex:none;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--soft);color:var(--c)}
+.totals p{margin:0;display:grid;gap:2px;min-width:0}
+.totals b{font-family:var(--display);font-size:clamp(28px,5vw,36px);line-height:1;color:var(--c);font-variant-numeric:tabular-nums}
 .totals span{font-size:14px;color:var(--muted)}
+.totals .stat-active i svg{animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@media (prefers-reduced-motion:reduce){.totals .stat-active i svg{animation:none}}
 .feature{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;text-decoration:none;color:inherit;margin-bottom:40px}
 .feature .cover{aspect-ratio:auto;min-height:280px;height:100%}
 .feature .body{padding:26px;display:flex;flex-direction:column;gap:10px;justify-content:center;border-top:4px solid var(--sun)}

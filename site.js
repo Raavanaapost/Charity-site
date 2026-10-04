@@ -94,6 +94,19 @@
     }));
   }
 
+  // Icons for the home page totals (drawn in the logo's colors via CSS).
+  const svg = d => `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  const ICONS = {
+    // heart with a person: a project helping people
+    projects: svg('<path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2z"/><circle cx="12" cy="11" r="1.6"/><path d="M9.6 15.2c.6-1.3 1.4-2 2.4-2s1.8.7 2.4 2"/>'),
+    // pulse line: work happening now
+    active: svg('<path d="M3 12h4l2.2-5 3.6 10 2.4-5H21"/>'),
+    // megaphone: news shared
+    updates: svg('<path d="M4 10v4a1 1 0 0 0 1 1h2l6 4V5L7 9H5a1 1 0 0 0-1 1z"/><path d="M17 9a4 4 0 0 1 0 6"/><path d="M19.5 6.5a7.5 7.5 0 0 1 0 11"/>'),
+    // star: any extra number added in the admin page
+    extra: svg('<path d="m12 3.5 2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/>')
+  };
+
   function card(p, i) {
     return `
       <a class="card" href="/projects/${slugOf(p)}">
@@ -115,10 +128,10 @@
     const active = projects.filter(p => /active/i.test(p.status || "")).length;
     const updates = projects.reduce((n, p) => n + (p.updates || []).length, 0);
     const stats = [
-      [projects.length, projects.length === 1 ? "project" : "projects"],
-      [active, "active now"],
-      [updates, updates === 1 ? "update posted" : "updates posted"],
-      ...(site.highlights || []).filter(h => h && h.value).map(h => [h.value, h.label])
+      [projects.length, projects.length === 1 ? "project" : "projects", "projects"],
+      [active, "active now", "active"],
+      [updates, updates === 1 ? "update posted" : "updates posted", "updates"],
+      ...(site.highlights || []).filter(h => h && h.value).map(h => [h.value, h.label, "extra"])
     ];
     const draw = () => {
       const rest = projects.map((p, i) => [p, i]).filter(([p, i]) => (filter !== "All" || i !== fi) && (filter === "All" || p.theme === filter));
@@ -128,7 +141,7 @@
           <p>${esc(site.intro)}</p>
         </section>
         ${projects.length ? `<section class="totals" aria-label="At a glance">
-          ${stats.map(([v, l]) => `<div><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("")}
+          ${stats.map(([v, l, k]) => `<div class="stat-${k}"><i aria-hidden="true">${ICONS[k]}</i><p><b>${esc(v)}</b><span>${esc(l)}</span></p></div>`).join("")}
         </section>` : ""}
         ${featured ? `<a class="feature" href="/projects/${slugOf(featured)}">
           <div class="cover" style="${coverStyle(featured, fi)}">${coverHTML(featured, fi, "", 1400)}</div>
