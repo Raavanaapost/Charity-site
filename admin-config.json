@@ -415,13 +415,6 @@
               "widget": "markdown"
             },
             {
-              "name": "footer_tagline",
-              "label": "Footer line",
-              "widget": "string",
-              "required": false,
-              "hint": "Short line shown under the logo at the bottom of every page."
-            },
-            {
               "name": "facebook",
               "label": "Facebook page link",
               "widget": "string",

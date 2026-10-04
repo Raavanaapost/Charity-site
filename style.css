@@ -330,3 +330,6 @@ footer.foot :focus-visible{outline-color:#f7c63a}
   .foot-col ul{gap:7px}
 }
 @media (max-width:380px){.foot-logo img{height:42px}.foot-cta{font-size:13px;padding:7px 11px}}
+
+/* footer without the logo block: just the link groups */
+footer.foot .foot-main .wrap{grid-template-columns:minmax(0,1fr)}

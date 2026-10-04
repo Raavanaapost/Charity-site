@@ -67,11 +67,6 @@
     foot.innerHTML = `
       <svg class="foot-wave" viewBox="0 0 400 30" preserveAspectRatio="none" aria-hidden="true"><path class="w1" d="M0 16C70 2 140 4 200 12 260 20 330 4 400 10V30H0Z"/><path class="w2" d="M0 24C80 10 150 12 210 18 270 24 336 12 400 16V30H0Z"/></svg>
       <div class="foot-main"><div class="wrap">
-        <div class="foot-brand">
-          <a class="foot-logo" href="/" aria-label="${esc(site.name)}, home"><picture><source srcset="/img/logo.webp?v=2" type="image/webp"><img src="/img/logo.jpg?v=2" alt="${esc(site.name)}" width="900" height="277" loading="lazy"></picture></a>
-          ${site.footer_tagline ? `<p>${esc(site.footer_tagline)}</p>` : ""}
-          <a class="foot-cta" href="/#keep-posted">Keep me posted</a>
-        </div>
         <nav class="foot-cols" aria-label="Footer">
           ${col("Explore", [["Home", "/"], ["About us", "/about"], ["Contact", "/contact"]])}
           ${col("Our stages", [["Initiated", "/initiated"], ["Activated", "/activated"], ["Impact", "/impact"]])}
