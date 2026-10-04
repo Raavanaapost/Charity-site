@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fieldnotes Projects</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: sticky brand bar → listing grid of project cards; project page = wide story column + narrow "at a glance" sidebar, tabs for Story / Updates / Photos */
+:root{
+  --bg:#f7f8f6; --surface:#ffffff; --ink:#1d2622; --muted:#5d6b64; --line:#dfe4e0;
+  --brand:#1f6b52; --brand-ink:#ffffff; --sun:#e3a72f; --sun-soft:#fbf1dc; --brand-soft:#e5f0eb;
+  --display:"Familjen Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --body:"Literata",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121815; --surface:#19211d; --ink:#e7ece9; --muted:#9aa8a1; --line:#2b3530;
+  --brand:#5fbf97; --brand-ink:#0f1512; --sun:#f0bd55; --sun-soft:#2c2618; --brand-soft:#1e2d26; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121815; --surface:#19211d; --ink:#e7ece9; --muted:#9aa8a1; --line:#2b3530;
+  --brand:#5fbf97; --brand-ink:#0f1512; --sun:#f0bd55; --sun-soft:#2c2618; --brand-soft:#1e2d26; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6}
+a{color:var(--brand)}
+h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:4px}
+
+/* header */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;align-items:center;gap:20px;min-height:64px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-family:var(--display);font-weight:700;font-size:20px}
+.logo i{width:30px;height:30px;border-radius:8px;background:var(--brand);position:relative;display:inline-block}
+.logo i::after{content:"";position:absolute;inset:8px 8px auto auto;width:9px;height:9px;border-radius:50%;background:var(--sun)}
+.nav{display:flex;gap:18px;margin-left:auto;font-family:var(--display);font-weight:600;font-size:15px}
+.nav a{color:var(--muted);text-decoration:none}.nav a:hover{color:var(--ink)}
+
+/* listing */
+.intro{padding-block:44px 24px;display:grid;gap:12px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
+.intro h1{font-size:clamp(30px,5vw,46px);max-width:18ch}
+.intro p{color:var(--muted);max-width:60ch;margin:0}
+.filters{display:flex;gap:8px;flex-wrap:wrap;padding-block:8px 20px}
+.chip{font-family:var(--display);font-weight:600;font-size:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 14px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px;padding-block:0 64px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;text-decoration:none;color:inherit;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
+.card:hover{transform:translateY(-3px);box-shadow:0 10px 26px -14px rgba(0,0,0,.35)}
+.card .body{padding:18px 18px 20px;display:flex;flex-direction:column;gap:8px;flex:1}
+.card h3{font-size:20px}
+.card p{margin:0;color:var(--muted);font-size:15px}
+.meta{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.03em;display:flex;gap:10px;flex-wrap:wrap}
+.tag{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;background:var(--sun-soft);color:var(--ink);padding:3px 8px;border-radius:4px;align-self:flex-start}
+.cover{aspect-ratio:16/9;max-width:100%;position:relative;overflow:hidden}
+.cover span{position:absolute;left:12px;bottom:10px;font-family:var(--mono);font-size:11px;color:#fff;background:rgba(0,0,0,.35);padding:2px 7px;border-radius:4px}
+
+/* project page */
+.crumbs{padding-block:20px 0;font-family:var(--display);font-size:14px;color:var(--muted)}
+.crumbs a{color:var(--muted)}
+.phead{padding-block:14px 22px;display:grid;gap:10px}
+.phead h1{font-size:clamp(28px,4.6vw,44px);max-width:22ch}
+.phead .lede{font-size:18px;color:var(--muted);max-width:62ch;margin:0}
+.byline{display:flex;align-items:center;gap:10px;font-family:var(--display);font-size:15px}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-weight:700}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:40px;align-items:start;padding-block:0 72px}
+@media (max-width:880px){.layout{grid-template-columns:minmax(0,1fr)}}
+.hero{border-radius:var(--r);aspect-ratio:16/9}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-block:28px 24px;overflow-x:auto}
+.tab{font-family:var(--display);font-weight:600;font-size:16px;background:none;border:0;color:var(--muted);padding:10px 14px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-color:var(--brand)}
+.story{max-width:65ch}
+.story h2{font-size:24px;margin-block:28px 8px}
+.story p{margin-block:0 14px}
+.pull{border-left:4px solid var(--sun);padding:4px 0 4px 18px;font-size:20px;font-style:italic;margin-block:24px}
+.update{border-bottom:1px solid var(--line);padding-block:0 22px;margin-block:0 22px;max-width:65ch}
+.update h3{font-size:20px;margin-block:4px 8px}
+.update p{margin:0}
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.photos figure{margin:0}
+.photos .cover{border-radius:8px}
+.photos figcaption{font-size:14px;color:var(--muted);padding-top:6px}
+
+.side{display:grid;gap:20px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 84px)}
+@media (max-width:880px){.side{position:static}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px}
+.panel h2{font-size:18px;margin-bottom:14px}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:10px 16px;margin:0;font-size:15px}
+.facts dt{font-family:var(--mono);font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+.facts dd{margin:0}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}
+.stat b{display:block;font-family:var(--display);font-size:26px;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--muted)}
+.btn{display:block;width:100%;text-align:center;font-family:var(--display);font-weight:700;font-size:16px;background:var(--brand);color:var(--brand-ink);border:0;border-radius:8px;padding:13px;cursor:pointer;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--brand);border:1.5px solid var(--brand);margin-top:10px}
+.follow{display:grid;gap:10px}
+.follow input{font:inherit;font-size:15px;padding:11px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%}
+.note{font-size:13px;color:var(--muted);margin:0}
+.toast{font-family:var(--display);font-size:14px;color:var(--brand);margin:0}
+
+footer{border-top:1px solid var(--line);background:var(--surface)}
+footer .wrap{padding-block:28px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="logo" href="#projects"><i aria-hidden="true"></i>Fieldnotes</a>
+    <nav class="nav"><a href="#projects">Projects</a><a href="#about">About</a></nav>
+  </div>
+</header>
+
+<main id="app" class="wrap"></main>
+
+<footer><div class="wrap"><span>Fieldnotes · placeholder name, swap in yours</span><span>Example projects shown for layout only</span></div></footer>
+
+<script>
+const art = (a,b,c) => `background:radial-gradient(circle at 78% 28%, ${c} 0 12%, transparent 13%),linear-gradient(160deg, ${a} 0%, ${b} 100%)`;
+
+const projects = [
+  {id:"p-wells", tag:"Water", title:"Clean wells for six hillside villages", place:"Kigoma, Tanzania", org:"Kigoma Water Circle", started:"March 2025", status:"Active",
+   people:"2,400 residents", lede:"Villagers walk up to two hours a day for water. This project drills and maintains six shallow wells, run by local water committees.",
+   colors:["#2f7f8f","#163a45","#f2c14e"], stats:[["6","wells planned"],["3","completed"]],
+   story:[["The problem","In the dry season, families in the six hillside villages above Lake Tanganyika rely on a single seasonal stream. Children, mostly girls, make the trip before school and often arrive late or not at all."],
+          ["What we're doing","Each well is sited with the village water committee, drilled by a local crew, and fitted with a hand pump that can be repaired with parts sold in Kigoma town. Committees collect a small monthly fee that covers repairs."],
+          ["Long-term impact","Within a year of a well opening, school attendance in the first pilot village rose noticeably, and clinic visits for waterborne illness fell."]],
+   quote:"Now my daughter is at school before the bell, not carrying jerrycans.",
+   updates:[["Sept 12, 2026","Third well is running","The Mwamgongo well passed its water-quality test and opened to the village on Saturday."],["June 3, 2026","Committee training finished","Twenty-four committee members completed pump repair and bookkeeping training."]],
+   photos:["Drill crew on site","First water","Committee meeting","Pump repair class"]},
+  {id:"p-reading", tag:"Education", title:"Reading corners in rural primary schools", place:"Chiapas, Mexico", org:"Libros del Monte", started:"Jan 2026", status:"Active",
+   people:"1,100 students", lede:"Stocking 20 classrooms with books in Spanish and Tsotsil, and training teachers to run daily reading time.",
+   colors:["#c0583a","#5a2a2a","#f6d79a"], stats:[["20","classrooms"],["3,600","books delivered"]],
+   story:[["The problem","Many rural schools have textbooks but no books children choose to read for fun, and almost nothing in their home language."],
+          ["What we're doing","Each classroom gets a shelf of 180 books, a reading mat, and a teacher trained to run 20 minutes of daily free reading. Local authors translate picture books into Tsotsil."],
+          ["Long-term impact","Students who read daily for a full year improved reading fluency well beyond the regional average."]],
+   quote:"The children argue over who gets the shelf first in the morning.",
+   updates:[["Aug 20, 2026","Twelve new shelves installed","Schools in Chenalhó received their reading corners before the new term."]],
+   photos:["Unpacking books","Morning reading","Teacher workshop"]},
+  {id:"p-clinic", tag:"Health", title:"Mobile clinic for remote river communities", place:"Loreto, Peru", org:"Río Salud", started:"Nov 2024", status:"Active",
+   people:"3,800 patients a year", lede:"A boat clinic that visits 14 riverside communities every month with a nurse, a midwife and basic medicines.",
+   colors:["#3d7a4f","#1b3a2a","#9fd3c7"], stats:[["14","communities"],["312","visits this year"]],
+   story:[["The problem","The nearest hospital is a two-day boat ride for most communities along the upper river."],
+          ["What we're doing","A converted cargo boat carries a nurse and a midwife on a fixed monthly route, with prenatal checks, vaccinations and a radio link to a doctor in Iquitos."],
+          ["Long-term impact","Regular visits mean problems are caught early, and expectant mothers have a plan before labor begins."]],
+   quote:"We know the boat comes on the second Tuesday. People wait at the bank.",
+   updates:[["Sept 1, 2026","New solar fridge on board","Vaccines can now stay cold for the full nine-day route."]],
+   photos:["The clinic boat","Prenatal check","Vaccination day"]},
+  {id:"p-seeds", tag:"Livelihoods", title:"Seed banks for women farmers", place:"Tamale, Ghana", org:"Northern Seed Collective", started:"May 2025", status:"Active",
+   people:"420 farmers", lede:"Community seed banks that store drought-tolerant millet and sorghum, managed by women's farming groups.",
+   colors:["#b07d2b","#4a3418","#f1e3b5"], stats:[["9","seed banks"],["11 t","seed stored"]],
+   story:[["The problem","After a poor harvest, farmers often eat their seed stock and must buy expensive seed on credit the next season."],
+          ["What we're doing","Each group builds a sealed storage room and lends seed to members, who return it with a small share after harvest."],
+          ["Long-term impact","Groups now hold reserves through a bad year and choose varieties suited to their own fields."]],
+   quote:"The seed belongs to us now, not to the trader.",
+   updates:[["July 15, 2026","Harvest returns recorded","Members returned 94% of borrowed seed after the early millet harvest."]],
+   photos:["Storage room","Sorting sorghum","Group meeting"]},
+  {id:"p-repair", tag:"Community", title:"Neighborhood repair café", place:"Hamilton, Ontario", org:"Fix It Together", started:"Feb 2026", status:"Planning",
+   people:"Monthly drop-in", lede:"Volunteer fixers repair lamps, bikes and clothes for free once a month at the local library.",
+   colors:["#4f5d9a","#22284a","#ffb38a"], stats:[["38","volunteers"],["510","items fixed"]],
+   story:[["The problem","Small household items get thrown out because repairs cost more than replacing them."],
+          ["What we're doing","Volunteers with sewing, electrical and bike skills sit with each visitor and fix the item together, so people learn as they go."],
+          ["Long-term impact","Fewer items go to landfill, and neighbors meet people they would not otherwise talk to."]],
+   quote:"I came in with a broken toaster and left knowing three new people.",
+   updates:[["Sept 27, 2026","Bike stand donated","A local shop donated a second repair stand for the bike table."]],
+   photos:["Sewing table","Bike corner","Lamp rewiring"]},
+  {id:"p-trees", tag:"Environment", title:"Mangrove replanting along the delta", place:"Ayeyarwady, Myanmar", org:"Delta Green", started:"Aug 2024", status:"Active",
+   people:"5 fishing villages", lede:"Fishing families replant mangroves that protect the coast from storm surge and bring back fish nurseries.",
+   colors:["#2e6d5c","#10302a","#cde8a0"], stats:[["48,000","seedlings"],["71%","survival rate"]],
+   story:[["The problem","Decades of clearing left villages exposed to storm surge, and fish catches dropped as nursery habitat disappeared."],
+          ["What we're doing","Villagers raise seedlings in nurseries and plant them at low tide, paid per surviving tree after twelve months."],
+          ["Long-term impact","Replanted stretches already show crab and juvenile fish returning."]],
+   quote:"My grandfather fished here. Now my son may too.",
+   updates:[["Aug 30, 2026","One-year survival count","71% of last year's seedlings survived the monsoon season."]],
+   photos:["Nursery beds","Low-tide planting","Young mangroves"]}
+];
+
+const app = document.getElementById("app");
+let filter = "All";
+const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function listing(){
+  const tags = ["All", ...new Set(projects.map(p=>p.tag))];
+  const shown = projects.filter(p => filter==="All" || p.tag===filter);
+  app.innerHTML = `
+    <section class="intro">
+      <span class="eyebrow">${projects.length} projects · example content</span>
+      <h1>Stories from projects changing their communities</h1>
+      <p>Follow local teams as they build wells, stock classrooms and replant coastlines. Each project shares its plan, progress and photos.</p>
+    </section>
+    <div class="filters" role="group" aria-label="Filter by theme">
+      ${tags.map(t=>`<button class="chip" id="f-${t}" aria-pressed="${t===filter}" data-tag="${t}">${t}</button>`).join("")}
+    </div>
+    <section class="grid">
+      ${shown.map(p=>`
+        <a class="card" href="#${p.id}">
+          <div class="cover" style="${art(...p.colors)}"><span>${esc(p.place)}</span></div>
+          <div class="body">
+            <span class="tag">${p.tag}</span>
+            <h3>${esc(p.title)}</h3>
+            <p>${esc(p.lede)}</p>
+            <div class="meta"><span>${esc(p.org)}</span><span>· ${p.status}</span></div>
+          </div>
+        </a>`).join("")}
+    </section>`;
+  app.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{filter=b.dataset.tag;listing()});
+}
+
+function project(p, tab="story"){
+  const initials = p.org.split(" ").map(w=>w[0]).slice(0,2).join("");
+  const panes = {
+    story: `<div class="story">${p.story.map(([h,t],i)=>`<h2>${h}</h2><p>${esc(t)}</p>${i===0?`<p class="pull">“${esc(p.quote)}”</p>`:""}`).join("")}</div>`,
+    updates: p.updates.map(([d,h,t])=>`<article class="update"><div class="meta">${d}</div><h3>${esc(h)}</h3><p>${esc(t)}</p></article>`).join(""),
+    photos: `<div class="photos">${p.photos.map((c,i)=>`<figure><div class="cover" style="${art(p.colors[i%2],p.colors[(i+1)%2],p.colors[2])}"></div><figcaption>${esc(c)}</figcaption></figure>`).join("")}</div>`
+  };
+  app.innerHTML = `
+    <nav class="crumbs"><a href="#projects">Projects</a> / ${p.tag}</nav>
+    <header class="phead">
+      <span class="tag">${p.tag}</span>
+      <h1>${esc(p.title)}</h1>
+      <p class="lede">${esc(p.lede)}</p>
+      <div class="byline"><span class="avatar">${initials}</span><span>by <strong>${esc(p.org)}</strong> · ${esc(p.place)}</span></div>
+    </header>
+    <div class="layout">
+      <div style="min-width:0">
+        <div class="hero cover" style="${art(...p.colors)}"><span>Cover photo</span></div>
+        <div class="tabs" role="tablist">
+          ${["story","updates","photos"].map(t=>`<button class="tab" role="tab" id="t-${t}" aria-selected="${t===tab}" data-t="${t}">${t[0].toUpperCase()+t.slice(1)}${t==="updates"?` (${p.updates.length})`:""}</button>`).join("")}
+        </div>
+        <section role="tabpanel">${panes[tab]}</section>
+      </div>
+      <aside class="side">
+        <div class="panel">
+          <h2>Project at a glance</h2>
+          <dl class="facts">
+            <dt>Status</dt><dd>${p.status}</dd>
+            <dt>Location</dt><dd>${esc(p.place)}</dd>
+            <dt>Started</dt><dd>${p.started}</dd>
+            <dt>Reach</dt><dd>${esc(p.people)}</dd>
+          </dl>
+          <div class="stats">${p.stats.map(([n,l])=>`<div class="stat"><b>${n}</b><span>${l}</span></div>`).join("")}</div>
+        </div>
+        <form class="panel follow" id="follow">
+          <h2>Get project updates</h2>
+          <input id="email" type="email" required placeholder="you@example.com" aria-label="Email address">
+          <button class="btn" type="submit">Follow this project</button>
+          <p class="note" id="msg">Preview only. Sign-ups aren't saved yet.</p>
+        </form>
+        <a class="btn ghost" href="#projects">Back to all projects</a>
+      </aside>
+    </div>`;
+  app.querySelectorAll(".tab").forEach(b=>b.onclick=()=>project(p,b.dataset.t));
+  document.getElementById("follow").onsubmit=e=>{e.preventDefault();const m=document.getElementById("msg");m.className="toast";m.textContent="Thanks. In the live site, this will add you to the update list."};
+}
+
+function about(){
+  app.innerHTML=`<section class="intro"><span class="eyebrow">About</span><h1>Why Fieldnotes exists</h1>
+  <p>Fieldnotes shares first-hand stories from community projects, written by the people running them. Replace this text with your own mission statement.</p>
+  <p><a href="#projects">Browse the projects</a></p></section>`;
+}
+
+function route(){
+  const h = location.hash.slice(1);
+  const p = projects.find(x=>x.id===h);
+  if(p) project(p); else if(h==="about") about(); else listing();
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",route);
+route();
+</script>
+</body>
+</html>
