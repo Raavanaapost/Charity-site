@@ -129,24 +129,24 @@
     {
       "label": "Trips & Events",
       "count": "trips",
-      "note": "Days out the kids remember"
+      "note": "Smiles created"
     },
     {
       "label": "Volunteers",
       "count": "manual",
       "value": "25",
-      "note": "Friends who show up"
+      "note": "Joined our projects to support"
     },
     {
       "label": "Local visits",
       "count": "manual",
       "value": "12",
-      "note": "Time with our neighbours"
+      "note": "Members visit people in need and verify their stories"
     },
     {
       "label": "Stories",
       "count": "stories",
-      "note": "Moments worth sharing"
+      "note": "Project impact stories"
     }
   ]
 }
