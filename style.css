@@ -290,3 +290,8 @@ footer .wrap{padding-block:28px;display:flex;justify-content:space-between;gap:1
 .follow-dots{margin-bottom:4px}
 @media (min-width:480px){.follow-slide{min-height:136px}.follow-slide figcaption{font-size:16.5px}}
 @media (prefers-reduced-motion:reduce){.follow-slide,.follow-title{transition:none}}
+
+/* sign-up title: heavy serif, with a larger italic first letter in the logo's orange-red */
+.follow h2.follow-title{font-family:"Merriweather",Georgia,"Times New Roman",serif;font-weight:900;font-size:21px;line-height:1.2;color:var(--ink);letter-spacing:-.005em;padding-bottom:2px}
+.follow-title .initial{font-family:"Playfair Display",Didot,"Bodoni MT",Georgia,serif;font-style:italic;font-weight:900;font-size:1.55em;line-height:1;display:inline-block;vertical-align:-.05em;margin-right:.04em;padding:0 .06em .04em 0;color:var(--flame);background:linear-gradient(165deg,var(--gold) 5%,var(--sun) 40%,var(--flame) 85%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.follow-title .dash{color:var(--sun)}

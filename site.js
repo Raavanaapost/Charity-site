@@ -64,7 +64,7 @@
   // "Follow our updates" box. The matching hidden form in index.html lets Netlify collect it.
   const signupHTML = (where, title = "Follow our updates") => `
     <form class="panel follow" name="updates" data-ajax data-done="Thank you! We'll email you when we post new updates.">
-      <h2>${esc(title)}</h2>
+      <h2 class="follow-title">${headline(title)}</h2>
       <p class="note" style="margin:0">Get an email when we post news from our projects.</p>
       <input type="hidden" name="form-name" value="updates">
       <input type="hidden" name="page" value="${esc(where)}">
@@ -256,7 +256,7 @@
       </figure>`;
     return `
     <form class="panel follow follow-rot" name="updates" data-ajax data-start="${start}" data-done="Thank you! We'll email you when we post new updates.">
-      <h2 class="follow-title">${esc(cur.title)}</h2>
+      <h2 class="follow-title">${headline(cur.title)}</h2>
       <div class="follow-track">${list.map(slide).join("")}</div>
       ${list.length > 1 ? `<div class="sayings-dots follow-dots">${list.map((_, i) => `<button type="button" aria-label="Message ${i + 1}" aria-current="${i === start}"></button>`).join("")}</div>` : ""}
       <input type="hidden" name="form-name" value="updates">
@@ -275,7 +275,7 @@
     if (!box) return;
     const title = box.querySelector(".follow-title");
     rotator(box, { item: ".follow-slide", dots: ".follow-dots button", start: Number(box.dataset.start) || 0, interval: 7600,
-      onShow: el => fadeText(title, esc(el.dataset.title)) });
+      onShow: el => fadeText(title, headline(el.dataset.title)) });
   }
 
   // Stage pages: projects (or impact updates) in sections by theme, with theme filters.
