@@ -1,0 +1,277 @@
+{
+  "backend": {
+    "name": "github",
+    "repo": "Raavanaapost/charity-site",
+    "branch": "main",
+    "commit_messages": {
+      "update": "Update {{slug}} from admin"
+    }
+  },
+  "media_folder": "/images/uploads",
+  "public_folder": "/images/uploads",
+  "editor": {
+    "preview": false
+  },
+  "collections": [
+    {
+      "name": "projects",
+      "label": "Projects",
+      "icon": "volunteer_activism",
+      "files": [
+        {
+          "name": "all-projects",
+          "label": "All projects",
+          "file": "projects.json",
+          "format": "json",
+          "fields": [
+            {
+              "name": "projects",
+              "label": "Projects",
+              "label_singular": "Project",
+              "widget": "list",
+              "collapsed": true,
+              "summary": "{{fields.title}}",
+              "add_to_top": true,
+              "fields": [
+                {
+                  "name": "title",
+                  "label": "Project title",
+                  "widget": "string"
+                },
+                {
+                  "name": "slug",
+                  "label": "Link name",
+                  "widget": "string",
+                  "required": false,
+                  "hint": "Short name used in the web address, e.g. clean-wells. Lowercase and dashes only. Leave empty to create it from the title. Changing it later breaks old links."
+                },
+                {
+                  "name": "hidden",
+                  "label": "Hide this project from the site",
+                  "widget": "boolean",
+                  "default": false,
+                  "required": false
+                },
+                {
+                  "name": "theme",
+                  "label": "Theme",
+                  "widget": "select",
+                  "options": [
+                    "Water",
+                    "Education",
+                    "Health",
+                    "Livelihoods",
+                    "Community",
+                    "Environment",
+                    "Other"
+                  ],
+                  "required": false
+                },
+                {
+                  "name": "status",
+                  "label": "Status",
+                  "widget": "select",
+                  "options": [
+                    "Planning",
+                    "Active",
+                    "Completed",
+                    "Paused"
+                  ],
+                  "default": "Active",
+                  "required": false
+                },
+                {
+                  "name": "location",
+                  "label": "Location",
+                  "widget": "string",
+                  "required": false,
+                  "hint": "e.g. Kigoma, Tanzania"
+                },
+                {
+                  "name": "organization",
+                  "label": "Run by",
+                  "widget": "string",
+                  "required": false
+                },
+                {
+                  "name": "started",
+                  "label": "Started",
+                  "widget": "string",
+                  "required": false,
+                  "hint": "e.g. March 2025"
+                },
+                {
+                  "name": "reach",
+                  "label": "Reach",
+                  "widget": "string",
+                  "required": false,
+                  "hint": "Who benefits, e.g. 2,400 residents"
+                },
+                {
+                  "name": "summary",
+                  "label": "Short summary",
+                  "widget": "text",
+                  "hint": "One or two sentences shown on the project card and under the title."
+                },
+                {
+                  "name": "cover",
+                  "label": "Cover photo",
+                  "widget": "image",
+                  "required": false
+                },
+                {
+                  "name": "quote",
+                  "label": "Highlight quote",
+                  "widget": "string",
+                  "required": false,
+                  "hint": "Optional quote from someone the project helps."
+                },
+                {
+                  "name": "story",
+                  "label": "Story",
+                  "widget": "markdown",
+                  "required": false,
+                  "hint": "Use headings like 'The problem', 'What we're doing', 'Long-term impact'."
+                },
+                {
+                  "name": "impact",
+                  "label": "Impact numbers",
+                  "label_singular": "Impact number",
+                  "widget": "list",
+                  "required": false,
+                  "summary": "{{fields.value}} {{fields.label}}",
+                  "fields": [
+                    {
+                      "name": "value",
+                      "label": "Number",
+                      "widget": "string",
+                      "hint": "e.g. 2,400 or 71%"
+                    },
+                    {
+                      "name": "label",
+                      "label": "What it counts",
+                      "widget": "string",
+                      "hint": "e.g. people with clean water"
+                    }
+                  ]
+                },
+                {
+                  "name": "updates",
+                  "label": "Updates",
+                  "label_singular": "Update",
+                  "widget": "list",
+                  "required": false,
+                  "add_to_top": true,
+                  "summary": "{{fields.date}} \u00b7 {{fields.title}}",
+                  "fields": [
+                    {
+                      "name": "date",
+                      "label": "Date",
+                      "widget": "datetime",
+                      "time_format": false,
+                      "format": "YYYY-MM-DD"
+                    },
+                    {
+                      "name": "title",
+                      "label": "Headline",
+                      "widget": "string"
+                    },
+                    {
+                      "name": "body",
+                      "label": "Update",
+                      "widget": "markdown"
+                    }
+                  ]
+                },
+                {
+                  "name": "photos",
+                  "label": "Photos",
+                  "label_singular": "Photo",
+                  "widget": "list",
+                  "required": false,
+                  "summary": "{{fields.caption}}",
+                  "fields": [
+                    {
+                      "name": "image",
+                      "label": "Photo",
+                      "widget": "image"
+                    },
+                    {
+                      "name": "caption",
+                      "label": "Caption",
+                      "widget": "string",
+                      "required": false
+                    }
+                  ]
+                },
+                {
+                  "name": "media",
+                  "label": "Video and audio",
+                  "label_singular": "Video or audio link",
+                  "widget": "list",
+                  "required": false,
+                  "summary": "{{fields.title}}",
+                  "fields": [
+                    {
+                      "name": "title",
+                      "label": "Title",
+                      "widget": "string",
+                      "required": false
+                    },
+                    {
+                      "name": "url",
+                      "label": "Link",
+                      "widget": "string",
+                      "hint": "Paste a YouTube, Vimeo or SoundCloud link."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "label": "Site settings",
+      "icon": "settings",
+      "files": [
+        {
+          "name": "site",
+          "label": "Name and About page",
+          "file": "site.json",
+          "format": "json",
+          "fields": [
+            {
+              "name": "name",
+              "label": "Site name",
+              "widget": "string"
+            },
+            {
+              "name": "tagline",
+              "label": "Home page headline",
+              "widget": "string"
+            },
+            {
+              "name": "intro",
+              "label": "Home page intro",
+              "widget": "text"
+            },
+            {
+              "name": "about",
+              "label": "About page",
+              "widget": "markdown"
+            },
+            {
+              "name": "footer",
+              "label": "Footer note",
+              "widget": "string",
+              "required": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

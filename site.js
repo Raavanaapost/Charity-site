@@ -173,7 +173,7 @@
     const app = document.getElementById("app");
     const page = document.body.dataset.page;
     try {
-      const [site, data] = await Promise.all([load("/content/site.json"), load("/content/projects.json")]);
+      const [site, data] = await Promise.all([load("/site.json"), load("/projects.json")]);
       frame(site);
       const projects = (data.projects || []).filter(p => p && p.title && !p.hidden);
       if (page === "project") {
