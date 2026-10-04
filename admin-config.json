@@ -415,10 +415,39 @@
               "widget": "markdown"
             },
             {
+              "name": "footer_tagline",
+              "label": "Footer line",
+              "widget": "string",
+              "required": false,
+              "hint": "Short line shown under the logo at the bottom of every page."
+            },
+            {
+              "name": "facebook",
+              "label": "Facebook page link",
+              "widget": "string",
+              "required": false,
+              "hint": "Paste the full link. Leave empty to hide it."
+            },
+            {
+              "name": "instagram",
+              "label": "Instagram link",
+              "widget": "string",
+              "required": false,
+              "hint": "Leave empty to hide it."
+            },
+            {
+              "name": "email",
+              "label": "Contact email",
+              "widget": "string",
+              "required": false,
+              "hint": "Shown in the footer. Leave empty to hide it."
+            },
+            {
               "name": "footer",
               "label": "Footer note",
               "widget": "string",
-              "required": false
+              "required": false,
+              "hint": "Optional small note at the very bottom, e.g. a registration number."
             }
           ]
         }

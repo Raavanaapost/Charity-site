@@ -53,12 +53,37 @@
     return r.json();
   }
 
+  // Footer shown on every page. Social links and email appear only when filled in under Site settings.
   function frame(site) {
     document.querySelectorAll("[data-site-name]").forEach(el => el.textContent = site.name || "");
-    const f = document.querySelector("[data-site-footer]");
-    if (f) f.textContent = site.footer || "";
-    const y = document.querySelector("[data-year]");
-    if (y) y.textContent = new Date().getFullYear();
+    const foot = document.querySelector("footer");
+    if (!foot) return;
+    const safe = u => /^https?:\/\//i.test(String(u || "").trim()) ? String(u).trim() : "";
+    const fb = safe(site.facebook), ig = safe(site.instagram);
+    const mail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(site.email || "").trim()) ? String(site.email).trim() : "";
+    const col = (title, links) => `<div class="foot-col"><h3>${title}</h3><ul>${links.map(([t, h, ext]) => `<li><a href="${esc(h)}"${ext ? ' target="_blank" rel="noopener"' : ""}>${esc(t)}</a></li>`).join("")}</ul></div>`;
+    const follow = [fb && ["Facebook", fb, 1], ig && ["Instagram", ig, 1], mail && [mail, "mailto:" + mail]].filter(Boolean);
+    foot.className = "foot";
+    foot.innerHTML = `
+      <svg class="foot-wave" viewBox="0 0 400 30" preserveAspectRatio="none" aria-hidden="true"><path class="w1" d="M0 16C70 2 140 4 200 12 260 20 330 4 400 10V30H0Z"/><path class="w2" d="M0 24C80 10 150 12 210 18 270 24 336 12 400 16V30H0Z"/></svg>
+      <div class="foot-main"><div class="wrap">
+        <div class="foot-brand">
+          <a class="foot-logo" href="/" aria-label="${esc(site.name)}, home"><picture><source srcset="/img/logo.webp?v=2" type="image/webp"><img src="/img/logo.jpg?v=2" alt="${esc(site.name)}" width="900" height="277" loading="lazy"></picture></a>
+          ${site.footer_tagline ? `<p>${esc(site.footer_tagline)}</p>` : ""}
+          <a class="foot-cta" href="/#keep-posted">Keep me posted</a>
+        </div>
+        <nav class="foot-cols" aria-label="Footer">
+          ${col("Explore", [["Home", "/"], ["About us", "/about"], ["Contact", "/contact"]])}
+          ${col("Our stages", [["Initiated", "/initiated"], ["Activated", "/activated"], ["Impact", "/impact"]])}
+          ${col("Get involved", [["Volunteer with us", "/contact"], ["Suggest a project", "/contact"], ["Partner with us", "/contact"]])}
+          ${follow.length ? col("Follow us", follow) : ""}
+        </nav>
+      </div></div>
+      <div class="foot-bar"><div class="wrap">
+        <span>© ${new Date().getFullYear()} ${esc(site.name)} · Beyond the Lanes</span>
+        ${site.footer ? `<span>${esc(site.footer)}</span>` : ""}
+        <a href="/admin">Team login</a>
+      </div></div>`;
   }
 
   // "Follow our updates" box. The matching hidden form in index.html lets Netlify collect it.
@@ -184,12 +209,14 @@
           </a>`).join("")}
       </nav>
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
-      <section class="signup-band">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
+      <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
     wireForms(app);
     fitHeadline();
     rotTimers.forEach(clearInterval); rotTimers = [];
     startSayings(app);
     startFollow(app);
+    // arriving from the footer's "Keep me posted" button on another page
+    if (location.hash === "#keep-posted") { const t = document.getElementById("keep-posted"); if (t) t.scrollIntoView(); }
   }
 
   // Rotating messages under the home headline.

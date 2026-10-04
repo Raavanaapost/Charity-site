@@ -295,3 +295,30 @@ footer .wrap{padding-block:28px;display:flex;justify-content:space-between;gap:1
 .follow h2.follow-title{font-family:"Merriweather",Georgia,"Times New Roman",serif;font-weight:900;font-size:21px;line-height:1.2;color:var(--ink);letter-spacing:-.005em;padding-bottom:2px}
 .follow-title .initial{font-family:"Playfair Display",Didot,"Bodoni MT",Georgia,serif;font-style:italic;font-weight:900;font-size:1.55em;line-height:1;display:inline-block;vertical-align:-.05em;margin-right:.04em;padding:0 .06em .04em 0;color:var(--flame);background:linear-gradient(165deg,var(--gold) 5%,var(--sun) 40%,var(--flame) 85%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .follow-title .dash{color:var(--sun)}
+
+/* footer: the green hills from the illustrations, then links */
+footer.foot{border-top:0;background:transparent;margin-top:8px;color:#e9f1ec}
+.foot-wave{display:block;width:100%;height:30px;margin-bottom:-1px}
+.foot-wave .w1{fill:#3f9a5f}.foot-wave .w2{fill:#0f5132}
+.foot-main{background:#0f5132}
+footer.foot .foot-main .wrap{padding-block:26px 28px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,2fr);gap:36px;font-size:15px;color:inherit;justify-content:initial}
+.foot-brand{display:grid;gap:12px;justify-items:start;align-content:start}
+.foot-logo picture{display:block;background:#fff;border-radius:10px;padding:6px 10px}
+.foot-logo img{display:block;height:64px;width:auto}
+.foot-brand p{margin:0;color:#cfe3d7;max-width:30ch}
+.foot-cta{font-family:var(--display);font-weight:700;font-size:15px;color:#3b2400;background:#f7c63a;border-radius:999px;padding:9px 18px;text-decoration:none}
+.foot-cta:hover{background:#ffd76a}
+.foot-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:22px 24px}
+.foot-col h3{font-family:var(--display);font-weight:800;font-size:12.5px;letter-spacing:.09em;text-transform:uppercase;color:#f7c63a;margin:0 0 10px}
+.foot-col ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.foot-col a{color:#fff;text-decoration:none;overflow-wrap:anywhere}
+.foot-col a:hover{text-decoration:underline}
+.foot-bar{background:#0b3e26}
+footer.foot .foot-bar .wrap{padding-block:13px;display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between;align-items:center;font-size:13px;color:#b9d2c4}
+.foot-bar a{color:#b9d2c4}
+footer.foot :focus-visible{outline-color:#f7c63a}
+@media (max-width:760px){
+  footer.foot .foot-main .wrap{grid-template-columns:minmax(0,1fr);gap:24px}
+  .foot-cols{grid-template-columns:1fr 1fr}
+  .foot-logo img{height:56px}
+}
