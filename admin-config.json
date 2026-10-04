@@ -185,8 +185,8 @@
                 },
                 {
                   "name": "photos",
-                  "label": "Photos",
-                  "label_singular": "Photo",
+                  "label": "Pictures",
+                  "label_singular": "Picture",
                   "widget": "list",
                   "required": false,
                   "summary": "{{fields.caption}}",
@@ -206,8 +206,8 @@
                 },
                 {
                   "name": "media",
-                  "label": "Video and audio",
-                  "label_singular": "Video or audio link",
+                  "label": "Videos",
+                  "label_singular": "Video",
                   "widget": "list",
                   "required": false,
                   "summary": "{{fields.title}}",
@@ -222,7 +222,7 @@
                       "name": "url",
                       "label": "Link",
                       "widget": "string",
-                      "hint": "Paste a YouTube, Vimeo or SoundCloud link."
+                      "hint": "Paste a YouTube or Vimeo link (SoundCloud audio links also work)."
                     }
                   ]
                 }
