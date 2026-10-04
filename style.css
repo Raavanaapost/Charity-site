@@ -352,6 +352,12 @@ footer.foot .foot-main .wrap{grid-template-columns:minmax(0,1fr)}
 .meaning li{display:flex;align-items:center;gap:9px;background:var(--brand-soft);color:var(--brand);border-radius:10px;padding:9px 11px;font-family:var(--display);font-weight:700;font-size:13.5px;line-height:1.2}
 .meaning svg{flex:none}
 .section-title.lined{margin-top:22px;padding-top:18px;border-top:2px solid var(--line)}
+/* The stage name inside a list heading: heavy capitals in the stage's own colour */
+.stage-word{font-family:"Inter",var(--display);font-weight:900;text-transform:uppercase;letter-spacing:.04em;font-size:.94em;color:#1f7a47;white-space:nowrap}
+.stage-word.s2{color:#b97a06}
+.stage-word.s3{color:#c8381e}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .stage-word{color:#5fbf85}:root:not([data-theme="light"]) .stage-word.s2{color:#f2b21c}:root:not([data-theme="light"]) .stage-word.s3{color:#ef7a5f}}
+:root[data-theme="dark"] .stage-word{color:#5fbf85}:root[data-theme="dark"] .stage-word.s2{color:#f2b21c}:root[data-theme="dark"] .stage-word.s3{color:#ef7a5f}
 .theme-title{font-family:var(--display);font-size:17px;margin:0 0 10px;color:var(--ink)}
 .theme-title .count{font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:500;margin-left:4px}
 .journey{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:10px;border-top:1px dashed var(--line);font-family:var(--display);font-size:13px}

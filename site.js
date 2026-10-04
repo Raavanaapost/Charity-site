@@ -336,7 +336,7 @@
         ["Opening a relationship", '<circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2.5 19c.6-3.4 2.6-5 5.5-5 1.6 0 2.9.5 4 1.5 1.1-1 2.4-1.5 4-1.5 2.9 0 4.9 1.6 5.5 5"/>'],
         ["Starting an initiative", '<path d="M12 21v-9"/><path d="M12 14c-4 0-6-2.2-6.5-6 3.9 0 6 2 6.5 6z"/><path d="M12 11c0-4 2.3-6 6.5-6.5 0 4-2.3 6-6.5 6.500z"/>']
       ],
-      heading: "Projects we have started", empty: "No projects yet. Add one from the admin page.",
+      heading: 'Projects we have <span class="stage-word s1">Initiated</span>', empty: "No projects yet. Add one from the admin page.",
       cta: { title: "Have an idea for a project?", text: "Every project on this page began with someone reaching out. Tell us about a need you see, and we'll explore it together.", btn: "Suggest a project", href: "/contact?topic=suggest" },
       next: { slug: "activated", kicker: "Next stage", label: "Activated", text: "See the projects that have moved into action." }
     },
@@ -349,7 +349,7 @@
         ["Working together", '<circle cx="9" cy="12" r="5.5"/><circle cx="15" cy="12" r="5.5"/>'],
         ["Making it happen", '<path d="M13 2.5 5 13.500h6l-1 8 8-11h-6z"/>']
       ],
-      heading: "Projects in action", empty: "No projects are in action yet. They appear here once their status is Active.",
+      heading: 'Projects we have <span class="stage-word s2">Activated</span>', empty: "No projects are in action yet. They appear here once their status is Active.",
       cta: { title: "Want to take part?", text: "Projects move because people show up. Lend an hour, a skill or a helping hand, and be part of what's happening.", btn: "Volunteer with us", href: "/volunteer" },
       next: { slug: "impact", kicker: "Next stage", label: "Impact", text: "See the difference these projects are making." }
     },
@@ -362,7 +362,7 @@
         ["Real connection", '<path d="M12 20s-7.5-4.6-7.5-10.200A4.3 4.3 0 0 1 12 7.600a4.3 4.3 0 0 1 7.5 2.200c0 5.6-7.5 10.2-7.5 10.200z"/>'],
         ["Lasting difference", '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/>']
       ],
-      heading: "Stories of impact", empty: "No impact updates yet. Add them to a project in the admin page.",
+      heading: 'Stories of <span class="stage-word s3">Impact</span>', empty: "No impact updates yet. Add them to a project in the admin page.",
       cta: { title: "Be part of the next one", text: "Every smile on this page started with people who cared. Stay close and see what we create together next.", btn: "Keep me posted", href: "/#keep-posted" },
       next: { slug: "initiated", kicker: "Back to the start", label: "Initiated", text: "See every project from where it began." }
     }
@@ -412,7 +412,7 @@
           <ul class="meaning">${cfg.tags.map(([t, d]) => `<li>${ICON(d)}<span>${t}</span></li>`).join("")}</ul>
         </section>
         ${slug === "impact" && numbers.length ? `
-          <h2 class="section-title lined">Impact in numbers</h2>
+          <h2 class="section-title lined"><span class="stage-word s3">Impact</span> in numbers</h2>
           <div class="impact-numbers">${numbers.map(({ p, x }) => `<a href="/projects/${slugOf(p)}"><b>${esc(x.value)}</b><span>${esc(x.label)}</span><small>${esc(p.title)}</small></a>`).join("")}</div>` : ""}
         <h2 class="section-title lined">${cfg.heading}</h2>
         ${themes.length > 1 ? `<div class="filters" role="group" aria-label="Filter by theme">
