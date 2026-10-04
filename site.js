@@ -542,7 +542,7 @@
   }
 
   function renderAbout(app, site) {
-    app.innerHTML = `<section class="intro"><span class="eyebrow">About</span><h1>About ${esc(site.name)}</h1><div class="story">${md(site.about)}</div><p><a href="/initiated">See our projects</a></p></section>`;
+    app.innerHTML = `<section class="intro about-page"><span class="eyebrow">About</span><h1 class="follow-title"><span class="initial">A</span>bout <span class="org">${esc(site.name)}</span></h1><div class="story">${md(site.about)}</div><p><a href="/initiated">See our projects</a></p></section>`;
   }
 
   // Phone menu button

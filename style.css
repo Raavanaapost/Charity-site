@@ -413,11 +413,15 @@ footer.foot .foot-main .wrap{grid-template-columns:minmax(0,1fr)}
 
 /* Volunteer page: rotating title + message on a picture, then the form */
 .slide-box{display:grid;gap:8px;align-content:start}
-.slide-box .eyebrow{justify-self:start;font-family:"Inter",system-ui,sans-serif;font-weight:900;font-size:13px;letter-spacing:.1em;margin-bottom:4px;padding:0 18px 7px 0;
+.slide-box .eyebrow,.about-page .eyebrow{justify-self:start;font-family:"Inter",system-ui,sans-serif;font-weight:900;font-size:13px;letter-spacing:.1em;margin-bottom:4px;padding:0 18px 7px 0;
   background:linear-gradient(90deg,var(--brand) 0,#e5851a 62%,rgba(229,133,26,0) 100%) left bottom/100% 1px no-repeat}
-.slide-box h1.follow-title{font-family:"Merriweather",Georgia,"Times New Roman",serif;font-weight:900;font-size:clamp(24px,6.4vw,34px);line-height:1.2;color:var(--ink);margin:0;padding-bottom:2px}
+.slide-box h1.follow-title,.about-page h1.follow-title{font-family:"Merriweather",Georgia,"Times New Roman",serif;font-weight:900;font-size:clamp(24px,6.4vw,34px);line-height:1.2;color:var(--ink);margin:0;padding-bottom:2px}
 .slide-box .follow-slide{min-height:132px}
 .slide-note{margin:6px 0 0;color:var(--ink)}
+.wrap > .intro.about-page:first-child{padding-block:18px 28px}
+.about-page .eyebrow{margin-bottom:2px}
+.about-page h1.follow-title{max-width:none;margin-bottom:6px}
+.about-page h1 .org{color:var(--brand);letter-spacing:.02em}
 .checks{border:1px solid var(--line);border-radius:8px;margin:0;padding:10px 12px 12px;display:grid;gap:8px}
 .checks legend{font-family:var(--display);font-weight:600;font-size:15px;padding:0 4px}
 .form .checks label{display:flex;align-items:center;gap:10px;font-family:var(--body);font-weight:400;font-size:16px}
