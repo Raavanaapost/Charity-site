@@ -311,6 +311,16 @@
     app.innerHTML = `<section class="intro"><span class="eyebrow">About</span><h1>About ${esc(site.name)}</h1><div class="story">${md(site.about)}</div><p><a href="/">Browse the projects</a></p></section>`;
   }
 
+  // Phone menu button
+  const menuBtn = document.querySelector(".menu-btn"), nav = document.getElementById("site-nav");
+  if (menuBtn && nav) {
+    menuBtn.addEventListener("click", () => {
+      const open = menuBtn.getAttribute("aria-expanded") !== "true";
+      menuBtn.setAttribute("aria-expanded", String(open)); nav.classList.toggle("open", open);
+    });
+    nav.addEventListener("click", e => { if (e.target.closest("a")) { menuBtn.setAttribute("aria-expanded", "false"); nav.classList.remove("open"); } });
+  }
+
   async function main() {
     const app = document.getElementById("app");
     const page = document.body.dataset.page;
