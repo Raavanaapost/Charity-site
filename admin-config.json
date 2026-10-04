@@ -165,8 +165,8 @@
                 },
                 {
                   "name": "updates",
-                  "label": "Updates",
-                  "label_singular": "Update",
+                  "label": "Impact updates",
+                  "label_singular": "Impact update",
                   "widget": "list",
                   "required": false,
                   "add_to_top": true,
