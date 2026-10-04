@@ -167,5 +167,7 @@ footer .wrap{padding-block:28px;display:flex;justify-content:space-between;gap:1
 .form .opt{font-weight:400;color:var(--muted);font-size:13px}
 
 /* home headline: script initial in the logo's orange-red, bold serif like the "Raavanaa" wordmark */
-.headline{font-family:"Merriweather",Georgia,"Times New Roman",serif;font-weight:900;color:var(--brand);font-size:clamp(32px,6vw,54px);line-height:1.08;letter-spacing:-.01em;max-width:16ch}
+.intro .headline{max-width:100%;font-size:clamp(22px,6.4vw,58px)}
+.headline{font-family:"Merriweather",Georgia,"Times New Roman",serif;font-weight:900;color:var(--brand);font-size:clamp(20px,5.8vw,56px);line-height:1.15;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;padding-top:.12em}
+.headline .dash{color:var(--sun);font-weight:700;margin-inline:.05em}
 .headline .initial{font-family:"Kaushan Script","Brush Script MT",cursive;font-weight:400;font-size:1.55em;line-height:.7;display:inline-block;margin-right:.03em;vertical-align:-.06em;color:var(--flame);background:linear-gradient(165deg,var(--gold) 5%,var(--sun) 40%,var(--flame) 85%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding:.08em .04em 0 0}

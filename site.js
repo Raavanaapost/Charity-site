@@ -112,8 +112,21 @@
     const str = String(t || "").trim();
     if (!str) return "";
     const first = [...str][0];
-    return `<span class="initial">${esc(first.toUpperCase())}</span>${esc(str.slice(first.length))}`;
+    const rest = esc(str.slice(first.length)).replace(/\s+[-–—]\s+/, ' <span class="dash">–</span> ');
+    return `<span class="initial">${esc(first.toUpperCase())}</span>${rest}`;
   };
+
+  // Keep the home headline on one line: shrink it until it fits the screen.
+  function fitHeadline() {
+    const h = document.querySelector(".headline");
+    if (!h) return;
+    h.style.fontSize = "";
+    let size = parseFloat(getComputedStyle(h).fontSize);
+    while (h.scrollWidth > h.clientWidth + 1 && size > 16) { size -= 1; h.style.fontSize = size + "px"; }
+  }
+  let fitTimer;
+  window.addEventListener("resize", () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitHeadline, 120); });
+  if (document.fonts) document.fonts.ready.then(fitHeadline);
 
   function card(p, i) {
     return `
@@ -170,6 +183,7 @@
         <section class="signup-band">${signupHTML("home")}</section>`;
       app.querySelectorAll(".chip").forEach(b => b.onclick = () => { filter = b.dataset.t; draw(); });
       wireForms(app);
+      fitHeadline();
     };
     draw();
   }
