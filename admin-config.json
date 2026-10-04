@@ -65,7 +65,7 @@
                   "label": "Theme",
                   "widget": "select",
                   "options": [
-                    "Education",
+                    "Events",
                     "Livelihoods",
                     "Community",
                     "Other"
