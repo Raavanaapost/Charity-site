@@ -129,24 +129,24 @@
     {
       "label": "Trips & Events",
       "count": "trips",
-      "note": "Smiles created"
+      "note": "Days out full of fun, laughter and smiles"
     },
     {
       "label": "Volunteers",
       "count": "manual",
       "value": "25",
-      "note": "Joined our projects to support"
+      "note": "People who joined our projects to help"
     },
     {
       "label": "Local visits",
       "count": "manual",
       "value": "12",
-      "note": "Members visit people in need and verify their stories"
+      "note": "Meeting people in need to hear and verify their stories"
     },
     {
       "label": "Stories",
       "count": "stories",
-      "note": "Project impact stories"
+      "note": "Real moments from our projects"
     }
   ],
   "categories": [
