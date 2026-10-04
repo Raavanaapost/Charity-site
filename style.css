@@ -115,10 +115,8 @@ footer .wrap{padding-block:28px;display:flex;justify-content:space-between;gap:1
 
 /* home page: totals, featured project, sign-up */
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.totals{display:flex;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-block:24px 0;position:relative;overflow:hidden}
-.totals::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--brand),var(--sun) 40%,var(--flame) 75%,var(--gold))}
-.totals>div{--c:var(--brand);--c2:#3f9a5f;--soft:var(--brand-soft);flex:1 1 0;min-width:96px;display:flex;align-items:center;justify-content:center;gap:12px;padding:20px 12px 16px;min-width:0}
-.totals>div+div{border-left:1px dashed var(--line)}
+.totals{display:flex;flex-wrap:wrap;gap:12px;margin-block:24px 0}
+.totals>div{--c:var(--brand);--c2:#3f9a5f;--soft:var(--brand-soft);flex:1 1 0;min-width:96px;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;display:flex;align-items:center;justify-content:center;gap:12px;padding:20px 12px 16px;min-width:0}
 .totals .stat-active{--c:var(--sun);--c2:var(--gold);--soft:var(--sun-soft)}
 .totals .stat-updates{--c:var(--flame);--c2:var(--sun);--soft:color-mix(in srgb,var(--flame) 15%,var(--surface))}
 .totals .stat-extra{--c:var(--sun);--c2:var(--gold);--soft:color-mix(in srgb,var(--gold) 22%,var(--surface))}
@@ -128,14 +126,14 @@ footer .wrap{padding-block:28px;display:flex;justify-content:space-between;gap:1
 .totals .ico .fill{fill:rgba(255,255,255,.28)}
 .totals p{margin:0;display:grid;gap:3px;min-width:0}
 .totals b{font-family:var(--display);font-weight:700;font-size:34px;line-height:.95;color:var(--c);font-variant-numeric:tabular-nums}
-.totals span{font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);line-height:1.25}
+.totals span{font-family:var(--display);font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);line-height:1.2}
 .totals .stat-active .ico{animation:spin 14s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.totals .stat-active .ico{animation:none}}
 @media (max-width:640px){
   .totals>div{flex-direction:column;gap:8px;text-align:center;padding:18px 6px 14px}
   .totals i{width:48px;height:48px;border-radius:14px}.totals .ico{width:26px;height:26px}
-  .totals b{font-size:28px}.totals span{font-size:10px;letter-spacing:.05em}
+  .totals b{font-size:28px}.totals span{font-size:11.5px;letter-spacing:.05em}
 }
 .feature{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;text-decoration:none;color:inherit;margin-bottom:40px}
 .feature .cover{aspect-ratio:auto;min-height:280px;height:100%}
@@ -197,3 +195,4 @@ footer .wrap{padding-block:28px;display:flex;justify-content:space-between;gap:1
 @media (prefers-reduced-motion:reduce){.menu-btn span{transition:none}}
 
 .totals + .intro{padding-block:30px 28px}
+@media (max-width:640px){.totals{gap:8px}}
