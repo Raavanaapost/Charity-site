@@ -62,17 +62,11 @@
                 },
                 {
                   "name": "theme",
-                  "label": "Theme",
+                  "label": "Category",
                   "widget": "select",
                   "options": [
-                    "Water",
-                    "Education",
-                    "Health",
-                    "Livelihoods",
-                    "Community",
-                    "Environment",
-                    "Events",
-                    "Other"
+                    "Trips & Events",
+                    "Education"
                   ],
                   "required": false
                 },

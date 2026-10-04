@@ -3,7 +3,7 @@
     {
       "slug": "wells",
       "title": "Clean wells for six hillside villages",
-      "theme": "Water",
+      "theme": "Trips & Events",
       "location": "Kigoma, Tanzania",
       "organization": "Kigoma Water Circle",
       "started": "March 2025",
@@ -74,7 +74,7 @@
     {
       "slug": "clinic",
       "title": "Mobile clinic for remote river communities",
-      "theme": "Health",
+      "theme": "Education",
       "location": "Loreto, Peru",
       "organization": "Río Salud",
       "started": "Nov 2024",
@@ -107,7 +107,7 @@
     {
       "slug": "seeds",
       "title": "Seed banks for women farmers",
-      "theme": "Livelihoods",
+      "theme": "Education",
       "location": "Tamale, Ghana",
       "organization": "Northern Seed Collective",
       "started": "May 2025",
@@ -140,7 +140,7 @@
     {
       "slug": "repair",
       "title": "Neighborhood repair café",
-      "theme": "Community",
+      "theme": "Trips & Events",
       "location": "Hamilton, Ontario",
       "organization": "Fix It Together",
       "started": "Feb 2026",
@@ -173,7 +173,7 @@
     {
       "slug": "trees",
       "title": "Mangrove replanting along the delta",
-      "theme": "Environment",
+      "theme": "Trips & Events",
       "location": "Ayeyarwady, Myanmar",
       "organization": "Delta Green",
       "started": "Aug 2024",
