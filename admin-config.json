@@ -442,6 +442,32 @@
               ]
             },
             {
+              "name": "categories",
+              "label": "Impact story sections",
+              "label_singular": "Section",
+              "widget": "list",
+              "required": false,
+              "summary": "{{fields.name}}",
+              "hint": "A short message shown under each category heading in IMPACT Stories on the Impact page.",
+              "fields": [
+                {
+                  "name": "name",
+                  "label": "Category",
+                  "widget": "select",
+                  "options": [
+                    "Trips & Events",
+                    "Education"
+                  ]
+                },
+                {
+                  "name": "note",
+                  "label": "Short message",
+                  "widget": "string",
+                  "hint": "One short sentence."
+                }
+              ]
+            },
+            {
               "name": "impact",
               "label": "Impact in numbers",
               "label_singular": "Number",

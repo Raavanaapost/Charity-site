@@ -148,5 +148,15 @@
       "count": "stories",
       "note": "Project impact stories"
     }
+  ],
+  "categories": [
+    {
+      "name": "Trips & Events",
+      "note": "Kids went out, had fun and enjoyed the day. Smiles created."
+    },
+    {
+      "name": "Education",
+      "note": "Helping kids learn, grow and dream bigger."
+    }
   ]
 }

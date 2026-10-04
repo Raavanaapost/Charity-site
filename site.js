@@ -397,22 +397,24 @@
     const sub = slug === "initiated" ? `${plural(projects.length, "project")} started${fresh ? ` · ${fresh} just beginning` : ""}`
       : slug === "activated" ? `${plural(reached.length, "project")} in action`
       : `${stories.length === 1 ? "1 story" : stories.length + " stories"} of impact · ${plural(new Set(stories.map(x => x.p)).size, "project")}`;
+    // Short message shown under each category heading in "Impact Stories" (Site settings → Impact story sections).
+    const notes = Object.fromEntries((site.categories || []).filter(c => c && c.name && c.note).map(c => [c.name, c.note]));
     let filter = "All";
     const draw = () => {
-      const shown = items.filter(x => filter === "All" || (x.p.theme || "Other") === filter);
       const groups = themes.filter(t => filter === "All" || t === filter).map(t => [t, items.filter(x => (x.p.theme || "Other") === t)]);
       const body = !items.length ? `<p class="empty">${cfg.empty}</p>`
-        : slug === "impact" ? `<div class="impact-list">${shown.map(({ p, u }) => `
+        : groups.map(([t, xs]) => `
+          <section class="theme-group">
+            <h3 class="theme-title">${esc(t)} <span class="count">${xs.length}</span></h3>
+            ${slug === "impact" && notes[t] ? `<p class="theme-note">${esc(notes[t])}</p>` : ""}
+            ${slug === "impact" ? `<div class="impact-list">${xs.map(({ p, u }) => `
             <a class="impact-item" href="/projects/${slugOf(p)}#updates">
-              <div class="meta">${fmtDate(u.date)}${p.theme ? ` · ${esc(p.theme)}` : ""}</div>
+              <div class="meta">${fmtDate(u.date)}</div>
               <h3>${esc(u.title)}</h3>
               <div class="excerpt">${md(u.body)}</div>
               <div class="from">${esc(p.title)} →</div>
             </a>`).join("")}</div>`
-        : groups.map(([t, xs]) => `
-          <section class="theme-group">
-            <h3 class="theme-title">${esc(t)} <span class="count">${xs.length}</span></h3>
-            <div class="grid">${xs.map(({ p, i }) => card(p, i, journey(p))).join("")}</div>
+            : `<div class="grid">${xs.map(({ p, i }) => card(p, i, journey(p))).join("")}</div>`}
           </section>`).join("");
       app.innerHTML = `
         ${stageNav(slug)}
