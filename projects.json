@@ -20,6 +20,25 @@
       "media": []
     },
     {
+      "slug": "arcade-trip",
+      "title": "An arcade trip for the orphanage kids",
+      "featured": false,
+      "theme": "Trips & Events",
+      "location": "",
+      "organization": "Raavanaa",
+      "started": "October 2026",
+      "status": "Planning",
+      "reach": "Children from an orphanage",
+      "summary": "We are planning a trip to the arcade for children from an orphanage: games, lights, prizes and a day made just for them.",
+      "cover": "/img/project-arcade.svg",
+      "quote": "",
+      "story": "## The idea\n\nWe want to take children from an orphanage out to the arcade. A few hours of games, bright lights and little prizes, where the only thing they have to do is have fun.\n\n## Where we are now\n\nThe project has been **initiated**. We are waiting for the budget and for the other details of the trip to be confirmed.\n\n## What happens next\n\n- The budget and the details are confirmed\n- We fix the date and book the arcade\n- We arrange transport, food and helpers for the day\n- The kids take over the games\n\n## How you can help\n\nWe will need extra hands on the day to look after the children and cheer on every high score. If you would like to join, [volunteer with us](/volunteer).",
+      "impact": [],
+      "updates": [],
+      "photos": [],
+      "media": []
+    },
+    {
       "slug": "wells",
       "title": "Clean wells for six hillside villages",
       "theme": "Trips & Events",
