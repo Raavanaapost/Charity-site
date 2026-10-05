@@ -454,3 +454,39 @@ footer.foot .foot-main .wrap{grid-template-columns:minmax(0,1fr)}
 .form > label{display:block}
 .form > label > input,.form > label > select,.form > label > textarea{display:block;margin-top:6px}
 .phead .tag{width:fit-content}
+
+/* Larger screens: the same layout, scaled up so it doesn't read as a stretched phone page */
+@media (min-width:1000px){
+  .wrap{max-width:1200px;padding-inline:28px}
+  .bar .wrap{min-height:128px}
+  .logo img{height:112px;max-width:420px}
+  .nav{font-size:17px;gap:28px}
+  .wrap > .intro:first-child{padding-block:30px 26px}
+  .saying.has-img{gap:48px}
+  .saying.has-img figcaption{font-size:23px;line-height:1.55}
+  .sayings-dots button{width:10px;height:10px}
+  .sayings-dots button[aria-current="true"]{width:28px}
+  .stages{gap:0;justify-content:space-evenly;margin-block:26px 52px;padding-inline:0}
+  .stage{flex-basis:240px}
+  .stage.art{padding-bottom:26px}
+  .stage.art span{font-size:25px}
+  .stage.art b{font-size:42px}
+  /* sign-up box: full width of the page column, picture on the left and the form on the right */
+  .signup-band{max-width:none;padding-bottom:40px}
+  .signup-band .follow{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);column-gap:36px;row-gap:12px;align-items:center;padding:26px 32px 28px}
+  .signup-band .follow > .follow-title{grid-column:1/-1;grid-row:1;font-size:28px;margin-bottom:2px}
+  .signup-band .follow > .follow-track{grid-column:1;grid-row:2/span 3;align-self:stretch}
+  .signup-band .follow > .follow-dots{grid-column:1;grid-row:5}
+  .signup-band .follow > input[name="name"]{grid-column:2;grid-row:2}
+  .signup-band .follow > input[name="email"]{grid-column:2;grid-row:3}
+  .signup-band .follow > .btn{grid-column:2;grid-row:4}
+  .signup-band .follow > .note{grid-column:2;grid-row:5;margin:0}
+  .signup-band .follow-slide{min-height:176px;height:100%}
+  .signup-band .follow-slide figcaption{font-size:20px;padding-left:24px}
+  .signup-band .follow input{font-size:17px;padding:13px 14px}
+  .signup-band .follow .btn{font-size:17px;padding-block:14px}
+  footer.foot .foot-main .wrap{font-size:17px;padding-block:34px}
+  .foot-col h3{font-size:14px;margin-bottom:12px}
+  .foot-col ul{gap:10px}
+  footer.foot .foot-bar .wrap{font-size:14.5px}
+}
