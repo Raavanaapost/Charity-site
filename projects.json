@@ -20,8 +20,38 @@
       "media": [],
       "verified": false,
       "goal": "",
-      "budget": [],
-      "funders": []
+      "budget": [
+        {
+          "amount": 300,
+          "item": "SAMPLE: Bowling lanes and shoes for 25 children"
+        },
+        {
+          "amount": 220,
+          "item": "SAMPLE: Bus to the lanes and back"
+        },
+        {
+          "amount": 180,
+          "item": "SAMPLE: Lunch and drinks for everyone"
+        },
+        {
+          "amount": 50,
+          "item": "SAMPLE: Medals and small prizes"
+        }
+      ],
+      "funders": [
+        {
+          "name": "SAMPLE: Ganes family",
+          "amount": 250
+        },
+        {
+          "name": "SAMPLE: Maple Leaf Bowling Club",
+          "amount": 200
+        },
+        {
+          "name": "SAMPLE: A friend of Raavanaa",
+          "amount": 75
+        }
+      ]
     },
     {
       "slug": "arcade-trip",
