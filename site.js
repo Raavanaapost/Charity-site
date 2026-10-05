@@ -338,7 +338,7 @@
   const STAGE_PAGES = {
     initiated: {
       n: 1, title: "Initiated", hero: "/img/hero-initiated.svg",
-      lead: "Every project begins here. An idea is shared, a hand is reached out, and a connection is made.",
+      lead: "Every project begins when someone tells us about children who are waiting for a day of joy. We visit, listen and make sure the need is real.",
       tags: [
         ["Reaching out", '<path d="M4 6.5h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H10l-4 3v-3H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z"/><path d="M7 10.5h8M7 13.5h5"/>'],
         ["Spotting an opportunity", '<circle cx="10" cy="10" r="6"/><path d="m14.5 14.5 5.5 5.5"/><path d="m10 6.8.9 2 2.2.3-1.6 1.5.4 2.1-1.9-1-1.9 1 .4-2.1L6.9 9.1l2.2-.3z" fill="currentColor" stroke="none"/>'],
@@ -351,7 +351,7 @@
     },
     activated: {
       n: 2, title: "Activated", hero: "/img/hero-activated.svg",
-      lead: "This is where an idea turns into action. People show up, plans come together, and things start happening.",
+      lead: "Sponsors have stepped in and the day is being planned: the date, the place, the food and the helpers.",
       tags: [
         ["Taking part", '<circle cx="12" cy="6" r="2.6"/><path d="M5 5l4.5 5.500h5L19 5"/><path d="M9.5 10.500V20M14.5 10.500V20"/>'],
         ["Getting organized", '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.500h6v-2H9z"/><path d="m8.5 11 1.5 1.5 2.5-2.500M8.5 16l1.5 1.5 2.5-2.500M14.5 11.500h2M14.5 16.500h2"/>'],
@@ -364,7 +364,7 @@
     },
     impact: {
       n: 3, title: "Impact", hero: "/img/hero-impact.svg",
-      lead: "This is what it all adds up to: smiles created, everyone included, and a difference that lasts beyond the day.",
+      lead: "The day has happened. Here are the stories and the pictures, so every sponsor can see the smiles they created.",
       tags: [
         ["Smiles created", '<circle cx="12" cy="12" r="9"/><path d="M8 14c1 1.8 2.4 2.7 4 2.700s3-.9 4-2.7"/><path d="M8.5 9.500h.01M15.5 9.500h.01" stroke-width="2.6"/>'],
         ["Everyone included", '<circle cx="12" cy="6" r="2.4"/><circle cx="5.5" cy="9" r="2"/><circle cx="18.5" cy="9" r="2"/><path d="M7.5 20c.4-4 2-6 4.5-6s4.1 2 4.5 6M2 18c.3-2.6 1.4-4 3.5-4M22 18c-.3-2.6-1.4-4-3.5-4"/>'],
