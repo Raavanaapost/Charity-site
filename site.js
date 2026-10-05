@@ -593,16 +593,19 @@
         const isVol = page === "volunteer";
         // The footer's "Suggest a project" and "Partner with us" links open the Contact page under their own name.
         const TOPICS = {
-          suggest: { label: "Suggest a project", match: /suggest/i, reason: "Suggest a project" },
-          partner: { label: "Partner with us", match: /partner/i, reason: "Partner with you" }
+          suggest: { key: "suggest", label: "Suggest a project", match: /suggest/i, reason: "Suggest a project" },
+          partner: { key: "partner", label: "Partner with us", match: /partner/i, reason: "Partner with you" }
         };
         const topic = isVol ? null : TOPICS[new URLSearchParams(location.search).get("topic")];
         const label = isVol ? "Volunteer with us" : topic ? topic.label : "Contact us";
         document.title = `${isVol ? "Volunteer" : topic ? topic.label : "Contact us"} · ${site.name}`;
-        let list = ((isVol ? site.volunteer : site.contact) || []).filter(x => x && x.title && x.text);
-        // A topic page keeps to its own slide, so the title always matches the link that was tapped.
+        const ok = x => x && x.title && x.text;
+        let list = ((isVol ? site.volunteer : site.contact) || []).filter(ok);
+        // A topic page shows its own set of slides when one has been written (Site settings);
+        // otherwise it keeps to the one Contact slide that matches the link that was tapped.
+        const mine = topic ? (site[topic.key] || []).filter(ok) : [];
         const own = topic ? list.find(x => topic.match.test(x.title)) : null;
-        if (own) list = [own];
+        if (mine.length) list = mine; else if (own) list = [own];
         const box = document.getElementById(isVol ? "vol-slides" : "contact-slides");
         if (list.length && box) {
           const start = Math.floor(Math.random() * list.length);

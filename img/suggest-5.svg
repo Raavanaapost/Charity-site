@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" role="img" aria-label="A paper plane setting off with a heart">
+<rect width="400" height="160" fill="#1b6b45"/>
+<path d="M0 136C80 118 160 124 230 132 300 140 350 126 400 130V160H0Z" fill="#fff" opacity=".07"/>
+<circle cx="322" cy="80" r="64" fill="#fff" opacity=".1"/>
+<path d="M256 128Q286 140 304 118T338 96" fill="none" stroke="#f7c63a" stroke-width="3.2" stroke-dasharray="1 8" stroke-linecap="round"/><path d="M298 86L384 44 352 124 336 98Z" fill="#fff3d6"/><path d="M336 98L384 44 342 114Z" fill="#e9cf9a"/><path d="M298 86L384 44 336 98Z" fill="#fff8ea"/><path d="M0 3.2C-5.5-3.4-13 2.6 0 12.5 13 2.6 5.5-3.4 0 3.2Z" transform="translate(258 112) rotate(-12) scale(1.5)" fill="#c8381e"/><polygon points="0.0,-5.0 1.3,-1.3 5.0,0.0 1.3,1.3 0.0,5.0 -1.3,1.3 -5.0,0.0 -1.3,-1.3" transform="translate(284 40) rotate(0)" fill="#f7c63a"/><polygon points="0.0,-4.0 1.1,-1.1 4.0,0.0 1.1,1.1 0.0,4.0 -1.1,1.1 -4.0,0.0 -1.1,-1.1" transform="translate(376 134) rotate(8)" fill="#fff3d6"/><path d="M0 3.2C-5.5-3.4-13 2.6 0 12.5 13 2.6 5.5-3.4 0 3.2Z" transform="translate(300 50) rotate(10) scale(0.8)" fill="#f7c63a"/>
+</svg>

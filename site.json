@@ -158,5 +158,32 @@
       "name": "Education",
       "note": "Helping kids learn, grow and dream bigger."
     }
+  ],
+  "suggest": [
+    {
+      "title": "Your Idea Matters",
+      "text": "Every project here began with one person who cared enough to speak up. Yours could be next.",
+      "image": "/img/suggest-1.svg"
+    },
+    {
+      "title": "You See It First",
+      "text": "Nobody knows your community like you do. Show us where a smile is needed.",
+      "image": "/img/suggest-2.svg"
+    },
+    {
+      "title": "Small Idea, Big Day",
+      "text": "A trip, a game, a visit. Simple ideas become the days kids never forget.",
+      "image": "/img/suggest-3.svg"
+    },
+    {
+      "title": "Be the Spark",
+      "text": "You don't need a plan or a budget. Bring the idea and we'll build it together.",
+      "image": "/img/suggest-4.svg"
+    },
+    {
+      "title": "Start Something Good",
+      "text": "One message from you can set a whole project in motion.",
+      "image": "/img/suggest-5.svg"
+    }
   ]
 }
