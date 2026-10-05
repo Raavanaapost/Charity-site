@@ -111,6 +111,69 @@
                   "hint": "Who benefits, e.g. 2,400 residents"
                 },
                 {
+                  "name": "verified",
+                  "label": "Visited and verified",
+                  "widget": "boolean",
+                  "default": false,
+                  "required": false,
+                  "hint": "Turn on once a member has visited and checked this need in person. Shows a 'Visited and verified' badge."
+                },
+                {
+                  "name": "budget",
+                  "label": "Budget: where the money goes",
+                  "label_singular": "Budget line",
+                  "widget": "list",
+                  "required": false,
+                  "summary": "{{fields.amount}} \u2013 {{fields.item}}",
+                  "hint": "One line for each cost, for example: 250 \u2013 Bowling lanes for 20 children. The total is added up for you.",
+                  "fields": [
+                    {
+                      "name": "amount",
+                      "label": "Amount",
+                      "widget": "number",
+                      "value_type": "float",
+                      "min": 0
+                    },
+                    {
+                      "name": "item",
+                      "label": "What it pays for",
+                      "widget": "string"
+                    }
+                  ]
+                },
+                {
+                  "name": "goal",
+                  "label": "Total budget (only if you list no lines above)",
+                  "widget": "number",
+                  "value_type": "float",
+                  "min": 0,
+                  "required": false
+                },
+                {
+                  "name": "funders",
+                  "label": "Made possible by",
+                  "label_singular": "Supporter",
+                  "widget": "list",
+                  "required": false,
+                  "summary": "{{fields.name}} \u2013 {{fields.amount}}",
+                  "hint": "The organization or person who gave, and how much. Ask before showing a name; write 'A friend of Raavanaa' if they prefer not to be named.",
+                  "fields": [
+                    {
+                      "name": "name",
+                      "label": "Organization or person",
+                      "widget": "string"
+                    },
+                    {
+                      "name": "amount",
+                      "label": "Amount given",
+                      "widget": "number",
+                      "value_type": "float",
+                      "min": 0,
+                      "required": false
+                    }
+                  ]
+                },
+                {
                   "name": "summary",
                   "label": "Short summary",
                   "widget": "text",
@@ -317,6 +380,14 @@
               "label": "Home page headline",
               "widget": "string",
               "hint": "Used when a slide has no headline of its own. The first letter is shown large."
+            },
+            {
+              "name": "currency",
+              "label": "Currency sign for budgets",
+              "widget": "string",
+              "default": "$",
+              "required": false,
+              "hint": "Shown before every amount, for example $ or CA$ or Rs."
             },
             {
               "name": "intro",

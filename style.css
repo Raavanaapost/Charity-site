@@ -535,3 +535,33 @@ footer.foot .foot-main .wrap{grid-template-columns:minmax(0,1fr)}
   .about-page .story h2{font-size:26px;margin-top:1.4em}
   .about-page h1.follow-title{font-size:44px}
 }
+
+/* Project page: budget panel, "where the money goes" and "made possible by" */
+.budget h2{font-size:18px;margin-bottom:10px}
+.b-top{margin:0 0 10px;font-family:var(--display);color:var(--muted);font-size:15px}
+.b-top b{font-size:34px;line-height:1;color:var(--ink);font-weight:800;font-variant-numeric:tabular-nums;margin-right:4px}
+.bar{height:12px;border-radius:999px;background:color-mix(in srgb,var(--sun) 16%,var(--surface));overflow:hidden;border:1px solid color-mix(in srgb,var(--sun) 30%,var(--surface))}
+.bar i{display:block;height:100%;min-width:6px;border-radius:999px;background:linear-gradient(90deg,var(--sun),var(--gold))}
+.budget.full .bar i{background:linear-gradient(90deg,#1f7a47,#3f9a5f)}
+.b-facts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 0}
+.b-facts dt{font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.b-facts dd{margin:2px 0 0;font-family:var(--display);font-weight:700;font-size:18px}
+.b-wait{margin:0;color:var(--muted);font-size:15.5px;line-height:1.5}
+.b-pledge{display:flex;align-items:center;gap:7px;margin:16px 0 0;padding-top:14px;border-top:1px solid var(--line);font-family:var(--display);font-weight:700;font-size:14.5px;color:var(--brand)}
+.b-pledge svg{color:var(--flame);flex:none}
+.only-narrow{display:none}
+@media (max-width:880px){.only-narrow{display:block;margin-top:18px}.only-wide{display:none}}
+.verified{display:inline-flex;align-items:center;gap:5px;margin-left:6px;padding:4px 10px;border-radius:999px;background:var(--brand-soft);color:var(--brand);font-weight:700;font-size:13px}
+.byline{flex-wrap:wrap}
+.money{padding-block:6px 26px}
+.money .section-title{margin-bottom:12px}
+.money-list,.funders{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.money-list li{display:grid;grid-template-columns:92px minmax(0,1fr);gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--sun);border-radius:10px;padding:12px 14px}
+.money-list b{font-family:var(--display);font-weight:800;font-size:20px;color:var(--sun);font-variant-numeric:tabular-nums}
+.money-list span{font-size:16px;line-height:1.4}
+.money-total{display:flex;justify-content:space-between;align-items:baseline;margin:12px 0 0;padding:12px 14px;border-top:2px solid var(--line);font-family:var(--display);font-weight:700}
+.money-total b{font-size:22px;font-variant-numeric:tabular-nums}
+.funders{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.funders li{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.funders .f-name{flex:1;min-width:0;font-family:var(--display);font-weight:600;font-size:15.5px;overflow-wrap:anywhere}
+.funders b{font-family:var(--display);font-weight:800;color:var(--brand);font-variant-numeric:tabular-nums}

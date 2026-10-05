@@ -351,7 +351,7 @@
     },
     activated: {
       n: 2, title: "Activated", hero: "/img/hero-activated.svg",
-      lead: "Sponsors have stepped in and the day is being planned: the date, the place, the food and the helpers.",
+      lead: "The day is funded and being planned: the date, the place, the food and the helpers.",
       tags: [
         ["Taking part", '<circle cx="12" cy="6" r="2.6"/><path d="M5 5l4.5 5.500h5L19 5"/><path d="M9.5 10.500V20M14.5 10.500V20"/>'],
         ["Getting organized", '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.500h6v-2H9z"/><path d="m8.5 11 1.5 1.5 2.5-2.500M8.5 16l1.5 1.5 2.5-2.500M14.5 11.500h2M14.5 16.500h2"/>'],
@@ -364,7 +364,7 @@
     },
     impact: {
       n: 3, title: "Impact", hero: "/img/hero-impact.svg",
-      lead: "The day has happened. Here are the stories and the pictures, so every sponsor can see the smiles they created.",
+      lead: "The day has happened. Here are the stories and the pictures, so everyone who gave can see the smiles they created.",
       tags: [
         ["Smiles created", '<circle cx="12" cy="12" r="9"/><path d="M8 14c1 1.8 2.4 2.7 4 2.700s3-.9 4-2.7"/><path d="M8.5 9.500h.01M15.5 9.500h.01" stroke-width="2.6"/>'],
         ["Everyone included", '<circle cx="12" cy="6" r="2.4"/><circle cx="5.5" cy="9" r="2"/><circle cx="18.5" cy="9" r="2"/><path d="M7.5 20c.4-4 2-6 4.5-6s4.1 2 4.5 6M2 18c.3-2.6 1.4-4 3.5-4M22 18c-.3-2.6-1.4-4-3.5-4"/>'],
@@ -507,6 +507,38 @@
     const photos = p.photos || [];
     const media = p.media || [];
     const count = n => n ? ` (${n})` : "";
+    // Budget: what the day costs (lines), who paid for it (funders), and how far along it is.
+    const num = v => { const n = parseFloat(String(v == null ? "" : v).replace(/[^0-9.]/g, "")); return isFinite(n) ? n : 0; };
+    const money = n => `${esc(site.currency || "$")}${Math.round(n).toLocaleString("en-US")}`;
+    const lines = (p.budget || []).filter(x => x && x.item);
+    const funders = (p.funders || []).filter(x => x && x.name);
+    const goal = num(p.goal) || lines.reduce((s, x) => s + num(x.amount), 0);
+    const raised = funders.reduce((s, x) => s + num(x.amount), 0);
+    const pct = goal ? Math.min(100, Math.round(raised / goal * 100)) : 0;
+    const full = goal > 0 && raised >= goal;
+    const budgetPanel = cls => `
+      <div class="panel budget ${cls}${full ? " full" : ""}">
+        <h2>Budget</h2>
+        ${goal ? `
+          <p class="b-top"><b>${money(raised)}</b> <span>funded of ${money(goal)}</span></p>
+          <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" aria-label="Share of the budget funded"><i style="width:${pct}%"></i></div>
+          <dl class="b-facts">
+            <div><dt>${funders.length === 1 ? "Supporter" : "Supporters"}</dt><dd>${funders.length}</dd></div>
+            <div><dt>${full ? "Status" : "Still needed"}</dt><dd>${full ? "Fully funded" : money(goal - raised)}</dd></div>
+          </dl>`
+        : `<p class="b-wait">The budget for this project is being prepared. It will be shown here as soon as it is ready.</p>`}
+        <p class="b-pledge"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 20s-7-4.4-7-9.6A4.2 4.2 0 0 1 12 7.7a4.2 4.2 0 0 1 7 2.7C19 15.6 12 20 12 20z" fill="currentColor"/></svg> Every penny goes to the day itself.</p>
+      </div>`;
+    const moneyHTML = `
+      ${lines.length ? `<section class="money">
+        <h2 class="section-title">Where the money goes</h2>
+        <ul class="money-list">${lines.map(x => `<li><b>${num(x.amount) ? money(num(x.amount)) : ""}</b><span>${esc(x.item)}</span></li>`).join("")}</ul>
+        ${goal ? `<p class="money-total"><span>Total budget</span><b>${money(goal)}</b></p>` : ""}
+      </section>` : ""}
+      ${funders.length ? `<section class="money">
+        <h2 class="section-title">Made possible by</h2>
+        <ul class="funders">${funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}</span>${num(f.amount) ? `<b>${money(num(f.amount))}</b>` : ""}</li>`).join("")}</ul>
+      </section>` : ""}`;
     // Small line icons for the folder tabs: book, heart, camera, play.
     const ic = d => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
     const TAB_ICONS = {
@@ -536,17 +568,20 @@
           ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
           <h1>${esc(p.title)}</h1>
           <p class="lede">${esc(p.summary)}</p>
-          ${p.organization ? `<div class="byline"><span class="avatar">${esc(initials)}</span><span>by <strong>${esc(p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span></div>` : ""}
+          <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>by <strong>${esc(p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Visited and verified</span>` : ""}</div>
         </header>
         <div class="layout">
           <div style="min-width:0">
             <div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.cover ? "" : "Cover photo", 1400)}</div>
+            ${budgetPanel("only-narrow")}
             <div class="tabs" role="tablist">
               ${tabs.map(([k, l]) => `<button class="tab t-${k}" role="tab" aria-selected="${k === tab}" data-t="${k}">${TAB_ICONS[k]}<span>${l}</span></button>`).join("")}
             </div>
             <section class="folder t-${tab}" role="tabpanel">${panes[tab]}</section>
+            ${moneyHTML}
           </div>
           <aside class="side">
+            ${budgetPanel("only-wide")}
             <div class="panel">
               <h2>Project at a glance</h2>
               <dl class="facts">
