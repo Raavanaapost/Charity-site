@@ -498,6 +498,14 @@
     const photos = p.photos || [];
     const media = p.media || [];
     const count = n => n ? ` (${n})` : "";
+    // Small line icons for the folder tabs: book, heart, camera, play.
+    const ic = d => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+    const TAB_ICONS = {
+      story: ic('<path d="M12 6.5C10 5 7 4.5 4 5v13c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.500V5c-3-.5-6 0-8 1.500z"/><path d="M12 6.500V19.5"/>'),
+      updates: ic('<path d="M12 20s-7-4.4-7-9.600A4.2 4.2 0 0 1 12 7.700a4.2 4.2 0 0 1 7 2.700C19 15.6 12 20 12 20z"/>'),
+      pictures: ic('<path d="M4 8h3.200l1.5-2h6.600l1.5 2H20v11H4z"/><circle cx="12" cy="13.2" r="3.3"/>'),
+      video: ic('<rect x="3.5" y="5.5" width="17" height="13" rx="3"/><path d="M10.2 9.300v5.400l4.6-2.700z" fill="currentColor"/>')
+    };
     const tabs = [
       ["story", "Story"],
       ["updates", "Impact"],
@@ -525,9 +533,9 @@
           <div style="min-width:0">
             <div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.cover ? "" : "Cover photo", 1400)}</div>
             <div class="tabs" role="tablist">
-              ${tabs.map(([k, l]) => `<button class="tab" role="tab" aria-selected="${k === tab}" data-t="${k}">${l}</button>`).join("")}
+              ${tabs.map(([k, l]) => `<button class="tab t-${k}" role="tab" aria-selected="${k === tab}" data-t="${k}">${TAB_ICONS[k]}<span>${l}</span></button>`).join("")}
             </div>
-            <section role="tabpanel">${panes[tab]}</section>
+            <section class="folder t-${tab}" role="tabpanel">${panes[tab]}</section>
           </div>
           <aside class="side">
             <div class="panel">

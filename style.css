@@ -65,6 +65,23 @@ h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
 .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-block:28px 24px;overflow-x:auto}
 .tab{font-family:var(--display);font-weight:600;font-size:16px;background:none;border:0;color:var(--muted);padding:10px 14px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
 .tab[aria-selected="true"]{color:var(--ink);border-color:var(--brand)}
+/* Project page: folder tabs. Each tab has its own colour; the open one is filled and joins the folder below. */
+.tabs{gap:4px;align-items:flex-end;border-bottom:0;margin-block:28px 0;overflow:visible;padding-inline:2px}
+.tab{--c:#1f7a47;flex:1 1 0;min-width:0;display:grid;justify-items:center;gap:3px;padding:8px 4px 7px;margin-top:7px;font-weight:700;font-size:14px;line-height:1.15;
+  color:var(--c);background:color-mix(in srgb,var(--c) 13%,var(--surface));border:1.5px solid color-mix(in srgb,var(--c) 38%,var(--surface));border-bottom:0;border-radius:13px 13px 0 0;
+  transition:background .15s ease,color .15s ease}
+.tab span{overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.tab svg{display:block}
+.tab:hover{background:color-mix(in srgb,var(--c) 22%,var(--surface))}
+.tab[aria-selected="true"]{margin-top:0;padding-top:13px;padding-bottom:9px;color:#fff;background:var(--c);border-color:var(--c);box-shadow:0 -3px 10px -4px color-mix(in srgb,var(--c) 70%,transparent)}
+.tab.t-updates,.folder.t-updates{--c:#c8381e}
+.tab.t-pictures,.folder.t-pictures{--c:#b4560a}
+.tab.t-video,.folder.t-video{--c:#8f6200}
+.folder{--c:#1f7a47;background:var(--surface);border:1.5px solid color-mix(in srgb,var(--c) 38%,var(--surface));border-top:4px solid var(--c);border-radius:0 0 14px 14px;padding:20px 18px 18px;margin-bottom:24px}
+.folder > .story > :first-child,.folder > :first-child{margin-top:0}
+.folder > :last-child{margin-bottom:0}
+@media (max-width:480px){.tab{font-size:13px}.folder{padding:18px 14px 16px}}
+@media (prefers-reduced-motion:reduce){.tab{transition:none}}
 .story{max-width:65ch}
 .story h2{font-size:24px;margin-block:28px 8px}
 .story p{margin-block:0 14px}
