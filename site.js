@@ -521,7 +521,7 @@
         <h2>Budget</h2>
         ${goal ? `
           <p class="b-top"><b>${money(raised)}</b> <span>funded of ${money(goal)}</span></p>
-          <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" aria-label="Share of the budget funded"><i style="width:${pct}%"></i></div>
+          <div class="b-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" aria-label="Share of the budget funded"><i style="width:${pct}%"></i></div>
           <dl class="b-facts">
             <div><dt>${funders.length === 1 ? "Supporter" : "Supporters"}</dt><dd>${funders.length}</dd></div>
             <div><dt>${full ? "Status" : "Still needed"}</dt><dd>${full ? "Fully funded" : money(goal - raised)}</dd></div>
