@@ -533,15 +533,17 @@
     // Funding fills its slice little by little; the other steps are either done or still to come.
     const steps = [
       { name: "Visited and verified", done: p.verified ? 1 : 0, c: "#1f7a47" },
-      { name: "Budget ready", done: goal > 0 ? 1 : 0, c: "#eaa21c" },
-      { name: "Funded", done: goal > 0 ? Math.min(1, raised / goal) : 0, c: "#e5851a", pctLabel: true },
-      { name: "Day planned", done: p.planned ? 1 : 0, c: "#c8381e" },
-      ...(p.steps || []).filter(x => x && x.name).map((x, k) => ({ name: x.name, done: x.done ? 1 : 0, c: ["#3f9a5f", "#b4560a", "#8f6200"][k % 3] }))
+      { name: "Budget ready", done: goal > 0 ? 1 : 0, c: "#3f9a5f" },
+      { name: "Funded", done: goal > 0 ? Math.min(1, raised / goal) : 0, c: "#eaa21c", pctLabel: true },
+      { name: "Date confirmed", done: p.date_set ? 1 : 0, c: "#e5851a" },
+      { name: "Place and transport booked", done: p.booked ? 1 : 0, c: "#d9632b" },
+      { name: "Volunteers ready", done: p.volunteers ? 1 : 0, c: "#c8381e" },
+      ...(p.steps || []).filter(x => x && x.name).map((x, k) => ({ name: x.name, done: x.done ? 1 : 0, c: ["#8f6200", "#b4560a", "#0f5132"][k % 3] }))
     ];
     const delivered = stageNum(p) === 3;
     const ringPct = delivered ? 100 : Math.round(steps.reduce((s, x) => s + x.done, 0) / steps.length * 100);
     const ringSVG = () => {
-      const n = steps.length, gap = 20, len = 360 / n - gap; // the rounded ends eat most of the gap
+      const n = steps.length, gap = n > 5 ? 16 : 20, len = 360 / n - gap; // the rounded ends eat most of the gap
       const arc = (start, l, c, o) => l > 0.01 ? `<circle cx="60" cy="60" r="48" fill="none" stroke="${c}" stroke-opacity="${o}" stroke-width="13" stroke-linecap="round" pathLength="360" stroke-dasharray="${l.toFixed(2)} ${(360 - l).toFixed(2)}" stroke-dashoffset="${(-start).toFixed(2)}"/>` : "";
       return `<svg class="ring" viewBox="0 0 120 120" role="img" aria-label="${ringPct}% of the way to being activated">
         <g transform="rotate(-90 60 60)">${steps.map((x, k) => { const start = k * (len + gap) + gap / 2; return arc(start, len, x.c, .18) + arc(start, len * (delivered ? 1 : x.done), x.c, 1); }).join("")}</g>

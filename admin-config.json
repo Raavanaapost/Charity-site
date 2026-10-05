@@ -116,7 +116,7 @@
                   "widget": "boolean",
                   "default": false,
                   "required": false,
-                  "hint": "Turn on once a member has visited and checked this need in person. Shows a 'Visited and verified' badge."
+                  "hint": "Turn on once a member has visited and checked this need in person (this includes the home or school agreeing). Shows a 'Visited and verified' badge and fills one slice of the Activating ring."
                 },
                 {
                   "name": "budget",
@@ -174,12 +174,28 @@
                   ]
                 },
                 {
-                  "name": "planned",
-                  "label": "Day planned",
+                  "name": "date_set",
+                  "label": "Date confirmed",
                   "widget": "boolean",
                   "default": false,
                   "required": false,
-                  "hint": "Turn on once the date and the place are booked. It fills one slice of the Activating ring."
+                  "hint": "Turn on once the day has a fixed date. Fills one slice of the Activating ring."
+                },
+                {
+                  "name": "booked",
+                  "label": "Place and transport booked",
+                  "widget": "boolean",
+                  "default": false,
+                  "required": false,
+                  "hint": "Turn on once the venue and the transport are booked."
+                },
+                {
+                  "name": "volunteers",
+                  "label": "Volunteers ready",
+                  "widget": "boolean",
+                  "default": false,
+                  "required": false,
+                  "hint": "Turn on once enough helpers have signed up for the day."
                 },
                 {
                   "name": "steps",
@@ -188,7 +204,7 @@
                   "widget": "list",
                   "required": false,
                   "summary": "{{fields.name}}",
-                  "hint": "The ring already has: Visited and verified, Budget ready, Funded, Day planned. Add more steps here if this project needs them.",
+                  "hint": "The ring already has six steps: Visited and verified, Budget ready, Funded, Date confirmed, Place and transport booked, Volunteers ready. 'Budget ready' and 'Funded' fill in by themselves from the budget above. Add extra steps here only if this project needs them.",
                   "fields": [
                     {
                       "name": "name",

@@ -52,8 +52,10 @@
           "amount": 75
         }
       ],
-      "planned": false,
-      "steps": []
+      "steps": [],
+      "date_set": true,
+      "booked": false,
+      "volunteers": false
     },
     {
       "slug": "arcade-trip",
@@ -77,8 +79,10 @@
       "goal": "",
       "budget": [],
       "funders": [],
-      "planned": false,
-      "steps": []
+      "steps": [],
+      "date_set": false,
+      "booked": false,
+      "volunteers": false
     },
     {
       "slug": "zoo-trip",
@@ -132,8 +136,10 @@
       "updates": [],
       "photos": [],
       "media": [],
-      "planned": true,
-      "steps": []
+      "steps": [],
+      "date_set": true,
+      "booked": true,
+      "volunteers": true
     }
   ]
 }

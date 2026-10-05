@@ -572,7 +572,7 @@ footer.foot .foot-main .wrap{grid-template-columns:minmax(0,1fr)}
 .ring{width:128px;height:128px;display:block}
 .ring-n{font-family:"Inter",var(--display);font-weight:900;font-size:25px;fill:var(--ink)}
 .ring-l{font-family:"Inter",var(--display);font-weight:900;font-size:8.2px;letter-spacing:.09em;fill:var(--muted)}
-.ring-steps{list-style:none;margin:0;padding:0;display:grid;gap:9px;font-family:var(--display);font-size:14.5px}
+.ring-steps{list-style:none;margin:0;padding:0;display:grid;gap:7px;font-family:var(--display);font-size:14px;line-height:1.25}
 .ring-steps li{display:grid;grid-template-columns:11px minmax(0,1fr) auto;gap:9px;align-items:center;color:var(--muted)}
 .ring-steps i{width:11px;height:11px;border-radius:50%;opacity:.3}
 .ring-steps li.done,.ring-steps li.part{color:var(--ink);font-weight:600}

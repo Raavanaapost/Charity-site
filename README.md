@@ -9,6 +9,6 @@
 - [ ] Keep me posted: decide how sign-ups get their news (the addresses are stored under Forms in Netlify).
 - [ ] Privacy & child safety page: the team should read it and confirm the promises match what they do.
 - [ ] Publishing: work goes to the `draft` branch (free preview at draft--charity-projects-draft.netlify.app); merge to `main` only when the owner says "post" (15 Netlify credits per publish).
-- [ ] Before any publish to `main`: `draft` carries SAMPLE data: budget lines and supporters on the bowling project, and the whole "A trip to the zoo" project (search projects.json for "SAMPLE"). The bowling project also has "verified" switched on only to show the Activating ring. Replace with real figures, switch off or remove first.
+- [ ] Before any publish to `main`: `draft` carries SAMPLE data: budget lines and supporters on the bowling project, and the whole "A trip to the zoo" project (search projects.json for "SAMPLE"). The bowling project also has "verified" and "date_set" switched on only to show the Activating ring. Replace with real figures, switch off or remove first.
 - [ ] Launch: remove the `SITE_PASSWORD` setting in Netlify so raavanaa.org is public.
 - [ ] Optional: "Sign in with GitHub" button for admins.
