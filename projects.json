@@ -18,42 +18,12 @@
       "updates": [],
       "photos": [],
       "media": [],
-      "verified": true,
+      "verified": false,
       "goal": "",
-      "budget": [
-        {
-          "amount": 300,
-          "item": "SAMPLE: Bowling lanes and shoes for 25 children"
-        },
-        {
-          "amount": 220,
-          "item": "SAMPLE: Bus to the lanes and back"
-        },
-        {
-          "amount": 180,
-          "item": "SAMPLE: Lunch and drinks for everyone"
-        },
-        {
-          "amount": 50,
-          "item": "SAMPLE: Medals and small prizes"
-        }
-      ],
-      "funders": [
-        {
-          "name": "SAMPLE: Ganes family",
-          "amount": 250
-        },
-        {
-          "name": "SAMPLE: Maple Leaf Bowling Club",
-          "amount": 200
-        },
-        {
-          "name": "SAMPLE: A friend of Raavanaa",
-          "amount": 75
-        }
-      ],
+      "budget": [],
+      "funders": [],
       "steps": [],
-      "date_set": true,
+      "date_set": false,
       "booked": false,
       "volunteers": false
     },
@@ -83,63 +53,6 @@
       "date_set": false,
       "booked": false,
       "volunteers": false
-    },
-    {
-      "slug": "zoo-trip",
-      "title": "A trip to the zoo",
-      "featured": false,
-      "theme": "Trips & Events",
-      "location": "",
-      "organization": "Raavanaa",
-      "started": "October 2026",
-      "status": "Active",
-      "reach": "SAMPLE: 20 children",
-      "verified": true,
-      "summary": "SAMPLE PROJECT. A day at the zoo for children who have never seen a giraffe or an elephant up close.",
-      "cover": "/img/project-zoo.svg",
-      "quote": "",
-      "story": "*This is a sample project, added to show how an Activated project looks. It is not a real project.*\n\n## Summary\n\nA day at the zoo for a group of children who have only seen these animals in books.\n\n## The need\n\nA zoo ticket, a bus seat and a lunch are small costs, but together they put a day like this out of reach for many families.\n\n## The plan\n\nThe day is fully funded. The bus is being booked, the tickets are being arranged and helpers are signing up for the day.\n\n## What it leaves behind\n\nA first look at a giraffe, an elephant and a lion, and a day the children will talk about for a long time. Afterwards the story and the pictures will be shared here.",
-      "goal": "",
-      "budget": [
-        {
-          "amount": 180,
-          "item": "SAMPLE: Zoo tickets for 20 children and 4 helpers"
-        },
-        {
-          "amount": 120,
-          "item": "SAMPLE: Bus to the zoo and back"
-        },
-        {
-          "amount": 80,
-          "item": "SAMPLE: Lunch for everyone"
-        },
-        {
-          "amount": 20,
-          "item": "SAMPLE: Ice cream on the way home"
-        }
-      ],
-      "funders": [
-        {
-          "name": "SAMPLE: Kumar family",
-          "amount": 150
-        },
-        {
-          "name": "SAMPLE: Sunrise Community Club",
-          "amount": 150
-        },
-        {
-          "name": "SAMPLE: A friend of Raavanaa",
-          "amount": 100
-        }
-      ],
-      "impact": [],
-      "updates": [],
-      "photos": [],
-      "media": [],
-      "steps": [],
-      "date_set": true,
-      "booked": true,
-      "volunteers": true
     }
   ]
 }
