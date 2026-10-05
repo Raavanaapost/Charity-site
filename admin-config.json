@@ -529,7 +529,7 @@
                       "value": "manual"
                     },
                     {
-                      "label": "Count the Trips & Events projects",
+                      "label": "Count the Trips & Events that have happened (status Completed)",
                       "value": "trips"
                     },
                     {
@@ -547,7 +547,7 @@
                   "label": "Number",
                   "widget": "string",
                   "required": false,
-                  "hint": "Only needed when you type the number yourself, e.g. 25"
+                  "hint": "Only needed when you type the number yourself, e.g. 25. Leave empty to hide this tile for now."
                 }
               ]
             },
@@ -576,6 +576,13 @@
               "name": "about",
               "label": "About page",
               "widget": "markdown"
+            },
+            {
+              "name": "privacy",
+              "label": "Privacy & child safety page",
+              "widget": "markdown",
+              "required": false,
+              "hint": "The promises shown on the Privacy & child safety page. Only write what the team really does."
             },
             {
               "name": "facebook",

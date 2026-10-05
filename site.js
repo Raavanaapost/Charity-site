@@ -78,7 +78,7 @@
       <div class="foot-bar"><div class="wrap">
         <span>© ${new Date().getFullYear()} ${esc(site.name)} · Beyond the Lanes</span>
         ${site.footer ? `<span>${esc(site.footer)}</span>` : ""}
-        <a href="/admin">Team login</a>
+        <span class="foot-links"><a href="/privacy">Privacy &amp; child safety</a><a href="/admin">Team login</a></span>
       </div></div>`;
   }
 
@@ -187,6 +187,7 @@
       impact: projects.reduce((n, p) => n + (p.updates || []).length, 0)
     };
     const extras = (site.highlights || []).filter(h => h && h.value);
+    const latest = projects.slice(0, 3); // newest first, as ordered in the admin page
     const slides = (site.sayings || []).map(x => typeof x === "string" ? { text: x } : x).filter(x => x && x.text);
     const start = slides.length ? Math.floor(Math.random() * slides.length) : 0; // a different slide comes first on each visit
     const follow = (site.follow || []).filter(x => x && x.title && x.text);
@@ -200,10 +201,16 @@
         ${Object.entries(STAGES).map(([slug, st]) => `
           <a class="stage art stat-${st.key}" href="/${slug}">
             <i>${ICONS[st.key]}</i>
-            <b>${counts[slug]}</b>
+            <b${counts[slug] ? "" : ' class="zero"'}>${counts[slug] || "Soon"}</b>
             <span>${st.label}</span>
           </a>`).join("")}
       </nav>
+      <p class="stage-hint">Choose a stage to see its projects</p>
+      ${latest.length ? `<section class="home-latest">
+        <h2 class="section-title">Our latest projects</h2>
+        <div class="grid">${latest.map(p => card(p, projects.indexOf(p), journey(p))).join("")}</div>
+        <p class="more"><a href="/initiated">See all our projects →</a></p>
+      </section>` : ""}
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
       <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
     wireForms(app);
@@ -290,6 +297,7 @@
       <label class="sr" for="su-email-home">Email</label>
       <input id="su-email-home" name="email" type="email" required autocomplete="email" placeholder="you@example.com">
       <button class="btn" type="submit">Keep me posted</button>
+      <p class="note fine">We only use your email to send you our news. <a href="/privacy">Privacy</a></p>
       <p class="note" data-msg hidden></p>
     </form>`;
   }
@@ -337,7 +345,7 @@
         ["Opening a relationship", '<circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2.5 19c.6-3.4 2.6-5 5.5-5 1.6 0 2.9.5 4 1.5 1.1-1 2.4-1.5 4-1.5 2.9 0 4.9 1.6 5.5 5"/>'],
         ["Starting an initiative", '<path d="M12 21v-9"/><path d="M12 14c-4 0-6-2.2-6.5-6 3.9 0 6 2 6.5 6z"/><path d="M12 11c0-4 2.3-6 6.5-6.5 0 4-2.3 6-6.5 6.500z"/>']
       ],
-      heading: 'Projects we have <span class="stage-word s1">Initiated</span>', empty: "No projects yet. Add one from the admin page.",
+      heading: 'Projects we have <span class="stage-word s1">Initiated</span>', empty: { text: "Our first projects are being planned. Check back soon, or tell us about a need you see.", btn: "Suggest a project", href: "/contact?topic=suggest" },
       cta: { title: "Have an idea for a project?", text: "Every project on this page began with someone reaching out. Tell us about a need you see, and we'll explore it together.", btn: "Suggest a project", href: "/contact?topic=suggest" },
       next: { slug: "activated", kicker: "Next stage", label: "Activated", text: "See the projects that have moved into action." }
     },
@@ -350,7 +358,7 @@
         ["Working together", '<circle cx="9" cy="12" r="5.5"/><circle cx="15" cy="12" r="5.5"/>'],
         ["Making it happen", '<path d="M13 2.5 5 13.500h6l-1 8 8-11h-6z"/>']
       ],
-      heading: 'Projects we have <span class="stage-word s2">Activated</span>', empty: "No projects are in action yet. They appear here once their status is Active.",
+      heading: 'Projects we have <span class="stage-word s2">Activated</span>', empty: { text: "Nothing is in action just yet. Our first projects are getting ready to start, and you can follow them from the beginning.", btn: "See what we have initiated", href: "/initiated" },
       cta: { title: "Want to take part?", text: "Projects move because people show up. Lend an hour, a skill or a helping hand, and be part of what's happening.", btn: "Volunteer with us", href: "/volunteer" },
       next: { slug: "impact", kicker: "Next stage", label: "Impact", text: "See the difference these projects are making." }
     },
@@ -363,7 +371,7 @@
         ["Real connection", '<path d="M12 20s-7.5-4.6-7.5-10.200A4.3 4.3 0 0 1 12 7.600a4.3 4.3 0 0 1 7.5 2.200c0 5.6-7.5 10.2-7.5 10.200z"/>'],
         ["Lasting difference", '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/>']
       ],
-      heading: '<span class="stage-word s3">Impact</span> Stories', empty: "No impact updates yet. Add them to a project in the admin page.",
+      heading: '<span class="stage-word s3">Impact</span> Stories', empty: { text: "Our first impact stories are on the way. As soon as a trip or event has happened, the smiles and the stories will be shared here.", btn: "See what we have initiated", href: "/initiated" },
       cta: { title: "Be part of the next one", text: "Every smile on this page started with people who cared. Stay close and see what we create together next.", btn: "Keep me posted", href: "/#keep-posted" },
       next: { slug: "initiated", kicker: "Back to the start", label: "Initiated", text: "See every project from where it began." }
     }
@@ -377,7 +385,7 @@
     // "Impact in numbers": the tiles set in the admin page (Site settings). Some count themselves from the site;
     // the rest show the number typed in. With none set, each project's own numbers are shown instead.
     const auto = {
-      trips: () => projects.filter(p => p.theme === "Trips & Events").length,
+      trips: () => projects.filter(p => p.theme === "Trips & Events" && stageNum(p) === 3).length, // only the ones that have happened
       projects: () => projects.length,
       stories: () => projects.reduce((n, p) => n + (p.updates || []).length, 0)
     };
@@ -385,7 +393,7 @@
       label: x.label, note: x.note || "",
       value: auto[x.count] ? String(auto[x.count]()) : String(x.value == null ? "" : x.value),
       href: x.count === "trips" || x.count === "projects" ? "/initiated" : x.count === "stories" ? "#stories" : /volunteer/i.test(x.label) ? "/volunteer" : ""
-    })).filter(x => x.value !== "");
+    })).filter(x => x.value !== "" && x.value !== "0"); // nothing to show yet → no tile
     const numbers = tiles.length ? tiles.map(x => ({ x }))
       : projects.flatMap(p => (p.impact || []).filter(x => x && x.value).map(x => ({ p, x })));
     const items = slug === "impact" ? stories : reached.map(p => ({ p, i: projects.indexOf(p) }));
@@ -396,14 +404,14 @@
     const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
     const fresh = projects.filter(p => stageNum(p) === 1).length;
     const sub = slug === "initiated" ? `${plural(projects.length, "project")} started${fresh ? ` · ${fresh} just beginning` : ""}`
-      : slug === "activated" ? `${plural(reached.length, "project")} in action`
-      : `${stories.length === 1 ? "1 story" : stories.length + " stories"} of impact · ${plural(new Set(stories.map(x => x.p)).size, "project")}`;
+      : slug === "activated" ? (reached.length ? `${plural(reached.length, "project")} in action` : "First projects starting soon")
+      : stories.length ? `${stories.length === 1 ? "1 story" : stories.length + " stories"} of impact · ${plural(new Set(stories.map(x => x.p)).size, "project")}` : "First stories coming soon";
     // Short message shown under each category heading in "Impact Stories" (Site settings → Impact story sections).
     const notes = Object.fromEntries((site.categories || []).filter(c => c && c.name && c.note).map(c => [c.name, c.note]));
     let filter = "All";
     const draw = () => {
       const groups = themes.filter(t => filter === "All" || t === filter).map(t => [t, items.filter(x => (x.p.theme || "Other") === t)]);
-      const body = !items.length ? `<p class="empty">${cfg.empty}</p>`
+      const body = !items.length ? `<div class="panel empty-state"><p>${cfg.empty.text}</p><a class="btn" href="${cfg.empty.href}">${cfg.empty.btn}</a></div>`
         : groups.map(([t, xs]) => `
           <section class="theme-group">
             <h3 class="theme-title">${esc(t)} <span class="count">${xs.length}</span></h3>
@@ -565,6 +573,10 @@
     draw(tabs.some(([k]) => k === start) ? start : "story");
   }
 
+  function renderPrivacy(app, site) {
+    app.innerHTML = `<section class="intro about-page"><span class="eyebrow">Our promise</span><h1 class="follow-title">${headline("Privacy & Child Safety")}</h1><div class="story">${md(site.privacy || "")}</div><p><a href="/contact">Contact us</a></p></section>`;
+  }
+
   function renderAbout(app, site) {
     const org = site.name.charAt(0).toUpperCase() + site.name.slice(1).toLowerCase();
     app.innerHTML = `<section class="intro about-page"><span class="eyebrow">About us</span><h1 class="follow-title"><span class="initial">${esc(org.charAt(0))}</span><span class="org">${esc(org.slice(1))}</span> Community</h1><div class="story">${md(site.about)}</div><p><a href="/initiated">See our projects</a></p></section>`;
@@ -621,6 +633,9 @@
       } else if (page === "project") {
         const slug = decodeURIComponent(location.pathname.replace(/\/+$/, "").split("/").pop());
         renderProject(app, site, projects, slugify(slug));
+      } else if (page === "privacy") {
+        document.title = `Privacy & child safety · ${site.name}`;
+        renderPrivacy(app, site);
       } else if (page === "about") {
         document.title = `About us · ${site.name}`;
         renderAbout(app, site);

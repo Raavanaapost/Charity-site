@@ -505,3 +505,33 @@ footer.foot .foot-main .wrap{grid-template-columns:minmax(0,1fr)}
   .foot-col ul{gap:10px}
   footer.foot .foot-bar .wrap{font-size:14.5px}
 }
+
+/* friendly message when a stage has nothing to show yet */
+.empty-state{display:grid;gap:14px;justify-items:start;max-width:640px;margin-block:8px 28px;border-left:4px solid var(--sun)}
+.empty-state p{margin:0;font-size:17px;line-height:1.55}
+.empty-state .btn{width:auto;padding-inline:22px}
+/* home: "Soon" in a stage circle that has no number yet, the tap hint, and the latest projects */
+.stage.art b.zero{font-size:clamp(13px,3.6vw,22px);letter-spacing:.04em;text-transform:uppercase;padding-bottom:.25em}
+.stage-hint{text-align:center;color:var(--muted);font-family:var(--display);font-size:13.5px;margin:-30px 0 30px}
+.home-latest{padding-block:0 34px}
+.home-latest .section-title{margin-bottom:14px}
+.home-latest .grid{padding-block:0 14px}
+.home-latest .more{margin:0;font-family:var(--display);font-weight:700}
+.home-latest .more a{text-decoration:none}
+.home-latest .more a:hover{text-decoration:underline}
+/* small print under forms, and the footer's bottom links */
+.fine{font-size:12.5px;line-height:1.4}
+.foot-links{display:inline-flex;gap:18px;flex-wrap:wrap}
+@media (min-width:1000px){
+  .stage-hint{font-size:15px;margin:-38px 0 40px}
+  .home-latest{padding-bottom:44px}
+  .home-latest .section-title{font-size:28px;margin-bottom:18px}
+  /* one or two projects spread across the row instead of leaving an empty column */
+  .grid{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+  .grid > .card{max-width:580px}
+  .signup-band .follow > .fine{grid-column:2;grid-row:5;margin:0}
+  .signup-band .follow > .note[data-msg]{grid-row:6}
+  .about-page .story{font-size:19px;line-height:1.7;max-width:74ch}
+  .about-page .story h2{font-size:26px;margin-top:1.4em}
+  .about-page h1.follow-title{font-size:44px}
+}
