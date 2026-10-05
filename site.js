@@ -529,6 +529,34 @@
         : `<p class="b-wait">The budget for this project is being prepared. It will be shown here as soon as it is ready.</p>`}
         <p class="b-pledge"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 20s-7-4.4-7-9.6A4.2 4.2 0 0 1 12 7.7a4.2 4.2 0 0 1 7 2.7C19 15.6 12 20 12 20z" fill="currentColor"/></svg> Every penny goes to the day itself.</p>
       </div>`;
+    // "Activating" ring: every step a project needs before the day can happen is one slice of the circle.
+    // Funding fills its slice little by little; the other steps are either done or still to come.
+    const steps = [
+      { name: "Visited and verified", done: p.verified ? 1 : 0, c: "#1f7a47" },
+      { name: "Budget ready", done: goal > 0 ? 1 : 0, c: "#eaa21c" },
+      { name: "Funded", done: goal > 0 ? Math.min(1, raised / goal) : 0, c: "#e5851a", pctLabel: true },
+      { name: "Day planned", done: p.planned ? 1 : 0, c: "#c8381e" },
+      ...(p.steps || []).filter(x => x && x.name).map((x, k) => ({ name: x.name, done: x.done ? 1 : 0, c: ["#3f9a5f", "#b4560a", "#8f6200"][k % 3] }))
+    ];
+    const delivered = stageNum(p) === 3;
+    const ringPct = delivered ? 100 : Math.round(steps.reduce((s, x) => s + x.done, 0) / steps.length * 100);
+    const ringSVG = () => {
+      const n = steps.length, gap = 20, len = 360 / n - gap; // the rounded ends eat most of the gap
+      const arc = (start, l, c, o) => l > 0.01 ? `<circle cx="60" cy="60" r="48" fill="none" stroke="${c}" stroke-opacity="${o}" stroke-width="13" stroke-linecap="round" pathLength="360" stroke-dasharray="${l.toFixed(2)} ${(360 - l).toFixed(2)}" stroke-dashoffset="${(-start).toFixed(2)}"/>` : "";
+      return `<svg class="ring" viewBox="0 0 120 120" role="img" aria-label="${ringPct}% of the way to being activated">
+        <g transform="rotate(-90 60 60)">${steps.map((x, k) => { const start = k * (len + gap) + gap / 2; return arc(start, len, x.c, .18) + arc(start, len * (delivered ? 1 : x.done), x.c, 1); }).join("")}</g>
+        <text x="60" y="${ringPct === 100 ? 60 : 62}" text-anchor="middle" class="ring-n">${ringPct}%</text>
+        <text x="60" y="${ringPct === 100 ? 77 : 78}" text-anchor="middle" class="ring-l">${delivered ? "DELIVERED" : ringPct === 100 ? "READY" : "ACTIVATING"}</text>
+      </svg>`;
+    };
+    const ringPanel = cls => `
+      <div class="panel activating ${cls}">
+        <h2>${delivered ? "Delivered" : ringPct === 100 ? "Activated" : "Activating"}</h2>
+        <div class="ring-row">
+          ${ringSVG()}
+          <ul class="ring-steps">${steps.map(x => { const d = delivered ? 1 : x.done; return `<li class="${d >= 1 ? "done" : d > 0 ? "part" : ""}"><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${d >= 1 ? "✓" : x.pctLabel && d > 0 ? Math.round(d * 100) + "%" : "–"}</b></li>`; }).join("")}</ul>
+        </div>
+      </div>`;
     const moneyHTML = `
       ${lines.length ? `<section class="money">
         <h2 class="section-title">Where the money goes</h2>
@@ -573,6 +601,7 @@
         <div class="layout">
           <div style="min-width:0">
             <div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.cover ? "" : "Cover photo", 1400)}</div>
+            ${ringPanel("only-narrow")}
             ${budgetPanel("only-narrow")}
             <div class="tabs" role="tablist">
               ${tabs.map(([k, l]) => `<button class="tab t-${k}" role="tab" aria-selected="${k === tab}" data-t="${k}">${TAB_ICONS[k]}<span>${l}</span></button>`).join("")}
@@ -581,6 +610,7 @@
             ${moneyHTML}
           </div>
           <aside class="side">
+            ${ringPanel("only-wide")}
             ${budgetPanel("only-wide")}
             <div class="panel">
               <h2>Project at a glance</h2>

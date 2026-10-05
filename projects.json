@@ -18,7 +18,7 @@
       "updates": [],
       "photos": [],
       "media": [],
-      "verified": false,
+      "verified": true,
       "goal": "",
       "budget": [
         {
@@ -51,7 +51,9 @@
           "name": "SAMPLE: A friend of Raavanaa",
           "amount": 75
         }
-      ]
+      ],
+      "planned": false,
+      "steps": []
     },
     {
       "slug": "arcade-trip",
@@ -74,7 +76,9 @@
       "verified": false,
       "goal": "",
       "budget": [],
-      "funders": []
+      "funders": [],
+      "planned": false,
+      "steps": []
     },
     {
       "slug": "zoo-trip",
@@ -86,7 +90,7 @@
       "started": "October 2026",
       "status": "Active",
       "reach": "SAMPLE: 20 children",
-      "verified": false,
+      "verified": true,
       "summary": "SAMPLE PROJECT. A day at the zoo for children who have never seen a giraffe or an elephant up close.",
       "cover": "/img/project-zoo.svg",
       "quote": "",
@@ -127,7 +131,9 @@
       "impact": [],
       "updates": [],
       "photos": [],
-      "media": []
+      "media": [],
+      "planned": true,
+      "steps": []
     }
   ]
 }
