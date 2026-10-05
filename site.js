@@ -593,8 +593,8 @@
         const isVol = page === "volunteer";
         // The footer's "Suggest a project" and "Partner with us" links open the Contact page under their own name.
         const TOPICS = {
-          suggest: { label: "Suggest a project", match: /suggest/i, reason: "Suggest a project", note: "Tell us about the need you see and one of our team will reply." },
-          partner: { label: "Partner with us", match: /partner/i, reason: "Partner with you", note: "Tell us about your group or business and one of our team will reply." }
+          suggest: { label: "Suggest a project", match: /suggest/i, reason: "Suggest a project" },
+          partner: { label: "Partner with us", match: /partner/i, reason: "Partner with you" }
         };
         const topic = isVol ? null : TOPICS[new URLSearchParams(location.search).get("topic")];
         const label = isVol ? "Volunteer with us" : topic ? topic.label : "Contact us";
@@ -607,8 +607,7 @@
         if (list.length && box) {
           const start = Math.floor(Math.random() * list.length);
           box.classList.add("follow-rot"); box.dataset.start = start;
-          box.innerHTML = `<span class="eyebrow">${label}</span>${slideBoxHTML(list, start, "h1")}
-            <p class="slide-note">${isVol ? "Tell us how you'd like to help and one of our team will reply." : topic ? topic.note : "Send us a message and one of our team will reply."}</p>`;
+          box.innerHTML = `<span class="eyebrow">${label}</span>${slideBoxHTML(list, start, "h1")}`;
           startFollow(document);
         }
         if (topic) {
