@@ -1,6 +1,25 @@
 {
   "projects": [
     {
+      "slug": "bowling-day",
+      "title": "A bowling day out for the Sivapoomi kids",
+      "featured": true,
+      "theme": "Trips & Events",
+      "location": "",
+      "organization": "Raavanaa",
+      "started": "October 2026",
+      "status": "Planning",
+      "reach": "Special-needs children of Sivapoomi",
+      "summary": "We are arranging a day at the bowling lanes for the special-needs children of Sivapoomi: a day out to play, laugh and be cheered on.",
+      "cover": "/img/project-bowling.svg",
+      "quote": "",
+      "story": "## The idea\n\nWe want to take the special-needs children of Sivapoomi out for a bowling day. A day away from the usual routine, where every child gets a turn on the lane, every roll gets a cheer, and everyone goes home smiling.\n\n## Where we are now\n\nThe project has been **initiated**. We have requested the budget for the day and are waiting for a response.\n\n## What happens next\n\n- The budget is approved\n- We fix the date and book the lanes\n- We arrange transport, food and helpers for the day\n- The kids go bowling\n\n## How you can help\n\nWe will need extra hands on the day to help the children at the lanes and to keep the cheering loud. If you would like to join, [volunteer with us](/volunteer).",
+      "impact": [],
+      "updates": [],
+      "photos": [],
+      "media": []
+    },
+    {
       "slug": "wells",
       "title": "Clean wells for six hillside villages",
       "theme": "Trips & Events",

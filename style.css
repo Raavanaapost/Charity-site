@@ -453,3 +453,4 @@ footer.foot .foot-main .wrap{grid-template-columns:minmax(0,1fr)}
 /* keep "(optional)" on the same line as its label */
 .form > label{display:block}
 .form > label > input,.form > label > select,.form > label > textarea{display:block;margin-top:6px}
+.phead .tag{width:fit-content}

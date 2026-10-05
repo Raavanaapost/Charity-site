@@ -14,7 +14,7 @@
   // Small Markdown renderer: headings, paragraphs, lists, bold, italic, links, images.
   const inline = t => esc(t)
     .replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, '<img src="$2" alt="$1" loading="lazy">')
-    .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+    .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, t, h) => h.startsWith("/") ? `<a href="${h}">${t}</a>` : `<a href="${h}" target="_blank" rel="noopener">${t}</a>`)
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
     .replace(/(^|[^*])\*([^*]+)\*/g, "$1<em>$2</em>")
     .replace(/(^|\W)_([^_]+)_(?=\W|$)/g, "$1<em>$2</em>");
@@ -39,7 +39,8 @@
   // Resize uploaded photos through Netlify's image service so pages load fast on phones.
   const imgUrl = (src, w) => {
     const u = String(src || "");
-    return u.startsWith("/") && !u.startsWith("//") ? `/.netlify/images?url=${encodeURIComponent(u)}&w=${w}&q=75` : u;
+    // Uploaded photos are resized on the fly; drawings (SVG) are served as they are.
+    return u.startsWith("/") && !u.startsWith("//") && !/\.svg$/i.test(u) ? `/.netlify/images?url=${encodeURIComponent(u)}&w=${w}&q=75` : u;
   };
   const art = i => { const [a, b, c] = PALETTES[i % PALETTES.length]; return `background:radial-gradient(circle at 78% 28%, ${c} 0 12%, transparent 13%),linear-gradient(160deg, ${a} 0%, ${b} 100%)`; };
   const coverHTML = (p, i, label, w = 800) => p.cover
