@@ -11,8 +11,7 @@
 <meta name="description" content="Pathy Kiruba, BBA, CPA. Personal, self-employed, rental and small business tax returns in Scarborough, with one accountant from the first call to filing.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=DM+Serif+Display&family=Dancing+Script:wght@700&family=Montserrat:wght@500;600;700;800&family=Playfair+Display:wght@800&family=Poppins:wght@700;800&display=swap" rel="stylesheet">
-<script>document.documentElement.dataset.font = new URLSearchParams(location.search).get("font") === "b" ? "b" : "a";</script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Dancing+Script:wght@700&family=Montserrat:wght@500;600;700;800&family=Playfair+Display:wght@800&display=swap" rel="stylesheet">
 <style>
   :root {
     --navy: #0c3468;
@@ -32,7 +31,6 @@
     --orange: #dd6a31;
     --orange-deep: #c4581f;
     --logo: "Playfair Display", Georgia, serif;
-    /* Font sample A: classic serif with a flowing script */
     --serif: "DM Serif Display", Georgia, serif;
     --script: "Dancing Script", "Segoe Script", cursive;
     --hw: 400;
@@ -42,23 +40,13 @@
     --gutter: max(1.25rem, calc((100vw - var(--wrap)) / 2));
     color-scheme: light;
   }
-  /* Font sample B: modern sans with a handwritten script */
-  html[data-font="b"] {
-    --serif: "Poppins", Montserrat, Inter, sans-serif;
-    --script: "Caveat", "Segoe Print", cursive;
-    --hw: 800;
-    --hw3: 700;
-  }
   *, *::before, *::after { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body { margin: 0; background: var(--sheet); color: var(--text); font: 500 1.0625rem/1.65 var(--sans); -webkit-font-smoothing: antialiased; }
   h1, h2, h3 { font-family: var(--serif); font-weight: var(--hw); color: var(--ink); line-height: 1.1; margin: 0; }
   h2 { font-size: clamp(1.9rem, 3.6vw, 2.7rem); }
-  h2::after { content: ""; display: block; width: 5.5rem; height: 0.6rem; margin-top: 0.6rem; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 14' preserveAspectRatio='none'%3E%3Cpath d='M3 9C55 2 120 13 180 6s85-3 117 2' fill='none' stroke='%23dd6a31' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%; }
+  h2::after { content: ""; display: block; width: 4rem; height: 4px; border-radius: 2px; background: var(--orange); margin-top: 0.8rem; }
   h3 { font-size: 1.3rem; font-weight: var(--hw3); }
-  html[data-font="b"] h3 { font-size: 1.12rem; }
-  html[data-font="b"] h2 { letter-spacing: -0.02em; }
-  html[data-font="b"] .panel .big { font-size: clamp(2.4rem, 4.5vw, 3.8rem); letter-spacing: -0.025em; line-height: 1.02; }
   p { margin: 0; }
   a { color: inherit; }
   :focus-visible { outline: 3px solid var(--gold-deep); outline-offset: 3px; border-radius: 4px; }
@@ -102,8 +90,8 @@
   .panel .big { display: block; font-size: clamp(2.7rem, 5vw, 4.3rem); line-height: 0.98; letter-spacing: -0.01em; }
   .panel .ribbon { display: inline-block; margin-top: 1rem; padding: 0.45rem 1.3rem; background: #dcebfa; border-left: 5px solid var(--royal); border-radius: 4px; transform: skewX(-12deg); }
   .panel .ribbon span { display: block; transform: skewX(12deg); color: var(--ink); font: 700 clamp(0.85rem, 1.4vw, 1.05rem)/1.2 var(--sans); letter-spacing: 0.1em; text-transform: uppercase; }
-  .panel .script { display: inline-block; margin-top: 1.1rem; font: 700 clamp(2.3rem, 4.4vw, 3.6rem)/1.05 var(--script); color: var(--royal); transform: rotate(-2deg); }
-  .panel .script::after { content: ""; display: block; height: 0.8rem; margin-top: 0.15rem; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 14' preserveAspectRatio='none'%3E%3Cpath d='M3 9C55 2 120 13 180 6s85-3 117 2' fill='none' stroke='%23dd6a31' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%; }
+  .panel .script { display: inline-block; margin-top: 1.1rem; font: 700 clamp(2.3rem, 4.4vw, 3.6rem)/1.05 var(--script); color: var(--royal); }
+  .panel .script::after { content: ""; display: block; height: 4px; border-radius: 2px; margin-top: 0.45rem; background: var(--orange); }
   .panel .tag { margin-top: 1.5rem; max-width: 26rem; color: var(--text); }
   .panel .tag em { font-style: normal; color: var(--sky); font-weight: 700; }
   .actions { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 1.5rem; }
@@ -204,9 +192,6 @@
   body > footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.2rem 1.5rem; padding-block: 0.85rem; }
 
   .bar { display: none; }
-  .samples { background: #fff4dc; color: var(--ink); font: 600 0.85rem var(--sans); text-align: center; padding: 0.4rem 1rem; }
-  .samples a { display: inline-block; margin-left: 0.4rem; padding: 0.1rem 0.8rem; border-radius: 999px; border: 1px solid #d9c592; background: #fff; color: var(--navy); text-decoration: none; }
-  .samples a[aria-current="true"] { background: var(--navy); border-color: var(--navy); color: #fff; }
 
   @media (max-width: 1040px) {
     .top { position: static; }
@@ -221,8 +206,8 @@
   @media (max-width: 860px) {
     .hero { display: flex; flex-direction: column; }
     .hero .left { display: contents; }
-    .panel { order: 1; border-radius: 0; padding: 2rem 1.25rem 2.25rem; }
-    .hero .art { order: 2; position: static; aspect-ratio: 900 / 640; }
+    .hero .art { order: 1; position: static; aspect-ratio: 900 / 470; }
+    .panel { order: 2; position: relative; z-index: 1; margin-top: -1.5rem; border-radius: 1.75rem 1.75rem 0 0; padding: 1.6rem 1.25rem 2.25rem; }
     .feats { order: 3; width: 100%; margin-top: 0; border-radius: 0; padding: 1.25rem; grid-template-columns: 1fr 1fr; gap: 1.25rem 0; }
     .feats li:nth-child(3) { border-left: 0; padding-left: 0; }
     .feats li { font-size: 0.72rem; }
@@ -250,7 +235,7 @@
   }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   @media print {
-    .top, .samples, .bar, .hero, .strip, .infobar, .services, .how, .reviews, .about, .where, .faq, .contact, body > footer, .tabs, .tally button { display: none; }
+    .top, .bar, .hero, .strip, .infobar, .services, .how, .reviews, .about, .where, .faq, .contact, body > footer, .tabs, .tally button { display: none; }
     .bring, .bring h2 { background: #fff; color: #000; padding: 0; }
     .bring .intro p { color: #000; }
     body { padding-bottom: 0; }
@@ -274,8 +259,6 @@
   <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
 </svg>
-
-<div class="samples">Font sample: <a href="?font=a" data-font="a">A</a><a href="?font=b" data-font="b">B</a></div>
 
 <header class="top">
   <div class="wrap">
@@ -327,7 +310,7 @@
       </ul>
     </div>
     <div class="art" aria-hidden="true">
-      <svg viewBox="0 0 900 640" preserveAspectRatio="xMaxYMid slice">
+      <svg viewBox="0 0 900 640" preserveAspectRatio="xMaxYMax slice">
         <defs>
           <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fc0ec"/><stop offset="1" stop-color="#dcedfb"/></linearGradient>
         </defs>
@@ -710,8 +693,6 @@
   });
   document.getElementById("print").addEventListener("click", () => window.print());
   show(current);
-
-  document.querySelectorAll(".samples a").forEach(a => { if (a.dataset.font === document.documentElement.dataset.font) a.setAttribute("aria-current", "true"); });
 
   // Mark the menu item for the section on screen
   const links = [...document.querySelectorAll(".menu a")];
