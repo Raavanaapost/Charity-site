@@ -64,32 +64,15 @@
   .btn.quiet:hover { background: var(--ledger); }
 
   /* Header */
-  .top { background: var(--sheet); }
-  .top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 1rem 2rem; padding-block: 0.9rem 0.5rem; flex-wrap: wrap; }
+  .top { position: sticky; top: 0; z-index: 10; background: var(--sheet); box-shadow: 0 2px 14px rgba(12, 34, 56, 0.09); }
+  .top .wrap { display: flex; align-items: center; gap: 0.75rem 2rem; padding-block: 0.6rem; }
   .mark { display: block; line-height: 0; }
-  .mark img { display: block; height: clamp(68px, 9vw, 92px); width: auto; }
-  .card { font-style: normal; font-size: 0.95rem; line-height: 1.45; text-align: right; color: var(--ink-soft); }
-  .card strong { display: block; font: 700 1.2rem var(--display); color: var(--navy); letter-spacing: -0.01em; }
-  .card span { display: block; }
-  .card .lines { display: flex; gap: 1.25rem; justify-content: flex-end; color: var(--ink); }
-  .card a { color: var(--navy); font-weight: 700; text-decoration: none; }
-  .card a:hover { text-decoration: underline; text-underline-offset: 4px; }
-
-  /* Menu: folder tabs sitting on the header rule */
-  .folders {
-    position: sticky; top: 0; z-index: 10; background: var(--sheet); padding-top: 0.5rem;
-    border-bottom: 4px solid var(--navy); box-shadow: 0 3px 0 var(--gold);
-  }
-  .folders .wrap { display: flex; align-items: flex-end; gap: 0.3rem; flex-wrap: nowrap; }
-  .folders a {
-    font: 700 1.05rem var(--body); text-decoration: none; white-space: nowrap; color: var(--navy);
-    padding: 0.55rem 1.6rem 0.5rem; background: var(--ledger);
-    border: 1px solid var(--rule); border-bottom: 0; border-top: 3px solid var(--rule);
-    border-radius: 10px 10px 0 0;
-  }
-  .folders a:hover { background: #d3dceb; }
-  .folders a[aria-current="true"] { background: var(--navy); border-color: var(--navy); border-top-color: var(--gold); color: #fff; }
-  .folders a:focus-visible { outline-offset: -3px; }
+  .mark img { display: block; height: clamp(52px, 7vw, 76px); width: auto; }
+  .menu { display: flex; gap: 0.25rem; margin-left: auto; }
+  .menu a { font: 700 1.02rem var(--body); color: var(--navy); text-decoration: none; white-space: nowrap; padding: 0.5rem 0.9rem; border-radius: 8px; }
+  .menu a:hover, .menu a[aria-current="true"] { background: var(--ledger); }
+  .call { padding: 0.65rem 1.1rem; font-size: 1rem; white-space: nowrap; }
+  section[id] { scroll-margin-top: 4rem; }
 
   /* Hero */
   .hero .wrap { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: clamp(2rem, 5vw, 4.5rem); align-items: center; }
@@ -156,10 +139,21 @@
   .details dt { padding: 0.9rem 0.75rem 0.9rem 1.25rem; font-weight: 700; border-right: 1px solid var(--rule); }
   .details dd { margin: 0; padding: 0.9rem 1.25rem 0.9rem 0.9rem; }
 
-  footer { background: var(--navy-deep); color: #cbd5e3; font-size: 0.95rem; }
-  footer .wrap { padding-block: 1.75rem; display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  footer { background: var(--navy-deep); color: #cbd5e3; font-size: 0.98rem; line-height: 1.55; }
+  footer .cols { display: grid; grid-template-columns: 1.2fr 1.2fr 1fr 1fr; gap: 2rem; padding-block: 2.75rem; }
+  footer address { font-style: normal; }
+  footer strong { display: block; font: 700 1.08rem var(--display); color: #fff; margin-bottom: 0.35rem; }
+  footer span { display: block; }
+  footer a { color: var(--gold); text-decoration: none; }
+  footer a:hover { text-decoration: underline; text-underline-offset: 4px; }
+  footer .small { border-top: 1px solid rgba(255, 255, 255, 0.16); padding-block: 1.1rem; font-size: 0.9rem; }
 
   @media (max-width: 860px) {
+    .top { position: static; }
+    .top .wrap { flex-wrap: wrap; }
+    .menu { order: 3; width: 100%; margin-left: 0; justify-content: space-between; }
+    .call { margin-left: auto; }
+    section[id] { scroll-margin-top: 0; }
     .hero .wrap, .pair, .contact .wrap { grid-template-columns: 1fr; }
     .boxes { grid-template-columns: 1fr 1fr; }
     .box:nth-child(3n) { border-right: 1px solid var(--rule); }
@@ -170,9 +164,12 @@
   }
   @media (max-width: 560px) {
     body { font-size: 1.0625rem; }
-    .card { text-align: left; font-size: 0.9rem; }
-    .card .lines { justify-content: flex-start; }
-    .folders a { flex: 1; text-align: center; padding-inline: 0.5rem; }
+    .top .wrap { gap: 0.6rem 0.75rem; }
+    .menu { gap: 0; }
+    .menu a { flex: 1; text-align: center; padding: 0.45rem 0.2rem; font-size: clamp(0.85rem, 4.2vw, 1rem); }
+    .call { padding: 0.55rem 0.75rem; font-size: 0.98rem; }
+    .call span { display: none; }
+    footer .cols { grid-template-columns: 1fr; gap: 1.5rem; }
     .boxes, .steps { grid-template-columns: 1fr; }
     .box, .box:nth-child(2n), .box:nth-child(3n) { border-right: 0; }
     .box:nth-last-child(-n+2) { border-bottom: 1px solid var(--rule); }
@@ -183,7 +180,7 @@
   }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   @media print {
-    .top, .folders, .hero, .services, .how, .about, .contact, footer, .tabs, .tally button { display: none; }
+    .top, .hero, .services, .how, .about, .contact, footer, .tabs, .tally button { display: none; }
     .bring { background: #fff; color: #000; padding: 0; }
     .bring .intro p { color: #000; }
   }
@@ -194,21 +191,15 @@
 <header class="top">
   <div class="wrap">
     <a class="mark" href="#top"><img src="img/logo.webp" width="810" height="270" alt="Pathy Tax &amp; Accounting"></a>
-    <address class="card">
-      <strong>Pathy Kiruba, BBA, CPA</strong>
-      <span>Accountant, Sri &amp; Associate Professional Corp.</span>
-      <span>211-3300 McNicoll Ave, Scarborough, ON M1V 5J6</span>
-      <span class="lines"><span>Tel <a href="tel:+16478856036">647-885-6036</a></span><span>Fax 647-846-8113</span></span>
-    </address>
+    <nav class="menu" aria-label="Sections">
+      <a href="#services">Services</a>
+      <a href="#how">Process</a>
+      <a href="#bring">Checklist</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a class="btn call" href="tel:+16478856036"><span>Call </span>647-885-6036</a>
   </div>
 </header>
-<nav class="folders" aria-label="Sections">
-  <div class="wrap">
-    <a href="#services">Services</a>
-    <a href="#how">Process</a>
-    <a href="#bring">Checklist</a>
-  </div>
-</nav>
 
 <main id="top">
 
@@ -349,13 +340,13 @@
     <div class="wrap">
       <div>
         <h2>Book a call</h2>
-        <p class="lede">Fifteen minutes is usually enough to know what your return needs. Call and I'll get back to you within one business day.</p>
+        <p class="lede">Fifteen minutes is usually enough to know what your return needs. Call or email and I'll get back to you within one business day.</p>
       </div>
       <dl class="details">
         <div><dt>Phone</dt><dd><a href="tel:+16478856036">647-885-6036</a></dd></div>
         <div><dt>Fax</dt><dd>647-846-8113</dd></div>
         <div><dt>Office</dt><dd>Sri &amp; Associate Professional Corp.<br>211-3300 McNicoll Ave<br>Scarborough, ON M1V 5J6</dd></div>
-        <div><dt>Email</dt><dd><span class="todo">Email address to add</span></dd></div>
+        <div><dt>Email</dt><dd><a href="mailto:pkiruba@tsgs.ca">pkiruba@tsgs.ca</a></dd></div>
         <div><dt>Hours</dt><dd><span class="todo">Office hours to add</span></dd></div>
       </dl>
     </div>
@@ -364,11 +355,29 @@
 </main>
 
 <footer>
-  <div class="wrap">
-    <span>Pathy Tax &amp; Accounting. Plan, prepare, grow together.</span>
-    <span>Sri &amp; Associate Professional Corp., 211-3300 McNicoll Ave, Scarborough, ON M1V 5J6</span>
-    <span>Sample site, draft content. Dates shown are the usual CRA deadlines. Confirm them for your own situation.</span>
+  <div class="wrap cols">
+    <div>
+      <strong>Pathy Tax &amp; Accounting</strong>
+      <span>Plan, prepare, grow together.</span>
+    </div>
+    <address>
+      <strong>Pathy Kiruba, BBA, CPA</strong>
+      <span>Accountant</span>
+      <span>Sri &amp; Associate Professional Corp.</span>
+    </address>
+    <address>
+      <strong>Office</strong>
+      <span>211-3300 McNicoll Ave</span>
+      <span>Scarborough, ON M1V 5J6</span>
+    </address>
+    <address>
+      <strong>Contact</strong>
+      <span>Tel <a href="tel:+16478856036">647-885-6036</a></span>
+      <span>Fax 647-846-8113</span>
+      <span><a href="mailto:pkiruba@tsgs.ca">pkiruba@tsgs.ca</a></span>
+    </address>
   </div>
+  <div class="wrap small">Sample site, draft content. Dates shown are the usual CRA deadlines. Confirm them for your own situation.</div>
 </footer>
 
 <script>
@@ -456,15 +465,20 @@
   document.getElementById("print").addEventListener("click", () => window.print());
   show(current);
 
-  // Light up the folder tab for the section on screen
-  const links = [...document.querySelectorAll(".folders a")];
-  const spy = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      const link = links.find(a => a.getAttribute("href") === "#" + e.target.id);
-      if (link) e.isIntersecting ? link.setAttribute("aria-current", "true") : link.removeAttribute("aria-current");
-    });
-  }, { rootMargin: "-40% 0px -55% 0px" });
-  links.forEach(a => spy.observe(document.querySelector(a.getAttribute("href"))));
+  // Mark the menu item for the section on screen
+  const links = [...document.querySelectorAll(".menu a")];
+  const targets = links.map(a => document.querySelector(a.getAttribute("href")));
+  let queued = false;
+  function mark() {
+    queued = false;
+    const line = innerHeight * 0.4;
+    let on = targets.findIndex(t => { const r = t.getBoundingClientRect(); return r.top <= line && r.bottom > line; });
+    if (innerHeight + scrollY >= document.documentElement.scrollHeight - 4) on = links.length - 1;
+    links.forEach((a, i) => i === on ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current"));
+  }
+  addEventListener("scroll", () => { if (!queued) { queued = true; requestAnimationFrame(mark); } }, { passive: true });
+  addEventListener("resize", mark);
+  mark();
 </script>
 </body>
 </html>
