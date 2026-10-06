@@ -5,68 +5,74 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Pathy Tax &amp; Accounting | CPA in Scarborough</title>
-<link rel="icon" type="image/png" sizes="32x32" href="../img/favicon-32.png">
-<link rel="icon" type="image/png" sizes="192x192" href="../img/icon-192.png">
-<link rel="apple-touch-icon" href="../img/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="img/icon-192.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <meta name="description" content="Pathy Kiruba, BBA, CPA. Personal, self-employed, rental and small business tax returns in Scarborough, with one accountant from the first call to filing.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --paper: #f5f7fa;
+    /* Sampled from the reference screenshot */
+    --paper: #fbfaf6;
     --sheet: #ffffff;
-    --ledger: #e3e9f1;
-    --rule: #d3dbe6;
-    --navy: #123a63;
-    --navy-deep: #0a2d4d;
-    --ink: #0c2238;
-    --ink-soft: #4a5a6d;
-    --gold: #e6bb66;
-    --gold-deep: #a87b24;
-    --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
-    --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+    --rule: #ebe8e1;
+    --line: #d6d3ca;
+    --ink: #2b2620;
+    --on-dark: #d9d3c7;
+    --muted: #948d83;
+    --accent: #dd6a31;
+    /* Derived from the above */
+    --ledger: #f4f1ea;
+    --ink-soft: #5e584f;
+    --accent-deep: #c4581f;
+    --flag: #f8dccb;
+    --display: "Newsreader", "Source Serif 4", Charter, Georgia, serif;
+    --body: "Public Sans", Inter, "Segoe UI", system-ui, sans-serif;
     --wrap: 1120px;
     color-scheme: light;
   }
   *, *::before, *::after { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
-    margin: 0; background: var(--sheet); color: var(--ink);
+    margin: 0; background: var(--paper); color: var(--ink);
     font-family: var(--body); font-size: 1.125rem; line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3 { font-family: var(--display); line-height: 1.1; margin: 0; letter-spacing: -0.015em; }
-  h1 { font-size: clamp(2.4rem, 5.2vw, 3.9rem); font-weight: 700; text-wrap: balance; }
-  h2 { font-size: clamp(1.8rem, 3.4vw, 2.5rem); font-weight: 700; }
-  h3 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.005em; }
+  h1, h2, h3 { font-family: var(--display); line-height: 1.12; margin: 0; letter-spacing: -0.012em; font-weight: 500; }
+  h1 { font-size: clamp(2.6rem, 5.6vw, 4.3rem); font-weight: 400; text-wrap: balance; }
+  h2 { font-size: clamp(2rem, 3.8vw, 2.9rem); font-weight: 400; }
+  h3 { font-size: 1.4rem; letter-spacing: -0.005em; }
   p { margin: 0; }
   a { color: inherit; }
-  :focus-visible { outline: 3px solid var(--gold-deep); outline-offset: 3px; border-radius: 4px; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
   .wrap { width: min(100% - 2.5rem, var(--wrap)); margin-inline: auto; }
   .band { padding-block: clamp(3.5rem, 7.5vw, 6rem); }
-  .tint { background: var(--paper); }
+  .tint { background: var(--ledger); }
   .intro { max-width: 40rem; margin-bottom: 2.5rem; }
   .intro p { margin-top: 0.8rem; color: var(--ink-soft); }
-  .todo { background: var(--gold); padding: 0.05em 0.35em; border-radius: 3px; color: var(--ink); }
+  .todo { background: var(--flag); padding: 0.05em 0.35em; border-radius: 3px; color: var(--ink); }
   section[id] { scroll-margin-top: 4rem; }
 
   .btn {
-    display: inline-block; font: 700 1.05rem var(--body); text-decoration: none;
-    padding: 0.85rem 1.4rem; border-radius: 8px; border: 2px solid var(--navy);
-    background: var(--navy); color: #fff; cursor: pointer;
+    display: inline-block; font: 600 1.05rem var(--body); text-decoration: none;
+    padding: 0.9rem 1.6rem; border-radius: 4px; border: 1px solid var(--accent);
+    background: var(--accent); color: #fff; cursor: pointer;
   }
-  .btn:hover { background: var(--navy-deep); border-color: var(--navy-deep); }
-  .btn.quiet { background: transparent; color: var(--navy); }
+  .btn:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
+  .btn.quiet { background: var(--paper); color: var(--ink); border-color: var(--line); }
   .btn.quiet:hover { background: var(--ledger); }
 
   /* Header */
-  .top { position: sticky; top: 0; z-index: 10; background: var(--sheet); box-shadow: 0 2px 14px rgba(12, 34, 56, 0.09); }
+  .top { position: sticky; top: 0; z-index: 10; background: var(--paper); box-shadow: 0 1px 0 var(--rule), 0 6px 18px rgba(43, 38, 32, 0.05); }
   .top .wrap { display: flex; align-items: center; gap: 0.75rem 1.5rem; padding-block: 0.6rem; }
-  .mark { display: block; line-height: 0; }
-  .mark img { display: block; height: clamp(52px, 7vw, 76px); width: auto; }
+  .mark { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; padding-block: 0.2rem; }
+  .mark svg { display: block; width: clamp(44px, 5vw, 54px); height: auto; flex: none; }
+  .mark b { display: block; font: 600 clamp(1.7rem, 3vw, 2.1rem)/1 var(--display); letter-spacing: -0.01em; color: var(--ink); }
+  .mark i { display: block; margin-top: 0.3rem; font: 600 0.68rem/1 var(--body); font-style: normal; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; }
   .menu { display: flex; gap: 0.1rem; margin-left: auto; }
-  .menu a { font: 700 1rem var(--body); color: var(--navy); text-decoration: none; white-space: nowrap; padding: 0.5rem 0.75rem; border-radius: 8px; }
+  .menu a { font: 600 1rem var(--body); color: var(--ink); text-decoration: none; white-space: nowrap; padding: 0.5rem 0.75rem; border-radius: 8px; }
   .menu a:hover, .menu a[aria-current="true"] { background: var(--ledger); }
   .call { padding: 0.65rem 1.1rem; font-size: 1rem; white-space: nowrap; }
 
@@ -77,16 +83,16 @@
   .hero .note { margin-top: 1rem; font-size: 1rem; color: var(--ink-soft); }
   .portrait { margin: 0 0 0 auto; width: min(100%, 22rem); }
   .portrait .frame {
-    position: relative; aspect-ratio: 4 / 5; border-radius: 18px; background: var(--ledger);
+    position: relative; aspect-ratio: 4 / 5; border-radius: 10px; background: #ece8df;
     display: grid; place-items: center; text-align: center; padding: 1.5rem;
   }
   .portrait .frame::before {
     content: ""; position: absolute; inset: 14px -14px -14px 14px; z-index: -1;
-    border-radius: 18px; background: var(--gold);
+    border-radius: 10px; background: var(--accent);
   }
   .portrait { position: relative; z-index: 0; }
   .portrait figcaption { margin-top: 1.9rem; font-size: 1rem; color: var(--ink-soft); line-height: 1.45; }
-  .portrait figcaption strong { display: block; font: 700 1.15rem var(--display); color: var(--ink); }
+  .portrait figcaption strong { display: block; font: 500 1.3rem var(--display); color: var(--ink); }
 
   /* Three reasons */
   .why { border-block: 1px solid var(--rule); padding-block: clamp(2.5rem, 5vw, 3.5rem); }
@@ -98,7 +104,7 @@
 
   /* Services */
   .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
-  .card { background: var(--sheet); border: 1px solid var(--rule); border-radius: 14px; padding: 1.5rem 1.4rem 1.6rem; }
+  .card { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 1.5rem 1.4rem 1.6rem; }
   .card p { margin-top: 0.55rem; font-size: 1.02rem; color: var(--ink-soft); }
 
   /* Process */
@@ -106,32 +112,32 @@
   .steps li { counter-increment: step; }
   .steps li::before {
     content: counter(step); display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: 50%;
-    background: var(--navy); color: #fff; font: 700 1.25rem var(--display); margin-bottom: 0.9rem;
+    background: var(--ink); color: var(--paper); font: 500 1.3rem var(--display); margin-bottom: 0.9rem;
   }
   .steps p { margin-top: 0.5rem; font-size: 1.02rem; color: var(--ink-soft); }
 
   /* Checklist */
-  .bring { background: var(--navy); color: #fff; }
-  .bring .intro p { color: #d3dceb; }
+  .bring { background: var(--ink); color: var(--paper); }
+  .bring .intro p { color: var(--on-dark); }
   .tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
   .tabs button {
-    font: 700 1rem var(--body); padding: 0.6rem 1.05rem; border-radius: 999px; cursor: pointer;
-    background: transparent; color: #fff; border: 2px solid #6d87ab;
+    font: 600 1rem var(--body); padding: 0.6rem 1.05rem; border-radius: 999px; cursor: pointer;
+    background: transparent; color: var(--paper); border: 1px solid #6b645a;
   }
   .tabs button:hover { border-color: #fff; }
-  .tabs button[aria-selected="true"] { background: var(--gold); border-color: var(--gold); color: var(--ink); }
-  .sheet { background: var(--sheet); color: var(--ink); border-radius: 14px; padding: 0.5rem 1.4rem 1.1rem; max-width: 46rem; }
+  .tabs button[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .sheet { background: var(--sheet); color: var(--ink); border-radius: 8px; padding: 0.5rem 1.4rem 1.1rem; max-width: 46rem; }
   .sheet ul { list-style: none; margin: 0; padding: 0; }
   .sheet li { border-bottom: 1px solid var(--rule); }
   .sheet label { display: flex; gap: 0.9rem; align-items: flex-start; padding: 0.85rem 0; cursor: pointer; }
-  .sheet input { width: 1.35rem; height: 1.35rem; margin: 0.2rem 0 0; accent-color: var(--navy); flex: none; }
+  .sheet input { width: 1.35rem; height: 1.35rem; margin: 0.2rem 0 0; accent-color: var(--accent); flex: none; }
   .sheet input:checked + span { color: var(--ink-soft); text-decoration: line-through; }
   .tally { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; padding-top: 1rem; font-size: 1rem; }
-  .tally button { font: 700 1rem var(--body); background: none; border: 0; color: var(--navy); text-decoration: underline; text-underline-offset: 4px; cursor: pointer; padding: 0; }
+  .tally button { font: 700 1rem var(--body); background: none; border: 0; color: var(--accent); text-decoration: underline; text-underline-offset: 4px; cursor: pointer; padding: 0; }
 
   /* Reviews (waiting for real ones) */
   .quotes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
-  .quote { margin: 0; border: 2px dashed var(--rule); border-radius: 14px; padding: 1.5rem 1.4rem; min-height: 11rem; display: flex; flex-direction: column; justify-content: space-between; gap: 1.5rem; }
+  .quote { margin: 0; border: 2px dashed var(--line); border-radius: 8px; padding: 1.5rem 1.4rem; min-height: 11rem; display: flex; flex-direction: column; justify-content: space-between; gap: 1.5rem; }
   .quote p { color: var(--ink-soft); }
   .quote footer { background: none; color: var(--ink-soft); font-size: 1rem; }
 
@@ -142,12 +148,12 @@
   .about h3 { margin-bottom: 1rem; }
   .who { list-style: none; margin: 0; padding: 0; }
   .who li { padding: 0.6rem 0 0.6rem 1.6rem; border-bottom: 1px solid var(--rule); position: relative; }
-  .who li::before { content: ""; position: absolute; left: 0; top: 1.15rem; width: 0.6rem; height: 0.6rem; border-radius: 2px; background: var(--gold-deep); }
+  .who li::before { content: ""; position: absolute; left: 0; top: 1.15rem; width: 0.6rem; height: 0.6rem; border-radius: 2px; background: var(--accent); }
 
   /* Where */
   .where .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 6vw, 5rem); align-items: start; }
   .where address { font-style: normal; margin-top: 1rem; font-size: 1.2rem; line-height: 1.5; }
-  .where .maplink { display: inline-block; margin-top: 1rem; color: var(--navy); font-weight: 700; text-underline-offset: 4px; }
+  .where .maplink { display: inline-block; margin-top: 1rem; color: var(--accent); font-weight: 600; text-underline-offset: 4px; }
   .where p { color: var(--ink-soft); }
   .where p + p { margin-top: 1rem; color: var(--ink); }
 
@@ -156,33 +162,37 @@
   .faq details { border-bottom: 1px solid var(--rule); }
   .faq summary {
     list-style: none; cursor: pointer; padding: 1.15rem 2.5rem 1.15rem 0; position: relative;
-    font: 700 1.2rem var(--display); letter-spacing: -0.005em;
+    font: 500 1.35rem var(--display); letter-spacing: -0.005em;
   }
   .faq summary::-webkit-details-marker { display: none; }
-  .faq summary::after { content: "+"; position: absolute; right: 0.25rem; top: 0.85rem; font: 500 1.8rem var(--display); color: var(--gold-deep); line-height: 1; }
+  .faq summary::after { content: "+"; position: absolute; right: 0.25rem; top: 0.85rem; font: 400 1.9rem var(--display); color: var(--accent); line-height: 1; }
   .faq details[open] summary::after { content: "\2212"; }
   .faq details p { padding: 0 2.5rem 1.3rem 0; color: var(--ink-soft); }
-  .faq details a { color: var(--navy); font-weight: 700; text-underline-offset: 4px; }
+  .faq details a { color: var(--accent); font-weight: 600; text-underline-offset: 4px; }
 
   /* Contact */
-  .contact { background: var(--ledger); }
+  .contact { background: var(--ink); color: var(--paper); }
   .contact .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 6vw, 5rem); align-items: start; }
-  .contact .lede { margin-top: 1rem; font-size: 1.25rem; max-width: 30rem; }
-  .details { margin: 0; background: var(--sheet); border-radius: 14px; overflow: hidden; }
-  .details div { display: grid; grid-template-columns: 6.5rem 1fr; border-bottom: 1px solid var(--rule); }
-  .details div:last-child { border-bottom: 0; }
-  .details dt { padding: 0.9rem 0.75rem 0.9rem 1.25rem; font-weight: 700; }
-  .details dd { margin: 0; padding: 0.9rem 1.25rem 0.9rem 0.5rem; }
-  .details a { color: var(--navy); font-weight: 700; text-underline-offset: 4px; }
+  .contact .lede { margin-top: 1.1rem; font-size: 1.25rem; max-width: 30rem; color: var(--on-dark); }
+  .contact .btn.quiet { background: transparent; color: var(--paper); border-color: #6b645a; }
+  .contact .btn.quiet:hover { background: rgba(255, 255, 255, 0.08); }
+  .details { margin: 0; border-top: 1px solid rgba(255, 255, 255, 0.16); }
+  .details div { display: grid; grid-template-columns: 6.5rem 1fr; border-bottom: 1px solid rgba(255, 255, 255, 0.16); }
+    .details dt { padding: 0.9rem 0.75rem 0.9rem 0; font-weight: 600; }
+  .details dd { margin: 0; padding: 0.9rem 0 0.9rem 0.5rem; color: var(--on-dark); }
+  .details a { color: var(--accent); font-weight: 600; text-underline-offset: 4px; }
 
-  body > footer { background: var(--navy-deep); color: #cbd5e3; font-size: 0.98rem; line-height: 1.55; }
+  body > footer { background: var(--paper); color: var(--ink-soft); font-size: 0.98rem; line-height: 1.55; }
   body > footer .cols { display: grid; grid-template-columns: 1.2fr 1.2fr 1fr 1fr; gap: 2rem; padding-block: 2.75rem; }
   body > footer address { font-style: normal; }
-  body > footer strong { display: block; font: 700 1.08rem var(--display); color: #fff; margin-bottom: 0.35rem; }
+  body > footer strong { display: block; font: 500 1.2rem var(--display); color: var(--ink); margin-bottom: 0.35rem; }
   body > footer span { display: block; }
-  body > footer a { color: var(--gold); text-decoration: none; }
+  body > footer a { color: var(--accent); text-decoration: none; }
   body > footer a:hover { text-decoration: underline; text-underline-offset: 4px; }
-  body > footer .small { border-top: 1px solid rgba(255, 255, 255, 0.16); padding-block: 1.1rem; font-size: 0.9rem; }
+  body > footer .small { border-top: 1px solid var(--rule); padding-block: 1.1rem; font-size: 0.9rem; color: var(--muted); }
+
+  /* Phone: call bar pinned to the bottom, like the reference */
+  .bar { display: none; }
 
   @media (max-width: 1000px) {
     .top { position: static; }
@@ -200,6 +210,13 @@
     .why div, .why div:first-child, .why div:last-child { padding-inline: 0; border-left: 0; }
     body > footer .cols { grid-template-columns: 1fr 1fr; }
   }
+  @media (max-width: 700px) {
+    .bar { display: flex; gap: 0.6rem; position: fixed; inset: auto 0 0 0; z-index: 20; padding: 0.6rem 0.9rem calc(0.6rem + env(safe-area-inset-bottom)); background: var(--paper); border-top: 1px solid var(--line); }
+    .bar .btn { text-align: center; padding-inline: 1.1rem; }
+    .bar .btn:first-child { flex: 1; }
+    body { padding-bottom: 4.7rem; }
+    .top .call { display: none; }
+  }
   @media (max-width: 560px) {
     body { font-size: 1.0625rem; }
     .top .wrap { gap: 0.6rem 0.75rem; }
@@ -213,7 +230,8 @@
   }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   @media print {
-    .top, .hero, .why, .services, .how, .reviews, .about, .where, .faq, .contact, body > footer, .tabs, .tally button { display: none; }
+    .top, .bar, .hero, .why, .services, .how, .reviews, .about, .where, .faq, .contact, body > footer, .tabs, .tally button { display: none; }
+    body { padding-bottom: 0; }
     .bring { background: #fff; color: #000; padding: 0; }
     .bring .intro p { color: #000; }
   }
@@ -223,7 +241,15 @@
 
 <header class="top">
   <div class="wrap">
-    <a class="mark" href="#top"><img src="../img/logo.webp" width="810" height="270" alt="Pathy Tax &amp; Accounting"></a>
+    <a class="mark" href="#top" aria-label="Pathy Tax &amp; Accounting">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <rect width="64" height="64" rx="12" fill="#2b2620"/>
+        <path fill="#fbfaf6" fill-rule="evenodd" d="M19 14h15a11 11 0 0 1 0 22h-7v14h-8zM27 21v8h7a4 4 0 0 0 0-8z"/>
+        <rect x="33" y="42" width="14" height="2.5" fill="#dd6a31"/>
+        <rect x="33" y="47.5" width="14" height="2.5" fill="#dd6a31"/>
+      </svg>
+      <span><b>Pathy</b><i>Tax &amp; Accounting</i></span>
+    </a>
     <nav class="menu" aria-label="Sections">
       <a href="#services">Services</a>
       <a href="#how">Process</a>
@@ -446,8 +472,8 @@
   <section class="contact band" id="contact">
     <div class="wrap">
       <div>
-        <h2>Book a call</h2>
-        <p class="lede">Call or email and I'll get back to you within one business day.</p>
+        <h2>Call for a fixed quote</h2>
+        <p class="lede">Tell me about your year and I'll tell you what your return needs and what it will cost. I get back to you within one business day.</p>
         <div class="actions">
           <a class="btn" href="tel:+16478856036">Call 647-885-6036</a>
           <a class="btn quiet" href="mailto:pkiruba@tsgs.ca">Email Pathy</a>
@@ -490,6 +516,11 @@
   </div>
   <div class="wrap small">Sample site, draft content. Dates shown are the usual CRA deadlines. Confirm them for your own situation.</div>
 </footer>
+
+<div class="bar">
+  <a class="btn" href="tel:+16478856036">Call 647-885-6036</a>
+  <a class="btn quiet" href="mailto:pkiruba@tsgs.ca">Email</a>
+</div>
 
 <script>
   const lists = {
