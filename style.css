@@ -582,3 +582,6 @@ footer.foot .foot-main .wrap{grid-template-columns:minmax(0,1fr)}
 .only-narrow.activating + .only-narrow{margin-top:14px}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ring-steps li.done b{color:#5fbf85}}
 :root[data-theme="dark"] .ring-steps li.done b{color:#5fbf85}
+
+/* banner on the sample project page */
+.sample-note{margin:18px 0 0;padding:10px 14px;border-radius:10px;border:1.5px dashed var(--sun);background:var(--sun-soft);font-family:var(--display);font-size:14.5px;line-height:1.45}

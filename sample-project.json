@@ -1,0 +1,56 @@
+{
+  "slug": "sample",
+  "title": "Sample project: a bowling day out",
+  "theme": "Trips & Events",
+  "status": "Planning",
+  "location": "",
+  "organization": "Raavanaa",
+  "started": "October 2026",
+  "reach": "25 children (example)",
+  "verified": true,
+  "date_set": true,
+  "booked": false,
+  "volunteers": false,
+  "steps": [],
+  "summary": "An example of a day at the bowling lanes for a group of children: a day out to play, laugh and be cheered on.",
+  "cover": "/img/project-bowling.svg",
+  "quote": "",
+  "story": "## Summary\n\nA bowling day for a group of children: a day out to play, laugh and be cheered on.\n\n## The need\n\nA day out for a whole group of children takes transport, extra helpers and a budget, so it does not happen often. These are exactly the days a child remembers.\n\n## The plan\n\nA full day at the bowling lanes, where every child gets a turn and every roll gets a cheer, with transport, food and helpers arranged for the group.\n\n## What it leaves behind\n\nA happy memory for every child. After the day the story and the pictures are shared here, so that everyone who gave can see the smiles they created.",
+  "goal": null,
+  "budget": [
+    {
+      "amount": 300,
+      "item": "Bowling lanes and shoes for 25 children"
+    },
+    {
+      "amount": 220,
+      "item": "Bus to the lanes and back"
+    },
+    {
+      "amount": 180,
+      "item": "Lunch and drinks for everyone"
+    },
+    {
+      "amount": 50,
+      "item": "Medals and small prizes"
+    }
+  ],
+  "funders": [
+    {
+      "name": "Ganes family (example)",
+      "amount": 250
+    },
+    {
+      "name": "Maple Leaf Bowling Club (example)",
+      "amount": 200
+    },
+    {
+      "name": "A friend of Raavanaa",
+      "amount": 75
+    }
+  ],
+  "impact": [],
+  "updates": [],
+  "photos": [],
+  "media": []
+}

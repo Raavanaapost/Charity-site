@@ -586,13 +586,14 @@
 
     const panes = {
       story: `<div class="story">${p.quote ? `<p class="pull">“${esc(p.quote)}”</p>` : ""}${md(p.story)}</div>`,
-      updates: (updates.length ? updates.map(u => `<article class="update"><div class="meta">${fmtDate(u.date)}</div><h3>${esc(u.title)}</h3><div>${md(u.body)}</div></article>`).join("") : `<p class="empty">No impact updates yet.</p>`) + commentsHTML(slugOf(p)),
+      updates: (updates.length ? updates.map(u => `<article class="update"><div class="meta">${fmtDate(u.date)}</div><h3>${esc(u.title)}</h3><div>${md(u.body)}</div></article>`).join("") : `<p class="empty">No impact updates yet.</p>`) + (p.sample ? "" : commentsHTML(slugOf(p))),
       pictures: photos.length ? `<div class="photos">${photos.map((ph, k) => `<figure><button data-src="${esc(imgUrl(ph.image, 1600))}" aria-label="Open picture"><div class="cover"><img src="${esc(imgUrl(ph.image, 600))}" alt="${esc(ph.caption)}" loading="lazy"></div></button>${ph.caption ? `<figcaption>${esc(ph.caption)}</figcaption>` : ""}</figure>`).join("")}</div>` : `<p class="empty">No pictures yet.</p>`,
       video: media.length ? `<div class="media">${media.map(m => { const e = embedFor(m.url); return e ? `<figure style="margin:0"><div class="embed"><iframe src="${esc(e)}" title="${esc(m.title)}" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy"></iframe></div>${m.title ? `<figcaption class="note" style="padding-top:6px">${esc(m.title)}</figcaption>` : ""}</figure>` : `<a class="media-link" href="${esc(m.url)}" target="_blank" rel="noopener">▶ ${esc(m.title || m.url)}</a>`; }).join("")}</div>` : `<p class="empty">No videos yet.</p>`
     };
 
     const draw = tab => {
       app.innerHTML = `
+        ${p.sample ? `<p class="sample-note"><b>Sample page.</b> This shows how a project page looks once it is filled in. The project, the figures and the names are examples, not real.</p>` : ""}
         <nav class="crumbs"><a href="/">Projects</a>${p.theme ? ` / ${esc(p.theme)}` : ""}</nav>
         <header class="phead">
           ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
@@ -699,7 +700,13 @@
         wireForms(document);
       } else if (page === "project") {
         const slug = decodeURIComponent(location.pathname.replace(/\/+$/, "").split("/").pop());
-        renderProject(app, site, projects, slugify(slug));
+        if (slug === "sample") {
+          // A filled-in example of the project page. It is not a real project and is not listed anywhere.
+          const sample = await load("/sample-project.json");
+          sample.sample = true;
+          const m = document.createElement("meta"); m.name = "robots"; m.content = "noindex"; document.head.appendChild(m);
+          renderProject(app, site, [sample], "sample");
+        } else renderProject(app, site, projects, slugify(slug));
       } else if (page === "privacy") {
         document.title = `Privacy & child safety · ${site.name}`;
         renderPrivacy(app, site);
