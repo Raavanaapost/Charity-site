@@ -11,7 +11,8 @@
 <meta name="description" content="Pathy Kiruba, BBA, CPA. Personal, self-employed, rental and small business tax returns in Scarborough, with one accountant from the first call to filing.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Montserrat:wght@500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=DM+Serif+Display&family=Dancing+Script:wght@700&family=Montserrat:wght@500;600;700;800&family=Playfair+Display:wght@800&family=Poppins:wght@700;800&display=swap" rel="stylesheet">
+<script>document.documentElement.dataset.font = new URLSearchParams(location.search).get("font") === "b" ? "b" : "a";</script>
 <style>
   :root {
     --navy: #0c3468;
@@ -28,20 +29,36 @@
     --rule: #d5deea;
     --text: #1d2f4a;
     --text-soft: #51627c;
-    --serif: "Playfair Display", "DM Serif Display", Georgia, serif;
-    --script: "Kaushan Script", "Brush Script MT", "Segoe Script", cursive;
+    --orange: #dd6a31;
+    --orange-deep: #c4581f;
+    --logo: "Playfair Display", Georgia, serif;
+    /* Font sample A: classic serif with a flowing script */
+    --serif: "DM Serif Display", Georgia, serif;
+    --script: "Dancing Script", "Segoe Script", cursive;
+    --hw: 400;
+    --hw3: 400;
     --sans: "Montserrat", Inter, "Segoe UI", system-ui, sans-serif;
     --wrap: 1120px;
     --gutter: max(1.25rem, calc((100vw - var(--wrap)) / 2));
     color-scheme: light;
   }
+  /* Font sample B: modern sans with a handwritten script */
+  html[data-font="b"] {
+    --serif: "Poppins", Montserrat, Inter, sans-serif;
+    --script: "Caveat", "Segoe Print", cursive;
+    --hw: 800;
+    --hw3: 700;
+  }
   *, *::before, *::after { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body { margin: 0; background: var(--sheet); color: var(--text); font: 500 1.0625rem/1.65 var(--sans); -webkit-font-smoothing: antialiased; }
-  h1, h2, h3 { font-family: var(--serif); font-weight: 800; color: var(--ink); line-height: 1.1; margin: 0; }
+  h1, h2, h3 { font-family: var(--serif); font-weight: var(--hw); color: var(--ink); line-height: 1.1; margin: 0; }
   h2 { font-size: clamp(1.9rem, 3.6vw, 2.7rem); }
-  h2::after { content: ""; display: block; width: 4rem; height: 4px; border-radius: 2px; background: var(--gold); margin-top: 0.8rem; }
-  h3 { font-size: 1.25rem; font-weight: 700; }
+  h2::after { content: ""; display: block; width: 5.5rem; height: 0.6rem; margin-top: 0.6rem; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 14' preserveAspectRatio='none'%3E%3Cpath d='M3 9C55 2 120 13 180 6s85-3 117 2' fill='none' stroke='%23dd6a31' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%; }
+  h3 { font-size: 1.3rem; font-weight: var(--hw3); }
+  html[data-font="b"] h3 { font-size: 1.12rem; }
+  html[data-font="b"] h2 { letter-spacing: -0.02em; }
+  html[data-font="b"] .panel .big { font-size: clamp(2.4rem, 4.5vw, 3.8rem); letter-spacing: -0.025em; line-height: 1.02; }
   p { margin: 0; }
   a { color: inherit; }
   :focus-visible { outline: 3px solid var(--gold-deep); outline-offset: 3px; border-radius: 4px; }
@@ -56,20 +73,18 @@
 
   .btn {
     display: inline-block; font: 700 1rem var(--sans); text-decoration: none; cursor: pointer;
-    padding: 0.85rem 1.5rem; border-radius: 999px; border: 2px solid var(--navy); background: var(--navy); color: #fff;
+    padding: 0.85rem 1.5rem; border-radius: 999px; border: 2px solid var(--orange); background: var(--orange); color: #fff;
   }
-  .btn:hover { background: var(--navy-deep); border-color: var(--navy-deep); }
-  .btn.gold { background: var(--gold); border-color: var(--gold); color: var(--ink); }
-  .btn.gold:hover { background: var(--gold-light); border-color: var(--gold-light); }
-  .btn.quiet { background: transparent; color: var(--navy); }
-  .btn.quiet:hover { background: var(--tint); }
+  .btn:hover { background: var(--orange-deep); border-color: var(--orange-deep); }
+  .btn.quiet { background: var(--sheet); color: var(--orange-deep); }
+  .btn.quiet:hover { background: #fdf0e8; }
 
   /* Header */
   .top { position: sticky; top: 0; z-index: 30; background: var(--sheet); box-shadow: 0 2px 14px rgba(0, 32, 88, 0.1); }
   .top .wrap { display: flex; align-items: center; gap: 0.75rem 1.5rem; padding-block: 0.55rem; }
   .mark { display: flex; align-items: center; gap: 0.7rem; text-decoration: none; }
   .mark svg { display: block; width: clamp(46px, 5vw, 58px); height: auto; flex: none; }
-  .mark b { display: block; font: 800 clamp(1.7rem, 3vw, 2.1rem)/1 var(--serif); color: var(--ink); }
+  .mark b { display: block; font: 800 clamp(1.7rem, 3vw, 2.1rem)/1 var(--logo); color: var(--ink); }
   .mark i { display: block; margin-top: 0.32rem; padding-top: 0.3rem; border-top: 2px solid var(--gold); font: 700 0.64rem/1 var(--sans); font-style: normal; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-soft); white-space: nowrap; }
   .menu { display: flex; gap: 0.1rem; margin-left: auto; }
   .menu a { font: 700 0.95rem var(--sans); color: var(--navy); text-decoration: none; white-space: nowrap; padding: 0.5rem 0.75rem; border-radius: 999px; }
@@ -85,12 +100,10 @@
   .panel h1 { font-size: 1rem; }
   .panel .pre { display: block; font-size: clamp(1.6rem, 2.6vw, 2.2rem); padding-left: 0.2em; }
   .panel .big { display: block; font-size: clamp(2.7rem, 5vw, 4.3rem); line-height: 0.98; letter-spacing: -0.01em; }
-  .panel .ribbon {
-    display: inline-block; margin-top: 0.9rem; padding: 0.4rem 1.7rem; background: var(--gold); color: var(--ink);
-    font: 800 clamp(0.95rem, 1.6vw, 1.25rem)/1.2 var(--sans); letter-spacing: 0.13em; text-transform: uppercase;
-    clip-path: polygon(0 0, 100% 0, calc(100% - 0.7rem) 50%, 100% 100%, 0 100%, 0.7rem 50%);
-  }
-  .panel .script { display: inline-block; margin-top: 0.9rem; font: 400 clamp(2rem, 3.9vw, 3.2rem)/1.15 var(--script); color: var(--royal); transform: rotate(-2deg); border-bottom: 3px solid var(--gold); padding-bottom: 0.15rem; }
+  .panel .ribbon { display: inline-block; margin-top: 1rem; padding: 0.45rem 1.3rem; background: #dcebfa; border-left: 5px solid var(--royal); border-radius: 4px; transform: skewX(-12deg); }
+  .panel .ribbon span { display: block; transform: skewX(12deg); color: var(--ink); font: 700 clamp(0.85rem, 1.4vw, 1.05rem)/1.2 var(--sans); letter-spacing: 0.1em; text-transform: uppercase; }
+  .panel .script { display: inline-block; margin-top: 1.1rem; font: 700 clamp(2.3rem, 4.4vw, 3.6rem)/1.05 var(--script); color: var(--royal); transform: rotate(-2deg); }
+  .panel .script::after { content: ""; display: block; height: 0.8rem; margin-top: 0.15rem; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 14' preserveAspectRatio='none'%3E%3Cpath d='M3 9C55 2 120 13 180 6s85-3 117 2' fill='none' stroke='%23dd6a31' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%; }
   .panel .tag { margin-top: 1.5rem; max-width: 26rem; color: var(--text); }
   .panel .tag em { font-style: normal; color: var(--sky); font-weight: 700; }
   .actions { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 1.5rem; }
@@ -128,7 +141,7 @@
   .steps li { counter-increment: step; }
   .steps li::before {
     content: counter(step); display: grid; place-items: center; width: 2.9rem; height: 2.9rem; border-radius: 50%;
-    background: var(--navy); color: #fff; border: 3px solid var(--gold); font: 800 1.25rem var(--serif); margin-bottom: 0.9rem;
+    background: var(--navy); color: #fff; border: 3px solid var(--gold); font: var(--hw) 1.25rem var(--serif); margin-bottom: 0.9rem;
   }
   .steps p { margin-top: 0.5rem; font-size: 0.98rem; color: var(--text-soft); }
 
@@ -168,7 +181,7 @@
   /* FAQ */
   .faq .list { max-width: 48rem; border-top: 1px solid var(--rule); }
   .faq details { border-bottom: 1px solid var(--rule); }
-  .faq summary { list-style: none; cursor: pointer; padding: 1.1rem 2.5rem 1.1rem 0; position: relative; font: 700 1.2rem var(--serif); color: var(--ink); }
+  .faq summary { list-style: none; cursor: pointer; padding: 1.1rem 2.5rem 1.1rem 0; position: relative; font: var(--hw3) 1.25rem var(--serif); color: var(--ink); }
   .faq summary::-webkit-details-marker { display: none; }
   .faq summary::after { content: "+"; position: absolute; right: 0.25rem; top: 0.8rem; font: 700 1.7rem var(--sans); color: var(--gold-deep); line-height: 1; }
   .faq details[open] summary::after { content: "\2212"; }
@@ -179,7 +192,7 @@
   .contact { background: var(--navy); color: #fff; }
   .contact h2 { color: #fff; }
   .contact .lede { margin-top: 1.2rem; font-size: 1.15rem; max-width: 30rem; color: #d5e0f1; }
-  .contact .btn.quiet { color: #fff; border-color: #6d8bb8; }
+  .contact .btn.quiet { background: transparent; color: #fff; }
   .contact .btn.quiet:hover { background: rgba(255, 255, 255, 0.1); }
   .details { margin: 0; border-top: 1px solid rgba(255, 255, 255, 0.2); }
   .details div { display: grid; grid-template-columns: 6.5rem 1fr; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
@@ -187,16 +200,13 @@
   .details dd { margin: 0; padding: 0.85rem 0 0.85rem 0.5rem; color: #d5e0f1; }
   .details a { color: var(--gold); font-weight: 700; text-underline-offset: 4px; }
 
-  body > footer { background: var(--navy-deep); color: #c5d2e6; font-size: 0.93rem; line-height: 1.6; }
-  body > footer .cols { display: grid; grid-template-columns: 1.2fr 1.2fr 1fr 1fr; gap: 2rem; padding-block: 2.5rem; }
-  body > footer address { font-style: normal; }
-  body > footer strong { display: block; font: 700 1.1rem var(--serif); color: #fff; margin-bottom: 0.35rem; }
-  body > footer span { display: block; }
-  body > footer a { color: var(--gold); text-decoration: none; }
-  body > footer a:hover { text-decoration: underline; text-underline-offset: 4px; }
-  body > footer .small { border-top: 1px solid rgba(255, 255, 255, 0.16); padding-block: 1rem; font-size: 0.85rem; }
+  body > footer { background: var(--navy-deep); color: #c5d2e6; font-size: 0.82rem; }
+  body > footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.2rem 1.5rem; padding-block: 0.85rem; }
 
   .bar { display: none; }
+  .samples { background: #fff4dc; color: var(--ink); font: 600 0.85rem var(--sans); text-align: center; padding: 0.4rem 1rem; }
+  .samples a { display: inline-block; margin-left: 0.4rem; padding: 0.1rem 0.8rem; border-radius: 999px; border: 1px solid #d9c592; background: #fff; color: var(--navy); text-decoration: none; }
+  .samples a[aria-current="true"] { background: var(--navy); border-color: var(--navy); color: #fff; }
 
   @media (max-width: 1040px) {
     .top { position: static; }
@@ -222,7 +232,6 @@
     .split { grid-template-columns: 1fr; }
     .cards, .quotes { grid-template-columns: 1fr 1fr; }
     .steps { grid-template-columns: 1fr 1fr; }
-    body > footer .cols { grid-template-columns: 1fr 1fr; }
   }
   @media (max-width: 700px) {
     .bar { display: flex; gap: 0.6rem; position: fixed; inset: auto 0 0 0; z-index: 40; padding: 0.6rem 0.9rem calc(0.6rem + env(safe-area-inset-bottom)); background: var(--sheet); border-top: 1px solid var(--rule); box-shadow: 0 -4px 14px rgba(0, 32, 88, 0.08); }
@@ -238,11 +247,10 @@
     .menu a { padding: 0.45rem 0.15rem; font-size: clamp(0.72rem, 3.3vw, 0.95rem); }
     .cards, .quotes, .steps { grid-template-columns: 1fr; }
     .quote { min-height: 0; }
-    body > footer .cols { grid-template-columns: 1fr; gap: 1.4rem; }
   }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   @media print {
-    .top, .bar, .hero, .strip, .infobar, .services, .how, .reviews, .about, .where, .faq, .contact, body > footer, .tabs, .tally button { display: none; }
+    .top, .samples, .bar, .hero, .strip, .infobar, .services, .how, .reviews, .about, .where, .faq, .contact, body > footer, .tabs, .tally button { display: none; }
     .bring, .bring h2 { background: #fff; color: #000; padding: 0; }
     .bring .intro p { color: #000; }
     body { padding-bottom: 0; }
@@ -266,6 +274,8 @@
   <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
 </svg>
+
+<div class="samples">Font sample: <a href="?font=a" data-font="a">A</a><a href="?font=b" data-font="b">B</a></div>
 
 <header class="top">
   <div class="wrap">
@@ -300,7 +310,7 @@
         <h1>
           <span class="pre">Your</span>
           <span class="big">Scarborough Accountant</span>
-          <span class="ribbon">For every tax season</span>
+          <span class="ribbon"><span>For every tax season</span></span>
         </h1>
         <p class="script">Plan. Prepare.<br>Grow Together.</p>
         <p class="tag">Personal, self-employed, rental and small business returns, <em>explained in plain language.</em></p>
@@ -588,7 +598,7 @@
         <h2>Book a call</h2>
         <p class="lede">Tell me about your year and I'll tell you what your return needs. I get back to you within one business day.</p>
         <div class="actions">
-          <a class="btn gold" href="tel:+16478856036">Call 647-885-6036</a>
+          <a class="btn" href="tel:+16478856036">Call 647-885-6036</a>
           <a class="btn quiet" href="mailto:pkiruba@tsgs.ca">Email Pathy</a>
         </div>
       </div>
@@ -605,29 +615,10 @@
 </main>
 
 <footer>
-  <div class="wrap cols">
-    <div>
-      <strong>Pathy Tax &amp; Accounting</strong>
-      <span>Plan, prepare, grow together.</span>
-    </div>
-    <address>
-      <strong>Pathy Kiruba, BBA, CPA</strong>
-      <span>Accountant</span>
-      <span>Sri &amp; Associate Professional Corp.</span>
-    </address>
-    <address>
-      <strong>Office</strong>
-      <span>211-3300 McNicoll Ave</span>
-      <span>Scarborough, ON M1V 5J6</span>
-    </address>
-    <address>
-      <strong>Contact</strong>
-      <span>Tel <a href="tel:+16478856036">647-885-6036</a></span>
-      <span>Fax 647-846-8113</span>
-      <span><a href="mailto:pkiruba@tsgs.ca">pkiruba@tsgs.ca</a></span>
-    </address>
+  <div class="wrap">
+    <span>&copy; 2026 Pathy Tax &amp; Accounting. Pathy Kiruba, BBA, CPA, with Sri &amp; Associate Professional Corp.</span>
+    <span>Sample site, draft content.</span>
   </div>
-  <div class="wrap small">Sample site, draft content. Dates shown are the usual CRA deadlines. Confirm them for your own situation.</div>
 </footer>
 
 <div class="bar">
@@ -719,6 +710,8 @@
   });
   document.getElementById("print").addEventListener("click", () => window.print());
   show(current);
+
+  document.querySelectorAll(".samples a").forEach(a => { if (a.dataset.font === document.documentElement.dataset.font) a.setAttribute("aria-current", "true"); });
 
   // Mark the menu item for the section on screen
   const links = [...document.querySelectorAll(".menu a")];
