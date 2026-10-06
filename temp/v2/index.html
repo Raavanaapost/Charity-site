@@ -77,22 +77,10 @@
   .call { padding: 0.65rem 1.1rem; font-size: 1rem; white-space: nowrap; }
 
   /* Hero */
-  .hero .wrap { display: grid; grid-template-columns: 1.25fr 0.75fr; gap: clamp(2rem, 6vw, 5rem); align-items: center; }
+  .hero .wrap > div { max-width: 52rem; }
   .hero .lede { margin-top: 1.4rem; font-size: 1.25rem; color: var(--ink-soft); max-width: 35rem; }
   .actions { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 2rem; }
   .hero .note { margin-top: 1rem; font-size: 1rem; color: var(--ink-soft); }
-  .portrait { margin: 0 0 0 auto; width: min(100%, 22rem); }
-  .portrait .frame {
-    position: relative; aspect-ratio: 4 / 5; border-radius: 10px; background: #ece8df;
-    display: grid; place-items: center; text-align: center; padding: 1.5rem;
-  }
-  .portrait .frame::before {
-    content: ""; position: absolute; inset: 14px -14px -14px 14px; z-index: -1;
-    border-radius: 10px; background: var(--accent);
-  }
-  .portrait { position: relative; z-index: 0; }
-  .portrait figcaption { margin-top: 1.9rem; font-size: 1rem; color: var(--ink-soft); line-height: 1.45; }
-  .portrait figcaption strong { display: block; font: 500 1.3rem var(--display); color: var(--ink); }
 
   /* Three reasons */
   .why { border-block: 1px solid var(--rule); padding-block: clamp(2.5rem, 5vw, 3.5rem); }
@@ -202,8 +190,7 @@
     section[id] { scroll-margin-top: 0; }
   }
   @media (max-width: 860px) {
-    .hero .wrap, .about .wrap, .where .wrap, .contact .wrap { grid-template-columns: 1fr; }
-    .portrait { margin: 0 14px 0 0; width: min(100% - 14px, 20rem); }
+    .about .wrap, .where .wrap, .contact .wrap { grid-template-columns: 1fr; }
     .cards, .quotes { grid-template-columns: 1fr 1fr; }
     .steps { grid-template-columns: 1fr 1fr; }
     .why .wrap { grid-template-columns: 1fr; gap: 1.5rem; }
@@ -268,20 +255,13 @@
     <div class="wrap">
       <div>
         <h1>A CPA in Scarborough for your taxes and your books.</h1>
-        <p class="lede">I'm Pathy Kiruba. I prepare returns for individuals, the self-employed, landlords and small businesses, and I explain every number before anything goes to the CRA.</p>
+        <p class="lede">I'm Pathy Kiruba, BBA, CPA. I prepare returns for individuals, the self-employed, landlords and small businesses, and I explain every number before anything goes to the CRA.</p>
         <div class="actions">
           <a class="btn" href="tel:+16478856036">Call 647-885-6036</a>
           <a class="btn quiet" href="mailto:pkiruba@tsgs.ca">Email Pathy</a>
         </div>
         <p class="note">Fifteen minutes by phone is usually enough to know what your return needs.</p>
       </div>
-      <figure class="portrait">
-        <div class="frame"><span class="todo">Your photo goes here</span></div>
-        <figcaption>
-          <strong>Pathy Kiruba, BBA, CPA</strong>
-          Accountant, Sri &amp; Associate Professional Corp.
-        </figcaption>
-      </figure>
     </div>
   </section>
 
