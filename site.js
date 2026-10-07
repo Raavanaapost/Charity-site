@@ -714,6 +714,23 @@
           const m = document.createElement("meta"); m.name = "robots"; m.content = "noindex"; document.head.appendChild(m);
           renderProject(app, site, [sample], "sample");
         } else renderProject(app, site, projects, slugify(slug));
+      } else if (page === "initiate") {
+        // "Initiate an Opportunity": live letter count and the pick-several "Project Focus" box.
+        document.title = `Initiate an Opportunity · ${site.name}`;
+        const area = document.getElementById("o-description"), count = document.getElementById("o-count");
+        if (area && count) { const upd = () => { count.textContent = area.value.length; }; area.addEventListener("input", upd); upd(); }
+        const multi = document.getElementById("o-focus"), shown = document.getElementById("o-focus-value");
+        if (multi && shown) {
+          const sync = () => {
+            const picked = [...multi.querySelectorAll("input:checked")].map(i => i.value);
+            shown.textContent = picked.length ? picked.join(", ") : shown.dataset.empty;
+            shown.classList.toggle("has", picked.length > 0);
+          };
+          multi.addEventListener("change", sync); sync();
+          document.addEventListener("click", e => { if (multi.open && !multi.contains(e.target)) multi.open = false; });
+          multi.addEventListener("keydown", e => { if (e.key === "Escape" && multi.open) { multi.open = false; multi.querySelector("summary").focus(); } });
+        }
+        wireForms(document);
       } else if (page === "privacy") {
         document.title = `Privacy & child safety · ${site.name}`;
         renderPrivacy(app, site);
