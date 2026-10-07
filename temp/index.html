@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Pathy Tax &amp; Accounting | Personal and small business tax returns</title>
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="img/icon-192.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<meta name="description" content="Pathy Kiruba, BBA, CPA. Personal, self-employed, rental and small business tax returns in Scarborough, filed properly and on time.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f5f7fa;
+    --sheet: #ffffff;
+    --ledger: #e3e9f1;
+    --rule: #c1ccda;
+    --navy: #123a63;
+    --navy-deep: #0a2d4d;
+    --ink: #0c2238;
+    --ink-soft: #4a5a6d;
+    --gold: #e6bb66;
+    --gold-deep: #a87b24;
+    --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+    --wrap: 1120px;
+    color-scheme: light;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 1.125rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: var(--display); line-height: 1.08; margin: 0; letter-spacing: -0.015em; }
+  h1 { font-size: clamp(2.6rem, 6vw, 4.4rem); font-weight: 700; text-wrap: balance; }
+  h2 { font-size: clamp(1.9rem, 3.6vw, 2.75rem); font-weight: 700; }
+  h3 { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.005em; }
+  p { margin: 0; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--gold-deep); outline-offset: 3px; border-radius: 4px; }
+  .wrap { width: min(100% - 2.5rem, var(--wrap)); margin-inline: auto; }
+  .band { padding-block: clamp(3.5rem, 8vw, 6.5rem); }
+  .lede { font-size: 1.25rem; color: var(--ink-soft); max-width: 34rem; }
+  .intro { max-width: 40rem; margin-bottom: 2.5rem; }
+  .intro p { margin-top: 0.9rem; color: var(--ink-soft); }
+  .todo { background: var(--gold); padding: 0.05em 0.35em; border-radius: 3px; color: var(--ink); }
+
+  .btn {
+    display: inline-block; font: 700 1.05rem var(--body); text-decoration: none;
+    padding: 0.85rem 1.4rem; border-radius: 8px; border: 2px solid var(--navy);
+    background: var(--navy); color: #fff; cursor: pointer;
+  }
+  .btn:hover { background: var(--navy-deep); border-color: var(--navy-deep); }
+  .btn.quiet { background: transparent; color: var(--navy); }
+  .btn.quiet:hover { background: var(--ledger); }
+
+  /* Header */
+  .top { position: sticky; top: 0; z-index: 10; background: var(--sheet); box-shadow: 0 2px 14px rgba(12, 34, 56, 0.09); }
+  .top .wrap { display: flex; align-items: center; gap: 0.75rem 2rem; padding-block: 0.6rem; }
+  .mark { display: block; line-height: 0; }
+  .mark img { display: block; height: clamp(52px, 7vw, 76px); width: auto; }
+  .menu { display: flex; gap: 0.25rem; margin-left: auto; }
+  .menu a { font: 700 1.02rem var(--body); color: var(--navy); text-decoration: none; white-space: nowrap; padding: 0.5rem 0.9rem; border-radius: 8px; }
+  .menu a:hover, .menu a[aria-current="true"] { background: var(--ledger); }
+  .call { padding: 0.65rem 1.1rem; font-size: 1rem; white-space: nowrap; }
+  section[id] { scroll-margin-top: 4rem; }
+
+  /* Hero */
+  .hero .wrap { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: clamp(2rem, 5vw, 4.5rem); align-items: center; }
+  .hero h1 + .lede { margin-top: 1.5rem; }
+  .actions { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 2rem; }
+
+  .slip { background: var(--sheet); border: 2px solid var(--ink); border-radius: 10px; box-shadow: 8px 8px 0 var(--ledger); }
+  .slip header { padding: 1rem 1.25rem; border-bottom: 2px solid var(--ink); }
+  .slip header h2 { font-size: 1.3rem; }
+  .slip header p { font-size: 0.95rem; color: var(--ink-soft); margin-top: 0.2rem; }
+  .slip dl { margin: 0; }
+  .slip .row { display: grid; grid-template-columns: 7.2rem 1fr; border-bottom: 1px solid var(--rule); }
+  .slip .row:last-child { border-bottom: 0; }
+  .slip dt { padding: 0.9rem 0.75rem 0.9rem 1.25rem; font: 700 1.1rem var(--display); border-right: 1px solid var(--rule); font-variant-numeric: tabular-nums; }
+  .slip dt small { display: block; font: 400 0.85rem var(--body); color: var(--ink-soft); }
+  .slip dd { margin: 0; padding: 0.9rem 1.25rem 0.9rem 0.9rem; font-size: 1rem; line-height: 1.45; }
+  .slip .key dt, .slip .key dd { background: var(--gold); }
+
+  /* Services: laid out like boxes on a form */
+  .services { background: var(--sheet); border-block: 1px solid var(--rule); }
+  .boxes { display: grid; grid-template-columns: repeat(3, 1fr); border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; }
+  .box { padding: 1.5rem 1.4rem 1.7rem; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .box:nth-child(3n) { border-right: 0; }
+  .box:nth-last-child(-n+3) { border-bottom: 0; }
+  .box p { margin-top: 0.6rem; font-size: 1.02rem; color: var(--ink-soft); }
+
+  /* Steps */
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; counter-reset: step; }
+  .steps li { counter-increment: step; border-top: 3px solid var(--gold-deep); padding-top: 1rem; }
+  .steps li::before { content: counter(step); font: 700 2.4rem var(--display); color: var(--navy); display: block; line-height: 1; margin-bottom: 0.6rem; }
+  .steps p { margin-top: 0.5rem; font-size: 1.02rem; color: var(--ink-soft); }
+
+  /* Checklist */
+  .bring { background: var(--navy); color: #fff; }
+  .bring .intro p { color: #d3dceb; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
+  .tabs button {
+    font: 700 1rem var(--body); padding: 0.6rem 1.05rem; border-radius: 999px; cursor: pointer;
+    background: transparent; color: #fff; border: 2px solid #6d87ab;
+  }
+  .tabs button:hover { border-color: #fff; }
+  .tabs button[aria-selected="true"] { background: var(--gold); border-color: var(--gold); color: var(--ink); }
+  .sheet { background: var(--sheet); color: var(--ink); border-radius: 10px; padding: 0.5rem 1.4rem 1.1rem; max-width: 46rem; }
+  .sheet ul { list-style: none; margin: 0; padding: 0; }
+  .sheet li { border-bottom: 1px solid var(--rule); }
+  .sheet label { display: flex; gap: 0.9rem; align-items: flex-start; padding: 0.85rem 0; cursor: pointer; }
+  .sheet input { width: 1.35rem; height: 1.35rem; margin: 0.2rem 0 0; accent-color: var(--navy); flex: none; }
+  .sheet input:checked + span { color: var(--ink-soft); text-decoration: line-through; }
+  .tally { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; padding-top: 1rem; font-size: 1rem; }
+  .tally button { font: 700 1rem var(--body); background: none; border: 0; color: var(--navy); text-decoration: underline; text-underline-offset: 4px; cursor: pointer; padding: 0; }
+
+  /* About + fees */
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 5vw, 4.5rem); }
+  .pair p { margin-top: 1rem; color: var(--ink-soft); }
+  .pair p.todo-note { color: var(--ink); }
+
+  /* Contact */
+  .contact { background: var(--ledger); border-top: 1px solid var(--rule); }
+  .contact .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 5vw, 4.5rem); align-items: start; }
+  .contact .lede { margin-top: 1rem; color: var(--ink); }
+  .details { margin: 0; background: var(--sheet); border: 2px solid var(--ink); border-radius: 10px; }
+  .details div { display: grid; grid-template-columns: 6.5rem 1fr; border-bottom: 1px solid var(--rule); }
+  .details div:last-child { border-bottom: 0; }
+  .details dt { padding: 0.9rem 0.75rem 0.9rem 1.25rem; font-weight: 700; border-right: 1px solid var(--rule); }
+  .details dd { margin: 0; padding: 0.9rem 1.25rem 0.9rem 0.9rem; }
+
+  footer { background: var(--navy-deep); color: #cbd5e3; font-size: 0.98rem; line-height: 1.55; }
+  footer .cols { display: grid; grid-template-columns: 1.2fr 1.2fr 1fr 1fr; gap: 2rem; padding-block: 2.75rem; }
+  footer address { font-style: normal; }
+  footer strong { display: block; font: 700 1.08rem var(--display); color: #fff; margin-bottom: 0.35rem; }
+  footer span { display: block; }
+  footer a { color: var(--gold); text-decoration: none; }
+  footer a:hover { text-decoration: underline; text-underline-offset: 4px; }
+  footer .small { border-top: 1px solid rgba(255, 255, 255, 0.16); padding-block: 1.1rem; font-size: 0.9rem; }
+
+  @media (max-width: 860px) {
+    .top { position: static; }
+    .top .wrap { flex-wrap: wrap; }
+    .menu { order: 3; width: 100%; margin-left: 0; justify-content: space-between; }
+    .call { margin-left: auto; }
+    section[id] { scroll-margin-top: 0; }
+    .hero .wrap, .pair, .contact .wrap { grid-template-columns: 1fr; }
+    .boxes { grid-template-columns: 1fr 1fr; }
+    .box:nth-child(3n) { border-right: 1px solid var(--rule); }
+    .box:nth-child(2n) { border-right: 0; }
+    .box:nth-last-child(-n+3) { border-bottom: 1px solid var(--rule); }
+    .box:nth-last-child(-n+2) { border-bottom: 0; }
+    .steps { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 560px) {
+    body { font-size: 1.0625rem; }
+    .top .wrap { gap: 0.6rem 0.75rem; }
+    .menu { gap: 0; }
+    .menu a { flex: 1; text-align: center; padding: 0.45rem 0.2rem; font-size: clamp(0.85rem, 4.2vw, 1rem); }
+    .call { padding: 0.55rem 0.75rem; font-size: 0.98rem; }
+    .call span { display: none; }
+    footer .cols { grid-template-columns: 1fr; gap: 1.5rem; }
+    .boxes, .steps { grid-template-columns: 1fr; }
+    .box, .box:nth-child(2n), .box:nth-child(3n) { border-right: 0; }
+    .box:nth-last-child(-n+2) { border-bottom: 1px solid var(--rule); }
+    .box:last-child { border-bottom: 0; }
+    .slip .row { grid-template-columns: 6.6rem 1fr; }
+    .slip dt { font-size: 1rem; white-space: nowrap; padding-left: 1rem; }
+    .slip { box-shadow: 5px 5px 0 var(--ledger); }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  @media print {
+    .top, .hero, .services, .how, .about, .contact, footer, .tabs, .tally button { display: none; }
+    .bring { background: #fff; color: #000; padding: 0; }
+    .bring .intro p { color: #000; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="mark" href="#top"><img src="img/logo.webp" width="810" height="270" alt="Pathy Tax &amp; Accounting"></a>
+    <nav class="menu" aria-label="Sections">
+      <a href="#services">Services</a>
+      <a href="#how">Process</a>
+      <a href="#bring">Checklist</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a class="btn call" href="tel:+16478856036"><span>Call </span>647-885-6036</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero band">
+    <div class="wrap">
+      <div>
+        <h1>Your tax return, done properly and filed on time.</h1>
+        <p class="lede">I'm Pathy Kiruba, CPA. I prepare returns for individuals, the self-employed, landlords and small businesses, and I explain every number before anything goes to the CRA.</p>
+        <div class="actions">
+          <a class="btn" href="#contact">Book a call</a>
+          <a class="btn quiet" href="#bring">See what to bring</a>
+        </div>
+      </div>
+
+      <aside class="slip" aria-labelledby="dates-title">
+        <header>
+          <h2 id="dates-title">Dates for your 2026 return</h2>
+          <p>The ones that cost money if you miss them</p>
+        </header>
+        <dl>
+          <div class="row">
+            <dt>Late Feb <small>2027</small></dt>
+            <dd>T4, T5 and most other slips arrive from employers and banks.</dd>
+          </div>
+          <div class="row">
+            <dt>March 1 <small>2027</small></dt>
+            <dd>Last day for RRSP contributions that count toward 2026.</dd>
+          </div>
+          <div class="row key">
+            <dt>April 30 <small>2027</small></dt>
+            <dd>File your return and pay any balance. This is the deadline for most people.</dd>
+          </div>
+          <div class="row">
+            <dt>June 15 <small>2027</small></dt>
+            <dd>Filing deadline if you or your spouse are self-employed. Any balance is still due April 30.</dd>
+          </div>
+        </dl>
+      </aside>
+    </div>
+  </section>
+
+  <section class="services band" id="services">
+    <div class="wrap">
+      <div class="intro">
+        <h2>What I can take off your desk</h2>
+        <p>One person handles your file from the first call to the notice of assessment.</p>
+      </div>
+      <div class="boxes">
+        <div class="box">
+          <h3>Personal returns</h3>
+          <p>Employment income, investments, RRSPs, tuition, medical and donation credits, for one person or the whole household.</p>
+        </div>
+        <div class="box">
+          <h3>Self-employed and gig work</h3>
+          <p>Business income and expenses, home office and vehicle claims, and the instalments that follow.</p>
+        </div>
+        <div class="box">
+          <h3>Rental income</h3>
+          <p>Statements for each property, with the right split between repairs you can deduct now and costs you claim over time.</p>
+        </div>
+        <div class="box">
+          <h3>Small business and GST/HST</h3>
+          <p>Year-end bookkeeping tidy-up, GST/HST returns and the filings a sole proprietor or small corporation needs.</p>
+        </div>
+        <div class="box">
+          <h3>Late and prior-year returns</h3>
+          <p>Behind by a year, or several? We work out what's missing, file in order and get you back to current.</p>
+        </div>
+        <div class="box">
+          <h3>Letters from the CRA</h3>
+          <p>Review requests, reassessments and missing-slip notices, answered with the documents they're asking for.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="how band" id="how">
+    <div class="wrap">
+      <div class="intro">
+        <h2>How it works</h2>
+        <p>Four steps, and you know the fee before the second one.</p>
+      </div>
+      <ol class="steps">
+        <li>
+          <h3>A short call</h3>
+          <p>You tell me about your year. I tell you what I need and what it will cost.</p>
+        </li>
+        <li>
+          <h3>Send your documents</h3>
+          <p>Drop them off or send copies. I'll flag anything missing so we only do this once.</p>
+        </li>
+        <li>
+          <h3>Review it together</h3>
+          <p>We go through the return line by line. Nothing is filed until you've seen it and agreed.</p>
+        </li>
+        <li>
+          <h3>Filed and confirmed</h3>
+          <p>I file electronically and send you the confirmation, plus a copy of everything for your records.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="bring band" id="bring">
+    <div class="wrap">
+      <div class="intro">
+        <h2>What to bring</h2>
+        <p>Pick what fits your year and tick things off as you find them. Not everything applies to everyone.</p>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Your situation"></div>
+      <div class="sheet" role="tabpanel" id="panel" tabindex="0">
+        <ul id="items"></ul>
+        <div class="tally">
+          <span id="count" aria-live="polite"></span>
+          <button type="button" id="print">Print this list</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="about band" id="about">
+    <div class="wrap pair">
+      <div>
+        <h2>About Pathy</h2>
+        <p>Pathy Kiruba, BBA, CPA, is an accountant with Sri &amp; Associate Professional Corp. in Scarborough.</p>
+        <p class="todo-note"><span class="todo">To add:</span> a few sentences in your own words. How long you've been preparing returns, and the kinds of clients you work with most.</p>
+        <p>A photo here helps too. People like to see who will be handling their finances.</p>
+      </div>
+      <div>
+        <h2>Fees</h2>
+        <p>You get a fixed quote on the first call, based on what your return involves. No hourly meter and no surprises on the invoice.</p>
+        <p class="todo-note"><span class="todo">To add:</span> starting prices, if you want to publish them.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact band" id="contact">
+    <div class="wrap">
+      <div>
+        <h2>Book a call</h2>
+        <p class="lede">Fifteen minutes is usually enough to know what your return needs. Call or email and I'll get back to you within one business day.</p>
+      </div>
+      <dl class="details">
+        <div><dt>Phone</dt><dd><a href="tel:+16478856036">647-885-6036</a></dd></div>
+        <div><dt>Fax</dt><dd>647-846-8113</dd></div>
+        <div><dt>Office</dt><dd>Sri &amp; Associate Professional Corp.<br>211-3300 McNicoll Ave<br>Scarborough, ON M1V 5J6</dd></div>
+        <div><dt>Email</dt><dd><a href="mailto:pkiruba@tsgs.ca">pkiruba@tsgs.ca</a></dd></div>
+        <div><dt>Hours</dt><dd><span class="todo">Office hours to add</span></dd></div>
+      </dl>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap cols">
+    <div>
+      <strong>Pathy Tax &amp; Accounting</strong>
+      <span>Plan, prepare, grow together.</span>
+    </div>
+    <address>
+      <strong>Pathy Kiruba, BBA, CPA</strong>
+      <span>Accountant</span>
+      <span>Sri &amp; Associate Professional Corp.</span>
+    </address>
+    <address>
+      <strong>Office</strong>
+      <span>211-3300 McNicoll Ave</span>
+      <span>Scarborough, ON M1V 5J6</span>
+    </address>
+    <address>
+      <strong>Contact</strong>
+      <span>Tel <a href="tel:+16478856036">647-885-6036</a></span>
+      <span>Fax 647-846-8113</span>
+      <span><a href="mailto:pkiruba@tsgs.ca">pkiruba@tsgs.ca</a></span>
+    </address>
+  </div>
+  <div class="wrap small">Sample site, draft content. Dates shown are the usual CRA deadlines. Confirm them for your own situation.</div>
+</footer>
+
+<script>
+  const lists = {
+    "Employed": [
+      "T4 slips from every employer you had in 2026",
+      "Last year's notice of assessment",
+      "RRSP contribution receipts, including the first 60 days of 2027",
+      "T5 and T3 slips for interest, dividends and investments",
+      "Medical and dental receipts not covered by insurance",
+      "Donation receipts",
+      "Childcare receipts with the provider's name and address"
+    ],
+    "Self-employed": [
+      "Total income for the year: invoices, deposits or a sales summary",
+      "T4A slips from clients or platforms",
+      "Expense receipts, sorted by type if you can",
+      "Vehicle log showing business and total kilometres",
+      "Home office details: size of the space, rent or mortgage interest, utilities",
+      "GST/HST number and any returns already filed",
+      "Record of tax instalments you paid during the year"
+    ],
+    "Rental income": [
+      "Rent received for each property, month by month",
+      "Mortgage statement showing interest paid",
+      "Property tax bills",
+      "Insurance premiums",
+      "Receipts for repairs and maintenance",
+      "Utilities you paid as the owner",
+      "Purchase documents, if this is the first year you rented it out"
+    ],
+    "Student or retired": [
+      "T2202 tuition certificate from your school",
+      "Student loan interest statement",
+      "Pension slips: T4A(OAS), T4A(P) and any employer pension",
+      "T4RIF or T4RSP slips for withdrawals",
+      "Medical and dental receipts",
+      "Rent or property tax paid, for provincial credits"
+    ]
+  };
+
+  const tabs = document.querySelector(".tabs");
+  const items = document.getElementById("items");
+  const count = document.getElementById("count");
+  const ticked = {};
+  let current = Object.keys(lists)[0];
+
+  function show(name) {
+    current = name;
+    ticked[name] = ticked[name] || new Set();
+    tabs.querySelectorAll("button").forEach(b => b.setAttribute("aria-selected", b.textContent === name));
+    items.replaceChildren(...lists[name].map((text, i) => {
+      const li = document.createElement("li");
+      const label = document.createElement("label");
+      const box = document.createElement("input");
+      const span = document.createElement("span");
+      box.type = "checkbox";
+      box.checked = ticked[name].has(i);
+      box.addEventListener("change", () => {
+        box.checked ? ticked[name].add(i) : ticked[name].delete(i);
+        tally();
+      });
+      span.textContent = text;
+      label.append(box, span);
+      li.append(label);
+      return li;
+    }));
+    tally();
+  }
+
+  function tally() {
+    const done = ticked[current].size, total = lists[current].length;
+    count.textContent = done === total ? "All " + total + " gathered. You're ready to book." : done + " of " + total + " gathered";
+  }
+
+  Object.keys(lists).forEach(name => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.setAttribute("role", "tab");
+    b.setAttribute("aria-controls", "panel");
+    b.textContent = name;
+    b.addEventListener("click", () => show(name));
+    tabs.append(b);
+  });
+  document.getElementById("print").addEventListener("click", () => window.print());
+  show(current);
+
+  // Mark the menu item for the section on screen
+  const links = [...document.querySelectorAll(".menu a")];
+  const targets = links.map(a => document.querySelector(a.getAttribute("href")));
+  let queued = false;
+  function mark() {
+    queued = false;
+    const line = innerHeight * 0.4;
+    let on = targets.findIndex(t => { const r = t.getBoundingClientRect(); return r.top <= line && r.bottom > line; });
+    if (innerHeight + scrollY >= document.documentElement.scrollHeight - 4) on = links.length - 1;
+    links.forEach((a, i) => i === on ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current"));
+  }
+  addEventListener("scroll", () => { if (!queued) { queued = true; requestAnimationFrame(mark); } }, { passive: true });
+  addEventListener("resize", mark);
+  mark();
+</script>
+</body>
+</html>
