@@ -161,7 +161,7 @@
 
   function card(p, i, extra = "") {
     return `
-      <a class="card" href="/projects/${slugOf(p)}">
+      <a class="card${p.sample ? " sample-card" : ""}" href="${p.sample ? "/sample" : `/projects/${slugOf(p)}`}">
         <div class="cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.location)}</div>
         <div class="body">
           ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
@@ -377,7 +377,7 @@
     }
   };
 
-  function renderStage(app, site, projects, slug) {
+  function renderStage(app, site, projects, slug, example) {
     const cfg = STAGE_PAGES[slug], key = STAGES[slug].key;
     document.title = `${cfg.title} · ${site.name}`;
     const reached = projects.filter(p => stageNum(p) >= Math.min(cfg.n, 2));
@@ -411,7 +411,14 @@
     let filter = "All";
     const draw = () => {
       const groups = themes.filter(t => filter === "All" || t === filter).map(t => [t, items.filter(x => (x.p.theme || "Other") === t)]);
-      const body = !items.length ? `<div class="panel empty-state"><p>${cfg.empty.text}</p><a class="btn" href="${cfg.empty.href}">${cfg.empty.btn}</a></div>`
+      // While nothing is activated yet, the Activated page shows the example project as a template of what is coming.
+      const exampleHTML = example ? `
+          <section class="theme-group example-group">
+            <h3 class="theme-title">How an activated project will look</h3>
+            <p class="theme-note">This is an example, not a real project. Open it to see the budget, where the money goes and who made it possible.</p>
+            <div class="grid">${card(example, 0, journey(example))}</div>
+          </section>` : "";
+      const body = !items.length ? `<div class="panel empty-state"><p>${cfg.empty.text}</p><a class="btn" href="${cfg.empty.href}">${cfg.empty.btn}</a></div>${exampleHTML}`
         : groups.map(([t, xs]) => `
           <section class="theme-group">
             <h3 class="theme-title">${esc(t)} <span class="count">${xs.length}</span></h3>
@@ -715,7 +722,14 @@
         renderAbout(app, site);
       } else if (page === "stage") {
         const slug = location.pathname.replace(/\/+$/, "").split("/").pop();
-        renderStage(app, site, projects, STAGES[slug] ? slug : "initiated");
+        const stage = STAGES[slug] ? slug : "initiated";
+        // The example project is only fetched for the Activated page, and only shown there while it has no real projects.
+        let example = null;
+        if (stage === "activated" && !projects.some(p => stageNum(p) >= 2)) {
+          example = await load("/sample-project.json").catch(() => null);
+          if (example) example.sample = true;
+        }
+        renderStage(app, site, projects, stage, example);
       } else {
         document.title = site.name;
         renderHome(app, site, projects);

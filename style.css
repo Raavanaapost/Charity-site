@@ -585,3 +585,8 @@ footer.foot .foot-main .wrap{grid-template-columns:minmax(0,1fr)}
 
 /* banner on the sample project page */
 .sample-note{margin:18px 0 0;padding:10px 14px;border-radius:10px;border:1.5px dashed var(--sun);background:var(--sun-soft);font-family:var(--display);font-size:14.5px;line-height:1.45}
+
+/* the example project card on the Activated page */
+.example-group{padding-top:4px}
+.sample-card{border-style:dashed;border-color:var(--sun)}
+.sample-card .cover::after{content:"EXAMPLE";position:absolute;left:12px;top:12px;font-family:"Inter",var(--display);font-weight:900;font-size:12px;letter-spacing:.1em;color:#3b2400;background:#f7c63a;padding:4px 10px;border-radius:999px;box-shadow:0 1px 3px rgba(0,0,0,.25)}
