@@ -246,6 +246,49 @@
     rotTimers.forEach(clearInterval); rotTimers = [];
   }
 
+  // The earlier home page, kept at /overview: stage circles with numbers, latest projects and the sign-up box.
+  function renderOverview(app, site, projects) {
+    const counts = {
+      initiated: projects.length,
+      activated: projects.filter(p => stageNum(p) >= 2).length,
+      impact: projects.reduce((n, p) => n + (p.updates || []).length, 0)
+    };
+    const extras = (site.highlights || []).filter(h => h && h.value);
+    const latest = projects.slice(0, 3); // newest first, as ordered in the admin page
+    const slides = (site.sayings || []).map(x => typeof x === "string" ? { text: x } : x).filter(x => x && x.text);
+    const start = slides.length ? Math.floor(Math.random() * slides.length) : 0; // a different slide comes first on each visit
+    const follow = (site.follow || []).filter(x => x && x.title && x.text);
+    const fstart = follow.length ? Math.floor(Math.random() * follow.length) : 0;
+    app.innerHTML = `
+      <section class="intro">
+        <h1 class="headline">${headline(site.tagline)}</h1>
+        <p>${esc(site.intro)}</p>
+      </section>
+      <nav class="stages" aria-label="Our projects by stage">
+        ${Object.entries(STAGES).map(([slug, st]) => `
+          <a class="stage art stat-${st.key}" href="/${slug}">
+            <i>${ICONS[st.key]}</i>
+            <b${counts[slug] ? "" : ' class="zero"'}>${counts[slug] || "Soon"}</b>
+            <span>${st.label}</span>
+          </a>`).join("")}
+      </nav>
+      <p class="stage-hint">Choose a stage to see its projects</p>
+      ${latest.length ? `<section class="home-latest">
+        <h2 class="section-title">Our latest projects</h2>
+        <div class="grid">${latest.map(p => card(p, projects.indexOf(p), journey(p))).join("")}</div>
+        <p class="more"><a href="/initiated">See all our projects →</a></p>
+      </section>` : ""}
+      ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
+      <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
+    wireForms(app);
+    fitHeadline();
+    rotTimers.forEach(clearInterval); rotTimers = [];
+    startSayings(app);
+    startFollow(app);
+    // arriving from the footer's "Keep me posted" button on another page
+    if (location.hash === "#keep-posted") { const t = document.getElementById("keep-posted"); if (t) t.scrollIntoView(); }
+  }
+
   // Front page (raavanaa.org): arched title, picture slideshow, and one button into the site.
   function renderWelcome(app, site) {
     const slides = (site.sayings || []).map(x => typeof x === "string" ? { text: x } : x).filter(x => x && x.text);
@@ -869,6 +912,9 @@
           if (example) example.sample = true;
         }
         renderStage(app, site, projects, stage, example);
+      } else if (page === "overview") {
+        document.title = site.name;
+        renderOverview(app, site, projects);
       } else if (page === "welcome") {
         document.title = site.name;
         renderWelcome(app, site);
