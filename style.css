@@ -668,3 +668,13 @@ body[data-page="welcome"] .bar,body[data-page="welcome"] footer,body[data-page="
 .enter-btn:hover{transform:translateY(-2px);box-shadow:0 16px 30px -12px rgba(200,56,30,.8)}
 .enter-btn:hover span{transform:translateX(4px)}
 @media (prefers-reduced-motion:reduce){.enter-btn,.enter-btn span{transition:none}}
+
+/* front page, second version (/welcome-2): deeper arch, heavier and larger lettering */
+.welcome-big .arc-title svg{max-width:800px}
+.welcome-big .arc-title text{filter:none}
+.welcome-big .arc-face{font-family:"Inter","Familjen Grotesk",system-ui,sans-serif;font-weight:900;font-size:150px;letter-spacing:.01em;stroke:#fffaf0;stroke-width:16;stroke-linejoin:round;paint-order:stroke fill}
+.welcome-big .arc-depth{font-family:"Inter","Familjen Grotesk",system-ui,sans-serif;font-weight:900;font-size:150px;letter-spacing:.01em;fill:#0b3a22;stroke:#0b3a22;stroke-width:16;stroke-linejoin:round;transform:translate(0,9px);opacity:.9}
+.welcome-big .arc-depth tspan{fill:#0b3a22}
+.welcome-big .arc-tag{font-family:var(--mono);font-size:22px;letter-spacing:.2em;fill:var(--brand)}
+.welcome-big .sayings{margin-top:-6px}
+.welcome-big .sayings-track{max-width:820px}

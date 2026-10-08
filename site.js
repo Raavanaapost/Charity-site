@@ -226,15 +226,36 @@
   function renderWelcome(app, site) {
     const slides = (site.sayings || []).map(x => typeof x === "string" ? { text: x } : x).filter(x => x && x.text);
     const start = 0;
+    const big = document.body.dataset.variant === "2";
     app.innerHTML = `
-      <section class="home-hero welcome">
-        <h1 class="arc-title">${arcTitleHTML()}</h1>
-        <p class="arc-sub">Beyond the Lanes <span aria-hidden="true">✦</span> Creating Smiles</p>
+      <section class="home-hero welcome${big ? " welcome-big" : ""}">
+        <h1 class="arc-title">${big ? bigArcHTML() : arcTitleHTML()}</h1>
+        ${big ? "" : `<p class="arc-sub">Beyond the Lanes <span aria-hidden="true">✦</span> Creating Smiles</p>`}
         ${sayingsHTML(site, slides, start)}
         <a class="enter-btn" href="/home">Enter Raavanaa <span aria-hidden="true">→</span></a>
       </section>`;
     rotTimers.forEach(clearInterval); rotTimers = [];
     startSayings(app);
+  }
+
+  // Second version: a deeper arch with heavier, larger lettering and the tagline inside the arch.
+  function bigArcHTML() {
+    const words = `<tspan class="arc-1">Raavanaa</tspan> <tspan class="arc-2">Community</tspan>`;
+    const tp = cls => `<text class="${cls}"><textPath href="#big-arc" startOffset="50%" text-anchor="middle" textLength="1180" lengthAdjust="spacingAndGlyphs">${words}</textPath></text>`;
+    const heart = (x, y, s, c) => `<path d="M0 3.2C-5.5-3.4-13 2.6 0 12.5 13 2.6 5.5-3.4 0 3.2Z" transform="translate(${x} ${y}) scale(${s})" fill="${c}"/>`;
+    const spark = (x, y, r) => `<path class="arc-spark" d="M${x} ${y - r}l${r * .3} ${r * .7} ${r * .7} ${r * .3}-${r * .7} ${r * .3}-${r * .3} ${r * .7}-${r * .3}-${r * .7}-${r * .7}-${r * .3} ${r * .7}-${r * .3}z"/>`;
+    return `<svg viewBox="-30 -80 1060 560" role="img" aria-label="Raavanaa Community">
+      <defs>
+        <path id="big-arc" d="M60 450 A440 360 0 0 1 940 450"/>
+        <linearGradient id="arc-green" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a9a62"/><stop offset="1" stop-color="#0c4a2c"/></linearGradient>
+        <linearGradient id="arc-fire" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f7c63a"/><stop offset=".4" stop-color="#e5851a"/><stop offset="1" stop-color="#c8381e"/></linearGradient>
+      </defs>
+      ${tp("arc-depth")}
+      ${tp("arc-face")}
+      ${heart(500, 250, 3.4, "#c8381e")}${heart(440, 290, 1.8, "#f2b21c")}${heart(560, 290, 1.8, "#f2b21c")}
+      ${spark(400, 230, 16)}${spark(600, 230, 16)}${spark(70, 400, 18)}${spark(930, 400, 18)}
+      <text class="arc-tag" x="500" y="372" text-anchor="middle">BEYOND THE LANES ✦ CREATING SMILES</text>
+    </svg>`;
   }
 
   // "Raavanaa Community" set on an arc at the top of the front page.
