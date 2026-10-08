@@ -522,13 +522,11 @@
         <p class="b-top"><b>${money(b.raised)}</b> <span>funded of ${money(b.goal)}</span></p>
         <div class="b-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${b.pct}" aria-label="Share of the budget funded"><i style="width:${b.pct}%"></i></div>
         <dl class="b-facts">
-          <div><dt>${b.funders.length === 1 ? "Supporter" : "Supporters"}</dt><dd>${b.funders.length}</dd></div>
+          <div><dt>Total budget</dt><dd>${money(b.goal)}</dd></div>
           <div><dt>${b.full ? "Status" : "Still needed"}</dt><dd>${b.full ? "Fully funded" : money(b.goal - b.raised)}</dd></div>
         </dl>
-        ${b.lines.length ? `<h3 class="money-h">Where the money goes</h3><ul class="bx-list">${b.lines.map(x => `<li><span>${esc(x.item)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>` : ""}
-        ${b.funders.length ? `<h3 class="money-h">Made possible by</h3><ul class="bx-list">${b.funders.map(x => `<li><span>${esc(x.name)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>` : ""}`
+        ${b.lines.length ? `<h3 class="money-h">Where the money goes</h3><ul class="bx-list">${b.lines.map(x => `<li><span>${esc(x.item)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>` : ""}`
       : `<p class="b-wait">The budget for this project is being prepared. It will be shown here as soon as it is ready.</p>`}
-      <p class="b-pledge"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 20s-7-4.4-7-9.6A4.2 4.2 0 0 1 12 7.7a4.2 4.2 0 0 1 7 2.7C19 15.6 12 20 12 20z" fill="currentColor"/></svg> Every penny goes to the day itself.</p>
       <a class="more" href="/projects/${slugOf(p)}">See the full project →</a>
     </div>`;
   }
