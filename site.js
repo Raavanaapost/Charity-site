@@ -403,19 +403,48 @@
   }
   const ringPercent = p => stageNum(p) === 3 ? 100 : (st => Math.round(st.reduce((s, x) => s + x.done, 0) / st.length * 100))(ringSteps(p));
 
-  // Compact list of every project at a stage: small picture, title, and how far along it is.
-  function projectListHTML(list, all, title) {
+  // Budget figures for a project: what it costs, what supporters have given, and the share funded.
+  function budgetOf(p) {
+    const lines = (p.budget || []).filter(x => x && x.item), funders = (p.funders || []).filter(x => x && x.name);
+    const goal = numOf(p.goal) || lines.reduce((s, x) => s + numOf(x.amount), 0);
+    const raised = funders.reduce((s, x) => s + numOf(x.amount), 0);
+    return { lines, funders, goal, raised, pct: goal ? Math.min(100, Math.round(raised / goal * 100)) : 0, full: goal > 0 && raised >= goal };
+  }
+  const moneyOf = (site, n) => `${esc(site.currency || "$")}${Math.round(n).toLocaleString("en-US")}`;
+  // The same budget box as on a project page, for the project featured at the top of a stage page.
+  function budgetBoxHTML(p, site) {
+    const b = budgetOf(p), money = n => moneyOf(site, n);
+    return `<div class="panel budget${b.full ? " full" : ""}">
+      <h2>Budget</h2>
+      ${b.goal ? `
+        <p class="b-top"><b>${money(b.raised)}</b> <span>funded of ${money(b.goal)}</span></p>
+        <div class="b-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${b.pct}" aria-label="Share of the budget funded"><i style="width:${b.pct}%"></i></div>
+        <dl class="b-facts">
+          <div><dt>${b.funders.length === 1 ? "Supporter" : "Supporters"}</dt><dd>${b.funders.length}</dd></div>
+          <div><dt>${b.full ? "Status" : "Still needed"}</dt><dd>${b.full ? "Fully funded" : money(b.goal - b.raised)}</dd></div>
+        </dl>
+        ${b.lines.length ? `<h3 class="money-h">Where the money goes</h3><ul class="bx-list">${b.lines.map(x => `<li><span>${esc(x.item)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>` : ""}
+        ${b.funders.length ? `<h3 class="money-h">Made possible by</h3><ul class="bx-list">${b.funders.map(x => `<li><span>${esc(x.name)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>` : ""}`
+      : `<p class="b-wait">The budget for this project is being prepared. It will be shown here as soon as it is ready.</p>`}
+      <p class="b-pledge"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 20s-7-4.4-7-9.6A4.2 4.2 0 0 1 12 7.7a4.2 4.2 0 0 1 7 2.7C19 15.6 12 20 12 20z" fill="currentColor"/></svg> Every penny goes to the day itself.</p>
+      <a class="more" href="/projects/${slugOf(p)}">See the full project →</a>
+    </div>`;
+  }
+
+  // Compact list of every project at a stage: small picture, title, budget, and how far along it is.
+  function projectListHTML(list, all, title, site) {
     if (!list.length) return "";
     const ring = pct => `<svg class="pl-ring" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16" pathLength="100" class="pl-track"/><circle cx="20" cy="20" r="16" pathLength="100" class="pl-fill" stroke-dasharray="${pct} 100" transform="rotate(-90 20 20)"/></svg>`;
     return `
       <section class="plist-wrap">
         <h2 class="section-title lined">${title} <span class="count">${list.length}</span></h2>
         <div class="plist" role="list">
-          <div class="plist-head" aria-hidden="true"><span>Project</span><span>Progress</span></div>
-          ${list.map(p => { const i = all.indexOf(p), pct = ringPercent(p); return `
+          <div class="plist-head" aria-hidden="true"><span>Project</span><span class="ph-budget">Budget</span><span>Progress</span></div>
+          ${list.map(p => { const i = all.indexOf(p), pct = ringPercent(p), b = budgetOf(p); return `
           <a class="plist-row" role="listitem" href="/projects/${slugOf(p)}">
             <span class="plist-thumb" style="${coverStyle(p, i)}">${p.cover ? `<img src="${esc(imgUrl(p.cover, 160))}" alt="" loading="lazy" width="56" height="56">` : ""}</span>
             <span class="plist-main"><b>${esc(p.title)}</b><small>${esc([p.theme, p.location].filter(Boolean).join(" · "))}</small></span>
+            <span class="plist-budget">${b.goal ? `<span><b>${moneyOf(site, b.raised)}</b> of ${moneyOf(site, b.goal)}</span><span class="pb-bar"><i style="width:${b.pct}%"></i></span><small>${b.full ? "Fully funded" : `${moneyOf(site, b.goal - b.raised)} still needed`}</small>` : `<small>Budget being prepared</small>`}</span>
             <span class="plist-pct">${ring(pct)}<b>${pct}%</b></span>
           </a>`; }).join("")}
         </div>
@@ -517,7 +546,9 @@
             <p class="theme-note">This is an example, not a real project. Open it to see the budget, where the money goes and who made it possible.</p>
             <div class="grid">${card(example, 0, journey(example))}</div>
           </section>` : "";
+      const one = slug !== "impact" && items.length ? items[0] : null; // Initiated and Activated: one project up top, the rest in the list
       const body = !items.length ? `<div class="panel empty-state"><p>${cfg.empty.text}</p><a class="btn" href="${cfg.empty.href}">${cfg.empty.btn}</a></div>${exampleHTML}`
+        : one ? `<section class="featured-project">${card(one.p, one.i, journey(one.p))}${budgetBoxHTML(one.p, site)}</section>`
         : groups.map(([t, xs]) => `
           <section class="theme-group">
             <h3 class="theme-title">${esc(t)} <span class="count">${xs.length}</span></h3>
@@ -545,12 +576,12 @@
           <h2 class="section-title lined"><span class="stage-word s3">Impact</span> in numbers</h2>
           <div class="impact-numbers">${numbers.map(({ p, x }) => { const href = p ? `/projects/${slugOf(p)}` : x.href; return `<${href ? `a href="${esc(href)}"` : "div"}><b>${esc(x.value)}</b><span>${esc(x.label)}</span>${p ? `<small>${esc(p.title)}</small>` : x.note ? `<small>${esc(x.note)}</small>` : ""}</${href ? "a" : "div"}>`; }).join("")}</div>` : ""}
         <h2 class="section-title lined" id="stories">${cfg.heading}</h2>
-        ${themes.length > 1 ? `<div class="filters" role="group" aria-label="Filter by theme">
+        ${themes.length > 1 && slug === "impact" ? `<div class="filters" role="group" aria-label="Filter by theme">
           ${["All", ...themes].map(t => `<button class="chip" aria-pressed="${t === filter}" data-t="${esc(t)}">${esc(t)}</button>`).join("")}
         </div>` : ""}
         ${body}
-        ${projectListHTML(slug === "initiated" ? projects : slug === "activated" ? projects.filter(p => stageNum(p) >= 2) : projects.filter(p => stageNum(p) === 3), projects,
-          slug === "initiated" ? "Initiated projects" : slug === "activated" ? "Activated projects" : "Delivered projects")}
+        ${projectListHTML((slug === "impact" ? projects.filter(p => stageNum(p) === 3) : items.slice(1).map(x => x.p)), projects,
+          slug === "initiated" ? "More initiated projects" : slug === "activated" ? "More activated projects" : "Delivered projects", site)}
         <section class="stage-next">
           <div class="panel idea">
             <h2>${cfg.cta.title}</h2>
