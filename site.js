@@ -226,6 +226,18 @@
   function renderWelcome(app, site) {
     const slides = (site.sayings || []).map(x => typeof x === "string" ? { text: x } : x).filter(x => x && x.text);
     const start = 0;
+    if (document.body.dataset.variant === "picture") {
+      app.innerHTML = `
+        <section class="splash">
+          <h1 class="sr">Raavanaa Community: a day of joy for every child</h1>
+          <div class="splash-frame">
+            <img src="/img/front-wide.webp" srcset="/img/front-wide-1200.webp 1200w, /img/front-wide.webp 1920w" sizes="100vw" width="1920" height="1080"
+              alt="Raavanaa Community: a day of joy for every child. Children cheer by a ferris wheel, a school bus and a picnic under a smiling sun.">
+            <a class="enter-btn splash-btn" href="/home">Enter Raavanaa <span aria-hidden="true">→</span></a>
+          </div>
+        </section>`;
+      return;
+    }
     const big = document.body.dataset.variant === "2";
     app.innerHTML = `
       <section class="home-hero welcome${big ? " welcome-big" : ""}">

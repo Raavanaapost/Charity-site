@@ -678,3 +678,19 @@ body[data-page="welcome"] .bar,body[data-page="welcome"] footer,body[data-page="
 .welcome-big .arc-tag{font-family:var(--mono);font-size:22px;letter-spacing:.2em;fill:var(--brand)}
 .welcome-big .sayings{margin-top:-6px}
 .welcome-big .sayings-track{max-width:820px}
+
+/* front page as one full picture (index.html, data-variant="picture") */
+body[data-variant="picture"]{background:#0f5132}
+body[data-variant="picture"] #app{max-width:none;padding:0}
+.splash{min-height:100vh;min-height:100svh;display:grid;place-items:center;background:linear-gradient(180deg,#bfe6f7 0 50%,#0f5132 50% 100%)}
+.splash-frame{position:relative;width:100%;max-width:calc(100svh * 16 / 9)}
+.splash-frame img{display:block;width:100%;height:auto}
+.splash-btn{position:absolute;left:50%;bottom:3.2%;transform:translateX(-50%);margin:0;border:3px solid #fff8ea;white-space:nowrap}
+.splash-btn:hover{transform:translateX(-50%) translateY(-2px)}
+@media (max-width:699px){
+  .splash{background:linear-gradient(180deg,#bfe6f7 0 40%,#0f5132 40% 100%);align-content:center}
+  .splash-frame{display:grid;justify-items:center;gap:30px;background:#0f5132;padding-bottom:34px}
+  .splash-btn{position:static;transform:none;font-size:20px}
+  .splash-btn:hover{transform:translateY(-2px)}
+}
+body[data-variant="picture"]{margin:0}
