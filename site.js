@@ -298,9 +298,9 @@
         <section class="splash">
           <h1 class="sr">Raavanaa Community: a day of joy for every child</h1>
           <picture class="splash-pic">
-            <source media="(max-aspect-ratio: 4/5)" srcset="/img/front-family-tall-720.webp 720w, /img/front-family-tall.webp 1080w" sizes="100vw">
-            <img src="/img/front-family-wide.webp" srcset="/img/front-family-wide-1200.webp 1200w, /img/front-family-wide.webp 1920w" sizes="100vw" width="1920" height="1080"
-              alt="Raavanaa Community. Creating smiles, creating moments: a day of joy, together. Families and children cheer by a picnic and a ferris wheel under a smiling sun.">
+            <source media="(max-aspect-ratio: 4/5)" srcset="/img/front-tall-720.webp 720w, /img/front-tall.webp 1080w" sizes="100vw">
+            <img src="/img/front-wide.webp" srcset="/img/front-wide-1200.webp 1200w, /img/front-wide.webp 1920w" sizes="100vw" width="1920" height="1080"
+              alt="Raavanaa Community: a day of joy for every child. Children cheer by a ferris wheel, a school bus and a picnic under a smiling sun.">
           </picture>
           <a class="enter-btn splash-btn" href="/overview">Enter Raavanaa <span aria-hidden="true">→</span></a>
         </section>`;
