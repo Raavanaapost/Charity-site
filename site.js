@@ -514,24 +514,34 @@
   }
   const moneyOf = (site, n) => `${esc(site.currency || "$")}${Math.round(n).toLocaleString("en-US")}`;
   // The same budget box as on a project page, for the project featured at the top of a stage page.
-  function budgetBoxHTML(p, site) {
-    const b = budgetOf(p), money = n => moneyOf(site, n);
-    return `<div class="panel budget${b.full ? " full" : ""}">
-      <h2>Budget</h2>
-      ${b.goal ? `
+  // Budget by stage. Initiated: the total only. Activated: funding and who sponsored it.
+  // Impact (delivered): funding, sponsors and the full breakdown of where the money went.
+  function budgetDetailHTML(p, site) {
+    const b = budgetOf(p), money = n => moneyOf(site, n), st = stageNum(p);
+    if (!b.goal) return `<p class="b-wait">The budget for this project is being prepared. It will be shown here as soon as it is ready.</p>`;
+    const funders = b.funders.length ? `<h3 class="money-h">Made possible by</h3>
+        <ul class="funders">${b.funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}</span>${numOf(f.amount) ? `<b>${money(numOf(f.amount))}</b>` : ""}</li>`).join("")}</ul>` : "";
+    const lines = b.lines.length ? `<h3 class="money-h">Where the money went</h3><ul class="bx-list">${b.lines.map(x => `<li><span>${esc(x.item)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>
+        <p class="bx-total"><span>Total spent</span><b>${money(b.lines.reduce((t, x) => t + numOf(x.amount), 0))}</b></p>` : "";
+    if (st === 1) return `<p class="b-top"><b>${money(b.goal)}</b> <span>total budget</span></p>`;
+    return `
         <p class="b-top"><b>${money(b.raised)}</b> <span>funded of ${money(b.goal)}</span></p>
         <div class="b-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${b.pct}" aria-label="Share of the budget funded"><i style="width:${b.pct}%"></i></div>
         <dl class="b-facts">
           <div><dt>Total budget</dt><dd>${money(b.goal)}</dd></div>
           <div><dt>${b.full ? "Status" : "Still needed"}</dt><dd>${b.full ? "Fully funded" : money(b.goal - b.raised)}</dd></div>
         </dl>
-        ${b.lines.length ? `<h3 class="money-h">Where the money goes</h3><ul class="bx-list">${b.lines.map(x => `<li><span>${esc(x.item)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>` : ""}`
-      : `<p class="b-wait">The budget for this project is being prepared. It will be shown here as soon as it is ready.</p>`}
-      ${b.funders.length ? `<h3 class="money-h">Made possible by</h3>
-        <ul class="funders">${b.funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}</span>${numOf(f.amount) ? `<b>${money(numOf(f.amount))}</b>` : ""}</li>`).join("")}</ul>` : ""}
-      <a class="more" href="/projects/${slugOf(p)}">See the full project →</a>
+        ${funders}${st === 3 ? lines : ""}`;
+  }
+  function budgetBoxHTML(p, site, link = true) {
+    const b = budgetOf(p);
+    return `<div class="panel budget${b.full && stageNum(p) > 1 ? " full" : ""}">
+      <h2>Budget</h2>
+      ${budgetDetailHTML(p, site)}
+      ${link ? `<a class="more" href="/projects/${slugOf(p)}">See the full project →</a>` : ""}
     </div>`;
   }
+
 
   // Compact list of every project at a stage: small picture, title, and how far along it is.
   function projectListHTML(list, all, title) {
@@ -785,20 +795,21 @@
       story: ic('<path d="M12 6.5C10 5 7 4.5 4 5v13c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.500V5c-3-.5-6 0-8 1.500z"/><path d="M12 6.500V19.5"/>'),
       updates: ic('<path d="M12 20s-7-4.4-7-9.600A4.2 4.2 0 0 1 12 7.700a4.2 4.2 0 0 1 7 2.700C19 15.6 12 20 12 20z"/>'),
       pictures: ic('<path d="M4 8h3.200l1.5-2h6.600l1.5 2H20v11H4z"/><circle cx="12" cy="13.2" r="3.3"/>'),
-      video: ic('<rect x="3.5" y="5.5" width="17" height="13" rx="3"/><path d="M10.2 9.300v5.400l4.6-2.700z" fill="currentColor"/>')
+      media: ic('<rect x="3.5" y="5.5" width="17" height="13" rx="3"/><path d="M10.2 9.300v5.400l4.6-2.700z" fill="currentColor"/>'),
+      budget: ic('<rect x="3.5" y="6" width="17" height="12" rx="2.5"/><path d="M3.5 10h17"/><path d="M7 14.500h4"/>')
     };
     const tabs = [
       ["story", "Story"],
       ["updates", "Impact"],
-      ["pictures", `Pictures${count(photos.length)}`],
-      ["video", `Video${count(media.length)}`]
+      ["budget", "Budget"],
+      ["media", `Media${count(photos.length + media.length)}`]
     ];
 
     const panes = {
       story: `<div class="story">${p.quote ? `<p class="pull">“${esc(p.quote)}”</p>` : ""}${md(p.story)}</div>`,
       updates: (updates.length ? updates.map(u => `<article class="update"><div class="meta">${fmtDate(u.date)}</div><h3>${esc(u.title)}</h3><div>${md(u.body)}</div></article>`).join("") : `<p class="empty">No impact updates yet.</p>`) + (p.sample ? "" : commentsHTML(slugOf(p))),
-      pictures: photos.length ? `<div class="photos">${photos.map((ph, k) => `<figure><button data-src="${esc(imgUrl(ph.image, 1600))}" aria-label="Open picture"><div class="cover"><img src="${esc(imgUrl(ph.image, 600))}" alt="${esc(ph.caption)}" loading="lazy"></div></button>${ph.caption ? `<figcaption>${esc(ph.caption)}</figcaption>` : ""}</figure>`).join("")}</div>` : `<p class="empty">No pictures yet.</p>`,
-      video: media.length ? `<div class="media">${media.map(m => { const e = embedFor(m.url); return e ? `<figure style="margin:0"><div class="embed"><iframe src="${esc(e)}" title="${esc(m.title)}" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy"></iframe></div>${m.title ? `<figcaption class="note" style="padding-top:6px">${esc(m.title)}</figcaption>` : ""}</figure>` : `<a class="media-link" href="${esc(m.url)}" target="_blank" rel="noopener">▶ ${esc(m.title || m.url)}</a>`; }).join("")}</div>` : `<p class="empty">No videos yet.</p>`
+      budget: `<div class="budget-tab">${budgetDetailHTML(p, site)}${stageNum(p) < 3 && budgetOf(p).lines.length ? `<p class="note">The full breakdown of where the money went is shown here once the day has happened.</p>` : ""}</div>`,
+      media: (photos.length || media.length) ? `${media.length ? `<div class="media">${media.map(m => { const e = embedFor(m.url); return e ? `<figure style="margin:0"><div class="embed"><iframe src="${esc(e)}" title="${esc(m.title)}" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy"></iframe></div>${m.title ? `<figcaption class="note" style="padding-top:6px">${esc(m.title)}</figcaption>` : ""}</figure>` : `<a class="media-link" href="${esc(m.url)}" target="_blank" rel="noopener">▶ ${esc(m.title || m.url)}</a>`; }).join("")}</div>` : ""}${photos.length ? `<div class="photos">${photos.map((ph, k) => `<figure><button data-src="${esc(imgUrl(ph.image, 1600))}" aria-label="Open picture"><div class="cover"><img src="${esc(imgUrl(ph.image, 600))}" alt="${esc(ph.caption)}" loading="lazy"></div></button>${ph.caption ? `<figcaption>${esc(ph.caption)}</figcaption>` : ""}</figure>`).join("")}</div>` : ""}` : `<p class="empty">No videos or pictures yet.</p>`
     };
 
     const draw = tab => {
@@ -815,16 +826,15 @@
           <div style="min-width:0">
             <div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.cover ? "" : "Cover photo", 1400)}</div>
             ${ringPanel("only-narrow")}
-            ${budgetPanel("only-narrow")}
+            <div class="only-narrow">${budgetBoxHTML(p, site, false)}</div>
             <div class="tabs" role="tablist">
               ${tabs.map(([k, l]) => `<button class="tab t-${k}" role="tab" aria-selected="${k === tab}" data-t="${k}">${TAB_ICONS[k]}<span>${l}</span></button>`).join("")}
             </div>
             <section class="folder t-${tab}" role="tabpanel">${panes[tab]}</section>
-            ${moneyHTML}
           </div>
           <aside class="side">
             ${ringPanel("only-wide")}
-            ${budgetPanel("only-wide")}
+            <div class="only-wide">${budgetBoxHTML(p, site, false)}</div>
             <div class="panel">
               <h2>Project at a glance</h2>
               <dl class="facts">
