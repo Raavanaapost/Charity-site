@@ -386,6 +386,41 @@
 
   // How far a project has come: 1 Initiated, 2 Activated, 3 Impact (from its Status in the admin page).
   const stageNum = p => /complete/i.test(p.status || "") ? 3 : /active|pause/i.test(p.status || "") ? 2 : 1;
+  // The steps of the "Activating" ring. Used on the project page and in the project lists, so both show the same %.
+  const numOf = v => { const n = parseFloat(String(v == null ? "" : v).replace(/[^0-9.]/g, "")); return isFinite(n) ? n : 0; };
+  function ringSteps(p) {
+    const goal = numOf(p.goal) || (p.budget || []).filter(x => x && x.item).reduce((s, x) => s + numOf(x.amount), 0);
+    const raised = (p.funders || []).filter(x => x && x.name).reduce((s, x) => s + numOf(x.amount), 0);
+    return [
+      { name: "Visited and verified", done: p.verified ? 1 : 0, c: "#1f7a47" },
+      { name: "Budget ready", done: goal > 0 ? 1 : 0, c: "#3f9a5f" },
+      { name: "Funded", done: goal > 0 ? Math.min(1, raised / goal) : 0, c: "#eaa21c", pctLabel: true },
+      { name: "Date confirmed", done: p.date_set ? 1 : 0, c: "#e5851a" },
+      { name: "Place and transport booked", done: p.booked ? 1 : 0, c: "#d9632b" },
+      { name: "Volunteers ready", done: p.volunteers ? 1 : 0, c: "#c8381e" },
+      ...(p.steps || []).filter(x => x && x.name).map((x, k) => ({ name: x.name, done: x.done ? 1 : 0, c: ["#8f6200", "#b4560a", "#0f5132"][k % 3] }))
+    ];
+  }
+  const ringPercent = p => stageNum(p) === 3 ? 100 : (st => Math.round(st.reduce((s, x) => s + x.done, 0) / st.length * 100))(ringSteps(p));
+
+  // Compact list of every project at a stage: small picture, title, and how far along it is.
+  function projectListHTML(list, all, title) {
+    if (!list.length) return "";
+    const ring = pct => `<svg class="pl-ring" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16" pathLength="100" class="pl-track"/><circle cx="20" cy="20" r="16" pathLength="100" class="pl-fill" stroke-dasharray="${pct} 100" transform="rotate(-90 20 20)"/></svg>`;
+    return `
+      <section class="plist-wrap">
+        <h2 class="section-title lined">${title} <span class="count">${list.length}</span></h2>
+        <div class="plist" role="list">
+          <div class="plist-head" aria-hidden="true"><span>Project</span><span>Progress</span></div>
+          ${list.map(p => { const i = all.indexOf(p), pct = ringPercent(p); return `
+          <a class="plist-row" role="listitem" href="/projects/${slugOf(p)}">
+            <span class="plist-thumb" style="${coverStyle(p, i)}">${p.cover ? `<img src="${esc(imgUrl(p.cover, 160))}" alt="" loading="lazy" width="56" height="56">` : ""}</span>
+            <span class="plist-main"><b>${esc(p.title)}</b><small>${esc([p.theme, p.location].filter(Boolean).join(" · "))}</small></span>
+            <span class="plist-pct">${ring(pct)}<b>${pct}%</b></span>
+          </a>`; }).join("")}
+        </div>
+      </section>`;
+  }
   const STAGE_NAMES = ["Initiated", "Activated", "Impact"];
   const journey = p => {
     const n = stageNum(p);
@@ -514,6 +549,8 @@
           ${["All", ...themes].map(t => `<button class="chip" aria-pressed="${t === filter}" data-t="${esc(t)}">${esc(t)}</button>`).join("")}
         </div>` : ""}
         ${body}
+        ${projectListHTML(slug === "initiated" ? projects : slug === "activated" ? projects.filter(p => stageNum(p) >= 2) : projects.filter(p => stageNum(p) === 3), projects,
+          slug === "initiated" ? "Initiated projects" : slug === "activated" ? "Activated projects" : "Delivered projects")}
         <section class="stage-next">
           <div class="panel idea">
             <h2>${cfg.cta.title}</h2>
@@ -602,15 +639,7 @@
       </div>`;
     // "Activating" ring: every step a project needs before the day can happen is one slice of the circle.
     // Funding fills its slice little by little; the other steps are either done or still to come.
-    const steps = [
-      { name: "Visited and verified", done: p.verified ? 1 : 0, c: "#1f7a47" },
-      { name: "Budget ready", done: goal > 0 ? 1 : 0, c: "#3f9a5f" },
-      { name: "Funded", done: goal > 0 ? Math.min(1, raised / goal) : 0, c: "#eaa21c", pctLabel: true },
-      { name: "Date confirmed", done: p.date_set ? 1 : 0, c: "#e5851a" },
-      { name: "Place and transport booked", done: p.booked ? 1 : 0, c: "#d9632b" },
-      { name: "Volunteers ready", done: p.volunteers ? 1 : 0, c: "#c8381e" },
-      ...(p.steps || []).filter(x => x && x.name).map((x, k) => ({ name: x.name, done: x.done ? 1 : 0, c: ["#8f6200", "#b4560a", "#0f5132"][k % 3] }))
-    ];
+    const steps = ringSteps(p);
     const delivered = stageNum(p) === 3;
     const ringPct = delivered ? 100 : Math.round(steps.reduce((s, x) => s + x.done, 0) / steps.length * 100);
     const ringSVG = () => {

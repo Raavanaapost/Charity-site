@@ -690,3 +690,22 @@ body[data-variant="picture"] #app{max-width:none;padding:0}
 @media (max-aspect-ratio:4/5){.splash-btn{bottom:max(4.5%,22px);font-size:20px;padding:16px 34px}}
 body[data-variant="picture"]{margin:0}
 @media (max-aspect-ratio:4/5){.splash-pic img{object-position:center 30%}}
+
+/* compact project list under the cards on each stage page */
+.plist-wrap{margin-bottom:56px}
+.plist{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.plist-head{display:flex;justify-content:space-between;padding:10px 16px;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--brand-soft)}
+.plist-row{display:grid;grid-template-columns:56px minmax(0,1fr) auto;align-items:center;gap:14px;padding:12px 16px;border-top:1px solid var(--line);text-decoration:none;color:var(--ink);transition:background .15s}
+.plist-row:hover{background:var(--sun-soft)}
+.plist-thumb{width:56px;height:56px;border-radius:10px;overflow:hidden;display:block;background:var(--brand-soft)}
+.plist-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.plist-main{min-width:0;display:grid;gap:2px}
+.plist-main b{font-family:var(--display);font-weight:700;font-size:16.5px;line-height:1.25}
+.plist-main small{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plist-pct{display:flex;align-items:center;gap:8px}
+.plist-pct b{font-family:var(--display);font-weight:700;font-size:17px;min-width:3.2ch;text-align:right;font-variant-numeric:tabular-nums;color:var(--brand)}
+.pl-ring{width:34px;height:34px}
+.pl-ring circle{fill:none;stroke-width:6}
+.pl-track{stroke:var(--line)}
+.pl-fill{stroke:var(--sun);stroke-linecap:round}
+@media (prefers-reduced-motion:reduce){.plist-row{transition:none}}
