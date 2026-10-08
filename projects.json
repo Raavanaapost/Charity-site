@@ -14,7 +14,16 @@
       "verified": false,
       "budget": [],
       "goal": 500,
-      "funders": [],
+      "funders": [
+        {
+          "name": "Kumar Family",
+          "amount": 250
+        },
+        {
+          "name": "Mahaarivu Association",
+          "amount": 250
+        }
+      ],
       "date_set": false,
       "booked": true,
       "volunteers": true,

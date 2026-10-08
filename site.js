@@ -527,6 +527,8 @@
         </dl>
         ${b.lines.length ? `<h3 class="money-h">Where the money goes</h3><ul class="bx-list">${b.lines.map(x => `<li><span>${esc(x.item)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>` : ""}`
       : `<p class="b-wait">The budget for this project is being prepared. It will be shown here as soon as it is ready.</p>`}
+      ${b.funders.length ? `<h3 class="money-h">Made possible by</h3>
+        <ul class="funders">${b.funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}</span>${numOf(f.amount) ? `<b>${money(numOf(f.amount))}</b>` : ""}</li>`).join("")}</ul>` : ""}
       <a class="more" href="/projects/${slugOf(p)}">See the full project →</a>
     </div>`;
   }
