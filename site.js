@@ -302,7 +302,7 @@
             <img src="/img/front-wide.webp" srcset="/img/front-wide-1200.webp 1200w, /img/front-wide.webp 1920w" sizes="100vw" width="1920" height="1080"
               alt="Raavanaa Community: a day of joy for every child. Children cheer by a ferris wheel, a school bus and a picnic under a smiling sun.">
           </picture>
-          <a class="enter-btn splash-btn" href="/home">Enter Raavanaa <span aria-hidden="true">→</span></a>
+          <a class="enter-btn splash-btn" href="/overview">Enter Raavanaa <span aria-hidden="true">→</span></a>
         </section>`;
       return;
     }
@@ -312,7 +312,7 @@
         <h1 class="arc-title">${big ? bigArcHTML() : arcTitleHTML()}</h1>
         ${big ? "" : `<p class="arc-sub">Beyond the Lanes <span aria-hidden="true">✦</span> Creating Smiles</p>`}
         ${sayingsHTML(site, slides, start)}
-        <a class="enter-btn" href="/home">Enter Raavanaa <span aria-hidden="true">→</span></a>
+        <a class="enter-btn" href="/overview">Enter Raavanaa <span aria-hidden="true">→</span></a>
       </section>`;
     rotTimers.forEach(clearInterval); rotTimers = [];
     startSayings(app);
