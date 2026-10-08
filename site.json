@@ -6,29 +6,24 @@
   "footer": "",
   "sayings": [
     {
-      "title": "Community – Creating Impact",
+      "title": "Kids' New World",
       "text": "A game, a trip, a good meal. Simple days that many children never get. Together we make them happen, and we show you every smile you helped create.",
-      "image": "/img/slide-1.svg"
+      "image": "/img/home-1.webp"
     },
     {
-      "title": "Small Steps – Big Smiles",
-      "text": "One day of joy costs little and stays with a child for life. Bring us a project or lend a hand, and watch a small step become a big smile.",
-      "image": "/img/slide-2.svg"
-    },
-    {
-      "title": "Beyond the Lanes – Into Lives",
+      "title": "Open to Joy Land",
       "text": "Kids remember the day someone showed up for them. Join us in making those days happen, and feel proud of the memories you helped create.",
-      "image": "/img/slide-3.svg"
+      "image": "/img/home-2.webp"
     },
     {
-      "title": "Together – Real Change",
-      "text": "Somewhere a child is waiting for a first day out, and somewhere a person is ready to give it. We bring the two together, and show the proof.",
-      "image": "/img/slide-4.svg"
+      "title": "A Day of Joy",
+      "text": "One day of joy costs little and stays with a child for life. Bring us a project or lend a hand, and watch a small step become a big smile.",
+      "image": "/img/home-3.webp"
     },
     {
-      "title": "Community – Stronger Together",
+      "title": "Raavanaa Community",
       "text": "A teacher who notices, a friend who gives, a volunteer who shows up. When a community comes together, a child gets a day to remember.",
-      "image": "/img/slide-5.svg"
+      "image": "/img/home-4.webp"
     }
   ],
   "follow": [

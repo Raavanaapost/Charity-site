@@ -193,8 +193,9 @@
     const follow = (site.follow || []).filter(x => x && x.title && x.text);
     const fstart = follow.length ? Math.floor(Math.random() * follow.length) : 0;
     app.innerHTML = `
-      <section class="intro">
-        <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
+      <section class="home-hero">
+        <h1 class="arc-title">${arcTitleHTML()}</h1>
+        <p class="arc-sub">Beyond the Lanes <span aria-hidden="true">✦</span> Creating Smiles</p>
         ${sayingsHTML(site, slides, start)}
       </section>
       <nav class="stages" aria-label="Our projects by stage">
@@ -222,11 +223,26 @@
     if (location.hash === "#keep-posted") { const t = document.getElementById("keep-posted"); if (t) t.scrollIntoView(); }
   }
 
+  // "Raavanaa Community" set on an arc at the top of the home page.
+  function arcTitleHTML() {
+    return `<svg viewBox="0 0 1000 250" role="img" aria-label="Raavanaa Community">
+      <defs>
+        <path id="arc-path" d="M60 236 Q500 -16 940 236"/>
+        <linearGradient id="arc-green" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f8a55"/><stop offset="1" stop-color="#0f5132"/></linearGradient>
+        <linearGradient id="arc-fire" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f2b21c"/><stop offset=".45" stop-color="#e5851a"/><stop offset="1" stop-color="#c8381e"/></linearGradient>
+      </defs>
+      <path class="arc-spark" d="M30 228l6 14 14 6-14 6-6 14-6-14-14-6 14-6z"/>
+      <path class="arc-spark" d="M970 228l6 14 14 6-14 6-6 14-6-14-14-6 14-6z"/>
+      <text><textPath href="#arc-path" startOffset="50%" text-anchor="middle" textLength="930" lengthAdjust="spacingAndGlyphs"><tspan class="arc-1">Raavanaa</tspan> <tspan class="arc-2">Community</tspan></textPath></text>
+    </svg>`;
+  }
+
   // Rotating messages under the home headline.
   function sayingsHTML(site, list, start) {
     if (!list.length) return `<p>${esc(site.intro)}</p>`;
     const slide = (x, i) => `<figure class="saying${i === start ? " on" : ""}${x.image ? " has-img" : ""}" aria-hidden="${i !== start}" data-title="${esc(x.title || site.tagline)}">
-        ${x.image ? `<img src="${esc(/\.svg$/i.test(x.image) ? x.image : imgUrl(x.image, 1000))}" alt="" width="400" height="200">` : ""}
+        ${x.image ? (/\.svg$/i.test(x.image) ? `<img src="${esc(x.image)}" alt="" width="400" height="200">`
+          : `<img src="${esc(imgUrl(x.image, 1600))}" srcset="${esc(imgUrl(x.image, 900))} 900w, ${esc(imgUrl(x.image, 1600))} 1600w" sizes="(min-width:1000px) 1100px, 100vw" alt="${esc(x.title || "")}" width="1600" height="800"${i === start ? "" : ' loading="lazy"'}>`) : ""}
         <figcaption>${esc(x.text)}</figcaption>
       </figure>`;
     return `<div class="sayings" aria-roledescription="carousel" aria-label="Our message" data-start="${start}">

@@ -634,3 +634,28 @@ footer.foot .foot-main .wrap{grid-template-columns:minmax(0,1fr)}
   .initiate-card{padding:34px 36px 34px;gap:20px;margin-inline:26px}
   .i-row{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:40px}
 }
+
+/* home: arched title and picture slideshow with the message on the picture */
+.home-hero{padding-block:22px 10px;display:grid;gap:10px}
+.arc-title{margin:0;line-height:0}
+.arc-title svg{display:block;width:100%;max-width:780px;height:auto;margin:0 auto;overflow:visible}
+.arc-title text{font-family:"Playfair Display",Didot,"Bodoni MT","Times New Roman",serif;font-weight:900;font-size:112px;stroke:var(--bg);stroke-width:12;stroke-linejoin:round;paint-order:stroke fill;filter:drop-shadow(0 5px 0 rgba(15,81,50,.12))}
+.arc-title .arc-1{fill:url(#arc-green)}
+.arc-title .arc-2{fill:url(#arc-fire)}
+.arc-title .arc-spark{fill:var(--gold)}
+.arc-sub{margin:-6px 0 8px;text-align:center;font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--brand)}
+.arc-sub span{color:var(--sun);margin-inline:6px}
+.home-hero .sayings{gap:14px;justify-items:center}
+.home-hero .sayings-track{max-width:920px;width:100%}
+.home-hero .saying.has-img{display:block;position:relative;border-radius:20px;overflow:hidden;box-shadow:0 18px 40px -22px rgba(15,81,50,.55);background:var(--surface)}
+.home-hero .saying img{border:0;border-radius:0;aspect-ratio:2/1}
+.home-hero .saying figcaption{max-width:none;padding:14px 18px 16px;font-size:15.5px;line-height:1.55;color:var(--ink);background:var(--surface);border-top:4px solid var(--sun)}
+@media (min-width:700px){
+  .home-hero{padding-top:30px}
+  .home-hero .saying.has-img{display:block}
+  .home-hero .saying.has-img img{order:0}
+  .home-hero .saying figcaption{position:absolute;left:0;right:0;bottom:0;padding:70px clamp(24px,5vw,56px) 24px;border-top:0;background:linear-gradient(180deg,rgba(9,40,24,0) 0%,rgba(9,40,24,.62) 45%,rgba(9,40,24,.86) 100%);color:#fff;font-size:clamp(16px,1.9vw,21px);line-height:1.5;font-weight:500;text-shadow:0 1px 3px rgba(0,0,0,.35);text-align:center;text-wrap:balance}
+}
+@media (min-width:1000px){.home-hero .saying.has-img{gap:0}.arc-sub{font-size:13px}}
+.home-hero .sayings-dots button{width:10px;height:10px}
+.home-hero .sayings-dots button[aria-current="true"]{width:28px}
