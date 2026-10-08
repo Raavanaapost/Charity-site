@@ -481,6 +481,58 @@
           </a>`; }).join("")}`;
   }
 
+  // The "Activating" circle with its list of steps, as on a project page.
+  function activatingPanelHTML(p, cls = "") {
+    const steps = ringSteps(p);
+    const delivered = stageNum(p) === 3;
+    const ringPct = delivered ? 100 : Math.round(steps.reduce((s, x) => s + x.done, 0) / steps.length * 100);
+    const ringSVG = () => {
+      const n = steps.length, gap = n > 5 ? 16 : 20, len = 360 / n - gap; // the rounded ends eat most of the gap
+      const arc = (start, l, c, o) => l > 0.01 ? `<circle cx="60" cy="60" r="48" fill="none" stroke="${c}" stroke-opacity="${o}" stroke-width="13" stroke-linecap="round" pathLength="360" stroke-dasharray="${l.toFixed(2)} ${(360 - l).toFixed(2)}" stroke-dashoffset="${(-start).toFixed(2)}"/>` : "";
+      return `<svg class="ring" viewBox="0 0 120 120" role="img" aria-label="${ringPct}% of the way to being activated">
+        <g transform="rotate(-90 60 60)">${steps.map((x, k) => { const start = k * (len + gap) + gap / 2; return arc(start, len, x.c, .18) + arc(start, len * (delivered ? 1 : x.done), x.c, 1); }).join("")}</g>
+        <text x="60" y="${ringPct === 100 ? 60 : 62}" text-anchor="middle" class="ring-n">${ringPct}%</text>
+        <text x="60" y="${ringPct === 100 ? 77 : 78}" text-anchor="middle" class="ring-l">${delivered ? "DELIVERED" : ringPct === 100 ? "READY" : "ACTIVATING"}</text>
+      </svg>`;
+    };
+    return `
+      <div class="panel activating ${cls}">
+        <h2>${delivered ? "Delivered" : ringPct === 100 ? "Activated" : "Activating"}</h2>
+        <div class="ring-row">
+          ${ringSVG()}
+          <ul class="ring-steps">${steps.map(x => { const d = delivered ? 1 : x.done; return `<li class="${d >= 1 ? "done" : d > 0 ? "part" : ""}"><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${d >= 1 ? "✓" : x.pctLabel && d > 0 ? Math.round(d * 100) + "%" : "–"}</b></li>`; }).join("")}</ul>
+        </div>
+      </div>`;
+  }
+
+  // Budget figures for a project: what it costs, what supporters have given, and the share funded.
+  function budgetOf(p) {
+    const lines = (p.budget || []).filter(x => x && x.item), funders = (p.funders || []).filter(x => x && x.name);
+    const goal = numOf(p.goal) || lines.reduce((s, x) => s + numOf(x.amount), 0);
+    const raised = funders.reduce((s, x) => s + numOf(x.amount), 0);
+    return { lines, funders, goal, raised, pct: goal ? Math.min(100, Math.round(raised / goal * 100)) : 0, full: goal > 0 && raised >= goal };
+  }
+  const moneyOf = (site, n) => `${esc(site.currency || "$")}${Math.round(n).toLocaleString("en-US")}`;
+  // The same budget box as on a project page, for the project featured at the top of a stage page.
+  function budgetBoxHTML(p, site) {
+    const b = budgetOf(p), money = n => moneyOf(site, n);
+    return `<div class="panel budget${b.full ? " full" : ""}">
+      <h2>Budget</h2>
+      ${b.goal ? `
+        <p class="b-top"><b>${money(b.raised)}</b> <span>funded of ${money(b.goal)}</span></p>
+        <div class="b-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${b.pct}" aria-label="Share of the budget funded"><i style="width:${b.pct}%"></i></div>
+        <dl class="b-facts">
+          <div><dt>${b.funders.length === 1 ? "Supporter" : "Supporters"}</dt><dd>${b.funders.length}</dd></div>
+          <div><dt>${b.full ? "Status" : "Still needed"}</dt><dd>${b.full ? "Fully funded" : money(b.goal - b.raised)}</dd></div>
+        </dl>
+        ${b.lines.length ? `<h3 class="money-h">Where the money goes</h3><ul class="bx-list">${b.lines.map(x => `<li><span>${esc(x.item)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>` : ""}
+        ${b.funders.length ? `<h3 class="money-h">Made possible by</h3><ul class="bx-list">${b.funders.map(x => `<li><span>${esc(x.name)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>` : ""}`
+      : `<p class="b-wait">The budget for this project is being prepared. It will be shown here as soon as it is ready.</p>`}
+      <p class="b-pledge"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 20s-7-4.4-7-9.6A4.2 4.2 0 0 1 12 7.7a4.2 4.2 0 0 1 7 2.7C19 15.6 12 20 12 20z" fill="currentColor"/></svg> Every penny goes to the day itself.</p>
+      <a class="more" href="/projects/${slugOf(p)}">See the full project →</a>
+    </div>`;
+  }
+
   // Compact list of every project at a stage: small picture, title, and how far along it is.
   function projectListHTML(list, all, title) {
     if (!list.length) return "";
@@ -589,7 +641,9 @@
             <p class="theme-note">This is an example, not a real project. Open it to see the budget, where the money goes and who made it possible.</p>
             <div class="grid">${card(example, 0, journey(example))}</div>
           </section>` : "";
+      const one = slug !== "impact" && items.length ? items[0] : null; // Initiated and Activated: one project shown in full, all of them in the list
       const body = !items.length ? `<div class="panel empty-state"><p>${cfg.empty.text}</p><a class="btn" href="${cfg.empty.href}">${cfg.empty.btn}</a></div>${exampleHTML}`
+        : one ? `<section class="featured-project">${card(one.p, one.i, journey(one.p))}<div class="featured-side">${activatingPanelHTML(one.p)}${budgetBoxHTML(one.p, site)}</div></section>`
         : groups.map(([t, xs]) => `
           <section class="theme-group">
             <h3 class="theme-title">${esc(t)} <span class="count">${xs.length}</span></h3>
@@ -617,7 +671,7 @@
           <h2 class="section-title lined"><span class="stage-word s3">Impact</span> in numbers</h2>
           <div class="impact-numbers">${numbers.map(({ p, x }) => { const href = p ? `/projects/${slugOf(p)}` : x.href; return `<${href ? `a href="${esc(href)}"` : "div"}><b>${esc(x.value)}</b><span>${esc(x.label)}</span>${p ? `<small>${esc(p.title)}</small>` : x.note ? `<small>${esc(x.note)}</small>` : ""}</${href ? "a" : "div"}>`; }).join("")}</div>` : ""}
         <h2 class="section-title lined" id="stories">${cfg.heading}</h2>
-        ${themes.length > 1 ? `<div class="filters" role="group" aria-label="Filter by theme">
+        ${themes.length > 1 && slug === "impact" ? `<div class="filters" role="group" aria-label="Filter by theme">
           ${["All", ...themes].map(t => `<button class="chip" aria-pressed="${t === filter}" data-t="${esc(t)}">${esc(t)}</button>`).join("")}
         </div>` : ""}
         ${body}
@@ -714,23 +768,7 @@
     const steps = ringSteps(p);
     const delivered = stageNum(p) === 3;
     const ringPct = delivered ? 100 : Math.round(steps.reduce((s, x) => s + x.done, 0) / steps.length * 100);
-    const ringSVG = () => {
-      const n = steps.length, gap = n > 5 ? 16 : 20, len = 360 / n - gap; // the rounded ends eat most of the gap
-      const arc = (start, l, c, o) => l > 0.01 ? `<circle cx="60" cy="60" r="48" fill="none" stroke="${c}" stroke-opacity="${o}" stroke-width="13" stroke-linecap="round" pathLength="360" stroke-dasharray="${l.toFixed(2)} ${(360 - l).toFixed(2)}" stroke-dashoffset="${(-start).toFixed(2)}"/>` : "";
-      return `<svg class="ring" viewBox="0 0 120 120" role="img" aria-label="${ringPct}% of the way to being activated">
-        <g transform="rotate(-90 60 60)">${steps.map((x, k) => { const start = k * (len + gap) + gap / 2; return arc(start, len, x.c, .18) + arc(start, len * (delivered ? 1 : x.done), x.c, 1); }).join("")}</g>
-        <text x="60" y="${ringPct === 100 ? 60 : 62}" text-anchor="middle" class="ring-n">${ringPct}%</text>
-        <text x="60" y="${ringPct === 100 ? 77 : 78}" text-anchor="middle" class="ring-l">${delivered ? "DELIVERED" : ringPct === 100 ? "READY" : "ACTIVATING"}</text>
-      </svg>`;
-    };
-    const ringPanel = cls => `
-      <div class="panel activating ${cls}">
-        <h2>${delivered ? "Delivered" : ringPct === 100 ? "Activated" : "Activating"}</h2>
-        <div class="ring-row">
-          ${ringSVG()}
-          <ul class="ring-steps">${steps.map(x => { const d = delivered ? 1 : x.done; return `<li class="${d >= 1 ? "done" : d > 0 ? "part" : ""}"><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${d >= 1 ? "✓" : x.pctLabel && d > 0 ? Math.round(d * 100) + "%" : "–"}</b></li>`; }).join("")}</ul>
-        </div>
-      </div>`;
+    const ringPanel = cls => activatingPanelHTML(p, cls);
     const moneyHTML = `
       ${lines.length ? `<section class="money">
         <h2 class="section-title">Where the money goes</h2>
