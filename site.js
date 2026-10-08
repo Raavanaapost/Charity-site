@@ -230,11 +230,12 @@
       app.innerHTML = `
         <section class="splash">
           <h1 class="sr">Raavanaa Community: a day of joy for every child</h1>
-          <div class="splash-frame">
+          <picture class="splash-pic">
+            <source media="(max-aspect-ratio: 4/5)" srcset="/img/front-tall-720.webp 720w, /img/front-tall.webp 1080w" sizes="100vw">
             <img src="/img/front-wide.webp" srcset="/img/front-wide-1200.webp 1200w, /img/front-wide.webp 1920w" sizes="100vw" width="1920" height="1080"
               alt="Raavanaa Community: a day of joy for every child. Children cheer by a ferris wheel, a school bus and a picnic under a smiling sun.">
-            <a class="enter-btn splash-btn" href="/home">Enter Raavanaa <span aria-hidden="true">→</span></a>
-          </div>
+          </picture>
+          <a class="enter-btn splash-btn" href="/home">Enter Raavanaa <span aria-hidden="true">→</span></a>
         </section>`;
       return;
     }
