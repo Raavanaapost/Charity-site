@@ -69,7 +69,7 @@
       <svg class="foot-wave" viewBox="0 0 400 30" preserveAspectRatio="none" aria-hidden="true"><path class="w1" d="M0 16C70 2 140 4 200 12 260 20 330 4 400 10V30H0Z"/><path class="w2" d="M0 24C80 10 150 12 210 18 270 24 336 12 400 16V30H0Z"/></svg>
       <div class="foot-main"><div class="wrap">
         <nav class="foot-cols" aria-label="Footer">
-          ${col("Explore", [["Home", "/"], ["About us", "/about"], ["Contact", "/contact"]])}
+          ${col("Explore", [["Home", "/home"], ["About us", "/about"], ["Contact", "/contact"]])}
           ${col("Our stages", [["Initiated", "/initiated"], ["Activated", "/activated"], ["Impact", "/impact"]])}
           ${col("Get involved", [["Volunteer with us", "/volunteer"], ["Suggest a project", "/contact?topic=suggest"], ["Partner with us", "/contact?topic=partner"]])}
           ${follow.length ? col("Follow us", follow) : ""}
@@ -193,10 +193,9 @@
     const follow = (site.follow || []).filter(x => x && x.title && x.text);
     const fstart = follow.length ? Math.floor(Math.random() * follow.length) : 0;
     app.innerHTML = `
-      <section class="home-hero">
-        <h1 class="arc-title">${arcTitleHTML()}</h1>
-        <p class="arc-sub">Beyond the Lanes <span aria-hidden="true">✦</span> Creating Smiles</p>
-        ${sayingsHTML(site, slides, start)}
+      <section class="intro">
+        <h1 class="headline">${headline(site.tagline)}</h1>
+        <p>${esc(site.intro)}</p>
       </section>
       <nav class="stages" aria-label="Our projects by stage">
         ${Object.entries(STAGES).map(([slug, st]) => `
@@ -223,7 +222,22 @@
     if (location.hash === "#keep-posted") { const t = document.getElementById("keep-posted"); if (t) t.scrollIntoView(); }
   }
 
-  // "Raavanaa Community" set on an arc at the top of the home page.
+  // Front page (raavanaa.org): arched title, picture slideshow, and one button into the site.
+  function renderWelcome(app, site) {
+    const slides = (site.sayings || []).map(x => typeof x === "string" ? { text: x } : x).filter(x => x && x.text);
+    const start = 0;
+    app.innerHTML = `
+      <section class="home-hero welcome">
+        <h1 class="arc-title">${arcTitleHTML()}</h1>
+        <p class="arc-sub">Beyond the Lanes <span aria-hidden="true">✦</span> Creating Smiles</p>
+        ${sayingsHTML(site, slides, start)}
+        <a class="enter-btn" href="/home">Enter Raavanaa <span aria-hidden="true">→</span></a>
+      </section>`;
+    rotTimers.forEach(clearInterval); rotTimers = [];
+    startSayings(app);
+  }
+
+  // "Raavanaa Community" set on an arc at the top of the front page.
   function arcTitleHTML() {
     return `<svg viewBox="0 0 1000 250" role="img" aria-label="Raavanaa Community">
       <defs>
@@ -388,7 +402,7 @@
         ["Lasting difference", '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/>']
       ],
       heading: '<span class="stage-word s3">Impact</span> Stories', empty: { text: "Our first impact stories are on the way. As soon as a trip or event has happened, the smiles and the stories will be shared here.", btn: "See what we have initiated", href: "/initiated" },
-      cta: { title: "Be part of the next one", text: "Every smile on this page started with people who cared. Stay close and see what we create together next.", btn: "Keep me posted", href: "/#keep-posted" },
+      cta: { title: "Be part of the next one", text: "Every smile on this page started with people who cared. Stay close and see what we create together next.", btn: "Keep me posted", href: "/home#keep-posted" },
       next: { slug: "initiated", kicker: "Back to the start", label: "Initiated", text: "See every project from where it began." }
     }
   };
@@ -521,7 +535,7 @@
     const i = projects.findIndex(p => slugOf(p) === slug);
     const p = projects[i];
     if (!p) {
-      app.innerHTML = `<section class="intro"><h1>Project not found</h1><p>It may have been renamed or removed.</p><p><a href="/">See all projects</a></p></section>`;
+      app.innerHTML = `<section class="intro"><h1>Project not found</h1><p>It may have been renamed or removed.</p><p><a href="/initiated">See all projects</a></p></section>`;
       return;
     }
     document.title = `${p.title} · ${site.name}`;
@@ -617,7 +631,7 @@
     const draw = tab => {
       app.innerHTML = `
         ${p.sample ? `<p class="sample-note"><b>Sample page.</b> This shows how a project page looks once it is filled in. The project, the figures and the names are examples, not real.</p>` : ""}
-        <nav class="crumbs"><a href="/">Projects</a>${p.theme ? ` / ${esc(p.theme)}` : ""}</nav>
+        <nav class="crumbs"><a href="/initiated">Projects</a>${p.theme ? ` / ${esc(p.theme)}` : ""}</nav>
         <header class="phead">
           ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
           <h1>${esc(p.title)}</h1>
@@ -649,7 +663,7 @@
               ${(p.impact || []).length ? `<div class="stats">${p.impact.map(s => `<div class="stat"><b>${esc(s.value)}</b><span>${esc(s.label)}</span></div>`).join("")}</div>` : ""}
             </div>
             ${signupHTML(slugOf(p), "Follow this project")}
-            <a class="btn ghost" href="/">Back to all projects</a>
+            <a class="btn ghost" href="/initiated">Back to all projects</a>
           </aside>
         </div>`;
       wireForms(app);
@@ -763,6 +777,9 @@
           if (example) example.sample = true;
         }
         renderStage(app, site, projects, stage, example);
+      } else if (page === "welcome") {
+        document.title = site.name;
+        renderWelcome(app, site);
       } else {
         document.title = site.name;
         renderHome(app, site, projects);

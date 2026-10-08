@@ -659,3 +659,12 @@ footer.foot .foot-main .wrap{grid-template-columns:minmax(0,1fr)}
 @media (min-width:1000px){.home-hero .saying.has-img{gap:0}.arc-sub{font-size:13px}}
 .home-hero .sayings-dots button{width:10px;height:10px}
 .home-hero .sayings-dots button[aria-current="true"]{width:28px}
+
+/* front page (raavanaa.org): just the title, the slideshow and a way in */
+body[data-page="welcome"] .bar,body[data-page="welcome"] footer,body[data-page="welcome"] .site-foot{display:none}
+.welcome{min-height:100vh;min-height:100svh;align-content:center;padding-block:24px 36px}
+.enter-btn{justify-self:center;display:inline-flex;align-items:center;gap:12px;margin-top:10px;padding:16px 38px;border-radius:999px;background:linear-gradient(90deg,var(--sun),var(--flame));color:#fff;font-family:var(--display);font-weight:700;font-size:clamp(18px,2.4vw,22px);text-decoration:none;box-shadow:0 12px 26px -12px rgba(200,56,30,.7);transition:transform .2s,box-shadow .2s}
+.enter-btn span{transition:transform .2s}
+.enter-btn:hover{transform:translateY(-2px);box-shadow:0 16px 30px -12px rgba(200,56,30,.8)}
+.enter-btn:hover span{transform:translateX(4px)}
+@media (prefers-reduced-motion:reduce){.enter-btn,.enter-btn span{transition:none}}
