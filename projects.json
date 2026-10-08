@@ -12,7 +12,20 @@
       "started": "October 2026",
       "reach": "Children from an orphanage",
       "verified": false,
-      "budget": [],
+      "budget": [
+        {
+          "item": "Arcade game cards for 20 children",
+          "amount": 250
+        },
+        {
+          "item": "Lunch and drinks",
+          "amount": 150
+        },
+        {
+          "item": "Bus to the arcade and back",
+          "amount": 100
+        }
+      ],
       "goal": 500,
       "funders": [
         {
