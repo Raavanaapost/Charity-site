@@ -69,7 +69,7 @@
       <svg class="foot-wave" viewBox="0 0 400 30" preserveAspectRatio="none" aria-hidden="true"><path class="w1" d="M0 16C70 2 140 4 200 12 260 20 330 4 400 10V30H0Z"/><path class="w2" d="M0 24C80 10 150 12 210 18 270 24 336 12 400 16V30H0Z"/></svg>
       <div class="foot-main"><div class="wrap">
         <nav class="foot-cols" aria-label="Footer">
-          ${col("Explore", [["Home", "/home"], ["About us", "/about"], ["Contact", "/contact"]])}
+          ${col("Explore", [["Home", "/overview"], ["About us", "/about"], ["Contact", "/contact"]])}
           ${col("Our stages", [["Initiated", "/initiated"], ["Activated", "/activated"], ["Impact", "/impact"]])}
           ${col("Get involved", [["Volunteer with us", "/volunteer"], ["Suggest a project", "/contact?topic=suggest"], ["Partner with us", "/contact?topic=partner"]])}
           ${follow.length ? col("Follow us", follow) : ""}
@@ -261,8 +261,8 @@
     const fstart = follow.length ? Math.floor(Math.random() * follow.length) : 0;
     app.innerHTML = `
       <section class="intro">
-        <h1 class="headline">${headline(site.tagline)}</h1>
-        <p>${esc(site.intro)}</p>
+        <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
+        ${sayingsHTML(site, slides, start)}
       </section>
       <nav class="stages" aria-label="Our projects by stage">
         ${Object.entries(STAGES).map(([slug, st]) => `
@@ -291,7 +291,7 @@
 
   // Front page (raavanaa.org): arched title, picture slideshow, and one button into the site.
   function renderWelcome(app, site) {
-    const slides = (site.sayings || []).map(x => typeof x === "string" ? { text: x } : x).filter(x => x && x.text);
+    const slides = (site.welcome_slides || site.sayings || []).map(x => typeof x === "string" ? { text: x } : x).filter(x => x && x.text);
     const start = 0;
     if (document.body.dataset.variant === "picture") {
       app.innerHTML = `
