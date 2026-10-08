@@ -744,3 +744,13 @@ body[data-variant="picture"]{margin:0}
   .pl-ring{width:28px;height:28px}
   .plist-pct b{font-size:15px}
 }
+
+/* home: slogan closer to the title, and the one-line footer */
+.finder-slogan{margin:-22px 0 6px}
+@media (max-width:560px){.finder-slogan{margin-top:-14px}}
+footer.foot-slim{margin-top:24px}
+footer.foot-slim .foot-bar{background:#0f5132}
+footer.foot-slim .foot-bar .wrap{padding-block:16px;font-size:14px}
+footer.foot-slim .foot-links a{color:#fff;text-decoration:none}
+footer.foot-slim .foot-links a:hover{text-decoration:underline}
+body[data-page="home"] #app{min-height:calc(100vh - 250px);min-height:calc(100svh - 250px)}

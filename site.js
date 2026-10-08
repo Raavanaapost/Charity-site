@@ -186,10 +186,8 @@
   const CATEGORIES = ["Livelihood", "Education", "Trips & Events"];
   const cityOf = p => p.city || CITIES.find(c => new RegExp(c, "i").test(p.location || "")) || "";
   function renderHome(app, site, projects) {
-    const follow = (site.follow || []).filter(x => x && x.title && x.text);
-    const fstart = follow.length ? Math.floor(Math.random() * follow.length) : 0;
     const TABS = [["Initiated", 1], ["Activated", 2], ["Impact", 3]];
-    const st = { q: "", city: "All", cat: "All", tab: 1 };
+    const st = { q: "", city: "All", tab: 1 };
     const chips = (name, list, label) => `<div class="finder-chips" role="group" aria-label="${label}" data-group="${name}">
         ${["All", ...list].map(v => `<button type="button" class="chip" data-v="${esc(v)}" aria-pressed="${v === "All"}">${v === "All" ? (name === "city" ? "All cities" : "All") : esc(v)}</button>`).join("")}
       </div>`;
@@ -202,16 +200,24 @@
           <input id="find-q" type="search" placeholder="Search projects, places or ideas" aria-label="Search projects" autocomplete="off">
         </form>
         ${chips("city", CITIES, "City")}
-        ${chips("cat", CATEGORIES, "Category")}
       </section>
       <section class="finder-results">
         <div class="finder-tabs" role="tablist" aria-label="Projects by stage"></div>
         <div id="find-list" role="tabpanel"></div>
-      </section>
-      <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
+      </section>`;
+    // A one-line footer, only on this page, in the same green as the site footer.
+    const foot = document.querySelector("footer.foot");
+    if (foot) {
+      foot.classList.add("foot-slim");
+      foot.innerHTML = `
+        <svg class="foot-wave" viewBox="0 0 400 30" preserveAspectRatio="none" aria-hidden="true"><path class="w1" d="M0 16C70 2 140 4 200 12 260 20 330 4 400 10V30H0Z"/><path class="w2" d="M0 24C80 10 150 12 210 18 270 24 336 12 400 16V30H0Z"/></svg>
+        <div class="foot-bar"><div class="wrap">
+          <span>© ${new Date().getFullYear()} Raavanaa Community · Beyond the Lanes</span>
+          <span class="foot-links"><a href="/about">About us</a><a href="/contact">Contact</a><a href="/privacy">Privacy &amp; child safety</a><a href="/admin">Team login</a></span>
+        </div></div>`;
+    }
     const match = p => {
       if (st.city !== "All" && cityOf(p) !== st.city) return false;
-      if (st.cat !== "All" && (p.theme || "") !== st.cat) return false;
       if (!st.q) return true;
       const hay = [p.title, p.summary, p.story, p.body, p.theme, p.location, cityOf(p), p.organization].filter(Boolean).join(" ").toLowerCase();
       return st.q.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(w));
@@ -222,7 +228,7 @@
       tabsBox.innerHTML = TABS.map(([name, n]) => { const c = found.filter(p => stageNum(p) === n).length;
         return `<button type="button" role="tab" class="ftab s${n}" data-n="${n}" aria-selected="${st.tab === n}">${name} <span>${c}</span></button>`; }).join("");
       const list = found.filter(p => stageNum(p) === st.tab), stageName = TABS[st.tab - 1][0].toLowerCase();
-      const filtered = st.q || st.city !== "All" || st.cat !== "All";
+      const filtered = st.q || st.city !== "All";
       listBox.innerHTML = list.length ? `<div class="plist" role="list">${projectRowsHTML(list, projects)}</div>`
         : `<div class="panel empty-state finder-empty"><p>${filtered ? `No ${stageName} projects match your search${st.city !== "All" ? ` in ${esc(st.city)}` : ""}.`
             : st.tab === 2 ? "No project is activated yet. See how one will look." : st.tab === 3 ? "The first impact stories are coming soon." : "No projects yet."}</p>
@@ -237,11 +243,7 @@
     }));
     tabsBox.addEventListener("click", e => { const b = e.target.closest(".ftab"); if (!b) return; st.tab = Number(b.dataset.n); draw(); });
     draw();
-    wireForms(app);
     rotTimers.forEach(clearInterval); rotTimers = [];
-    startFollow(app);
-    // arriving from the footer's "Keep me posted" button on another page
-    if (location.hash === "#keep-posted") { const t = document.getElementById("keep-posted"); if (t) t.scrollIntoView(); }
   }
 
   // Front page (raavanaa.org): arched title, picture slideshow, and one button into the site.
@@ -498,7 +500,7 @@
         ["Lasting difference", '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/>']
       ],
       heading: '<span class="stage-word s3">Impact</span> Stories', empty: { text: "Our first impact stories are on the way. As soon as a trip or event has happened, the smiles and the stories will be shared here.", btn: "See what we have initiated", href: "/initiated" },
-      cta: { title: "Be part of the next one", text: "Every smile on this page started with people who cared. Stay close and see what we create together next.", btn: "Keep me posted", href: "/home#keep-posted" },
+      cta: { title: "Be part of the next one", text: "Every smile on this page started with people who cared. Stay close and see what we create together next.", btn: "Get involved", href: "/volunteer" },
       next: { slug: "initiated", kicker: "Back to the start", label: "Initiated", text: "See every project from where it began." }
     }
   };
