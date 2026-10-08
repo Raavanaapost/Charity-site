@@ -765,3 +765,8 @@ body[data-page="home"] #app{min-height:calc(100vh - 250px);min-height:calc(100sv
 .bx-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 .bx-list li{display:flex;justify-content:space-between;gap:12px;padding:8px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--sun);font-size:15px}
 .bx-list b{font-family:var(--display);font-weight:800;color:var(--sun);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* light family picture: soft colours behind it and a matching button */
+body[data-variant="picture"]{background:#d5ecdd}
+.splash{background:#e3f3fa}
+.splash-btn{background:linear-gradient(90deg,#f2a65a,#e06a6a);border-color:#fff;box-shadow:0 14px 30px -12px rgba(150,70,40,.45)}
