@@ -769,3 +769,24 @@ body[data-page="home"] #app{min-height:calc(100vh - 250px);min-height:calc(100sv
 .bx-total b{color:var(--sun);font-variant-numeric:tabular-nums}
 .budget-tab .b-top{margin-top:0}
 .folder.t-media .media+.photos{margin-top:18px}
+
+/* front page built around the logo (index.html, data-variant="logo") */
+body[data-variant="logo"]{margin:0;background:#ffffff}
+body[data-variant="logo"] #app{max-width:none;padding:0}
+.logo-entry{position:relative;min-height:100vh;min-height:100svh;display:grid;justify-items:center;align-content:center;gap:14px;padding:32px 20px 40px;text-align:center;overflow:hidden;background:#fff}
+.le-glow{position:absolute;inset:-20% -10% auto;height:85%;background:radial-gradient(50% 50% at 50% 50%,rgba(242,178,28,.16),rgba(229,133,26,.06) 55%,transparent 75%);pointer-events:none}
+.logo-entry::before,.logo-entry::after{content:"";position:absolute;left:0;right:0;height:6px;background:linear-gradient(90deg,#0f5132,#1f7a47 30%,#f2b21c 50%,#e5851a 70%,#c8381e)}
+.logo-entry::before{top:0}.logo-entry::after{bottom:0}
+.le-logo{position:relative;width:min(760px,92vw)}
+.le-logo img{display:block;width:100%;height:auto}
+.le-rule{position:relative;display:flex;align-items:center;gap:12px;width:min(360px,70vw);margin-top:4px}
+.le-rule i{flex:1;height:2px;background:linear-gradient(90deg,transparent,#d9a032)}
+.le-rule i:last-child{transform:scaleX(-1)}
+.le-rule b{width:12px;height:12px;background:#c8381e;transform:rotate(45deg);box-shadow:0 0 0 4px #fff,0 0 0 5px #d9a032}
+.le-slogan{position:relative;margin:6px 0 0;font-family:"Playfair Display",Georgia,serif;font-style:italic;font-weight:900;font-size:clamp(24px,3.6vw,40px);line-height:1.2;color:#0f5132}
+.le-sub{position:relative;margin:0;font-family:var(--display);font-weight:700;font-size:clamp(12px,1.5vw,15px);letter-spacing:.3em;text-transform:uppercase;color:#e5851a}
+.le-btn{position:relative;margin-top:18px;background:linear-gradient(90deg,#e5851a,#c8381e)}
+.le-places{position:relative;margin:10px 0 0;font-family:var(--mono);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:#5d6b64}
+.le-places span{color:#f2b21c;margin-inline:6px}
+.le-logo img{mix-blend-mode:multiply}
+@media (max-width:560px){.logo-entry{gap:16px}.le-logo{width:96vw}}

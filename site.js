@@ -293,6 +293,20 @@
   function renderWelcome(app, site) {
     const slides = (site.welcome_slides || site.sayings || []).map(x => typeof x === "string" ? { text: x } : x).filter(x => x && x.text);
     const start = 0;
+    if (document.body.dataset.variant === "logo") {
+      app.innerHTML = `
+        <section class="logo-entry">
+          <span class="le-glow" aria-hidden="true"></span>
+          <h1 class="sr">Raavanaa Community: creating smiles, creating moments</h1>
+          <picture class="le-logo"><source srcset="/img/logo.webp?v=3" type="image/webp"><img src="/img/logo.jpg?v=3" alt="Raavanaa · Beyond the Lanes · Creating Smiles" width="900" height="298"></picture>
+          <div class="le-rule" aria-hidden="true"><i></i><b></b><i></i></div>
+          <p class="le-slogan">Creating smiles, creating moments</p>
+          <p class="le-sub">A day of joy, together</p>
+          <a class="enter-btn le-btn" href="/overview">Enter Raavanaa <span aria-hidden="true">→</span></a>
+          <p class="le-places">Kilinochchi <span>·</span> Batticaloa <span>·</span> Jaffna</p>
+        </section>`;
+      return;
+    }
     if (document.body.dataset.variant === "picture") {
       app.innerHTML = `
         <section class="splash">
