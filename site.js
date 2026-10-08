@@ -180,43 +180,65 @@
   };
 
   // Home: headline, intro, then the three stage circles. Each circle opens its own page.
+  // Home (/home): a search page like Google's front page. Title, slogan, one long search box,
+  // city and category buttons, then every project in tabs by stage.
+  const CITIES = ["Kilinochchi", "Batticaloa", "Jaffna"];
+  const CATEGORIES = ["Livelihood", "Education", "Trips & Events"];
+  const cityOf = p => p.city || CITIES.find(c => new RegExp(c, "i").test(p.location || "")) || "";
   function renderHome(app, site, projects) {
-    const counts = {
-      initiated: projects.length,
-      activated: projects.filter(p => stageNum(p) >= 2).length,
-      impact: projects.reduce((n, p) => n + (p.updates || []).length, 0)
-    };
-    const extras = (site.highlights || []).filter(h => h && h.value);
-    const latest = projects.slice(0, 3); // newest first, as ordered in the admin page
-    const slides = (site.sayings || []).map(x => typeof x === "string" ? { text: x } : x).filter(x => x && x.text);
-    const start = slides.length ? Math.floor(Math.random() * slides.length) : 0; // a different slide comes first on each visit
     const follow = (site.follow || []).filter(x => x && x.title && x.text);
     const fstart = follow.length ? Math.floor(Math.random() * follow.length) : 0;
+    const TABS = [["Initiated", 1], ["Activated", 2], ["Impact", 3]];
+    const st = { q: "", city: "All", cat: "All", tab: 1 };
+    const chips = (name, list, label) => `<div class="finder-chips" role="group" aria-label="${label}" data-group="${name}">
+        ${["All", ...list].map(v => `<button type="button" class="chip" data-v="${esc(v)}" aria-pressed="${v === "All"}">${v === "All" ? (name === "city" ? "All cities" : "All") : esc(v)}</button>`).join("")}
+      </div>`;
     app.innerHTML = `
-      <section class="intro">
-        <h1 class="headline">${headline(site.tagline)}</h1>
-        <p>${esc(site.intro)}</p>
+      <section class="finder">
+        <h1 class="arc-title">${arcTitleHTML()}</h1>
+        <p class="finder-slogan">A day of joy for every child</p>
+        <form class="finder-search" role="search" action="#" onsubmit="return false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+          <input id="find-q" type="search" placeholder="Search projects, places or ideas" aria-label="Search projects" autocomplete="off">
+        </form>
+        ${chips("city", CITIES, "City")}
+        ${chips("cat", CATEGORIES, "Category")}
       </section>
-      <nav class="stages" aria-label="Our projects by stage">
-        ${Object.entries(STAGES).map(([slug, st]) => `
-          <a class="stage art stat-${st.key}" href="/${slug}">
-            <i>${ICONS[st.key]}</i>
-            <b${counts[slug] ? "" : ' class="zero"'}>${counts[slug] || "Soon"}</b>
-            <span>${st.label}</span>
-          </a>`).join("")}
-      </nav>
-      <p class="stage-hint">Choose a stage to see its projects</p>
-      ${latest.length ? `<section class="home-latest">
-        <h2 class="section-title">Our latest projects</h2>
-        <div class="grid">${latest.map(p => card(p, projects.indexOf(p), journey(p))).join("")}</div>
-        <p class="more"><a href="/initiated">See all our projects →</a></p>
-      </section>` : ""}
-      ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
+      <section class="finder-results">
+        <div class="finder-tabs" role="tablist" aria-label="Projects by stage"></div>
+        <div id="find-list" role="tabpanel"></div>
+      </section>
       <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
+    const match = p => {
+      if (st.city !== "All" && cityOf(p) !== st.city) return false;
+      if (st.cat !== "All" && (p.theme || "") !== st.cat) return false;
+      if (!st.q) return true;
+      const hay = [p.title, p.summary, p.story, p.body, p.theme, p.location, cityOf(p), p.organization].filter(Boolean).join(" ").toLowerCase();
+      return st.q.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(w));
+    };
+    const tabsBox = app.querySelector(".finder-tabs"), listBox = app.querySelector("#find-list");
+    const draw = () => {
+      const found = projects.filter(match);
+      tabsBox.innerHTML = TABS.map(([name, n]) => { const c = found.filter(p => stageNum(p) === n).length;
+        return `<button type="button" role="tab" class="ftab s${n}" data-n="${n}" aria-selected="${st.tab === n}">${name} <span>${c}</span></button>`; }).join("");
+      const list = found.filter(p => stageNum(p) === st.tab), stageName = TABS[st.tab - 1][0].toLowerCase();
+      const filtered = st.q || st.city !== "All" || st.cat !== "All";
+      listBox.innerHTML = list.length ? `<div class="plist" role="list">${projectRowsHTML(list, projects)}</div>`
+        : `<div class="panel empty-state finder-empty"><p>${filtered ? `No ${stageName} projects match your search${st.city !== "All" ? ` in ${esc(st.city)}` : ""}.`
+            : st.tab === 2 ? "No project is activated yet. See how one will look." : st.tab === 3 ? "The first impact stories are coming soon." : "No projects yet."}</p>
+            ${!filtered && st.tab === 2 ? `<a class="btn" href="/sample">See an example project</a>` : ""}</div>`;
+    };
+    app.querySelector("#find-q").addEventListener("input", e => { st.q = e.target.value.trim(); draw(); });
+    app.querySelectorAll(".finder-chips").forEach(g => g.addEventListener("click", e => {
+      const b = e.target.closest(".chip"); if (!b) return;
+      st[g.dataset.group] = b.dataset.v;
+      g.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === b));
+      draw();
+    }));
+    tabsBox.addEventListener("click", e => { const b = e.target.closest(".ftab"); if (!b) return; st.tab = Number(b.dataset.n); draw(); });
+    draw();
     wireForms(app);
-    fitHeadline();
     rotTimers.forEach(clearInterval); rotTimers = [];
-    startSayings(app);
     startFollow(app);
     // arriving from the footer's "Keep me posted" button on another page
     if (location.hash === "#keep-posted") { const t = document.getElementById("keep-posted"); if (t) t.scrollIntoView(); }
@@ -403,21 +425,26 @@
   }
   const ringPercent = p => stageNum(p) === 3 ? 100 : (st => Math.round(st.reduce((s, x) => s + x.done, 0) / st.length * 100))(ringSteps(p));
 
+  // One line per project: small picture, title, category and place, and the progress circle with its %.
+  function projectRowsHTML(list, all) {
+    const ring = pct => `<svg class="pl-ring" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16" pathLength="100" class="pl-track"/><circle cx="20" cy="20" r="16" pathLength="100" class="pl-fill" stroke-dasharray="${pct} 100" transform="rotate(-90 20 20)"/></svg>`;
+    return `${list.map(p => { const i = all.indexOf(p), pct = ringPercent(p); return `
+          <a class="plist-row" role="listitem" href="/projects/${slugOf(p)}">
+            <span class="plist-thumb" style="${coverStyle(p, i)}">${p.cover ? `<img src="${esc(imgUrl(p.cover, 160))}" alt="" loading="lazy" width="56" height="56">` : ""}</span>
+            <span class="plist-main"><b>${esc(p.title)}</b><small>${esc([...new Set([p.theme, cityOf(p), p.location].filter(Boolean))].join(" · "))}</small></span>
+            <span class="plist-pct">${ring(pct)}<b>${pct}%</b></span>
+          </a>`; }).join("")}`;
+  }
+
   // Compact list of every project at a stage: small picture, title, and how far along it is.
   function projectListHTML(list, all, title) {
     if (!list.length) return "";
-    const ring = pct => `<svg class="pl-ring" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16" pathLength="100" class="pl-track"/><circle cx="20" cy="20" r="16" pathLength="100" class="pl-fill" stroke-dasharray="${pct} 100" transform="rotate(-90 20 20)"/></svg>`;
     return `
       <section class="plist-wrap">
         <h2 class="section-title lined">${title} <span class="count">${list.length}</span></h2>
         <div class="plist" role="list">
           <div class="plist-head" aria-hidden="true"><span>Project</span><span>Progress</span></div>
-          ${list.map(p => { const i = all.indexOf(p), pct = ringPercent(p); return `
-          <a class="plist-row" role="listitem" href="/projects/${slugOf(p)}">
-            <span class="plist-thumb" style="${coverStyle(p, i)}">${p.cover ? `<img src="${esc(imgUrl(p.cover, 160))}" alt="" loading="lazy" width="56" height="56">` : ""}</span>
-            <span class="plist-main"><b>${esc(p.title)}</b><small>${esc([p.theme, p.location].filter(Boolean).join(" · "))}</small></span>
-            <span class="plist-pct">${ring(pct)}<b>${pct}%</b></span>
-          </a>`; }).join("")}
+          ${projectRowsHTML(list, all)}
         </div>
       </section>`;
   }

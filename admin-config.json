@@ -65,8 +65,9 @@
                   "label": "Category",
                   "widget": "select",
                   "options": [
-                    "Trips & Events",
-                    "Education"
+                    "Livelihood",
+                    "Education",
+                    "Trips & Events"
                   ],
                   "required": false
                 },
@@ -84,11 +85,23 @@
                   "required": false
                 },
                 {
+                  "name": "city",
+                  "label": "City",
+                  "widget": "select",
+                  "options": [
+                    "Kilinochchi",
+                    "Batticaloa",
+                    "Jaffna"
+                  ],
+                  "required": false,
+                  "hint": "Used by the city buttons on the home page"
+                },
+                {
                   "name": "location",
                   "label": "Location",
                   "widget": "string",
                   "required": false,
-                  "hint": "e.g. Kigoma, Tanzania"
+                  "hint": "e.g. a village or area name"
                 },
                 {
                   "name": "organization",
@@ -124,8 +137,8 @@
                   "label_singular": "Budget line",
                   "widget": "list",
                   "required": false,
-                  "summary": "{{fields.amount}} \u2013 {{fields.item}}",
-                  "hint": "One line for each cost, for example: 250 \u2013 Bowling lanes for 20 children. The total is added up for you.",
+                  "summary": "{{fields.amount}} – {{fields.item}}",
+                  "hint": "One line for each cost, for example: 250 – Bowling lanes for 20 children. The total is added up for you.",
                   "fields": [
                     {
                       "name": "amount",
@@ -155,7 +168,7 @@
                   "label_singular": "Supporter",
                   "widget": "list",
                   "required": false,
-                  "summary": "{{fields.name}} \u2013 {{fields.amount}}",
+                  "summary": "{{fields.name}} – {{fields.amount}}",
                   "hint": "The organization or person who gave, and how much. Ask before showing a name; write 'A friend of Raavanaa' if they prefer not to be named.",
                   "fields": [
                     {
@@ -275,7 +288,7 @@
                   "widget": "list",
                   "required": false,
                   "add_to_top": true,
-                  "summary": "{{fields.date}} \u00b7 {{fields.title}}",
+                  "summary": "{{fields.date}} · {{fields.title}}",
                   "fields": [
                     {
                       "name": "date",
@@ -363,7 +376,7 @@
               "label_singular": "Comment",
               "widget": "list",
               "collapsed": true,
-              "summary": "{{fields.name}} on {{fields.project}} \u00b7 shown: {{fields.approved}}",
+              "summary": "{{fields.name}} on {{fields.project}} · shown: {{fields.approved}}",
               "hint": "New comments appear here and on the site automatically. To hide one, switch off \"Show on the site\" and save, or delete it.",
               "fields": [
                 {
@@ -455,7 +468,7 @@
                   "label": "Headline",
                   "widget": "string",
                   "required": false,
-                  "hint": "Keep it short so it fits on one line, e.g. Together \u2013 Real Change. If empty, the Home page headline is used."
+                  "hint": "Keep it short so it fits on one line, e.g. Together – Real Change. If empty, the Home page headline is used."
                 },
                 {
                   "name": "text",
@@ -602,8 +615,9 @@
                   "label": "Category",
                   "widget": "select",
                   "options": [
-                    "Trips & Events",
-                    "Education"
+                    "Livelihood",
+                    "Education",
+                    "Trips & Events"
                   ]
                 },
                 {
