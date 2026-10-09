@@ -8,6 +8,7 @@
 /impact  /stage.html  200
 /projects/*  /project.html  200
 /post  /post.html  200
+/post-royal  /post-royal.html  200
 /how-it-works  /how-it-works.html  200
 /about  /about.html  200
 /contact  /contact.html  200

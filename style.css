@@ -977,3 +977,37 @@ body[data-page="overview"] .intro .headline{margin:0 0 -6px;position:relative;z-
 .vm-under{display:flex;justify-content:space-between;gap:12px;align-items:center;color:#fff;padding:10px 4px;font-family:var(--display)}
 .vm-under a{color:#f7c63a;font-weight:700}
 .vm-x{position:absolute;top:-44px;right:0;width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.15);color:#fff;font-size:18px;cursor:pointer}
+/* Raavanaa Post header: the magazine's own wordmark instead of the logo */
+.post-mark{display:flex;align-items:flex-end;gap:0;text-decoration:none;line-height:.9;white-space:nowrap;padding:6px 0 4px}
+.pw-r{position:relative;font-family:"Playfair Display",Didot,"Bodoni MT",Georgia,serif;font-weight:900;font-size:clamp(58px,15vw,88px);line-height:.78;color:var(--flame);background:linear-gradient(165deg,var(--gold) 5%,var(--sun) 40%,var(--flame) 85%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-right:1px}
+.pw-rest{font-family:"Playfair Display",Didot,Georgia,serif;font-weight:900;font-size:clamp(27px,7vw,42px);color:var(--ink);letter-spacing:-.01em}
+.pw-post{margin-left:9px;padding:3px 0 2px 9px;border-left:2px solid var(--gold);font-family:var(--display);font-weight:700;font-size:clamp(20px,5.2vw,31px);letter-spacing:.2em;color:var(--brand)}
+body[data-page="post"] .bar .wrap{min-height:84px}
+body[data-page="post"] .vm{padding-top:10px}
+body[data-page="post"] .vm-mast{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;align-items:baseline}
+body[data-page="post"] .vm-tag{font-size:14px}
+
+/* Royal edition */
+body[data-variant="royal"]{--royal:#0b2a1c;--royal2:#123d29;--ivory:#f6efdc;--gilt:#e2b33c}
+body[data-variant="royal"] .bar{background:radial-gradient(120% 140% at 50% 0%,var(--royal2),var(--royal) 70%)}
+body[data-variant="royal"] .bar::after{height:5px;background:linear-gradient(90deg,transparent,var(--gilt) 12%,#fbe08a 50%,var(--gilt) 88%,transparent);box-shadow:0 3px 0 -1px #7a4f00}
+body[data-variant="royal"] .bar .wrap{min-height:104px}
+body[data-variant="royal"] .pw-r{font-family:"Cinzel","Trajan Pro","Playfair Display",Georgia,serif;background:linear-gradient(170deg,#fff3c4 0%,#f2c94c 35%,#c9930f 70%,#8a5d00 100%);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 2px 0 rgba(0,0,0,.35));padding-top:12px}
+body[data-variant="royal"] .pw-crown{position:absolute;left:50%;top:-6px;width:.5em;height:auto;transform:translateX(-50%) rotate(-6deg);filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}
+body[data-variant="royal"] .pw-rest{font-family:"Cinzel","Trajan Pro","Playfair Display",Georgia,serif;font-weight:700;color:var(--ivory);letter-spacing:.04em;font-size:clamp(24px,6.4vw,40px)}
+body[data-variant="royal"] .pw-post{border-left-color:var(--gilt);color:var(--gilt);font-family:"Cinzel","Trajan Pro",Georgia,serif;font-weight:900;letter-spacing:.24em}
+body[data-variant="royal"] .nav{background:var(--royal);border-top-color:rgba(226,179,60,.4)}
+body[data-variant="royal"] .nav a{color:var(--ivory)}
+body[data-variant="royal"] .nav a:hover{color:var(--gilt)}
+body[data-variant="royal"] .menu-btn{background:transparent;border-color:rgba(226,179,60,.6)}
+body[data-variant="royal"] .menu-btn span{background:var(--gilt)}
+body[data-variant="royal"] .vm-mast::before,body[data-variant="royal"] .vm-mast::after{content:"❖";color:var(--gilt);font-size:12px}
+body[data-variant="royal"] .vm-tag{color:#8a5d00;font-family:"Cinzel","Playfair Display",Georgia,serif;font-weight:700;letter-spacing:.08em}
+body[data-variant="royal"] .vm-tabs{border-image:linear-gradient(90deg,transparent,var(--gilt),transparent) 1}
+body[data-variant="royal"] .vm-tabs button[aria-selected="true"]{border-bottom-color:var(--gilt)}
+body[data-variant="royal"] .vm-cinema{background:radial-gradient(130% 120% at 0% 0%,var(--royal2),var(--royal) 65%);border:1px solid rgba(226,179,60,.55);box-shadow:inset 0 0 0 4px var(--royal),inset 0 0 0 5px rgba(226,179,60,.35)}
+body[data-variant="royal"] .vm-nums b{color:#fbe08a}
+body[data-variant="royal"] .vm-sec-head h2,body[data-variant="royal"] .vm-lead h2{font-family:"Cinzel","Playfair Display",Georgia,serif;letter-spacing:.02em}
+body[data-variant="royal"] .vm-sec-head{background:linear-gradient(90deg,#8a5d00,var(--gilt) 45%,rgba(226,179,60,.3) 75%,rgba(255,255,255,0)) left bottom/100% .6px no-repeat}
+body[data-variant="royal"] .vm-meta small{color:#a87708}
+body[data-variant="royal"] .vm-end{background:linear-gradient(180deg,#fbf3dc,#f6e7bd);border:1px solid #e7cf86}

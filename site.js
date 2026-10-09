@@ -732,8 +732,8 @@
       <div class="vm">
         <header class="vm-mast">
           <p class="vm-issue">Issue ${String(iss.issue).padStart(2, "0")} · ${esc(iss.month)}</p>
-          <h1 class="vm-title"><span class="initial">R</span>aavanaa <em>Post</em></h1>
-          <p class="vm-tag">The month in smiles</p>
+          <h1 class="sr">Raavanaa Post, ${esc(iss.month)}</h1>
+          <p class="vm-tag">${document.body.dataset.variant === "royal" ? "Chronicles of the kingdom" : "The month in smiles"}</p>
         </header>
         <nav class="vm-tabs" role="tablist" aria-label="Magazine sections">
           ${[["video", "Video"], ["stories", "Stories"], ["photos", "Photos"], ["numbers", "Numbers"]].map(([k, l], j) => `<button type="button" role="tab" data-tab="${k}" aria-selected="${j === 0}">${l}</button>`).join("")}
