@@ -801,3 +801,4 @@ header.bar .logo:hover img,header.bar .logo:focus-visible img{filter:none}
 .bar .wrap{min-height:78px}
 @media (max-width:640px){.logo img{width:211px;height:55px;max-width:calc(100vw - 32px - 58px)}.bar .wrap{min-height:66px}}
 @media (min-width:1000px){.logo img{width:338px;height:88px;max-width:none}.bar .wrap{min-height:104px}}
+.stage-hero img{aspect-ratio:20/7;object-position:center 100%}
