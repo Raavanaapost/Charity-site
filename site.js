@@ -264,6 +264,7 @@
         <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
         ${sayingsHTML(site, slides, start)}
       </section>
+      <h2 class="section-title journey-title">The Journey of a Smile</h2>
       <nav class="stages" aria-label="Our projects by stage">
         ${Object.entries(STAGES).map(([slug, st], k) => `${k ? `<span class="stage-path p${k}" aria-hidden="true"><svg viewBox="0 0 60 34"><path class="sp-line" d="M4 26Q30 -2 54 24"/><path class="sp-head" d="M47 17l8 8-11 2"/></svg></span>` : ""}
           <a class="stage art stat-${st.key}" href="/${slug}">
@@ -272,7 +273,6 @@
             <span>${st.label}</span>
           </a>`).join("")}
       </nav>
-      <p class="stage-hint">Every project travels this path. Choose a stage to see its projects</p>
       ${latest.length ? `<section class="home-latest">
         <h2 class="section-title latest-title">Smiles in the Making</h2>
         <div class="latest-filters" role="group" aria-label="Show projects by category">
@@ -283,6 +283,12 @@
       </section>` : ""}
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
       <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
+    // Each slide's title sits on the top of its picture; the message stays below it.
+    app.querySelectorAll(".saying.has-img").forEach(f => {
+      const img = f.querySelector("img"), box = document.createElement("div");
+      box.className = "slide-pic"; img.replaceWith(box); box.appendChild(img);
+      const t = document.createElement("p"); t.className = "slide-title"; t.innerHTML = headline(f.dataset.title); box.prepend(t);
+    });
     const lf = app.querySelector(".latest-filters"), lg = app.querySelector("#latest-grid");
     if (lf) lf.addEventListener("click", e => {
       const b = e.target.closest(".chip"); if (!b) return;
