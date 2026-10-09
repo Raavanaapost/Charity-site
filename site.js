@@ -556,22 +556,35 @@
   // The same budget box as on a project page, for the project featured at the top of a stage page.
   // Budget by stage. Initiated: the total only. Activated: funding and who sponsored it.
   // Impact (delivered): funding, sponsors and the full breakdown of where the money went.
-  function budgetDetailHTML(p, site) {
+  // Budget by stage.
+  //   Initiated: budget, how much is funded, what is still needed; the estimated costs on the project's Budget tab.
+  //   Activated: the budget, "Fully funded", and the sponsors.
+  //   Impact: the same, plus where the money went.
+  function budgetDetailHTML(p, site, detail = false) {
     const b = budgetOf(p), money = n => moneyOf(site, n), st = stageNum(p);
     if (!b.goal) return `<p class="b-wait">The budget for this project is being prepared. It will be shown here as soon as it is ready.</p>`;
-    const funders = b.funders.length ? `<h3 class="money-h">Made possible by</h3>
+    const sum = b.lines.reduce((t, x) => t + numOf(x.amount), 0);
+    const listOf = (h, total) => b.lines.length ? `<h3 class="money-h">${h}</h3><ul class="bx-list">${b.lines.map(x => `<li><span>${esc(x.item)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>
+        <p class="bx-total"><span>${total}</span><b>${money(sum)}</b></p>` : "";
+    const funders = h => b.funders.length ? `<h3 class="money-h">${h}</h3>
         <ul class="funders">${b.funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}</span>${numOf(f.amount) ? `<b>${money(numOf(f.amount))}</b>` : ""}</li>`).join("")}</ul>` : "";
-    const lines = b.lines.length ? `<h3 class="money-h">Where the money went</h3><ul class="bx-list">${b.lines.map(x => `<li><span>${esc(x.item)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>
-        <p class="bx-total"><span>Total spent</span><b>${money(b.lines.reduce((t, x) => t + numOf(x.amount), 0))}</b></p>` : "";
-    if (st === 1) return `<p class="b-top"><b>${money(b.goal)}</b> <span>total budget</span></p>`;
-    return `
-        <p class="b-top"><b>${money(b.raised)}</b> <span>funded of ${money(b.goal)}</span></p>
+    if (st === 1) {
+      const need = Math.max(0, b.goal - b.raised), kids = String(p.reach || "").match(/\d+/);
+      return `
+        <p class="b-top"><b>${money(b.goal)}</b> <span>budget</span></p>
         <div class="b-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${b.pct}" aria-label="Share of the budget funded"><i style="width:${b.pct}%"></i></div>
         <dl class="b-facts">
-          <div><dt>Total budget</dt><dd>${money(b.goal)}</dd></div>
-          <div><dt>${b.full ? "Status" : "Still needed"}</dt><dd>${b.full ? "Fully funded" : money(b.goal - b.raised)}</dd></div>
+          <div><dt>Funded</dt><dd>${b.pct}%</dd></div>
+          <div><dt>Still needed</dt><dd>${money(need)}</dd></div>
         </dl>
-        ${funders}${st === 3 ? lines : st === 2 && b.lines.length ? lines.replace("Where the money went", "How the money will be used").replace("Total spent", "Total") : ""}`;
+        <p class="b-ask">${b.raised ? "Help us close the gap" : "Be the first to sponsor"}${kids ? ` and give ${kids[0]} children their day` : " and make this day happen"}.</p>
+        ${funders("Pledged so far")}
+        ${detail ? listOf("Estimated costs", "Estimated total") : ""}`;
+    }
+    return `
+        <p class="b-top"><b>${money(b.goal)}</b> <span>budget</span> <em class="b-full">✓ Fully funded</em></p>
+        ${funders("Made possible by")}
+        ${st === 3 ? listOf("Where the money went", "Total spent") : ""}`;
   }
   function budgetBoxHTML(p, site, link = true) {
     const b = budgetOf(p);
@@ -691,7 +704,7 @@
             <p class="theme-note">This is an example, not a real project. Open it to see the budget, where the money goes and who made it possible.</p>
             <div class="grid">${card(example, 0, journey(example))}</div>
           </section>` : "";
-      const one = slug !== "impact" && items.length ? items[0] : null; // Initiated and Activated: one project shown in full, all of them in the list
+      const one = slug !== "impact" && items.length ? (items.find(x => stageNum(x.p) === cfg.n) || items[0]) : null; // Initiated and Activated: one project shown in full, all of them in the list
       const body = !items.length ? `<div class="panel empty-state"><p>${cfg.empty.text}</p><a class="btn" href="${cfg.empty.href}">${cfg.empty.btn}</a></div>${exampleHTML}`
         : one ? `<section class="featured-project">${card(one.p, one.i, journey(one.p))}<div class="featured-side">${activatingPanelHTML(one.p)}${budgetBoxHTML(one.p, site)}</div></section>`
         : groups.map(([t, xs]) => `
@@ -848,7 +861,7 @@
     const panes = {
       story: `<div class="story">${p.quote ? `<p class="pull">“${esc(p.quote)}”</p>` : ""}${md(p.story)}</div>`,
       updates: (updates.length ? updates.map(u => `<article class="update"><div class="meta">${fmtDate(u.date)}</div><h3>${esc(u.title)}</h3><div>${md(u.body)}</div></article>`).join("") : `<p class="empty">No impact updates yet.</p>`) + (p.sample ? "" : commentsHTML(slugOf(p))),
-      budget: `<div class="budget-tab">${budgetDetailHTML(p, site)}${stageNum(p) < 3 && budgetOf(p).lines.length ? `<p class="note">The full breakdown of where the money went is shown here once the day has happened.</p>` : ""}</div>`,
+      budget: `<div class="budget-tab">${budgetDetailHTML(p, site, true)}${stageNum(p) === 1 && budgetOf(p).lines.length ? `<p class="note">These are estimates. Once the day has happened, the real costs are shown here.</p>` : stageNum(p) === 2 ? `<p class="note">Once the day has happened, a breakdown of where the money went is shown here.</p>` : ""}</div>`,
       media: (photos.length || media.length) ? `${media.length ? `<div class="media">${media.map(m => { const e = embedFor(m.url); return e ? `<figure style="margin:0"><div class="embed"><iframe src="${esc(e)}" title="${esc(m.title)}" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy"></iframe></div>${m.title ? `<figcaption class="note" style="padding-top:6px">${esc(m.title)}</figcaption>` : ""}</figure>` : `<a class="media-link" href="${esc(m.url)}" target="_blank" rel="noopener">▶ ${esc(m.title || m.url)}</a>`; }).join("")}</div>` : ""}${photos.length ? `<div class="photos">${photos.map((ph, k) => `<figure><button data-src="${esc(imgUrl(ph.image, 1600))}" aria-label="Open picture"><div class="cover"><img src="${esc(imgUrl(ph.image, 600))}" alt="${esc(ph.caption)}" loading="lazy"></div></button>${ph.caption ? `<figcaption>${esc(ph.caption)}</figcaption>` : ""}</figure>`).join("")}</div>` : ""}` : `<p class="empty">No videos or pictures yet.</p>`
     };
 

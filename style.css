@@ -847,3 +847,5 @@ body[data-page="overview"] .saying.has-img img{order:0;border:0;border-radius:0 
 @media (min-width:700px){body[data-page="overview"] .saying.has-img img{aspect-ratio:3.4/1}}
 body[data-page="overview"] .intro{padding-top:18px;gap:0}
 body[data-page="overview"] .intro .headline{margin:0 0 -6px;position:relative;z-index:1}
+.b-full{font-style:normal;display:inline-block;margin-left:8px;padding:3px 10px;border-radius:999px;background:#e6f2ea;color:#1f7a47;font-family:var(--display);font-weight:700;font-size:13.5px;vertical-align:middle}
+.b-ask{margin:14px 0 0;color:var(--ink);font-size:15px;line-height:1.5}
