@@ -1,74 +1,243 @@
 {
   "_note": "DEMO DATA for the portal design preview. Invented suggestions, people and notes. Nothing here is real.",
-  "user": { "name": "Suresh", "role": "Admin" },
-  "team": ["Suresh", "Sasi", "Kiri", "Bala"],
+  "user": {
+    "name": "Suresh",
+    "role": "Admin"
+  },
+  "team": [
+    "Suresh",
+    "Sasi",
+    "Kiri",
+    "Bala"
+  ],
   "suggestions": [
     {
-      "id": "s-106", "received": "2026-10-08T19:42", "status": "new", "assigned": "",
+      "id": "s-106",
+      "received": "2026-10-08T19:42",
+      "status": "new",
+      "assigned": "",
       "title": "Sports day for a girls' home in Kilinochchi",
-      "category": "Trips & Events", "focus": ["A game or activity", "A good meal", "Children's home"],
+      "category": "Trips & Events",
+      "focus": [
+        "A game or activity",
+        "A good meal",
+        "Children's home"
+      ],
       "description": "Our home looks after 35 girls aged 6 to 15. They have never had a proper sports day with prizes. We would love a morning of races and games and a lunch together.",
-      "location": "Kilinochchi, Northern Province, Sri Lanka", "children": "35",
-      "contact": "Home warden (demo)", "reach": "warden.demo@example.org",
+      "location": "Kilinochchi, Northern Province, Sri Lanka",
+      "children": "35",
+      "contact": "Home warden (demo)",
+      "reach": "warden.demo@example.org",
       "additional": "Any Saturday in November works for us.",
       "notes": []
     },
     {
-      "id": "s-105", "received": "2026-10-07T08:15", "status": "new", "assigned": "",
+      "id": "s-105",
+      "received": "2026-10-07T08:15",
+      "status": "new",
+      "assigned": "",
       "title": "School bags and books for Grade 1 children",
-      "category": "Education", "focus": ["Learning support"],
+      "category": "Education",
+      "focus": [
+        "Learning support"
+      ],
       "description": "Forty children start Grade 1 in January in a village school near Batticaloa. Many families cannot buy a bag, books or pencils.",
-      "location": "Batticaloa, Eastern Province, Sri Lanka", "children": "40",
-      "contact": "Teacher (demo)", "reach": "+94 77 000 0000",
+      "location": "Batticaloa, Eastern Province, Sri Lanka",
+      "children": "40",
+      "contact": "Teacher (demo)",
+      "reach": "+94 77 000 0000",
       "additional": "",
       "notes": []
     },
     {
-      "id": "s-104", "received": "2026-10-05T21:03", "status": "new", "assigned": "Kiri",
+      "id": "s-104",
+      "received": "2026-10-05T21:03",
+      "status": "new",
+      "assigned": "Kiri",
       "title": "A day at the fun fair for children of fishing families",
-      "category": "Trips & Events", "focus": ["A trip or outing"],
+      "category": "Trips & Events",
+      "focus": [
+        "A trip or outing"
+      ],
       "description": "Children from a small fishing village have never been to the fun fair in Jaffna town. A bus and tickets would make their year.",
-      "location": "Jaffna, Northern Province, Sri Lanka", "children": "28",
-      "contact": "Village volunteer (demo)", "reach": "volunteer.demo@example.org",
+      "location": "Jaffna, Northern Province, Sri Lanka",
+      "children": "28",
+      "contact": "Village volunteer (demo)",
+      "reach": "volunteer.demo@example.org",
       "additional": "",
-      "notes": [{ "by": "Kiri", "at": "2026-10-06T10:20", "text": "I know this village. Happy to visit next week." }]
+      "notes": [
+        {
+          "by": "Kiri",
+          "at": "2026-10-06T10:20",
+          "text": "I know this village. Happy to visit next week."
+        }
+      ]
     },
     {
-      "id": "s-103", "received": "2026-09-29T14:30", "status": "visit", "assigned": "Sasi", "visit": "2026-10-14",
+      "id": "s-103",
+      "received": "2026-09-29T14:30",
+      "status": "visit",
+      "assigned": "Sasi",
+      "visit": "2026-10-14",
       "title": "Zoo trip for children with special needs",
-      "category": "Trips & Events", "focus": ["A trip or outing", "Children with special needs"],
+      "category": "Trips & Events",
+      "focus": [
+        "A trip or outing",
+        "Children with special needs"
+      ],
       "description": "A day centre for 18 children with special needs would like a trip to the zoo, with carers travelling with them.",
-      "location": "Jaffna, Northern Province, Sri Lanka", "children": "18",
-      "contact": "Centre coordinator (demo)", "reach": "centre.demo@example.org",
+      "location": "Jaffna, Northern Province, Sri Lanka",
+      "children": "18",
+      "contact": "Centre coordinator (demo)",
+      "reach": "centre.demo@example.org",
       "additional": "Wheelchair access needed for 3 children.",
-      "notes": [{ "by": "Sasi", "at": "2026-10-01T09:00", "text": "Called the centre. Visit booked for 14 October." }]
+      "notes": [
+        {
+          "by": "Sasi",
+          "at": "2026-10-01T09:00",
+          "text": "Called the centre. Visit booked for 14 October."
+        }
+      ]
     },
     {
-      "id": "s-102", "received": "2026-09-20T11:05", "status": "verified", "assigned": "Bala",
+      "id": "s-102",
+      "received": "2026-09-20T11:05",
+      "status": "verified",
+      "assigned": "Bala",
       "title": "Christmas lunch at a children's home",
-      "category": "Trips & Events", "focus": ["A good meal", "Children's home"],
+      "category": "Trips & Events",
+      "focus": [
+        "A good meal",
+        "Children's home"
+      ],
       "description": "A home with 30 children would like a special Christmas lunch with small gifts.",
-      "location": "Batticaloa, Eastern Province, Sri Lanka", "children": "30",
-      "contact": "Home manager (demo)", "reach": "home.demo@example.org",
+      "location": "Batticaloa, Eastern Province, Sri Lanka",
+      "children": "30",
+      "contact": "Home manager (demo)",
+      "reach": "home.demo@example.org",
       "additional": "",
-      "notes": [{ "by": "Bala", "at": "2026-09-27T16:40", "text": "Visited. Lovely home, the need is real. Rough budget $400." }]
+      "notes": [
+        {
+          "by": "Bala",
+          "at": "2026-09-27T16:40",
+          "text": "Visited. Lovely home, the need is real. Rough budget $400."
+        }
+      ]
     },
     {
-      "id": "s-101", "received": "2026-09-12T18:22", "status": "declined", "assigned": "Suresh",
+      "id": "s-101",
+      "received": "2026-09-12T18:22",
+      "status": "declined",
+      "assigned": "Suresh",
       "title": "Cricket kit for a village team",
-      "category": "Other", "focus": [],
+      "category": "Other",
+      "focus": [],
       "description": "Our under-19 team needs bats, pads and a kit bag.",
-      "location": "Kilinochchi, Northern Province, Sri Lanka", "children": "15",
-      "contact": "Team captain (demo)", "reach": "team.demo@example.org",
+      "location": "Kilinochchi, Northern Province, Sri Lanka",
+      "children": "15",
+      "contact": "Team captain (demo)",
+      "reach": "team.demo@example.org",
       "additional": "",
-      "notes": [{ "by": "Suresh", "at": "2026-09-15T20:10", "text": "Outside our focus (equipment, not a day of joy). Replied kindly and shared another group's contact." }]
+      "notes": [
+        {
+          "by": "Suresh",
+          "at": "2026-09-15T20:10",
+          "text": "Outside our focus (equipment, not a day of joy). Replied kindly and shared another group's contact."
+        }
+      ]
     }
   ],
   "activity": [
-    { "at": "2026-10-08T19:42", "text": "New suggestion: Sports day for a girls' home in Kilinochchi" },
-    { "at": "2026-10-07T08:15", "text": "New suggestion: School bags and books for Grade 1 children" },
-    { "at": "2026-10-06T10:20", "text": "Kiri took on: A day at the fun fair for children of fishing families" },
-    { "at": "2026-10-03T12:00", "text": "Kids' day out at Casuarina Beach is fully funded by Kiri & Family" },
-    { "at": "2026-10-01T09:00", "text": "Sasi booked a visit for the zoo trip on 14 October" }
+    {
+      "at": "2026-10-08T19:42",
+      "text": "New suggestion: Sports day for a girls' home in Kilinochchi"
+    },
+    {
+      "at": "2026-10-07T08:15",
+      "text": "New suggestion: School bags and books for Grade 1 children"
+    },
+    {
+      "at": "2026-10-06T10:20",
+      "text": "Kiri took on: A day at the fun fair for children of fishing families"
+    },
+    {
+      "at": "2026-10-03T12:00",
+      "text": "Kids' day out at Casuarina Beach is fully funded by Kiri & Family"
+    },
+    {
+      "at": "2026-10-01T09:00",
+      "text": "Sasi booked a visit for the zoo trip on 14 October"
+    }
+  ],
+  "reports": [
+    {
+      "id": "r-07",
+      "received": "2026-10-08T21:10",
+      "type": "concern",
+      "level": "unhappy",
+      "about": "A project day",
+      "where": "Bowling day, Sivapoomi (demo)",
+      "status": "open",
+      "anonymous": true,
+      "what": "The bus came almost two hours late and the children waited outside in the sun with no water. Nobody called to tell us.",
+      "named": [],
+      "log": []
+    },
+    {
+      "id": "r-06",
+      "received": "2026-10-07T16:30",
+      "type": "feedback",
+      "ref": "s-103",
+      "kind": "visit",
+      "overall": 5,
+      "respectful": "yes",
+      "asked": "no",
+      "safe": "yes",
+      "comment": "Sasi was kind and patient with the children and explained everything clearly.",
+      "status": "closed",
+      "named": [
+        "Sasi"
+      ],
+      "log": []
+    },
+    {
+      "id": "r-05",
+      "received": "2026-09-28T19:05",
+      "type": "feedback",
+      "ref": "s-102",
+      "kind": "visit",
+      "overall": 4,
+      "respectful": "yes",
+      "asked": "no",
+      "safe": "yes",
+      "comment": "Good visit. We would have liked a phone call before he came.",
+      "status": "closed",
+      "named": [
+        "Bala"
+      ],
+      "log": []
+    },
+    {
+      "id": "r-04",
+      "received": "2026-09-18T10:00",
+      "type": "concern",
+      "level": "feedback",
+      "about": "Pictures or personal information",
+      "where": "Website",
+      "status": "closed",
+      "anonymous": false,
+      "name": "A parent (demo)",
+      "reach": "parent.demo@example.org",
+      "what": "Please do not show my son's face in pictures on the website.",
+      "named": [],
+      "log": [
+        {
+          "by": "Suresh",
+          "at": "2026-09-18T15:00",
+          "text": "Picture removed the same day. Replied to the parent with thanks."
+        }
+      ],
+      "outcome": "Picture removed and the child added to our no-photo list."
+    }
   ]
 }

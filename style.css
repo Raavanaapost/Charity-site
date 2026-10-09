@@ -878,3 +878,33 @@ body[data-page="overview"] .intro .headline{margin:0 0 -6px;position:relative;z-
 .r-not .ex-mark{background:#c8381e;color:#fff;border-color:#c8381e}.r-not em{color:#c8381e}
 .ex-score{margin:0 0 6px;font-family:var(--display);color:var(--muted)}.ex-score b{color:#1f7a47;font-size:20px}
 .expect .note{margin:10px 0 0}
+/* Report a concern and after-visit feedback */
+.care{--o1:#ff9a1f;--o2:#ff5a1f;--ifield:#fff;max-width:760px;margin:0 auto;padding:22px 0 44px}
+.care-lead{font-size:17px;line-height:1.6;margin:10px 0 18px}
+.care-promise{display:grid;gap:10px;margin-bottom:14px}
+@media (min-width:700px){.care-promise{grid-template-columns:repeat(3,1fr)}}
+.care-promise div{display:grid;gap:4px;padding:14px;border-radius:12px;background:var(--brand-soft)}
+.care-promise b{font-family:var(--display);color:var(--brand)}
+.care-promise span{font-size:14.5px;line-height:1.5}
+.care-urgent{margin:0 0 18px;padding:12px 14px;border-radius:12px;background:#fde4df;color:#7a1f10;font-size:15px;border-left:4px solid var(--flame)}
+.care-urgent a{color:inherit;font-weight:700}
+.care-card{display:grid;gap:18px;padding:22px 18px;border-radius:22px;background:#fdf9f1;color:#17231d;box-shadow:0 18px 40px -28px rgba(120,70,10,.45)}
+.care-card fieldset{border:0;margin:0;padding:0;min-width:0}
+.care-card legend{font-family:var(--display);font-weight:700;font-size:17px;color:#0f2f24;margin-bottom:8px;padding:0}
+.care-chips{display:flex;flex-wrap:wrap;gap:8px}
+.care-chips label{position:relative}
+.care-chips input{position:absolute;opacity:0;inset:0;margin:0}
+.care-chips span{display:inline-block;padding:10px 15px;border-radius:999px;border:1.5px solid #d9d6cf;background:#fff;font-family:var(--display);font-weight:600;font-size:15px;cursor:pointer}
+.care-chips input:checked + span{background:#0f5132;border-color:#0f5132;color:#fff}
+.care-chips input:focus-visible + span{outline:3px solid var(--sun);outline-offset:2px}
+.care-stars{display:flex;flex-direction:row-reverse;justify-content:flex-end;gap:4px}
+.care-stars label{position:relative}
+.care-stars input{position:absolute;opacity:0;inset:0;margin:0}
+.care-stars span{font-size:34px;line-height:1;color:#d9d6cf;cursor:pointer;padding:0 2px}
+.care-stars input:checked ~ span,.care-stars label:has(input:checked) ~ label span,.care-stars label:has(input:checked) span{color:#f2b21c}
+.care-stars input:focus-visible + span{outline:3px solid var(--sun);border-radius:6px}
+.care-anon{display:flex;gap:10px;align-items:center;font-family:var(--display);font-weight:600}
+.care-anon input{width:20px;height:20px;accent-color:#0f5132}
+.care-flag{margin:0;padding:12px 14px;border-radius:12px;background:#fdf0dc;color:#7a4a00;font-size:15px}
+.care-card .i-submit{justify-self:start}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .care-urgent{background:#3a1a14;color:#ffd6cc}}

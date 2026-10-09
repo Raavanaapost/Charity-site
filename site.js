@@ -78,7 +78,7 @@
       <div class="foot-bar"><div class="wrap">
         <span>© ${new Date().getFullYear()} ${esc(site.name)} · Beyond the Lanes</span>
         ${site.footer ? `<span>${esc(site.footer)}</span>` : ""}
-        <span class="foot-links"><a href="/privacy">Privacy &amp; child safety</a><a href="/admin">Team login</a></span>
+        <span class="foot-links"><a href="/report">Report a concern</a><a href="/privacy">Privacy &amp; child safety</a><a href="/admin">Team login</a></span>
       </div></div>`;
   }
 
@@ -213,7 +213,7 @@
         <svg class="foot-wave" viewBox="0 0 400 30" preserveAspectRatio="none" aria-hidden="true"><path class="w1" d="M0 16C70 2 140 4 200 12 260 20 330 4 400 10V30H0Z"/><path class="w2" d="M0 24C80 10 150 12 210 18 270 24 336 12 400 16V30H0Z"/></svg>
         <div class="foot-bar"><div class="wrap">
           <span>© ${new Date().getFullYear()} Raavanaa Community · Beyond the Lanes</span>
-          <span class="foot-links"><a href="/about">About us</a><a href="/contact">Contact</a><a href="/privacy">Privacy &amp; child safety</a><a href="/admin">Team login</a></span>
+          <span class="foot-links"><a href="/about">About us</a><a href="/contact">Contact</a><a href="/report">Report a concern</a><a href="/privacy">Privacy &amp; child safety</a><a href="/admin">Team login</a></span>
         </div></div>`;
     }
     const match = p => {
@@ -723,7 +723,7 @@
       intro: "Every project begins with someone who sees children waiting for a day of joy: a teacher, a parent, a neighbour, a children's home.",
       steps: [
         ["Someone reaches out", "Anyone can tell us about an opportunity through the Initiate form: who the children are, where they are, and what kind of day would mean the most."],
-        ["We visit and listen", "A member of our team visits, meets the people who care for the children and makes sure the need is real. The project is then marked Visited and verified."],
+        ["We visit and listen", "A member of our team visits, meets the people who care for the children and makes sure the need is real. The project is then marked Visited and verified. Afterwards, you get a short form to tell us privately how the visit went."],
         ["We plan the day and the budget", "Together we decide what the day looks like and what it will cost: transport, food, tickets, small gifts. The estimated costs are shown on the project's Budget tab."],
         ["The project goes on the site", "It appears under Initiated with its budget and how much is still needed, so sponsors can see exactly what their gift will do."]
       ],
@@ -743,6 +743,7 @@
         ["The story is written", "A short story of the day: what happened, who came and the moments the children will remember."],
         ["Pictures and video are shared", "Shared with care and with permission, following our child-safety rules."],
         ["Every dollar is shown", "The Budget tab changes to Where the money went, line by line, with the total spent."],
+        ["You tell us how it went", "The organizers get a short feedback form after the day, and anyone can report a concern at any time. Concerns go to our safeguarding lead and an independent reviewer."],
         ["The numbers are counted", "How many children, families and volunteers took part, shown on the project and on the Impact page."]
       ],
       cta: ["Be part of the next one", "/volunteer"] }
@@ -1085,6 +1086,18 @@
           const m = document.createElement("meta"); m.name = "robots"; m.content = "noindex"; document.head.appendChild(m);
           renderProject(app, site, [sample], "sample");
         } else renderProject(app, site, projects, slugify(slug));
+      } else if (page === "report" || page === "feedback") {
+        // Report a concern / after-visit feedback: plain forms. Anonymous unless the person chooses otherwise;
+        // worrying feedback answers are pointed to a full report.
+        const anon = document.querySelector("[data-anon]"), who = document.querySelector("[data-who]");
+        if (anon && who) { const sync = () => { who.hidden = anon.checked; }; anon.addEventListener("change", sync); sync(); }
+        const ref = document.querySelector("[data-ref]"); if (ref) ref.value = new URLSearchParams(location.search).get("ref") || "";
+        const flag = document.querySelector("[data-flag]");
+        if (flag) document.addEventListener("change", () => {
+          const v = n => (document.querySelector(`input[name="${n}"]:checked`) || {}).value;
+          flag.hidden = !(v("asked") === "yes" || v("safe") === "no" || v("respectful") === "no");
+        });
+        wireForms(document);
       } else if (page === "initiate") {
         // "Initiate an Opportunity": live letter count and the pick-several "Project Focus" box.
         document.title = `Initiate an Opportunity · ${site.name}`;

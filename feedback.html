@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How did we do? · Raavanaa · Beyond the Lanes</title>
+<meta name="description" content="Raavanaa gives children a day of joy they will remember: a game, a trip, a good meal. Every penny goes to the day, and every smile is shared.">
+<meta name="theme-color" content="#0f5132">
+<link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png?v=3">
+<link rel="icon" type="image/png" sizes="192x192" href="/img/icon-192.png?v=3">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png?v=3">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Raavanaa · Beyond the Lanes">
+<meta property="og:title" content="Raavanaa · Beyond the Lanes">
+<meta property="og:description" content="Giving children a day of joy they will remember. Every penny goes to the day, and every smile is shared.">
+<meta property="og:image" content="https://raavanaa.org/img/og-image.jpg?v=3">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Inter:wght@900&family=Playfair+Display:ital,wght@0,800;0,900;1,900&family=Merriweather:wght@900&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="feedback">
+<header class="bar">
+  <div class="wrap">
+    <a class="logo" href="/overview" aria-label="Raavanaa Beyond the Lanes, home">
+      <picture><source srcset="/img/logo.webp?v=3" type="image/webp"><img src="/img/logo.jpg?v=3" alt="Raavanaa · Beyond the Lanes · Creating Smiles" width="900" height="298"></picture>
+    </a>
+    <button class="menu-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="site-nav"><span></span><span></span><span></span></button>
+    <nav class="nav" id="site-nav"><a href="/overview">Home</a><a href="/initiated">Projects</a><a href="/about">About us</a><a href="/contact">Contact</a></nav>
+  </div>
+</header>
+<main id="app" class="wrap">
+  <div class="care">
+    <p class="eyebrow">Two minutes, and it matters</p>
+    <h1 class="follow-title"><span class="initial">H</span>ow did we do?</h1>
+    <p class="care-lead">You recently met our team for a visit or a project day. Please tell us honestly how it went. Your answers go to our safeguarding lead, not to the people who visited you.</p>
+    <form class="care-card" name="visit-feedback" method="POST" action="/feedback?sent=1" data-netlify="true" netlify-honeypot="bot-field" data-ajax data-done="Thank you. Your feedback helps keep every visit safe and respectful.">
+      <input type="hidden" name="form-name" value="visit-feedback">
+      <input type="hidden" name="ref" value="" data-ref>
+      <p hidden><label>Leave empty <input name="bot-field"></label></p>
+      <fieldset class="i-field"><legend>What was it? <b class="req" aria-hidden="true">*</b></legend>
+        <div class="care-chips" role="radiogroup"><label><input type="radio" name="kind" value="visit" required><span>A visit from the team</span></label><label><input type="radio" name="kind" value="day"><span>A project day</span></label></div></fieldset>
+      <fieldset class="i-field"><legend>Overall, how was it? <b class="req" aria-hidden="true">*</b></legend>
+        <div class="care-stars" role="radiogroup"><label><input type="radio" name="overall" value="5" required aria-label="5 out of 5"><span aria-hidden="true">★</span></label><label><input type="radio" name="overall" value="4" aria-label="4 out of 5"><span aria-hidden="true">★</span></label><label><input type="radio" name="overall" value="3" aria-label="3 out of 5"><span aria-hidden="true">★</span></label><label><input type="radio" name="overall" value="2" aria-label="2 out of 5"><span aria-hidden="true">★</span></label><label><input type="radio" name="overall" value="1" aria-label="1 out of 5"><span aria-hidden="true">★</span></label></div></fieldset>
+      <fieldset class="i-field"><legend>Was our team respectful and kind? <b class="req" aria-hidden="true">*</b></legend>
+        <div class="care-chips" role="radiogroup"><label><input type="radio" name="respectful" value="yes" required><span>Yes</span></label><label><input type="radio" name="respectful" value="somewhat"><span>Somewhat</span></label><label><input type="radio" name="respectful" value="no"><span>No</span></label></div></fieldset>
+      <fieldset class="i-field"><legend>Did anyone ask you for money, gifts or favours? <b class="req" aria-hidden="true">*</b></legend>
+        <div class="care-chips" role="radiogroup"><label><input type="radio" name="asked" value="no" required><span>No</span></label><label><input type="radio" name="asked" value="yes"><span>Yes</span></label></div></fieldset>
+      <fieldset class="i-field"><legend>Did you and the children feel safe and comfortable? <b class="req" aria-hidden="true">*</b></legend>
+        <div class="care-chips" role="radiogroup"><label><input type="radio" name="safe" value="yes" required><span>Yes</span></label><label><input type="radio" name="safe" value="somewhat"><span>Somewhat</span></label><label><input type="radio" name="safe" value="no"><span>No</span></label></div></fieldset>
+      <p class="care-flag" data-flag hidden>Thank you for telling us. This answer is sent straight to our safeguarding lead. If you can, <a href="/report">tell us more in a report</a>.</p>
+      <label class="i-field" for="f-more"><span>Anything else? <u class="opt">(optional)</u></span>
+        <textarea id="f-more" name="comment" rows="3" placeholder="What went well, and what could be better"></textarea></label>
+      <label class="i-field" for="f-name"><span>Your name <u class="opt">(optional)</u></span><input id="f-name" name="name" autocomplete="name"></label>
+      <button class="i-submit" type="submit">Send feedback</button>
+      <p class="note" data-msg hidden></p>
+    </form>
+  </div>
+</main>
+<footer><div class="wrap"><span>© <span data-year></span> <span data-site-name></span></span><span data-site-footer></span></div></footer>
+<script src="/site.js"></script>
+</body>
+</html>

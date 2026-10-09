@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Report a concern · Raavanaa · Beyond the Lanes</title>
+<meta name="description" content="Raavanaa gives children a day of joy they will remember: a game, a trip, a good meal. Every penny goes to the day, and every smile is shared.">
+<meta name="theme-color" content="#0f5132">
+<link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png?v=3">
+<link rel="icon" type="image/png" sizes="192x192" href="/img/icon-192.png?v=3">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png?v=3">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Raavanaa · Beyond the Lanes">
+<meta property="og:title" content="Raavanaa · Beyond the Lanes">
+<meta property="og:description" content="Giving children a day of joy they will remember. Every penny goes to the day, and every smile is shared.">
+<meta property="og:image" content="https://raavanaa.org/img/og-image.jpg?v=3">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Inter:wght@900&family=Playfair+Display:ital,wght@0,800;0,900;1,900&family=Merriweather:wght@900&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="report">
+<header class="bar">
+  <div class="wrap">
+    <a class="logo" href="/overview" aria-label="Raavanaa Beyond the Lanes, home">
+      <picture><source srcset="/img/logo.webp?v=3" type="image/webp"><img src="/img/logo.jpg?v=3" alt="Raavanaa · Beyond the Lanes · Creating Smiles" width="900" height="298"></picture>
+    </a>
+    <button class="menu-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="site-nav"><span></span><span></span><span></span></button>
+    <nav class="nav" id="site-nav"><a href="/overview">Home</a><a href="/initiated">Projects</a><a href="/about">About us</a><a href="/contact">Contact</a></nav>
+  </div>
+</header>
+<main id="app" class="wrap">
+  <div class="care">
+    <p class="eyebrow">Your voice keeps us honest</p>
+    <h1 class="follow-title"><span class="initial">R</span>eport a concern</h1>
+    <p class="care-lead">If anything about a visit, a project day, a team member or the money did not feel right, tell us. Small or serious, named or anonymous.</p>
+    <div class="care-promise">
+      <div><b>Who reads it</b><span>Our safeguarding lead and one independent reviewer from outside the project team. The person you write about never sees your report.</span></div>
+      <div><b>What happens next</b><span>Every report is logged, looked into and closed with a written outcome. If you leave a way to reach you, we reply within 2 days.</span></div>
+      <div><b>Never a problem for you</b><span>Reporting will never affect help for your children, your home or your community.</span></div>
+    </div>
+    <p class="care-urgent"><b>A child in danger right now?</b> Do not wait for us. In Sri Lanka call the National Child Protection Authority on <a href="tel:1929">1929</a> or the police on <a href="tel:119">119</a>.</p>
+    <form class="care-card" name="concern" method="POST" action="/report?sent=1" data-netlify="true" netlify-honeypot="bot-field" data-ajax data-done="Thank you. Your report has been received and will be looked into. You did the right thing.">
+      <input type="hidden" name="form-name" value="concern">
+      <p hidden><label>Leave empty <input name="bot-field"></label></p>
+      <fieldset class="i-field"><legend>How serious is it? <b class="req" aria-hidden="true">*</b></legend>
+        <div class="care-chips" role="radiogroup"><label><input type="radio" name="level" value="feedback" required><span>Feedback or an idea</span></label><label><input type="radio" name="level" value="unhappy"><span>Something was not right</span></label><label><input type="radio" name="level" value="serious"><span>A serious concern</span></label><label><input type="radio" name="level" value="child-risk"><span>A child may be at risk</span></label></div></fieldset>
+      <label class="i-field" for="c-about"><span>What is it about? <b class="req" aria-hidden="true">*</b></span>
+        <select id="c-about" name="about" required><option value="" selected disabled>Choose one</option><option>A visit from our team</option><option>A project day</option><option>A team member or volunteer</option><option>Money or donations</option><option>Pictures or personal information</option><option>Something else</option></select></label>
+      <div class="i-row">
+        <label class="i-field" for="c-where"><span>Which project, place or visit <u class="opt">(optional)</u></span>
+          <input id="c-where" name="where" placeholder="e.g. Zoo trip, Jaffna"></label>
+        <label class="i-field" for="c-when"><span>When did it happen <u class="opt">(optional)</u></span>
+          <input id="c-when" name="when" type="date"></label>
+      </div>
+      <label class="i-field" for="c-what"><span>What happened? <b class="req" aria-hidden="true">*</b></span>
+        <textarea id="c-what" name="what" required rows="5" maxlength="3000" placeholder="Tell us in your own words. Names, dates and what was said or done help us most."></textarea></label>
+      <label class="care-anon"><input type="checkbox" name="anonymous" value="yes" checked data-anon> <span>Keep me anonymous</span></label>
+      <div class="i-row" data-who hidden>
+        <label class="i-field" for="c-name"><span>Your name <u class="opt">(optional)</u></span><input id="c-name" name="name" autocomplete="name"></label>
+        <label class="i-field" for="c-reach"><span>Email or phone, so we can reply</span><input id="c-reach" name="reach" autocomplete="email"></label>
+      </div>
+      <button class="i-submit" type="submit">Send report</button>
+      <p class="note" data-msg hidden></p>
+    </form>
+  </div>
+</main>
+<footer><div class="wrap"><span>© <span data-year></span> <span data-site-name></span></span><span data-site-footer></span></div></footer>
+<script src="/site.js"></script>
+</body>
+</html>
