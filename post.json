@@ -1,0 +1,66 @@
+{
+  "_note": "DEMO issue of the Raavanaa Post for the design preview. Titles, durations and quotes are invented; no real videos yet. Add a YouTube or Vimeo link to any item's url and it plays on the page.",
+  "issues": [
+    {
+      "issue": 1,
+      "month": "October 2026",
+      "headline": "The month the sea came first",
+      "intro": "Twenty-five children saw the sea up close, eighteen mums took a day just for themselves, and a new trip to the arcade is halfway funded. Here is October, in pictures that move.",
+      "numbers": [
+        { "value": "55", "label": "children reached" },
+        { "value": "18", "label": "mums" },
+        { "value": "$1,050", "label": "given by our community" },
+        { "value": "3", "label": "days of joy" }
+      ],
+      "featured": {
+        "title": "Mums and kids, united",
+        "kicker": "Film of the month",
+        "summary": "Sack races, a tug of war the mums won, and a long lunch in the shade. A day out where the only job was to enjoy each other.",
+        "duration": "4:12",
+        "poster": "/img/project-mums.svg",
+        "project": "mums-and-kids-day-out",
+        "url": ""
+      },
+      "sections": [
+        {
+          "title": "Impact films",
+          "note": "The story of each day, start to finish",
+          "items": [
+            { "title": "First day at the sea", "tag": "Activated", "duration": "3:05", "poster": "/img/project-beach.svg", "project": "casuarina-beach-day", "summary": "Getting ready for Casuarina Beach: the van, the kites, the volunteers.", "url": "" },
+            { "title": "Mums and kids, united", "tag": "Impact", "duration": "4:12", "poster": "/img/project-mums.svg", "project": "mums-and-kids-day-out", "summary": "The full day, from the bus to the family photos.", "url": "" },
+            { "title": "Why an arcade?", "tag": "Initiated", "duration": "1:48", "poster": "/img/project-arcade.svg", "project": "arcade-trip", "summary": "The home's warden explains what a day of games would mean.", "url": "" }
+          ]
+        },
+        {
+          "title": "Moments in a minute",
+          "note": "Short clips, made for your phone",
+          "vertical": true,
+          "items": [
+            { "title": "The tug of war", "duration": "0:38", "poster": "/img/slide-5.svg", "url": "" },
+            { "title": "Kites over Karainagar", "duration": "0:24", "poster": "/img/slide-3.svg", "url": "" },
+            { "title": "A photo for every mum", "duration": "0:41", "poster": "/img/slide-1.svg", "url": "" },
+            { "title": "Lunch in the shade", "duration": "0:29", "poster": "/img/slide-4.svg", "url": "" },
+            { "title": "The bus ride home", "duration": "0:33", "poster": "/img/slide-2.svg", "url": "" }
+          ]
+        },
+        {
+          "title": "In their words",
+          "note": "Families, organizers and sponsors",
+          "items": [
+            { "title": "“The first day in years with no work”", "tag": "A mum, Kilinochchi", "duration": "1:12", "poster": "/img/follow-2.svg", "url": "" },
+            { "title": "Why we sponsored the beach day", "tag": "Kiri & Family", "duration": "0:58", "poster": "/img/follow-4.svg", "url": "" },
+            { "title": "What the children asked us", "tag": "Organizer, Jaffna", "duration": "1:30", "poster": "/img/follow-6.svg", "url": "" }
+          ]
+        },
+        {
+          "title": "Behind the day",
+          "note": "How the team makes it happen",
+          "items": [
+            { "title": "The visit: how we check every need", "tag": "How it works", "duration": "2:20", "poster": "/img/volunteer-2.svg", "url": "" },
+            { "title": "Packing 25 lunch boxes", "tag": "Volunteers", "duration": "1:05", "poster": "/img/volunteer-4.svg", "url": "" }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -69,7 +69,7 @@
       <svg class="foot-wave" viewBox="0 0 400 30" preserveAspectRatio="none" aria-hidden="true"><path class="w1" d="M0 16C70 2 140 4 200 12 260 20 330 4 400 10V30H0Z"/><path class="w2" d="M0 24C80 10 150 12 210 18 270 24 336 12 400 16V30H0Z"/></svg>
       <div class="foot-main"><div class="wrap">
         <nav class="foot-cols" aria-label="Footer">
-          ${col("Explore", [["Home", "/overview"], ["About us", "/about"], ["Contact", "/contact"]])}
+          ${col("Explore", [["Home", "/overview"], ["Raavanaa Post", "/post"], ["About us", "/about"], ["Contact", "/contact"]])}
           ${col("Our stages", [["Initiated", "/initiated"], ["Activated", "/activated"], ["Impact", "/impact"]])}
           ${col("Get involved", [["Volunteer with us", "/volunteer"], ["Suggest a project", "/contact?topic=suggest"], ["Partner with us", "/contact?topic=partner"]])}
           ${follow.length ? col("Follow us", follow) : ""}
@@ -717,6 +717,75 @@
     }
   };
 
+  // Raavanaa Post: a monthly magazine. Tabs Video · Stories · Photos · Numbers; the Video magazine is designed first.
+  function renderPost(app, data) {
+    const iss = (data.issues || [])[0]; if (!iss) { app.innerHTML = "<p>The first issue is on its way.</p>"; return; }
+    const play = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>';
+    const all = [iss.featured, ...iss.sections.flatMap(x => x.items)];
+    const card = (v, vertical) => { const k = all.indexOf(v); return `
+      <button type="button" class="vm-card${vertical ? " vm-reel" : ""}" data-v="${k}">
+        <span class="vm-thumb"><img src="${esc(v.poster)}" alt="" loading="lazy"><span class="vm-play">${play}</span><span class="vm-dur">${esc(v.duration)}</span></span>
+        <span class="vm-meta">${v.tag ? `<small>${esc(v.tag)}</small>` : ""}<b>${esc(v.title)}</b>${v.summary && !vertical ? `<span>${esc(v.summary)}</span>` : ""}</span>
+      </button>`; };
+    const f = iss.featured;
+    app.innerHTML = `
+      <div class="vm">
+        <header class="vm-mast">
+          <p class="vm-issue">Issue ${String(iss.issue).padStart(2, "0")} · ${esc(iss.month)}</p>
+          <h1 class="vm-title"><span class="initial">R</span>aavanaa <em>Post</em></h1>
+          <p class="vm-tag">The month in smiles</p>
+        </header>
+        <nav class="vm-tabs" role="tablist" aria-label="Magazine sections">
+          ${[["video", "Video"], ["stories", "Stories"], ["photos", "Photos"], ["numbers", "Numbers"]].map(([k, l], j) => `<button type="button" role="tab" data-tab="${k}" aria-selected="${j === 0}">${l}</button>`).join("")}
+        </nav>
+        <section class="vm-pane" data-pane="video">
+          <div class="vm-cinema">
+            <button type="button" class="vm-hero" data-v="0" aria-label="Play: ${esc(f.title)}">
+              <img src="${esc(f.poster)}" alt="">
+              <span class="vm-hero-shade"></span>
+              <span class="vm-hero-text"><small>${esc(f.kicker)} · ${esc(f.duration)}</small><b>${esc(f.title)}</b><span>${esc(f.summary)}</span></span>
+              <span class="vm-play big">${play}</span>
+            </button>
+            <div class="vm-lead">
+              <h2>${esc(iss.headline)}</h2>
+              <p>${esc(iss.intro)}</p>
+              <ul class="vm-nums">${iss.numbers.map(n => `<li><b>${esc(n.value)}</b><span>${esc(n.label)}</span></li>`).join("")}</ul>
+            </div>
+          </div>
+          ${iss.sections.map(sec => `
+            <section class="vm-sec${sec.vertical ? " vm-sec-reels" : ""}">
+              <div class="vm-sec-head"><h2>${esc(sec.title)}</h2><p>${esc(sec.note || "")}</p></div>
+              <div class="${sec.vertical ? "vm-reels" : "vm-grid"}">${sec.items.map(v => card(v, sec.vertical)).join("")}</div>
+            </section>`).join("")}
+          <section class="vm-end">
+            <p>Every film here began with someone who cared.</p>
+            <div><a class="btn" href="/initiated">Help start the next one</a> <a href="#keep-posted" data-subscribe>Get the Post every month →</a></div>
+          </section>
+        </section>
+        ${["stories", "photos", "numbers"].map(k => `<section class="vm-pane vm-soon" data-pane="${k}" hidden><p>The ${k} section of the Post is designed next.</p></section>`).join("")}
+        <dialog class="vm-player" aria-label="Video player"><div class="vm-frame"></div><div class="vm-under"><b></b><a class="vm-proj"></a></div><button type="button" class="vm-x" aria-label="Close">✕</button></dialog>
+      </div>`;
+    app.querySelectorAll(".vm-tabs [data-tab]").forEach(b => b.onclick = () => {
+      app.querySelectorAll(".vm-tabs [data-tab]").forEach(x => x.setAttribute("aria-selected", x === b));
+      app.querySelectorAll(".vm-pane").forEach(p => p.hidden = p.dataset.pane !== b.dataset.tab);
+    });
+    const dlg = app.querySelector(".vm-player"), frame = dlg.querySelector(".vm-frame");
+    app.querySelectorAll("[data-v]").forEach(b => b.onclick = () => {
+      const v = all[+b.dataset.v], e = v.url ? embedFor(v.url) : "";
+      frame.className = "vm-frame" + (b.classList.contains("vm-reel") ? " tall" : "");
+      frame.innerHTML = e ? `<iframe src="${esc(e)}?autoplay=1" title="${esc(v.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`
+        : `<img src="${esc(v.poster)}" alt=""><p class="vm-nofilm">${play}<span>The film will play here in the real issue.</span></p>`;
+      dlg.querySelector(".vm-under b").textContent = v.title;
+      const pj = dlg.querySelector(".vm-proj"); pj.hidden = !v.project; if (v.project) { pj.href = `/projects/${v.project}`; pj.textContent = "See the project →"; }
+      dlg.showModal();
+    });
+    const close = () => { dlg.close(); frame.innerHTML = ""; };
+    dlg.querySelector(".vm-x").onclick = close;
+    dlg.addEventListener("click", e => { if (e.target === dlg) close(); });
+    dlg.addEventListener("close", () => { frame.innerHTML = ""; });
+    const sub = app.querySelector("[data-subscribe]"); if (sub) sub.href = "/overview#keep-posted";
+  }
+
   // "How it works": one page, a tab for each stage of a project.
   const HOW = [
     { key: "initiated", n: 1, label: "Initiated", title: "How a project starts",
@@ -1123,6 +1192,9 @@
       } else if (page === "privacy") {
         document.title = `Privacy & child safety · ${site.name}`;
         renderPrivacy(app, site);
+      } else if (page === "post") {
+        document.title = `Raavanaa Post · ${site.name}`;
+        renderPost(app, await load("/post.json").catch(() => ({ issues: [] })));
       } else if (page === "how") {
         document.title = `How it works · ${site.name}`;
         renderHow(app);
