@@ -11,3 +11,8 @@
 - [ ] Publishing: work goes to the `draft` branch (free preview at draft--charity-projects-draft.netlify.app); merge to `main` only when the owner says "post" (15 Netlify credits per publish).
 - [ ] Launch: remove the `SITE_PASSWORD` setting in Netlify so raavanaa.org is public.
 - [ ] Optional: "Sign in with GitHub" button for admins.
+
+## Saved header versions (to go back to)
+- Full-colour logo, original height: commit b66481e
+- Softer (faded) logo, original height: commit 60c2460
+- Current: softer logo, squeezed to about 78% height for a shorter header
