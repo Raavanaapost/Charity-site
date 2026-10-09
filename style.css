@@ -802,3 +802,28 @@ header.bar .logo:hover img,header.bar .logo:focus-visible img{filter:none}
 @media (max-width:640px){.logo img{width:211px;height:55px;max-width:calc(100vw - 32px - 58px)}.bar .wrap{min-height:66px}}
 @media (min-width:1000px){.logo img{width:338px;height:88px;max-width:none}.bar .wrap{min-height:104px}}
 .stage-hero img{aspect-ratio:20/7;object-position:center}
+
+/* Home: message written on the slide picture */
+body[data-page="overview"] .sayings-track{max-width:none}
+body[data-page="overview"] .saying.has-img{display:block;position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+body[data-page="overview"] .saying.has-img img{border:0;border-radius:0;aspect-ratio:16/10;object-fit:cover;object-position:center bottom}
+body[data-page="overview"] .saying.has-img figcaption{position:absolute;left:0;right:0;top:0;padding:14px 18px 34px;max-width:none;font-size:15.5px;line-height:1.5;font-weight:600;color:#1d2622;background:linear-gradient(180deg,rgba(255,250,240,.96) 0%,rgba(255,250,240,.85) 65%,rgba(255,250,240,0) 100%)}
+@media (min-width:700px){body[data-page="overview"] .saying.has-img img{aspect-ratio:2.6/1}body[data-page="overview"] .saying.has-img figcaption{padding:22px 32px 48px;font-size:clamp(17px,1.9vw,22px);text-align:center;text-wrap:balance}}
+
+/* Home: a path between the stage circles */
+.stages{gap:0;align-items:center}
+.stage-path{flex:0 0 clamp(26px,7vw,70px);align-self:flex-start;margin-top:clamp(4px,2vw,22px);display:block}
+.stage-path svg{display:block;width:100%;height:auto;overflow:visible}
+.sp-line{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-dasharray:1 7;animation:sp-flow 1.4s linear infinite}
+.sp-head{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+.stage-path.p1 .sp-line,.stage-path.p1 .sp-head{stroke:#3f9a5f}
+.stage-path.p2 .sp-line,.stage-path.p2 .sp-head{stroke:#e5851a}
+@keyframes sp-flow{to{stroke-dashoffset:-16}}
+@media (prefers-reduced-motion:reduce){.sp-line{animation:none}}
+
+/* Home: "Smiles in the Making" with a thin underline and category filters */
+.latest-title{display:inline-block;padding-bottom:8px;margin-bottom:12px;background:linear-gradient(90deg,#0f5132,#f2b21c 55%,#c8381e) left bottom/100% 2px no-repeat}
+.latest-filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.latest-empty{grid-column:1/-1;text-align:center}
+@media (max-width:560px){.latest-filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.latest-filters::-webkit-scrollbar{display:none}.latest-filters .chip{flex:none}}
+@media (max-width:699px){body[data-page="overview"] .saying.has-img img{aspect-ratio:1/0.78}body[data-page="overview"] .saying.has-img figcaption{font-size:15px;padding:12px 16px 30px}}

@@ -265,21 +265,32 @@
         ${sayingsHTML(site, slides, start)}
       </section>
       <nav class="stages" aria-label="Our projects by stage">
-        ${Object.entries(STAGES).map(([slug, st]) => `
+        ${Object.entries(STAGES).map(([slug, st], k) => `${k ? `<span class="stage-path p${k}" aria-hidden="true"><svg viewBox="0 0 60 34"><path class="sp-line" d="M4 26Q30 -2 54 24"/><path class="sp-head" d="M47 17l8 8-11 2"/></svg></span>` : ""}
           <a class="stage art stat-${st.key}" href="/${slug}">
             <i>${ICONS[st.key]}</i>
             <b${counts[slug] ? "" : ' class="zero"'}>${counts[slug] || "Soon"}</b>
             <span>${st.label}</span>
           </a>`).join("")}
       </nav>
-      <p class="stage-hint">Choose a stage to see its projects</p>
+      <p class="stage-hint">Every project travels this path. Choose a stage to see its projects</p>
       ${latest.length ? `<section class="home-latest">
-        <h2 class="section-title">Our latest projects</h2>
-        <div class="grid">${latest.map(p => card(p, projects.indexOf(p), journey(p))).join("")}</div>
+        <h2 class="section-title latest-title">Smiles in the Making</h2>
+        <div class="latest-filters" role="group" aria-label="Show projects by category">
+          ${["All", "Trips & Events", "Livelihood", "Education"].map(t => `<button type="button" class="chip" data-cat="${esc(t)}" aria-pressed="${t === "All"}">${esc(t)}</button>`).join("")}
+        </div>
+        <div class="grid" id="latest-grid">${latest.map(p => card(p, projects.indexOf(p), journey(p))).join("")}</div>
         <p class="more"><a href="/initiated">See all our projects →</a></p>
       </section>` : ""}
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
       <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
+    const lf = app.querySelector(".latest-filters"), lg = app.querySelector("#latest-grid");
+    if (lf) lf.addEventListener("click", e => {
+      const b = e.target.closest(".chip"); if (!b) return;
+      lf.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === b));
+      const cat = b.dataset.cat, list = (cat === "All" ? projects : projects.filter(p => (p.theme || "") === cat)).slice(0, 3);
+      lg.innerHTML = list.length ? list.map(p => card(p, projects.indexOf(p), journey(p))).join("")
+        : `<div class="panel empty-state latest-empty"><p>No ${esc(cat)} projects yet. The first one is coming soon.</p><a class="btn" href="/initiate">Suggest one</a></div>`;
+    });
     wireForms(app);
     fitHeadline();
     rotTimers.forEach(clearInterval); rotTimers = [];
