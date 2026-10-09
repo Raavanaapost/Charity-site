@@ -12,6 +12,13 @@
 - [ ] Launch: remove the `SITE_PASSWORD` setting in Netlify so raavanaa.org is public.
 - [ ] Optional: "Sign in with GitHub" button for admins.
 
+### Portal and community (agreed 9 Oct 2026)
+- [ ] Portal screens still to design: Project editor, Sponsors & pledges, Day preparation, Close the day, People, Team & logins. Then build the real backend.
+- [ ] Name the Safeguarding lead and the Independent reviewer (shown publicly on the Report a concern page).
+- [ ] Tamil version of the Report a concern and How did we do? pages (then the rest of the site).
+- [ ] Raavanaa Post: a monthly newsletter with the month's impact stories, numbers and pictures; written in the portal, published as a page on the site and emailed to Keep me posted subscribers.
+- [ ] Community database (the People screen): everyone who joins, volunteers, sponsors, visits or signs up, with how they connected and what they took part in. Consent first; only the team can see it.
+
 ## Saved header versions (to go back to)
 - Full-colour logo, original height: commit b66481e
 - Softer (faded) logo, original height: commit 60c2460
