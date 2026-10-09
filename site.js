@@ -269,7 +269,7 @@
   function renderOverview(app, site, projects) {
     const counts = {
       initiated: projects.length,
-      activated: projects.filter(p => stageNum(p) >= 2).length,
+      activated: projects.filter(p => stageNum(p) === 2).length,
       impact: projects.reduce((n, p) => n + (p.updates || []).length, 0)
     };
     const extras = (site.highlights || []).filter(h => h && h.value);
@@ -746,7 +746,7 @@
   function renderStage(app, site, projects, slug, example) {
     const cfg = STAGE_PAGES[slug], key = STAGES[slug].key;
     document.title = `${cfg.title} · ${site.name}`;
-    const reached = projects.filter(p => stageNum(p) >= Math.min(cfg.n, 2));
+    const reached = projects.filter(p => cfg.n === 2 ? stageNum(p) === 2 : stageNum(p) >= 1);
     const stories = projects.flatMap((p, i) => (p.updates || []).map(u => ({ p, i, u }))).sort((a, b) => String(b.u.date).localeCompare(String(a.u.date)));
     // "Impact in numbers": the tiles set in the admin page (Site settings). Some count themselves from the site;
     // the rest show the number typed in. With none set, each project's own numbers are shown instead.
@@ -818,7 +818,7 @@
           ${["All", ...themes].map(t => `<button class="chip" aria-pressed="${t === filter}" data-t="${esc(t)}">${esc(t)}</button>`).join("")}
         </div>` : ""}
         ${body}
-        ${projectListHTML(slug === "initiated" ? projects : slug === "activated" ? projects.filter(p => stageNum(p) >= 2) : projects.filter(p => stageNum(p) === 3), projects,
+        ${projectListHTML(slug === "initiated" ? projects : slug === "activated" ? projects.filter(p => stageNum(p) === 2) : projects.filter(p => stageNum(p) === 3), projects,
           slug === "initiated" ? "Initiated projects" : slug === "activated" ? "Activated projects" : "Delivered projects")}
         <section class="stage-next">
           <div class="panel idea">
