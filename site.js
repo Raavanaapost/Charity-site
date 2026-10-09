@@ -295,12 +295,6 @@
       ${HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
       <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
-    // Each slide's title sits on the top of its picture; the message stays below it.
-    app.querySelectorAll(".saying.has-img").forEach(f => {
-      const img = f.querySelector("img"), box = document.createElement("div");
-      box.className = "slide-pic"; img.replaceWith(box); box.appendChild(img);
-      const t = document.createElement("p"); t.className = "slide-title"; t.innerHTML = headline(f.dataset.title); box.prepend(t);
-    });
     app.querySelectorAll(".home-latest").forEach(sec => {
       const lf = sec.querySelector(".latest-filters"), lg = sec.querySelector(".grid"), r = HOME_ROWS[+sec.dataset.row];
       if (lf) lf.addEventListener("click", e => {

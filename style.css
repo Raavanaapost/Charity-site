@@ -804,7 +804,6 @@ header.bar .logo:hover img,header.bar .logo:focus-visible img{filter:none}
 .stage-hero img{aspect-ratio:20/7;object-position:center}
 
 /* Home: each slide's title on the top of its picture, message below */
-body[data-page="overview"] .intro .headline{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .slide-pic{position:relative;order:0;min-width:0}
 .slide-pic img{aspect-ratio:2.4/1!important;object-position:center bottom}
 .slide-title{position:absolute;left:0;right:0;top:0;margin:0;padding:0 2px 24px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-radius:14px 14px 0 0;font-family:"Playfair Display",Didot,"Bodoni MT",Georgia,serif;font-weight:900;font-size:clamp(16px,4.6vw,32px);line-height:1.15;color:var(--ink);text-align:left;text-wrap:balance;background:linear-gradient(180deg,rgba(255,250,240,.9),rgba(255,250,240,0))}
@@ -843,3 +842,8 @@ body[data-page="overview"] .slide-title{background:none;line-height:1;border-rad
 .latest-title,.journey-title{font-size:clamp(17px,4.4vw,20px);padding-bottom:5px;letter-spacing:.01em}
 body[data-page="overview"] .slide-title{top:-.18em;padding-top:0}
 body[data-page="overview"] .intro{padding-top:0;margin-top:0}
+/* Home: title back above the slideshow; picture's own image (no wrapper) fades into white at the top */
+body[data-page="overview"] .saying.has-img img{order:0;border:0;border-radius:0 0 14px 14px;aspect-ratio:2/1;object-position:center bottom;-webkit-mask-image:linear-gradient(180deg,transparent 0,rgba(0,0,0,.4) 18%,#000 50%);mask-image:linear-gradient(180deg,transparent 0,rgba(0,0,0,.4) 18%,#000 50%)}
+@media (min-width:700px){body[data-page="overview"] .saying.has-img img{aspect-ratio:3.4/1}}
+body[data-page="overview"] .intro{padding-top:18px;gap:0}
+body[data-page="overview"] .intro .headline{margin:0 0 -6px;position:relative;z-index:1}
