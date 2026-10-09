@@ -584,7 +584,7 @@
   // What each stage page says and shows. A project appears on a stage page once it has reached that stage.
   const STAGE_PAGES = {
     initiated: {
-      n: 1, title: "Initiated", hero: "/img/hero-initiated.svg",
+      n: 1, title: "Initiated", hero: "/img/hero-initiated-wide.svg",
       lead: "Every project begins when someone tells us about children who are waiting for a day of joy. We visit, listen and make sure the need is real.",
       tags: [
         ["Reaching out", '<path d="M4 6.5h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H10l-4 3v-3H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z"/><path d="M7 10.5h8M7 13.5h5"/>'],
@@ -597,7 +597,7 @@
       next: { slug: "activated", kicker: "Next stage", label: "Activated", text: "See the projects that have moved into action." }
     },
     activated: {
-      n: 2, title: "Activated", hero: "/img/hero-activated.svg",
+      n: 2, title: "Activated", hero: "/img/hero-activated-wide.svg",
       lead: "The day is funded and being planned: the date, the place, the food and the helpers.",
       tags: [
         ["Taking part", '<circle cx="12" cy="6" r="2.6"/><path d="M5 5l4.5 5.500h5L19 5"/><path d="M9.5 10.500V20M14.5 10.500V20"/>'],
@@ -610,7 +610,7 @@
       next: { slug: "impact", kicker: "Next stage", label: "Impact", text: "See the difference these projects are making." }
     },
     impact: {
-      n: 3, title: "Impact", hero: "/img/hero-impact.svg",
+      n: 3, title: "Impact", hero: "/img/hero-impact-wide.svg",
       lead: "The day has happened. Here are the stories and the pictures, so everyone who gave can see the smiles they created.",
       tags: [
         ["Smiles created", '<circle cx="12" cy="12" r="9"/><path d="M8 14c1 1.8 2.4 2.7 4 2.700s3-.9 4-2.7"/><path d="M8.5 9.500h.01M15.5 9.500h.01" stroke-width="2.6"/>'],

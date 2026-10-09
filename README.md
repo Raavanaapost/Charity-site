@@ -16,3 +16,5 @@
 - Full-colour logo, original height: commit b66481e
 - Softer (faded) logo, original height: commit 60c2460
 - Current: softer logo, squeezed to about 78% height for a shorter header
+- Original stage pages (Initiated / Activated / Impact) with the taller 2:1 banner: commit 43c4d88.
+  The original banner pictures are kept as img/hero-initiated-original.svg, hero-activated-original.svg, hero-impact-original.svg.
