@@ -790,3 +790,8 @@ body[data-variant="logo"] #app{max-width:none;padding:0}
 .le-places span{color:#f2b21c;margin-inline:6px}
 .le-logo img{mix-blend-mode:multiply}
 @media (max-width:560px){.logo-entry{gap:16px;padding-inline:14px}.le-logo{width:100%}}
+
+/* inside the site: a softer header logo so the page content stands out (full colour on hover) */
+header.bar .logo img{filter:saturate(.5) opacity(.72);transition:filter .25s}
+header.bar .logo:hover img,header.bar .logo:focus-visible img{filter:none}
+@media (prefers-reduced-motion:reduce){header.bar .logo img{transition:none}}
