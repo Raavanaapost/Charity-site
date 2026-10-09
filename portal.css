@@ -144,3 +144,17 @@ body.portal{margin:0;font-family:var(--display);font-size:15px;line-height:1.5;b
 .pt-field textarea{padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:14.5px;resize:vertical}
 .pt-facts dd{text-transform:none}
 .pt-private svg{flex:none}
+/* visit checklist */
+.pt-ob{display:grid;gap:8px;padding:12px;border-radius:12px;background:var(--bg)}
+.pt-ob-h{margin:0;font-weight:700;display:flex;justify-content:space-between}.pt-ob-h span{color:var(--muted);font-size:13px}
+.pt-check{display:flex;gap:9px;align-items:flex-start;font-size:14px;line-height:1.35}
+.pt-check input,.pt-ob-who input[type=radio]{width:18px;height:18px;margin:1px 0 0;accent-color:#1f7a47;flex:none}
+.pt-ob-who{display:grid;gap:6px;padding-top:6px;border-top:1px solid var(--line);font-size:14px}
+.pt-ob-who > span{font-weight:700;font-size:13px;color:var(--muted)}
+.pt-ob-who label{display:flex;gap:8px;align-items:center}
+.pt-ob-trusted{display:grid;gap:6px}
+.pt-ob-trusted input{padding:8px 10px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:14px}
+.pt-ob-test{display:grid;gap:6px;padding:10px;border-radius:10px;border:1px dashed var(--line);font-size:13.5px}
+.pt-ob-test.ok{border:1px solid #cfe5d6;background:#eef6f0;color:#1f5f3a}
+.pt-ob-test code{font-family:var(--mono);font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.pt-btn[disabled]{opacity:.45;cursor:not-allowed}

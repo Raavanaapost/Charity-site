@@ -908,3 +908,4 @@ body[data-page="overview"] .intro .headline{margin:0 0 -6px;position:relative;z-
 .care-flag{margin:0;padding:12px 14px;border-radius:12px;background:#fdf0dc;color:#7a4a00;font-size:15px}
 .care-card .i-submit{justify-self:start}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .care-urgent{background:#3a1a14;color:#ffd6cc}}
+.care-practice{margin:10px 0 0;padding:12px 14px;border-radius:12px;background:#e1eef8;color:#1f4f75;font-size:15px}

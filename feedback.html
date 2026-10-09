@@ -36,10 +36,12 @@
   <div class="care">
     <p class="eyebrow">Two minutes, and it matters</p>
     <h1 class="follow-title"><span class="initial">H</span>ow did we do?</h1>
+    <p class="care-practice" data-practice hidden><b>Practice run.</b> This is a test with our visitor, so you know how to send feedback. Pick any answers and press Send.</p>
     <p class="care-lead">You recently met our team for a visit or a project day. Please tell us honestly how it went. Your answers go to our safeguarding lead, not to the people who visited you.</p>
     <form class="care-card" name="visit-feedback" method="POST" action="/feedback?sent=1" data-netlify="true" netlify-honeypot="bot-field" data-ajax data-done="Thank you. Your feedback helps keep every visit safe and respectful.">
       <input type="hidden" name="form-name" value="visit-feedback">
       <input type="hidden" name="ref" value="" data-ref>
+      <input type="hidden" name="practice" value="" data-practice-field>
       <p hidden><label>Leave empty <input name="bot-field"></label></p>
       <fieldset class="i-field"><legend>What was it? <b class="req" aria-hidden="true">*</b></legend>
         <div class="care-chips" role="radiogroup"><label><input type="radio" name="kind" value="visit" required><span>A visit from the team</span></label><label><input type="radio" name="kind" value="day"><span>A project day</span></label></div></fieldset>

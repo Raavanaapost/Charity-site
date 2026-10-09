@@ -723,7 +723,7 @@
       intro: "Every project begins with someone who sees children waiting for a day of joy: a teacher, a parent, a neighbour, a children's home.",
       steps: [
         ["Someone reaches out", "Anyone can tell us about an opportunity through the Initiate form: who the children are, where they are, and what kind of day would mean the most."],
-        ["We visit and listen", "A member of our team visits, meets the people who care for the children and makes sure the need is real. The project is then marked Visited and verified. Afterwards, you get a short form to tell us privately how the visit went."],
+        ["We visit and listen", "A member of our team visits, meets the people who care for the children and makes sure the need is real. The project is then marked Visited and verified. During the visit we show you how feedback and reporting work, and you send us a practice message together. If you do not use a phone, a family member or someone close to you can be your contact. Afterwards, you tell us privately how the visit went."],
         ["We plan the day and the budget", "Together we decide what the day looks like and what it will cost: transport, food, tickets, small gifts. The estimated costs are shown on the project's Budget tab."],
         ["The project goes on the site", "It appears under Initiated with its budget and how much is still needed, so sponsors can see exactly what their gift will do."]
       ],
@@ -1091,7 +1091,12 @@
         // worrying feedback answers are pointed to a full report.
         const anon = document.querySelector("[data-anon]"), who = document.querySelector("[data-who]");
         if (anon && who) { const sync = () => { who.hidden = anon.checked; }; anon.addEventListener("change", sync); sync(); }
-        const ref = document.querySelector("[data-ref]"); if (ref) ref.value = new URLSearchParams(location.search).get("ref") || "";
+        const q = new URLSearchParams(location.search);
+        const ref = document.querySelector("[data-ref]"); if (ref) ref.value = q.get("ref") || "";
+        if (q.get("practice")) { // a practice run with the visitor, so the person knows how it works
+          const pb = document.querySelector("[data-practice]"), pf = document.querySelector("[data-practice-field]");
+          if (pb) pb.hidden = false; if (pf) pf.value = "yes";
+        }
         const flag = document.querySelector("[data-flag]");
         if (flag) document.addEventListener("change", () => {
           const v = n => (document.querySelector(`input[name="${n}"]:checked`) || {}).value;

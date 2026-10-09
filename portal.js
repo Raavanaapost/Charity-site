@@ -187,13 +187,51 @@
   function actionsHTML(s) {
     const b = (act, label, cls = "") => `<button type="button" class="pt-btn ${cls}" data-act="${act}">${label}</button>`;
     if (s.status === "new") return `<div class="pt-visit"><label class="pt-field">Visit date<input type="date" data-visit value="2026-10-20"></label>${b("visit", "Plan a visit")}</div>${b("declined", "Not suitable", "ghost danger")}`;
-    if (s.status === "visit") return `${b("verified", "Visited · the need is real")}${b("declined", "Not suitable", "ghost danger")}`;
+    if (s.status === "visit") { const ok = onboardDone(s); return `${onboardHTML(s)}<button type="button" class="pt-btn" data-act="verified" ${ok ? "" : "disabled"}>Visited · the need is real</button>${ok ? "" : `<p class="pt-sub">Finish the visit checklist first.</p>`}${b("declined", "Not suitable", "ghost danger")}`; }
     if (s.status === "verified") return `${b("project", "Turn into a project")}<p class="pt-sub">Creates an Initiated project with these details. You add the picture, story and estimated costs next.</p>${b("declined", "Not suitable", "ghost danger")}`;
     if (s.status === "project") return `<p class="pt-sub">This suggestion is now an Initiated project. The project editor is designed next.</p>`;
     return `<p class="pt-sub">Marked not suitable. A kind reply is sent to the person who suggested it.</p>${b("new", "Reopen", "ghost")}`;
   }
+  // Visit checklist: before a suggestion can be verified, the visitor must show the requester how everything works
+  // and the requester sends a practice feedback message. If they do not use a phone, a trusted contact
+  // (family member or someone close) is connected with us instead.
+  const OB = [
+    ["explained", "Explained the three stages: Initiated, Activated, Impact"],
+    ["showed", "Showed how to give feedback and report a concern"],
+    ["safety", "Explained: we never ask for money, gifts or favours"]
+  ];
+  const ob = s => s.onboard || (s.onboard = { contact: "self" });
+  const onboardDone = s => { const o = ob(s); return OB.every(([k]) => o[k]) && o.test && (o.contact === "self" || (o.trusted && o.trusted.name && o.trusted.phone)); };
+  function onboardHTML(s) {
+    const o = ob(s), t = o.trusted || {};
+    return `<div class="pt-ob">
+      <p class="pt-ob-h">Visit checklist <span>${OB.filter(([k]) => o[k]).length + (o.test ? 1 : 0)}/4</span></p>
+      ${OB.map(([k, l]) => `<label class="pt-check"><input type="checkbox" data-ob="${k}" ${o[k] ? "checked" : ""}><span>${l}</span></label>`).join("")}
+      <div class="pt-ob-who"><span>Who sends feedback for them?</span>
+        <label><input type="radio" name="ob-contact" value="self" ${o.contact === "self" ? "checked" : ""}> They use a phone themselves</label>
+        <label><input type="radio" name="ob-contact" value="trusted" ${o.contact === "trusted" ? "checked" : ""}> A trusted contact (family or someone close)</label>
+        ${o.contact === "trusted" ? `<div class="pt-ob-trusted">
+          <input data-tr="name" placeholder="Name" value="${esc(t.name || "")}" aria-label="Trusted contact name">
+          <input data-tr="relation" placeholder="Relation (e.g. son, niece)" value="${esc(t.relation || "")}" aria-label="Relation">
+          <input data-tr="phone" placeholder="Phone" inputmode="tel" value="${esc(t.phone || "")}" aria-label="Trusted contact phone"></div>` : ""}
+      </div>
+      <div class="pt-ob-test ${o.test ? "ok" : ""}">${o.test
+        ? `<b>✓ Practice message received</b><span>${esc(o.contact === "trusted" && t.name ? t.name : "They")} sent a test through the feedback form, so they know how it works.</span>`
+        : `<b>Practice message</b><span>Help them open the practice form on their phone and press Send. It shows here when it arrives.</span>
+           <code>/feedback?ref=${esc(s.id)}&amp;practice=1</code><button type="button" class="pt-btn ghost" data-ob-test>Practice message arrived (demo)</button>`}</div>
+    </div>`;
+  }
+  function wireOnboard(s) {
+    const o = ob(s);
+    app.querySelectorAll("[data-ob]").forEach(c => c.onchange = () => { o[c.dataset.ob] = c.checked; render(); });
+    app.querySelectorAll('input[name="ob-contact"]').forEach(r => r.onchange = () => { o.contact = r.value; render(); });
+    app.querySelectorAll("[data-tr]").forEach(i => i.onchange = () => { o.trusted = o.trusted || {}; o.trusted[i.dataset.tr] = i.value.trim(); render(); });
+    const t = app.querySelector("[data-ob-test]");
+    if (t) t.onclick = () => { o.test = true; addNote(s, "Practice feedback message received. They know how to give feedback and report a concern."); render(); toast("Practice message received (demo)"); };
+  }
   function wireDetail(id) {
     const s = D.suggestions.find(x => x.id === id); if (!s) return;
+    wireOnboard(s);
     const sel = app.querySelector("[data-assign]");
     sel.onchange = () => { s.assigned = sel.value; addNote(s, sel.value ? `${sel.value} is looking after this.` : "Nobody is looking after this now."); render(); toast("Saved (demo)"); };
     app.querySelectorAll("[data-act]").forEach(btn => btn.onclick = () => {

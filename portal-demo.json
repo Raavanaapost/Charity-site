@@ -97,7 +97,19 @@
           "at": "2026-10-01T09:00",
           "text": "Called the centre. Visit booked for 14 October."
         }
-      ]
+      ],
+      "onboard": {
+        "contact": "trusted",
+        "explained": true,
+        "showed": true,
+        "safety": false,
+        "test": false,
+        "trusted": {
+          "name": "Centre nurse (demo)",
+          "relation": "Staff at the centre",
+          "phone": ""
+        }
+      }
     },
     {
       "id": "s-102",
@@ -122,7 +134,14 @@
           "at": "2026-09-27T16:40",
           "text": "Visited. Lovely home, the need is real. Rough budget $400."
         }
-      ]
+      ],
+      "onboard": {
+        "contact": "self",
+        "explained": true,
+        "showed": true,
+        "safety": true,
+        "test": true
+      }
     },
     {
       "id": "s-101",
