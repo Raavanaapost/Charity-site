@@ -1,82 +1,215 @@
 {
-  "projects": [
+ "projects": [
+  {
+   "title": "Kids' day out at Casuarina Beach",
+   "slug": "casuarina-beach-day",
+   "hidden": false,
+   "featured": false,
+   "theme": "Trips & Events",
+   "status": "Active",
+   "location": "Casuarina Beach, Karainagar, Jaffna",
+   "organization": "Raavanaa",
+   "started": "October 2026",
+   "reach": "About 25 children",
+   "verified": true,
+   "budget": [
     {
-      "title": "An arcade trip for the orphanage kids",
-      "slug": "arcade-trip",
-      "hidden": false,
-      "featured": false,
-      "theme": "Trips & Events",
-      "status": "Planning",
-      "location": "",
-      "organization": "Raavanaa",
-      "started": "October 2026",
-      "reach": "Children from an orphanage",
-      "verified": false,
-      "budget": [
-        {
-          "item": "Arcade game cards for 20 children",
-          "amount": 250
-        },
-        {
-          "item": "Lunch and drinks",
-          "amount": 150
-        },
-        {
-          "item": "Bus to the arcade and back",
-          "amount": 100
-        }
-      ],
-      "goal": 500,
-      "funders": [
-        {
-          "name": "Kumar Family",
-          "amount": 250
-        },
-        {
-          "name": "Mahaarivu Association",
-          "amount": 250
-        }
-      ],
-      "date_set": false,
-      "booked": true,
-      "volunteers": true,
-      "steps": [],
-      "summary": "We are planning a trip to the arcade for children from an orphanage: games, lights, prizes and a day made just for them.",
-      "cover": "/img/project-arcade.svg",
-      "quote": "",
-      "story": "## Summary\n\nWe are planning a trip to the arcade for children from an orphanage: games, lights, prizes and a day made just for them.\n\n## The need\n\nChildren growing up in a home rarely get a day that is only about fun. A few hours of games and little prizes is a small thing to give and a big thing to receive.\n\n## The plan\n\nAn afternoon at the arcade where the only thing the children have to do is play, with transport, food and helpers arranged for the group.\n\nThe project has been **initiated**. We are waiting for the budget and the other details of the trip. As soon as they are ready, they will be shown on this page.\n\n## What it leaves behind\n\nA day the children will talk about for a long time. After the trip we will share the story and the pictures here, so that everyone who gave can see the smiles they created.",
-      "impact": [],
-      "updates": [],
-      "photos": [],
-      "media": []
+     "item": "Van hire to Karainagar and back",
+     "amount": 220
     },
     {
-      "title": "A bowling day out for the Sivapoomi kids",
-      "slug": "bowling-day",
-      "hidden": false,
-      "featured": true,
-      "theme": "Trips & Events",
-      "status": "Planning",
-      "location": "",
-      "organization": "Raavanaa",
-      "started": "October 2026",
-      "reach": "Special-needs children of Sivapoomi",
-      "verified": true,
-      "budget": [],
-      "goal": null,
-      "funders": [],
-      "date_set": false,
-      "booked": false,
-      "volunteers": true,
-      "steps": [],
-      "summary": "We are arranging a day at the bowling lanes for the special-needs children of Sivapoomi: a day out to play, laugh and be cheered on.",
-      "cover": "/img/project-bowling.svg",
-      "quote": "",
-      "story": "## Summary\n\nWe are arranging a bowling day for the special-needs children of Sivapoomi: a day out to play, laugh and be cheered on.\n\n## The need\n\nA day out for a whole group of children with special needs takes transport, extra helpers and a budget, so it does not happen often. These are exactly the days a child remembers.\n\n## The plan\n\nA full day at the bowling lanes, where every child gets a turn and every roll gets a cheer, with transport, food and helpers arranged for the group.\n\nThe project has been **initiated**. We have requested the budget for the day and are waiting for a response. As soon as it is ready, it will be shown on this page.\n\n## What it leaves behind\n\nA happy memory for every child. After the day we will share the story and the pictures here, so that everyone who gave can see the smiles they created.",
-      "impact": [],
-      "updates": [],
-      "photos": [],
-      "media": []
+     "item": "Lunch, snacks and water",
+     "amount": 200
+    },
+    {
+     "item": "Beach games, balls and kites",
+     "amount": 80
+    },
+    {
+     "item": "Small gift for each child",
+     "amount": 60
+    },
+    {
+     "item": "First aid and sun care",
+     "amount": 40
     }
-  ]
+   ],
+   "goal": 600,
+   "funders": [
+    {
+     "name": "Kiri & Family",
+     "amount": 600
+    }
+   ],
+   "date_set": true,
+   "booked": true,
+   "volunteers": false,
+   "steps": [],
+   "summary": "A day at the sea for about 25 children: sand, waves, kites and a good lunch under the casuarina trees at Karainagar.",
+   "cover": "/img/project-beach.svg",
+   "quote": "",
+   "story": "## Summary\n\nA day at the sea for about 25 children: sand, waves, kites and a good lunch under the casuarina trees at Karainagar.\n\n## The need\n\nMany of these children live less than an hour from the sea and have never spent a day on the beach. Transport, food and a safe group are what stand between them and the shore.\n\n## The plan\n\nA van takes the group to Casuarina Beach in the morning. The children play games, fly kites and build sandcastles with volunteers watching the water, then share lunch in the shade before heading home with a small gift.\n\nThe project is **activated**: it is fully funded by Kiri & Family, the place is visited and the van is booked. We are now getting the volunteers ready.\n\n## What it leaves behind\n\nA first day at the sea that the children will remember. After the trip we will share the story and the pictures here.",
+   "impact": [],
+   "updates": [],
+   "photos": [],
+   "media": [],
+   "city": "Jaffna"
+  },
+  {
+   "title": "Mums and kids, united: a day out together",
+   "slug": "mums-and-kids-day-out",
+   "hidden": false,
+   "featured": false,
+   "theme": "Trips & Events",
+   "status": "Complete",
+   "location": "Kilinochchi",
+   "organization": "Raavanaa",
+   "started": "August 2026",
+   "reach": "18 mums and 30 children",
+   "verified": true,
+   "budget": [
+    {
+     "item": "Bus for the families",
+     "amount": 150
+    },
+    {
+     "item": "Lunch for mums and children",
+     "amount": 180
+    },
+    {
+     "item": "Games and activities",
+     "amount": 70
+    },
+    {
+     "item": "Printed family photo for each mum",
+     "amount": 50
+    }
+   ],
+   "goal": 450,
+   "funders": [
+    {
+     "name": "Sasi",
+     "amount": 150
+    },
+    {
+     "name": "Shanker",
+     "amount": 150
+    },
+    {
+     "name": "Bala",
+     "amount": 150
+    }
+   ],
+   "date_set": true,
+   "booked": true,
+   "volunteers": true,
+   "steps": [],
+   "summary": "A day out for mums and their children together: games, a shared lunch and time to simply enjoy each other.",
+   "cover": "/img/project-mums.svg",
+   "quote": "",
+   "story": "## Summary\n\nA day out for mums and their children together: games, a shared lunch and time to simply enjoy each other.\n\n## The need\n\nThe mums we work with carry their families alone or nearly alone. Days off are rare, and days out with their children rarer still.\n\n## The day\n\nA bus took the families out for the day. The children and their mums played games side by side, shared a big lunch and finished with a family photo for each mum to keep.\n\nThis project is **complete**. It was made possible by Sasi, Shanker and Bala.\n\n## What it left behind\n\nMums who laughed with their children all day, and a photo on the wall to remember it by.",
+   "impact": [
+    {
+     "value": "18",
+     "label": "mums"
+    },
+    {
+     "value": "30",
+     "label": "children"
+    },
+    {
+     "value": "1",
+     "label": "day together"
+    }
+   ],
+   "updates": [
+    {
+     "date": "2026-09-20",
+     "title": "A day the mums said they will never forget",
+     "body": "Eighteen mums and thirty children spent the day together: sack races, a tug of war the mums won, and a long lunch in the shade. For many mums it was the first day in years with no work to do, only time with their children. Every family went home with a printed photo of the day."
+    }
+   ],
+   "photos": [],
+   "media": [],
+   "city": "Kilinochchi"
+  },
+  {
+   "title": "An arcade trip for the orphanage kids",
+   "slug": "arcade-trip",
+   "hidden": false,
+   "featured": false,
+   "theme": "Trips & Events",
+   "status": "Planning",
+   "location": "",
+   "organization": "Raavanaa",
+   "started": "October 2026",
+   "reach": "Children from an orphanage",
+   "verified": false,
+   "budget": [
+    {
+     "item": "Arcade game cards for 20 children",
+     "amount": 250
+    },
+    {
+     "item": "Lunch and drinks",
+     "amount": 150
+    },
+    {
+     "item": "Bus to the arcade and back",
+     "amount": 100
+    }
+   ],
+   "goal": 500,
+   "funders": [
+    {
+     "name": "Kumar Family",
+     "amount": 250
+    },
+    {
+     "name": "Mahaarivu Association",
+     "amount": 250
+    }
+   ],
+   "date_set": false,
+   "booked": true,
+   "volunteers": true,
+   "steps": [],
+   "summary": "We are planning a trip to the arcade for children from an orphanage: games, lights, prizes and a day made just for them.",
+   "cover": "/img/project-arcade.svg",
+   "quote": "",
+   "story": "## Summary\n\nWe are planning a trip to the arcade for children from an orphanage: games, lights, prizes and a day made just for them.\n\n## The need\n\nChildren growing up in a home rarely get a day that is only about fun. A few hours of games and little prizes is a small thing to give and a big thing to receive.\n\n## The plan\n\nAn afternoon at the arcade where the only thing the children have to do is play, with transport, food and helpers arranged for the group.\n\nThe project has been **initiated**. We are waiting for the budget and the other details of the trip. As soon as they are ready, they will be shown on this page.\n\n## What it leaves behind\n\nA day the children will talk about for a long time. After the trip we will share the story and the pictures here, so that everyone who gave can see the smiles they created.",
+   "impact": [],
+   "updates": [],
+   "photos": [],
+   "media": []
+  },
+  {
+   "title": "A bowling day out for the Sivapoomi kids",
+   "slug": "bowling-day",
+   "hidden": false,
+   "featured": true,
+   "theme": "Trips & Events",
+   "status": "Planning",
+   "location": "",
+   "organization": "Raavanaa",
+   "started": "October 2026",
+   "reach": "Special-needs children of Sivapoomi",
+   "verified": true,
+   "budget": [],
+   "goal": null,
+   "funders": [],
+   "date_set": false,
+   "booked": false,
+   "volunteers": true,
+   "steps": [],
+   "summary": "We are arranging a day at the bowling lanes for the special-needs children of Sivapoomi: a day out to play, laugh and be cheered on.",
+   "cover": "/img/project-bowling.svg",
+   "quote": "",
+   "story": "## Summary\n\nWe are arranging a bowling day for the special-needs children of Sivapoomi: a day out to play, laugh and be cheered on.\n\n## The need\n\nA day out for a whole group of children with special needs takes transport, extra helpers and a budget, so it does not happen often. These are exactly the days a child remembers.\n\n## The plan\n\nA full day at the bowling lanes, where every child gets a turn and every roll gets a cheer, with transport, food and helpers arranged for the group.\n\nThe project has been **initiated**. We have requested the budget for the day and are waiting for a response. As soon as it is ready, it will be shown on this page.\n\n## What it leaves behind\n\nA happy memory for every child. After the day we will share the story and the pictures here, so that everyone who gave can see the smiles they created.",
+   "impact": [],
+   "updates": [],
+   "photos": [],
+   "media": []
+  }
+ ]
 }

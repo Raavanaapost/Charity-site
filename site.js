@@ -560,7 +560,7 @@
     const b = budgetOf(p), money = n => moneyOf(site, n), st = stageNum(p);
     if (!b.goal) return `<p class="b-wait">The budget for this project is being prepared. It will be shown here as soon as it is ready.</p>`;
     const funders = b.funders.length ? `<h3 class="money-h">Made possible by</h3>
-        <ul class="funders">${b.funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}</span>${numOf(f.amount) ? `<b>${money(numOf(f.amount))}</b>` : ""}</li>`).join("")}</ul>` : "";
+        <ul class="funders">${b.funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}</span>${numOf(f.amount) ? `<b>${money(numOf(f.amount))}</b>` : ""}</li>`).join("")}</ul>` : "";
     const lines = b.lines.length ? `<h3 class="money-h">Where the money went</h3><ul class="bx-list">${b.lines.map(x => `<li><span>${esc(x.item)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>
         <p class="bx-total"><span>Total spent</span><b>${money(b.lines.reduce((t, x) => t + numOf(x.amount), 0))}</b></p>` : "";
     if (st === 1) return `<p class="b-top"><b>${money(b.goal)}</b> <span>total budget</span></p>`;
@@ -571,7 +571,7 @@
           <div><dt>Total budget</dt><dd>${money(b.goal)}</dd></div>
           <div><dt>${b.full ? "Status" : "Still needed"}</dt><dd>${b.full ? "Fully funded" : money(b.goal - b.raised)}</dd></div>
         </dl>
-        ${funders}${st === 3 ? lines : ""}`;
+        ${funders}${st === 3 ? lines : st === 2 && b.lines.length ? lines.replace("Where the money went", "How the money will be used").replace("Total spent", "Total") : ""}`;
   }
   function budgetBoxHTML(p, site, link = true) {
     const b = budgetOf(p);
@@ -827,7 +827,7 @@
       </section>` : ""}
       ${funders.length ? `<section class="money">
         <h2 class="section-title">Made possible by</h2>
-        <ul class="funders">${funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}</span>${num(f.amount) ? `<b>${money(num(f.amount))}</b>` : ""}</li>`).join("")}</ul>
+        <ul class="funders">${funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}</span>${num(f.amount) ? `<b>${money(num(f.amount))}</b>` : ""}</li>`).join("")}</ul>
       </section>` : ""}`;
     // Small line icons for the folder tabs: book, heart, camera, play.
     const ic = d => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
