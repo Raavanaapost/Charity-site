@@ -631,6 +631,10 @@
         ["Opening a relationship", '<circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2.5 19c.6-3.4 2.6-5 5.5-5 1.6 0 2.9.5 4 1.5 1.1-1 2.4-1.5 4-1.5 2.9 0 4.9 1.6 5.5 5"/>'],
         ["Starting an initiative", '<path d="M12 21v-9"/><path d="M12 14c-4 0-6-2.2-6.5-6 3.9 0 6 2 6.5 6z"/><path d="M12 11c0-4 2.3-6 6.5-6.5 0 4-2.3 6-6.5 6.500z"/>']
       ],
+      links: [
+        ["How a project starts", "/how-it-works#initiated", '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01" stroke-width="2.2"/>'],
+        ["Suggest a project", "/initiate", '<path d="M12 21v-9"/><path d="M12 14c-4 0-6-2.2-6.5-6 3.9 0 6 2 6.5 6z"/><path d="M12 11c0-4 2.3-6 6.5-6.5 0 4-2.3 6-6.5 6.5z"/>']
+      ],
       heading: 'Projects we have <span class="stage-word s1">Initiated</span>', empty: { text: "Our first projects are being planned. Check back soon, or tell us about a need you see.", btn: "Suggest a project", href: "/contact?topic=suggest" },
       cta: { title: "Have an idea for a project?", text: "Every project on this page began with someone reaching out. Tell us about a need you see, and we'll explore it together.", btn: "Suggest a project", href: "/contact?topic=suggest" },
       next: { slug: "activated", kicker: "Next stage", label: "Activated", text: "See the projects that have moved into action." }
@@ -643,6 +647,10 @@
         ["Getting organized", '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.500h6v-2H9z"/><path d="m8.5 11 1.5 1.5 2.5-2.500M8.5 16l1.5 1.5 2.5-2.500M14.5 11.500h2M14.5 16.500h2"/>'],
         ["Working together", '<circle cx="9" cy="12" r="5.5"/><circle cx="15" cy="12" r="5.5"/>'],
         ["Making it happen", '<path d="M13 2.5 5 13.500h6l-1 8 8-11h-6z"/>']
+      ],
+      links: [
+        ["How funding works", "/how-it-works#activated", '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01" stroke-width="2.2"/>'],
+        ["Sponsor or help", "/contact", '<path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.2c0 5.6-7.5 10.2-7.5 10.2z"/>']
       ],
       heading: 'Projects we have <span class="stage-word s2">Activated</span>', empty: { text: "Nothing is in action just yet. Our first projects are getting ready to start, and you can follow them from the beginning.", btn: "See what we have initiated", href: "/initiated" },
       cta: { title: "Want to take part?", text: "Projects move because people show up. Lend an hour, a skill or a helping hand, and be part of what's happening.", btn: "Volunteer with us", href: "/volunteer" },
@@ -657,11 +665,66 @@
         ["Real connection", '<path d="M12 20s-7.5-4.6-7.5-10.200A4.3 4.3 0 0 1 12 7.600a4.3 4.3 0 0 1 7.5 2.200c0 5.6-7.5 10.2-7.5 10.200z"/>'],
         ["Lasting difference", '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/>']
       ],
+      links: [
+        ["How we share results", "/how-it-works#impact", '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01" stroke-width="2.2"/>'],
+        ["Be part of the next one", "/volunteer", '<circle cx="12" cy="6" r="2.4"/><circle cx="5.5" cy="9" r="2"/><circle cx="18.5" cy="9" r="2"/><path d="M7.5 20c.4-4 2-6 4.5-6s4.1 2 4.5 6M2 18c.3-2.6 1.4-4 3.5-4M22 18c-.3-2.6-1.4-4-3.5-4"/>']
+      ],
       heading: '<span class="stage-word s3">Impact</span> Stories', empty: { text: "Our first impact stories are on the way. As soon as a trip or event has happened, the smiles and the stories will be shared here.", btn: "See what we have initiated", href: "/initiated" },
       cta: { title: "Be part of the next one", text: "Every smile on this page started with people who cared. Stay close and see what we create together next.", btn: "Get involved", href: "/volunteer" },
       next: { slug: "initiated", kicker: "Back to the start", label: "Initiated", text: "See every project from where it began." }
     }
   };
+
+  // "How it works": one page, a tab for each stage of a project.
+  const HOW = [
+    { key: "initiated", n: 1, label: "Initiated", title: "How a project starts",
+      intro: "Every project begins with someone who sees children waiting for a day of joy: a teacher, a parent, a neighbour, a children's home.",
+      steps: [
+        ["Someone reaches out", "Anyone can tell us about an opportunity through the Initiate form: who the children are, where they are, and what kind of day would mean the most."],
+        ["We visit and listen", "A member of our team visits, meets the people who care for the children and makes sure the need is real. The project is then marked Visited and verified."],
+        ["We plan the day and the budget", "Together we decide what the day looks like and what it will cost: transport, food, tickets, small gifts. The estimated costs are shown on the project's Budget tab."],
+        ["The project goes on the site", "It appears under Initiated with its budget and how much is still needed, so sponsors can see exactly what their gift will do."]
+      ],
+      cta: ["Suggest a project", "/initiate"] },
+    { key: "activated", n: 2, label: "Activated", title: "How funding works",
+      intro: "A project becomes Activated when its full budget is covered. From then on, it is all about making the day happen.",
+      steps: [
+        ["Sponsors cover the budget", "A family, a group of friends or an association pledges the amount. Once the total is reached, the project shows Fully funded and the sponsors' names."],
+        ["The date is set", "We agree the date with the children's home or school and the families."],
+        ["Place and transport are booked", "Tickets, the venue, the bus or van and the food are arranged and paid for."],
+        ["Volunteers get ready", "Helpers sign up to travel with the group, keep everyone safe and make sure every child is included."]
+      ],
+      cta: ["Sponsor or help", "/contact"] },
+    { key: "impact", n: 3, label: "Impact", title: "How we share results",
+      intro: "After the day, we come back and show everyone who gave what their gift created.",
+      steps: [
+        ["The story is written", "A short story of the day: what happened, who came and the moments the children will remember."],
+        ["Pictures and video are shared", "Shared with care and with permission, following our child-safety rules."],
+        ["Every dollar is shown", "The Budget tab changes to Where the money went, line by line, with the total spent."],
+        ["The numbers are counted", "How many children, families and volunteers took part, shown on the project and on the Impact page."]
+      ],
+      cta: ["Be part of the next one", "/volunteer"] }
+  ];
+  function renderHow(app) {
+    const pick = () => Math.max(0, HOW.findIndex(h => "#" + h.key === location.hash));
+    const pane = h => `
+      <h2 class="follow-title">${esc(h.title)}</h2>
+      <p class="big">${esc(h.intro)}</p>
+      <ol class="how-steps s${h.n}">${h.steps.map(([t, d], k) => `<li><span class="how-n">${k + 1}</span><div><b>${esc(t)}</b><p>${esc(d)}</p></div></li>`).join("")}</ol>
+      <p class="how-actions"><a class="btn" href="${h.cta[1]}">${esc(h.cta[0])}</a> <a href="/${h.key}">See ${esc(h.label)} projects →</a></p>`;
+    const draw = k => {
+      app.innerHTML = `<section class="intro about-page how-page">
+        <span class="eyebrow">How it works</span>
+        <h1 class="follow-title">${headline("The Journey of a Smile")}</h1>
+        <p>Every project travels the same three stages, so you always know where it stands and where the money goes.</p>
+        <div class="tabs how-tabs" role="tablist">${HOW.map((h, i) => `<button class="tab" role="tab" style="--c:${["#1f7a47", "#d08a00", "#c8381e"][i]}" aria-selected="${i === k}" data-k="${i}"><span>${i + 1}. ${h.label}</span></button>`).join("")}</div>
+        <section class="folder" role="tabpanel" style="--c:${["#1f7a47", "#d08a00", "#c8381e"][k]}">${pane(HOW[k])}</section>
+      </section>`;
+      app.querySelectorAll(".how-tabs .tab").forEach(b => b.onclick = () => { history.replaceState(null, "", "#" + HOW[+b.dataset.k].key); draw(+b.dataset.k); });
+    };
+    draw(pick());
+    window.addEventListener("hashchange", () => draw(pick()));
+  }
 
   function renderStage(app, site, projects, slug, example) {
     const cfg = STAGE_PAGES[slug], key = STAGES[slug].key;
@@ -728,7 +791,7 @@
         </header>
         <section class="stage-lead s${cfg.n}">
           <p class="big">${cfg.lead}</p>
-          <ul class="meaning">${cfg.tags.map(([t, d]) => `<li>${ICON(d)}<span>${t}</span></li>`).join("")}</ul>
+          <ul class="meaning two">${cfg.links.map(([t, h, d]) => `<li><a href="${h}">${ICON(d)}<span>${t}</span><b aria-hidden="true">→</b></a></li>`).join("")}</ul>
         </section>
         ${slug === "impact" && numbers.length ? `
           <h2 class="section-title lined"><span class="stage-word s3">Impact</span> in numbers</h2>
@@ -1000,6 +1063,9 @@
       } else if (page === "privacy") {
         document.title = `Privacy & child safety · ${site.name}`;
         renderPrivacy(app, site);
+      } else if (page === "how") {
+        document.title = `How it works · ${site.name}`;
+        renderHow(app);
       } else if (page === "about") {
         document.title = `About us · ${site.name}`;
         renderAbout(app, site);
