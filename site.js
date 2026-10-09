@@ -268,9 +268,9 @@
 
   function renderOverview(app, site, projects) {
     const counts = {
-      initiated: projects.length,
+      initiated: projects.filter(p => stageNum(p) === 1).length,
       activated: projects.filter(p => stageNum(p) === 2).length,
-      impact: projects.reduce((n, p) => n + (p.updates || []).length, 0)
+      impact: projects.filter(p => stageNum(p) === 3).length
     };
     const extras = (site.highlights || []).filter(h => h && h.value);
     const latest = projects.slice(0, 3); // newest first, as ordered in the admin page
@@ -492,23 +492,49 @@
   }
 
   // How far a project has come: 1 Initiated, 2 Activated, 3 Impact (from its Status in the admin page).
-  const stageNum = p => /complete/i.test(p.status || "") ? 3 : /active|pause/i.test(p.status || "") ? 2 : 1;
+  // Stage comes from the facts, not only the status word: Impact once the day is marked complete,
+  // Activated only when the project is verified and its whole budget is covered, otherwise Initiated.
+  const stageNum = p => {
+    if (/complete/i.test(p.status || "")) return 3;
+    const goal = numOf(p.goal) || (p.budget || []).filter(x => x && x.item).reduce((s, x) => s + numOf(x.amount), 0);
+    const raised = (p.funders || []).filter(x => x && x.name).reduce((s, x) => s + numOf(x.amount), 0);
+    return p.verified && goal > 0 && raised >= goal ? 2 : 1;
+  };
   // The steps of the "Activating" ring. Used on the project page and in the project lists, so both show the same %.
   const numOf = v => { const n = parseFloat(String(v == null ? "" : v).replace(/[^0-9.]/g, "")); return isFinite(n) ? n : 0; };
+  // Each stage has its own checklist, so a project is never shown as "activating" once it is Activated.
+  //   Initiated -> "Activating": verified, budget ready, fully funded. All three done = Activated.
+  //   Activated -> "Preparing the day": date, place and transport, volunteers (+ any extra steps).
+  //   Impact    -> "Delivered": the day happened, story shared, money reported, expectations reviewed.
   function ringSteps(p) {
     const goal = numOf(p.goal) || (p.budget || []).filter(x => x && x.item).reduce((s, x) => s + numOf(x.amount), 0);
     const raised = (p.funders || []).filter(x => x && x.name).reduce((s, x) => s + numOf(x.amount), 0);
-    return [
+    const st = stageNum(p);
+    if (st === 1) return [
       { name: "Visited and verified", done: p.verified ? 1 : 0, c: "#1f7a47" },
       { name: "Budget ready", done: goal > 0 ? 1 : 0, c: "#3f9a5f" },
-      { name: "Funded", done: goal > 0 ? Math.min(1, raised / goal) : 0, c: "#eaa21c", pctLabel: true },
+      { name: "Funded", done: goal > 0 ? Math.min(1, raised / goal) : 0, c: "#eaa21c", pctLabel: true }
+    ];
+    if (st === 2) return [
       { name: "Date confirmed", done: p.date_set ? 1 : 0, c: "#e5851a" },
       { name: "Place and transport booked", done: p.booked ? 1 : 0, c: "#d9632b" },
       { name: "Volunteers ready", done: p.volunteers ? 1 : 0, c: "#c8381e" },
       ...(p.steps || []).filter(x => x && x.name).map((x, k) => ({ name: x.name, done: x.done ? 1 : 0, c: ["#8f6200", "#b4560a", "#0f5132"][k % 3] }))
     ];
+    const ex = (p.expectations || []).filter(x => x && x.text);
+    return [
+      { name: "The day happened", done: 1, c: "#1f7a47" },
+      { name: "Story shared", done: (p.updates || []).length || p.story ? 1 : 0, c: "#3f9a5f" },
+      { name: "Money reported", done: (p.budget || []).some(x => x && x.item) ? 1 : 0, c: "#e5851a" },
+      { name: "Expectations reviewed", done: !ex.length ? 0 : ex.filter(x => x.result).length / ex.length, c: "#c8381e" }
+    ];
   }
-  const ringPercent = p => stageNum(p) === 3 ? 100 : (st => Math.round(st.reduce((s, x) => s + x.done, 0) / st.length * 100))(ringSteps(p));
+  const ringPercent = p => (st => Math.round(st.reduce((s, x) => s + x.done, 0) / st.length * 100))(ringSteps(p));
+  const RING_TEXT = {
+    1: { h: "Activating", l: "ACTIVATING", done: "ACTIVATED", aria: "of the way to being activated" },
+    2: { h: "Preparing the day", l: "PREPARING", done: "READY", aria: "of the preparations done" },
+    3: { h: "Delivered", l: "REPORTING", done: "DELIVERED", aria: "of the results reported" }
+  };
 
   // One line per project: small picture, title, category and place, and the progress circle with its %.
   function projectRowsHTML(list, all) {
@@ -523,24 +549,23 @@
 
   // The "Activating" circle with its list of steps, as on a project page.
   function activatingPanelHTML(p, cls = "") {
-    const steps = ringSteps(p);
-    const delivered = stageNum(p) === 3;
-    const ringPct = delivered ? 100 : Math.round(steps.reduce((s, x) => s + x.done, 0) / steps.length * 100);
+    const steps = ringSteps(p), T = RING_TEXT[stageNum(p)];
+    const ringPct = ringPercent(p);
     const ringSVG = () => {
       const n = steps.length, gap = n > 5 ? 16 : 20, len = 360 / n - gap; // the rounded ends eat most of the gap
       const arc = (start, l, c, o) => l > 0.01 ? `<circle cx="60" cy="60" r="48" fill="none" stroke="${c}" stroke-opacity="${o}" stroke-width="13" stroke-linecap="round" pathLength="360" stroke-dasharray="${l.toFixed(2)} ${(360 - l).toFixed(2)}" stroke-dashoffset="${(-start).toFixed(2)}"/>` : "";
-      return `<svg class="ring" viewBox="0 0 120 120" role="img" aria-label="${ringPct}% of the way to being activated">
-        <g transform="rotate(-90 60 60)">${steps.map((x, k) => { const start = k * (len + gap) + gap / 2; return arc(start, len, x.c, .18) + arc(start, len * (delivered ? 1 : x.done), x.c, 1); }).join("")}</g>
+      return `<svg class="ring" viewBox="0 0 120 120" role="img" aria-label="${ringPct}% ${T.aria}">
+        <g transform="rotate(-90 60 60)">${steps.map((x, k) => { const start = k * (len + gap) + gap / 2; return arc(start, len, x.c, .18) + arc(start, len * x.done, x.c, 1); }).join("")}</g>
         <text x="60" y="${ringPct === 100 ? 60 : 62}" text-anchor="middle" class="ring-n">${ringPct}%</text>
-        <text x="60" y="${ringPct === 100 ? 77 : 78}" text-anchor="middle" class="ring-l">${delivered ? "DELIVERED" : ringPct === 100 ? "READY" : "ACTIVATING"}</text>
+        <text x="60" y="${ringPct === 100 ? 77 : 78}" text-anchor="middle" class="ring-l">${ringPct === 100 ? T.done : T.l}</text>
       </svg>`;
     };
     return `
       <div class="panel activating ${cls}">
-        <h2>${delivered ? "Delivered" : ringPct === 100 ? "Activated" : "Activating"}</h2>
+        <h2>${T.h}</h2>
         <div class="ring-row">
           ${ringSVG()}
-          <ul class="ring-steps">${steps.map(x => { const d = delivered ? 1 : x.done; return `<li class="${d >= 1 ? "done" : d > 0 ? "part" : ""}"><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${d >= 1 ? "✓" : x.pctLabel && d > 0 ? Math.round(d * 100) + "%" : "–"}</b></li>`; }).join("")}</ul>
+          <ul class="ring-steps">${steps.map(x => { const d = x.done; return `<li class="${d >= 1 ? "done" : d > 0 ? "part" : ""}"><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${d >= 1 ? "✓" : x.pctLabel && d > 0 ? Math.round(d * 100) + "%" : "–"}</b></li>`; }).join("")}</ul>
         </div>
       </div>`;
   }
@@ -746,7 +771,7 @@
   function renderStage(app, site, projects, slug, example) {
     const cfg = STAGE_PAGES[slug], key = STAGES[slug].key;
     document.title = `${cfg.title} · ${site.name}`;
-    const reached = projects.filter(p => cfg.n === 2 ? stageNum(p) === 2 : stageNum(p) >= 1);
+    const reached = projects.filter(p => stageNum(p) === Math.min(cfg.n, 2));
     const stories = projects.flatMap((p, i) => (p.updates || []).map(u => ({ p, i, u }))).sort((a, b) => String(b.u.date).localeCompare(String(a.u.date)));
     // "Impact in numbers": the tiles set in the admin page (Site settings). Some count themselves from the site;
     // the rest show the number typed in. With none set, each project's own numbers are shown instead.
@@ -769,7 +794,7 @@
     const themes = [...new Set(items.map(x => x.p.theme || "Other"))].sort((a, b) => rank(a) - rank(b));
     const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
     const fresh = projects.filter(p => stageNum(p) === 1).length;
-    const sub = slug === "initiated" ? `${plural(projects.length, "project")} started${fresh ? ` · ${fresh} just beginning` : ""}`
+    const sub = slug === "initiated" ? (reached.length ? `${plural(reached.length, "project")} getting ready to activate` : "New projects coming soon")
       : slug === "activated" ? (reached.length ? `${plural(reached.length, "project")} in action` : "First projects starting soon")
       : stories.length ? `${stories.length === 1 ? "1 story" : stories.length + " stories"} of impact · ${plural(new Set(stories.map(x => x.p)).size, "project")}` : "First stories coming soon";
     // Short message shown under each category heading in "Impact Stories" (Site settings → Impact story sections).
@@ -818,7 +843,7 @@
           ${["All", ...themes].map(t => `<button class="chip" aria-pressed="${t === filter}" data-t="${esc(t)}">${esc(t)}</button>`).join("")}
         </div>` : ""}
         ${body}
-        ${projectListHTML(slug === "initiated" ? projects : slug === "activated" ? projects.filter(p => stageNum(p) === 2) : projects.filter(p => stageNum(p) === 3), projects,
+        ${projectListHTML(slug === "initiated" ? projects.filter(p => stageNum(p) === 1) : slug === "activated" ? projects.filter(p => stageNum(p) === 2) : projects.filter(p => stageNum(p) === 3), projects,
           slug === "initiated" ? "Initiated projects" : slug === "activated" ? "Activated projects" : "Delivered projects")}
         <section class="stage-next">
           <div class="panel idea">
