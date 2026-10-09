@@ -807,7 +807,7 @@ header.bar .logo:hover img,header.bar .logo:focus-visible img{filter:none}
 body[data-page="overview"] .intro .headline{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .slide-pic{position:relative;order:0;min-width:0}
 .slide-pic img{aspect-ratio:2.4/1!important;object-position:center bottom}
-.slide-title{position:absolute;left:0;right:0;top:0;margin:0;padding:12px 16px 28px;border-radius:14px 14px 0 0;font-family:"Playfair Display",Didot,"Bodoni MT",Georgia,serif;font-weight:900;font-size:clamp(19px,5.2vw,34px);line-height:1.15;color:var(--ink);text-align:left;text-wrap:balance;background:linear-gradient(180deg,rgba(255,250,240,.9),rgba(255,250,240,0))}
+.slide-title{position:absolute;left:0;right:0;top:0;margin:0;padding:6px 14px 24px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-radius:14px 14px 0 0;font-family:"Playfair Display",Didot,"Bodoni MT",Georgia,serif;font-weight:900;font-size:clamp(16px,4.6vw,32px);line-height:1.15;color:var(--ink);text-align:left;text-wrap:balance;background:linear-gradient(180deg,rgba(255,250,240,.9),rgba(255,250,240,0))}
 .slide-title .dash{color:var(--sun);font-weight:700;margin-inline:.05em}
 .slide-title .initial{font-size:1.25em;line-height:1;color:var(--flame);background:linear-gradient(165deg,var(--gold) 5%,var(--sun) 40%,var(--flame) 85%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 @media (max-width:699px){.slide-pic img{aspect-ratio:2/1!important}}
@@ -832,5 +832,7 @@ body[data-page="overview"] .intro .headline{position:absolute;width:1px;height:1
 /* Home slides: picture on top, message below, one column */
 body[data-page="overview"] .saying.has-img{display:grid;grid-template-columns:1fr;gap:14px}
 body[data-page="overview"] .saying.has-img figcaption{order:1;max-width:none;font-size:inherit}
-@media (min-width:700px){body[data-page="overview"] .saying.has-img figcaption{font-size:19px;line-height:1.6}.slide-title{padding:16px 24px 34px}}
+@media (min-width:700px){body[data-page="overview"] .saying.has-img figcaption{font-size:19px;line-height:1.6}.slide-title{padding:8px 22px 30px}}
 @media (min-width:700px){.slide-pic img{aspect-ratio:3.4/1!important}}
+.home-latest + .home-latest{margin-top:28px}
+.latest-soon{margin:2px 0 6px;color:var(--muted,#5b6b62);font-size:15px}

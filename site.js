@@ -247,6 +247,25 @@
   }
 
   // The earlier home page, kept at /overview: stage circles with numbers, latest projects and the sign-up box.
+  // Home: one row per stage, each with its own title.
+  const HOME_ROWS = [
+    { n: 1, title: "Smiles in the Making", href: "/initiated", empty: "New ideas for a day of joy are on their way." },
+    { n: 2, title: "Moments on the Way", href: "/activated", empty: "Projects arrive here once they are fully funded and the day is being planned." },
+    { n: 3, title: "Days of Joy, Created", href: "/impact", empty: "After each day happens, its smiles, pictures and story will be shared here." },
+  ];
+  function homeRowHTML(r, projects) {
+    const all = projects.filter(p => stageNum(p) === r.n), k = HOME_ROWS.indexOf(r);
+    return `<section class="home-latest s${r.n}" data-row="${k}">
+        <h2 class="section-title latest-title">${r.title}</h2>
+        ${all.length ? `<div class="latest-filters" role="group" aria-label="Show projects by category">
+          ${["All", "Trips & Events", "Livelihood", "Education"].map(t => `<button type="button" class="chip" data-cat="${esc(t)}" aria-pressed="${t === "All"}">${esc(t)}</button>`).join("")}
+        </div>
+        <div class="grid">${all.slice(0, 3).map(p => card(p, projects.indexOf(p), journey(p))).join("")}</div>
+        <p class="more"><a href="${r.href}">See all →</a></p>`
+        : `<p class="latest-soon">${r.empty}</p>`}
+      </section>`;
+  }
+
   function renderOverview(app, site, projects) {
     const counts = {
       initiated: projects.length,
@@ -273,14 +292,7 @@
             <span>${st.label}</span>
           </a>`).join("")}
       </nav>
-      ${latest.length ? `<section class="home-latest">
-        <h2 class="section-title latest-title">Smiles in the Making</h2>
-        <div class="latest-filters" role="group" aria-label="Show projects by category">
-          ${["All", "Trips & Events", "Livelihood", "Education"].map(t => `<button type="button" class="chip" data-cat="${esc(t)}" aria-pressed="${t === "All"}">${esc(t)}</button>`).join("")}
-        </div>
-        <div class="grid" id="latest-grid">${latest.map(p => card(p, projects.indexOf(p), journey(p))).join("")}</div>
-        <p class="more"><a href="/initiated">See all our projects →</a></p>
-      </section>` : ""}
+      ${HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
       <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
     // Each slide's title sits on the top of its picture; the message stays below it.
@@ -289,13 +301,16 @@
       box.className = "slide-pic"; img.replaceWith(box); box.appendChild(img);
       const t = document.createElement("p"); t.className = "slide-title"; t.innerHTML = headline(f.dataset.title); box.prepend(t);
     });
-    const lf = app.querySelector(".latest-filters"), lg = app.querySelector("#latest-grid");
-    if (lf) lf.addEventListener("click", e => {
-      const b = e.target.closest(".chip"); if (!b) return;
-      lf.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === b));
-      const cat = b.dataset.cat, list = (cat === "All" ? projects : projects.filter(p => (p.theme || "") === cat)).slice(0, 3);
-      lg.innerHTML = list.length ? list.map(p => card(p, projects.indexOf(p), journey(p))).join("")
-        : `<div class="panel empty-state latest-empty"><p>No ${esc(cat)} projects yet. The first one is coming soon.</p><a class="btn" href="/initiate">Suggest one</a></div>`;
+    app.querySelectorAll(".home-latest").forEach(sec => {
+      const lf = sec.querySelector(".latest-filters"), lg = sec.querySelector(".grid"), r = HOME_ROWS[+sec.dataset.row];
+      if (lf) lf.addEventListener("click", e => {
+        const b = e.target.closest(".chip"); if (!b) return;
+        lf.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === b));
+        const cat = b.dataset.cat, all = projects.filter(p => stageNum(p) === r.n),
+          list = (cat === "All" ? all : all.filter(p => (p.theme || "") === cat)).slice(0, 3);
+        lg.innerHTML = list.length ? list.map(p => card(p, projects.indexOf(p), journey(p))).join("")
+          : `<div class="panel empty-state latest-empty"><p>No ${esc(cat)} projects here yet.</p>${r.n === 1 ? '<a class="btn" href="/initiate">Suggest one</a>' : ""}</div>`;
+      });
     });
     wireForms(app);
     fitHeadline();
