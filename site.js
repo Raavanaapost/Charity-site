@@ -586,6 +586,23 @@
         ${funders("Made possible by")}
         ${st === 3 ? listOf("Where the money went", "Total spent") : ""}`;
   }
+  // Expected impact: set by the organizers while a project is Activated, closed with a tick for each one after the day.
+  function expectHTML(p) {
+    const xs = (p.expectations || []).filter(x => x && x.text), st = stageNum(p);
+    if (!xs.length || st === 1) return "";
+    const R = { met: ["✓", "Met"], partly: ["◐", "Partly met"], not: ["✗", "Not met"] };
+    if (st === 2) return `<section class="expect">
+        <h3 class="money-h">What the organizers expect this day to achieve</h3>
+        <ul class="expect-list">${xs.map(x => `<li><span class="ex-mark pending" aria-hidden="true">◎</span><span>${esc(x.text)}</span></li>`).join("")}</ul>
+        <p class="note">After the day, the organizers come back and mark each one, so you can see if it was achieved.</p>
+      </section>`;
+    const met = xs.filter(x => x.result === "met").length;
+    return `<section class="expect closed">
+        <h3 class="money-h">Did the day deliver?</h3>
+        <p class="ex-score"><b>${met} of ${xs.length}</b> expectations met</p>
+        <ul class="expect-list">${xs.map(x => { const r = R[x.result] || ["…", "Being reviewed"]; return `<li class="r-${esc(x.result || "open")}"><span class="ex-mark" aria-hidden="true">${r[0]}</span><span>${esc(x.text)}${x.note ? `<small>${esc(x.note)}</small>` : ""}</span><em>${r[1]}</em></li>`; }).join("")}</ul>
+      </section>`;
+  }
   function budgetBoxHTML(p, site, link = true) {
     const b = budgetOf(p);
     return `<div class="panel budget${b.full && stageNum(p) > 1 ? " full" : ""}">
@@ -923,7 +940,7 @@
 
     const panes = {
       story: `<div class="story">${p.quote ? `<p class="pull">“${esc(p.quote)}”</p>` : ""}${md(p.story)}</div>`,
-      updates: (updates.length ? updates.map(u => `<article class="update"><div class="meta">${fmtDate(u.date)}</div><h3>${esc(u.title)}</h3><div>${md(u.body)}</div></article>`).join("") : `<p class="empty">No impact updates yet.</p>`) + (p.sample ? "" : commentsHTML(slugOf(p))),
+      updates: expectHTML(p) + (updates.length ? updates.map(u => `<article class="update"><div class="meta">${fmtDate(u.date)}</div><h3>${esc(u.title)}</h3><div>${md(u.body)}</div></article>`).join("") : `<p class="empty">No impact updates yet.</p>`) + (p.sample ? "" : commentsHTML(slugOf(p))),
       budget: `<div class="budget-tab">${budgetDetailHTML(p, site, true)}${stageNum(p) === 1 && budgetOf(p).lines.length ? `<p class="note">These are estimates. Once the day has happened, the real costs are shown here.</p>` : stageNum(p) === 2 ? `<p class="note">Once the day has happened, a breakdown of where the money went is shown here.</p>` : ""}</div>`,
       media: (photos.length || media.length) ? `${media.length ? `<div class="media">${media.map(m => { const e = embedFor(m.url); return e ? `<figure style="margin:0"><div class="embed"><iframe src="${esc(e)}" title="${esc(m.title)}" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy"></iframe></div>${m.title ? `<figcaption class="note" style="padding-top:6px">${esc(m.title)}</figcaption>` : ""}</figure>` : `<a class="media-link" href="${esc(m.url)}" target="_blank" rel="noopener">▶ ${esc(m.title || m.url)}</a>`; }).join("")}</div>` : ""}${photos.length ? `<div class="photos">${photos.map((ph, k) => `<figure><button data-src="${esc(imgUrl(ph.image, 1600))}" aria-label="Open picture"><div class="cover"><img src="${esc(imgUrl(ph.image, 600))}" alt="${esc(ph.caption)}" loading="lazy"></div></button>${ph.caption ? `<figcaption>${esc(ph.caption)}</figcaption>` : ""}</figure>`).join("")}</div>` : ""}` : `<p class="empty">No videos or pictures yet.</p>`
     };

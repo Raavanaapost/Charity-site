@@ -864,3 +864,17 @@ body[data-page="overview"] .intro .headline{margin:0 0 -6px;position:relative;z-
 .how-steps b{font-family:var(--display);font-size:16.5px}
 .how-steps p{margin:3px 0 0;color:var(--muted);line-height:1.55}
 .how-actions{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+/* Expected impact, and whether it was met */
+.expect{margin:0 0 22px;padding:14px 16px;border-radius:12px;background:#fff8ea;border:1px solid #f3dfb0}
+.expect.closed{background:#eef6f0;border-color:#cfe5d6}
+.expect .money-h{margin-top:0}
+.expect-list{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:8px}
+.expect-list li{display:flex;gap:10px;align-items:flex-start;line-height:1.45}
+.expect-list small{display:block;color:var(--muted);font-size:13.5px;margin-top:2px}
+.expect-list em{margin-left:auto;flex:none;font-style:normal;font-family:var(--display);font-weight:700;font-size:12.5px;padding:2px 9px;border-radius:999px;background:#fff;color:var(--muted)}
+.ex-mark{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;background:#fff;color:#d08a00;border:1.5px solid #f2b21c}
+.r-met .ex-mark{background:#1f7a47;color:#fff;border-color:#1f7a47}.r-met em{color:#1f7a47}
+.r-partly .ex-mark{background:#f2b21c;color:#fff;border-color:#f2b21c}.r-partly em{color:#8a5a00}
+.r-not .ex-mark{background:#c8381e;color:#fff;border-color:#c8381e}.r-not em{color:#c8381e}
+.ex-score{margin:0 0 6px;font-family:var(--display);color:var(--muted)}.ex-score b{color:#1f7a47;font-size:20px}
+.expect .note{margin:10px 0 0}

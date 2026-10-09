@@ -53,7 +53,18 @@
    "updates": [],
    "photos": [],
    "media": [],
-   "city": "Jaffna"
+   "city": "Jaffna",
+   "expectations": [
+    {
+     "text": "Every child spends time in the sea, safely, with a volunteer close by"
+    },
+    {
+     "text": "All 25 children share a good lunch together"
+    },
+    {
+     "text": "Each child goes home with a small gift and a day to remember"
+    }
+   ]
   },
   {
    "title": "Mums and kids, united: a day out together",
@@ -131,7 +142,24 @@
    ],
    "photos": [],
    "media": [],
-   "city": "Kilinochchi"
+   "city": "Kilinochchi",
+   "expectations": [
+    {
+     "text": "Mums get a full day off, with nothing to do but enjoy their children",
+     "result": "met",
+     "note": "No cooking or chores: lunch was served for everyone."
+    },
+    {
+     "text": "Every mum and child plays at least one game together",
+     "result": "met",
+     "note": "Sack races and a tug of war, mums against kids."
+    },
+    {
+     "text": "Each family takes home a photo of the day",
+     "result": "met",
+     "note": "18 printed photos handed out before the bus left."
+    }
+   ]
   },
   {
    "title": "An arcade trip for the orphanage kids",

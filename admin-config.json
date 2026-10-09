@@ -260,6 +260,47 @@
                   "hint": "Use headings like 'The problem', 'What we're doing', 'Long-term impact'."
                 },
                 {
+                  "name": "expectations",
+                  "label": "Expected impact",
+                  "label_singular": "Expectation",
+                  "widget": "list",
+                  "required": false,
+                  "hint": "What the organizers expect the day to achieve (shown while Activated). After the day, mark each one Met, Partly met or Not met.",
+                  "fields": [
+                    {
+                      "name": "text",
+                      "label": "Expectation",
+                      "widget": "string"
+                    },
+                    {
+                      "name": "result",
+                      "label": "After the day",
+                      "widget": "select",
+                      "required": false,
+                      "options": [
+                        {
+                          "label": "Met",
+                          "value": "met"
+                        },
+                        {
+                          "label": "Partly met",
+                          "value": "partly"
+                        },
+                        {
+                          "label": "Not met",
+                          "value": "not"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "note",
+                      "label": "Short note",
+                      "widget": "string",
+                      "required": false
+                    }
+                  ]
+                },
+                {
                   "name": "impact",
                   "label": "Impact numbers",
                   "label_singular": "Impact number",
