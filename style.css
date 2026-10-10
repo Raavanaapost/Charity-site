@@ -1190,3 +1190,4 @@ body[data-variant="royal"] .vm-end{background:linear-gradient(180deg,#fbf3dc,#f6
 .jr small{font-family:var(--display);font-size:13px;color:var(--muted)}
 .jr li.done i{color:#fff;border-color:transparent}
 .jr li.jr1.done i{background:#1f7a47}.jr li.jr2.done i{background:#b97a06}.jr li.jr3.done i{background:#c8381e}
+.i-note{font-family:var(--display);font-size:13.5px;color:#5d6b64;font-weight:500}
