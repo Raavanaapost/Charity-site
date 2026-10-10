@@ -305,7 +305,11 @@
         <button class="pt-btn" type="submit">${mode === "login" ? "Sign in" : "Save password"}</button>
         <p class="pt-login-msg" role="status">${esc(msg)}</p>
       </form>
-      ${mode === "login" ? `<p class="pt-sub"><button type="button" class="pt-link" data-forgot>Forgot your password?</button> · <a href="?demo=1">Look around the demo</a></p>` : ""}
+      ${mode === "login" ? `<form class="pt-card pt-paste" id="pt-paste">
+        <label class="pt-field">Got an invite or password email? Paste its link here<input name="link" placeholder="Long-press the button in the email, Copy link, paste" autocomplete="off"></label>
+        <button class="pt-btn ghost" type="submit">Continue</button>
+      </form>
+      <p class="pt-sub"><button type="button" class="pt-link" data-forgot>Forgot your password?</button> · <a href="?demo=1">Look around the demo</a></p>` : ""}
     </section>`;
     const f = document.getElementById("pt-login"), out = f.querySelector(".pt-login-msg");
     f.onsubmit = async e => {
@@ -320,6 +324,14 @@
         else await idCall(id, ["login"], fd.get("email"), fd.get("password"));
         location.replace("/portal#/dashboard"); location.reload();
       } catch (err) { out.textContent = err && err.message ? err.message : "That did not work. Check the email and password."; }
+    };
+    const pf = document.getElementById("pt-paste");
+    if (pf) pf.onsubmit = e => {
+      e.preventDefault(); const v = String(new FormData(pf).get("link") || "");
+      const inv = v.match(/invite_token=([^&\s]+)/), rec = v.match(/recovery_token=([^&\s]+)/);
+      if (inv) signIn("", "invite", decodeURIComponent(inv[1]));
+      else if (rec) signIn("", "recovery", decodeURIComponent(rec[1]));
+      else out.textContent = "That link has no invite or reset code. Copy the link from the button in the email.";
     };
     const fg = app.querySelector("[data-forgot]");
     if (fg) fg.onclick = async () => {
