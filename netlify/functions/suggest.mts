@@ -32,15 +32,14 @@ export default async (req: Request) => {
     additional: clipText(f.additional, 1000),
   };
   s.location = [s.village, s.city].filter(Boolean).join(", ");
+  // Title and category are optional (under "Add more details"); a title is made from the start of the description.
+  if (!s.title && s.description) s.title = clip(s.description.split(/[.!?\n]/)[0], 70) + (s.description.length > 70 && s.description.split(/[.!?\n]/)[0].length > 70 ? "…" : "");
   if (!s.title || !s.description || !s.city || !s.village || !s.children || !s.contact || !s.reach) {
     return Response.json({ ok: false, error: "Please fill in every required field." }, { status: 400 });
   }
-  // Evidence is required: at least one file to upload next, or the promise to show it at the visit.
+  // A photo or document is optional; without one, the team sees it at the visit.
   const files = Math.max(0, Math.min(3, Number(f.evidence_files) || 0));
-  const noEvidence = f.no_evidence === true || f.no_evidence === "yes" || f.no_evidence === "on";
-  if (!files && !noEvidence) {
-    return Response.json({ ok: false, error: "Please add a photo, document or short video, or tick that you will show it at the visit." }, { status: 400 });
-  }
+  const noEvidence = !files;
   const nonce = files ? crypto.randomUUID() : "";
 
   const db = getDatabase();
