@@ -19,6 +19,7 @@
 - [ ] Backend next steps: Projects editor → Sponsors & pledges → Day preparation / Close the day → Reports & feedback → People → Team & logins.
 - [x] Evidence on the Initiate form (10 Oct 2026): required (or "I'll show it at the visit"), up to 3 photos / PDFs / short videos, photos shrunk on the phone, stored privately in Netlify Blobs ("evidence"), seen only in the portal.
 - [ ] Exact address of the event (the home, school or organization): collect it at the visit stage in the portal, not on the public form.
+- [ ] "Where we've been" map: a hand-drawn style map of Sri Lanka with a dot per village we work in (village level only, never a home or school), shown once a project is Activated; tap a dot for its projects. Village position set by the team in the portal at the visit.
 - [ ] Village list: build from the city + village recorded on every suggestion (and later projects and people).
 - [ ] Name the Safeguarding lead and the Independent reviewer (shown publicly on the Report a concern page).
 - [ ] Tamil version of the Report a concern and How did we do? pages (then the rest of the site).
