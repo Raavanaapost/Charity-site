@@ -17,6 +17,7 @@
 - [x] Backend step 1 (Suggestions live): Initiate form → `/api/suggest` → Netlify Database; portal sign-in (Netlify Identity) and live Suggestions inbox via `/api/portal/*`. Admins: `PORTAL_ADMINS` env var (comma-separated emails) or Identity role `admin`; team members: Identity role `team`.
 - [ ] Owner: in Netlify switch on Identity (Registration: Invite only) and invite yourself; then test on the draft.
 - [ ] Backend next steps: Projects editor → Sponsors & pledges → Day preparation / Close the day → Reports & feedback → People → Team & logins.
+- [x] Evidence on the Initiate form (10 Oct 2026): required (or "I'll show it at the visit"), up to 3 photos / PDFs / short videos, photos shrunk on the phone, stored privately in Netlify Blobs ("evidence"), seen only in the portal.
 - [ ] Exact address of the event (the home, school or organization): collect it at the visit stage in the portal, not on the public form.
 - [ ] Village list: build from the city + village recorded on every suggestion (and later projects and people).
 - [ ] Name the Safeguarding lead and the Independent reviewer (shown publicly on the Report a concern page).

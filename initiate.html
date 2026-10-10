@@ -102,6 +102,18 @@
       <label class="i-field" for="o-children"><span>Approximate Number of Children <b class="req" aria-hidden="true">*</b></span>
         <input id="o-children" name="children" required inputmode="numeric" placeholder="e.g. 20"></label>
 
+      <div class="i-field ev" data-evidence>
+        <span>Evidence <b class="req" aria-hidden="true">*</b></span>
+        <p class="ev-help">A photo of a letter, the place or the need helps our team. A PDF or a short video (up to 15 seconds) also works. <b>Please don't show children's faces.</b></p>
+        <div class="ev-btns">
+          <label class="ev-btn"><input type="file" accept="image/*" capture="environment" data-ev-camera><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Take a photo</label>
+          <label class="ev-btn"><input type="file" accept="image/*,application/pdf,video/*" multiple data-ev-pick><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.5 12.5 21a5 5 0 0 1-7-7L14 5.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4L15.5 9"/></svg>Choose a file</label>
+        </div>
+        <ul class="ev-list" data-ev-list></ul>
+        <p class="ev-msg" data-ev-msg role="status"></p>
+        <label class="ev-skip"><input type="checkbox" name="no_evidence" value="yes" data-ev-skip> <span>I can't attach one now. I'll show it during the visit.</span></label>
+      </div>
+
       <div class="i-row">
         <label class="i-field" for="o-contact"><span>Organisation / Contact Person</span>
           <input id="o-contact" name="contact" autocomplete="name" placeholder="Name and organization (if any)"></label>

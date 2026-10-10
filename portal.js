@@ -158,6 +158,17 @@
     const s = D.suggestions.find(x => x.id === id);
     if (!s) return `<p>Not found. <a href="#/suggestions">Back to suggestions</a></p>`;
     const field = (l, v) => v ? `<div><dt>${l}</dt><dd>${v}</dd></div>` : "";
+    // Evidence: private files, only the team sees them (served by /api/portal/files/:id).
+    const evidenceHTML = s => {
+      const files = s.files || [];
+      if (!files.length) return s.noEvidence || LIVE ? `<div class="pt-ev"><h3>Evidence</h3><p class="pt-sub">${s.noEvidence ? "No evidence yet – they will show it at the visit." : "No files."}</p></div>` : "";
+      return `<div class="pt-ev"><h3>Evidence <small>private · team only</small></h3><ul>${files.map(f => {
+        const u = `/api/portal/files/${f.id}`;
+        if (/^image\//.test(f.type)) return `<li><a href="${u}" target="_blank" rel="noopener"><img src="${u}" alt="${esc(f.name)}" loading="lazy"></a></li>`;
+        if (/^video\//.test(f.type)) return `<li><video src="${u}" controls preload="metadata" playsinline></video></li>`;
+        return `<li><a class="pt-ev-doc" href="${u}" target="_blank" rel="noopener">📄 ${esc(f.name)}</a></li>`;
+      }).join("")}</ul></div>`;
+    };
     const step = (k, l) => { const order = ["new", "visit", "verified", "project"], i = order.indexOf(s.status), j = order.indexOf(k); return `<li class="${s.status === "declined" ? "" : j < i ? "done" : j === i ? "now" : ""}"><i></i><span>${l}</span></li>`; };
     return `
       <a class="pt-back" href="#/suggestions">‹ All suggestions</a>
@@ -177,6 +188,7 @@
             ${field("Email or phone", `<a href="${/@/.test(s.reach) ? "mailto:" : "tel:"}${esc(s.reach.replace(/\s/g, ""))}">${esc(s.reach)}</a>`)}
             ${field("More", esc(s.additional))}
           </dl>
+          ${evidenceHTML(s)}
         </section>
         <div class="pt-col">
           <section class="pt-card">

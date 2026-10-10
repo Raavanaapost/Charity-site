@@ -7,6 +7,7 @@
 import type { Config, Context } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
 import { getUser } from "@netlify/identity";
+import { getStore } from "@netlify/blobs";
 
 const STATUSES = ["new", "visit", "verified", "declined", "project"];
 const clip = (v: unknown, max: number) => String(v ?? "").trim().slice(0, max);
@@ -27,6 +28,21 @@ async function member(): Promise<Member | null> {
   return { email, name, roles, admin };
 }
 
+const evidenceStore = (context: Context) =>
+  getStore({ name: context.deploy?.context === "production" ? "evidence" : "evidence-preview", consistency: "strong" });
+
+async function filesFor(db: ReturnType<typeof getDatabase>, ids: number[]) {
+  const by = new Map<number, unknown[]>();
+  if (!ids.length) return by;
+  const rows = await db.sql`SELECT id, suggestion_id, name, type, size FROM suggestion_files WHERE complete AND suggestion_id = ANY(${ids}::int[]) ORDER BY id`;
+  for (const f of rows as { id: number; suggestion_id: number; name: string; type: string; size: number }[]) {
+    const list = by.get(f.suggestion_id) || [];
+    list.push({ id: f.id, name: f.name, type: f.type, size: f.size });
+    by.set(f.suggestion_id, list);
+  }
+  return by;
+}
+
 async function allSuggestions(db: ReturnType<typeof getDatabase>) {
   const rows = await db.sql`SELECT * FROM suggestions ORDER BY received_at DESC LIMIT 500`;
   const notes = await db.sql`SELECT suggestion_id, by_name, body, created_at FROM suggestion_notes ORDER BY created_at`;
@@ -36,16 +52,17 @@ async function allSuggestions(db: ReturnType<typeof getDatabase>) {
     list.push({ by: n.by_name, at: n.created_at, text: n.body });
     bySid.set(n.suggestion_id, list);
   }
-  return (rows as Record<string, any>[]).map((r) => shape(r, bySid.get(r.id) || []));
+  const files = await filesFor(db, (rows as { id: number }[]).map((r) => r.id));
+  return (rows as Record<string, any>[]).map((r) => shape(r, bySid.get(r.id) || [], files.get(r.id) || []));
 }
 
-function shape(r: Record<string, any>, notes: unknown[]) {
+function shape(r: Record<string, any>, notes: unknown[], files: unknown[] = []) {
   return {
     id: r.ref, received: r.received_at, status: r.status, assigned: r.assigned,
     visit: r.visit_date ? new Date(r.visit_date).toISOString().slice(0, 10) : "",
     title: r.title, category: r.category, focus: r.focus || [], description: r.description, location: r.location, city: r.city || "", village: r.village || "",
     children: r.children, contact: r.contact, reach: r.reach, trusted: r.trusted, additional: r.additional,
-    onboard: r.onboard || {}, project: r.project_slug, notes,
+    onboard: r.onboard || {}, project: r.project_slug, notes, files, noEvidence: !!r.no_evidence,
   };
 }
 
@@ -56,6 +73,24 @@ export default async (req: Request, context: Context) => {
   const parts = new URL(req.url).pathname.replace(/^\/api\/portal\/?/, "").split("/").filter(Boolean);
 
   if (parts[0] === "me" && req.method === "GET") return json({ email: me.email, name: me.name, roles: me.roles, admin: me.admin });
+
+  // Evidence files, streamed part by part from Netlify Blobs (team only).
+  if (parts[0] === "files" && parts[1] && req.method === "GET") {
+    const [f] = await db.sql<{ file_key: string; type: string; parts: number; name: string }>`
+      SELECT file_key, type, parts, name FROM suggestion_files WHERE id = ${Number(parts[1]) || 0} AND complete`;
+    if (!f) return json({ error: "Not found" }, 404);
+    const store = evidenceStore(context);
+    const stream = new ReadableStream({
+      async start(controller) {
+        for (let i = 0; i < f.parts; i++) {
+          const chunk = await store.get(`${f.file_key}/${i}`, { type: "arrayBuffer" });
+          if (chunk) controller.enqueue(new Uint8Array(chunk as ArrayBuffer));
+        }
+        controller.close();
+      },
+    });
+    return new Response(stream, { headers: { "Content-Type": f.type, "Cache-Control": "private, max-age=3600", "Content-Disposition": `inline; filename="${f.name.replace(/"/g, "")}"` } });
+  }
 
   if (parts[0] === "suggestions" && parts.length === 1 && req.method === "GET") {
     return json({ suggestions: await allSuggestions(db) });
@@ -115,10 +150,10 @@ export default async (req: Request, context: Context) => {
 
     const [r] = await db.sql`SELECT * FROM suggestions WHERE id = ${row.id}`;
     const notes = await db.sql`SELECT by_name, body, created_at FROM suggestion_notes WHERE suggestion_id = ${row.id} ORDER BY created_at`;
-    return json({ suggestion: shape(r as Record<string, any>, (notes as any[]).map((n) => ({ by: n.by_name, at: n.created_at, text: n.body }))) });
+    const files = await filesFor(db, [row.id]);
+    return json({ suggestion: shape(r as Record<string, any>, (notes as any[]).map((n) => ({ by: n.by_name, at: n.created_at, text: n.body })), files.get(row.id) || []) });
   }
 
-  void context;
   return json({ error: "Not found" }, 404);
 };
 

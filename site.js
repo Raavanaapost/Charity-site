@@ -102,6 +102,7 @@
     root.querySelectorAll("form[data-ajax]").forEach(f => f.addEventListener("submit", async e => {
       e.preventDefault();
       const btn = f.querySelector("button[type=submit]"), msg = f.querySelector("[data-msg]");
+      if (f._check && !f._check()) return; // e.g. evidence missing
       btn.disabled = true;
       const fd = new FormData(f); // read the entries before the fields are disabled
       try {
@@ -110,12 +111,15 @@
         let toPortal = Promise.resolve(null);
         if (f.getAttribute("name") === "opportunity") {
           const data = {}; for (const [k, v] of fd.entries()) { if (k === "focus[]") (data.focus = data.focus || []).push(v); else data[k] = v; }
+          if (f._evCount) data.evidence_files = f._evCount();
           toPortal = fetch("/api/suggest", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).catch(() => null);
         }
         const [r, p] = await Promise.all([toForms.catch(() => null), toPortal]);
         if (!(r && r.ok) && !(p && p.ok)) throw new Error(r ? r.status : "offline");
+        // Then the evidence files, once the suggestion exists.
+        if (f._after && p && p.ok) { msg.hidden = false; msg.className = "note"; await f._after(await p.json().catch(() => ({})), msg); }
         f.querySelectorAll("input:not([type=hidden]),textarea,select").forEach(el => el.disabled = true);
-        msg.textContent = f.dataset.done; msg.className = "toast";
+        msg.textContent = msg.dataset.warn || f.dataset.done; msg.className = msg.dataset.warn ? "note error" : "toast";
         if (f.hasAttribute("data-comment")) {
           const art = document.createElement("article");
           const nm = String(fd.get("name") || "Anonymous");
@@ -1199,6 +1203,79 @@
           multi.addEventListener("change", sync); sync();
           document.addEventListener("click", e => { if (multi.open && !multi.contains(e.target)) multi.open = false; });
           multi.addEventListener("keydown", e => { if (e.key === "Escape" && multi.open) { multi.open = false; multi.querySelector("summary").focus(); } });
+        }
+        // Evidence: take a photo or choose files (up to 3). Photos are made smaller on the phone before sending.
+        const ev = document.querySelector("[data-evidence]");
+        if (ev) {
+          const form = ev.closest("form"), list = ev.querySelector("[data-ev-list]"), say = ev.querySelector("[data-ev-msg]"), skip = ev.querySelector("[data-ev-skip]");
+          const items = [], MAX = 3, PART = 4 * 1024 * 1024;
+          const kb = n => n > 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB";
+          const draw = () => {
+            list.innerHTML = items.map((it, k) => `<li>${it.preview ? `<img src="${it.preview}" alt="">` : `<span class="ev-ico">${it.type === "application/pdf" ? "PDF" : "VIDEO"}</span>`}<span class="ev-name">${esc(it.name)}<small>${kb(it.blob.size)}</small></span><button type="button" data-ev-del="${k}" aria-label="Remove">✕</button></li>`).join("");
+            list.querySelectorAll("[data-ev-del]").forEach(b => b.onclick = () => { const it = items.splice(+b.dataset.evDel, 1)[0]; if (it && it.preview) URL.revokeObjectURL(it.preview); draw(); });
+            ev.classList.toggle("has", items.length > 0);
+          };
+          const shrink = file => new Promise(resolve => {
+            const img = new Image(), url = URL.createObjectURL(file);
+            img.onload = () => {
+              const max = 1600, sc = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+              const c = document.createElement("canvas"); c.width = Math.round(img.naturalWidth * sc); c.height = Math.round(img.naturalHeight * sc);
+              c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+              c.toBlob(b => resolve(b && b.size < file.size ? b : file), "image/jpeg", 0.82);
+            };
+            img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+            img.src = url;
+          });
+          const videoLength = file => new Promise(resolve => {
+            const v = document.createElement("video"), url = URL.createObjectURL(file);
+            v.preload = "metadata"; v.onloadedmetadata = () => { URL.revokeObjectURL(url); resolve(v.duration || 0); }; v.onerror = () => { URL.revokeObjectURL(url); resolve(0); }; v.src = url;
+          });
+          const add = async files => {
+            say.textContent = "";
+            for (const file of files) {
+              if (items.length >= MAX) { say.textContent = `Up to ${MAX} files.`; break; }
+              const t = (file.type || "").toLowerCase();
+              if (t.startsWith("image/")) {
+                const blob = await shrink(file);
+                if (blob.size > 8 * 1048576) { say.textContent = "That photo is too big."; continue; }
+                items.push({ blob, name: (file.name || "photo").replace(/\.\w+$/, "") + (blob.type === "image/jpeg" ? ".jpg" : ""), type: blob.type || t, preview: URL.createObjectURL(blob) });
+              } else if (t === "application/pdf") {
+                if (file.size > 8 * 1048576) { say.textContent = "That document is too big (8 MB at most)."; continue; }
+                items.push({ blob: file, name: file.name, type: t });
+              } else if (t.startsWith("video/")) {
+                const secs = await videoLength(file);
+                if (secs > 20 || file.size > 30 * 1048576) { say.textContent = "Videos must be short (about 15 seconds). For longer ones, paste a YouTube or WhatsApp link under Additional Information."; continue; }
+                items.push({ blob: file, name: file.name || "video.mp4", type: t });
+              } else { say.textContent = "Only photos, PDF documents and short videos."; }
+            }
+            if (items.length) skip.checked = false;
+            draw();
+          };
+          ev.querySelectorAll("input[type=file]").forEach(inp => inp.addEventListener("change", () => { add([...inp.files]); inp.value = ""; }));
+          skip.addEventListener("change", () => { if (skip.checked) say.textContent = ""; });
+          form._evCount = () => items.length;
+          form._check = () => {
+            if (items.length || skip.checked) return true;
+            say.textContent = "Please add a photo, document or short video, or tick the box below.";
+            ev.scrollIntoView({ behavior: "smooth", block: "center" }); return false;
+          };
+          form._after = async (res, msg) => {
+            if (!items.length || !res.upload) return;
+            let failed = 0;
+            for (let i = 0; i < items.length; i++) {
+              const it = items[i], parts = Math.max(1, Math.ceil(it.blob.size / PART)), id = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + i).replace(/[^0-9a-z-]/gi, "");
+              try {
+                for (let p = 0; p < parts; p++) {
+                  msg.textContent = `Uploading ${i + 1} of ${items.length}${parts > 1 ? ` (${Math.round((p / parts) * 100)}%)` : ""}...`;
+                  const r = await fetch("/api/suggest/evidence", { method: "POST", body: it.blob.slice(p * PART, (p + 1) * PART),
+                    headers: { "x-upload": res.upload, "x-file": id, "x-part": String(p), "x-parts": String(parts), "x-name": it.name, "x-type": it.type, "x-size": String(it.blob.size) } });
+                  if (!r.ok) throw new Error(String(r.status));
+                }
+              } catch (e) { failed++; }
+            }
+            if (failed) f_warn(msg, failed);
+          };
+          const f_warn = (msg, n) => { msg.dataset.warn = `Your suggestion was sent, but ${n} file${n > 1 ? "s" : ""} could not be uploaded. Our team will ask you for ${n > 1 ? "them" : "it"} at the visit.`; };
         }
         // City: pick from the list, or choose Other and type it. "Location" is filled from city + village for Netlify Forms.
         const city = document.querySelector("[data-city]"), other = document.querySelector("[data-city-other]"), village = document.getElementById("o-village"), loc = document.querySelector("[data-location]");

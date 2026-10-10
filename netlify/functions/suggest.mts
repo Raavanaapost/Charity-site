@@ -35,15 +35,22 @@ export default async (req: Request) => {
   if (!s.title || !s.description || !s.city || !s.village || !s.children || !s.reach) {
     return Response.json({ ok: false, error: "Please fill in every required field." }, { status: 400 });
   }
+  // Evidence is required: at least one file to upload next, or the promise to show it at the visit.
+  const files = Math.max(0, Math.min(3, Number(f.evidence_files) || 0));
+  const noEvidence = f.no_evidence === true || f.no_evidence === "yes" || f.no_evidence === "on";
+  if (!files && !noEvidence) {
+    return Response.json({ ok: false, error: "Please add a photo, document or short video, or tick that you will show it at the visit." }, { status: 400 });
+  }
+  const nonce = files ? crypto.randomUUID() : "";
 
   const db = getDatabase();
   const [row] = await db.sql<{ ref: string }>`
-    INSERT INTO suggestions (ref, title, category, focus, description, city, village, location, children, contact, reach, trusted, additional)
+    INSERT INTO suggestions (ref, title, category, focus, description, city, village, location, children, contact, reach, trusted, additional, upload_nonce, no_evidence)
     VALUES ('S-' || nextval('suggestion_ref_seq'), ${s.title}, ${s.category}, ${s.focus}, ${s.description}, ${s.city}, ${s.village}, ${s.location},
-            ${s.children}, ${s.contact}, ${s.reach}, ${s.trusted}, ${s.additional})
+            ${s.children}, ${s.contact}, ${s.reach}, ${s.trusted}, ${s.additional}, ${nonce}, ${noEvidence && !files})
     RETURNING ref`;
   await db.sql`INSERT INTO audit_log (actor, action, target) VALUES ('website', 'suggestion.received', ${row.ref})`;
-  return Response.json({ ok: true, ref: row.ref });
+  return Response.json({ ok: true, ref: row.ref, upload: nonce });
 };
 
 export const config: Config = {
