@@ -7,7 +7,7 @@
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const num = v => { const n = parseFloat(String(v == null ? "" : v).replace(/[^0-9.]/g, "")); return isFinite(n) ? n : 0; };
   const money = n => "$" + Math.round(n).toLocaleString("en-US");
-  const NOW = new Date("2026-10-09T09:00"); // fixed "today" so the demo always reads the same
+  let NOW = new Date("2026-10-09T09:00"); // fixed "today" so the demo always reads the same
   const ago = iso => {
     const d = new Date(iso), days = Math.floor((NOW - d) / 864e5);
     if (days <= 0) return "Today"; if (days === 1) return "Yesterday"; if (days < 7) return days + " days ago";
@@ -59,6 +59,8 @@
 
   function drawNav(cur) {
     const newCount = D.suggestions.filter(s => s.status === "new").length, openRep = D.reports.filter(r => r.status !== "closed").length;
+    const so = document.querySelector(".pt-site");
+    if (so && LIVE && !document.getElementById("pt-signout")) { const b = document.createElement("button"); b.id = "pt-signout"; b.type = "button"; b.className = "pt-site pt-signout"; b.textContent = "Sign out"; b.onclick = signOut; so.after(b); }
     document.getElementById("pt-nav").innerHTML = MENU.map(([k, l, ready]) => ready
       ? `<a href="#/${k}" class="${cur === k ? "on" : ""}" ${cur === k ? 'aria-current="page"' : ""}>${svg(ICON[k])}<span>${l}</span>${k === "suggestions" && newCount ? `<b class="pt-badge">${newCount}</b>` : k === "reports" && openRep ? `<b class="pt-badge">${openRep}</b>` : ""}</a>`
       : `<span class="soon" title="Designed next">${svg(ICON[k])}<span>${l}</span><small>Next</small></span>`).join("");
@@ -71,7 +73,8 @@
       let m = document.getElementById("pt-more");
       if (m) { m.remove(); return; }
       m = document.createElement("div"); m.id = "pt-more"; m.className = "pt-more-menu";
-      m.innerHTML = MENU.filter(([k]) => !["dashboard", "suggestions", "projects", "reports"].includes(k)).map(([k, l]) => `<a href="#/${k}">${svg(ICON[k])}<span>${l}</span></a>`).join("");
+      m.innerHTML = MENU.filter(([k]) => !["dashboard", "suggestions", "projects", "reports"].includes(k)).map(([k, l]) => `<a href="#/${k}">${svg(ICON[k])}<span>${l}</span></a>`).join("") + (LIVE ? `<a href="#" data-so>${svg(ICON.team)}<span>Sign out</span></a>` : "");
+      const so2 = m.querySelector("[data-so]"); if (so2) so2.onclick = e => { e.preventDefault(); signOut(); };
       document.body.appendChild(m); m.addEventListener("click", () => m.remove());
     });
   }
@@ -207,7 +210,7 @@
     ["showed", "Showed how to give feedback and report a concern"],
     ["safety", "Explained: we never ask for money, gifts or favours"]
   ];
-  const ob = s => s.onboard || (s.onboard = { contact: "self" });
+  const ob = s => { if (!s.onboard) s.onboard = {}; if (!s.onboard.contact) s.onboard.contact = "self"; return s.onboard; };
   const onboardDone = s => { const o = ob(s); return OB.every(([k]) => o[k]) && o.test && (o.contact === "self" || (o.trusted && o.trusted.name && o.trusted.phone)); };
   function onboardHTML(s) {
     const o = ob(s), t = o.trusted || {};
@@ -228,39 +231,116 @@
            <code>/feedback?ref=${esc(s.id)}&amp;practice=1</code><button type="button" class="pt-btn ghost" data-ob-test>Practice message arrived (demo)</button>`}</div>
     </div>`;
   }
+  // Live mode: every change is saved through the portal API; the saved suggestion comes back and replaces the local one.
+  async function save(s, patch, note, done) {
+    if (!LIVE) { if (note) addNote(s, note); Object.assign(s, patch); render(); if (done) toast(done + " (demo)"); return true; }
+    try {
+      const r = await api(`/api/portal/suggestions/${encodeURIComponent(s.id)}`, { method: "PATCH", body: JSON.stringify({ ...patch, note: note || "" }) });
+      const i = D.suggestions.findIndex(x => x.id === s.id); if (i >= 0) D.suggestions[i] = r.suggestion;
+      render(); if (done) toast(done); return true;
+    } catch (e) { toast(e.message || "Could not save. Check your connection."); render(); return false; }
+  }
   function wireOnboard(s) {
-    const o = ob(s);
-    app.querySelectorAll("[data-ob]").forEach(c => c.onchange = () => { o[c.dataset.ob] = c.checked; render(); });
-    app.querySelectorAll('input[name="ob-contact"]').forEach(r => r.onchange = () => { o.contact = r.value; render(); });
-    app.querySelectorAll("[data-tr]").forEach(i => i.onchange = () => { o.trusted = o.trusted || {}; o.trusted[i.dataset.tr] = i.value.trim(); render(); });
+    const o = JSON.parse(JSON.stringify(ob(s)));
+    const put = () => save(s, { onboard: o });
+    app.querySelectorAll("[data-ob]").forEach(c => c.onchange = () => { o[c.dataset.ob] = c.checked; put(); });
+    app.querySelectorAll('input[name="ob-contact"]').forEach(r => r.onchange = () => { o.contact = r.value; put(); });
+    app.querySelectorAll("[data-tr]").forEach(i => i.onchange = () => { o.trusted = o.trusted || {}; o.trusted[i.dataset.tr] = i.value.trim(); put(); });
     const t = app.querySelector("[data-ob-test]");
-    if (t) t.onclick = () => { o.test = true; addNote(s, "Practice feedback message received. They know how to give feedback and report a concern."); render(); toast("Practice message received (demo)"); };
+    if (t) t.onclick = () => { o.test = true; save(s, { onboard: o }, "Practice feedback message received. They know how to give feedback and report a concern.", "Practice message received"); };
   }
   function wireDetail(id) {
     const s = D.suggestions.find(x => x.id === id); if (!s) return;
     wireOnboard(s);
     const sel = app.querySelector("[data-assign]");
-    sel.onchange = () => { s.assigned = sel.value; addNote(s, sel.value ? `${sel.value} is looking after this.` : "Nobody is looking after this now."); render(); toast("Saved (demo)"); };
+    sel.onchange = () => save(s, { assigned: sel.value }, sel.value ? `${sel.value} is looking after this.` : "Nobody is looking after this now.", "Saved");
     app.querySelectorAll("[data-act]").forEach(btn => btn.onclick = () => {
       const act = btn.dataset.act;
-      if (act === "visit") { const v = app.querySelector("[data-visit]").value; s.visit = v; addNote(s, `Visit planned for ${fmtDay(v)}.`); }
-      if (act === "verified") addNote(s, "Visited. The need is real. A short \"How did we do?\" form was sent to the requester.");
-      if (act === "declined") addNote(s, "Marked not suitable.");
+      if (act === "visit") { const v = app.querySelector("[data-visit]").value; return save(s, { status: "visit", visit: v }, `Visit planned for ${fmtDay(v)}.`, "Visit planned"); }
+      if (act === "verified") return save(s, { status: "verified" }, LIVE ? "Visited. The need is real." : "Visited. The need is real. A short \"How did we do?\" form was sent to the requester.", "Verified");
+      if (act === "declined") return save(s, { status: "declined" }, "Marked not suitable.", "Not suitable");
+      if (act === "new") return save(s, { status: "new" }, "Reopened.", "Reopened");
       if (act === "project") {
-        addNote(s, "Turned into an Initiated project.");
         const slug = s.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48);
-        if (!P.some(p => p.slug === slug)) P.unshift({ title: s.title, slug, theme: s.category === "Other" ? "Trips & Events" : s.category, status: "Planning",
-          location: s.location.split(",")[0], city: s.location.split(",")[0], reach: s.children ? `About ${s.children} children` : "", organization: "Raavanaa",
-          started: "October 2026", verified: true, budget: [], goal: 0, funders: [], steps: [], expectations: [], updates: [], photos: [], media: [],
-          summary: s.description, story: `## Summary\n\n${s.description}`, cover: "", fromSuggestion: s.id, isNew: true });
-        s.status = act; s.project = slug; location.hash = `#/projects/${slug}`; toast("Project created (demo)"); return;
+        save(s, { status: "project" }, "Turned into an Initiated project.", LIVE ? "Marked as a project. The project editor goes live in the next step." : "").then(ok => {
+          if (!ok || LIVE) return;
+          if (!P.some(p => p.slug === slug)) P.unshift({ title: s.title, slug, theme: s.category === "Other" ? "Trips & Events" : s.category, status: "Planning",
+            location: s.location.split(",")[0], city: s.location.split(",")[0], reach: s.children ? `About ${s.children} children` : "", organization: "Raavanaa",
+            started: "October 2026", verified: true, budget: [], goal: 0, funders: [], steps: [], expectations: [], updates: [], photos: [], media: [],
+            summary: s.description, story: `## Summary\n\n${s.description}`, cover: "", fromSuggestion: s.id, isNew: true });
+          s.project = slug; location.hash = `#/projects/${slug}`; toast("Project created (demo)");
+        });
       }
-      if (act === "new") addNote(s, "Reopened.");
-      s.status = act; render(); toast(`${STATUS[act].label} (demo)`);
     });
-    app.querySelector(".pt-note-form").onsubmit = e => { e.preventDefault(); const t = e.target.querySelector("textarea").value.trim(); if (!t) return; addNote(s, t); render(); toast("Note added (demo)"); };
+    app.querySelector(".pt-note-form").onsubmit = async e => {
+      e.preventDefault(); const t = e.target.querySelector("textarea").value.trim(); if (!t) return;
+      if (!LIVE) { addNote(s, t); render(); toast("Note added (demo)"); return; }
+      try { const r = await api(`/api/portal/suggestions/${encodeURIComponent(s.id)}/notes`, { method: "POST", body: JSON.stringify({ text: t }) });
+        const i = D.suggestions.findIndex(x => x.id === s.id); if (i >= 0) D.suggestions[i] = r.suggestion; render(); toast("Note added");
+      } catch (err) { toast(err.message || "Could not save the note."); }
+    };
   }
   const addNote = (s, text) => s.notes.push({ by: D.user.name, at: NOW.toISOString(), text });
+
+  // ---------- Sign in (Netlify Identity) ----------
+  let LIVE = false, ME = null;
+  async function api(url, opts = {}) {
+    const r = await fetch(url, { credentials: "same-origin", ...opts, headers: { "Content-Type": "application/json", ...(opts.headers || {}) } });
+    let j = {}; try { j = await r.json(); } catch (e) { /* not JSON */ }
+    if (!r.ok) { const err = new Error(j.error || `Error ${r.status}`); err.status = r.status; throw err; }
+    return j;
+  }
+  const identity = () => import("https://esm.sh/@netlify/identity");
+  // Call the first function the Identity library provides from a list of names (guards against small API differences).
+  const idCall = (id, names, ...args) => { const n = names.find(k => typeof id[k] === "function"); if (!n) throw new Error("This sign-in step is not available. Ask the admin for help."); return id[n](...args); };
+  function signIn(msg = "", mode = "login", token = "") {
+    document.body.classList.add("pt-signedout");
+    app.innerHTML = `<section class="pt-login">
+      <img src="/img/logo.webp?v=3" alt="Raavanaa" width="900" height="298">
+      <h1>${mode === "invite" ? "Welcome to the team" : mode === "recovery" ? "Choose a new password" : "Team sign in"}</h1>
+      <p class="pt-sub">${mode === "invite" ? "Choose a password for your new portal account." : mode === "recovery" ? "Type your new password." : "For the Raavanaa team only."}</p>
+      <form class="pt-card" id="pt-login">
+        ${mode === "login" ? `<label class="pt-field">Email<input name="email" type="email" autocomplete="username" required></label>` : ""}
+        <label class="pt-field">Password<input name="password" type="password" autocomplete="${mode === "login" ? "current-password" : "new-password"}" minlength="8" required></label>
+        <button class="pt-btn" type="submit">${mode === "login" ? "Sign in" : "Save password"}</button>
+        <p class="pt-login-msg" role="status">${esc(msg)}</p>
+      </form>
+      ${mode === "login" ? `<p class="pt-sub"><button type="button" class="pt-link" data-forgot>Forgot your password?</button> · <a href="?demo=1">Look around the demo</a></p>` : ""}
+    </section>`;
+    const f = document.getElementById("pt-login"), out = f.querySelector(".pt-login-msg");
+    f.onsubmit = async e => {
+      e.preventDefault(); const fd = new FormData(f); out.textContent = "One moment...";
+      try {
+        const id = await identity();
+        if (mode === "invite") await idCall(id, ["acceptInvite"], token, fd.get("password"));
+        else if (mode === "recovery") {
+          if (typeof id.recoverPassword === "function") await id.recoverPassword(token, fd.get("password"));
+          else { await idCall(id, ["handleAuthCallback"]); await idCall(id, ["updateUser"], { password: fd.get("password") }); }
+        }
+        else await idCall(id, ["login"], fd.get("email"), fd.get("password"));
+        location.replace("/portal#/dashboard"); location.reload();
+      } catch (err) { out.textContent = err && err.message ? err.message : "That did not work. Check the email and password."; }
+    };
+    const fg = app.querySelector("[data-forgot]");
+    if (fg) fg.onclick = async () => {
+      const email = f.querySelector("[name=email]").value.trim(); if (!email) { out.textContent = "Type your email first, then tap Forgot."; return; }
+      try { const id = await identity(); await idCall(id, ["requestPasswordRecovery", "sendPasswordRecovery", "requestRecovery"], email); out.textContent = "If that email is on the team, a reset link is on its way."; }
+      catch (err) { out.textContent = "Could not send the reset email. Ask the admin to send you a reset link from Netlify."; }
+    };
+  }
+  async function signOut() { try { const id = await identity(); await idCall(id, ["logout"]); } catch (e) { /* ignore */ } location.replace("/portal"); }
+  // Links from Identity emails (invite, password reset, email confirmation) arrive with a token in the address.
+  async function handleTokens() {
+    const h = location.hash;
+    const inv = h.match(/invite_token=([^&]+)/); if (inv) { history.replaceState(null, "", "/portal"); signIn("", "invite", decodeURIComponent(inv[1])); return true; }
+    const rec = h.match(/recovery_token=([^&]+)/); if (rec) { history.replaceState(null, "", "/portal"); signIn("", "recovery", decodeURIComponent(rec[1])); return true; }
+    if (/(confirmation_token|email_change_token)=/.test(h)) {
+      try { const id = await identity(); const res = await id.handleAuthCallback(); history.replaceState(null, "", "/portal");
+        void res; }
+      catch (e) { history.replaceState(null, "", "/portal"); signIn("That link has expired. Ask for a new one."); return true; }
+    }
+    return false;
+  }
 
   // ---------- Reports & feedback ----------
   // Who can see: only the admin and the independent reviewer. Anyone named in a report is hidden from it.
@@ -855,9 +935,25 @@
   }
 
   Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] }))])
-    .then(([d, p]) => {
+    .then(async ([d, p]) => {
       D = d; P = (p.projects || []).filter(x => !x.hidden);
       P.filter(x => stageNum(x) === 2 && D.days[x.slug]).forEach(syncDay);
+      const demo = new URLSearchParams(location.search).has("demo");
+      if (!demo) {
+        if (await handleTokens()) return;
+        try {
+          ME = await api("/api/portal/me");
+          const r = await api("/api/portal/suggestions");
+          D.suggestions = r.suggestions; D.user = { name: ME.name, role: ME.admin ? "Admin" : "Team" };
+          if (!D.team.includes(ME.name)) D.team = [ME.name, ...D.team];
+          LIVE = true; NOW = new Date();
+        } catch (e) {
+          if (e.status === 401 || e.status === 403) { signIn(); return; }
+          // No portal API here (for example a plain preview): fall back to the demo.
+        }
+      }
+      const banner = document.querySelector(".pt-demo");
+      if (LIVE) { banner.textContent = `Signed in as ${ME.email} · Suggestions are live · other screens are still a demo`; banner.classList.add("live"); }
       window.addEventListener("hashchange", () => { render(); window.scrollTo(0, 0); });
       render();
     })

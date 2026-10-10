@@ -105,8 +105,15 @@
       btn.disabled = true;
       const fd = new FormData(f); // read the entries before the fields are disabled
       try {
-        const r = await fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams(fd).toString() });
-        if (!r.ok) throw new Error(r.status);
+        const toForms = fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams(fd).toString() });
+        // Suggestions also go straight into the team portal's database.
+        let toPortal = Promise.resolve(null);
+        if (f.getAttribute("name") === "opportunity") {
+          const data = {}; for (const [k, v] of fd.entries()) { if (k === "focus[]") (data.focus = data.focus || []).push(v); else data[k] = v; }
+          toPortal = fetch("/api/suggest", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).catch(() => null);
+        }
+        const [r, p] = await Promise.all([toForms.catch(() => null), toPortal]);
+        if (!(r && r.ok) && !(p && p.ok)) throw new Error(r ? r.status : "offline");
         f.querySelectorAll("input:not([type=hidden]),textarea,select").forEach(el => el.disabled = true);
         msg.textContent = f.dataset.done; msg.className = "toast";
         if (f.hasAttribute("data-comment")) {
@@ -1106,6 +1113,11 @@
       menuBtn.setAttribute("aria-expanded", String(open)); nav.classList.toggle("open", open);
     });
     nav.addEventListener("click", e => { if (e.target.closest("a")) { menuBtn.setAttribute("aria-expanded", "false"); nav.classList.remove("open"); } });
+  }
+
+  // Links from team-portal emails (invite, password reset, confirmation) land on the site; send them to the portal.
+  if (/(invite_token|recovery_token|confirmation_token|email_change_token)=/.test(location.hash) && !/^\/portal/.test(location.pathname)) {
+    location.replace("/portal" + location.hash);
   }
 
   async function main() {

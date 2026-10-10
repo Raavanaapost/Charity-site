@@ -1,0 +1,11 @@
+{
+  "name": "raavanaa-community",
+  "private": true,
+  "type": "module",
+  "description": "raavanaa.org: static site plus the team portal backend (Netlify Functions, Netlify Database, Netlify Identity).",
+  "dependencies": {
+    "@netlify/database": "latest",
+    "@netlify/functions": "latest",
+    "@netlify/identity": "latest"
+  }
+}
