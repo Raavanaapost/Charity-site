@@ -20,4 +20,5 @@ export default async (request: Request, context: { next: () => Promise<Response>
   );
 };
 
-export const config = { path: "/*" };
+// Sign-in requests (Netlify Identity) and the portal API carry their own login, so the site password must not block them.
+export const config = { path: "/*", excludedPath: ["/.netlify/*", "/api/*"] };
