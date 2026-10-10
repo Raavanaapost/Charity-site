@@ -1212,6 +1212,32 @@
       </section>`;
   }
 
+  // The journey: every step from the request to the impact review, with who did it and when.
+  // Names and dates come from the project's "people" (requested_by, verified_by, approved_by, day_lead, impact_by + *_on dates).
+  function journeyHTML(p, full) {
+    const w = p.people || {}, st = stageNum(p), d = v => v ? fmtDate(v) : "";
+    const ex = (p.expectations || []).filter(x => x && x.text), reviewed = ex.length && ex.every(x => x.result);
+    const funders = (p.funders || []).filter(x => x && x.name);
+    const S = [
+      { g: 1, label: "Requested", who: w.requested_by, when: w.requested_on, done: true },
+      { g: 1, label: "Visited and verified", who: w.verified_by, when: w.verified_on, done: !!p.verified },
+      { g: 1, label: "Approved", who: w.approved_by, when: w.approved_on, done: !!(w.approved_by || w.approved_on) || st > 1 },
+      { g: 1, label: "Fully funded", who: funders.length ? `${funders.length} sponsor${funders.length > 1 ? "s" : ""}` : "", when: w.funded_on, done: full || st > 1 },
+      { g: 2, label: "Day prepared", who: w.day_lead ? `Led by ${w.day_lead}` : "", when: "", done: st > 2 || !!(p.date_set && p.booked && p.volunteers) },
+      { g: 2, label: "The day", who: p.reach || "", when: w.day_on, done: st > 2 },
+      { g: 3, label: "Impact reviewed", who: w.impact_by, when: w.impact_on, done: st > 2 && (!!reviewed || !!w.impact_by) }
+    ];
+    const now = S.findIndex(x => !x.done);
+    const G = ["", "Smiles in the Making", "Moments on the Way", "Days of Joy, Created"];
+    let html = "", g = 0;
+    S.forEach((x, k) => {
+      if (x.g !== g) { g = x.g; html += `${k ? "</ol>" : ""}<p class="jr-g jr-g${g}">${G[g]}</p><ol class="jr">`; }
+      const state = x.done ? "done" : k === now ? "now" : "next", info = [x.who && esc(x.who), x.when && d(x.when)].filter(Boolean).join(" · ");
+      html += `<li class="${state} jr${x.g}"><i aria-hidden="true">${x.done ? "✓" : ""}</i><span><b>${x.label}</b>${info ? `<small>${info}</small>` : state === "now" ? "<small>In progress</small>" : ""}</span></li>`;
+    });
+    return `<div class="panel journey"><h2>The journey</h2>${html}</ol></div>`;
+  }
+
   function renderProject(app, site, projects, slug) {
     const i = projects.findIndex(p => slugOf(p) === slug);
     const p = projects[i];
@@ -1319,6 +1345,7 @@
               </dl>
               ${(p.impact || []).length ? `<div class="stats">${p.impact.map(s => `<div class="stat"><b>${esc(s.value)}</b><span>${esc(s.label)}</span></div>`).join("")}</div>` : ""}
             </div>
+            ${journeyHTML(p, full)}
             ${signupHTML(slugOf(p), "Follow this project")}
             <a class="btn ghost" href="/initiated">Back to all projects</a>
           </aside>
