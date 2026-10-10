@@ -56,84 +56,79 @@
         </div>
       </div>
 
-      
+      <ol class="i-steps">
 
-      <label class="i-field" for="o-description"><span>Brief Description <b class="req" aria-hidden="true">*</b></span>
-        <span class="i-area">
-          <textarea id="o-description" name="description" required maxlength="1000" rows="4" placeholder="Tell us your idea: who the children are, and what would make them happy."></textarea>
-          <span class="i-count" aria-hidden="true"><span id="o-count">0</span>/1000</span>
-        </span></label>
+        <li class="i-q">
+          <label class="i-field" for="o-kind"><span><b class="i-n">1</b>What moment would you like to create? <b class="req" aria-hidden="true">*</b></span>
+            <select id="o-kind" name="kind" required>
+              <option value="" selected disabled>Choose one</option>
+              <option>A day out or trip</option>
+              <option>A game or sports day</option>
+              <option>A good meal together</option>
+              <option>A celebration or festival</option>
+              <option>Help with learning</option>
+              <option>Something else</option>
+            </select></label>
+          <label class="i-field" for="o-description"><span class="i-sub">Tell us a little more <u class="opt">(optional)</u></span>
+            <span class="i-area">
+              <textarea id="o-description" name="description" maxlength="1000" rows="3" placeholder="Who are the children, and what would make them happy?"></textarea>
+              <span class="i-count" aria-hidden="true"><span id="o-count">0</span>/1000</span>
+            </span></label>
+          <div class="ev ev-mini" data-evidence>
+            <label class="ev-add"><input type="file" accept="image/*,application/pdf" data-ev-pick><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Add a photo <u class="opt">(optional)</u></span></label>
+            <ul class="ev-list" data-ev-list></ul>
+            <p class="ev-msg" data-ev-msg role="status"></p>
+          </div>
+        </li>
 
-      <div class="i-row">
-        <label class="i-field" for="o-city"><span>City or district <b class="req" aria-hidden="true">*</b></span>
-          <select id="o-city" name="city" required data-city>
-            <option value="" selected disabled>Choose a city</option>
-            <option>Jaffna</option>
-            <option>Kilinochchi</option>
-            <option>Batticaloa</option>
-            <option value="Other">Other (type it below)</option>
-          </select></label>
-        <label class="i-field" for="o-village"><span>Village or area <b class="req" aria-hidden="true">*</b></span>
-          <input id="o-village" name="village" required maxlength="80" placeholder="e.g. Karainagar"></label>
+        <li class="i-q">
+          <div class="i-row">
+            <label class="i-field" for="o-city"><span><b class="i-n">2</b>Where? <b class="req" aria-hidden="true">*</b></span>
+              <select id="o-city" name="city" required data-city>
+                <option value="" selected disabled>Choose a city or district</option>
+                <option>Jaffna</option>
+                <option>Kilinochchi</option>
+                <option>Batticaloa</option>
+                <option value="Other">Somewhere else</option>
+              </select></label>
+            <label class="i-field" for="o-village"><span class="i-sub">Village or area <b class="req" aria-hidden="true">*</b></span>
+              <input id="o-village" name="village" required maxlength="80" placeholder="e.g. Karainagar"></label>
+          </div>
+          <label class="i-field" for="o-city-other" data-city-other hidden><span class="i-sub">Which city or district? <b class="req" aria-hidden="true">*</b></span>
+            <input id="o-city-other" name="city_other" maxlength="60" placeholder="e.g. Mullaitivu"></label>
+          <input type="hidden" name="location" value="" data-location>
+        </li>
+
+        <li class="i-q">
+          <label class="i-field" for="o-children"><span><b class="i-n">3</b>About how many will take part? <b class="req" aria-hidden="true">*</b></span>
+            <select id="o-children" name="children" required>
+              <option value="" selected disabled>Choose one</option>
+              <option>Fewer than 10</option>
+              <option>10 to 25</option>
+              <option>25 to 50</option>
+              <option>50 to 100</option>
+              <option>More than 100</option>
+            </select></label>
+        </li>
+
+        <li class="i-q">
+          <div class="i-row">
+            <label class="i-field" for="o-contact"><span><b class="i-n">4</b>Your name <b class="req" aria-hidden="true">*</b></span>
+              <input id="o-contact" name="contact" required maxlength="120" autocomplete="name" placeholder="Your name"></label>
+            <label class="i-field" for="o-reach"><span class="i-sub">Phone, WhatsApp or email <b class="req" aria-hidden="true">*</b></span>
+              <input id="o-reach" name="reach" required maxlength="120" autocomplete="tel" inputmode="text" placeholder="So we can call you back"></label>
+          </div>
+        </li>
+      </ol>
+
+      <div class="i-next" aria-label="What happens next">
+        <p class="i-next-h">What happens next</p>
+        <ul>
+          <li><b>We contact you</b> about your request.</li>
+          <li><b>We visit in person.</b> A member of our local team verifies every request before it becomes a project.</li>
+          <li><b>Everything is recorded,</b> so every project is checked and accountable.</li>
+        </ul>
       </div>
-      <label class="i-field" for="o-city-other" data-city-other hidden><span>Which city or district? <b class="req" aria-hidden="true">*</b></span>
-        <input id="o-city-other" name="city_other" maxlength="60" placeholder="e.g. Mullaitivu"></label>
-      <input type="hidden" name="location" value="" data-location>
-
-      <label class="i-field" for="o-children"><span>Approximate Number of Children <b class="req" aria-hidden="true">*</b></span>
-        <input id="o-children" name="children" required inputmode="numeric" placeholder="e.g. 20"></label>
-
-      <div class="i-row">
-        <label class="i-field" for="o-contact"><span>Contact Person / Organisation <b class="req" aria-hidden="true">*</b></span>
-          <input id="o-contact" name="contact" required maxlength="120" autocomplete="name" placeholder="Your name, and organization (if any)"></label>
-        <label class="i-field" for="o-reach"><span>Email or Phone <b class="req" aria-hidden="true">*</b></span>
-          <input id="o-reach" name="reach" required autocomplete="email" placeholder="So we can reply to you"></label>
-      </div>
-
-      <details class="i-more" data-more>
-        <summary><span>Add more details <u class="opt">(optional)</u></span><small>A title, category, a photo or document, and anything else you'd like us to know</small></summary>
-        <div class="i-more-body">
-      <label class="i-field" for="o-title"><span>Project Title <u class="opt">(optional)</u></span>
-        <input id="o-title" name="title" maxlength="120" placeholder="e.g. Jaffna Children's Recreation Day"></label>
-      <div class="i-row">
-        <label class="i-field" for="o-category"><span>Primary Project Category <u class="opt">(optional)</u></span>
-          <select id="o-category" name="category">
-            <option value="" selected disabled>Select a category</option>
-            <option>Trips &amp; Events</option>
-            <option>Education</option>
-            <option>Other</option>
-          </select></label>
-        <div class="i-field">
-          <span id="o-focus-label">Project Focus <u class="opt">(optional)</u></span>
-          <details class="multi" id="o-focus">
-            <summary aria-labelledby="o-focus-label o-focus-value"><span id="o-focus-value" data-empty="Select one or more">Select one or more</span></summary>
-            <div class="multi-list" role="group" aria-labelledby="o-focus-label">
-              <label><input type="checkbox" name="focus[]" value="A game or activity"> A game or activity</label>
-              <label><input type="checkbox" name="focus[]" value="A trip or outing"> A trip or outing</label>
-              <label><input type="checkbox" name="focus[]" value="A good meal"> A good meal</label>
-              <label><input type="checkbox" name="focus[]" value="Learning support"> Learning support</label>
-              <label><input type="checkbox" name="focus[]" value="Children with special needs"> Children with special needs</label>
-              <label><input type="checkbox" name="focus[]" value="Children's home"> Children's home</label>
-            </div>
-          </details>
-        </div>
-      </div>
-      <div class="i-field ev" data-evidence>
-        <span>A photo or document <u class="opt">(optional)</u></span>
-        <p class="ev-help">A photo of a letter, the place or the need helps our team. A PDF or a short video (up to 15 seconds) also works. <b>Please don't show children's faces.</b></p>
-        <div class="ev-btns">
-          <label class="ev-btn"><input type="file" accept="image/*" capture="environment" data-ev-camera><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Take a photo</label>
-          <label class="ev-btn"><input type="file" accept="image/*,application/pdf,video/*" multiple data-ev-pick><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.5 12.5 21a5 5 0 0 1-7-7L14 5.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4L15.5 9"/></svg>Choose a file</label>
-        </div>
-        <ul class="ev-list" data-ev-list></ul>
-        <p class="ev-msg" data-ev-msg role="status"></p>
-      </div>
-      <label class="i-field" for="o-trusted"><span>Someone close we can also contact <u class="opt">(optional)</u></span>
-        <input id="o-trusted" name="trusted_contact" placeholder="Name, relation and phone (e.g. a son or niece who uses a phone)"></label>
-      <label class="i-field" for="o-more"><span>Additional Information <u class="opt">(optional)</u></span>
-        <textarea id="o-more" name="additional" rows="2" placeholder="Any other details, timing, support needed, etc."></textarea></label>
-        </div>
-      </details>
 
       <button class="i-submit" type="submit">
         <svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true"><path d="M21.5 2.5 2.5 10.2l6.3 2.4 1.9 6.9 3.3-4.3 4.6 3.3z"></path></svg>

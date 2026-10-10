@@ -1527,10 +1527,10 @@
               const more = form.querySelector("[data-more]"); if (more && (items.length || [...more.querySelectorAll("input:not([type=file]),select,textarea")].some(el => (el.type === "checkbox" ? el.checked : el.value)))) more.open = true;
             }
             if (cam && Date.now() - cam < 15 * 60e3) { const more = form.querySelector("[data-more]"); if (more) more.open = true; }
-            if (cam && Date.now() - cam < 15 * 60e3) say.textContent = "Your phone closed this page while the camera was open, so the photo was lost. What you typed is kept. Please take the photo with your camera app first, then tap \"Choose a file\" and pick it.";
+            if (cam && Date.now() - cam < 15 * 60e3) say.textContent = "Your phone closed this page while the camera was open, so the photo was lost. What you typed is kept. Please take the photo with your camera app first, then tap \"Add a photo\" and pick it from your gallery.";
             restoring = false;
           })();
-          const camIn = ev.querySelector("[data-ev-camera]");
+          const camIn = ev.querySelector("[data-ev-camera]") || ev.querySelector("[data-ev-pick]");
           camIn.addEventListener("click", () => { try { localStorage.setItem("raav-cam", String(Date.now())); } catch (e) {} keep(); });
           window.addEventListener("focus", () => setTimeout(() => { try { localStorage.removeItem("raav-cam"); } catch (e) {} }, 4000));
           ev.querySelectorAll("input[type=file]").forEach(inp => inp.addEventListener("change", () => { try { localStorage.removeItem("raav-cam"); } catch (e) {} fromCamera = inp === camIn; const fl = [...inp.files]; inp.value = ""; if (fl.length) { say.textContent = "Adding..."; add(fl); } }));

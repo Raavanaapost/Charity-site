@@ -21,19 +21,25 @@ export default async (req: Request) => {
     title: clip(f.title, 120),
     category: clip(f.category, 40),
     focus: (Array.isArray(f.focus) ? f.focus : String(f.focus ?? "").split(",")).map((x) => clip(x, 60)).filter(Boolean).slice(0, 10),
+    kind: clip(f.kind, 60),
     description: clipText(f.description, 1000),
     city: clip(f.city === "Other" ? f.city_other : f.city, 60),
     village: clip(f.village, 80),
     location: "",
-    children: clip(f.children, 20),
+    children: clip(f.children, 30),
     contact: clip(f.contact, 120),
     reach: clip(f.reach, 120),
     trusted: clip(f.trusted_contact, 200),
     additional: clipText(f.additional, 1000),
   };
   s.location = [s.village, s.city].filter(Boolean).join(", ");
-  // Title and category are optional (under "Add more details"); a title is made from the start of the description.
-  if (!s.title && s.description) s.title = clip(s.description.split(/[.!?\n]/)[0], 70) + (s.description.length > 70 && s.description.split(/[.!?\n]/)[0].length > 70 ? "…" : "");
+  // The public form asks four things: what kind of moment (+ optional details), where, how many, and who to call.
+  // The team fills in the rest (title, category, evidence...) after calling and visiting.
+  const KINDS: Record<string, string> = { "A day out or trip": "Trips & Events", "A game or sports day": "Trips & Events", "A celebration or festival": "Trips & Events", "Help with learning": "Education" };
+  if (s.kind) { if (!s.focus.includes(s.kind)) s.focus.unshift(s.kind); if (!s.category) s.category = KINDS[s.kind] || "Other"; }
+  const first = s.description.split(/[.!?\n]/)[0];
+  if (!s.title) s.title = first ? clip(first, 70) + (first.length > 70 ? "…" : "") : s.kind ? `${s.kind} in ${s.village || s.city}` : "";
+  if (!s.description) s.description = s.kind;
   if (!s.title || !s.description || !s.city || !s.village || !s.children || !s.contact || !s.reach) {
     return Response.json({ ok: false, error: "Please fill in every required field." }, { status: 400 });
   }
