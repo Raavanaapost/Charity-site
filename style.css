@@ -1109,3 +1109,19 @@ body[data-variant="royal"] .vm-end{background:linear-gradient(180deg,#fbf3dc,#f6
 .smap-col{display:grid;gap:10px;min-width:0}
 .smap-zoom{display:flex;flex-wrap:wrap;gap:8px}
 .smap-svg.zoomed .sm-sea,.smap-svg.zoomed .sm-compass{display:none}
+.smap-svg{touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
+.smap-svg.grabbing{cursor:grabbing}
+.smap-steps{position:absolute;right:10px;bottom:10px;display:grid;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--surface);box-shadow:0 4px 12px rgba(40,30,10,.12)}
+.smap-steps button{width:40px;height:40px;border:0;background:transparent;color:var(--ink);font:700 22px/1 var(--display);cursor:pointer}
+.smap-steps button+button{border-top:1px solid var(--line)}
+.smap-steps button:hover{background:var(--brand-soft)}
+.smap-hint{position:absolute;left:12px;bottom:10px;margin:0;font-family:var(--display);font-size:12.5px;color:#6b5d44;background:rgba(251,246,234,.85);padding:3px 8px;border-radius:99px;pointer-events:none}
+.smap-hint .touch{display:none}
+@media (hover:none){.smap-hint .touch{display:inline}.smap-hint .mouse{display:none}}
+.sm-group .sm-dot{stroke:#fff}
+.sm-group .sm-count{font-weight:700}
+.smap-card-hint{margin:-6px 0 0;font-family:var(--display);font-size:13px;color:var(--muted)}
+.smap-card-sub{margin:4px 0 -4px;font-family:"Caveat",var(--display);font-weight:700;font-size:21px;color:var(--ink)}
+.smap-card{max-height:calc(100% - 16px);overflow:auto}
+.smap-proj.short{grid-template-columns:44px minmax(0,1fr)}
+.smap-proj.short img{width:44px;height:44px}

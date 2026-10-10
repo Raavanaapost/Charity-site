@@ -513,7 +513,7 @@
     const svgNS = "http://www.w3.org/2000/svg", mk = (tag, a, txt) => { const e = document.createElementNS(svgNS, tag); for (const k in a) e.setAttribute(k, a[k]); if (txt) e.textContent = txt; return e; };
     const findPlace = p => {
       const loc = `${p.location || ""}, ${p.city || ""}`.toLowerCase();
-      const has = n => new RegExp(`(^|[^a-z])${n.toLowerCase()}([^a-z]|$)`).test(loc);
+      const has = n => new RegExp(`(^|[^a-z0-9])${n.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z0-9]|$)`).test(loc);
       return P.find(x => x.type === "village" && has(x.name)) || P.find(x => x.type === "city" && has(x.name)) || null;
     };
     const spots = new Map(), unplaced = [];
@@ -526,23 +526,25 @@
       return st === 3 ? "Day done" : st === 2 ? "Fully funded" : goal ? `${Math.min(100, Math.round(raised / goal * 100))}% funded` : "Budget being prepared"; };
     const cardHTML = s => `<button type="button" class="smap-x" aria-label="Close">✕</button>
       <p class="smap-card-place">${esc(s.place.name)}${s.place.type === "village" && s.place.city ? `, ${esc(s.place.city)}` : ""}</p>
-      ${s.projects.map(p => { const st = stageNum(p); return `<a class="smap-proj" href="/projects/${esc(p.slug)}">
-        ${p.cover ? `<img src="${esc(p.cover)}" alt="" loading="lazy">` : ""}
-        <span class="smap-proj-t"><em class="sp sp${st}">${SN[st]}</em><b>${esc(p.title)}</b>${p.summary ? `<small>${esc(String(p.summary).slice(0, 110))}${String(p.summary).length > 110 ? "…" : ""}</small>` : ""}<i>${money(p)} · See the project →</i></span></a>`; }).join("")}`;
+      ${projHTML(s, false)}`;
     let pinned = null;
-    const show = (s, g, pin) => {
-      card.innerHTML = cardHTML(s); card.hidden = false; pinned = pin ? s : pinned;
-      card.querySelector(".smap-x").onclick = () => hide(true);
-      dots.querySelectorAll(".sm-spot").forEach(d => d.classList.toggle("on", d === g));
-      if (window.matchMedia("(max-width: 640px)").matches) { card.removeAttribute("style"); card.classList.add("sheet"); return; }
-      card.classList.remove("sheet");
-      const r = g.querySelector(".sm-dot").getBoundingClientRect(), f = fig.getBoundingClientRect(), w = card.offsetWidth, h = card.offsetHeight;
-      let left = r.right - f.left + 16; if (left + w > f.width - 8) left = r.left - f.left - w - 16; if (left < 8) left = 8;
-      let top = r.top - f.top - 20; top = Math.max(8, Math.min(top, f.height - h - 8));
-      card.style.left = left + "px"; card.style.top = top + "px";
-    };
+    const show = (s, g, pin) => { card.innerHTML = cardHTML(s); dots.querySelectorAll(".sm-spot").forEach(d => d.classList.toggle("on", d === g)); place(g, pin); };
     const hide = force => { if (pinned && !force) return; pinned = null; card.hidden = true; dots.querySelectorAll(".sm-spot").forEach(d => d.classList.remove("on")); };
     // Everything is drawn at size k (1 = whole island; smaller when zoomed in, so labels and dots keep their size on screen).
+    // Dots that would overlap at this zoom merge into one numbered bubble; tapping it zooms in until they separate.
+    let zoomBox = () => {};
+    const projHTML = (s, short) => s.projects.map(p => { const st = stageNum(p); return `<a class="smap-proj${short ? " short" : ""}" href="/projects/${esc(p.slug)}">
+        ${p.cover ? `<img src="${esc(p.cover)}" alt="" loading="lazy">` : ""}
+        <span class="smap-proj-t"><em class="sp sp${st}">${SN[st]}</em><b>${esc(p.title)}</b>${!short && p.summary ? `<small>${esc(String(p.summary).slice(0, 110))}${String(p.summary).length > 110 ? "…" : ""}</small>` : ""}<i>${money(p)} · See the project →</i></span></a>`; }).join("");
+    const groupHTML = members => `<button type="button" class="smap-x" aria-label="Close">✕</button>
+      <p class="smap-card-place">${members.length} places</p><p class="smap-card-hint">Tap the bubble to zoom in</p>
+      ${members.map(m => `<p class="smap-card-sub">${esc(m.s.place.name)}</p>${projHTML(m.s, true)}`).join("")}`;
+    const wire = (g, open, onClick) => {
+      g.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") open(false); });
+      g.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") setTimeout(() => { if (!card.matches(":hover")) hide(false); }, 250); });
+      g.addEventListener("click", () => { if (dragged) return; onClick(); });
+      g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } });
+    };
     const draw = k => {
       ref.textContent = ""; lines.textContent = ""; dots.textContent = "";
       const fs = n => (n * k).toFixed(1);
@@ -552,38 +554,84 @@
         ref.append(mk("rect", { x: cx - d, y: cy - d, width: 2 * d, height: 2 * d, rx: fs(2), class: "sm-city", transform: `rotate(45 ${cx} ${cy})` }),
           mk("text", { x: cx + (left ? -16 : 16) * k, y: cy + 9 * k, "text-anchor": left ? "end" : "start", "font-size": fs(30), "stroke-width": fs(5), class: "sm-city-name" }, x.name));
       });
-      spots.forEach(s => { if (s.place.type !== "village") return; const c = P.find(x => x.type === "city" && x.name === s.place.city); if (!c) return; const [a, b] = xy(s.place), [e, f] = xy(c); lines.append(mk("path", { d: `M${a} ${b} Q${(a + e) / 2 + 6 * k} ${(b + f) / 2 - 12 * k} ${e} ${f}`, "stroke-width": fs(1.5), "stroke-dasharray": `${fs(3)} ${fs(5)}`, class: "sm-link" })); });
-      [...spots.values()].sort((a, b) => b.place.lat - a.place.lat).forEach(s => {
-        const [cx, cy] = xy(s.place), st = Math.max(...s.projects.map(stageNum)), n = s.projects.length;
+      // Group the dots that are too close at this zoom.
+      const items = [...spots.values()].map(s => { const [x, y] = xy(s.place); return { s, x, y, n: s.projects.length }; }).sort((a, b) => b.n - a.n);
+      const R = 30 * k, groups = [];
+      items.forEach(it => { const g = groups.find(c => Math.hypot(c.x - it.x, c.y - it.y) < R); if (g) { g.m.push(it); g.x = g.m.reduce((t, m) => t + m.x, 0) / g.m.length; g.y = g.m.reduce((t, m) => t + m.y, 0) / g.m.length; } else groups.push({ x: it.x, y: it.y, m: [it] }); });
+      const singles = groups.filter(g => g.m.length === 1).map(g => g.m[0]);
+      if (singles.filter(m => m.s.place.type === "village").length <= 6) spots.forEach(s => { if (s.place.type !== "village" || !singles.some(m => m.s === s)) return; const c = P.find(x => x.type === "city" && x.name === s.place.city); if (!c) return; const [a, b] = xy(s.place), [e, f] = xy(c); lines.append(mk("path", { d: `M${a} ${b} Q${(a + e) / 2 + 6 * k} ${(b + f) / 2 - 12 * k} ${e} ${f}`, "stroke-width": fs(1.5), "stroke-dasharray": `${fs(3)} ${fs(5)}`, class: "sm-link" })); });
+      groups.sort((a, b) => a.y - b.y).forEach(gr => {
+        if (gr.m.length > 1) {
+          const n = gr.m.reduce((t, m) => t + m.n, 0), st = Math.max(...gr.m.flatMap(m => m.s.projects.map(stageNum)));
+          const g = mk("g", { class: `sm-spot sm-group s${st}`, tabindex: 0, role: "button", "aria-label": `${gr.m.length} places, ${n} projects. Zoom in` });
+          g.append(mk("circle", { cx: gr.x, cy: gr.y, r: fs(26), class: "sm-hit" }), mk("circle", { cx: gr.x, cy: gr.y, r: fs(19), "stroke-width": fs(2), class: "sm-halo" }),
+            mk("circle", { cx: gr.x, cy: gr.y, r: fs(13 + Math.min(7, n) * 0.9), "stroke-width": fs(3), class: "sm-dot" }),
+            mk("text", { x: gr.x, y: gr.y + 5.5 * k, "text-anchor": "middle", "font-size": fs(15), class: "sm-count" }, String(n)));
+          const zoomIn = () => { const xs = gr.m.map(m => m.x), ys = gr.m.map(m => m.y); hide(true); zoomBox(Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)); };
+          wire(g, pin => { card.innerHTML = groupHTML(gr.m); place(g, pin); }, zoomIn);
+          dots.append(g); return;
+        }
+        const it = gr.m[0], s = it.s, st = Math.max(...s.projects.map(stageNum)), n = it.n, cx = it.x, cy = it.y;
         const g = mk("g", { class: `sm-spot s${st}`, tabindex: 0, role: "button", "aria-label": `${s.place.name}: ${n} project${n > 1 ? "s" : ""}. Show details` });
         g.append(mk("circle", { cx, cy, r: fs(22), class: "sm-hit" }), mk("circle", { cx, cy, r: fs(15), "stroke-width": fs(2), class: "sm-halo" }), mk("circle", { cx, cy, r: fs(8 + Math.min(4, n - 1) * 1.5), "stroke-width": fs(3), class: "sm-dot" }));
         if (n > 1) g.append(mk("text", { x: cx, y: cy + 4 * k, "text-anchor": "middle", "font-size": fs(11), class: "sm-count" }, String(n)));
-        if (s.place.type === "village") g.append(mk("text", { x: cx - 14 * k, y: cy + 6 * k, "text-anchor": "end", "font-size": fs(23), "stroke-width": fs(5), class: "sm-village-name" }, s.place.name));
-        g.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") show(s, g, false); });
-        g.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") setTimeout(() => { if (!card.matches(":hover")) hide(false); }, 250); });
-        g.addEventListener("click", () => show(s, g, true));
-        g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(s, g, true); } });
+        const roomy = singles.every(o => o === it || Math.abs(o.y - cy) > 26 * k || Math.abs(o.x - cx) > 120 * k);
+        if (s.place.type === "village" && roomy) g.append(mk("text", { x: cx - 14 * k, y: cy + 6 * k, "text-anchor": "end", "font-size": fs(23), "stroke-width": fs(5), class: "sm-village-name" }, s.place.name));
+        wire(g, pin => show(s, g, pin), () => show(s, g, true));
         dots.append(g);
       });
     };
-    // Zoom: the whole island, or the North / the East where most projects are. The view glides between them.
-    const box = (w, e, n, s) => { const [x1, y1] = xy({ lng: w, lat: n }), [x2, y2] = xy({ lng: e, lat: s }); return [x1, y1, x2 - x1, y2 - y1]; };
-    const VIEWS = { all: FULL, north: box(79.55, 80.95, 9.98, 8.75), east: box(80.85, 82.0, 8.75, 6.85) };
-    let cur = FULL.slice();
-    const zoomTo = name => {
-      const to = VIEWS[name] || FULL, from = cur.slice(), t0 = performance.now(), dur = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 650;
-      hide(true); svg.classList.toggle("zoomed", name !== "all");
-      document.querySelectorAll("[data-smap-zoom]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.smapZoom === name)));
-      const step = now => {
-        const t = dur ? Math.min(1, (now - t0) / dur) : 1, e = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-        cur = from.map((v, i) => v + (to[i] - v) * e);
-        svg.setAttribute("viewBox", cur.map(v => v.toFixed(1)).join(" "));
-        if (t === 1) draw(cur[2] / 640); else requestAnimationFrame(step);
-      };
+    // Show the card next to a bubble (computer) or as a sheet at the bottom of the map (phone).
+    const place = (g, pin) => {
+      card.hidden = false; if (pin) pinned = true;
+      card.querySelector(".smap-x").onclick = () => hide(true);
+      if (window.matchMedia("(max-width: 640px)").matches) { card.removeAttribute("style"); card.classList.add("sheet"); return; }
+      card.classList.remove("sheet");
+      const r = g.querySelector(".sm-dot").getBoundingClientRect(), f = fig.getBoundingClientRect(), w = card.offsetWidth, h = card.offsetHeight;
+      let left = r.right - f.left + 16; if (left + w > f.width - 8) left = r.left - f.left - w - 16; if (left < 8) left = 8;
+      let top = r.top - f.top - 20; top = Math.max(8, Math.min(top, f.height - h - 8));
+      card.style.left = left + "px"; card.style.top = top + "px";
+    };
+    // Zoom and move: quick views, + and −, pinch with two fingers, drag with the mouse, Ctrl + scroll.
+    const AR = FULL[3] / FULL[2];
+    const fit = (x1, y1, x2, y2, minW) => { let w = Math.max(x2 - x1, minW), h = Math.max(y2 - y1, w * AR); w = Math.max(w, h / AR); h = w * AR; return [(x1 + x2) / 2 - w / 2, (y1 + y2) / 2 - h / 2, w, h]; };
+    const clamp = v => { let [x, y, w] = v; w = Math.max(70, Math.min(FULL[2], w)); const h = w * AR; x = Math.max(-w * .3, Math.min(x, FULL[2] - w * .7)); y = Math.max(-h * .3, Math.min(y, FULL[3] - h * .7)); return [x, y, w, h]; };
+    const geo = (w, e, n, s, minW = 0) => { const [x1, y1] = xy({ lng: w, lat: n }), [x2, y2] = xy({ lng: e, lat: s }); return fit(x1, y1, x2, y2, minW); };
+    const pts = [...spots.values()].map(s => xy(s.place));
+    const VIEWS = {
+      ours: pts.length ? fit(Math.min(...pts.map(p => p[0])) - 60, Math.min(...pts.map(p => p[1])) - 60, Math.max(...pts.map(p => p[0])) + 60, Math.max(...pts.map(p => p[1])) + 60, 260) : FULL,
+      north: geo(79.6, 80.95, 9.98, 8.7), centre: geo(79.9, 81.25, 8.9, 6.9), east: geo(80.95, 82.0, 8.75, 6.85), all: FULL.slice()
+    };
+    let cur = VIEWS.ours.slice(), raf = 0;
+    const setBox = v => { cur = clamp(v); svg.setAttribute("viewBox", cur.map(n => n.toFixed(1)).join(" ")); svg.classList.toggle("zoomed", cur[2] < 560); };
+    const redraw = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => draw(cur[2] / FULL[2])); };
+    const press = name => document.querySelectorAll("[data-smap-zoom]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.smapZoom === name)));
+    const glide = (to, name) => {
+      hide(true); press(name || "");
+      const from = cur.slice(), dest = clamp(to), t0 = performance.now(), dur = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 600;
+      const step = now => { const t = dur ? Math.min(1, (now - t0) / dur) : 1, e = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        setBox(from.map((v, i) => v + (dest[i] - v) * e)); if (t < 1) requestAnimationFrame(step); else draw(cur[2] / FULL[2]); };
       requestAnimationFrame(step);
     };
-    document.querySelectorAll("[data-smap-zoom]").forEach(b => b.addEventListener("click", () => zoomTo(b.dataset.smapZoom)));
-    draw(1);
+    zoomBox = (x1, y1, x2, y2) => glide(fit(x1 - 50, y1 - 50, x2 + 50, y2 + 50, Math.max(70, cur[2] * 0.4)));
+    const zoomAt = (f, px, py) => { const [x, y, w, h] = cur; setBox([px - (px - x) * f, py - (py - y) * f, w * f, h * f]); press(""); redraw(); };
+    const toUser = (cx, cy) => { const p = new DOMPoint(cx, cy).matrixTransform(svg.getScreenCTM().inverse()); return [p.x, p.y]; };
+    document.querySelectorAll("[data-smap-zoom]").forEach(b => b.addEventListener("click", () => glide(VIEWS[b.dataset.smapZoom] || FULL, b.dataset.smapZoom)));
+    document.querySelectorAll("[data-smap-step]").forEach(b => b.addEventListener("click", () => { hide(true); const f = b.dataset.smapStep === "in" ? 0.6 : 1 / 0.6; glide([cur[0] + cur[2] * (1 - f) / 2, cur[1] + cur[3] * (1 - f) / 2, cur[2] * f, cur[3] * f]); }));
+    let dragged = false, drag = null;
+    svg.addEventListener("pointerdown", e => { if (e.pointerType !== "mouse" || e.button) return; drag = { x: e.clientX, y: e.clientY, v: cur.slice() }; dragged = false; });
+    window.addEventListener("pointermove", e => { if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (!dragged && Math.hypot(dx, dy) < 5) return; if (!dragged) { dragged = true; hide(true); svg.classList.add("grabbing"); }
+      const s = cur[2] / svg.getBoundingClientRect().width; setBox([drag.v[0] - dx * s, drag.v[1] - dy * s, drag.v[2], drag.v[3]]); press(""); });
+    window.addEventListener("pointerup", () => { if (!drag) return; drag = null; svg.classList.remove("grabbing"); if (dragged) { redraw(); setTimeout(() => dragged = false, 0); } });
+    svg.addEventListener("wheel", e => { if (!(e.ctrlKey || e.metaKey)) return; e.preventDefault(); hide(true); const [px, py] = toUser(e.clientX, e.clientY); zoomAt(Math.exp(e.deltaY * 0.01), px, py); }, { passive: false });
+    let pinch = null; // two fingers: pinch to zoom, move to pan (one finger still scrolls the page)
+    const mid = t => [(t[0].clientX + t[1].clientX) / 2, (t[0].clientY + t[1].clientY) / 2], gap = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+    svg.addEventListener("touchstart", e => { if (e.touches.length !== 2) return; e.preventDefault(); hide(true); const [mx, my] = mid(e.touches); pinch = { d: gap(e.touches), v: cur.slice(), p: toUser(mx, my), m: [mx, my] }; }, { passive: false });
+    svg.addEventListener("touchmove", e => { if (!pinch || e.touches.length !== 2) return; e.preventDefault();
+      const f = pinch.d / Math.max(10, gap(e.touches)), [mx, my] = mid(e.touches), s = pinch.v[2] * f / svg.getBoundingClientRect().width;
+      const [x, y, w, h] = pinch.v, [px, py] = pinch.p; setBox([px - (px - x) * f - (mx - pinch.m[0]) * s, py - (py - y) * f - (my - pinch.m[1]) * s, w * f, h * f]); press(""); }, { passive: false });
+    svg.addEventListener("touchend", e => { if (pinch && e.touches.length < 2) { pinch = null; redraw(); } });
+    setBox(cur); press("ours"); draw(cur[2] / FULL[2]);
     card.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") hide(false); });
     document.addEventListener("keydown", e => { if (e.key === "Escape") hide(true); });
     svg.addEventListener("click", e => { if (!e.target.closest(".sm-spot")) hide(true); });

@@ -41,9 +41,11 @@
   </header>
   <div class="smap-layout"><div class="smap-col">
     <div class="smap-zoom" role="group" aria-label="Zoom the map">
-      <button type="button" class="chip" data-smap-zoom="all" aria-pressed="true">All of Sri Lanka</button>
+      <button type="button" class="chip" data-smap-zoom="ours" aria-pressed="true">Our places</button>
       <button type="button" class="chip" data-smap-zoom="north" aria-pressed="false">The North</button>
+      <button type="button" class="chip" data-smap-zoom="centre" aria-pressed="false">The Centre</button>
       <button type="button" class="chip" data-smap-zoom="east" aria-pressed="false">The East</button>
+      <button type="button" class="chip" data-smap-zoom="all" aria-pressed="false">All of Sri Lanka</button>
     </div>
     <figure class="smap">
       <svg class="smap-svg" viewBox="0 0 640 1065" role="img" aria-labelledby="smap-t">
@@ -79,6 +81,8 @@
       <g class="sm-lines" data-smap-lines aria-hidden="true"></g>
       <g data-smap-dots></g>
     </svg>
+      <div class="smap-steps"><button type="button" data-smap-step="in" aria-label="Zoom in">+</button><button type="button" data-smap-step="out" aria-label="Zoom out">−</button></div>
+      <p class="smap-hint"><span class="touch">Pinch with two fingers to zoom</span><span class="mouse">Drag to move · Ctrl + scroll to zoom</span></p>
       <div class="smap-card" data-smap-card hidden></div>
     </figure></div>
     <aside class="smap-side">
