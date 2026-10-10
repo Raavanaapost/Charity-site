@@ -1,663 +1,768 @@
 {
-  "_note": "DEMO DATA for the portal design preview. Invented suggestions, people and notes. Nothing here is real.",
-  "user": {
-    "name": "Suresh",
-    "role": "Admin"
+ "_note": "DEMO DATA for the portal design preview. Invented suggestions, people and notes. Nothing here is real.",
+ "user": {
+  "name": "Suresh",
+  "role": "Admin"
+ },
+ "team": [
+  "Suresh",
+  "Sasi",
+  "Kiri",
+  "Bala"
+ ],
+ "suggestions": [
+  {
+   "id": "s-100",
+   "received": "2026-09-28T09:00",
+   "status": "approved",
+   "assigned": "Sasi",
+   "takenAt": "2026-09-28T12:00",
+   "called": "2026-09-29",
+   "title": "Thai Pongal day for village families",
+   "category": "Trips & Events",
+   "kind": "A celebration or festival",
+   "focus": [
+    "A celebration or festival"
+   ],
+   "description": "A Thai Pongal morning for the village children and their mothers: cooking pongal together, kolam drawing and games.",
+   "location": "Karainagar, Jaffna",
+   "village": "Karainagar",
+   "city": "Jaffna",
+   "children": "50 to 100",
+   "contact": "Malar (demo)",
+   "reach": "+94 77 111 2222",
+   "additional": "",
+   "notes": [],
+   "onboard": {
+    "contact": "trusted",
+    "explained": true,
+    "showed": true,
+    "safety": true,
+    "test": true,
+    "trusted": {
+     "name": "Ravi (demo)",
+     "relation": "Son",
+     "phone": "+94 77 333 4444"
+    }
+   },
+   "details": {
+    "title": "Thai Pongal day in Karainagar",
+    "story": "About sixty children and their mothers celebrate Thai Pongal together: cooking pongal in the open, kolam drawing, games and a shared meal.",
+    "org": "Karainagar Women's Society",
+    "place": "Karainagar community hall, Karainagar",
+    "evidenceSeen": true
+   },
+   "verifiedBy": "Sasi",
+   "verifiedAt": "2026-10-03T15:00",
+   "approvedBy": "Suresh",
+   "approvedAt": "2026-10-04T09:00",
+   "plan": {
+    "lines": [
+     {
+      "item": "Rice, milk, jaggery and pots for pongal",
+      "amount": "120"
+     },
+     {
+      "item": "Lunch for 90",
+      "amount": "180"
+     }
+    ],
+    "expect": [
+     "Every child takes part in cooking the pongal",
+     ""
+    ]
+   }
   },
-  "team": [
-    "Suresh",
-    "Sasi",
-    "Kiri",
+  {
+   "id": "s-106",
+   "received": "2026-10-08T19:42",
+   "status": "new",
+   "assigned": "",
+   "title": "Sports day for a girls' home in Kilinochchi",
+   "category": "Trips & Events",
+   "focus": [
+    "A game or activity",
+    "A good meal",
+    "Children's home"
+   ],
+   "description": "Our home looks after 35 girls aged 6 to 15. They have never had a proper sports day with prizes. We would love a morning of races and games and a lunch together.",
+   "location": "Kilinochchi, Northern Province, Sri Lanka",
+   "children": "25 to 50",
+   "contact": "Home warden (demo)",
+   "reach": "warden.demo@example.org",
+   "additional": "Any Saturday in November works for us.",
+   "notes": [],
+   "kind": "A game or sports day",
+   "village": "Paranthan",
+   "city": "Kilinochchi"
+  },
+  {
+   "id": "s-105",
+   "received": "2026-10-07T08:15",
+   "status": "new",
+   "assigned": "Kiri",
+   "title": "School bags and books for Grade 1 children",
+   "category": "Education",
+   "focus": [
+    "Learning support"
+   ],
+   "description": "Forty children start Grade 1 in January in a village school near Batticaloa. Many families cannot buy a bag, books or pencils.",
+   "location": "Batticaloa, Eastern Province, Sri Lanka",
+   "children": "25 to 50",
+   "contact": "Teacher (demo)",
+   "reach": "+94 77 000 0000",
+   "additional": "",
+   "notes": [],
+   "takenAt": "2026-10-07T12:00",
+   "called": "2026-10-08",
+   "kind": "Help with learning",
+   "village": "Kaluwanchikudy",
+   "city": "Batticaloa",
+   "details": {
+    "title": "School bags and books for Grade 1",
+    "story": "Forty children start Grade 1 in January at the village school. Many families cannot buy a bag, books or pencils.",
+    "org": "Kaluwanchikudy Primary School"
+   },
+   "onboard": {
+    "contact": "self"
+   }
+  },
+  {
+   "id": "s-104",
+   "received": "2026-10-05T10:20",
+   "status": "new",
+   "assigned": "Kiri",
+   "title": "A day at the fun fair for children of fishing families",
+   "category": "Trips & Events",
+   "focus": [
+    "A trip or outing"
+   ],
+   "description": "Children from a small fishing village have never been to the fun fair in Jaffna town. A bus and tickets would make their year.",
+   "location": "Jaffna, Northern Province, Sri Lanka",
+   "children": "50 to 100",
+   "contact": "Village volunteer (demo)",
+   "reach": "volunteer.demo@example.org",
+   "additional": "",
+   "notes": [
+    {
+     "by": "Kiri",
+     "at": "2026-10-06T10:20",
+     "text": "I know this village. Happy to visit next week."
+    }
+   ],
+   "takenAt": "2026-10-05T18:00",
+   "kind": "A day out or trip",
+   "village": "Gurunagar",
+   "city": "Jaffna"
+  },
+  {
+   "id": "s-103",
+   "received": "2026-09-29T14:30",
+   "status": "visit",
+   "assigned": "Sasi",
+   "visit": "2026-10-14",
+   "title": "Zoo trip for children with special needs",
+   "category": "Trips & Events",
+   "focus": [
+    "A trip or outing",
+    "Children with special needs"
+   ],
+   "description": "A day centre for 18 children with special needs would like a trip to the zoo, with carers travelling with them.",
+   "location": "Jaffna, Northern Province, Sri Lanka",
+   "children": "10 to 25",
+   "contact": "Centre coordinator (demo)",
+   "reach": "centre.demo@example.org",
+   "additional": "Wheelchair access needed for 3 children.",
+   "notes": [
+    {
+     "by": "Sasi",
+     "at": "2026-10-01T09:00",
+     "text": "Called the centre. Visit booked for 14 October."
+    }
+   ],
+   "onboard": {
+    "contact": "trusted",
+    "explained": true,
+    "showed": true,
+    "safety": false,
+    "test": false,
+    "trusted": {
+     "name": "Centre nurse (demo)",
+     "relation": "Staff at the centre",
+     "phone": ""
+    }
+   },
+   "called": "2026-10-06",
+   "kind": "A day out or trip",
+   "village": "Vavuniya town",
+   "city": "Vavuniya",
+   "details": {
+    "title": "Zoo trip for children with special needs",
+    "story": "Twelve children at the care centre have never been to a zoo. A day trip with their carers, transport and lunch.",
+    "org": "Little Steps Care Centre",
+    "place": "Little Steps Care Centre, 14 Station Road, Vavuniya"
+   }
+  },
+  {
+   "id": "s-102",
+   "received": "2026-09-20T11:05",
+   "status": "verified",
+   "assigned": "Bala",
+   "title": "Christmas lunch at a children's home",
+   "category": "Trips & Events",
+   "focus": [
+    "A good meal",
+    "Children's home"
+   ],
+   "description": "A home with 30 children would like a special Christmas lunch with small gifts.",
+   "location": "Batticaloa, Eastern Province, Sri Lanka",
+   "children": "25 to 50",
+   "contact": "Home manager (demo)",
+   "reach": "home.demo@example.org",
+   "additional": "",
+   "notes": [
+    {
+     "by": "Bala",
+     "at": "2026-09-27T16:40",
+     "text": "Visited. Lovely home, the need is real. Rough budget $400."
+    }
+   ],
+   "onboard": {
+    "contact": "self",
+    "explained": true,
+    "showed": true,
+    "safety": true,
+    "test": true
+   },
+   "called": "2026-10-02",
+   "verifiedBy": "Bala",
+   "verifiedAt": "2026-10-07T16:00",
+   "kind": "A celebration or festival",
+   "village": "Kilinochchi town",
+   "city": "Kilinochchi",
+   "details": {
+    "title": "Christmas lunch at a children's home",
+    "story": "Thirty children at the home would love a festive lunch with games and small gifts.",
+    "org": "Hope Children's Home",
+    "place": "Hope Children's Home, A9 Road, Kilinochchi",
+    "evidenceSeen": true
+   }
+  },
+  {
+   "id": "s-101",
+   "received": "2026-09-12T18:22",
+   "status": "declined",
+   "assigned": "Suresh",
+   "title": "Cricket kit for a village team",
+   "category": "Other",
+   "focus": [],
+   "description": "Our under-19 team needs bats, pads and a kit bag.",
+   "location": "Kilinochchi, Northern Province, Sri Lanka",
+   "children": "15",
+   "contact": "Team captain (demo)",
+   "reach": "team.demo@example.org",
+   "additional": "",
+   "notes": [
+    {
+     "by": "Suresh",
+     "at": "2026-09-15T20:10",
+     "text": "Outside our focus (equipment, not a day of joy). Replied kindly and shared another group's contact."
+    }
+   ]
+  }
+ ],
+ "activity": [
+  {
+   "at": "2026-10-08T19:42",
+   "text": "New suggestion: Sports day for a girls' home in Kilinochchi"
+  },
+  {
+   "at": "2026-10-07T08:15",
+   "text": "New suggestion: School bags and books for Grade 1 children"
+  },
+  {
+   "at": "2026-10-06T10:20",
+   "text": "Kiri took on: A day at the fun fair for children of fishing families"
+  },
+  {
+   "at": "2026-10-03T12:00",
+   "text": "Kids' day out at Casuarina Beach is fully funded by Kiri & Family"
+  },
+  {
+   "at": "2026-10-01T09:00",
+   "text": "Sasi booked a visit for the zoo trip on 14 October"
+  }
+ ],
+ "reports": [
+  {
+   "id": "r-07",
+   "received": "2026-10-08T21:10",
+   "type": "concern",
+   "level": "unhappy",
+   "about": "A project day",
+   "where": "Bowling day, Sivapoomi (demo)",
+   "status": "open",
+   "anonymous": true,
+   "what": "The bus came almost two hours late and the children waited outside in the sun with no water. Nobody called to tell us.",
+   "named": [],
+   "log": []
+  },
+  {
+   "id": "r-06",
+   "received": "2026-10-07T16:30",
+   "type": "feedback",
+   "ref": "s-103",
+   "kind": "visit",
+   "overall": 5,
+   "respectful": "yes",
+   "asked": "no",
+   "safe": "yes",
+   "comment": "Sasi was kind and patient with the children and explained everything clearly.",
+   "status": "closed",
+   "named": [
+    "Sasi"
+   ],
+   "log": []
+  },
+  {
+   "id": "r-05",
+   "received": "2026-09-28T19:05",
+   "type": "feedback",
+   "ref": "s-102",
+   "kind": "visit",
+   "overall": 4,
+   "respectful": "yes",
+   "asked": "no",
+   "safe": "yes",
+   "comment": "Good visit. We would have liked a phone call before he came.",
+   "status": "closed",
+   "named": [
     "Bala"
-  ],
-  "suggestions": [
-    {
-      "id": "s-106",
-      "received": "2026-10-08T19:42",
-      "status": "new",
-      "assigned": "",
-      "title": "Sports day for a girls' home in Kilinochchi",
-      "category": "Trips & Events",
-      "focus": [
-        "A game or activity",
-        "A good meal",
-        "Children's home"
-      ],
-      "description": "Our home looks after 35 girls aged 6 to 15. They have never had a proper sports day with prizes. We would love a morning of races and games and a lunch together.",
-      "location": "Kilinochchi, Northern Province, Sri Lanka",
-      "children": "35",
-      "contact": "Home warden (demo)",
-      "reach": "warden.demo@example.org",
-      "additional": "Any Saturday in November works for us.",
-      "notes": []
-    },
-    {
-      "id": "s-105",
-      "received": "2026-10-07T08:15",
-      "status": "new",
-      "assigned": "",
-      "title": "School bags and books for Grade 1 children",
-      "category": "Education",
-      "focus": [
-        "Learning support"
-      ],
-      "description": "Forty children start Grade 1 in January in a village school near Batticaloa. Many families cannot buy a bag, books or pencils.",
-      "location": "Batticaloa, Eastern Province, Sri Lanka",
-      "children": "40",
-      "contact": "Teacher (demo)",
-      "reach": "+94 77 000 0000",
-      "additional": "",
-      "notes": []
-    },
-    {
-      "id": "s-104",
-      "received": "2026-10-05T21:03",
-      "status": "new",
-      "assigned": "Kiri",
-      "title": "A day at the fun fair for children of fishing families",
-      "category": "Trips & Events",
-      "focus": [
-        "A trip or outing"
-      ],
-      "description": "Children from a small fishing village have never been to the fun fair in Jaffna town. A bus and tickets would make their year.",
-      "location": "Jaffna, Northern Province, Sri Lanka",
-      "children": "28",
-      "contact": "Village volunteer (demo)",
-      "reach": "volunteer.demo@example.org",
-      "additional": "",
-      "notes": [
-        {
-          "by": "Kiri",
-          "at": "2026-10-06T10:20",
-          "text": "I know this village. Happy to visit next week."
-        }
-      ]
-    },
-    {
-      "id": "s-103",
-      "received": "2026-09-29T14:30",
-      "status": "visit",
-      "assigned": "Sasi",
-      "visit": "2026-10-14",
-      "title": "Zoo trip for children with special needs",
-      "category": "Trips & Events",
-      "focus": [
-        "A trip or outing",
-        "Children with special needs"
-      ],
-      "description": "A day centre for 18 children with special needs would like a trip to the zoo, with carers travelling with them.",
-      "location": "Jaffna, Northern Province, Sri Lanka",
-      "children": "18",
-      "contact": "Centre coordinator (demo)",
-      "reach": "centre.demo@example.org",
-      "additional": "Wheelchair access needed for 3 children.",
-      "notes": [
-        {
-          "by": "Sasi",
-          "at": "2026-10-01T09:00",
-          "text": "Called the centre. Visit booked for 14 October."
-        }
-      ],
-      "onboard": {
-        "contact": "trusted",
-        "explained": true,
-        "showed": true,
-        "safety": false,
-        "test": false,
-        "trusted": {
-          "name": "Centre nurse (demo)",
-          "relation": "Staff at the centre",
-          "phone": ""
-        }
-      }
-    },
-    {
-      "id": "s-102",
-      "received": "2026-09-20T11:05",
-      "status": "verified",
-      "assigned": "Bala",
-      "title": "Christmas lunch at a children's home",
-      "category": "Trips & Events",
-      "focus": [
-        "A good meal",
-        "Children's home"
-      ],
-      "description": "A home with 30 children would like a special Christmas lunch with small gifts.",
-      "location": "Batticaloa, Eastern Province, Sri Lanka",
-      "children": "30",
-      "contact": "Home manager (demo)",
-      "reach": "home.demo@example.org",
-      "additional": "",
-      "notes": [
-        {
-          "by": "Bala",
-          "at": "2026-09-27T16:40",
-          "text": "Visited. Lovely home, the need is real. Rough budget $400."
-        }
-      ],
-      "onboard": {
-        "contact": "self",
-        "explained": true,
-        "showed": true,
-        "safety": true,
-        "test": true
-      }
-    },
-    {
-      "id": "s-101",
-      "received": "2026-09-12T18:22",
-      "status": "declined",
-      "assigned": "Suresh",
-      "title": "Cricket kit for a village team",
-      "category": "Other",
-      "focus": [],
-      "description": "Our under-19 team needs bats, pads and a kit bag.",
-      "location": "Kilinochchi, Northern Province, Sri Lanka",
-      "children": "15",
-      "contact": "Team captain (demo)",
-      "reach": "team.demo@example.org",
-      "additional": "",
-      "notes": [
-        {
-          "by": "Suresh",
-          "at": "2026-09-15T20:10",
-          "text": "Outside our focus (equipment, not a day of joy). Replied kindly and shared another group's contact."
-        }
-      ]
-    }
-  ],
-  "activity": [
-    {
-      "at": "2026-10-08T19:42",
-      "text": "New suggestion: Sports day for a girls' home in Kilinochchi"
-    },
-    {
-      "at": "2026-10-07T08:15",
-      "text": "New suggestion: School bags and books for Grade 1 children"
-    },
-    {
-      "at": "2026-10-06T10:20",
-      "text": "Kiri took on: A day at the fun fair for children of fishing families"
-    },
-    {
-      "at": "2026-10-03T12:00",
-      "text": "Kids' day out at Casuarina Beach is fully funded by Kiri & Family"
-    },
-    {
-      "at": "2026-10-01T09:00",
-      "text": "Sasi booked a visit for the zoo trip on 14 October"
-    }
-  ],
-  "reports": [
-    {
-      "id": "r-07",
-      "received": "2026-10-08T21:10",
-      "type": "concern",
-      "level": "unhappy",
-      "about": "A project day",
-      "where": "Bowling day, Sivapoomi (demo)",
-      "status": "open",
-      "anonymous": true,
-      "what": "The bus came almost two hours late and the children waited outside in the sun with no water. Nobody called to tell us.",
-      "named": [],
-      "log": []
-    },
-    {
-      "id": "r-06",
-      "received": "2026-10-07T16:30",
-      "type": "feedback",
-      "ref": "s-103",
-      "kind": "visit",
-      "overall": 5,
-      "respectful": "yes",
-      "asked": "no",
-      "safe": "yes",
-      "comment": "Sasi was kind and patient with the children and explained everything clearly.",
-      "status": "closed",
-      "named": [
-        "Sasi"
-      ],
-      "log": []
-    },
-    {
-      "id": "r-05",
-      "received": "2026-09-28T19:05",
-      "type": "feedback",
-      "ref": "s-102",
-      "kind": "visit",
-      "overall": 4,
-      "respectful": "yes",
-      "asked": "no",
-      "safe": "yes",
-      "comment": "Good visit. We would have liked a phone call before he came.",
-      "status": "closed",
-      "named": [
-        "Bala"
-      ],
-      "log": []
-    },
-    {
-      "id": "r-04",
-      "received": "2026-09-18T10:00",
-      "type": "concern",
-      "level": "feedback",
-      "about": "Pictures or personal information",
-      "where": "Website",
-      "status": "closed",
-      "anonymous": false,
-      "name": "A parent (demo)",
-      "reach": "parent.demo@example.org",
-      "what": "Please do not show my son's face in pictures on the website.",
-      "named": [],
-      "log": [
-        {
-          "by": "Suresh",
-          "at": "2026-09-18T15:00",
-          "text": "Picture removed the same day. Replied to the parent with thanks."
-        }
-      ],
-      "outcome": "Picture removed and the child added to our no-photo list."
-    }
-  ],
-  "pledges": [
-    {
-      "id": "pl-12",
-      "project": "arcade-trip",
-      "name": "Mahaarivu Association",
-      "amount": 250,
-      "status": "pledged",
-      "pledged": "2026-10-06",
-      "contact": "mahaarivu.demo@example.org",
-      "public": true,
-      "thanked": false
-    },
-    {
-      "id": "pl-11",
-      "project": "arcade-trip",
-      "name": "Kumar Family",
-      "amount": 250,
-      "status": "received",
-      "pledged": "2026-10-02",
-      "received": "2026-10-04",
-      "method": "e-Transfer",
-      "contact": "kumar.demo@example.org",
-      "public": true,
-      "thanked": true
-    },
-    {
-      "id": "pl-10",
-      "project": "casuarina-beach-day",
-      "name": "Kiri & Family",
-      "amount": 600,
-      "status": "received",
-      "pledged": "2026-09-28",
-      "received": "2026-10-03",
-      "method": "e-Transfer",
-      "contact": "kiri.demo@example.org",
-      "public": true,
-      "thanked": true
-    },
-    {
-      "id": "pl-09",
-      "project": "mums-and-kids-day-out",
-      "name": "Sasi",
-      "amount": 150,
-      "status": "received",
-      "pledged": "2026-08-10",
-      "received": "2026-08-12",
-      "method": "Cash",
-      "contact": "",
-      "public": true,
-      "thanked": true
-    },
-    {
-      "id": "pl-08",
-      "project": "mums-and-kids-day-out",
-      "name": "Shanker",
-      "amount": 150,
-      "status": "received",
-      "pledged": "2026-08-10",
-      "received": "2026-08-14",
-      "method": "e-Transfer",
-      "contact": "",
-      "public": true,
-      "thanked": true
-    },
-    {
-      "id": "pl-07",
-      "project": "mums-and-kids-day-out",
-      "name": "Bala",
-      "amount": 150,
-      "status": "received",
-      "pledged": "2026-08-11",
-      "received": "2026-08-15",
-      "method": "Cheque",
-      "contact": "",
-      "public": true,
-      "thanked": false
-    }
-  ],
-  "days": {
-    "casuarina-beach-day": {
-      "date": "2026-10-24",
-      "meet": "07:30",
-      "place": "Children's home gate, Jaffna (demo)",
-      "back": "16:30",
-      "transport": {
-        "what": "Van, 30 seats",
-        "who": "Driver (demo)",
-        "phone": "+94 77 000 0000",
-        "booked": true
-      },
-      "needed": 5,
-      "volunteers": [
-        {
-          "name": "Kiri",
-          "role": "Day lead",
-          "ok": true
-        },
-        {
-          "name": "Sasi",
-          "role": "First aid",
-          "ok": true
-        },
-        {
-          "name": "Bala",
-          "role": "Water safety",
-          "ok": false
-        },
-        {
-          "name": "Suresh",
-          "role": "Photos (with consent)",
-          "ok": true
-        }
-      ],
-      "consent": {
-        "children": 25,
-        "forms": 21
-      },
-      "packing": [
-        {
-          "t": "Lunch boxes and water",
-          "done": false
-        },
-        {
-          "t": "Kites, balls and beach games",
-          "done": true
-        },
-        {
-          "t": "First aid kit and sun cream",
-          "done": true
-        },
-        {
-          "t": "Small gifts",
-          "done": false
-        },
-        {
-          "t": "Printed list of children and emergency numbers",
-          "done": false
-        }
-      ],
-      "plan": [
-        {
-          "at": "07:30",
-          "t": "Meet at the home, count the children"
-        },
-        {
-          "at": "08:00",
-          "t": "Van leaves for Karainagar"
-        },
-        {
-          "at": "09:30",
-          "t": "Beach games and kites"
-        },
-        {
-          "at": "12:30",
-          "t": "Lunch in the shade"
-        },
-        {
-          "at": "14:30",
-          "t": "Sandcastle contest and gifts"
-        },
-        {
-          "at": "15:30",
-          "t": "Count the children, head home"
-        },
-        {
-          "at": "16:30",
-          "t": "Back at the home, hand over to staff"
-        }
-      ]
-    }
+   ],
+   "log": []
   },
-  "people": [
+  {
+   "id": "r-04",
+   "received": "2026-09-18T10:00",
+   "type": "concern",
+   "level": "feedback",
+   "about": "Pictures or personal information",
+   "where": "Website",
+   "status": "closed",
+   "anonymous": false,
+   "name": "A parent (demo)",
+   "reach": "parent.demo@example.org",
+   "what": "Please do not show my son's face in pictures on the website.",
+   "named": [],
+   "log": [
     {
-      "id": "pe-1",
-      "name": "Kiri & Family",
-      "roles": [
-        "Sponsor",
-        "Volunteer"
-      ],
-      "city": "Toronto",
-      "contact": "kiri.demo@example.org",
-      "joined": "2026-09-12",
-      "how": "Bowling night",
-      "lang": "English",
-      "consent": {
-        "contact": true,
-        "post": true
-      }
-    },
-    {
-      "id": "pe-2",
-      "name": "Kumar Family",
-      "roles": [
-        "Sponsor"
-      ],
-      "city": "Toronto",
-      "contact": "kumar.demo@example.org",
-      "joined": "2026-10-02",
-      "how": "Friend of a member",
-      "lang": "Tamil",
-      "consent": {
-        "contact": true,
-        "post": true
-      }
-    },
-    {
-      "id": "pe-3",
-      "name": "Mahaarivu Association",
-      "roles": [
-        "Sponsor"
-      ],
-      "city": "Toronto",
-      "contact": "mahaarivu.demo@example.org",
-      "joined": "2026-10-06",
-      "how": "Website",
-      "lang": "English",
-      "consent": {
-        "contact": true,
-        "post": false
-      }
-    },
-    {
-      "id": "pe-4",
-      "name": "Sasi",
-      "roles": [
-        "Team",
-        "Sponsor",
-        "Volunteer"
-      ],
-      "city": "Toronto",
-      "contact": "",
-      "joined": "2026-08-01",
-      "how": "Founding member",
-      "lang": "Tamil",
-      "consent": {
-        "contact": true,
-        "post": true
-      }
-    },
-    {
-      "id": "pe-5",
-      "name": "Shanker",
-      "roles": [
-        "Sponsor"
-      ],
-      "city": "Toronto",
-      "contact": "",
-      "joined": "2026-08-10",
-      "how": "Bowling night",
-      "lang": "Tamil",
-      "consent": {
-        "contact": true,
-        "post": true
-      }
-    },
-    {
-      "id": "pe-6",
-      "name": "Bala",
-      "roles": [
-        "Team",
-        "Sponsor",
-        "Volunteer"
-      ],
-      "city": "Toronto",
-      "contact": "",
-      "joined": "2026-08-01",
-      "how": "Founding member",
-      "lang": "Tamil",
-      "consent": {
-        "contact": true,
-        "post": true
-      }
-    },
-    {
-      "id": "pe-7",
-      "name": "Home warden (demo)",
-      "roles": [
-        "Organizer"
-      ],
-      "city": "Kilinochchi",
-      "contact": "warden.demo@example.org",
-      "joined": "2026-10-08",
-      "how": "Initiate form",
-      "lang": "Tamil",
-      "consent": {
-        "contact": true,
-        "post": false
-      }
-    },
-    {
-      "id": "pe-8",
-      "name": "Centre coordinator (demo)",
-      "roles": [
-        "Organizer"
-      ],
-      "city": "Jaffna",
-      "contact": "centre.demo@example.org",
-      "joined": "2026-09-29",
-      "how": "Initiate form",
-      "lang": "Tamil",
-      "consent": {
-        "contact": true,
-        "post": true
-      }
-    },
-    {
-      "id": "pe-9",
-      "name": "Centre nurse (demo)",
-      "roles": [
-        "Trusted contact"
-      ],
-      "city": "Jaffna",
-      "contact": "+94 77 000 0000",
-      "joined": "2026-10-01",
-      "how": "Visit",
-      "lang": "Tamil",
-      "consent": {
-        "contact": true,
-        "post": false
-      }
-    },
-    {
-      "id": "pe-10",
-      "name": "A parent (demo)",
-      "roles": [
-        "Subscriber"
-      ],
-      "city": "Toronto",
-      "contact": "parent.demo@example.org",
-      "joined": "2026-09-18",
-      "how": "Keep me posted",
-      "lang": "English",
-      "consent": {
-        "contact": true,
-        "post": true
-      }
-    },
-    {
-      "id": "pe-11",
-      "name": "Thurai S. (demo)",
-      "roles": [
-        "Subscriber",
-        "Volunteer"
-      ],
-      "city": "Toronto",
-      "contact": "thurai.demo@example.org",
-      "joined": "2026-09-20",
-      "how": "Bowling night",
-      "lang": "English",
-      "consent": {
-        "contact": true,
-        "post": true
-      }
-    },
-    {
-      "id": "pe-12",
-      "name": "Village volunteer (demo)",
-      "roles": [
-        "Organizer"
-      ],
-      "city": "Jaffna",
-      "contact": "volunteer.demo@example.org",
-      "joined": "2026-10-05",
-      "how": "Initiate form",
-      "lang": "Tamil",
-      "consent": {
-        "contact": true,
-        "post": false
-      }
+     "by": "Suresh",
+     "at": "2026-09-18T15:00",
+     "text": "Picture removed the same day. Replied to the parent with thanks."
     }
-  ],
-  "members": [
+   ],
+   "outcome": "Picture removed and the child added to our no-photo list."
+  }
+ ],
+ "pledges": [
+  {
+   "id": "pl-12",
+   "project": "arcade-trip",
+   "name": "Mahaarivu Association",
+   "amount": 250,
+   "status": "pledged",
+   "pledged": "2026-10-06",
+   "contact": "mahaarivu.demo@example.org",
+   "public": true,
+   "thanked": false
+  },
+  {
+   "id": "pl-11",
+   "project": "arcade-trip",
+   "name": "Kumar Family",
+   "amount": 250,
+   "status": "received",
+   "pledged": "2026-10-02",
+   "received": "2026-10-04",
+   "method": "e-Transfer",
+   "contact": "kumar.demo@example.org",
+   "public": true,
+   "thanked": true
+  },
+  {
+   "id": "pl-10",
+   "project": "casuarina-beach-day",
+   "name": "Kiri & Family",
+   "amount": 600,
+   "status": "received",
+   "pledged": "2026-09-28",
+   "received": "2026-10-03",
+   "method": "e-Transfer",
+   "contact": "kiri.demo@example.org",
+   "public": true,
+   "thanked": true
+  },
+  {
+   "id": "pl-09",
+   "project": "mums-and-kids-day-out",
+   "name": "Sasi",
+   "amount": 150,
+   "status": "received",
+   "pledged": "2026-08-10",
+   "received": "2026-08-12",
+   "method": "Cash",
+   "contact": "",
+   "public": true,
+   "thanked": true
+  },
+  {
+   "id": "pl-08",
+   "project": "mums-and-kids-day-out",
+   "name": "Shanker",
+   "amount": 150,
+   "status": "received",
+   "pledged": "2026-08-10",
+   "received": "2026-08-14",
+   "method": "e-Transfer",
+   "contact": "",
+   "public": true,
+   "thanked": true
+  },
+  {
+   "id": "pl-07",
+   "project": "mums-and-kids-day-out",
+   "name": "Bala",
+   "amount": 150,
+   "status": "received",
+   "pledged": "2026-08-11",
+   "received": "2026-08-15",
+   "method": "Cheque",
+   "contact": "",
+   "public": true,
+   "thanked": false
+  }
+ ],
+ "days": {
+  "casuarina-beach-day": {
+   "date": "2026-10-24",
+   "meet": "07:30",
+   "place": "Children's home gate, Jaffna (demo)",
+   "back": "16:30",
+   "transport": {
+    "what": "Van, 30 seats",
+    "who": "Driver (demo)",
+    "phone": "+94 77 000 0000",
+    "booked": true
+   },
+   "needed": 5,
+   "volunteers": [
     {
-      "name": "Suresh",
-      "email": "(your email)",
-      "role": "Admin",
-      "active": "Today",
-      "twofa": true
+     "name": "Kiri",
+     "role": "Day lead",
+     "ok": true
     },
     {
-      "name": "Sasi",
-      "email": "sasi.demo@example.org",
-      "role": "Team",
-      "active": "Yesterday",
-      "twofa": true
+     "name": "Sasi",
+     "role": "First aid",
+     "ok": true
     },
     {
-      "name": "Kiri",
-      "email": "kiri.demo@example.org",
-      "role": "Team",
-      "active": "3 days ago",
-      "twofa": false
+     "name": "Bala",
+     "role": "Water safety",
+     "ok": false
     },
     {
-      "name": "Bala",
-      "email": "bala.demo@example.org",
-      "role": "Team",
-      "active": "Last week",
-      "twofa": true
+     "name": "Suresh",
+     "role": "Photos (with consent)",
+     "ok": true
     }
-  ]
+   ],
+   "consent": {
+    "children": 25,
+    "forms": 21
+   },
+   "packing": [
+    {
+     "t": "Lunch boxes and water",
+     "done": false
+    },
+    {
+     "t": "Kites, balls and beach games",
+     "done": true
+    },
+    {
+     "t": "First aid kit and sun cream",
+     "done": true
+    },
+    {
+     "t": "Small gifts",
+     "done": false
+    },
+    {
+     "t": "Printed list of children and emergency numbers",
+     "done": false
+    }
+   ],
+   "plan": [
+    {
+     "at": "07:30",
+     "t": "Meet at the home, count the children"
+    },
+    {
+     "at": "08:00",
+     "t": "Van leaves for Karainagar"
+    },
+    {
+     "at": "09:30",
+     "t": "Beach games and kites"
+    },
+    {
+     "at": "12:30",
+     "t": "Lunch in the shade"
+    },
+    {
+     "at": "14:30",
+     "t": "Sandcastle contest and gifts"
+    },
+    {
+     "at": "15:30",
+     "t": "Count the children, head home"
+    },
+    {
+     "at": "16:30",
+     "t": "Back at the home, hand over to staff"
+    }
+   ]
+  }
+ },
+ "people": [
+  {
+   "id": "pe-1",
+   "name": "Kiri & Family",
+   "roles": [
+    "Sponsor",
+    "Volunteer"
+   ],
+   "city": "Toronto",
+   "contact": "kiri.demo@example.org",
+   "joined": "2026-09-12",
+   "how": "Bowling night",
+   "lang": "English",
+   "consent": {
+    "contact": true,
+    "post": true
+   }
+  },
+  {
+   "id": "pe-2",
+   "name": "Kumar Family",
+   "roles": [
+    "Sponsor"
+   ],
+   "city": "Toronto",
+   "contact": "kumar.demo@example.org",
+   "joined": "2026-10-02",
+   "how": "Friend of a member",
+   "lang": "Tamil",
+   "consent": {
+    "contact": true,
+    "post": true
+   }
+  },
+  {
+   "id": "pe-3",
+   "name": "Mahaarivu Association",
+   "roles": [
+    "Sponsor"
+   ],
+   "city": "Toronto",
+   "contact": "mahaarivu.demo@example.org",
+   "joined": "2026-10-06",
+   "how": "Website",
+   "lang": "English",
+   "consent": {
+    "contact": true,
+    "post": false
+   }
+  },
+  {
+   "id": "pe-4",
+   "name": "Sasi",
+   "roles": [
+    "Team",
+    "Sponsor",
+    "Volunteer"
+   ],
+   "city": "Toronto",
+   "contact": "",
+   "joined": "2026-08-01",
+   "how": "Founding member",
+   "lang": "Tamil",
+   "consent": {
+    "contact": true,
+    "post": true
+   }
+  },
+  {
+   "id": "pe-5",
+   "name": "Shanker",
+   "roles": [
+    "Sponsor"
+   ],
+   "city": "Toronto",
+   "contact": "",
+   "joined": "2026-08-10",
+   "how": "Bowling night",
+   "lang": "Tamil",
+   "consent": {
+    "contact": true,
+    "post": true
+   }
+  },
+  {
+   "id": "pe-6",
+   "name": "Bala",
+   "roles": [
+    "Team",
+    "Sponsor",
+    "Volunteer"
+   ],
+   "city": "Toronto",
+   "contact": "",
+   "joined": "2026-08-01",
+   "how": "Founding member",
+   "lang": "Tamil",
+   "consent": {
+    "contact": true,
+    "post": true
+   }
+  },
+  {
+   "id": "pe-7",
+   "name": "Home warden (demo)",
+   "roles": [
+    "Organizer"
+   ],
+   "city": "Kilinochchi",
+   "contact": "warden.demo@example.org",
+   "joined": "2026-10-08",
+   "how": "Initiate form",
+   "lang": "Tamil",
+   "consent": {
+    "contact": true,
+    "post": false
+   }
+  },
+  {
+   "id": "pe-8",
+   "name": "Centre coordinator (demo)",
+   "roles": [
+    "Organizer"
+   ],
+   "city": "Jaffna",
+   "contact": "centre.demo@example.org",
+   "joined": "2026-09-29",
+   "how": "Initiate form",
+   "lang": "Tamil",
+   "consent": {
+    "contact": true,
+    "post": true
+   }
+  },
+  {
+   "id": "pe-9",
+   "name": "Centre nurse (demo)",
+   "roles": [
+    "Trusted contact"
+   ],
+   "city": "Jaffna",
+   "contact": "+94 77 000 0000",
+   "joined": "2026-10-01",
+   "how": "Visit",
+   "lang": "Tamil",
+   "consent": {
+    "contact": true,
+    "post": false
+   }
+  },
+  {
+   "id": "pe-10",
+   "name": "A parent (demo)",
+   "roles": [
+    "Subscriber"
+   ],
+   "city": "Toronto",
+   "contact": "parent.demo@example.org",
+   "joined": "2026-09-18",
+   "how": "Keep me posted",
+   "lang": "English",
+   "consent": {
+    "contact": true,
+    "post": true
+   }
+  },
+  {
+   "id": "pe-11",
+   "name": "Thurai S. (demo)",
+   "roles": [
+    "Subscriber",
+    "Volunteer"
+   ],
+   "city": "Toronto",
+   "contact": "thurai.demo@example.org",
+   "joined": "2026-09-20",
+   "how": "Bowling night",
+   "lang": "English",
+   "consent": {
+    "contact": true,
+    "post": true
+   }
+  },
+  {
+   "id": "pe-12",
+   "name": "Village volunteer (demo)",
+   "roles": [
+    "Organizer"
+   ],
+   "city": "Jaffna",
+   "contact": "volunteer.demo@example.org",
+   "joined": "2026-10-05",
+   "how": "Initiate form",
+   "lang": "Tamil",
+   "consent": {
+    "contact": true,
+    "post": false
+   }
+  }
+ ],
+ "members": [
+  {
+   "name": "Suresh",
+   "email": "(your email)",
+   "role": "Admin",
+   "active": "Today",
+   "twofa": true
+  },
+  {
+   "name": "Sasi",
+   "email": "sasi.demo@example.org",
+   "role": "Team",
+   "active": "Yesterday",
+   "twofa": true
+  },
+  {
+   "name": "Kiri",
+   "email": "kiri.demo@example.org",
+   "role": "Team",
+   "active": "3 days ago",
+   "twofa": false
+  },
+  {
+   "name": "Bala",
+   "email": "bala.demo@example.org",
+   "role": "Team",
+   "active": "Last week",
+   "twofa": true
+  }
+ ]
 }

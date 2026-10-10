@@ -31,6 +31,7 @@
     new: { label: "New", c: "s-new" },
     visit: { label: "Visit planned", c: "s-visit" },
     verified: { label: "Verified", c: "s-verified" },
+    approved: { label: "Approved", c: "s-approved" },
     declined: { label: "Not suitable", c: "s-declined" },
     project: { label: "Became a project", c: "s-project" }
   };
@@ -88,6 +89,9 @@
     D.pledges.filter(x => x.status === "pledged").forEach(x => attention.push({ c: "a-fund", t: `Pledge of ${money(x.amount)} · waiting to receive`, s: x.name + " → " + projOf(x.project).title, href: "#/sponsors" }));
     sNew.filter(s => !s.assigned).forEach(s => attention.push({ c: "a-new", t: `New · waiting for someone to take it`, s: s.title, href: `#/suggestions/${s.id}` }));
     sVisit.forEach(s => attention.push({ c: "a-visit", t: `Visit on ${fmtDay(s.visit)} · ${esc(s.assigned)}`, s: s.title, href: `#/suggestions/${s.id}` }));
+    sNew.filter(s => s.assigned).forEach(s => { const d = callDue(s); if (d) attention.push({ c: d.late ? "a-report" : "a-new", t: `${d.text} · ${esc(s.assigned)}`, s: det(s).title || s.title, href: `#/suggestions/${s.id}` }); });
+    D.suggestions.filter(s => s.status === "verified").forEach(s => attention.push({ c: "a-init", t: `Verified by ${esc(s.verifiedBy || s.assigned || "the team")} · waiting for approval`, s: det(s).title || s.title, href: `#/suggestions/${s.id}` }));
+    D.suggestions.filter(s => s.status === "approved").forEach(s => attention.push({ c: "a-fund", t: planDone(s) ? "Approved · ready to create the project" : "Approved · add the budget and expectations", s: det(s).title || s.title, href: `#/suggestions/${s.id}` }));
     P.forEach(p => {
       const n = stageNum(p), b = budget(p);
       if (n === 1 && !p.verified) attention.push({ c: "a-init", t: "Initiated · not visited and verified yet", s: p.title });
@@ -131,17 +135,20 @@
   }
 
   // ---------- Suggestions ----------
-  const rowHTML = s => `<li><a class="pt-row" href="#/suggestions/${s.id}">
-      <span class="pt-row-main"><b>${esc(s.title)}</b><small>${esc(s.category)} · ${esc(s.location.split(",")[0])} · ${esc(s.children)} children</small></span>
-      <span class="pt-row-side"><span class="pt-pill ${STATUS[s.status].c}">${STATUS[s.status].label}</span><time>${ago(s.received)}</time></span></a></li>`;
+  const howMany = v => /^\d+$/.test(String(v || "")) ? `${v} children` : String(v || "");
+  const rowHTML = s => { const d = callDue(s), m = s.status === "new" && s.called ? callMissing(s) : [];
+    return `<li><a class="pt-row" href="#/suggestions/${s.id}">
+      <span class="pt-row-main"><b>${esc(det(s).title || s.title)}</b><small>${esc(s.category || s.kind || "")} · ${esc(s.village || s.location.split(",")[0])} · ${esc(howMany(s.children))}</small>
+        ${d ? `<em class="pt-due ${d.late ? "late" : ""}">${d.text}</em>` : ""}${m.length ? `<em class="pt-miss">Missing ${m.length}</em>` : ""}</span>
+      <span class="pt-row-side"><span class="pt-pill ${STATUS[s.status].c}">${STATUS[s.status].label}</span><time>${ago(s.received)}</time></span></a></li>`; };
   let filter = "new", query = "";
   function suggestions() {
     const counts = Object.fromEntries(Object.keys(STATUS).map(k => [k, D.suggestions.filter(s => s.status === k).length]));
-    const tabs = [["new", "New"], ["visit", "Visit planned"], ["verified", "Verified"], ["declined", "Not suitable"], ["all", "All"]];
+    const tabs = [["new", "New"], ["visit", "Visit planned"], ["verified", "Waiting for approval"], ["approved", "Approved"], ["declined", "Not suitable"], ["all", "All"]];
     const list = D.suggestions.filter(s => (filter === "all" || s.status === filter) && (!query || (s.title + " " + s.location + " " + s.category).toLowerCase().includes(query)));
     return `
       <header class="pt-head"><div><p class="pt-kicker">Suggestions</p><h1>Suggestions inbox</h1>
-        <p class="pt-sub">Everything sent through the Initiate form on the website.</p></div></header>
+        <p class="pt-sub">Everything sent through the Create a Moment form. Six steps take each one to an Initiated project.</p></div></header>
       <div class="pt-tools">
         <div class="pt-chips" role="group" aria-label="Show suggestions">${tabs.map(([k, l]) => `<button type="button" data-f="${k}" aria-pressed="${filter === k}">${l}${k !== "all" ? ` <b>${counts[k]}</b>` : ""}</button>`).join("")}</div>
         <input class="pt-search" type="search" placeholder="Search title, place or category" value="${esc(query)}" aria-label="Search suggestions">
@@ -169,21 +176,24 @@
         return `<li><a class="pt-ev-doc" href="${u}" target="_blank" rel="noopener">📄 ${esc(f.name)}</a></li>`;
       }).join("")}</ul></div>`;
     };
-    const step = (k, l) => { const order = ["new", "visit", "verified", "project"], i = order.indexOf(s.status), j = order.indexOf(k); return `<li class="${s.status === "declined" ? "" : j < i ? "done" : j === i ? "now" : ""}"><i></i><span>${l}</span></li>`; };
+    const F = flowState(s), cur = F.findIndex(x => !x.done);
+    const step = (k, l) => { const j = F.findIndex(x => x.key === k); return `<li class="${s.status === "declined" ? "" : F[j].done ? "done" : j === cur ? "now" : ""}"><i></i><span>${l}</span></li>`; };
     return `
       <a class="pt-back" href="#/suggestions">‹ All suggestions</a>
-      <header class="pt-head"><div><p class="pt-kicker">Suggestion ${esc(s.id)} · received ${ago(s.received)}</p><h1>${esc(s.title)}</h1>
+      <header class="pt-head"><div><p class="pt-kicker">Suggestion ${esc(s.id)} · received ${ago(s.received)}</p><h1>${esc(det(s).title || s.title)}</h1>
         <p><span class="pt-pill ${STATUS[s.status].c}">${STATUS[s.status].label}</span>${s.status === "visit" && s.visit ? ` <span class="pt-sub">Visit on ${fmtDay(s.visit)}</span>` : ""}</p></div></header>
-      ${s.status === "declined" ? "" : `<ol class="pt-steps">${step("new", "Received")}${step("visit", "Visit")}${step("verified", "Verified")}${step("project", "Project")}</ol>`}
+      ${s.status === "declined" ? "" : `<ol class="pt-steps six">${step("take", "Taken")}${step("call", "Called")}${step("visit", "Visited")}${step("approve", "Approved")}${step("budget", "Budget")}${step("create", "Initiated")}</ol>`}
+      ${LIVE ? `<p class="pt-preview-tag">Design preview: the new steps (first call, approval, budget) are not saved yet. Taking it, the visit and verifying are saved.</p>` : ""}
       <div class="pt-detail">
         <section class="pt-card">
           <h2>What they sent</h2>
           <p class="pt-desc">${esc(s.description)}</p>
           <dl class="pt-facts">
+            ${field("Moment", esc(s.kind || ""))}
             ${field("Category", esc(s.category))}
             ${field("Focus", esc((s.focus || []).join(", ")))}
             ${s.village || s.city ? `${field("Village", esc(s.village || ""))}${field("City or district", esc(s.city || ""))}` : field("Location", esc(s.location))}
-            ${field("Children", esc(s.children))}
+            ${field("How many", esc(howMany(s.children)))}
             ${field("Contact", esc(s.contact))}
             ${field("Email or phone", `<a href="${/@/.test(s.reach) ? "mailto:" : "tel:"}${esc(s.reach.replace(/\s/g, ""))}">${esc(s.reach)}</a>`)}
             ${field("More", esc(s.additional))}
@@ -191,12 +201,7 @@
           ${evidenceHTML(s)}
         </section>
         <div class="pt-col">
-          <section class="pt-card">
-            <h2>Next step</h2>
-            <label class="pt-field">Looked after by
-              <select data-assign><option value="">Nobody yet</option>${D.team.map(t => `<option ${s.assigned === t ? "selected" : ""}>${esc(t)}</option>`).join("")}</select></label>
-            <div class="pt-actions">${actionsHTML(s)}</div>
-          </section>
+          ${flowHTML(s, F, cur)}
           ${visitFeedbackHTML(s)}
           <section class="pt-card">
             <h2>Team notes <span class="pt-count">${s.notes.length}</span></h2>
@@ -206,6 +211,125 @@
         </div>
       </div>`;
   }
+  // ---------- From request to Initiated: six steps ----------
+  // 1 Take it · 2 First call (collect the details the short form doesn't ask) · 3 Visit and verify
+  // 4 Approve (an admin; not the person who visited) · 5 Budget and expectations · 6 Create the Initiated project
+  const CALL_DAYS = 2;
+  const det = s => { if (!s.details) s.details = {}; return s.details; };
+  const plan = s => { if (!s.plan) s.plan = { lines: [], expect: [] }; return s.plan; };
+  const callMissing = s => { const d = det(s), o = ob(s), m = [];
+    if (!d.title) m.push("Title"); if (!d.story) m.push("Story"); if (!d.place) m.push("Exact place of the day");
+    if (o.contact === "trusted" && !(o.trusted && o.trusted.name && o.trusted.phone)) m.push("Trusted contact");
+    return m; };
+  const evidenceOk = s => (s.files || []).length > 0 || !!det(s).evidenceSeen;
+  const after = (st, k) => { const order = ["new", "visit", "verified", "approved", "project"]; return order.indexOf(st) >= order.indexOf(k); };
+  const planDone = s => { const q = plan(s); return q.lines.some(x => x.item && num(x.amount) > 0) && q.expect.some(Boolean); };
+  const callDue = s => {
+    if (s.status !== "new" || s.called) return null;
+    const due = new Date(new Date(s.received).getTime() + CALL_DAYS * 864e5), late = NOW > due;
+    return { late, text: late ? `First call overdue (was due ${fmtDay(due.toISOString())})` : `First call by ${fmtDay(due.toISOString())}` };
+  };
+  const flowState = s => [
+    { key: "take", done: !!s.assigned },
+    { key: "call", done: !!s.called && !callMissing(s).length },
+    { key: "visit", done: after(s.status, "verified") },
+    { key: "approve", done: after(s.status, "approved") },
+    { key: "budget", done: planDone(s) },
+    { key: "create", done: s.status === "project" }
+  ];
+  function flowHTML(s, F, cur) {
+    if (s.status === "declined") return `<section class="pt-card"><h2>Not suitable</h2><p class="pt-sub">Call the person and explain kindly. You can reopen it if things change.</p><button type="button" class="pt-btn ghost" data-act="new">Reopen</button></section>`;
+    const d = det(s), o = ob(s), t = o.trusted || {}, q = plan(s), miss = callMissing(s), due = callDue(s);
+    const admin = /admin/i.test(D.user.role || ""), own = s.verifiedBy && s.verifiedBy === D.user.name;
+    const total = q.lines.reduce((a, x) => a + num(x.amount), 0);
+    const box = (i, title, summary, body) => { const st = F[i].done ? "done" : i === cur ? "now" : "next";
+      return `<details class="pt-step ${st}" ${i === cur || (F[i].done && openStep === F[i].key) ? "open" : ""} data-step="${F[i].key}"><summary><i>${F[i].done ? "✓" : i + 1}</i><span><b>${title}</b>${summary ? `<small>${summary}</small>` : ""}</span></summary><div class="pt-step-body">${body}</div></details>`; };
+    const STEPS = [
+      box(0, "Take it", s.assigned ? `${esc(s.assigned)}${s.takenAt ? " · " + fmtDay(s.takenAt) : ""}` : "Nobody yet",
+        `<label class="pt-field">Looked after by<select data-assign><option value="">Nobody yet</option>${D.team.map(m => `<option ${s.assigned === m ? "selected" : ""}>${esc(m)}</option>`).join("")}</select></label>
+         <p class="pt-sub">The person who takes it makes the first call and usually does the visit.</p>`),
+      box(1, "First call", F[1].done ? `Called ${fmtDay(s.called)} · all details in` : due ? `<span class="pt-due ${due.late ? "late" : ""}">${due.text}</span>` : miss.length ? `Missing: ${miss.join(", ")}` : "",
+        `<p class="pt-sub">Call ${esc(s.contact || "them")} on <a href="${/@/.test(s.reach || "") ? "mailto:" : "tel:"}${esc(String(s.reach || "").replace(/\s/g, ""))}">${esc(s.reach || "")}</a>. Ask for what the short form didn't.</p>
+         <label class="pt-field">Title for the project <input data-d="title" value="${esc(d.title || "")}" placeholder="e.g. Sports day at the Paranthan girls' home"></label>
+         <label class="pt-field">The story: the need and the plan <textarea data-d="story" rows="4" placeholder="Who the children are, what they need, what the day will be">${esc(d.story || "")}</textarea></label>
+         <label class="pt-field">Organisation <small>(optional)</small><input data-d="org" value="${esc(d.org || "")}" placeholder="e.g. Sivapoomi Children's Home"></label>
+         <label class="pt-field">Exact place of the day <small>(private, team only)</small><input data-d="place" value="${esc(d.place || "")}" placeholder="Home, school or hall, and the address"></label>
+         <div class="pt-ob-who"><span>Who sends feedback for them?</span>
+           <label><input type="radio" name="ob-contact" value="self" ${o.contact === "self" ? "checked" : ""}> They use a phone themselves</label>
+           <label><input type="radio" name="ob-contact" value="trusted" ${o.contact === "trusted" ? "checked" : ""}> A trusted contact (family or someone close)</label>
+           ${o.contact === "trusted" ? `<div class="pt-ob-trusted">
+             <input data-tr="name" placeholder="Name" value="${esc(t.name || "")}" aria-label="Trusted contact name">
+             <input data-tr="relation" placeholder="Relation (e.g. son, niece)" value="${esc(t.relation || "")}" aria-label="Relation">
+             <input data-tr="phone" placeholder="Phone" inputmode="tel" value="${esc(t.phone || "")}" aria-label="Trusted contact phone"></div>` : ""}
+         </div>
+         <div class="pt-row2"><label class="pt-field">Called on<input type="date" data-called value="${esc((s.called || NOW.toISOString()).slice(0, 10))}"></label>
+           <button type="button" class="pt-btn" data-save-call>${s.called ? "Save changes" : "Save the call"}</button></div>
+         ${miss.length ? `<p class="pt-miss-line">Still missing: ${miss.join(" · ")}</p>` : ""}`),
+      box(2, "Visit and verify", after(s.status, "verified") ? `Verified by ${esc(s.verifiedBy || s.assigned || "the team")}${s.verifiedAt ? " · " + fmtDay(s.verifiedAt) : ""}` : s.status === "visit" && s.visit ? `Visit on ${fmtDay(s.visit)}` : "",
+        s.status === "new"
+          ? `<div class="pt-visit"><label class="pt-field">Visit date<input type="date" data-visit value="${esc(s.visit || "2026-10-20")}"></label><button type="button" class="pt-btn" data-act="visit">Plan the visit</button></div>
+             ${!F[1].done ? `<p class="pt-sub">Best after the first call, so you know where you are going.</p>` : ""}`
+          : after(s.status, "verified") ? `<p class="pt-sub">The visit checklist was completed${o.contact === "trusted" && t.name ? `, with ${esc(t.name)} as trusted contact` : ""}.</p>`
+          : `${onboardHTML(s, true)}
+             <label class="pt-check"><input type="checkbox" data-evseen ${evidenceOk(s) ? "checked" : ""} ${(s.files || []).length ? "disabled" : ""}><span>${(s.files || []).length ? "Evidence received with the request" : "Evidence seen at the visit (add a photo to Notes if you can)"}</span></label>
+             <button type="button" class="pt-btn" data-act="verified" ${onboardDone(s) && evidenceOk(s) && F[1].done ? "" : "disabled"}>Visited · the need is real</button>
+             ${onboardDone(s) && evidenceOk(s) && F[1].done ? "" : `<p class="pt-sub">Needs: ${[!F[1].done && "the first call details", !onboardDone(s) && "the visit checklist", !evidenceOk(s) && "evidence"].filter(Boolean).join(", ")}.</p>`}`),
+      box(3, "Approve", after(s.status, "approved") ? `Approved by ${esc(s.approvedBy || "")}${s.approvedAt ? " · " + fmtDay(s.approvedAt) : ""}${s.approvedOverride ? " (also the visitor)" : ""}` : "",
+        !after(s.status, "verified") ? `<p class="pt-sub">After the visit. Only an admin approves, and not the person who visited.</p>`
+          : after(s.status, "approved") ? `<p class="pt-sub">Approved. Next: the budget and what the organisers hope for.</p>`
+          : !admin ? `<p class="pt-sub">Waiting for an admin to approve.</p>`
+          : own ? `<p class="pt-sub">You verified this visit, so another admin should approve it.</p>
+                   <label class="pt-check"><input type="checkbox" data-override><span>I did both (early weeks). Approve anyway; this is noted.</span></label>
+                   <button type="button" class="pt-btn" data-approve disabled>Approve</button>`
+          : `<p class="pt-sub">Verified by ${esc(s.verifiedBy || s.assigned || "the team")}. Read the notes and the visit feedback, then approve.</p><button type="button" class="pt-btn" data-approve>Approve</button>`),
+      box(4, "Budget and expectations", F[4].done ? `${money(total)} · ${q.expect.filter(Boolean).length} expectation${q.expect.filter(Boolean).length === 1 ? "" : "s"}` : "",
+        `<p class="pt-sub">Estimated costs, line by line. They show on the website as estimates until the day.</p>
+         <ul class="pt-lines">${q.lines.map((x, k) => `<li><input data-li="${k}" data-f="item" value="${esc(x.item)}" placeholder="e.g. Van hire" aria-label="Item"><span class="pt-cur">$</span><input data-li="${k}" data-f="amount" value="${esc(x.amount)}" inputmode="decimal" placeholder="0" aria-label="Amount"><button type="button" data-rm="${k}" aria-label="Remove">✕</button></li>`).join("")}</ul>
+         <div class="pt-row2"><button type="button" class="pt-btn ghost" data-addline>+ Add a line</button><p class="pt-total">Total <b>${money(total)}</b></p></div>
+         <p class="pt-field-h">What the organisers hope for <small>(ticked off after the day)</small></p>
+         ${[0, 1, 2].map(k => `<input class="pt-exp" data-ex="${k}" value="${esc(q.expect[k] || "")}" placeholder="${["e.g. Every child plays at least one game", "e.g. A hot lunch for everyone", "e.g. Each family takes home a photo"][k]}">`).join("")}
+         <button type="button" class="pt-btn" data-save-plan>Save budget and expectations</button>`),
+      box(5, "Create the Initiated project", s.status === "project" ? "On the website as Smiles in the Making" : "",
+        s.status === "project" ? `<p class="pt-sub">Done. <a href="#/projects/${esc(s.project || "")}">Open the project →</a></p>`
+          : `<div class="pt-preview"><p class="pt-preview-h">On the website it will show</p>
+              <b>${esc(d.title || s.title)}</b><small>Smiles in the Making · ${esc([s.village, s.city].filter(Boolean).join(", ") || s.location)} · Budget ${money(total)}</small>
+              <ol><li>Requested by ${esc(s.contact || "")}${d.org ? ", " + esc(d.org) : ""}</li><li>Verified by ${esc(s.verifiedBy || "…")}</li><li>Approved by ${esc(s.approvedBy || "…")}</li></ol></div>
+             <button type="button" class="pt-btn" data-act="project" ${after(s.status, "approved") && F[4].done ? "" : "disabled"}>Create the Initiated project</button>
+             ${after(s.status, "approved") && F[4].done ? "" : `<p class="pt-sub">Needs approval and a budget with expectations first.</p>`}`)
+    ];
+    return `<section class="pt-card pt-flow"><h2>From request to Initiated <span class="pt-count">${F.filter(x => x.done).length}/6</span></h2>${STEPS.join("")}
+      <button type="button" class="pt-btn ghost danger pt-decline" data-act="declined">Not suitable</button></section>`;
+  }
+  let openStep = "";
+  // Changes to the new steps: saved in the demo; in the live portal they are a preview until saving is built.
+  const keep = (s, patch, note, done) => { Object.assign(s, patch); if (note) addNote(s, note); render(); if (done) toast(done + (LIVE ? " (preview, not saved yet)" : " (demo)")); };
+  function wireFlow(s) {
+    app.querySelectorAll(".pt-step").forEach(dd => dd.addEventListener("toggle", () => { if (dd.open) openStep = dd.dataset.step; }));
+    const callBtn = app.querySelector("[data-save-call]");
+    if (callBtn) callBtn.onclick = () => {
+      const d = { ...det(s) }; app.querySelectorAll("[data-d]").forEach(i => d[i.dataset.d] = i.value.trim());
+      const o = { ...ob(s), trusted: { ...(ob(s).trusted || {}) } };
+      app.querySelectorAll("[data-tr]").forEach(i => o.trusted[i.dataset.tr] = i.value.trim());
+      const was = !!s.called; openStep = "call";
+      keep(s, { details: d, onboard: o, called: app.querySelector("[data-called]").value }, was ? "" : `First call done. ${callMissing({ ...s, details: d, onboard: o }).length ? "Some details still missing." : "All details in."}`, "Call saved");
+    };
+    app.querySelectorAll('input[name="ob-contact"]').forEach(r => r.onchange = () => { ob(s).contact = r.value; openStep = "call"; render(); });
+    const ev = app.querySelector("[data-evseen]");
+    if (ev) ev.onchange = () => keep(s, { details: { ...det(s), evidenceSeen: ev.checked } });
+    const ov = app.querySelector("[data-override]"), ap = app.querySelector("[data-approve]");
+    if (ov) ov.onchange = () => { ap.disabled = !ov.checked; };
+    if (ap) ap.onclick = () => keep(s, { status: "approved", approvedBy: D.user.name, approvedAt: NOW.toISOString(), approvedOverride: !!(ov && ov.checked) },
+      `Approved${ov && ov.checked ? " (also did the visit; early-weeks override)" : ""}.`, "Approved");
+    const q = plan(s), readPlan = () => {
+      app.querySelectorAll("[data-li]").forEach(i => { q.lines[+i.dataset.li][i.dataset.f] = i.value.trim(); });
+      q.expect = [...app.querySelectorAll("[data-ex]")].map(i => i.value.trim());
+    };
+    const add = app.querySelector("[data-addline]"); if (add) add.onclick = () => { readPlan(); q.lines.push({ item: "", amount: "" }); openStep = "budget"; render(); const ins = app.querySelectorAll("[data-li][data-f=item]"); if (ins.length) ins[ins.length - 1].focus(); };
+    app.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => { readPlan(); q.lines.splice(+b.dataset.rm, 1); openStep = "budget"; render(); });
+    app.querySelectorAll("[data-li][data-f=amount]").forEach(i => i.oninput = () => { readPlan(); const t = app.querySelector(".pt-total b"); if (t) t.textContent = money(q.lines.reduce((a, x) => a + num(x.amount), 0)); });
+    const sp = app.querySelector("[data-save-plan]"); if (sp) sp.onclick = () => { readPlan(); q.lines = q.lines.filter(x => x.item || x.amount); openStep = "budget"; keep(s, { plan: q }, "Budget and expectations saved.", "Saved"); };
+  }
+
   function actionsHTML(s) {
     const b = (act, label, cls = "") => `<button type="button" class="pt-btn ${cls}" data-act="${act}">${label}</button>`;
     if (s.status === "new") return `<div class="pt-visit"><label class="pt-field">Visit date<input type="date" data-visit value="2026-10-20"></label>${b("visit", "Plan a visit")}</div>${b("declined", "Not suitable", "ghost danger")}`;
@@ -224,12 +348,12 @@
   ];
   const ob = s => { if (!s.onboard) s.onboard = {}; if (!s.onboard.contact) s.onboard.contact = "self"; return s.onboard; };
   const onboardDone = s => { const o = ob(s); return OB.every(([k]) => o[k]) && o.test && (o.contact === "self" || (o.trusted && o.trusted.name && o.trusted.phone)); };
-  function onboardHTML(s) {
+  function onboardHTML(s, noWho) {
     const o = ob(s), t = o.trusted || {};
     return `<div class="pt-ob">
       <p class="pt-ob-h">Visit checklist <span>${OB.filter(([k]) => o[k]).length + (o.test ? 1 : 0)}/4</span></p>
       ${OB.map(([k, l]) => `<label class="pt-check"><input type="checkbox" data-ob="${k}" ${o[k] ? "checked" : ""}><span>${l}</span></label>`).join("")}
-      <div class="pt-ob-who"><span>Who sends feedback for them?</span>
+      <div class="pt-ob-who" ${noWho ? "hidden" : ""}><span>Who sends feedback for them?</span>
         <label><input type="radio" name="ob-contact" value="self" ${o.contact === "self" ? "checked" : ""}> They use a phone themselves</label>
         <label><input type="radio" name="ob-contact" value="trusted" ${o.contact === "trusted" ? "checked" : ""}> A trusted contact (family or someone close)</label>
         ${o.contact === "trusted" ? `<div class="pt-ob-trusted">
@@ -244,11 +368,13 @@
     </div>`;
   }
   // Live mode: every change is saved through the portal API; the saved suggestion comes back and replaces the local one.
+  const PREVIEW_KEYS = ["details", "called", "takenAt", "verifiedBy", "verifiedAt", "approvedBy", "approvedAt", "approvedOverride", "plan"];
   async function save(s, patch, note, done) {
     if (!LIVE) { if (note) addNote(s, note); Object.assign(s, patch); render(); if (done) toast(done + " (demo)"); return true; }
     try {
       const r = await api(`/api/portal/suggestions/${encodeURIComponent(s.id)}`, { method: "PATCH", body: JSON.stringify({ ...patch, note: note || "" }) });
-      const i = D.suggestions.findIndex(x => x.id === s.id); if (i >= 0) D.suggestions[i] = r.suggestion;
+      const i = D.suggestions.findIndex(x => x.id === s.id);
+      if (i >= 0) { const old = D.suggestions[i], nw = r.suggestion; PREVIEW_KEYS.forEach(k => { if (old[k] !== undefined && nw[k] === undefined) nw[k] = old[k]; }); D.suggestions[i] = nw; }
       render(); if (done) toast(done); return true;
     } catch (e) { toast(e.message || "Could not save. Check your connection."); render(); return false; }
   }
@@ -256,30 +382,34 @@
     const o = JSON.parse(JSON.stringify(ob(s)));
     const put = () => save(s, { onboard: o });
     app.querySelectorAll("[data-ob]").forEach(c => c.onchange = () => { o[c.dataset.ob] = c.checked; put(); });
-    app.querySelectorAll('input[name="ob-contact"]').forEach(r => r.onchange = () => { o.contact = r.value; put(); });
-    app.querySelectorAll("[data-tr]").forEach(i => i.onchange = () => { o.trusted = o.trusted || {}; o.trusted[i.dataset.tr] = i.value.trim(); put(); });
+
     const t = app.querySelector("[data-ob-test]");
     if (t) t.onclick = () => { o.test = true; save(s, { onboard: o }, "Practice feedback message received. They know how to give feedback and report a concern.", "Practice message received"); };
   }
   function wireDetail(id) {
     const s = D.suggestions.find(x => x.id === id); if (!s) return;
-    wireOnboard(s);
+    wireOnboard(s); wireFlow(s);
     const sel = app.querySelector("[data-assign]");
-    sel.onchange = () => save(s, { assigned: sel.value }, sel.value ? `${sel.value} is looking after this.` : "Nobody is looking after this now.", "Saved");
+    if (sel) sel.onchange = () => { s.takenAt = sel.value ? NOW.toISOString() : ""; save(s, { assigned: sel.value }, sel.value ? `${sel.value} is looking after this.` : "Nobody is looking after this now.", "Saved"); };
     app.querySelectorAll("[data-act]").forEach(btn => btn.onclick = () => {
       const act = btn.dataset.act;
       if (act === "visit") { const v = app.querySelector("[data-visit]").value; return save(s, { status: "visit", visit: v }, `Visit planned for ${fmtDay(v)}.`, "Visit planned"); }
+      if (act === "verified") { s.verifiedBy = D.user.name; s.verifiedAt = NOW.toISOString(); }
       if (act === "verified") return save(s, { status: "verified" }, LIVE ? "Visited. The need is real." : "Visited. The need is real. A short \"How did we do?\" form was sent to the requester.", "Verified");
       if (act === "declined") return save(s, { status: "declined" }, "Marked not suitable.", "Not suitable");
       if (act === "new") return save(s, { status: "new" }, "Reopened.", "Reopened");
       if (act === "project") {
-        const slug = s.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48);
+        const d0 = det(s), q0 = plan(s);
+        if (LIVE) { keep(s, { status: "project" }, "Turned into an Initiated project.", "Project created"); return; }
+        const slug = (d0.title || s.title).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48);
         save(s, { status: "project" }, "Turned into an Initiated project.", LIVE ? "Marked as a project. The project editor goes live in the next step." : "").then(ok => {
           if (!ok || LIVE) return;
-          if (!P.some(p => p.slug === slug)) P.unshift({ title: s.title, slug, theme: s.category === "Other" ? "Trips & Events" : s.category, status: "Planning",
-            location: s.location.split(",")[0], city: s.location.split(",")[0], reach: s.children ? `About ${s.children} children` : "", organization: "Raavanaa",
-            started: "October 2026", verified: true, budget: [], goal: 0, funders: [], steps: [], expectations: [], updates: [], photos: [], media: [],
-            summary: s.description, story: `## Summary\n\n${s.description}`, cover: "", fromSuggestion: s.id, isNew: true });
+          if (!P.some(p => p.slug === slug)) P.unshift({ title: d0.title || s.title, slug, theme: s.category === "Other" ? "Trips & Events" : s.category, status: "Planning",
+            location: [s.village, s.city].filter(Boolean).join(", ") || s.location.split(",")[0], city: s.city || s.location.split(",")[0], reach: howMany(s.children), organization: d0.org || "Raavanaa",
+            started: "October 2026", verified: true, budget: q0.lines.map(x => ({ item: x.item, amount: num(x.amount) })), goal: q0.lines.reduce((a, x) => a + num(x.amount), 0), funders: [], steps: [],
+            expectations: q0.expect.filter(Boolean).map(text => ({ text })), updates: [], photos: [], media: [],
+            people: { requested_by: [s.contact, d0.org].filter(Boolean).join(", "), requested_on: s.received.slice(0, 10), verified_by: s.verifiedBy || "", verified_on: (s.verifiedAt || "").slice(0, 10), approved_by: s.approvedBy || "", approved_on: (s.approvedAt || "").slice(0, 10) },
+            summary: (d0.story || s.description).split("\n")[0], story: `## The need and the plan\n\n${d0.story || s.description}`, cover: "", fromSuggestion: s.id, isNew: true });
           s.project = slug; location.hash = `#/projects/${slug}`; toast("Project created (demo)");
         });
       }
