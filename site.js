@@ -1393,7 +1393,8 @@
       const [site, data, cm] = await Promise.all([load("/site.json"), load("/projects.json"), load("/comments.json").catch(() => ({}))]);
       COMMENTS = (cm && cm.comments) || [];
       frame(site);
-      const projects = (data.projects || []).filter(p => p && p.title && !p.hidden);
+      // Only projects that have been visited and verified are public (Decisions log, 10 Oct 2026).
+      const projects = (data.projects || []).filter(p => p && p.title && !p.hidden && p.verified);
       if (page === "contact" || page === "volunteer") {
         // Rotating slides at the top of the Contact and Volunteer pages; a different one comes first on each visit.
         const isVol = page === "volunteer";
