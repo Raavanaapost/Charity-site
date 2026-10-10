@@ -119,6 +119,7 @@
         // Then the evidence files, once the suggestion exists.
         if (f._after && p && p.ok) { msg.hidden = false; msg.className = "note"; await f._after(await p.json().catch(() => ({})), msg); }
         f.querySelectorAll("input:not([type=hidden]),textarea,select").forEach(el => el.disabled = true);
+        if (f._done) f._done();
         msg.textContent = msg.dataset.warn || f.dataset.done; msg.className = msg.dataset.warn ? "note error" : "toast";
         if (f.hasAttribute("data-comment")) {
           const art = document.createElement("article");
@@ -1212,7 +1213,7 @@
           const kb = n => n > 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB";
           const draw = () => {
             list.innerHTML = items.map((it, k) => `<li>${it.preview ? `<img src="${it.preview}" alt="">` : `<span class="ev-ico">${it.type === "application/pdf" ? "PDF" : "VIDEO"}</span>`}<span class="ev-name">${esc(it.name)}<small>${kb(it.blob.size)}</small></span><button type="button" data-ev-del="${k}" aria-label="Remove">✕</button></li>`).join("");
-            list.querySelectorAll("[data-ev-del]").forEach(b => b.onclick = () => { const it = items.splice(+b.dataset.evDel, 1)[0]; if (it && it.preview) URL.revokeObjectURL(it.preview); draw(); });
+            list.querySelectorAll("[data-ev-del]").forEach(b => b.onclick = () => { const it = items.splice(+b.dataset.evDel, 1)[0]; if (it && it.preview) URL.revokeObjectURL(it.preview); draw(); keep(); });
             ev.classList.toggle("has", items.length > 0);
           };
           const shrink = file => new Promise(resolve => {
@@ -1231,10 +1232,9 @@
             v.preload = "metadata"; v.onloadedmetadata = () => { URL.revokeObjectURL(url); resolve(v.duration || 0); }; v.onerror = () => { URL.revokeObjectURL(url); resolve(0); }; v.src = url;
           });
           const add = async files => {
-            say.textContent = "";
             for (const file of files) {
               if (items.length >= MAX) { say.textContent = `Up to ${MAX} files.`; break; }
-              const t = (file.type || "").toLowerCase();
+              const t = (file.type || guess(file.name) || (fromCamera ? "image/jpeg" : "")).toLowerCase();
               if (t.startsWith("image/")) {
                 const blob = await shrink(file);
                 if (blob.size > 8 * 1048576) { say.textContent = "That photo is too big."; continue; }
@@ -1248,10 +1248,41 @@
                 items.push({ blob: file, name: file.name || "video.mp4", type: t });
               } else { say.textContent = "Only photos, PDF documents and short videos."; }
             }
+            if (say.textContent === "Adding...") say.textContent = "";
             if (items.length) skip.checked = false;
-            draw();
+            draw(); keep();
           };
-          ev.querySelectorAll("input[type=file]").forEach(inp => inp.addEventListener("change", () => { add([...inp.files]); inp.value = ""; }));
+          // Some phones close the page while the camera is open, so the form is kept on the phone (and cleared once sent).
+          const guess = n => { const x = (String(n || "").match(/\.(\w+)$/) || [])[1]; x && (x = x.toLowerCase()); return { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp", heic: "image/heic", heif: "image/heif", pdf: "application/pdf", mp4: "video/mp4", mov: "video/quicktime", "3gp": "video/3gpp", webm: "video/webm" }[x] || ""; };
+          let fromCamera = false;
+          const db = () => new Promise((ok, no) => { try { const r = indexedDB.open("raavanaa-initiate", 1); r.onupgradeneeded = () => r.result.createObjectStore("draft"); r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error); } catch (e) { no(e); } });
+          const idb = async (mode, fn) => { try { const d = await db(); return await new Promise(ok => { const tx = d.transaction("draft", mode), st = tx.objectStore("draft"), r = fn(st); tx.oncomplete = () => ok(r && r.result); tx.onerror = () => ok(null); }); } catch (e) { return null; } };
+          const fieldsNow = () => { const o = {}; form.querySelectorAll("input[name],select[name],textarea[name]").forEach(el => { if (el.type === "hidden" || el.type === "file" || el.name === "bot-field") return; if (el.type === "checkbox" || el.type === "radio") { if (el.checked) (o[el.name] = o[el.name] || []).push(el.value); } else o[el.name] = el.value; }); return o; };
+          let keepT = 0, restoring = true;
+          const keep = () => { if (restoring) return; clearTimeout(keepT); keepT = setTimeout(() => idb("readwrite", st => st.put({ at: Date.now(), fields: fieldsNow(), files: items.map(it => ({ blob: it.blob, name: it.name, type: it.type })) }, "d")), 300); };
+          const forget = () => { restoring = true; clearTimeout(keepT); idb("readwrite", st => st.delete("d")); try { localStorage.removeItem("raav-cam"); } catch (e) {} };
+          form.addEventListener("input", keep); form.addEventListener("change", keep);
+          form._done = forget;
+          (async () => {
+            const d = await idb("readonly", st => st.get("d"));
+            let cam = 0; try { cam = +localStorage.getItem("raav-cam") || 0; localStorage.removeItem("raav-cam"); } catch (e) {}
+            if (d && Date.now() - d.at < 3 * 3600e3) {
+              const f = d.fields || {};
+              form.querySelectorAll("input[name],select[name],textarea[name]").forEach(el => {
+                if (!(el.name in f) || el.type === "hidden" || el.type === "file") return;
+                if (el.type === "checkbox" || el.type === "radio") el.checked = [].concat(f[el.name]).includes(el.value); else el.value = f[el.name];
+                el.dispatchEvent(new Event("input", { bubbles: true })); el.dispatchEvent(new Event("change", { bubbles: true }));
+              });
+              (d.files || []).forEach(x => x && x.blob && items.push({ ...x, preview: /^image\//.test(x.type) ? URL.createObjectURL(x.blob) : "" }));
+              draw();
+            }
+            if (cam && Date.now() - cam < 15 * 60e3) say.textContent = "Your phone closed this page while the camera was open, so the photo was lost. What you typed is kept. Please take the photo with your camera app first, then tap \"Choose a file\" and pick it.";
+            restoring = false;
+          })();
+          const camIn = ev.querySelector("[data-ev-camera]");
+          camIn.addEventListener("click", () => { try { localStorage.setItem("raav-cam", String(Date.now())); } catch (e) {} keep(); });
+          window.addEventListener("focus", () => setTimeout(() => { try { localStorage.removeItem("raav-cam"); } catch (e) {} }, 4000));
+          ev.querySelectorAll("input[type=file]").forEach(inp => inp.addEventListener("change", () => { try { localStorage.removeItem("raav-cam"); } catch (e) {} fromCamera = inp === camIn; const fl = [...inp.files]; inp.value = ""; if (fl.length) { say.textContent = "Adding..."; add(fl); } }));
           skip.addEventListener("change", () => { if (skip.checked) say.textContent = ""; });
           form._evCount = () => items.length;
           form._check = () => {
