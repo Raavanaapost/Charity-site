@@ -258,5 +258,83 @@
       ],
       "outcome": "Picture removed and the child added to our no-photo list."
     }
+  ],
+  "pledges": [
+    {
+      "id": "pl-12",
+      "project": "arcade-trip",
+      "name": "Mahaarivu Association",
+      "amount": 250,
+      "status": "pledged",
+      "pledged": "2026-10-06",
+      "contact": "mahaarivu.demo@example.org",
+      "public": true,
+      "thanked": false
+    },
+    {
+      "id": "pl-11",
+      "project": "arcade-trip",
+      "name": "Kumar Family",
+      "amount": 250,
+      "status": "received",
+      "pledged": "2026-10-02",
+      "received": "2026-10-04",
+      "method": "e-Transfer",
+      "contact": "kumar.demo@example.org",
+      "public": true,
+      "thanked": true
+    },
+    {
+      "id": "pl-10",
+      "project": "casuarina-beach-day",
+      "name": "Kiri & Family",
+      "amount": 600,
+      "status": "received",
+      "pledged": "2026-09-28",
+      "received": "2026-10-03",
+      "method": "e-Transfer",
+      "contact": "kiri.demo@example.org",
+      "public": true,
+      "thanked": true
+    },
+    {
+      "id": "pl-09",
+      "project": "mums-and-kids-day-out",
+      "name": "Sasi",
+      "amount": 150,
+      "status": "received",
+      "pledged": "2026-08-10",
+      "received": "2026-08-12",
+      "method": "Cash",
+      "contact": "",
+      "public": true,
+      "thanked": true
+    },
+    {
+      "id": "pl-08",
+      "project": "mums-and-kids-day-out",
+      "name": "Shanker",
+      "amount": 150,
+      "status": "received",
+      "pledged": "2026-08-10",
+      "received": "2026-08-14",
+      "method": "e-Transfer",
+      "contact": "",
+      "public": true,
+      "thanked": true
+    },
+    {
+      "id": "pl-07",
+      "project": "mums-and-kids-day-out",
+      "name": "Bala",
+      "amount": 150,
+      "status": "received",
+      "pledged": "2026-08-11",
+      "received": "2026-08-15",
+      "method": "Cheque",
+      "contact": "",
+      "public": true,
+      "thanked": false
+    }
   ]
 }

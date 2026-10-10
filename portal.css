@@ -230,3 +230,17 @@ body.portal{margin:0;font-family:var(--display);font-size:15px;line-height:1.5;b
 .pt-exp li{display:grid;grid-template-columns:minmax(0,1fr) auto auto}
 .pt-exp li > input{width:100%}
 @media (max-width:480px){.pt-exp li:has(select){grid-template-columns:minmax(0,1fr) auto}.pt-exp li:has(select) > input{grid-column:1/-1}}
+/* sponsors & pledges */
+.pt-h2{font-size:15px;margin:18px 0 10px}
+.pt-pl{list-style:none;display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.pt-pl.pledged{border-color:#f3dfb0;background:color-mix(in srgb,#fdf0dc 55%,var(--surface))}
+.pt-amt{font-size:16px}
+.pt-btn.sm{min-height:34px;padding:6px 12px;font-size:13px}
+.pt-tag{font-size:11px;font-weight:600;color:var(--muted);background:var(--bg);border-radius:6px;padding:1px 6px;margin-left:4px}
+.pt-plform{margin-bottom:14px}
+.pt-plform .pt-check{margin-top:6px}
+.pt-bar2{display:flex}
+.pt-bar2 i{border-radius:0}
+.pt-bar2 i.pend{background:repeating-linear-gradient(45deg,#f2b21c 0 6px,#f7d77a 6px 12px);opacity:.7}
+.pt-card h2 a{color:inherit;text-decoration:none}
+@media (max-width:560px){.pt-pl{flex-wrap:wrap}.pt-pl .pt-row-side{width:100%;display:flex;justify-content:space-between;align-items:center;padding-left:44px}}

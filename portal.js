@@ -49,7 +49,7 @@
   const svg = (d, s = 20) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
   const MENU = [
     ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true],
-    ["sponsors", "Sponsors & pledges", false], ["day", "Day preparation", false], ["close", "Close the day", false],
+    ["sponsors", "Sponsors & pledges", true], ["day", "Day preparation", false], ["close", "Close the day", false],
     ["people", "People", false], ["team", "Team & logins", false]
   ];
 
@@ -76,6 +76,7 @@
     const sNew = D.suggestions.filter(s => s.status === "new"), sVisit = D.suggestions.filter(s => s.status === "visit");
     const attention = [];
     D.reports.filter(r => r.status !== "closed").forEach(r => attention.push({ c: "a-report", t: `${r.type === "concern" ? LEVEL[r.level].label : "Feedback needs a look"} · ${r.status === "open" ? "not yet picked up" : "being looked into"}`, s: r.type === "concern" ? `Report: ${r.about}` : "Visit feedback", href: `#/reports/${r.id}` }));
+    D.pledges.filter(x => x.status === "pledged").forEach(x => attention.push({ c: "a-fund", t: `Pledge of ${money(x.amount)} · waiting to receive`, s: x.name + " → " + projOf(x.project).title, href: "#/sponsors" }));
     sNew.filter(s => !s.assigned).forEach(s => attention.push({ c: "a-new", t: `New · waiting for someone to take it`, s: s.title, href: `#/suggestions/${s.id}` }));
     sVisit.forEach(s => attention.push({ c: "a-visit", t: `Visit on ${fmtDay(s.visit)} · ${esc(s.assigned)}`, s: s.title, href: `#/suggestions/${s.id}` }));
     P.forEach(p => {
@@ -413,7 +414,7 @@
       sponsors: `
         <ul class="pt-spons">${(p.funders || []).map(f => `<li><span class="pt-av">${esc(initials(f.name))}</span><b>${esc(f.name)}</b><em>${money(num(f.amount))}</em></li>`).join("") || `<li class="pt-empty">No pledges yet.</li>`}</ul>
         <p class="pt-total"><span>Pledged</span><b>${money(b.raised)} of ${money(b.goal)}</b></p>
-        <p class="pt-sub">Pledges are recorded and confirmed on the Sponsors &amp; pledges screen (designed next).</p>`,
+        <p class="pt-sub">Received pledges only. <a href="#/sponsors">Record or confirm pledges →</a></p>`,
       impact: `
         <p class="pt-sub" style="margin:0 0 10px">${n === 3 ? "Mark each one after the day. Visitors see the result." : "What the organizers expect the day to achieve. Closed with a tick after the day."}</p>
         <ul class="pt-exp">${(p.expectations || []).map((x, k) => `<li><input data-ex="${k}" value="${esc(x.text)}" aria-label="Expectation">${n === 3 ? `<select data-exr="${k}" aria-label="Result"><option value="">Not reviewed</option>${[["met", "Met"], ["partly", "Partly met"], ["not", "Not met"]].map(([v, l]) => `<option value="${v}" ${x.result === v ? "selected" : ""}>${l}</option>`).join("")}</select>` : ""}<button type="button" class="pt-x" data-delex="${k}" aria-label="Remove">✕</button></li>`).join("")}</ul>
@@ -461,18 +462,97 @@
     void keep;
   }
 
+  // ---------- Sponsors & pledges ----------
+  // A pledge counts toward a project's funding only once the money is marked received.
+  const fmtD = iso => iso ? new Date(iso + "T12:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "";
+  const projOf = slug => P.find(p => p.slug === slug) || { title: slug, slug };
+  function syncFunders(slug) { // the project's funders = its received pledges
+    const p = P.find(x => x.slug === slug); if (!p) return;
+    p.funders = D.pledges.filter(x => x.project === slug && x.status === "received").map(x => ({ name: x.public ? x.name : "A friend of Raavanaa", amount: x.amount }));
+  }
+  let sview = "pledges";
+  function sponsors() {
+    const recv = D.pledges.filter(x => x.status === "received"), wait = D.pledges.filter(x => x.status === "pledged");
+    const tot = a => a.reduce((t, x) => t + num(x.amount), 0);
+    const people = {}; D.pledges.forEach(x => { const k = x.name; (people[k] = people[k] || { name: k, total: 0, n: 0, projects: new Set(), contact: x.contact }); people[k].total += x.status === "received" ? num(x.amount) : 0; people[k].n++; people[k].projects.add(projOf(x.project).title); });
+    const open = P.filter(p => stageNum(p) === 1 && budget(p).goal > 0);
+    const row = x => { const p = projOf(x.project); return `<li class="pt-pl ${x.status}">
+        <span class="pt-av">${esc(initials(x.name))}</span>
+        <span class="pt-row-main"><b>${esc(x.name)}${x.public ? "" : ' <small class="pt-tag">Anonymous on site</small>'}</b><small>${esc(p.title)} · pledged ${fmtD(x.pledged)}${x.status === "received" ? ` · received ${fmtD(x.received)} by ${esc(x.method)}` : ""}</small></span>
+        <span class="pt-row-side"><b class="pt-amt">${money(x.amount)}</b>${x.status === "pledged"
+          ? `<button type="button" class="pt-btn sm" data-recv="${x.id}">Mark received</button>`
+          : x.thanked ? `<span class="pt-pill st-1">✓ Thanked</span>` : `<button type="button" class="pt-btn ghost sm" data-thank="${x.id}">Send thank-you</button>`}</span></li>`; };
+    return `
+      <header class="pt-head"><div><p class="pt-kicker">Sponsors &amp; pledges</p><h1>Sponsors &amp; pledges</h1>
+        <p class="pt-sub">A pledge counts toward a project only when the money is marked received.</p></div>
+        <button type="button" class="pt-btn" data-newpl>+ Record a pledge</button></header>
+      <section class="pt-stats">
+        <div class="pt-stat st1"><b>${money(tot(recv))}</b><span>Received</span></div>
+        <div class="pt-stat st2"><b>${money(tot(wait))}</b><span>Waiting to receive</span></div>
+        <div class="pt-stat s1"><b>${Object.keys(people).length}</b><span>Sponsors</span></div>
+        <div class="pt-stat st3"><b>${money(open.reduce((t, p) => t + Math.max(0, budget(p).goal - budget(p).raised), 0))}</b><span>Still needed</span></div>
+      </section>
+      <form class="pt-card pt-plform" id="pt-plform" hidden>
+        <h2>Record a pledge</h2>
+        ${open.length ? "" : `<p class="pt-sub" style="margin:0 0 10px">No Initiated project is waiting for money right now. Pledges can be recorded once a project has a budget.</p>`}
+        <div class="pt-2">
+          <label class="pt-field">Project<select name="project" required>${open.map(p => `<option value="${esc(p.slug)}">${esc(p.title)} · ${money(Math.max(0, budget(p).goal - budget(p).raised))} needed</option>`).join("")}</select></label>
+          <label class="pt-field">Sponsor<input name="name" list="pt-sponsor-names" required placeholder="Family, person or group"><datalist id="pt-sponsor-names">${Object.keys(people).map(n => `<option value="${esc(n)}">`).join("")}</datalist></label>
+          <label class="pt-field">Amount<span class="pt-money"><i>$</i><input name="amount" inputmode="decimal" required></span></label>
+          <label class="pt-field">Email or phone<input name="contact" placeholder="For the thank-you and receipt"></label>
+        </div>
+        <label class="pt-check"><input type="checkbox" name="public" checked><span>Show their name on the website (otherwise "A friend of Raavanaa")</span></label>
+        <label class="pt-check"><input type="checkbox" name="received"><span>Money already received</span></label>
+        <div class="pt-actions-row" style="margin-top:12px"><button class="pt-btn" type="submit" ${open.length ? "" : "disabled"}>Save pledge</button><button class="pt-btn ghost" type="button" data-cancelpl>Cancel</button></div>
+      </form>
+      <div class="pt-tools"><div class="pt-chips" role="group" aria-label="Show">${[["pledges", "Pledges"], ["sponsors", "Sponsors"], ["projects", "By project"]].map(([k, l]) => `<button type="button" data-sv="${k}" aria-pressed="${sview === k}">${l}</button>`).join("")}</div></div>
+      ${sview === "pledges" ? `
+        ${wait.length ? `<h2 class="pt-h2">Waiting to receive <span class="pt-count">${wait.length}</span></h2><ul class="pt-list big">${wait.map(row).join("")}</ul>` : ""}
+        <h2 class="pt-h2">Received <span class="pt-count">${recv.length}</span></h2><ul class="pt-list big">${recv.map(row).join("")}</ul>`
+      : sview === "sponsors" ? `<ul class="pt-list big">${Object.values(people).sort((a, b) => b.total - a.total).map(x => `<li class="pt-pl"><span class="pt-av">${esc(initials(x.name))}</span>
+          <span class="pt-row-main"><b>${esc(x.name)}</b><small>${[...x.projects].map(esc).join(" · ")}${x.contact ? " · " + esc(x.contact) : ""}</small></span>
+          <span class="pt-row-side"><b class="pt-amt">${money(x.total)}</b><small class="pt-sub" style="margin:0">${x.n} pledge${x.n > 1 ? "s" : ""}</small></span></li>`).join("")}</ul>`
+      : `<div class="pt-grid">${P.filter(p => budget(p).goal > 0).map(p => { const b = budget(p), q = Math.min(100, Math.round(b.raised / b.goal * 100)), pend = tot(wait.filter(x => x.project === p.slug)); return `<section class="pt-card">
+          <h2><a href="#/projects/${esc(p.slug)}">${esc(p.title)}</a> <span class="pt-pill ${STAGE[stageNum(p)][1]}">${STAGE[stageNum(p)][0]}</span></h2>
+          <p class="pt-big"><b>${money(b.raised)}</b> <span>of ${money(b.goal)}</span></p>
+          <div class="pt-bar pt-bar2"><i style="width:${q}%"></i>${pend ? `<i class="pend" style="width:${Math.min(100 - q, Math.round(pend / b.goal * 100))}%"></i>` : ""}</div>
+          <p class="pt-sub">${q}% received${pend ? ` · ${money(pend)} waiting` : ""}${b.raised >= b.goal ? " · fully funded" : ""}</p></section>`; }).join("")}</div>`}`;
+  }
+  function wireSponsors() {
+    app.querySelectorAll("[data-sv]").forEach(b => b.onclick = () => { sview = b.dataset.sv; render(); });
+    const form = app.querySelector("#pt-plform");
+    app.querySelector("[data-newpl]").onclick = () => { form.hidden = false; form.querySelector("[name=name]").focus(); };
+    app.querySelector("[data-cancelpl]").onclick = () => { form.hidden = true; };
+    form.onsubmit = e => {
+      e.preventDefault(); const f = new FormData(form), amt = num(f.get("amount")); if (!amt) { toast("Enter an amount"); return; }
+      const today = NOW.toISOString().slice(0, 10), rec = !!f.get("received");
+      const p = projOf(f.get("project")), before = stageNum(p);
+      D.pledges.unshift({ id: "pl-" + Date.now(), project: f.get("project"), name: String(f.get("name")).trim(), amount: amt, status: rec ? "received" : "pledged", pledged: today, received: rec ? today : "", method: rec ? "e-Transfer" : "", contact: String(f.get("contact") || ""), public: !!f.get("public"), thanked: false });
+      if (rec) syncFunders(p.slug);
+      render(); toast(stageNum(p) !== before ? `${p.title} is now Activated` : rec ? "Pledge saved as received (demo)" : "Pledge saved (demo)");
+    };
+    app.querySelectorAll("[data-recv]").forEach(b => b.onclick = () => {
+      const x = D.pledges.find(y => y.id === b.dataset.recv), p = projOf(x.project), before = stageNum(p);
+      x.status = "received"; x.received = NOW.toISOString().slice(0, 10); x.method = "e-Transfer"; syncFunders(x.project);
+      const bb = budget(p); render();
+      toast(stageNum(p) !== before ? `${p.title} is now Activated` : bb.raised >= bb.goal && !p.verified ? "Fully funded. It becomes Activated once the visit is verified." : "Marked received (demo)");
+    });
+    app.querySelectorAll("[data-thank]").forEach(b => b.onclick = () => { D.pledges.find(y => y.id === b.dataset.thank).thanked = true; render(); toast("Thank-you sent (demo)"); });
+  }
+
   function render() {
     const [page, id] = route();
-    const cur = ["suggestions", "reports", "projects"].includes(page) ? page : "dashboard";
+    const cur = ["suggestions", "reports", "projects", "sponsors"].includes(page) ? page : "dashboard";
     drawNav(cur);
     if (page === "suggestions" && id) { app.innerHTML = detail(id); wireDetail(id); }
     else if (page === "suggestions") { app.innerHTML = suggestions(); wireSuggestions(); }
+    else if (page === "sponsors") { app.innerHTML = sponsors(); wireSponsors(); }
     else if (page === "projects" && id) { app.innerHTML = editor(id); wireEditor(id); }
     else if (page === "projects") { app.innerHTML = projects(); wireProjects(); }
     else if (page === "reports" && id) { app.innerHTML = reportDetail(id); wireReport(id); }
     else if (page === "reports") { app.innerHTML = reports(); wireReports(); }
     else app.innerHTML = dashboard();
-    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
+    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
   }
 
   Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] }))])
