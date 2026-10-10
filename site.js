@@ -1428,8 +1428,19 @@
         });
         wireForms(document);
       } else if (page === "initiate") {
-        // "Initiate an Opportunity": live letter count and the pick-several "Project Focus" box.
-        document.title = `Initiate an Opportunity · ${site.name}`;
+        // "Create a Moment" (the Initiate form): live letter count and the pick-several "Project Focus" box.
+        document.title = `Create a Moment · ${site.name}`;
+        // The banner title rotates through the "create" slogans (Site settings); a first visit starts on the first one.
+        const mt = document.querySelector("[data-moment-title]"), SL = ((site.slogans || {}).create || []).filter(x => x && x.key);
+        if (mt && SL.length) {
+          let i = 0; try { const n = +localStorage.getItem("raav-slogan"); if (n >= 0 && isFinite(n) && localStorage.getItem("raav-slogan") !== null) i = (n + 1) % SL.length; localStorage.setItem("raav-slogan", String(i)); } catch (e) {}
+          const put = k => { const x = SL[k]; mt.innerHTML = `<span class="mt-lead">${esc(x.lead || "")}</span><span class="mt-key">${esc(x.key)}</span>`; };
+          put(i);
+          if (SL.length > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) setInterval(() => {
+            if (document.hidden) return;
+            mt.classList.add("out"); setTimeout(() => { i = (i + 1) % SL.length; put(i); mt.classList.remove("out"); }, 450);
+          }, 5200);
+        }
         const area = document.getElementById("o-description"), count = document.getElementById("o-count");
         if (area && count) { const upd = () => { count.textContent = area.value.length; }; area.addEventListener("input", upd); upd(); }
         const multi = document.getElementById("o-focus"), shown = document.getElementById("o-focus-value");

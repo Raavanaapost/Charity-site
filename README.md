@@ -27,6 +27,11 @@
 - [ ] Raavanaa Post: a monthly newsletter with the month's impact stories, numbers and pictures; written in the portal, published as a page on the site and emailed to Keep me posted subscribers.
 - [ ] Community database (the People screen): everyone who joins, volunteers, sponsors, visits or signs up, with how they connected and what they took part in. Consent first; only the team can see it.
 
+## Slogans (kept in site.json → "slogans", rotate to keep the site feeling alive)
+- Create (for people suggesting a project; rotates on the Initiate page, /initiate): Create a Moment · Start a Smile · Spark a Smile · Bring a Day of Joy · Dream a Day for the Children · Initiate an Opportunity
+- Sponsor (for sponsors; not shown yet, for a future "Sponsor" button): Sponsor a Moment · Fund a Smile · Give a Day of Joy · Be the Reason for a Smile
+- Left out on purpose: "Request help" (sounds like applying for aid, invites money requests) and "Help us" (sounds like asking for donations).
+
 ## Saved header versions (to go back to)
 - Full-colour logo, original height: commit b66481e
 - Softer (faded) logo, original height: commit 60c2460

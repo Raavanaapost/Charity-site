@@ -1,213 +1,260 @@
 {
-  "name": "RAAVANAA",
-  "tagline": "Community – Creating Impact",
-  "intro": "A game, a trip, a good meal. Simple days that many children never get. Together we make them happen, and we show you every smile you helped create.",
-  "about": "**Raavanaa exists for one thing: giving children a day of joy they will remember.**\n\n## Why we do this\n\nSome children grow up without ever going to a game, seeing a new place or sitting down to a really good meal. Nobody close to them can afford it, and childhood does not wait.\n\nAt the same time, all over the world there are people who would gladly give a child one of those days, if only they knew where it was needed and could trust that it would truly reach the child.\n\nRaavanaa brings the two together.\n\n## What a project is\n\nEvery project is one simple, happy day.\n\n- **A game** – bowling, an arcade, a day of play.\n- **A place** – a trip to somewhere they have never seen.\n- **A good meal** – a delicious dish, shared together, once in a while.\n\nSmall things. But they are the days a child talks about for years.\n\n## How it works\n\n**Initiated.** A teacher, a children's home, an organization or one of our members tells us about children who are waiting for a day like this. We visit, listen and make sure the need is real.\n\n**Activated.** The day is funded by friends, family and supporters of Raavanaa, and then planned: the date, the place, the food and the helpers.\n\n**Impact.** The day happens. We come back with the story, the pictures and what was spent, so everyone who gave can see the smiles they created.\n\n## Our promise\n\n- Every need is checked in person before a project is shared here.\n- Every penny goes to the project itself. Nothing is kept for running costs.\n- Every project shows its budget and who made it possible.\n- Everyone who gave sees what their kindness did, with a story and pictures after the day.\n- The children's safety and dignity always come first. Read our [privacy and child safety promise](/privacy).\n\n## Be part of it\n\n\"Beyond the Lanes\" is our promise to step out of our own lanes and into the lives of the children around us. You can [bring us a project](/contact?topic=suggest), [volunteer on the day](/volunteer), or [partner with us](/contact?topic=partner).",
-  "footer": "",
-  "sayings": [
-    {
-      "title": "Community – Creating Impact",
-      "text": "A game, a trip, a good meal. Simple days that many children never get. Together we make them happen, and we show you every smile you helped create.",
-      "image": "/img/slide-1.svg"
-    },
-    {
-      "title": "Small Steps – Big Smiles",
-      "text": "One day of joy costs little and stays with a child for life. Bring us a project or lend a hand, and watch a small step become a big smile.",
-      "image": "/img/slide-2.svg"
-    },
-    {
-      "title": "Beyond the Lanes – Into Lives",
-      "text": "Kids remember the day someone showed up for them. Join us in making those days happen, and feel proud of the memories you helped create.",
-      "image": "/img/slide-3.svg"
-    },
-    {
-      "title": "Together – Real Change",
-      "text": "Somewhere a child is waiting for a first day out, and somewhere a person is ready to give it. We bring the two together, and show the proof.",
-      "image": "/img/slide-4.svg"
-    },
-    {
-      "title": "Community – Stronger Together",
-      "text": "A teacher who notices, a friend who gives, a volunteer who shows up. When a community comes together, a child gets a day to remember.",
-      "image": "/img/slide-5.svg"
-    }
+ "name": "RAAVANAA",
+ "tagline": "Community – Creating Impact",
+ "intro": "A game, a trip, a good meal. Simple days that many children never get. Together we make them happen, and we show you every smile you helped create.",
+ "about": "**Raavanaa exists for one thing: giving children a day of joy they will remember.**\n\n## Why we do this\n\nSome children grow up without ever going to a game, seeing a new place or sitting down to a really good meal. Nobody close to them can afford it, and childhood does not wait.\n\nAt the same time, all over the world there are people who would gladly give a child one of those days, if only they knew where it was needed and could trust that it would truly reach the child.\n\nRaavanaa brings the two together.\n\n## What a project is\n\nEvery project is one simple, happy day.\n\n- **A game** – bowling, an arcade, a day of play.\n- **A place** – a trip to somewhere they have never seen.\n- **A good meal** – a delicious dish, shared together, once in a while.\n\nSmall things. But they are the days a child talks about for years.\n\n## How it works\n\n**Initiated.** A teacher, a children's home, an organization or one of our members tells us about children who are waiting for a day like this. We visit, listen and make sure the need is real.\n\n**Activated.** The day is funded by friends, family and supporters of Raavanaa, and then planned: the date, the place, the food and the helpers.\n\n**Impact.** The day happens. We come back with the story, the pictures and what was spent, so everyone who gave can see the smiles they created.\n\n## Our promise\n\n- Every need is checked in person before a project is shared here.\n- Every penny goes to the project itself. Nothing is kept for running costs.\n- Every project shows its budget and who made it possible.\n- Everyone who gave sees what their kindness did, with a story and pictures after the day.\n- The children's safety and dignity always come first. Read our [privacy and child safety promise](/privacy).\n\n## Be part of it\n\n\"Beyond the Lanes\" is our promise to step out of our own lanes and into the lives of the children around us. You can [bring us a project](/contact?topic=suggest), [volunteer on the day](/volunteer), or [partner with us](/contact?topic=partner).",
+ "footer": "",
+ "sayings": [
+  {
+   "title": "Community – Creating Impact",
+   "text": "A game, a trip, a good meal. Simple days that many children never get. Together we make them happen, and we show you every smile you helped create.",
+   "image": "/img/slide-1.svg"
+  },
+  {
+   "title": "Small Steps – Big Smiles",
+   "text": "One day of joy costs little and stays with a child for life. Bring us a project or lend a hand, and watch a small step become a big smile.",
+   "image": "/img/slide-2.svg"
+  },
+  {
+   "title": "Beyond the Lanes – Into Lives",
+   "text": "Kids remember the day someone showed up for them. Join us in making those days happen, and feel proud of the memories you helped create.",
+   "image": "/img/slide-3.svg"
+  },
+  {
+   "title": "Together – Real Change",
+   "text": "Somewhere a child is waiting for a first day out, and somewhere a person is ready to give it. We bring the two together, and show the proof.",
+   "image": "/img/slide-4.svg"
+  },
+  {
+   "title": "Community – Stronger Together",
+   "text": "A teacher who notices, a friend who gives, a volunteer who shows up. When a community comes together, a child gets a day to remember.",
+   "image": "/img/slide-5.svg"
+  }
+ ],
+ "follow": [
+  {
+   "title": "Smiles You Created",
+   "text": "See the smiles your kindness made possible. We'll share each new one with you as it happens.",
+   "image": "/img/follow-1.svg"
+  },
+  {
+   "title": "Memories You Created",
+   "text": "The days kids never forget begin with people like you. Get the stories as they unfold.",
+   "image": "/img/follow-2.svg"
+  },
+  {
+   "title": "Stay in the Loop",
+   "text": "Be the first to hear when a new project starts or a story is shared.",
+   "image": "/img/follow-3.svg"
+  },
+  {
+   "title": "Walk With Us",
+   "text": "Get our project news and the smiles you helped create, straight to your inbox.",
+   "image": "/img/follow-4.svg"
+  },
+  {
+   "title": "Join the Community",
+   "text": "One email when something good happens. No spam, ever.",
+   "image": "/img/follow-5.svg"
+  },
+  {
+   "title": "Never Miss a Smile",
+   "text": "New projects, new stories, new moments. We'll let you know.",
+   "image": "/img/follow-6.svg"
+  },
+  {
+   "title": "Be Part of the Story",
+   "text": "Follow along as ideas become action and action becomes impact.",
+   "image": "/img/follow-7.svg"
+  }
+ ],
+ "facebook": "",
+ "instagram": "",
+ "email": "",
+ "volunteer": [
+  {
+   "title": "Give an Hour",
+   "text": "One hour of your time can make a child's whole day. Come help at an event and see it for yourself.",
+   "image": "/img/volunteer-1.svg"
+  },
+  {
+   "title": "Share a Skill",
+   "text": "Coaching, cooking, driving, organizing, taking photos. Whatever you're good at, we have a place for it.",
+   "image": "/img/volunteer-2.svg"
+  },
+  {
+   "title": "Bring a Friend",
+   "text": "Volunteering is better together. Bring a friend, a family member or your whole team.",
+   "image": "/img/volunteer-3.svg"
+  },
+  {
+   "title": "Lead an Activity",
+   "text": "Run a game, host a bowling lane or guide a group of kids. We'll show you how.",
+   "image": "/img/volunteer-4.svg"
+  },
+  {
+   "title": "Join the Family",
+   "text": "Our volunteers come back because of the smiles. Join once and you'll understand why.",
+   "image": "/img/volunteer-5.svg"
+  }
+ ],
+ "contact": [
+  {
+   "title": "Get Involved",
+   "text": "Volunteer, share an idea, partner with us or just ask. Send us a message and one of our team will reply.",
+   "image": "/img/contact-1.svg"
+  },
+  {
+   "title": "Suggest a Project",
+   "text": "Seen a need in your community? Tell us about it and we'll explore it together.",
+   "image": "/img/contact-2.svg"
+  },
+  {
+   "title": "Partner With Us",
+   "text": "Businesses, schools and clubs help us reach further. Let's see what we can do together.",
+   "image": "/img/contact-3.svg"
+  },
+  {
+   "title": "Ask a Question",
+   "text": "Curious how we work or where help is needed? Ask us anything.",
+   "image": "/img/contact-4.svg"
+  },
+  {
+   "title": "Say Hello",
+   "text": "A kind word means a lot to our team and the kids. We read every message.",
+   "image": "/img/contact-5.svg"
+  }
+ ],
+ "impact": [
+  {
+   "label": "Trips & Events",
+   "count": "trips",
+   "note": "Days out full of fun, laughter and smiles"
+  },
+  {
+   "label": "Volunteers",
+   "count": "manual",
+   "value": "",
+   "note": "People who joined our projects to help"
+  },
+  {
+   "label": "Local visits",
+   "count": "manual",
+   "value": "",
+   "note": "Meeting people in need to hear and verify their stories"
+  },
+  {
+   "label": "Stories",
+   "count": "stories",
+   "note": "Real moments from our projects"
+  }
+ ],
+ "categories": [
+  {
+   "name": "Trips & Events",
+   "note": "Kids went out, had fun and enjoyed the day. Smiles created."
+  },
+  {
+   "name": "Education",
+   "note": "Helping kids learn, grow and dream bigger."
+  }
+ ],
+ "suggest": [
+  {
+   "title": "Your Idea Matters",
+   "text": "Every project here began with one person who cared enough to speak up. Yours could be next.",
+   "image": "/img/suggest-1.svg"
+  },
+  {
+   "title": "You See It First",
+   "text": "Nobody knows your community like you do. Show us where a smile is needed.",
+   "image": "/img/suggest-2.svg"
+  },
+  {
+   "title": "Small Idea, Big Day",
+   "text": "A trip, a game, a visit. Simple ideas become the days kids never forget.",
+   "image": "/img/suggest-3.svg"
+  },
+  {
+   "title": "Be the Spark",
+   "text": "You don't need a plan or a budget. Bring the idea and we'll build it together.",
+   "image": "/img/suggest-4.svg"
+  },
+  {
+   "title": "Start Something Good",
+   "text": "One message from you can set a whole project in motion.",
+   "image": "/img/suggest-5.svg"
+  }
+ ],
+ "privacy": "## Your details\n\nWhen you send us a message, volunteer or sign up for news, we receive only what you type in: your name, your email, and your phone number if you choose to give it.\n\n- We use your details only to reply to you or to send you our news.\n- We never sell them or pass them on.\n- They are stored securely by the company that hosts our website.\n- You can ask us to delete your details at any time through the [Contact page](/contact).\n\n## Children come first\n\nOur projects are for children, so their safety and dignity come before any photo or story.\n\n- We share photos and first names only with permission from a parent, a guardian or the home that cares for the child.\n- We never post a child's full name, address or school.\n- Every story is told with respect. If you see something on this site that should not be here, [tell us](/contact) and we will remove it.\n\n## Comments\n\nComments on project pages are public. Please be kind, and do not post personal details about anyone.",
+ "currency": "$",
+ "welcome_slides": [
+  {
+   "title": "Kids' New World",
+   "text": "A game, a trip, a good meal. Simple days that many children never get. Together we make them happen, and we show you every smile you helped create.",
+   "image": "/img/home-1.webp"
+  },
+  {
+   "title": "Open to Joy Land",
+   "text": "Kids remember the day someone showed up for them. Join us in making those days happen, and feel proud of the memories you helped create.",
+   "image": "/img/home-2.webp"
+  },
+  {
+   "title": "A Day of Joy",
+   "text": "One day of joy costs little and stays with a child for life. Bring us a project or lend a hand, and watch a small step become a big smile.",
+   "image": "/img/home-3.webp"
+  },
+  {
+   "title": "Raavanaa Community",
+   "text": "A teacher who notices, a friend who gives, a volunteer who shows up. When a community comes together, a child gets a day to remember.",
+   "image": "/img/home-4.webp"
+  }
+ ],
+ "slogans": {
+  "_note": "Rotating slogans. 'lead' is the small first line, 'key' the big coloured word(s). The first one shows on a first visit.",
+  "create": [
+   {
+    "lead": "Create a",
+    "key": "Moment"
+   },
+   {
+    "lead": "Start a",
+    "key": "Smile"
+   },
+   {
+    "lead": "Spark a",
+    "key": "Smile"
+   },
+   {
+    "lead": "Bring a",
+    "key": "Day of Joy"
+   },
+   {
+    "lead": "Dream a Day",
+    "key": "for the Children"
+   },
+   {
+    "lead": "Initiate an",
+    "key": "Opportunity"
+   }
   ],
-  "follow": [
-    {
-      "title": "Smiles You Created",
-      "text": "See the smiles your kindness made possible. We'll share each new one with you as it happens.",
-      "image": "/img/follow-1.svg"
-    },
-    {
-      "title": "Memories You Created",
-      "text": "The days kids never forget begin with people like you. Get the stories as they unfold.",
-      "image": "/img/follow-2.svg"
-    },
-    {
-      "title": "Stay in the Loop",
-      "text": "Be the first to hear when a new project starts or a story is shared.",
-      "image": "/img/follow-3.svg"
-    },
-    {
-      "title": "Walk With Us",
-      "text": "Get our project news and the smiles you helped create, straight to your inbox.",
-      "image": "/img/follow-4.svg"
-    },
-    {
-      "title": "Join the Community",
-      "text": "One email when something good happens. No spam, ever.",
-      "image": "/img/follow-5.svg"
-    },
-    {
-      "title": "Never Miss a Smile",
-      "text": "New projects, new stories, new moments. We'll let you know.",
-      "image": "/img/follow-6.svg"
-    },
-    {
-      "title": "Be Part of the Story",
-      "text": "Follow along as ideas become action and action becomes impact.",
-      "image": "/img/follow-7.svg"
-    }
-  ],
-  "facebook": "",
-  "instagram": "",
-  "email": "",
-  "volunteer": [
-    {
-      "title": "Give an Hour",
-      "text": "One hour of your time can make a child's whole day. Come help at an event and see it for yourself.",
-      "image": "/img/volunteer-1.svg"
-    },
-    {
-      "title": "Share a Skill",
-      "text": "Coaching, cooking, driving, organizing, taking photos. Whatever you're good at, we have a place for it.",
-      "image": "/img/volunteer-2.svg"
-    },
-    {
-      "title": "Bring a Friend",
-      "text": "Volunteering is better together. Bring a friend, a family member or your whole team.",
-      "image": "/img/volunteer-3.svg"
-    },
-    {
-      "title": "Lead an Activity",
-      "text": "Run a game, host a bowling lane or guide a group of kids. We'll show you how.",
-      "image": "/img/volunteer-4.svg"
-    },
-    {
-      "title": "Join the Family",
-      "text": "Our volunteers come back because of the smiles. Join once and you'll understand why.",
-      "image": "/img/volunteer-5.svg"
-    }
-  ],
-  "contact": [
-    {
-      "title": "Get Involved",
-      "text": "Volunteer, share an idea, partner with us or just ask. Send us a message and one of our team will reply.",
-      "image": "/img/contact-1.svg"
-    },
-    {
-      "title": "Suggest a Project",
-      "text": "Seen a need in your community? Tell us about it and we'll explore it together.",
-      "image": "/img/contact-2.svg"
-    },
-    {
-      "title": "Partner With Us",
-      "text": "Businesses, schools and clubs help us reach further. Let's see what we can do together.",
-      "image": "/img/contact-3.svg"
-    },
-    {
-      "title": "Ask a Question",
-      "text": "Curious how we work or where help is needed? Ask us anything.",
-      "image": "/img/contact-4.svg"
-    },
-    {
-      "title": "Say Hello",
-      "text": "A kind word means a lot to our team and the kids. We read every message.",
-      "image": "/img/contact-5.svg"
-    }
-  ],
-  "impact": [
-    {
-      "label": "Trips & Events",
-      "count": "trips",
-      "note": "Days out full of fun, laughter and smiles"
-    },
-    {
-      "label": "Volunteers",
-      "count": "manual",
-      "value": "",
-      "note": "People who joined our projects to help"
-    },
-    {
-      "label": "Local visits",
-      "count": "manual",
-      "value": "",
-      "note": "Meeting people in need to hear and verify their stories"
-    },
-    {
-      "label": "Stories",
-      "count": "stories",
-      "note": "Real moments from our projects"
-    }
-  ],
-  "categories": [
-    {
-      "name": "Trips & Events",
-      "note": "Kids went out, had fun and enjoyed the day. Smiles created."
-    },
-    {
-      "name": "Education",
-      "note": "Helping kids learn, grow and dream bigger."
-    }
-  ],
-  "suggest": [
-    {
-      "title": "Your Idea Matters",
-      "text": "Every project here began with one person who cared enough to speak up. Yours could be next.",
-      "image": "/img/suggest-1.svg"
-    },
-    {
-      "title": "You See It First",
-      "text": "Nobody knows your community like you do. Show us where a smile is needed.",
-      "image": "/img/suggest-2.svg"
-    },
-    {
-      "title": "Small Idea, Big Day",
-      "text": "A trip, a game, a visit. Simple ideas become the days kids never forget.",
-      "image": "/img/suggest-3.svg"
-    },
-    {
-      "title": "Be the Spark",
-      "text": "You don't need a plan or a budget. Bring the idea and we'll build it together.",
-      "image": "/img/suggest-4.svg"
-    },
-    {
-      "title": "Start Something Good",
-      "text": "One message from you can set a whole project in motion.",
-      "image": "/img/suggest-5.svg"
-    }
-  ],
-  "privacy": "## Your details\n\nWhen you send us a message, volunteer or sign up for news, we receive only what you type in: your name, your email, and your phone number if you choose to give it.\n\n- We use your details only to reply to you or to send you our news.\n- We never sell them or pass them on.\n- They are stored securely by the company that hosts our website.\n- You can ask us to delete your details at any time through the [Contact page](/contact).\n\n## Children come first\n\nOur projects are for children, so their safety and dignity come before any photo or story.\n\n- We share photos and first names only with permission from a parent, a guardian or the home that cares for the child.\n- We never post a child's full name, address or school.\n- Every story is told with respect. If you see something on this site that should not be here, [tell us](/contact) and we will remove it.\n\n## Comments\n\nComments on project pages are public. Please be kind, and do not post personal details about anyone.",
-  "currency": "$",
-  "welcome_slides": [
-    {
-      "title": "Kids' New World",
-      "text": "A game, a trip, a good meal. Simple days that many children never get. Together we make them happen, and we show you every smile you helped create.",
-      "image": "/img/home-1.webp"
-    },
-    {
-      "title": "Open to Joy Land",
-      "text": "Kids remember the day someone showed up for them. Join us in making those days happen, and feel proud of the memories you helped create.",
-      "image": "/img/home-2.webp"
-    },
-    {
-      "title": "A Day of Joy",
-      "text": "One day of joy costs little and stays with a child for life. Bring us a project or lend a hand, and watch a small step become a big smile.",
-      "image": "/img/home-3.webp"
-    },
-    {
-      "title": "Raavanaa Community",
-      "text": "A teacher who notices, a friend who gives, a volunteer who shows up. When a community comes together, a child gets a day to remember.",
-      "image": "/img/home-4.webp"
-    }
+  "sponsor": [
+   {
+    "lead": "Sponsor a",
+    "key": "Moment"
+   },
+   {
+    "lead": "Fund a",
+    "key": "Smile"
+   },
+   {
+    "lead": "Give a",
+    "key": "Day of Joy"
+   },
+   {
+    "lead": "Be the Reason for a",
+    "key": "Smile"
+   }
   ]
+ }
 }
