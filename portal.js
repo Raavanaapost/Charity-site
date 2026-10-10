@@ -49,7 +49,7 @@
   const svg = (d, s = 20) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
   const MENU = [
     ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true],
-    ["sponsors", "Sponsors & pledges", true], ["day", "Day preparation", true], ["close", "Close the day", false],
+    ["sponsors", "Sponsors & pledges", true], ["day", "Day preparation", true], ["close", "Close the day", true],
     ["people", "People", false], ["team", "Team & logins", false]
   ];
 
@@ -613,12 +613,111 @@
     app.querySelector("[data-share]").onclick = () => toast("Plan sent to the volunteers by email (demo)");
   }
 
+  // ---------- Close the day ----------
+  // After the day: what happened, real costs, expectations, the story and pictures. Publishing moves the project to Impact.
+  const CL = {};
+  const clOf = p => CL[p.slug] || (CL[p.slug] = {
+    step: 0, happened: true, children: (dayOf(p.slug).consent || {}).children || "", volunteers: (dayOf(p.slug).volunteers || []).filter(v => v.ok).length || "", families: "", incident: false, notes: "",
+    costs: (p.budget || []).map(x => ({ item: x.item, plan: num(x.amount), real: num(x.amount), receipt: false })), leftover: "next",
+    exp: (p.expectations || []).map(x => ({ text: x.text, result: x.result || "", note: x.note || "" })),
+    title: "", story: "", photos: 0, consent: false, video: "", feedback: true, thank: true
+  });
+  const CSTEPS = ["The day", "Real costs", "Expectations", "Story & pictures", "Publish"];
+  let csel = null;
+  function closeDay(slug) {
+    const list = P.filter(p => stageNum(p) === 2);
+    if (!list.length) return `<header class="pt-head"><div><p class="pt-kicker">Close the day</p><h1>Close the day</h1></div></header><p class="pt-empty">No Activated projects to close. Closed projects are under Impact.</p>`;
+    const p = list.find(x => x.slug === (slug || csel)) || list[0]; csel = p.slug;
+    const c = clOf(p), d = dayOf(p.slug), future = d.date && daysTo(d.date) > 0;
+    const spent = c.costs.reduce((t, x) => t + num(x.real), 0), planned = budget(p).goal || c.costs.reduce((t, x) => t + num(x.plan), 0), diff = planned - spent;
+    const done = [c.happened && num(c.children) > 0, c.costs.length > 0 && c.costs.every(x => x.receipt), c.exp.every(x => x.result), c.story.trim().length > 40 && (!c.photos || c.consent), true];
+    const pane = [
+      `<h2>How did the day go?</h2>
+       <label class="pt-check"><input type="checkbox" data-c="happened" ${c.happened ? "checked" : ""}><span>The day happened as planned</span></label>
+       <div class="pt-2" style="margin-top:10px">
+         <label class="pt-field">Children who came<input type="number" min="0" data-c="children" value="${esc(c.children)}"></label>
+         <label class="pt-field">Volunteers who came<input type="number" min="0" data-c="volunteers" value="${esc(c.volunteers)}"></label>
+         <label class="pt-field">Families or carers<input type="number" min="0" data-c="families" value="${esc(c.families)}"></label></div>
+       <label class="pt-field">Anything the team should know<textarea rows="3" data-c="notes" placeholder="Short notes for the team (not shown on the website)">${esc(c.notes)}</textarea></label>
+       <label class="pt-check"><input type="checkbox" data-c="incident" ${c.incident ? "checked" : ""}><span>Something went wrong or someone was hurt</span></label>
+       ${c.incident ? `<p class="pt-private">This must be written up as a report so the safeguarding lead can follow it up. <a href="#/reports">Open Reports &amp; feedback →</a></p>` : ""}`,
+      `<h2>What was really spent</h2>
+       <p class="pt-sub" style="margin:0 0 10px">Planned against real. Tick when the receipt is kept. Visitors see the real costs as "Where the money went".</p>
+       <div class="pt-costs"><div class="pt-costs-h"><span>Item</span><span>Planned</span><span>Real</span><span>Receipt</span></div>
+       ${c.costs.map((x, k) => `<div class="pt-costs-r"><input data-ci="${k}" data-k="item" value="${esc(x.item)}" aria-label="Item"><span class="pt-planned">${money(x.plan)}</span><span class="pt-money"><i>$</i><input data-ci="${k}" data-k="real" value="${esc(x.real)}" inputmode="decimal" aria-label="Real cost"></span><label class="pt-rc"><input type="checkbox" data-rc="${k}" ${x.receipt ? "checked" : ""} aria-label="Receipt kept"></label></div>`).join("")}</div>
+       <button type="button" class="pt-btn ghost" data-addcost>+ Add a cost</button>
+       <p class="pt-total"><span>Total spent</span><b>${money(spent)} <small class="pt-sub">of ${money(planned)} raised</small></b></p>
+       ${diff > 0 ? `<div class="pt-left"><b>${money(diff)} left over.</b> Where does it go?
+         <label class="pt-check"><input type="radio" name="lo" value="next" ${c.leftover === "next" ? "checked" : ""}><span>To the next project (shown on the website)</span></label>
+         <label class="pt-check"><input type="radio" name="lo" value="return" ${c.leftover === "return" ? "checked" : ""}><span>Returned to the sponsors</span></label></div>`
+       : diff < 0 ? `<p class="pt-private">Spent ${money(-diff)} more than raised. Say who covered it in the team notes.</p>` : ""}`,
+      `<h2>Did the day deliver?</h2>
+       <p class="pt-sub" style="margin:0 0 10px">The organizers' expectations. Visitors see each result with a short note.</p>
+       ${c.exp.length ? c.exp.map((x, k) => `<div class="pt-expc"><p>${esc(x.text)}</p>
+         <div class="pt-seg" role="radiogroup">${[["met", "Met"], ["partly", "Partly"], ["not", "Not met"]].map(([v, l]) => `<button type="button" role="radio" aria-checked="${x.result === v}" class="r-${v}" data-er="${k}" data-v="${v}">${l}</button>`).join("")}</div>
+         <input data-en="${k}" value="${esc(x.note)}" placeholder="Short note, e.g. what happened" aria-label="Note"></div>`).join("") : `<p class="pt-empty">No expectations were set for this project.</p>`}
+       ${c.feedback ? `<p class="pt-sub">The organizers also get the "How did we do?" form today.</p>` : ""}`,
+      `<h2>Tell the story</h2>
+       <label class="pt-field">Headline<input data-c="title" value="${esc(c.title)}" placeholder="e.g. Twenty-five children saw the sea"></label>
+       <label class="pt-field">What happened<textarea rows="7" data-c="story" placeholder="Who came, what they did, the moments to remember.">${esc(c.story)}</textarea><small>${c.story.trim().length < 40 ? "A few sentences at least." : "Looks good."}</small></label>
+       <div class="pt-upload"><button type="button" class="pt-btn ghost" data-addph>+ Add pictures</button><span>${c.photos ? `${c.photos} picture${c.photos > 1 ? "s" : ""} added` : "No pictures yet"}</span></div>
+       ${c.photos ? `<div class="pt-thumbs">${Array.from({ length: c.photos }, (_, k) => `<span style="background-image:url(${esc(p.cover || "")})"><i>${k + 1}</i></span>`).join("")}</div>
+       <label class="pt-check"><input type="checkbox" data-c="consent" ${c.consent ? "checked" : ""}><span>Every child who can be recognised has photo consent</span></label>` : ""}
+       <label class="pt-field" style="margin-top:10px">Video link (YouTube)<input data-c="video" value="${esc(c.video)}" placeholder="https://youtu.be/..."></label>`,
+      `<h2>Ready to publish</h2>
+       <ul class="pt-sum">
+         <li class="${done[0] ? "ok" : ""}"><b>${num(c.children) || "?"} children</b>, ${num(c.volunteers) || "?"} volunteers${num(c.families) ? `, ${num(c.families)} families` : ""}</li>
+         <li class="${done[1] ? "ok" : ""}"><b>${money(spent)} spent</b> of ${money(planned)}${diff > 0 ? ` · ${money(diff)} ${c.leftover === "next" ? "to the next project" : "returned"}` : ""}${done[1] ? "" : " · receipts missing"}</li>
+         <li class="${done[2] ? "ok" : ""}"><b>${c.exp.filter(x => x.result === "met").length} of ${c.exp.length}</b> expectations met</li>
+         <li class="${done[3] ? "ok" : ""}"><b>Story</b> ${c.title ? "“" + esc(c.title) + "”" : "not written yet"}${c.photos ? ` · ${c.photos} pictures` : ""}</li></ul>
+       <label class="pt-check"><input type="checkbox" data-c="thank" ${c.thank ? "checked" : ""}><span>Email the story to the sponsors with a thank-you</span></label>
+       <label class="pt-check"><input type="checkbox" data-c="feedback" ${c.feedback ? "checked" : ""}><span>Send the organizers the "How did we do?" form</span></label>
+       <button type="button" class="pt-btn" data-publishday ${done.slice(0, 4).every(Boolean) ? "" : "disabled"} style="margin-top:12px">Publish and move to Impact</button>
+       ${done.slice(0, 4).every(Boolean) ? "" : `<p class="pt-sub">Finish the steps marked above first.</p>`}`
+    ];
+    return `
+      <header class="pt-head"><div><p class="pt-kicker">Close the day</p><h1>${esc(p.title)}</h1>
+        <p class="pt-sub">${d.date ? new Date(d.date + "T12:00").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }) : ""}</p></div>
+        ${list.length > 1 ? `<select class="pt-sel" data-csel aria-label="Project">${list.map(x => `<option value="${esc(x.slug)}" ${x === p ? "selected" : ""}>${esc(x.title)}</option>`).join("")}</select>` : ""}</header>
+      ${future ? `<p class="pt-private">The day is in ${daysTo(d.date)} days. You can close it once it has happened (in this preview you can try it now).</p>` : ""}
+      <ol class="pt-wiz">${CSTEPS.map((l, k) => `<li><button type="button" data-cs="${k}" class="${k === c.step ? "now" : done[k] && k < 4 ? "done" : ""}"><i>${done[k] && k < 4 ? "✓" : k + 1}</i><span>${l}</span></button></li>`).join("")}</ol>
+      <section class="pt-card pt-wpane">${pane[c.step]}
+        <div class="pt-wnav">${c.step ? `<button type="button" class="pt-btn ghost" data-cprev>‹ Back</button>` : "<span></span>"}${c.step < 4 ? `<button type="button" class="pt-btn" data-cnext>Next ›</button>` : ""}</div></section>`;
+  }
+  function wireClose() {
+    const sel = app.querySelector("[data-csel]"); if (sel) sel.onchange = () => { csel = sel.value; render(); };
+    const p = P.find(x => x.slug === csel); if (!p || stageNum(p) !== 2) return; const c = clOf(p);
+    const nums = ["children", "volunteers", "families"];
+    app.querySelectorAll("[data-c]").forEach(el => el.onchange = () => { const k = el.dataset.c; c[k] = el.type === "checkbox" ? el.checked : nums.includes(k) ? num(el.value) : el.value; render(); });
+    app.querySelectorAll("[data-cs]").forEach(b => b.onclick = () => { c.step = +b.dataset.cs; render(); });
+    const nx = app.querySelector("[data-cnext]"); if (nx) nx.onclick = () => { c.step++; render(); window.scrollTo(0, 0); };
+    const pv = app.querySelector("[data-cprev]"); if (pv) pv.onclick = () => { c.step--; render(); window.scrollTo(0, 0); };
+    app.querySelectorAll("[data-ci]").forEach(el => el.onchange = () => { const x = c.costs[+el.dataset.ci]; x[el.dataset.k] = el.dataset.k === "real" ? num(el.value) : el.value; render(); });
+    app.querySelectorAll("[data-rc]").forEach(el => el.onchange = () => { c.costs[+el.dataset.rc].receipt = el.checked; render(); });
+    const ac = app.querySelector("[data-addcost]"); if (ac) ac.onclick = () => { c.costs.push({ item: "", plan: 0, real: 0, receipt: false }); render(); };
+    app.querySelectorAll('input[name="lo"]').forEach(r => r.onchange = () => { c.leftover = r.value; render(); });
+    app.querySelectorAll("[data-er]").forEach(b => b.onclick = () => { c.exp[+b.dataset.er].result = b.dataset.v; render(); });
+    app.querySelectorAll("[data-en]").forEach(el => el.onchange = () => { c.exp[+el.dataset.en].note = el.value; });
+    const ph = app.querySelector("[data-addph]"); if (ph) ph.onclick = () => { c.photos = Math.min(12, c.photos + 3); render(); toast("Pictures added (demo)"); };
+    const pub = app.querySelector("[data-publishday]"); if (pub) pub.onclick = () => {
+      const d = dayOf(p.slug);
+      p.status = "Complete";
+      p.budget = c.costs.filter(x => x.item).map(x => ({ item: x.item, amount: num(x.real) }));
+      p.expectations = c.exp.map(x => ({ text: x.text, result: x.result, note: x.note }));
+      p.impact = [{ value: String(num(c.children)), label: "children" }, ...(num(c.families) ? [{ value: String(num(c.families)), label: "families" }] : []), { value: String(num(c.volunteers)), label: "volunteers" }];
+      p.updates = [{ date: d.date || NOW.toISOString().slice(0, 10), title: c.title || "The day", body: c.story }, ...(p.updates || [])];
+      D.activity.unshift({ at: NOW.toISOString(), text: `${p.title} closed and moved to Impact` });
+      location.hash = `#/projects/${p.slug}`; toast(`Published: ${p.title} is now under Impact (demo)`);
+    };
+  }
+
   function render() {
     const [page, id] = route();
-    const cur = ["suggestions", "reports", "projects", "sponsors", "day"].includes(page) ? page : "dashboard";
+    const cur = ["suggestions", "reports", "projects", "sponsors", "day", "close"].includes(page) ? page : "dashboard";
     drawNav(cur);
     if (page === "suggestions" && id) { app.innerHTML = detail(id); wireDetail(id); }
     else if (page === "suggestions") { app.innerHTML = suggestions(); wireSuggestions(); }
+    else if (page === "close") { app.innerHTML = closeDay(id); wireClose(); }
     else if (page === "day") { app.innerHTML = dayPrep(id); wireDay(); }
     else if (page === "sponsors") { app.innerHTML = sponsors(); wireSponsors(); }
     else if (page === "projects" && id) { app.innerHTML = editor(id); wireEditor(id); }
@@ -626,7 +725,7 @@
     else if (page === "reports" && id) { app.innerHTML = reportDetail(id); wireReport(id); }
     else if (page === "reports") { app.innerHTML = reports(); wireReports(); }
     else app.innerHTML = dashboard();
-    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
+    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
   }
 
   Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] }))])
