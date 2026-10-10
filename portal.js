@@ -48,7 +48,7 @@
   };
   const svg = (d, s = 20) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
   const MENU = [
-    ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["reports", "Reports & feedback", true], ["projects", "Projects", false],
+    ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true],
     ["sponsors", "Sponsors & pledges", false], ["day", "Day preparation", false], ["close", "Close the day", false],
     ["people", "People", false], ["team", "Team & logins", false]
   ];
@@ -62,7 +62,7 @@
     document.getElementById("pt-nav").innerHTML = MENU.map(([k, l, ready]) => ready
       ? `<a href="#/${k}" class="${cur === k ? "on" : ""}" ${cur === k ? 'aria-current="page"' : ""}>${svg(ICON[k])}<span>${l}</span>${k === "suggestions" && newCount ? `<b class="pt-badge">${newCount}</b>` : k === "reports" && openRep ? `<b class="pt-badge">${openRep}</b>` : ""}</a>`
       : `<span class="soon" title="Designed next">${svg(ICON[k])}<span>${l}</span><small>Next</small></span>`).join("");
-    document.getElementById("pt-tabbar").innerHTML = [["dashboard", "Home"], ["suggestions", "Suggestions"], ["reports", "Reports"], ["more", "More"]].map(([k, l]) => {
+    document.getElementById("pt-tabbar").innerHTML = [["dashboard", "Home"], ["suggestions", "Suggestions"], ["projects", "Projects"], ["reports", "Reports"], ["more", "More"]].map(([k, l]) => {
       const ready = k !== "more";
       return ready ? `<a href="#/${k}" class="${cur === k ? "on" : ""}">${svg(ICON[k], 22)}<span>${l}</span>${k === "suggestions" && newCount ? `<b class="pt-badge">${newCount}</b>` : k === "reports" && openRep ? `<b class="pt-badge">${openRep}</b>` : ""}</a>`
         : `<button type="button" class="soon" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
@@ -239,7 +239,15 @@
       if (act === "visit") { const v = app.querySelector("[data-visit]").value; s.visit = v; addNote(s, `Visit planned for ${fmtDay(v)}.`); }
       if (act === "verified") addNote(s, "Visited. The need is real. A short \"How did we do?\" form was sent to the requester.");
       if (act === "declined") addNote(s, "Marked not suitable.");
-      if (act === "project") addNote(s, "Turned into an Initiated project.");
+      if (act === "project") {
+        addNote(s, "Turned into an Initiated project.");
+        const slug = s.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48);
+        if (!P.some(p => p.slug === slug)) P.unshift({ title: s.title, slug, theme: s.category === "Other" ? "Trips & Events" : s.category, status: "Planning",
+          location: s.location.split(",")[0], city: s.location.split(",")[0], reach: s.children ? `About ${s.children} children` : "", organization: "Raavanaa",
+          started: "October 2026", verified: true, budget: [], goal: 0, funders: [], steps: [], expectations: [], updates: [], photos: [], media: [],
+          summary: s.description, story: `## Summary\n\n${s.description}`, cover: "", fromSuggestion: s.id, isNew: true });
+        s.status = act; s.project = slug; location.hash = `#/projects/${slug}`; toast("Project created (demo)"); return;
+      }
       if (act === "new") addNote(s, "Reopened.");
       s.status = act; render(); toast(`${STATUS[act].label} (demo)`);
     });
@@ -335,16 +343,136 @@
     app.querySelector(".pt-note-form").onsubmit = e => { e.preventDefault(); const t = e.target.querySelector("textarea").value.trim(); if (!t) return; log(t); render(); };
   }
 
+  // ---------- Projects ----------
+  // Same rules as the website: the stage and the ring come from the facts on the project.
+  const STAGE = { 1: ["Initiated", "st-1"], 2: ["Activated", "st-2"], 3: ["Impact", "st-3"] };
+  function ringSteps(p) {
+    const b = budget(p), n = stageNum(p);
+    if (n === 1) return [["Visited and verified", p.verified ? 1 : 0, "verified"], ["Budget ready", b.goal > 0 ? 1 : 0, null], ["Funded", b.goal ? Math.min(1, b.raised / b.goal) : 0, null]];
+    if (n === 2) return [["Date confirmed", p.date_set ? 1 : 0, "date_set"], ["Place and transport booked", p.booked ? 1 : 0, "booked"], ["Volunteers ready", p.volunteers ? 1 : 0, "volunteers"],
+      ...(p.steps || []).filter(x => x && x.name).map((x, k) => [x.name, x.done ? 1 : 0, "step:" + k])];
+    const ex = (p.expectations || []).filter(x => x && x.text);
+    return [["The day happened", 1, null], ["Story shared", (p.updates || []).length || p.story ? 1 : 0, null], ["Money reported", (p.budget || []).some(x => x && x.item) ? 1 : 0, null],
+      ["Expectations reviewed", ex.length ? ex.filter(x => x.result).length / ex.length : 0, null]];
+  }
+  const ringPct = p => { const st = ringSteps(p); return Math.round(st.reduce((t, x) => t + x[1], 0) / st.length * 100); };
+  const ringLabel = p => ({ 1: "Activating", 2: "Preparing the day", 3: "Delivered" })[stageNum(p)];
+  const ringSVG = (pct, size = 44) => `<svg class="pt-ring" viewBox="0 0 40 40" width="${size}" height="${size}" aria-hidden="true"><circle cx="20" cy="20" r="16" pathLength="100" class="tr"/><circle cx="20" cy="20" r="16" pathLength="100" class="fl" stroke-dasharray="${pct} 100" transform="rotate(-90 20 20)"/></svg>`;
+  const cover = p => p.cover ? `<img src="${esc(p.cover)}" alt="" loading="lazy">` : `<span class="pt-nocover">No picture yet</span>`;
+  const nextStep = p => { const st = ringSteps(p).find(x => x[1] < 1); return st ? st[0] : stageNum(p) === 2 ? "Ready for the day" : "All done"; };
+  let pfilter = "all";
+  function projects() {
+    const list = P.filter(p => pfilter === "all" || String(stageNum(p)) === pfilter);
+    const c = n => P.filter(p => stageNum(p) === n).length;
+    return `
+      <header class="pt-head"><div><p class="pt-kicker">Projects</p><h1>All projects</h1>
+        <p class="pt-sub">A project's stage moves by itself: verified and fully funded makes it Activated.</p></div>
+        <button type="button" class="pt-btn" data-newp>+ New project</button></header>
+      <div class="pt-tools"><div class="pt-chips" role="group" aria-label="Show">${[["all", "All", P.length], ["1", "Initiated", c(1)], ["2", "Activated", c(2)], ["3", "Impact", c(3)]].map(([k, l, n]) => `<button type="button" data-pf="${k}" aria-pressed="${pfilter === k}">${l} <b>${n}</b></button>`).join("")}</div></div>
+      <ul class="pt-list big">${list.map(p => `<li><a class="pt-row pt-prow" href="#/projects/${esc(p.slug)}">
+        <span class="pt-thumb">${cover(p)}</span>
+        <span class="pt-row-main"><b>${esc(p.title)}</b><small>${esc(p.theme || "")}${p.city ? " · " + esc(p.city) : ""} · Next: ${esc(nextStep(p))}</small></span>
+        <span class="pt-row-side"><span class="pt-pill ${STAGE[stageNum(p)][1]}">${STAGE[stageNum(p)][0]}</span><span class="pt-pct">${ringSVG(ringPct(p), 30)}<b>${ringPct(p)}%</b></span></span></a></li>`).join("") || `<li class="pt-empty">No projects here yet.</li>`}</ul>`;
+  }
+  function wireProjects() {
+    app.querySelectorAll("[data-pf]").forEach(b => b.onclick = () => { pfilter = b.dataset.pf; render(); });
+    app.querySelector("[data-newp]").onclick = () => toast("New projects start from a verified suggestion (Suggestions → Turn into a project).");
+  }
+
+  let etab = "details";
+  const CATS = ["Trips & Events", "Livelihood", "Education"], CITIES = ["Kilinochchi", "Batticaloa", "Jaffna"];
+  function editor(slug) {
+    const p = P.find(x => x.slug === slug);
+    if (!p) return `<p>Not found. <a href="#/projects">Back to projects</a></p>`;
+    const n = stageNum(p), b = budget(p), pct = ringPct(p), lines = (p.budget || []);
+    const sum = lines.reduce((t, x) => t + num(x.amount), 0);
+    const field = (label, inner, hint = "") => `<label class="pt-field">${label}${inner}${hint ? `<small>${hint}</small>` : ""}</label>`;
+    const tabs = [["details", "Details"], ["story", "Story"], ["budget", "Budget"], ["checklist", "Checklist"], ["sponsors", "Sponsors"], ["impact", "Expected impact"]];
+    const panes = {
+      details: `
+        <div class="pt-cover">${cover(p)}<button type="button" class="pt-btn ghost" data-demo="Choose a picture from your phone (demo)">Change picture</button></div>
+        ${field("Title", `<input data-f="title" value="${esc(p.title)}" maxlength="90">`)}
+        <div class="pt-2">${field("Category", `<select data-f="theme">${CATS.map(c => `<option ${p.theme === c ? "selected" : ""}>${c}</option>`).join("")}</select>`)}
+          ${field("City", `<select data-f="city"><option value="">Choose</option>${CITIES.map(c => `<option ${p.city === c ? "selected" : ""}>${c}</option>`).join("")}</select>`)}</div>
+        <div class="pt-2">${field("Place", `<input data-f="location" value="${esc(p.location || "")}" placeholder="e.g. Casuarina Beach, Karainagar">`)}
+          ${field("Who it reaches", `<input data-f="reach" value="${esc(p.reach || "")}" placeholder="e.g. About 25 children">`)}</div>
+        ${field("Short summary", `<textarea data-f="summary" rows="3" maxlength="240">${esc(p.summary || "")}</textarea>`, "Shown on the project card. One or two sentences.")}`,
+      story: `
+        ${field("The story", `<textarea data-f="story" rows="14">${esc(p.story || "")}</textarea>`, "Use ## for a heading and **bold** for bold. Shown on the Story tab of the project page.")}`,
+      budget: `
+        <p class="pt-sub" style="margin:0 0 10px">${n === 1 ? "Estimated costs. Shown as the breakdown on the project's Budget tab." : n === 2 ? "The plan for the money. Visitors only see the total and Fully funded." : "Real costs after the day. Shown as Where the money went."}</p>
+        <ul class="pt-lines">${lines.map((x, k) => `<li><input data-bl="${k}" data-k="item" value="${esc(x.item)}" aria-label="What"><span class="pt-money"><i>$</i><input data-bl="${k}" data-k="amount" value="${esc(x.amount)}" inputmode="decimal" aria-label="Amount"></span><button type="button" class="pt-x" data-delbl="${k}" aria-label="Remove line">✕</button></li>`).join("")}</ul>
+        <button type="button" class="pt-btn ghost" data-addbl>+ Add a line</button>
+        <p class="pt-total"><span>${n === 3 ? "Total spent" : "Total"}</span><b>${money(sum)}</b></p>
+        ${field("Budget goal", `<span class="pt-money"><i>$</i><input data-f="goal" value="${esc(p.goal || sum || "")}" inputmode="decimal"></span>`, sum && num(p.goal) && num(p.goal) !== sum ? `The lines add up to ${money(sum)}. <button type="button" class="pt-link" data-goalsum>Use ${money(sum)}</button>` : "Usually the same as the total of the lines.")}`,
+      checklist: `
+        <p class="pt-sub" style="margin:0 0 10px">${n === 1 ? "Before a project can be Activated it must be visited and verified, and fully funded." : n === 2 ? "What has to be ready before the day." : "After the day: these fill in from the story, costs and expectations."}</p>
+        <ul class="pt-checks">${ringSteps(p).map(([name, done, key]) => `<li class="${done >= 1 ? "done" : done > 0 ? "part" : ""}">
+          ${key ? `<label><input type="checkbox" data-ck="${key}" ${done >= 1 ? "checked" : ""}> <span>${esc(name)}</span></label>` : `<span class="pt-auto"><i>${done >= 1 ? "✓" : done > 0 ? Math.round(done * 100) + "%" : "–"}</i>${esc(name)}</span><small>${name === "Funded" ? "From confirmed pledges" : name === "Budget ready" ? "From the Budget tab" : "Automatic"}</small>`}</li>`).join("")}</ul>
+        ${n === 2 ? `<form class="pt-addstep"><input placeholder="Add a step, e.g. Permission letter from the home" aria-label="New step"><button class="pt-btn ghost" type="submit">Add</button></form>` : ""}`,
+      sponsors: `
+        <ul class="pt-spons">${(p.funders || []).map(f => `<li><span class="pt-av">${esc(initials(f.name))}</span><b>${esc(f.name)}</b><em>${money(num(f.amount))}</em></li>`).join("") || `<li class="pt-empty">No pledges yet.</li>`}</ul>
+        <p class="pt-total"><span>Pledged</span><b>${money(b.raised)} of ${money(b.goal)}</b></p>
+        <p class="pt-sub">Pledges are recorded and confirmed on the Sponsors &amp; pledges screen (designed next).</p>`,
+      impact: `
+        <p class="pt-sub" style="margin:0 0 10px">${n === 3 ? "Mark each one after the day. Visitors see the result." : "What the organizers expect the day to achieve. Closed with a tick after the day."}</p>
+        <ul class="pt-exp">${(p.expectations || []).map((x, k) => `<li><input data-ex="${k}" value="${esc(x.text)}" aria-label="Expectation">${n === 3 ? `<select data-exr="${k}" aria-label="Result"><option value="">Not reviewed</option>${[["met", "Met"], ["partly", "Partly met"], ["not", "Not met"]].map(([v, l]) => `<option value="${v}" ${x.result === v ? "selected" : ""}>${l}</option>`).join("")}</select>` : ""}<button type="button" class="pt-x" data-delex="${k}" aria-label="Remove">✕</button></li>`).join("")}</ul>
+        <button type="button" class="pt-btn ghost" data-addex>+ Add an expectation</button>`
+    };
+    return `
+      <a class="pt-back" href="#/projects">‹ All projects</a>
+      <header class="pt-head"><div><p class="pt-kicker">${p.isNew ? "New project · from suggestion " + esc(p.fromSuggestion) : "Project editor"}</p><h1>${esc(p.title)}</h1>
+        <p><span class="pt-pill ${STAGE[n][1]}">${STAGE[n][0]}</span> <span class="pt-sub">${p.published === false || p.isNew ? "Draft · not on the website yet" : "On the website"}</span></p></div>
+        <div class="pt-actions-row"><a class="pt-btn ghost" href="/projects/${esc(p.slug)}" target="_blank" rel="noopener">View ↗</a><button type="button" class="pt-btn" data-publish>${p.isNew ? "Publish" : "Save changes"}</button></div></header>
+      <ol class="pt-steps">${[1, 2, 3].map(k => `<li class="${k < n ? "done" : k === n ? "now" : ""}"><i></i><span>${STAGE[k][0]}</span></li>`).join("")}</ol>
+      <div class="pt-edit">
+        <div>
+          <div class="pt-etabs" role="tablist">${tabs.map(([k, l]) => `<button type="button" role="tab" aria-selected="${etab === k}" data-et="${k}">${l}</button>`).join("")}</div>
+          <section class="pt-card pt-epane">${panes[etab]}</section>
+        </div>
+        <aside class="pt-preview">
+          <p class="pt-kicker">Live preview</p>
+          <div class="pt-pcard"><span class="pt-pcover">${cover(p)}</span><div><small>${esc((p.theme || "").toUpperCase())}</small><b>${esc(p.title)}</b><p>${esc(p.summary || "")}</p></div></div>
+          <div class="pt-card pt-ringcard"><h2>${ringLabel(p)}</h2><div class="pt-ringrow">${ringSVG(pct, 92)}<b class="pt-ringn">${pct}%</b></div>
+            <ul>${ringSteps(p).map(([name, d]) => `<li class="${d >= 1 ? "done" : ""}"><span>${esc(name)}</span><b>${d >= 1 ? "✓" : d > 0 ? Math.round(d * 100) + "%" : "–"}</b></li>`).join("")}</ul></div>
+          <div class="pt-card"><h2>Budget</h2><p class="pt-big"><b>${money(b.goal)}</b> <span>${n === 1 ? `· ${b.goal ? Math.round(b.raised / b.goal * 100) : 0}% funded` : "✓ Fully funded"}</span></p></div>
+        </aside>
+      </div>`;
+  }
+  function wireEditor(slug) {
+    const p = P.find(x => x.slug === slug); if (!p) return;
+    const before = stageNum(p);
+    const after = () => { const n = stageNum(p); if (n !== before) toast(`Stage changed: now ${STAGE[n][0]}`); render(); };
+    const keep = el => { const sel = el.dataset.f ? `[data-f="${el.dataset.f}"]` : null; return sel; };
+    app.querySelectorAll("[data-et]").forEach(b => b.onclick = () => { etab = b.dataset.et; render(); });
+    app.querySelectorAll("[data-f]").forEach(el => el.onchange = () => { p[el.dataset.f] = el.dataset.f === "goal" ? num(el.value) : el.value; after(); });
+    app.querySelectorAll("[data-bl]").forEach(el => el.onchange = () => { const x = p.budget[+el.dataset.bl]; x[el.dataset.k] = el.dataset.k === "amount" ? num(el.value) : el.value; render(); });
+    app.querySelectorAll("[data-delbl]").forEach(b => b.onclick = () => { p.budget.splice(+b.dataset.delbl, 1); render(); });
+    const ab = app.querySelector("[data-addbl]"); if (ab) ab.onclick = () => { (p.budget = p.budget || []).push({ item: "", amount: 0 }); render(); const l = app.querySelectorAll('[data-k="item"]'); if (l.length) l[l.length - 1].focus(); };
+    const gs = app.querySelector("[data-goalsum]"); if (gs) gs.onclick = () => { p.goal = p.budget.reduce((t, x) => t + num(x.amount), 0); after(); };
+    app.querySelectorAll("[data-ck]").forEach(c => c.onchange = () => { const k = c.dataset.ck; if (k.startsWith("step:")) p.steps[+k.slice(5)].done = c.checked; else p[k] = c.checked; after(); });
+    const as = app.querySelector(".pt-addstep"); if (as) as.onsubmit = e => { e.preventDefault(); const v = e.target.querySelector("input").value.trim(); if (!v) return; (p.steps = p.steps || []).push({ name: v, done: false }); render(); };
+    app.querySelectorAll("[data-ex]").forEach(el => el.onchange = () => { p.expectations[+el.dataset.ex].text = el.value; render(); });
+    app.querySelectorAll("[data-exr]").forEach(el => el.onchange = () => { p.expectations[+el.dataset.exr].result = el.value; render(); });
+    app.querySelectorAll("[data-delex]").forEach(b => b.onclick = () => { p.expectations.splice(+b.dataset.delex, 1); render(); });
+    const ae = app.querySelector("[data-addex]"); if (ae) ae.onclick = () => { (p.expectations = p.expectations || []).push({ text: "" }); render(); const l = app.querySelectorAll("[data-ex]"); if (l.length) l[l.length - 1].focus(); };
+    app.querySelectorAll("[data-demo]").forEach(b => b.onclick = () => toast(b.dataset.demo));
+    app.querySelector("[data-publish]").onclick = () => { if (p.isNew) { p.isNew = false; p.published = true; render(); toast("Published to the website (demo)"); } else toast("Saved (demo)"); };
+    void keep;
+  }
+
   function render() {
     const [page, id] = route();
-    const cur = ["suggestions", "reports"].includes(page) ? page : "dashboard";
+    const cur = ["suggestions", "reports", "projects"].includes(page) ? page : "dashboard";
     drawNav(cur);
     if (page === "suggestions" && id) { app.innerHTML = detail(id); wireDetail(id); }
     else if (page === "suggestions") { app.innerHTML = suggestions(); wireSuggestions(); }
+    else if (page === "projects" && id) { app.innerHTML = editor(id); wireEditor(id); }
+    else if (page === "projects") { app.innerHTML = projects(); wireProjects(); }
     else if (page === "reports" && id) { app.innerHTML = reportDetail(id); wireReport(id); }
     else if (page === "reports") { app.innerHTML = reports(); wireReports(); }
     else app.innerHTML = dashboard();
-    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
+    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
   }
 
   Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] }))])
