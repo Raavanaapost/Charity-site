@@ -1109,8 +1109,8 @@ body[data-variant="royal"] .vm-end{background:linear-gradient(180deg,#fbf3dc,#f6
 .smap-col{display:grid;gap:10px;min-width:0}
 .smap-zoom{display:flex;flex-wrap:wrap;gap:8px}
 .smap-svg.zoomed .sm-sea,.smap-svg.zoomed .sm-compass{display:none}
-.smap-svg{touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
-.smap-svg.grabbing{cursor:grabbing}
+.smap-v2 .smap-svg{touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
+.smap-v2 .smap-svg.grabbing{cursor:grabbing}
 .smap-steps{position:absolute;right:10px;bottom:10px;display:grid;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--surface);box-shadow:0 4px 12px rgba(40,30,10,.12)}
 .smap-steps button{width:40px;height:40px;border:0;background:transparent;color:var(--ink);font:700 22px/1 var(--display);cursor:pointer}
 .smap-steps button+button{border-top:1px solid var(--line)}

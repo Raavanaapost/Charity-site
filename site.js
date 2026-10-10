@@ -513,6 +513,98 @@
     const svgNS = "http://www.w3.org/2000/svg", mk = (tag, a, txt) => { const e = document.createElementNS(svgNS, tag); for (const k in a) e.setAttribute(k, a[k]); if (txt) e.textContent = txt; return e; };
     const findPlace = p => {
       const loc = `${p.location || ""}, ${p.city || ""}`.toLowerCase();
+      const has = n => new RegExp(`(^|[^a-z])${n.toLowerCase()}([^a-z]|$)`).test(loc);
+      return P.find(x => x.type === "village" && has(x.name)) || P.find(x => x.type === "city" && has(x.name)) || null;
+    };
+    const spots = new Map(), unplaced = [];
+    projects.forEach(p => { const pl = findPlace(p); if (!pl) return unplaced.push(p); if (!spots.has(pl.name)) spots.set(pl.name, { place: pl, projects: [] }); spots.get(pl.name).projects.push(p); });
+    const cityOfSpot = s => s.place.type === "city" ? s.place.name : s.place.city;
+    const citiesUsed = new Set([...spots.values()].map(cityOfSpot).filter(Boolean));
+    const svg = document.querySelector(".smap-svg"), ref = svg.querySelector("[data-smap-ref]"), lines = svg.querySelector("[data-smap-lines]"), dots = svg.querySelector("[data-smap-dots]");
+    const card = document.querySelector("[data-smap-card]"), fig = card.parentElement;
+    const money = p => { const st = stageNum(p), goal = numOf(p.goal) || (p.budget || []).reduce((t, x) => t + numOf(x && x.amount), 0), raised = (p.funders || []).reduce((t, x) => t + numOf(x && x.amount), 0);
+      return st === 3 ? "Day done" : st === 2 ? "Fully funded" : goal ? `${Math.min(100, Math.round(raised / goal * 100))}% funded` : "Budget being prepared"; };
+    const cardHTML = s => `<button type="button" class="smap-x" aria-label="Close">✕</button>
+      <p class="smap-card-place">${esc(s.place.name)}${s.place.type === "village" && s.place.city ? `, ${esc(s.place.city)}` : ""}</p>
+      ${s.projects.map(p => { const st = stageNum(p); return `<a class="smap-proj" href="/projects/${esc(p.slug)}">
+        ${p.cover ? `<img src="${esc(p.cover)}" alt="" loading="lazy">` : ""}
+        <span class="smap-proj-t"><em class="sp sp${st}">${SN[st]}</em><b>${esc(p.title)}</b>${p.summary ? `<small>${esc(String(p.summary).slice(0, 110))}${String(p.summary).length > 110 ? "…" : ""}</small>` : ""}<i>${money(p)} · See the project →</i></span></a>`; }).join("")}`;
+    let pinned = null;
+    const show = (s, g, pin) => {
+      card.innerHTML = cardHTML(s); card.hidden = false; pinned = pin ? s : pinned;
+      card.querySelector(".smap-x").onclick = () => hide(true);
+      dots.querySelectorAll(".sm-spot").forEach(d => d.classList.toggle("on", d === g));
+      if (window.matchMedia("(max-width: 640px)").matches) { card.removeAttribute("style"); card.classList.add("sheet"); return; }
+      card.classList.remove("sheet");
+      const r = g.querySelector(".sm-dot").getBoundingClientRect(), f = fig.getBoundingClientRect(), w = card.offsetWidth, h = card.offsetHeight;
+      let left = r.right - f.left + 16; if (left + w > f.width - 8) left = r.left - f.left - w - 16; if (left < 8) left = 8;
+      let top = r.top - f.top - 20; top = Math.max(8, Math.min(top, f.height - h - 8));
+      card.style.left = left + "px"; card.style.top = top + "px";
+    };
+    const hide = force => { if (pinned && !force) return; pinned = null; card.hidden = true; dots.querySelectorAll(".sm-spot").forEach(d => d.classList.remove("on")); };
+    // Everything is drawn at size k (1 = whole island; smaller when zoomed in, so labels and dots keep their size on screen).
+    const draw = k => {
+      ref.textContent = ""; lines.textContent = ""; dots.textContent = "";
+      const fs = n => (n * k).toFixed(1);
+      P.filter(x => x.type === "ref").forEach(x => { const [cx, cy] = xy(x), left = x.side ? x.side === "left" : x.lng > 80.75; ref.append(mk("circle", { cx, cy, r: fs(2.4), class: "sm-ref-dot" }), mk("text", { x: cx + (left ? -7 : 7) * k, y: cy + 5 * k, "text-anchor": left ? "end" : "start", "font-size": fs(19), class: "sm-ref-name" }, x.name)); });
+      P.filter(x => x.type === "city" && citiesUsed.has(x.name)).forEach(x => {
+        const [cx, cy] = xy(x), left = x.lng > 81; const d = 6 * k;
+        ref.append(mk("rect", { x: cx - d, y: cy - d, width: 2 * d, height: 2 * d, rx: fs(2), class: "sm-city", transform: `rotate(45 ${cx} ${cy})` }),
+          mk("text", { x: cx + (left ? -16 : 16) * k, y: cy + 9 * k, "text-anchor": left ? "end" : "start", "font-size": fs(30), "stroke-width": fs(5), class: "sm-city-name" }, x.name));
+      });
+      spots.forEach(s => { if (s.place.type !== "village") return; const c = P.find(x => x.type === "city" && x.name === s.place.city); if (!c) return; const [a, b] = xy(s.place), [e, f] = xy(c); lines.append(mk("path", { d: `M${a} ${b} Q${(a + e) / 2 + 6 * k} ${(b + f) / 2 - 12 * k} ${e} ${f}`, "stroke-width": fs(1.5), "stroke-dasharray": `${fs(3)} ${fs(5)}`, class: "sm-link" })); });
+      [...spots.values()].sort((a, b) => b.place.lat - a.place.lat).forEach(s => {
+        const [cx, cy] = xy(s.place), st = Math.max(...s.projects.map(stageNum)), n = s.projects.length;
+        const g = mk("g", { class: `sm-spot s${st}`, tabindex: 0, role: "button", "aria-label": `${s.place.name}: ${n} project${n > 1 ? "s" : ""}. Show details` });
+        g.append(mk("circle", { cx, cy, r: fs(22), class: "sm-hit" }), mk("circle", { cx, cy, r: fs(15), "stroke-width": fs(2), class: "sm-halo" }), mk("circle", { cx, cy, r: fs(8 + Math.min(4, n - 1) * 1.5), "stroke-width": fs(3), class: "sm-dot" }));
+        if (n > 1) g.append(mk("text", { x: cx, y: cy + 4 * k, "text-anchor": "middle", "font-size": fs(11), class: "sm-count" }, String(n)));
+        if (s.place.type === "village") g.append(mk("text", { x: cx - 14 * k, y: cy + 6 * k, "text-anchor": "end", "font-size": fs(23), "stroke-width": fs(5), class: "sm-village-name" }, s.place.name));
+        g.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") show(s, g, false); });
+        g.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") setTimeout(() => { if (!card.matches(":hover")) hide(false); }, 250); });
+        g.addEventListener("click", () => show(s, g, true));
+        g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(s, g, true); } });
+        dots.append(g);
+      });
+    };
+    // Zoom: the whole island, or the North / the East where most projects are. The view glides between them.
+    const box = (w, e, n, s) => { const [x1, y1] = xy({ lng: w, lat: n }), [x2, y2] = xy({ lng: e, lat: s }); return [x1, y1, x2 - x1, y2 - y1]; };
+    const VIEWS = { all: FULL, north: box(79.55, 80.95, 9.98, 8.75), east: box(80.85, 82.0, 8.75, 6.85) };
+    let cur = FULL.slice();
+    const zoomTo = name => {
+      const to = VIEWS[name] || FULL, from = cur.slice(), t0 = performance.now(), dur = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 650;
+      hide(true); svg.classList.toggle("zoomed", name !== "all");
+      document.querySelectorAll("[data-smap-zoom]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.smapZoom === name)));
+      const step = now => {
+        const t = dur ? Math.min(1, (now - t0) / dur) : 1, e = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        cur = from.map((v, i) => v + (to[i] - v) * e);
+        svg.setAttribute("viewBox", cur.map(v => v.toFixed(1)).join(" "));
+        if (t === 1) draw(cur[2] / 640); else requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+    document.querySelectorAll("[data-smap-zoom]").forEach(b => b.addEventListener("click", () => zoomTo(b.dataset.smapZoom)));
+    draw(1);
+    card.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") hide(false); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") hide(true); });
+    svg.addEventListener("click", e => { if (!e.target.closest(".sm-spot")) hide(true); });
+    // Numbers and the list under the map (the same places, for reading without the map).
+    const placed = [...spots.values()].flatMap(s => s.projects), days = projects.filter(p => stageNum(p) === 3).length;
+    document.querySelector("[data-smap-stats]").innerHTML = `<b>${spots.size}</b> place${spots.size === 1 ? "" : "s"} · <b>${placed.length}</b> project${placed.length === 1 ? "" : "s"} on the map · <b>${days}</b> day${days === 1 ? "" : "s"} of joy delivered`;
+    const byCity = {}; spots.forEach(s => { const c = cityOfSpot(s) || s.place.name; (byCity[c] = byCity[c] || []).push(s); });
+    const li = (p, sub) => `<li><a href="/projects/${esc(p.slug)}"><i class="sp-dot sp${stageNum(p)}"></i><span>${esc(p.title)}<small>${sub}${SN[stageNum(p)]}</small></span></a></li>`;
+    document.querySelector("[data-smap-list]").innerHTML = Object.keys(byCity).sort().map(c => `<section><h2>${esc(c)}</h2><ul>${byCity[c].flatMap(s => s.projects.map(p => li(p, s.place.type === "village" ? esc(s.place.name) + " · " : ""))).join("")}</ul></section>`).join("")
+      + (unplaced.length ? `<section class="smap-soon"><h2>Place being confirmed</h2><ul>${unplaced.map(p => li(p, "")).join("")}</ul></section>` : "");
+  }
+
+  // Smile Map, second version (/smile-map-v2): close dots merge into numbered bubbles; free zoom.
+  async function renderMapV2(projects) {
+    const P = (await load("/places.json").catch(() => ({}))).places || [];
+    const LON0 = 79.45, LAT1 = 10.05, K = 250, C = Math.cos(7.9 * Math.PI / 180), FULL = [0, 0, 640, 1065];
+    const xy = p => [(p.lng - LON0) * K * C, (LAT1 - p.lat) * K];
+    const SN = ["", "Smiles in the Making", "Moments on the Way", "Days of Joy, Created"];
+    const svgNS = "http://www.w3.org/2000/svg", mk = (tag, a, txt) => { const e = document.createElementNS(svgNS, tag); for (const k in a) e.setAttribute(k, a[k]); if (txt) e.textContent = txt; return e; };
+    const findPlace = p => {
+      const loc = `${p.location || ""}, ${p.city || ""}`.toLowerCase();
       const has = n => new RegExp(`(^|[^a-z0-9])${n.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z0-9]|$)`).test(loc);
       return P.find(x => x.type === "village" && has(x.name)) || P.find(x => x.type === "city" && has(x.name)) || null;
     };
@@ -602,6 +694,7 @@
       ours: pts.length ? fit(Math.min(...pts.map(p => p[0])) - 60, Math.min(...pts.map(p => p[1])) - 60, Math.max(...pts.map(p => p[0])) + 60, Math.max(...pts.map(p => p[1])) + 60, 260) : FULL,
       north: geo(79.6, 80.95, 9.98, 8.7), centre: geo(79.9, 81.25, 8.9, 6.9), east: geo(80.95, 82.0, 8.75, 6.85), all: FULL.slice()
     };
+    VIEWS.ours[1] = Math.max(0, Math.min(VIEWS.ours[1], Math.min(...pts.map(p => p[1]), 1e9) - 70));
     let cur = VIEWS.ours.slice(), raf = 0;
     const setBox = v => { cur = clamp(v); svg.setAttribute("viewBox", cur.map(n => n.toFixed(1)).join(" ")); svg.classList.toggle("zoomed", cur[2] < 560); };
     const redraw = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => draw(cur[2] / FULL[2])); };
@@ -1315,6 +1408,8 @@
         } else renderProject(app, site, projects, slugify(slug));
       } else if (page === "map") {
         renderMap(projects);
+      } else if (page === "map2") {
+        renderMapV2(projects);
       } else if (page === "report" || page === "feedback") {
         // Report a concern / after-visit feedback: plain forms. Anonymous unless the person chooses otherwise;
         // worrying feedback answers are pointed to a full report.

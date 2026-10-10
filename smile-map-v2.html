@@ -22,7 +22,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Inter:wght@900&family=Playfair+Display:ital,wght@0,800;0,900;1,900&family=Merriweather:wght@900&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&family=IBM+Plex+Mono:wght@500&family=Caveat:wght@500;700&display=swap">
 <link rel="stylesheet" href="/style.css">
 </head>
-<body data-page="map">
+<body data-page="map2">
 <header class="bar">
   <div class="wrap">
     <a class="logo" href="/overview" aria-label="Raavanaa Beyond the Lanes, home">
@@ -32,7 +32,7 @@
     <nav class="nav" id="site-nav"><a href="/overview">Home</a><a href="/initiated">Projects</a><a href="/smile-map">Smile Map</a><a href="/about">About us</a><a href="/contact">Contact</a></nav>
   </div>
 </header>
-<main id="app" class="wrap smap-page">
+<main id="app" class="wrap smap-page smap-v2">
   <header class="smap-head">
     <p class="eyebrow">Smile Map</p>
     <h1 class="smap-title">Where smiles happen</h1>
@@ -41,9 +41,11 @@
   </header>
   <div class="smap-layout"><div class="smap-col">
     <div class="smap-zoom" role="group" aria-label="Zoom the map">
-      <button type="button" class="chip" data-smap-zoom="all" aria-pressed="true">All of Sri Lanka</button>
+      <button type="button" class="chip" data-smap-zoom="ours" aria-pressed="true">Our places</button>
       <button type="button" class="chip" data-smap-zoom="north" aria-pressed="false">The North</button>
+      <button type="button" class="chip" data-smap-zoom="centre" aria-pressed="false">The Centre</button>
       <button type="button" class="chip" data-smap-zoom="east" aria-pressed="false">The East</button>
+      <button type="button" class="chip" data-smap-zoom="all" aria-pressed="false">All of Sri Lanka</button>
     </div>
     <figure class="smap">
       <svg class="smap-svg" viewBox="0 0 640 1065" role="img" aria-labelledby="smap-t">
@@ -79,6 +81,8 @@
       <g class="sm-lines" data-smap-lines aria-hidden="true"></g>
       <g data-smap-dots></g>
     </svg>
+      <div class="smap-steps"><button type="button" data-smap-step="in" aria-label="Zoom in">+</button><button type="button" data-smap-step="out" aria-label="Zoom out">−</button></div>
+      <p class="smap-hint"><span class="touch">Pinch with two fingers to zoom</span><span class="mouse">Drag to move · Ctrl + scroll to zoom</span></p>
       <div class="smap-card" data-smap-card hidden></div>
     </figure></div>
     <aside class="smap-side">
