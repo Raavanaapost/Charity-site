@@ -1,0 +1,16 @@
+{
+  "_note": "Places for the Smile Map. side: left puts the name on the left of the dot. type: city (a city we work in), village (belongs to a city), ref (a label only, for finding your way). Positions are the centre of the village, never a home or school.",
+  "places": [
+    { "name": "Jaffna", "type": "city", "lat": 9.6615, "lng": 80.0255 },
+    { "name": "Kilinochchi", "type": "city", "lat": 9.3803, "lng": 80.3770 },
+    { "name": "Batticaloa", "type": "city", "lat": 7.7310, "lng": 81.6747 },
+    { "name": "Karainagar", "type": "village", "city": "Jaffna", "lat": 9.7450, "lng": 79.8800 },
+    { "name": "Colombo", "type": "ref", "lat": 6.9271, "lng": 79.8612 },
+    { "name": "Kandy", "type": "ref", "lat": 7.2906, "lng": 80.6337 },
+    { "name": "Trincomalee", "type": "ref", "lat": 8.5874, "lng": 81.2152 },
+    { "name": "Vavuniya", "type": "ref", "lat": 8.7514, "lng": 80.4971 },
+    { "name": "Mannar", "type": "ref", "lat": 8.9810, "lng": 79.9044, "side": "left" },
+    { "name": "Mullaitivu", "type": "ref", "lat": 9.2671, "lng": 80.8142 },
+    { "name": "Galle", "type": "ref", "lat": 6.0535, "lng": 80.2210 }
+  ]
+}

@@ -1032,3 +1032,80 @@ body[data-variant="royal"] .vm-end{background:linear-gradient(180deg,#fbf3dc,#f6
 .ev-skip{display:flex;gap:10px;align-items:flex-start;font-family:var(--display);font-size:15px;color:#2f4a40;cursor:pointer}
 .ev-skip input{width:20px;height:20px;margin-top:1px;accent-color:#0f5132;flex:none}
 .ev.has .ev-skip{opacity:.5}
+
+/* Smile Map */
+.smap-page{padding-block:28px 56px}
+.smap-head{display:grid;gap:8px;max-width:640px}
+.smap-title{margin:0;font-family:"Caveat",var(--display);font-weight:700;font-size:clamp(44px,9vw,68px);line-height:.95;color:var(--brand)}
+.smap-lead{margin:0;font-family:var(--body);font-size:17px;line-height:1.55;color:var(--muted)}
+.smap-stats{margin:4px 0 0;font-family:var(--display);font-size:15.5px;color:var(--ink)}
+.smap-stats b{color:var(--brand);font-size:19px}
+.smap-layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:28px;align-items:start;margin-top:22px}
+@media (max-width:820px){.smap-layout{grid-template-columns:1fr}}
+.smap{position:relative;margin:0;border-radius:18px;border:1px solid var(--line);overflow:hidden;
+  background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.55),transparent 60%),#f3ecdc}
+.smap-svg{display:block;width:100%;height:auto;max-height:86vh}
+.sm-fill{fill:#fbf6ea}
+.sm-hatch{stroke:#c9b48a;stroke-width:1;opacity:.55}
+.sm-hatch-fill{fill:url(#sm-hatch)}
+.sm-coast{fill:none;stroke:#3d3426;stroke-width:2.2;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.sm-coast2{fill:none;stroke:#3d3426;stroke-width:1;opacity:.35;vector-effect:non-scaling-stroke}
+.sm-sea use{stroke:#7aa2a9;stroke-width:1.6;stroke-linecap:round;opacity:.7}
+.sm-sea-name{font-family:"Caveat",cursive;font-size:24px;fill:#5d8890;letter-spacing:.04em}
+.sm-sea-name.sm-small{font-size:19px}
+.sm-hand{font-family:"Caveat",cursive;font-size:20px;font-weight:700;fill:#3d3426}
+.sm-ink{stroke:#3d3426;stroke-width:1.2;opacity:.6}
+.sm-needle{fill:#fbf6ea;stroke:#3d3426;stroke-width:1.2}
+.sm-needle-n{fill:#c8381e}
+.sm-ref-dot{fill:#8b7d63}
+.sm-ref-name{font-family:"Caveat",cursive;fill:#8b7d63}
+.sm-city{fill:#3d3426}
+.sm-city-name{font-family:"Caveat",cursive;font-weight:700;fill:#2a241a;paint-order:stroke;stroke:#fbf6ea;stroke-linejoin:round}
+.sm-link{fill:none;stroke:#3d3426;stroke-linecap:round;opacity:.6}
+.sm-spot{cursor:pointer;outline:none}
+.sm-hit{fill:transparent}
+.sm-dot{stroke:#fff}
+.sm-halo{fill:none;opacity:.5;transform-box:fill-box;transform-origin:center;animation:smPulse 2.4s ease-out infinite}
+.s1 .sm-dot{fill:#1f7a47}.s1 .sm-halo{stroke:#1f7a47}
+.s2 .sm-dot{fill:#e0a01c}.s2 .sm-halo{stroke:#e0a01c}
+.s3 .sm-dot{fill:#c8381e}.s3 .sm-halo{stroke:#c8381e}
+.sm-spot:hover .sm-dot,.sm-spot.on .sm-dot,.sm-spot:focus-visible .sm-dot{stroke:#2a241a}
+.sm-spot:focus-visible .sm-hit{stroke:#2a241a;stroke-width:2;stroke-dasharray:3 3}
+.sm-count{font-family:var(--display);font-weight:700;fill:#fff;pointer-events:none}
+.sm-village-name{font-family:"Caveat",cursive;font-weight:700;fill:#2a241a;paint-order:stroke;stroke:#fbf6ea;stroke-linejoin:round}
+@keyframes smPulse{0%{transform:scale(.6);opacity:.7}100%{transform:scale(1.5);opacity:0}}
+@media (prefers-reduced-motion:reduce){.sm-halo{animation:none}}
+.smap-card{position:absolute;z-index:3;width:min(300px,calc(100% - 16px));background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(40,30,10,.18);padding:12px;display:grid;gap:10px}
+.smap-card.sheet{left:8px;right:8px;bottom:8px;top:auto;width:auto;max-height:60%;overflow:auto}
+.smap-card[hidden]{display:none}
+.smap-x{position:absolute;top:6px;right:6px;width:30px;height:30px;border-radius:50%;border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:14px}
+.smap-card-place{margin:0;padding-right:30px;font-family:"Caveat",cursive;font-weight:700;font-size:26px;line-height:1;color:var(--brand)}
+.smap-proj{display:grid;grid-template-columns:72px minmax(0,1fr);gap:10px;text-decoration:none;color:inherit;border-radius:10px;padding:4px}
+.smap-proj:hover{background:var(--brand-soft)}
+.smap-proj img{width:72px;height:72px;border-radius:10px;object-fit:cover;background:var(--brand-soft)}
+.smap-proj-t{display:grid;gap:3px;min-width:0}
+.smap-proj-t b{font-family:var(--display);font-size:15.5px;line-height:1.25}
+.smap-proj-t small{font-family:var(--body);font-size:13px;line-height:1.4;color:var(--muted)}
+.smap-proj-t i{font-style:normal;font-family:var(--display);font-weight:600;font-size:13px;color:var(--brand)}
+.sp{font-style:normal;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;justify-self:start;padding:2px 7px;border-radius:99px;color:#fff}
+.sp1{background:#1f7a47}.sp2{background:#b97a06}.sp3{background:#c8381e}
+.smap-side{display:grid;gap:18px;align-content:start}
+.smap-key{list-style:none;margin:0;padding:12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;border:1px solid var(--line);border-radius:14px;background:var(--surface);font-family:var(--display);font-size:14px}
+.smap-key li{display:flex;align-items:center;gap:8px}
+.smap-key i{width:12px;height:12px;border-radius:50%;flex:none}
+.smap-key .k1{background:#1f7a47}.smap-key .k2{background:#e0a01c}.smap-key .k3{background:#c8381e}
+.smap-key .kc{background:var(--ink);border-radius:2px;transform:rotate(45deg);width:10px;height:10px}
+.smap-list{display:grid;gap:16px}
+.smap-list h2{margin:0 0 6px;font-family:"Caveat",var(--display);font-weight:700;font-size:28px;color:var(--brand)}
+.smap-list ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.smap-list a{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:10px;text-decoration:none;color:var(--ink);font-family:var(--display);font-size:15.5px}
+.smap-list a:hover{background:var(--brand-soft)}
+.smap-list small{display:block;color:var(--muted);font-size:13px}
+.sp-dot{width:10px;height:10px;border-radius:50%;flex:none;margin-top:6px}
+.sp-dot.sp1{background:#1f7a47}.sp-dot.sp2{background:#e0a01c}.sp-dot.sp3{background:#c8381e}
+.smap-soon h2{color:var(--muted)}
+.smap-cta{justify-self:start}
+.smap-note{margin:0;font-family:var(--body);font-size:14px;color:var(--muted)}
+.smap-col{display:grid;gap:10px;min-width:0}
+.smap-zoom{display:flex;flex-wrap:wrap;gap:8px}
+.smap-svg.zoomed .sm-sea,.smap-svg.zoomed .sm-compass{display:none}
