@@ -32,7 +32,7 @@ export default async (req: Request) => {
     additional: clipText(f.additional, 1000),
   };
   s.location = [s.village, s.city].filter(Boolean).join(", ");
-  if (!s.title || !s.description || !s.city || !s.village || !s.children || !s.reach) {
+  if (!s.title || !s.description || !s.city || !s.village || !s.children || !s.contact || !s.reach) {
     return Response.json({ ok: false, error: "Please fill in every required field." }, { status: 400 });
   }
   // Evidence is required: at least one file to upload next, or the promise to show it at the visit.
