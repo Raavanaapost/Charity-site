@@ -13,7 +13,8 @@
 - [ ] Optional: "Sign in with GitHub" button for admins.
 
 ### Portal and community (agreed 9 Oct 2026)
-- [ ] Portal screens still to design: Project editor, Sponsors & pledges, Day preparation, Close the day, People, Team & logins. Then build the real backend.
+- [x] Portal screens designed (preview at /portal): Dashboard, Suggestions, Projects + editor, Reports & feedback, Sponsors & pledges, Day preparation, Close the day, People, Team & logins.
+- [ ] Build the real backend (Netlify Database + Identity + Blobs + Functions), starting with Suggestions.
 - [ ] Name the Safeguarding lead and the Independent reviewer (shown publicly on the Report a concern page).
 - [ ] Tamil version of the Report a concern and How did we do? pages (then the rest of the site).
 - [ ] Raavanaa Post: a monthly newsletter with the month's impact stories, numbers and pictures; written in the portal, published as a page on the site and emailed to Keep me posted subscribers.

@@ -429,5 +429,235 @@
         }
       ]
     }
-  }
+  },
+  "people": [
+    {
+      "id": "pe-1",
+      "name": "Kiri & Family",
+      "roles": [
+        "Sponsor",
+        "Volunteer"
+      ],
+      "city": "Toronto",
+      "contact": "kiri.demo@example.org",
+      "joined": "2026-09-12",
+      "how": "Bowling night",
+      "lang": "English",
+      "consent": {
+        "contact": true,
+        "post": true
+      }
+    },
+    {
+      "id": "pe-2",
+      "name": "Kumar Family",
+      "roles": [
+        "Sponsor"
+      ],
+      "city": "Toronto",
+      "contact": "kumar.demo@example.org",
+      "joined": "2026-10-02",
+      "how": "Friend of a member",
+      "lang": "Tamil",
+      "consent": {
+        "contact": true,
+        "post": true
+      }
+    },
+    {
+      "id": "pe-3",
+      "name": "Mahaarivu Association",
+      "roles": [
+        "Sponsor"
+      ],
+      "city": "Toronto",
+      "contact": "mahaarivu.demo@example.org",
+      "joined": "2026-10-06",
+      "how": "Website",
+      "lang": "English",
+      "consent": {
+        "contact": true,
+        "post": false
+      }
+    },
+    {
+      "id": "pe-4",
+      "name": "Sasi",
+      "roles": [
+        "Team",
+        "Sponsor",
+        "Volunteer"
+      ],
+      "city": "Toronto",
+      "contact": "",
+      "joined": "2026-08-01",
+      "how": "Founding member",
+      "lang": "Tamil",
+      "consent": {
+        "contact": true,
+        "post": true
+      }
+    },
+    {
+      "id": "pe-5",
+      "name": "Shanker",
+      "roles": [
+        "Sponsor"
+      ],
+      "city": "Toronto",
+      "contact": "",
+      "joined": "2026-08-10",
+      "how": "Bowling night",
+      "lang": "Tamil",
+      "consent": {
+        "contact": true,
+        "post": true
+      }
+    },
+    {
+      "id": "pe-6",
+      "name": "Bala",
+      "roles": [
+        "Team",
+        "Sponsor",
+        "Volunteer"
+      ],
+      "city": "Toronto",
+      "contact": "",
+      "joined": "2026-08-01",
+      "how": "Founding member",
+      "lang": "Tamil",
+      "consent": {
+        "contact": true,
+        "post": true
+      }
+    },
+    {
+      "id": "pe-7",
+      "name": "Home warden (demo)",
+      "roles": [
+        "Organizer"
+      ],
+      "city": "Kilinochchi",
+      "contact": "warden.demo@example.org",
+      "joined": "2026-10-08",
+      "how": "Initiate form",
+      "lang": "Tamil",
+      "consent": {
+        "contact": true,
+        "post": false
+      }
+    },
+    {
+      "id": "pe-8",
+      "name": "Centre coordinator (demo)",
+      "roles": [
+        "Organizer"
+      ],
+      "city": "Jaffna",
+      "contact": "centre.demo@example.org",
+      "joined": "2026-09-29",
+      "how": "Initiate form",
+      "lang": "Tamil",
+      "consent": {
+        "contact": true,
+        "post": true
+      }
+    },
+    {
+      "id": "pe-9",
+      "name": "Centre nurse (demo)",
+      "roles": [
+        "Trusted contact"
+      ],
+      "city": "Jaffna",
+      "contact": "+94 77 000 0000",
+      "joined": "2026-10-01",
+      "how": "Visit",
+      "lang": "Tamil",
+      "consent": {
+        "contact": true,
+        "post": false
+      }
+    },
+    {
+      "id": "pe-10",
+      "name": "A parent (demo)",
+      "roles": [
+        "Subscriber"
+      ],
+      "city": "Toronto",
+      "contact": "parent.demo@example.org",
+      "joined": "2026-09-18",
+      "how": "Keep me posted",
+      "lang": "English",
+      "consent": {
+        "contact": true,
+        "post": true
+      }
+    },
+    {
+      "id": "pe-11",
+      "name": "Thurai S. (demo)",
+      "roles": [
+        "Subscriber",
+        "Volunteer"
+      ],
+      "city": "Toronto",
+      "contact": "thurai.demo@example.org",
+      "joined": "2026-09-20",
+      "how": "Bowling night",
+      "lang": "English",
+      "consent": {
+        "contact": true,
+        "post": true
+      }
+    },
+    {
+      "id": "pe-12",
+      "name": "Village volunteer (demo)",
+      "roles": [
+        "Organizer"
+      ],
+      "city": "Jaffna",
+      "contact": "volunteer.demo@example.org",
+      "joined": "2026-10-05",
+      "how": "Initiate form",
+      "lang": "Tamil",
+      "consent": {
+        "contact": true,
+        "post": false
+      }
+    }
+  ],
+  "members": [
+    {
+      "name": "Suresh",
+      "email": "(your email)",
+      "role": "Admin",
+      "active": "Today",
+      "twofa": true
+    },
+    {
+      "name": "Sasi",
+      "email": "sasi.demo@example.org",
+      "role": "Team",
+      "active": "Yesterday",
+      "twofa": true
+    },
+    {
+      "name": "Kiri",
+      "email": "kiri.demo@example.org",
+      "role": "Team",
+      "active": "3 days ago",
+      "twofa": false
+    },
+    {
+      "name": "Bala",
+      "email": "bala.demo@example.org",
+      "role": "Team",
+      "active": "Last week",
+      "twofa": true
+    }
+  ]
 }

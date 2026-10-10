@@ -50,7 +50,7 @@
   const MENU = [
     ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true],
     ["sponsors", "Sponsors & pledges", true], ["day", "Day preparation", true], ["close", "Close the day", true],
-    ["people", "People", false], ["team", "Team & logins", false]
+    ["people", "People", true], ["team", "Team & logins", true]
   ];
 
   let D = null, P = [];
@@ -65,9 +65,15 @@
     document.getElementById("pt-tabbar").innerHTML = [["dashboard", "Home"], ["suggestions", "Suggestions"], ["projects", "Projects"], ["reports", "Reports"], ["more", "More"]].map(([k, l]) => {
       const ready = k !== "more";
       return ready ? `<a href="#/${k}" class="${cur === k ? "on" : ""}">${svg(ICON[k], 22)}<span>${l}</span>${k === "suggestions" && newCount ? `<b class="pt-badge">${newCount}</b>` : k === "reports" && openRep ? `<b class="pt-badge">${openRep}</b>` : ""}</a>`
-        : `<button type="button" class="soon" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
+        : `<button type="button" class="${["sponsors", "day", "close", "people", "team"].includes(cur) ? "on" : ""}" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
     }).join("");
-    document.querySelectorAll("[data-soon]").forEach(b => b.onclick = () => toast("This screen is designed next."));
+    document.querySelectorAll("[data-soon]").forEach(b => b.onclick = () => {
+      let m = document.getElementById("pt-more");
+      if (m) { m.remove(); return; }
+      m = document.createElement("div"); m.id = "pt-more"; m.className = "pt-more-menu";
+      m.innerHTML = MENU.filter(([k]) => !["dashboard", "suggestions", "projects", "reports"].includes(k)).map(([k, l]) => `<a href="#/${k}">${svg(ICON[k])}<span>${l}</span></a>`).join("");
+      document.body.appendChild(m); m.addEventListener("click", () => m.remove());
+    });
   }
 
   // ---------- Dashboard ----------
@@ -711,12 +717,132 @@
     };
   }
 
+  // ---------- People (community database) ----------
+  // Adults only, and only with their consent. Children are never stored here.
+  const ROLES = ["Sponsor", "Volunteer", "Organizer", "Trusted contact", "Subscriber", "Team"];
+  const RCLS = { Sponsor: "r-sp", Volunteer: "r-vo", Organizer: "r-or", "Trusted contact": "r-tc", Subscriber: "r-su", Team: "r-te" };
+  let pefilter = "All", pequery = "", peopen = null;
+  function historyOf(x) { // what this person has done, from the other screens
+    const h = [];
+    D.pledges.filter(y => y.name === x.name).forEach(y => h.push([y.pledged, `Pledged ${money(y.amount)} to ${projOf(y.project).title}${y.status === "received" ? " · received" : " · waiting"}`]));
+    Object.entries(D.days).forEach(([slug, d]) => d.volunteers.filter(v => v.name === x.name || x.name.startsWith(v.name + " ")).forEach(v => h.push([d.date, `Volunteer (${v.role}) · ${projOf(slug).title}`])));
+    D.suggestions.filter(s2 => s2.contact === x.name).forEach(s2 => h.push([s2.received.slice(0, 10), `Suggested: ${s2.title}`]));
+    h.push([x.joined, `Joined · ${x.how}`]);
+    return h.sort((a, b) => String(b[0]).localeCompare(String(a[0])));
+  }
+  function people() {
+    const q = pequery.toLowerCase();
+    const list = D.people.filter(x => (pefilter === "All" || x.roles.includes(pefilter)) && (!q || (x.name + " " + x.city + " " + x.how).toLowerCase().includes(q)));
+    const cnt = r => D.people.filter(x => x.roles.includes(r)).length, post = D.people.filter(x => x.consent.post).length;
+    return `
+      <header class="pt-head"><div><p class="pt-kicker">People</p><h1>Our community</h1>
+        <p class="pt-sub">Everyone who has given, volunteered, suggested a project or signed up. Adults only, and only with their consent.</p></div>
+        <div class="pt-actions-row"><button type="button" class="pt-btn ghost" data-export>Download list</button><button type="button" class="pt-btn" data-addpe>+ Add a person</button></div></header>
+      <section class="pt-stats">
+        <div class="pt-stat st1"><b>${D.people.length}</b><span>People</span></div>
+        <div class="pt-stat st2"><b>${cnt("Sponsor")}</b><span>Sponsors</span></div>
+        <div class="pt-stat s1"><b>${cnt("Volunteer")}</b><span>Volunteers</span></div>
+        <div class="pt-stat st3"><b>${post}</b><span>Get the Raavanaa Post</span></div>
+      </section>
+      <form class="pt-card pt-plform" id="pt-peform" hidden>
+        <h2>Add a person</h2>
+        <div class="pt-2">
+          <label class="pt-field">Name<input name="name" required></label>
+          <label class="pt-field">Email or phone<input name="contact"></label>
+          <label class="pt-field">City<input name="city" placeholder="e.g. Toronto, Jaffna"></label>
+          <label class="pt-field">How they found us<select name="how"><option>Bowling night</option><option>Friend of a member</option><option>Website</option><option>Visit</option><option>Event</option></select></label>
+          <label class="pt-field">Language<select name="lang"><option>English</option><option>Tamil</option></select></label>
+        </div>
+        <div class="pt-rolepick">${ROLES.filter(r => r !== "Team").map(r => `<label><input type="checkbox" name="roles" value="${r}"><span class="pt-role ${RCLS[r]}">${r}</span></label>`).join("")}</div>
+        <label class="pt-check"><input type="checkbox" name="ok" required><span>They agreed that we keep their details to contact them about Raavanaa</span></label>
+        <label class="pt-check"><input type="checkbox" name="post"><span>They want the monthly Raavanaa Post</span></label>
+        <div class="pt-actions-row" style="margin-top:12px"><button class="pt-btn" type="submit">Save</button><button class="pt-btn ghost" type="button" data-cancelpe>Cancel</button></div>
+      </form>
+      <div class="pt-tools">
+        <div class="pt-chips" role="group" aria-label="Show">${["All", ...ROLES].map(r => `<button type="button" data-pe="${r}" aria-pressed="${pefilter === r}">${r}${r !== "All" ? ` <b>${cnt(r)}</b>` : ""}</button>`).join("")}</div>
+        <input class="pt-search" type="search" placeholder="Search name, city or how they found us" value="${esc(pequery)}" aria-label="Search people">
+      </div>
+      <ul class="pt-list big">${list.map(x => `<li class="pt-person ${peopen === x.id ? "open" : ""}">
+        <button type="button" class="pt-row" data-peo="${x.id}" aria-expanded="${peopen === x.id}">
+          <span class="pt-av">${esc(initials(x.name))}</span>
+          <span class="pt-row-main"><b>${esc(x.name)}</b><small>${esc(x.city)} · ${esc(x.how)}${x.lang === "Tamil" ? " · தமிழ்" : ""}</small></span>
+          <span class="pt-roles">${x.roles.map(r => `<span class="pt-role ${RCLS[r]}">${r}</span>`).join("")}</span></button>
+        ${peopen === x.id ? `<div class="pt-pdetail">
+          <dl class="pt-facts"><div><dt>Contact</dt><dd>${x.contact ? esc(x.contact) : "Not given"}</dd></div><div><dt>Joined</dt><dd>${fmtD(x.joined)}</dd></div>
+            <div><dt>May we contact them</dt><dd>${x.consent.contact ? "Yes" : "No"}</dd></div><div><dt>Raavanaa Post</dt><dd><label class="pt-check"><input type="checkbox" data-post="${x.id}" ${x.consent.post ? "checked" : ""}><span>${x.consent.post ? "Subscribed" : "Not subscribed"}</span></label></dd></div></dl>
+          <h3 class="pt-h2">History</h3><ul class="pt-feed">${historyOf(x).map(([d2, t]) => `<li><time>${fmtD(d2)}</time><span>${esc(t)}</span></li>`).join("")}</ul>
+          <div class="pt-actions-row" style="margin-top:10px">${x.contact && x.consent.contact ? `<a class="pt-btn ghost sm" href="${/@/.test(x.contact) ? "mailto:" : "tel:"}${esc(x.contact.replace(/\s/g, ""))}">Contact</a>` : ""}<button type="button" class="pt-btn ghost danger sm" data-forget="${x.id}">Delete their details</button></div>
+        </div>` : ""}</li>`).join("") || `<li class="pt-empty">Nobody matches.</li>`}</ul>`;
+  }
+  function wirePeople() {
+    app.querySelectorAll("[data-pe]").forEach(b => b.onclick = () => { pefilter = b.dataset.pe; render(); });
+    const q = app.querySelector(".pt-search");
+    q.oninput = () => { pequery = q.value.trim(); const pos = q.selectionStart; render(); const n = app.querySelector(".pt-search"); n.focus(); n.setSelectionRange(pos, pos); };
+    app.querySelectorAll("[data-peo]").forEach(b => b.onclick = () => { peopen = peopen === b.dataset.peo ? null : b.dataset.peo; render(); });
+    app.querySelectorAll("[data-post]").forEach(c => c.onchange = () => { D.people.find(x => x.id === c.dataset.post).consent.post = c.checked; render(); });
+    app.querySelectorAll("[data-forget]").forEach(b => b.onclick = () => { if (!confirm("Delete this person's details? Their pledges stay in the accounts under their name.")) return; D.people = D.people.filter(x => x.id !== b.dataset.forget); peopen = null; render(); toast("Details deleted (demo)"); });
+    const form = app.querySelector("#pt-peform");
+    app.querySelector("[data-addpe]").onclick = () => { form.hidden = false; form.querySelector("[name=name]").focus(); };
+    app.querySelector("[data-cancelpe]").onclick = () => { form.hidden = true; };
+    form.onsubmit = e => { e.preventDefault(); const f = new FormData(form); const roles = f.getAll("roles"); if (!roles.length) { toast("Pick at least one role"); return; }
+      D.people.unshift({ id: "pe-" + Date.now(), name: String(f.get("name")).trim(), roles, city: String(f.get("city") || ""), contact: String(f.get("contact") || ""), joined: NOW.toISOString().slice(0, 10), how: f.get("how"), lang: f.get("lang"), consent: { contact: true, post: !!f.get("post") } });
+      render(); toast("Person added (demo)"); };
+    app.querySelector("[data-export]").onclick = () => toast("Downloads a spreadsheet of everyone who agreed to be contacted (demo)");
+  }
+
+  // ---------- Team & logins ----------
+  const PERMS = [
+    ["See the dashboard, suggestions and projects", 1, 1, 0],
+    ["Plan visits, edit projects, prepare and close days", 1, 1, 0],
+    ["Record pledges and mark money received", 1, 1, 0],
+    ["Publish to the website", 1, 0, 0],
+    ["See People (contact details)", 1, 1, 0],
+    ["See Reports & feedback", 1, 0, 1],
+    ["Add or remove team members", 1, 0, 0]
+  ];
+  function team() {
+    const lead = D.safeguard || "", rev = D.reviewer || "";
+    return `
+      <header class="pt-head"><div><p class="pt-kicker">Team &amp; logins</p><h1>Who can do what</h1>
+        <p class="pt-sub">Everyone signs in with their own email. Only the Admin publishes to the website.</p></div></header>
+      <div class="pt-grid">
+        <section class="pt-card"><h2>Team members <span class="pt-count">${D.members.length}</span></h2>
+          <ul class="pt-list">${D.members.map((m, k) => `<li class="pt-pl"><span class="pt-av">${esc(initials(m.name))}</span>
+            <span class="pt-row-main"><b>${esc(m.name)}</b><small>${esc(m.email)} · ${m.pending ? "Invite sent" : "Active " + esc(m.active)}${m.twofa ? " · 2-step sign-in on" : ""}</small></span>
+            <span class="pt-row-side"><select class="pt-sel sm" data-mrole="${k}" ${m.role === "Admin" ? "disabled" : ""} aria-label="Role">${["Admin", "Team", "Independent reviewer"].map(r => `<option ${m.role === r ? "selected" : ""}>${r}</option>`).join("")}</select>
+            ${m.role === "Admin" ? "" : `<button type="button" class="pt-link" data-mdel="${k}">Remove</button>`}</span></li>`).join("")}</ul>
+          <form class="pt-invite"><input name="name" placeholder="Name" required aria-label="Name"><input name="email" type="email" placeholder="Email" required aria-label="Email">
+            <select name="role" aria-label="Role"><option>Team</option><option>Independent reviewer</option></select><button class="pt-btn" type="submit">Send invite</button></form>
+        </section>
+        <section class="pt-card"><h2>Safety roles</h2>
+          <p class="pt-sub" style="margin:0 0 12px">Named publicly on the Report a concern page. Reports go to these two people.</p>
+          <label class="pt-field">Safeguarding lead (from the team)<select data-safe><option value="">Not chosen yet</option>${D.members.filter(m => m.role !== "Independent reviewer").map(m => `<option ${lead === m.name ? "selected" : ""}>${esc(m.name)}</option>`).join("")}</select></label>
+          <label class="pt-field">Independent reviewer (outside the project team)<select data-rev><option value="">Not chosen yet</option>${D.members.filter(m => m.role === "Independent reviewer").map(m => `<option ${rev === m.name ? "selected" : ""}>${esc(m.name)}</option>`).join("")}</select>
+            <small>${D.members.some(m => m.role === "Independent reviewer") ? "" : "Invite them first with the role Independent reviewer."}</small></label>
+          ${lead && rev ? `<p class="pt-private" style="background:#e2efe6;color:#1f5f3a">Both roles are filled. The website will show their names.</p>` : `<p class="pt-private">Both roles must be filled before the site goes live.</p>`}
+        </section>
+      </div>
+      <section class="pt-card" style="margin-top:14px"><h2>What each role can do</h2>
+        <div class="pt-tablewrap"><table class="pt-perms"><thead><tr><th></th><th>Admin</th><th>Team</th><th>Independent reviewer</th></tr></thead>
+        <tbody>${PERMS.map(([l, a, t, r]) => `<tr><td>${l}</td>${[a, t, r].map(v => `<td class="${v ? "y" : "n"}">${v ? "✓" : "–"}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
+        <p class="pt-sub">Anyone named in a report can never open it, whatever their role. Every change in the portal is logged with who made it.</p></section>`;
+  }
+  function wireTeam() {
+    app.querySelectorAll("[data-mrole]").forEach(s2 => s2.onchange = () => { D.members[+s2.dataset.mrole].role = s2.value; render(); toast("Role changed (demo)"); });
+    app.querySelectorAll("[data-mdel]").forEach(b => b.onclick = () => { const m = D.members[+b.dataset.mdel]; if (!confirm(`Remove ${m.name}'s access?`)) return; D.members.splice(+b.dataset.mdel, 1); render(); toast("Access removed (demo)"); });
+    app.querySelector(".pt-invite").onsubmit = e => { e.preventDefault(); const f = new FormData(e.target); D.members.push({ name: String(f.get("name")).trim(), email: String(f.get("email")).trim(), role: f.get("role"), active: "", pending: true, twofa: false }); render(); toast("Invite sent (demo)"); };
+    app.querySelector("[data-safe]").onchange = e => { D.safeguard = e.target.value; render(); };
+    app.querySelector("[data-rev]").onchange = e => { D.reviewer = e.target.value; render(); };
+  }
+
   function render() {
     const [page, id] = route();
-    const cur = ["suggestions", "reports", "projects", "sponsors", "day", "close"].includes(page) ? page : "dashboard";
+    const cur = ["suggestions", "reports", "projects", "sponsors", "day", "close", "people", "team"].includes(page) ? page : "dashboard";
     drawNav(cur);
     if (page === "suggestions" && id) { app.innerHTML = detail(id); wireDetail(id); }
     else if (page === "suggestions") { app.innerHTML = suggestions(); wireSuggestions(); }
+    else if (page === "people") { app.innerHTML = people(); wirePeople(); }
+    else if (page === "team") { app.innerHTML = team(); wireTeam(); }
     else if (page === "close") { app.innerHTML = closeDay(id); wireClose(); }
     else if (page === "day") { app.innerHTML = dayPrep(id); wireDay(); }
     else if (page === "sponsors") { app.innerHTML = sponsors(); wireSponsors(); }
@@ -725,7 +851,7 @@
     else if (page === "reports" && id) { app.innerHTML = reportDetail(id); wireReport(id); }
     else if (page === "reports") { app.innerHTML = reports(); wireReports(); }
     else app.innerHTML = dashboard();
-    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
+    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
   }
 
   Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] }))])
