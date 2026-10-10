@@ -43,7 +43,7 @@ function shape(r: Record<string, any>, notes: unknown[]) {
   return {
     id: r.ref, received: r.received_at, status: r.status, assigned: r.assigned,
     visit: r.visit_date ? new Date(r.visit_date).toISOString().slice(0, 10) : "",
-    title: r.title, category: r.category, focus: r.focus || [], description: r.description, location: r.location,
+    title: r.title, category: r.category, focus: r.focus || [], description: r.description, location: r.location, city: r.city || "", village: r.village || "",
     children: r.children, contact: r.contact, reach: r.reach, trusted: r.trusted, additional: r.additional,
     onboard: r.onboard || {}, project: r.project_slug, notes,
   };

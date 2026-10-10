@@ -17,6 +17,8 @@
 - [x] Backend step 1 (Suggestions live): Initiate form → `/api/suggest` → Netlify Database; portal sign-in (Netlify Identity) and live Suggestions inbox via `/api/portal/*`. Admins: `PORTAL_ADMINS` env var (comma-separated emails) or Identity role `admin`; team members: Identity role `team`.
 - [ ] Owner: in Netlify switch on Identity (Registration: Invite only) and invite yourself; then test on the draft.
 - [ ] Backend next steps: Projects editor → Sponsors & pledges → Day preparation / Close the day → Reports & feedback → People → Team & logins.
+- [ ] Exact address of the event (the home, school or organization): collect it at the visit stage in the portal, not on the public form.
+- [ ] Village list: build from the city + village recorded on every suggestion (and later projects and people).
 - [ ] Name the Safeguarding lead and the Independent reviewer (shown publicly on the Report a concern page).
 - [ ] Tamil version of the Report a concern and How did we do? pages (then the rest of the site).
 - [ ] Raavanaa Post: a monthly newsletter with the month's impact stories, numbers and pictures; written in the portal, published as a page on the site and emailed to Keep me posted subscribers.

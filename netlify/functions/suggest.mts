@@ -22,21 +22,24 @@ export default async (req: Request) => {
     category: clip(f.category, 40),
     focus: (Array.isArray(f.focus) ? f.focus : String(f.focus ?? "").split(",")).map((x) => clip(x, 60)).filter(Boolean).slice(0, 10),
     description: clipText(f.description, 1000),
-    location: clip(f.location, 160),
+    city: clip(f.city === "Other" ? f.city_other : f.city, 60),
+    village: clip(f.village, 80),
+    location: "",
     children: clip(f.children, 20),
     contact: clip(f.contact, 120),
     reach: clip(f.reach, 120),
     trusted: clip(f.trusted_contact, 200),
     additional: clipText(f.additional, 1000),
   };
-  if (!s.title || !s.description || !s.location || !s.children || !s.reach) {
+  s.location = [s.village, s.city].filter(Boolean).join(", ");
+  if (!s.title || !s.description || !s.city || !s.village || !s.children || !s.reach) {
     return Response.json({ ok: false, error: "Please fill in every required field." }, { status: 400 });
   }
 
   const db = getDatabase();
   const [row] = await db.sql<{ ref: string }>`
-    INSERT INTO suggestions (ref, title, category, focus, description, location, children, contact, reach, trusted, additional)
-    VALUES ('S-' || nextval('suggestion_ref_seq'), ${s.title}, ${s.category}, ${s.focus}, ${s.description}, ${s.location},
+    INSERT INTO suggestions (ref, title, category, focus, description, city, village, location, children, contact, reach, trusted, additional)
+    VALUES ('S-' || nextval('suggestion_ref_seq'), ${s.title}, ${s.category}, ${s.focus}, ${s.description}, ${s.city}, ${s.village}, ${s.location},
             ${s.children}, ${s.contact}, ${s.reach}, ${s.trusted}, ${s.additional})
     RETURNING ref`;
   await db.sql`INSERT INTO audit_log (actor, action, target) VALUES ('website', 'suggestion.received', ${row.ref})`;

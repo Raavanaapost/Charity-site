@@ -1011,3 +1011,4 @@ body[data-variant="royal"] .vm-sec-head h2,body[data-variant="royal"] .vm-lead h
 body[data-variant="royal"] .vm-sec-head{background:linear-gradient(90deg,#8a5d00,var(--gilt) 45%,rgba(226,179,60,.3) 75%,rgba(255,255,255,0)) left bottom/100% .6px no-repeat}
 body[data-variant="royal"] .vm-meta small{color:#a87708}
 body[data-variant="royal"] .vm-end{background:linear-gradient(180deg,#fbf3dc,#f6e7bd);border:1px solid #e7cf86}
+.i-field[hidden]{display:none}

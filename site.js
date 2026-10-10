@@ -1200,6 +1200,16 @@
           document.addEventListener("click", e => { if (multi.open && !multi.contains(e.target)) multi.open = false; });
           multi.addEventListener("keydown", e => { if (e.key === "Escape" && multi.open) { multi.open = false; multi.querySelector("summary").focus(); } });
         }
+        // City: pick from the list, or choose Other and type it. "Location" is filled from city + village for Netlify Forms.
+        const city = document.querySelector("[data-city]"), other = document.querySelector("[data-city-other]"), village = document.getElementById("o-village"), loc = document.querySelector("[data-location]");
+        if (city && other) {
+          const otherIn = other.querySelector("input");
+          const syncCity = () => {
+            const isOther = city.value === "Other"; other.hidden = !isOther; otherIn.required = isOther;
+            if (loc) loc.value = [village.value.trim(), isOther ? otherIn.value.trim() : city.value].filter(Boolean).join(", ");
+          };
+          [city, otherIn, village].forEach(el => { el.addEventListener("change", syncCity); el.addEventListener("input", syncCity); }); syncCity();
+        }
         wireForms(document);
       } else if (page === "privacy") {
         document.title = `Privacy & child safety · ${site.name}`;

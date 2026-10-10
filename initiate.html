@@ -84,11 +84,23 @@
         </span></label>
 
       <div class="i-row">
-        <label class="i-field" for="o-location"><span>Location <b class="req" aria-hidden="true">*</b></span>
-          <input id="o-location" name="location" required placeholder="City, Province/State, Country"></label>
-        <label class="i-field" for="o-children"><span>Approximate Number of Children <b class="req" aria-hidden="true">*</b></span>
-          <input id="o-children" name="children" required inputmode="numeric" placeholder="e.g. 20"></label>
+        <label class="i-field" for="o-city"><span>City or district <b class="req" aria-hidden="true">*</b></span>
+          <select id="o-city" name="city" required data-city>
+            <option value="" selected disabled>Choose a city</option>
+            <option>Jaffna</option>
+            <option>Kilinochchi</option>
+            <option>Batticaloa</option>
+            <option value="Other">Other (type it below)</option>
+          </select></label>
+        <label class="i-field" for="o-village"><span>Village or area <b class="req" aria-hidden="true">*</b></span>
+          <input id="o-village" name="village" required maxlength="80" placeholder="e.g. Karainagar"></label>
       </div>
+      <label class="i-field" for="o-city-other" data-city-other hidden><span>Which city or district? <b class="req" aria-hidden="true">*</b></span>
+        <input id="o-city-other" name="city_other" maxlength="60" placeholder="e.g. Mullaitivu"></label>
+      <input type="hidden" name="location" value="" data-location>
+
+      <label class="i-field" for="o-children"><span>Approximate Number of Children <b class="req" aria-hidden="true">*</b></span>
+        <input id="o-children" name="children" required inputmode="numeric" placeholder="e.g. 20"></label>
 
       <div class="i-row">
         <label class="i-field" for="o-contact"><span>Organisation / Contact Person</span>

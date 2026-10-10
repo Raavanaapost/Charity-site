@@ -171,7 +171,7 @@
           <dl class="pt-facts">
             ${field("Category", esc(s.category))}
             ${field("Focus", esc((s.focus || []).join(", ")))}
-            ${field("Location", esc(s.location))}
+            ${s.village || s.city ? `${field("Village", esc(s.village || ""))}${field("City or district", esc(s.city || ""))}` : field("Location", esc(s.location))}
             ${field("Children", esc(s.children))}
             ${field("Contact", esc(s.contact))}
             ${field("Email or phone", `<a href="${/@/.test(s.reach) ? "mailto:" : "tel:"}${esc(s.reach.replace(/\s/g, ""))}">${esc(s.reach)}</a>`)}
