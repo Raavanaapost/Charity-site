@@ -49,7 +49,7 @@
   const svg = (d, s = 20) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
   const MENU = [
     ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true],
-    ["sponsors", "Sponsors & pledges", true], ["day", "Day preparation", false], ["close", "Close the day", false],
+    ["sponsors", "Sponsors & pledges", true], ["day", "Day preparation", true], ["close", "Close the day", false],
     ["people", "People", false], ["team", "Team & logins", false]
   ];
 
@@ -350,7 +350,7 @@
   function ringSteps(p) {
     const b = budget(p), n = stageNum(p);
     if (n === 1) return [["Visited and verified", p.verified ? 1 : 0, "verified"], ["Budget ready", b.goal > 0 ? 1 : 0, null], ["Funded", b.goal ? Math.min(1, b.raised / b.goal) : 0, null]];
-    if (n === 2) return [["Date confirmed", p.date_set ? 1 : 0, "date_set"], ["Place and transport booked", p.booked ? 1 : 0, "booked"], ["Volunteers ready", p.volunteers ? 1 : 0, "volunteers"],
+    if (n === 2) return [["Date confirmed", p.date_set ? 1 : 0, null], ["Place and transport booked", p.booked ? 1 : 0, null], ["Volunteers ready", p.volunteers ? 1 : 0, null],
       ...(p.steps || []).filter(x => x && x.name).map((x, k) => [x.name, x.done ? 1 : 0, "step:" + k])];
     const ex = (p.expectations || []).filter(x => x && x.text);
     return [["The day happened", 1, null], ["Story shared", (p.updates || []).length || p.story ? 1 : 0, null], ["Money reported", (p.budget || []).some(x => x && x.item) ? 1 : 0, null],
@@ -407,9 +407,9 @@
         <p class="pt-total"><span>${n === 3 ? "Total spent" : "Total"}</span><b>${money(sum)}</b></p>
         ${field("Budget goal", `<span class="pt-money"><i>$</i><input data-f="goal" value="${esc(p.goal || sum || "")}" inputmode="decimal"></span>`, sum && num(p.goal) && num(p.goal) !== sum ? `The lines add up to ${money(sum)}. <button type="button" class="pt-link" data-goalsum>Use ${money(sum)}</button>` : "Usually the same as the total of the lines.")}`,
       checklist: `
-        <p class="pt-sub" style="margin:0 0 10px">${n === 1 ? "Before a project can be Activated it must be visited and verified, and fully funded." : n === 2 ? "What has to be ready before the day." : "After the day: these fill in from the story, costs and expectations."}</p>
+        <p class="pt-sub" style="margin:0 0 10px">${n === 1 ? "Before a project can be Activated it must be visited and verified, and fully funded." : n === 2 ? 'What has to be ready before the day. These also tick themselves from <a href="#/day/' + esc(p.slug) + '">Day preparation</a>.' : "After the day: these fill in from the story, costs and expectations."}</p>
         <ul class="pt-checks">${ringSteps(p).map(([name, done, key]) => `<li class="${done >= 1 ? "done" : done > 0 ? "part" : ""}">
-          ${key ? `<label><input type="checkbox" data-ck="${key}" ${done >= 1 ? "checked" : ""}> <span>${esc(name)}</span></label>` : `<span class="pt-auto"><i>${done >= 1 ? "✓" : done > 0 ? Math.round(done * 100) + "%" : "–"}</i>${esc(name)}</span><small>${name === "Funded" ? "From confirmed pledges" : name === "Budget ready" ? "From the Budget tab" : "Automatic"}</small>`}</li>`).join("")}</ul>
+          ${key ? `<label><input type="checkbox" data-ck="${key}" ${done >= 1 ? "checked" : ""}> <span>${esc(name)}</span></label>` : `<span class="pt-auto"><i>${done >= 1 ? "✓" : done > 0 ? Math.round(done * 100) + "%" : "–"}</i>${esc(name)}</span><small>${name === "Funded" ? "From received pledges" : name === "Budget ready" ? "From the Budget tab" : n === 2 ? '<a href="#/day/' + esc(p.slug) + '">From Day preparation</a>' : "Automatic"}</small>`}</li>`).join("")}</ul>
         ${n === 2 ? `<form class="pt-addstep"><input placeholder="Add a step, e.g. Permission letter from the home" aria-label="New step"><button class="pt-btn ghost" type="submit">Add</button></form>` : ""}`,
       sponsors: `
         <ul class="pt-spons">${(p.funders || []).map(f => `<li><span class="pt-av">${esc(initials(f.name))}</span><b>${esc(f.name)}</b><em>${money(num(f.amount))}</em></li>`).join("") || `<li class="pt-empty">No pledges yet.</li>`}</ul>
@@ -540,24 +540,99 @@
     app.querySelectorAll("[data-thank]").forEach(b => b.onclick = () => { D.pledges.find(y => y.id === b.dataset.thank).thanked = true; render(); toast("Thank-you sent (demo)"); });
   }
 
+  // ---------- Day preparation ----------
+  // Everything for an Activated project's day. Date, transport and volunteers tick the project's checklist by themselves.
+  const dayOf = slug => D.days[slug] || (D.days[slug] = { date: "", meet: "", place: "", back: "", transport: { what: "", who: "", phone: "", booked: false }, needed: 4, volunteers: [], consent: { children: 0, forms: 0 }, packing: [], plan: [] });
+  function syncDay(p) {
+    const d = dayOf(p.slug);
+    p.date_set = !!d.date; p.booked = !!d.transport.booked;
+    p.volunteers = d.volunteers.filter(v => v.ok).length >= d.needed;
+  }
+  const daysTo = iso => Math.round((new Date(iso + "T12:00") - NOW) / 864e5);
+  let dsel = null;
+  function dayPrep(slug) {
+    const list = P.filter(p => stageNum(p) === 2);
+    if (!list.length) return `<header class="pt-head"><div><p class="pt-kicker">Day preparation</p><h1>Day preparation</h1></div></header><p class="pt-empty">No Activated projects right now. A project appears here once it is verified and fully funded.</p>`;
+    const p = list.find(x => x.slug === (slug || dsel)) || list[0]; dsel = p.slug;
+    const d = dayOf(p.slug); syncDay(p);
+    const okV = d.volunteers.filter(v => v.ok).length, packed = d.packing.filter(x => x.done).length;
+    const ready = [["Date and times set", !!d.date], ["Transport booked", !!d.transport.booked], [`Volunteers confirmed (${okV}/${d.needed})`, okV >= d.needed],
+      [`Consent forms (${d.consent.forms}/${d.consent.children})`, d.consent.children > 0 && d.consent.forms >= d.consent.children], [`Packing (${packed}/${d.packing.length})`, d.packing.length > 0 && packed === d.packing.length]];
+    const allReady = ready.every(x => x[1]), left = d.date ? daysTo(d.date) : null;
+    return `
+      <header class="pt-head"><div><p class="pt-kicker">Day preparation</p><h1>${esc(p.title)}</h1>
+        <p>${d.date ? `<span class="pt-pill ${allReady ? "st-1" : "st-2"}">${allReady ? "Ready for the day" : left >= 0 ? `In ${left} day${left === 1 ? "" : "s"}` : "Date passed"}</span> <span class="pt-sub">${new Date(d.date + "T12:00").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}</span>` : `<span class="pt-pill st-2">No date yet</span>`}</p></div>
+        ${list.length > 1 ? `<select class="pt-sel" data-dsel aria-label="Project">${list.map(x => `<option value="${esc(x.slug)}" ${x === p ? "selected" : ""}>${esc(x.title)}</option>`).join("")}</select>` : ""}</header>
+      <div class="pt-readybar">${ready.map(([l, ok]) => `<span class="${ok ? "ok" : ""}"><i>${ok ? "✓" : "•"}</i>${l}</span>`).join("")}</div>
+      <div class="pt-grid">
+        <section class="pt-card"><h2>When and where</h2>
+          <div class="pt-2"><label class="pt-field">Date<input type="date" data-d="date" value="${esc(d.date)}"></label>
+          <label class="pt-field">Meeting place<input data-d="place" value="${esc(d.place)}"></label>
+          <label class="pt-field">Meet at<input type="time" data-d="meet" value="${esc(d.meet)}"></label>
+          <label class="pt-field">Back by<input type="time" data-d="back" value="${esc(d.back)}"></label></div></section>
+        <section class="pt-card"><h2>Transport</h2>
+          <div class="pt-2"><label class="pt-field">Vehicle<input data-t="what" value="${esc(d.transport.what)}" placeholder="e.g. Van, 30 seats"></label>
+          <label class="pt-field">Driver<input data-t="who" value="${esc(d.transport.who)}"></label>
+          <label class="pt-field">Driver's phone<input data-t="phone" value="${esc(d.transport.phone)}" inputmode="tel"></label></div>
+          <label class="pt-check"><input type="checkbox" data-tbook ${d.transport.booked ? "checked" : ""}><span>Booked and paid</span></label></section>
+        <section class="pt-card"><h2>Volunteers <span class="pt-count">${okV}/${d.needed} confirmed</span></h2>
+          <ul class="pt-vols">${d.volunteers.map((v, k) => `<li><span class="pt-av">${esc(initials(v.name))}</span><span class="pt-row-main"><b>${esc(v.name)}</b><small>${esc(v.role)}</small></span>
+            <button type="button" class="pt-pill ${v.ok ? "st-1" : "st-2"} pt-pillbtn" data-vok="${k}">${v.ok ? "✓ Confirmed" : "Waiting"}</button><button type="button" class="pt-x" data-vdel="${k}" aria-label="Remove">✕</button></li>`).join("")}</ul>
+          <form class="pt-addvol"><select name="who" aria-label="Team member">${D.team.map(t => `<option>${esc(t)}</option>`).join("")}</select><input name="role" placeholder="Role, e.g. Water safety" aria-label="Role"><button class="pt-btn ghost" type="submit">Add</button></form>
+          <label class="pt-field" style="margin:10px 0 0">Volunteers needed<input type="number" min="1" max="30" data-need value="${d.needed}" style="max-width:90px"></label></section>
+        <section class="pt-card"><h2>Children and consent</h2>
+          <p class="pt-sub" style="margin:0 0 10px">Only numbers here. Names and forms stay with the home or school.</p>
+          <div class="pt-2"><label class="pt-field">Children coming<input type="number" min="0" data-c="children" value="${d.consent.children}"></label>
+          <label class="pt-field">Consent forms received<input type="number" min="0" data-c="forms" value="${d.consent.forms}"></label></div>
+          <div class="pt-bar"><i style="width:${d.consent.children ? Math.min(100, Math.round(d.consent.forms / d.consent.children * 100)) : 0}%;background:#1f7a47"></i></div></section>
+        <section class="pt-card"><h2>Packing list <span class="pt-count">${packed}/${d.packing.length}</span></h2>
+          <ul class="pt-pack">${d.packing.map((x, k) => `<li><label class="pt-check"><input type="checkbox" data-pk="${k}" ${x.done ? "checked" : ""}><span>${esc(x.t)}</span></label></li>`).join("")}</ul>
+          <form class="pt-addline"><input placeholder="Add an item" aria-label="New item"><button class="pt-btn ghost" type="submit">Add</button></form></section>
+        <section class="pt-card"><h2>Plan for the day</h2>
+          <ol class="pt-plan">${d.plan.map((x, k) => `<li><time>${esc(x.at)}</time><span>${esc(x.t)}</span><button type="button" class="pt-x" data-pdel="${k}" aria-label="Remove">✕</button></li>`).join("")}</ol>
+          <form class="pt-addplan"><input type="time" name="at" aria-label="Time"><input name="t" placeholder="What happens" aria-label="What happens"><button class="pt-btn ghost" type="submit">Add</button></form>
+          <button type="button" class="pt-btn ghost" data-share style="margin-top:10px">Share the plan with the team</button></section>
+      </div>`;
+  }
+  function wireDay() {
+    const sel = app.querySelector("[data-dsel]"); if (sel) sel.onchange = () => { dsel = sel.value; render(); };
+    if (!dsel) return; const p = P.find(x => x.slug === dsel); if (!p) return; const d = dayOf(p.slug);
+    const after = msg => { syncDay(p); render(); if (msg) toast(msg); };
+    app.querySelectorAll("[data-d]").forEach(el => el.onchange = () => { d[el.dataset.d] = el.value; after(); });
+    app.querySelectorAll("[data-t]").forEach(el => el.onchange = () => { d.transport[el.dataset.t] = el.value; after(); });
+    app.querySelector("[data-tbook]").onchange = e => { d.transport.booked = e.target.checked; after(e.target.checked ? "Transport booked (demo)" : ""); };
+    app.querySelectorAll("[data-vok]").forEach(b => b.onclick = () => { const v = d.volunteers[+b.dataset.vok]; v.ok = !v.ok; after(); });
+    app.querySelectorAll("[data-vdel]").forEach(b => b.onclick = () => { d.volunteers.splice(+b.dataset.vdel, 1); after(); });
+    app.querySelector(".pt-addvol").onsubmit = e => { e.preventDefault(); const f = new FormData(e.target); d.volunteers.push({ name: f.get("who"), role: String(f.get("role") || "Helper").trim() || "Helper", ok: false }); after("Asked to volunteer (demo)"); };
+    app.querySelector("[data-need]").onchange = e => { d.needed = Math.max(1, num(e.target.value)); after(); };
+    app.querySelectorAll("[data-c]").forEach(el => el.onchange = () => { d.consent[el.dataset.c] = num(el.value); after(); });
+    app.querySelectorAll("[data-pk]").forEach(c => c.onchange = () => { d.packing[+c.dataset.pk].done = c.checked; after(); });
+    app.querySelector(".pt-addline").onsubmit = e => { e.preventDefault(); const v = e.target.querySelector("input").value.trim(); if (v) { d.packing.push({ t: v, done: false }); after(); } };
+    app.querySelectorAll("[data-pdel]").forEach(b => b.onclick = () => { d.plan.splice(+b.dataset.pdel, 1); after(); });
+    app.querySelector(".pt-addplan").onsubmit = e => { e.preventDefault(); const f = new FormData(e.target), t = String(f.get("t") || "").trim(); if (!t) return; d.plan.push({ at: f.get("at") || "", t }); d.plan.sort((a, b) => String(a.at).localeCompare(String(b.at))); after(); };
+    app.querySelector("[data-share]").onclick = () => toast("Plan sent to the volunteers by email (demo)");
+  }
+
   function render() {
     const [page, id] = route();
-    const cur = ["suggestions", "reports", "projects", "sponsors"].includes(page) ? page : "dashboard";
+    const cur = ["suggestions", "reports", "projects", "sponsors", "day"].includes(page) ? page : "dashboard";
     drawNav(cur);
     if (page === "suggestions" && id) { app.innerHTML = detail(id); wireDetail(id); }
     else if (page === "suggestions") { app.innerHTML = suggestions(); wireSuggestions(); }
+    else if (page === "day") { app.innerHTML = dayPrep(id); wireDay(); }
     else if (page === "sponsors") { app.innerHTML = sponsors(); wireSponsors(); }
     else if (page === "projects" && id) { app.innerHTML = editor(id); wireEditor(id); }
     else if (page === "projects") { app.innerHTML = projects(); wireProjects(); }
     else if (page === "reports" && id) { app.innerHTML = reportDetail(id); wireReport(id); }
     else if (page === "reports") { app.innerHTML = reports(); wireReports(); }
     else app.innerHTML = dashboard();
-    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
+    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
   }
 
   Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] }))])
     .then(([d, p]) => {
       D = d; P = (p.projects || []).filter(x => !x.hidden);
+      P.filter(x => stageNum(x) === 2 && D.days[x.slug]).forEach(syncDay);
       window.addEventListener("hashchange", () => { render(); window.scrollTo(0, 0); });
       render();
     })

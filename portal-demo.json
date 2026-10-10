@@ -336,5 +336,98 @@
       "public": true,
       "thanked": false
     }
-  ]
+  ],
+  "days": {
+    "casuarina-beach-day": {
+      "date": "2026-10-24",
+      "meet": "07:30",
+      "place": "Children's home gate, Jaffna (demo)",
+      "back": "16:30",
+      "transport": {
+        "what": "Van, 30 seats",
+        "who": "Driver (demo)",
+        "phone": "+94 77 000 0000",
+        "booked": true
+      },
+      "needed": 5,
+      "volunteers": [
+        {
+          "name": "Kiri",
+          "role": "Day lead",
+          "ok": true
+        },
+        {
+          "name": "Sasi",
+          "role": "First aid",
+          "ok": true
+        },
+        {
+          "name": "Bala",
+          "role": "Water safety",
+          "ok": false
+        },
+        {
+          "name": "Suresh",
+          "role": "Photos (with consent)",
+          "ok": true
+        }
+      ],
+      "consent": {
+        "children": 25,
+        "forms": 21
+      },
+      "packing": [
+        {
+          "t": "Lunch boxes and water",
+          "done": false
+        },
+        {
+          "t": "Kites, balls and beach games",
+          "done": true
+        },
+        {
+          "t": "First aid kit and sun cream",
+          "done": true
+        },
+        {
+          "t": "Small gifts",
+          "done": false
+        },
+        {
+          "t": "Printed list of children and emergency numbers",
+          "done": false
+        }
+      ],
+      "plan": [
+        {
+          "at": "07:30",
+          "t": "Meet at the home, count the children"
+        },
+        {
+          "at": "08:00",
+          "t": "Van leaves for Karainagar"
+        },
+        {
+          "at": "09:30",
+          "t": "Beach games and kites"
+        },
+        {
+          "at": "12:30",
+          "t": "Lunch in the shade"
+        },
+        {
+          "at": "14:30",
+          "t": "Sandcastle contest and gifts"
+        },
+        {
+          "at": "15:30",
+          "t": "Count the children, head home"
+        },
+        {
+          "at": "16:30",
+          "t": "Back at the home, hand over to staff"
+        }
+      ]
+    }
+  }
 }
