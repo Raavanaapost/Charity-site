@@ -246,20 +246,22 @@
       return st.q.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(w));
     };
     const tabsBox = app.querySelector(".finder-tabs"), listBox = app.querySelector("#find-list");
-    const draw = () => {
+    const draw = (auto) => {
       const found = projects.filter(match);
+      // After a search or a city change, open the first stage that has results.
+      if (auto && !found.some(p => stageNum(p) === st.tab)) { const first = TABS.find(([, n]) => found.some(p => stageNum(p) === n)); if (first) st.tab = first[1]; }
       tabsBox.innerHTML = TABS.map(([name, n]) => { const c = found.filter(p => stageNum(p) === n).length;
         return `<button type="button" role="tab" class="ftab s${n}" data-n="${n}" aria-selected="${st.tab === n}">${name} <span>${c}</span></button>`; }).join("");
       const list = found.filter(p => stageNum(p) === st.tab), stageName = TABS[st.tab - 1][0].toLowerCase();
       const filtered = st.q || st.city !== "All";
       listBox.innerHTML = list.length ? `<div class="plist" role="list">${projectRowsHTML(list, projects)}</div>`
-        : `<div class="panel empty-state finder-empty"><p>${filtered ? `No ${stageName} projects match your search${st.city !== "All" ? ` in ${esc(st.city)}` : ""}.`
+        : `<div class="panel empty-state finder-empty"><p>${filtered ? `No ${found.length ? stageName + " " : ""}projects match your search${st.city !== "All" ? ` in ${esc(st.city)}` : ""}.`
             : st.tab === 2 ? "No project is activated yet. See how one will look." : st.tab === 3 ? "The first impact stories are coming soon." : "No projects yet."}</p>
             ${!filtered && st.tab === 2 ? `<a class="btn" href="/sample">See an example project</a>` : ""}</div>`;
     };
-    app.querySelector("#find-q").addEventListener("input", e => { st.q = e.target.value.trim(); draw(); });
+    app.querySelector("#find-q").addEventListener("input", e => { st.q = e.target.value.trim(); draw(true); });
     const citySel = app.querySelector("#find-city");
-    citySel.addEventListener("change", () => { st.city = citySel.value; citySel.closest(".finder-city").classList.toggle("on", st.city !== "All"); draw(); });
+    citySel.addEventListener("change", () => { st.city = citySel.value; citySel.closest(".finder-city").classList.toggle("on", st.city !== "All"); draw(true); });
     tabsBox.addEventListener("click", e => { const b = e.target.closest(".ftab"); if (!b) return; st.tab = Number(b.dataset.n); draw(); });
     draw();
     rotTimers.forEach(clearInterval); rotTimers = [];
