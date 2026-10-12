@@ -56,15 +56,16 @@
 
   // Footer shown on every page. Social links and email appear only when filled in under Site settings.
   function frame(site) {
-    // English / Tamil switch in the menu: the same page in the other language.
-    const navEl = document.getElementById("site-nav");
-    if (navEl && !navEl.querySelector(".lang-link")) {
+    // English / Tamil switch in the header: the same page in the other language.
+    const bar = document.querySelector(".bar .wrap");
+    if (bar && !bar.querySelector(".lang-switch")) {
       const onTa = /^\/ta(\/|$)/.test(location.pathname);
       const path = onTa ? (location.pathname.replace(/^\/ta/, "") || "/") : "/ta" + (location.pathname === "/" ? "/" : location.pathname);
       const a = document.createElement("a");
-      a.className = "lang-link"; a.href = path + location.search;
+      a.className = "lang-switch lang-link"; a.href = path + location.search;
       a.textContent = onTa ? "English" : "தமிழ்"; a.lang = onTa ? "en" : "ta";
-      navEl.appendChild(a);
+      a.setAttribute("aria-label", onTa ? "Read this page in English" : "இந்தப் பக்கத்தைத் தமிழில் படிக்க");
+      bar.appendChild(a);
     }
     document.querySelectorAll("[data-site-name]").forEach(el => el.textContent = site.name || "");
     const foot = document.querySelector("footer");

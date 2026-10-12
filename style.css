@@ -1191,3 +1191,15 @@ body[data-variant="royal"] .vm-end{background:linear-gradient(180deg,#fbf3dc,#f6
 .jr li.done i{color:#fff;border-color:transparent}
 .jr li.jr1.done i{background:#1f7a47}.jr li.jr2.done i{background:#b97a06}.jr li.jr3.done i{background:#c8381e}
 .i-note{font-family:var(--display);font-size:13.5px;color:#5d6b64;font-weight:500}
+
+/* English / Tamil switch in the header */
+.lang-switch{flex:none;order:3;display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font-family:var(--display);font-weight:700;font-size:14px;text-decoration:none;white-space:nowrap}
+.lang-switch:hover{border-color:var(--sun)}
+.lang-switch:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
+@media (max-width:640px){
+  .bar .wrap{gap:8px}
+  .logo{order:0;margin-right:auto}
+  .lang-switch{order:1;min-height:40px;padding:0 10px;font-size:13px}
+  .menu-btn{order:2}
+  .logo img{max-width:calc(100vw - 32px - 58px - 84px)!important}
+}

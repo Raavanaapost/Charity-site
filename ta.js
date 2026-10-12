@@ -691,10 +691,9 @@
   function title() { var o = tr(document.title); if (o !== null && document.title !== o) document.title = o; }
   document.documentElement.lang = "ta";
   var css = document.createElement("style");
-  css.textContent = 'html[lang="ta"] body,html[lang="ta"] body *:not(svg):not(svg *){font-family:"Noto Sans Tamil","Familjen Grotesk",system-ui,sans-serif!important}' +
-    'html[lang="ta"] h1,html[lang="ta"] h2,html[lang="ta"] h3,html[lang="ta"] h1 *,html[lang="ta"] h2 *,html[lang="ta"] h3 *{font-family:"Noto Serif Tamil",Georgia,serif!important;letter-spacing:0!important}' +
-    'html[lang="ta"] form *{min-width:0}html[lang="ta"] select{width:100%;max-width:100%}html[lang="ta"] input,html[lang="ta"] textarea{max-width:100%}html[lang="ta"] main{overflow-wrap:break-word}' +
-    'html[lang="ta"] h1{font-size:clamp(1.6rem,6vw,2.6rem)!important;line-height:1.35!important}html[lang="ta"] h2{line-height:1.4!important}html[lang="ta"] .nav{white-space:normal}html[lang="ta"] .slide-title{font-size:clamp(13px,3.9vw,28px)!important}';
+  /* Same design as the English site: only small fixes so longer Tamil words fit. Tamil letters use the phone's own Tamil font. */
+  css.textContent = 'html[lang="ta"] main{overflow-wrap:break-word}html[lang="ta"] form *{min-width:0}html[lang="ta"] select{width:100%;max-width:100%}html[lang="ta"] input,html[lang="ta"] textarea{max-width:100%}' +
+    'html[lang="ta"] .slide-title{font-size:clamp(13px,3.9vw,28px)}html[lang="ta"] .nav{white-space:normal}';
   document.head.appendChild(css);
   var busy = false;
   function run(nodes) { if (busy) return; busy = true; try { for (var i = 0; i < nodes.length; i++) walk(nodes[i]); title(); } finally { busy = false; } }
