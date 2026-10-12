@@ -1,12 +1,12 @@
 {
   "projects": [
     {
-      "title": "Pussellawa kids' trip",
+      "title": "Pussellawa kids' trip to Hanuman Kovil",
       "slug": "pussellawa-kids-trip",
       "hidden": false,
       "featured": true,
       "theme": "Trips & Events",
-      "status": "Active",
+      "status": "Complete",
       "location": "Pussellawa, Kandy District",
       "organization": "Raavanaa",
       "started": "October 2026",
@@ -34,30 +34,75 @@
       "booked": true,
       "volunteers": true,
       "steps": [],
-      "summary": "A full day out for the children of Pussellawa, in the tea hills between Gampola and Nuwara Eliya: a trip together and a good meal shared.",
-      "cover": "/img/project-hills.svg",
-      "quote": "",
-      "story": "## Summary\n\nA full day out for the children of Pussellawa, in the hills on the road between Gampola and Nuwara Eliya: a trip together, a good meal shared, and a day they will remember.\n\n## The need\n\nPussellawa is a tea-country town, and many of its children grow up among the estates. Families work hard and a day away together is rare. Transport and food are what stand between these children and a day out.\n\n## The plan\n\nA hired vehicle takes the group on the trip and brings them home safely. The children share a meal together on the day. Local organisers look after the children and record the day: photos, short videos and a few words from the children and parents.\n\nThe project is **activated**: the full cost is covered, the vehicle and food are arranged, and the organisers are getting ready.\n\n## What it leaves behind\n\nA day of joy the children will remember. After the trip we will share the story, the pictures and the bills here, so everyone can see where every rupee went.",
-      "impact": [],
+      "summary": "The children of Pussellawa spent a day at Hanuman Kovil: running and playing on the lawn, dancing together and looking out over the hills, with transport and food fully covered.",
+      "cover": "/img/projects/pussellawa/cover.jpg",
+      "quote": "The children truly enjoyed the experience and were very happy.",
+      "story": "## Summary\n\nThe children of Pussellawa spent a day at Hanuman Kovil, in the hills on the road between Gampola and Nuwara Eliya. They ran and played on the lawn, danced together in their best clothes, shared a meal and looked out over the mountains.\n\n## The need\n\nPussellawa is a tea-country town, and many of its children grow up among the estates. Families work hard and a day away together is rare. Transport and food are what stand between these children and a day out.\n\n## The day\n\nOn 12 October 2026 a hired vehicle took the children to Hanuman Kovil. On the big lawn they played running games, held hands in circles and danced, while the grown-ups watched over them. Some of the little ones simply stood and looked out at the mountains.\n\nThe local organisers wrote to us the same day: *\"The children truly enjoyed the experience and were very happy.\"*\n\n## Where the money went\n\nEvery rupee went to the day itself: Rs 10,500 for the vehicle and Rs 8,750 for food, Rs 19,250 in total.\n\n## What it leaves behind\n\nA day of joy the children will remember, and the first Raavanaa day in the hill country. Thank you to everyone who made it possible.",
+      "impact": [
+        {
+          "value": "1",
+          "label": "day of joy"
+        },
+        {
+          "value": "Rs 19,250",
+          "label": "spent on the day"
+        },
+        {
+          "value": "100%",
+          "label": "to transport and food"
+        }
+      ],
       "updates": [
         {
           "date": "2026-10-12",
+          "title": "A happy day at Hanuman Kovil",
+          "body": "The children spent the day at Hanuman Kovil: games on the lawn, dancing and a meal together. The organisers wrote to thank everyone: the children truly enjoyed it and were very happy."
+        },
+        {
+          "date": "2026-10-12",
           "title": "Fully funded",
-          "text": "The full cost of Rs 19,250 is covered: Rs 10,500 for the vehicle and Rs 8,750 for food. Thank you to everyone who gave."
+          "body": "The full cost of Rs 19,250 is covered: Rs 10,500 for the vehicle and Rs 8,750 for food. Thank you to everyone who gave."
         }
       ],
-      "photos": [],
+      "photos": [
+        {
+          "image": "/img/projects/pussellawa/hills-view.jpg",
+          "caption": "Looking out over the hills at Hanuman Kovil"
+        },
+        {
+          "image": "/img/projects/pussellawa/games-on-the-lawn.jpg",
+          "caption": "Games on the lawn"
+        },
+        {
+          "image": "/img/projects/pussellawa/running-together.jpg",
+          "caption": "Running together"
+        },
+        {
+          "image": "/img/projects/pussellawa/dancing.jpg",
+          "caption": "Dancing in their best clothes"
+        },
+        {
+          "image": "/img/projects/pussellawa/looking-out.jpg",
+          "caption": "A quiet moment with the view"
+        }
+      ],
       "media": [],
       "city": "Kandy",
       "expectations": [
         {
-          "text": "Every child travels safely there and back"
+          "text": "Every child travels safely there and back",
+          "result": "met",
+          "note": "The hired vehicle took the group to Hanuman Kovil and home again."
         },
         {
-          "text": "All the children share a good meal together"
+          "text": "All the children share a good meal together",
+          "result": "met",
+          "note": "Food for the whole group was covered (Rs 8,750)."
         },
         {
-          "text": "The day is recorded in photos and short videos, with permission, to share the joy"
+          "text": "The day is recorded in photos and short videos, with permission, to share the joy",
+          "result": "met",
+          "note": "Photos and videos of the day were sent by the organisers."
         }
       ]
     },
