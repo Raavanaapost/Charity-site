@@ -580,6 +580,12 @@
     // Zoom: the whole island, or the North / the East where most projects are. The view glides between them.
     const box = (w, e, n, s) => { const [x1, y1] = xy({ lng: w, lat: n }), [x2, y2] = xy({ lng: e, lat: s }); return [x1, y1, x2 - x1, y2 - y1]; };
     const VIEWS = { all: FULL, north: box(79.55, 80.95, 9.98, 8.75), east: box(80.85, 82.0, 8.75, 6.85) };
+    // Filter chips: "All", then one chip per project village. A chip glides the map to that village and opens its card.
+    const chipBar = document.querySelector(".smap-zoom");
+    const spotList = [...spots.values()].sort((a, b) => a.place.name.localeCompare(b.place.name));
+    spotList.forEach(s => { const [cx, cy] = xy(s.place), w = 190, h = w * FULL[3] / FULL[2]; VIEWS["p:" + s.place.name] = [cx - w / 2, cy - h / 2, w, h]; });
+    if (chipBar) chipBar.innerHTML = `<button type="button" class="chip" data-smap-zoom="all" aria-pressed="true">All</button>`
+      + spotList.map(s => `<button type="button" class="chip" data-smap-zoom="p:${esc(s.place.name)}" aria-pressed="false">${esc(s.place.name)}</button>`).join("");
     let cur = FULL.slice();
     const zoomTo = name => {
       const to = VIEWS[name] || FULL, from = cur.slice(), t0 = performance.now(), dur = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 650;
@@ -589,7 +595,8 @@
         const t = dur ? Math.min(1, (now - t0) / dur) : 1, e = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
         cur = from.map((v, i) => v + (to[i] - v) * e);
         svg.setAttribute("viewBox", cur.map(v => v.toFixed(1)).join(" "));
-        if (t === 1) draw(cur[2] / 640); else requestAnimationFrame(step);
+        if (t === 1) { draw(cur[2] / 640); if (name.startsWith("p:")) { const n = name.slice(2), g = [...dots.querySelectorAll(".sm-spot")].find(x => (x.getAttribute("aria-label") || "").startsWith(n + ":")), sp = spots.get(n); if (g && sp) show(sp, g, true); } }
+        else requestAnimationFrame(step);
       };
       requestAnimationFrame(step);
     };
