@@ -211,9 +211,8 @@
   function renderHome(app, site, projects) {
     const TABS = [["Initiated", 1], ["Activated", 2], ["Impact", 3]];
     const st = { q: "", city: "All", tab: 1 };
-    const chips = (name, list, label) => `<div class="finder-chips" role="group" aria-label="${label}" data-group="${name}">
-        ${["All", ...list].map(v => `<button type="button" class="chip" data-v="${esc(v)}" aria-pressed="${v === "All"}">${v === "All" ? (name === "city" ? "All cities" : "All") : esc(v)}</button>`).join("")}
-      </div>`;
+    // Cities come from the projects themselves, so a new city appears here as soon as it has a project.
+    const cities = [...new Set(projects.map(cityOf).filter(Boolean))].sort();
     app.innerHTML = `
       <section class="finder">
         <h1 class="arc-title">${arcTitleHTML()}</h1>
@@ -221,8 +220,9 @@
         <form class="finder-search" role="search" action="#" onsubmit="return false">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
           <input id="find-q" type="search" placeholder="Search projects, places or ideas" aria-label="Search projects" autocomplete="off">
+          <label class="finder-city"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
+            <select id="find-city" aria-label="City"><option value="All">All</option>${cities.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("")}</select></label>
         </form>
-        ${chips("city", CITIES, "City")}
       </section>
       <section class="finder-results">
         <div class="finder-tabs" role="tablist" aria-label="Projects by stage"></div>
@@ -258,12 +258,8 @@
             ${!filtered && st.tab === 2 ? `<a class="btn" href="/sample">See an example project</a>` : ""}</div>`;
     };
     app.querySelector("#find-q").addEventListener("input", e => { st.q = e.target.value.trim(); draw(); });
-    app.querySelectorAll(".finder-chips").forEach(g => g.addEventListener("click", e => {
-      const b = e.target.closest(".chip"); if (!b) return;
-      st[g.dataset.group] = b.dataset.v;
-      g.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === b));
-      draw();
-    }));
+    const citySel = app.querySelector("#find-city");
+    citySel.addEventListener("change", () => { st.city = citySel.value; citySel.closest(".finder-city").classList.toggle("on", st.city !== "All"); draw(); });
     tabsBox.addEventListener("click", e => { const b = e.target.closest(".ftab"); if (!b) return; st.tab = Number(b.dataset.n); draw(); });
     draw();
     rotTimers.forEach(clearInterval); rotTimers = [];

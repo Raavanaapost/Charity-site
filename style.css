@@ -1214,3 +1214,18 @@ body[data-variant="royal"] .vm-end{background:linear-gradient(180deg,#fbf3dc,#f6
 .i-story-t i{font-style:normal;font-weight:600;color:#f7c63a;margin-top:4px}
 .i-story:hover i{text-decoration:underline}
 @media (min-width:760px){.i-story{grid-template-columns:1.2fr 1fr;align-items:center}.i-story img{height:100%}}
+
+/* Search page (/home): no logo bar, only the Tamil switch and the menu; the city picker sits inside the search box. */
+body[data-page="home"] .bar{background:transparent;position:relative}
+body[data-page="home"] .bar::after{display:none}
+body[data-page="home"] .bar .logo{visibility:hidden;pointer-events:none}
+.finder-city{position:relative;display:flex;align-items:center;gap:4px;flex:none;padding:8px 30px 8px 12px;border-radius:999px;background:color-mix(in srgb,var(--sun) 14%,var(--surface));border:1px solid var(--line);cursor:pointer;color:var(--ink)}
+.finder-city.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.finder-city svg{width:18px!important;height:18px!important;stroke:currentColor!important;stroke-width:2!important}
+.finder-city::after{content:"";position:absolute;right:12px;top:50%;width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-70%) rotate(45deg);pointer-events:none}
+.finder-city select{appearance:none;-webkit-appearance:none;border:0;background:transparent;font:600 15px/1.2 var(--display);color:inherit;cursor:pointer;max-width:120px;outline:0}
+.finder-city select option{color:#17231d}
+@media (max-width:420px){.finder-city{padding:7px 26px 7px 9px}.finder-city select{max-width:92px;font-size:14px}.finder-search{padding-left:14px}}
+.finder-search{min-width:0;box-sizing:border-box}
+.finder-search input{width:0}
+.finder-city select{field-sizing:content}
