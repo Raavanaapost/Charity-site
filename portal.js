@@ -621,7 +621,7 @@
   }
 
   let etab = "details";
-  const CATS = ["Trips & Events", "Livelihood", "Education"], CITIES = ["Kilinochchi", "Batticaloa", "Jaffna"];
+  const CATS = ["Trips & Events", "Livelihood", "Education"], CITIES = ["Kilinochchi", "Batticaloa", "Jaffna", "Kandy"];
   function editor(slug) {
     const p = P.find(x => x.slug === slug);
     if (!p) return `<p>Not found. <a href="#/projects">Back to projects</a></p>`;

@@ -205,7 +205,7 @@
   // Home: headline, intro, then the three stage circles. Each circle opens its own page.
   // Home (/home): a search page like Google's front page. Title, slogan, one long search box,
   // city and category buttons, then every project in tabs by stage.
-  const CITIES = ["Kilinochchi", "Batticaloa", "Jaffna"];
+  const CITIES = ["Kilinochchi", "Batticaloa", "Jaffna", "Kandy"];
   const CATEGORIES = ["Livelihood", "Education", "Trips & Events"];
   const cityOf = p => p.city || CITIES.find(c => new RegExp(c, "i").test(p.location || "")) || "";
   function renderHome(app, site, projects) {
@@ -834,7 +834,7 @@
     const raised = funders.reduce((s, x) => s + numOf(x.amount), 0);
     return { lines, funders, goal, raised, pct: goal ? Math.min(100, Math.round(raised / goal * 100)) : 0, full: goal > 0 && raised >= goal };
   }
-  const moneyOf = (site, n) => `${esc(site.currency || "$")}${Math.round(n).toLocaleString("en-US")}`;
+  const moneyOf = (site, n, p) => `${esc((p && p.currency) || site.currency || "$")}${Math.round(n).toLocaleString("en-US")}`;
   // The same budget box as on a project page, for the project featured at the top of a stage page.
   // Budget by stage. Initiated: the total only. Activated: funding and who sponsored it.
   // Impact (delivered): funding, sponsors and the full breakdown of where the money went.
@@ -843,7 +843,7 @@
   //   Activated: the budget, "Fully funded", and the sponsors.
   //   Impact: the same, plus where the money went.
   function budgetDetailHTML(p, site, detail = false) {
-    const b = budgetOf(p), money = n => moneyOf(site, n), st = stageNum(p);
+    const b = budgetOf(p), money = n => moneyOf(site, n, p), st = stageNum(p);
     if (!b.goal) return `<p class="b-wait">The budget for this project is being prepared. It will be shown here as soon as it is ready.</p>`;
     const sum = b.lines.reduce((t, x) => t + numOf(x.amount), 0);
     const listOf = (h, total) => b.lines.length ? `<h3 class="money-h">${h}</h3><ul class="bx-list">${b.lines.map(x => `<li><span>${esc(x.item)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>
@@ -1264,7 +1264,7 @@
     const count = n => n ? ` (${n})` : "";
     // Budget: what the day costs (lines), who paid for it (funders), and how far along it is.
     const num = v => { const n = parseFloat(String(v == null ? "" : v).replace(/[^0-9.]/g, "")); return isFinite(n) ? n : 0; };
-    const money = n => `${esc(site.currency || "$")}${Math.round(n).toLocaleString("en-US")}`;
+    const money = n => `${esc(p.currency || site.currency || "$")}${Math.round(n).toLocaleString("en-US")}`;
     const lines = (p.budget || []).filter(x => x && x.item);
     const funders = (p.funders || []).filter(x => x && x.name);
     const goal = num(p.goal) || lines.reduce((s, x) => s + num(x.amount), 0);

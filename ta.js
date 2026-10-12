@@ -261,6 +261,8 @@
 "N": "வ",
 "Colombo": "கொழும்பு",
 "Kandy": "கண்டி",
+"Pussellawa": "புசல்லாவ",
+"Pussellawa kids' trip": "புசல்லாவ சிறுவர் சுற்றுலா",
 "Trincomalee": "திருகோணமலை",
 "Vavuniya": "வவுனியா",
 "Mullaitivu": "முல்லைத்தீவு",
