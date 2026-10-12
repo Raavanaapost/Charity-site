@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ta">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Contact · Raavanaa · Beyond the Lanes</title>
+<meta name="description" content="Raavanaa gives children a day of joy they will remember: a game, a trip, a good meal. Every penny goes to the day, and every smile is shared.">
+<meta name="theme-color" content="#0f5132">
+<link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png?v=3">
+<link rel="icon" type="image/png" sizes="192x192" href="/img/icon-192.png?v=3">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png?v=3">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Raavanaa · Beyond the Lanes">
+<meta property="og:title" content="Raavanaa · Beyond the Lanes">
+<meta property="og:description" content="Giving children a day of joy they will remember. Every penny goes to the day, and every smile is shared.">
+<meta property="og:image" content="https://raavanaa.org/img/og-image.jpg?v=3">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Inter:wght@900&family=Playfair+Display:ital,wght@0,800;0,900;1,900&family=Merriweather:wght@900&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&family=IBM+Plex+Mono:wght@500&family=Noto+Sans+Tamil:wght@400;500;600;700&family=Noto+Serif+Tamil:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="contact">
+<header class="bar">
+  <div class="wrap">
+    <a class="logo" href="/overview" aria-label="Raavanaa Beyond the Lanes, home">
+      <picture><source srcset="/img/logo.webp?v=3" type="image/webp"><img src="/img/logo.jpg?v=3" alt="Raavanaa · Beyond the Lanes · Creating Smiles" width="900" height="298"></picture>
+    </a>
+    <button class="menu-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="site-nav"><span></span><span></span><span></span></button>
+    <nav class="nav" id="site-nav"><a href="/overview">Home</a><a href="/initiated">Projects</a><a href="/smile-map">Smile Map</a><a href="/about">About us</a><a href="/contact">Contact</a></nav>
+  </div>
+</header>
+<main id="app" class="wrap">
+  <div class="contact-layout">
+    <section class="slide-box" id="contact-slides" aria-label="Get involved">
+      <h1 class="follow-title">Get involved</h1>
+      <p>Want to volunteer, suggest a project, partner with us, or just ask a question? Send us a message and one of our team will reply.</p>
+    </section>
+    <form class="panel form" name="contact" method="POST" action="/contact?sent=1" data-netlify="true" netlify-honeypot="bot-field" data-ajax data-done="Thank you! Your message has been sent. We'll get back to you soon.">
+      <input type="hidden" name="form-name" value="contact">
+      <p hidden><label>Leave empty <input name="bot-field"></label></p>
+      <label for="c-name">Your name<input id="c-name" name="name" required autocomplete="name"></label>
+      <label for="c-email">Email<input id="c-email" name="email" type="email" required autocomplete="email"></label>
+      <label for="c-phone">Phone <span class="opt">(optional)</span><input id="c-phone" name="phone" type="tel" autocomplete="tel"></label>
+      <label for="c-reason">I'd like to
+        <select id="c-reason" name="reason">
+          <option>Volunteer</option>
+          <option>Ask a question</option>
+          <option>Partner with you</option>
+          <option>Suggest a project</option>
+          <option>Something else</option>
+        </select>
+      </label>
+      <label for="c-message">Message<textarea id="c-message" name="message" required></textarea></label>
+      <button class="btn" type="submit">Send message</button>
+      <p class="note fine">We only use your details to reply to you. <a href="/privacy">Privacy &amp; child safety</a></p>
+      <p class="note" data-msg hidden></p>
+    </form>
+  </div>
+</main>
+<footer><div class="wrap"><span>© <span data-year></span> <span data-site-name></span></span><span data-site-footer></span></div></footer>
+<script src="/ta.js"></script>
+<script src="/site.js"></script>
+</body>
+</html>
