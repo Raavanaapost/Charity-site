@@ -1203,3 +1203,14 @@ body[data-variant="royal"] .vm-end{background:linear-gradient(180deg,#fbf3dc,#f6
   .menu-btn{order:2}
   .logo img{max-width:calc(100vw - 32px - 58px - 84px)!important}
 }
+
+/* Create a Moment: a finished story to show what a request can become */
+.i-story{display:grid;margin:26px 0 8px;border-radius:24px;overflow:hidden;background:#0f5132;color:#fff;text-decoration:none;box-shadow:0 18px 40px -26px rgba(15,81,50,.6)}
+.i-story img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+.i-story-t{display:grid;gap:6px;padding:18px 20px 20px}
+.i-story-t em{font:600 12px/1 system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#f7c63a;font-style:normal}
+.i-story-t b{font-size:22px;line-height:1.25}
+.i-story-t small{font-size:15px;line-height:1.5;opacity:.9}
+.i-story-t i{font-style:normal;font-weight:600;color:#f7c63a;margin-top:4px}
+.i-story:hover i{text-decoration:underline}
+@media (min-width:760px){.i-story{grid-template-columns:1.2fr 1fr;align-items:center}.i-story img{height:100%}}

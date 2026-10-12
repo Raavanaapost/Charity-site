@@ -261,6 +261,11 @@
 "N": "வ",
 "Colombo": "கொழும்பு",
 "Kandy": "கண்டி",
+"A moment we created": "நாம் உருவாக்கிய ஒரு தருணம்",
+"Pussellawa kids' trip to Hanuman Kovil": "புசல்லாவ சிறுவர்களின் அனுமன் கோவில் சுற்றுலா",
+"It started with one request. The children ran, danced and shared a meal in the hills, with transport and food fully covered.": "இது ஒரு கோரிக்கையுடன் தொடங்கியது. மலைகளின் நடுவே சிறுவர்கள் ஓடி, ஆடி, ஒன்றாக உணவு உண்டனர். போக்குவரத்தும் உணவும் முழுமையாக வழங்கப்பட்டன.",
+"Read their story →": "அவர்களின் கதையைப் படியுங்கள் →",
+
 "Pussellawa": "புசல்லாவ",
 "Pussellawa kids' trip": "புசல்லாவ சிறுவர் சுற்றுலா",
 "Trincomalee": "திருகோணமலை",
