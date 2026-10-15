@@ -107,6 +107,115 @@
       ]
     },
     {
+      "title": "Maha Arivagam pre-school day out",
+      "slug": "maha-arivagam-preschool-day",
+      "hidden": false,
+      "featured": false,
+      "theme": "Trips & Events",
+      "status": "Complete",
+      "location": "",
+      "organization": "Raavanaa",
+      "started": "October 2026",
+      "reach": "The children of Maha Arivagam Pre-School, with their teachers and parents",
+      "verified": true,
+      "currency": "Rs ",
+      "budget": [
+        {
+          "item": "The day out for the pre-school children",
+          "amount": 20000
+        }
+      ],
+      "goal": 20000,
+      "funders": [
+        {
+          "name": "Friends of Raavanaa",
+          "amount": 20000
+        }
+      ],
+      "date_set": true,
+      "booked": true,
+      "volunteers": true,
+      "steps": [],
+      "summary": "The little ones of Maha Arivagam Pre-School had a day out together: a visit to the temple, snacks on the grass, treats for everyone and a group photo at the old iron bridge.",
+      "cover": "/img/projects/maha-arivagam/cover.jpg",
+      "quote": "",
+      "story": "## Summary\n\nThe little ones of Maha Arivagam Pre-School (மகா அறிவகம் முன்பள்ளி) had a day out together with their teachers and parents: a visit to the temple, snacks on the grass, treats for everyone and a group photo at the old iron bridge.\n\n## The need\n\nFor many families a day out with small children costs more than they can spare. A shared trip gives every child in the class the same day to remember.\n\n## The day\n\nIn their navy pre-school shirts, the children sat in a circle on the grass with their snacks, walked through the bright temple hall, met the deer in the temple grounds and sat together while the teachers handed out treats. The day ended with group photos of children, teachers and parents.\n\n## Where the money went\n\nThe day cost Rs 20,000.00 in total.\n\n## What it leaves behind\n\nA happy day for the whole pre-school, and photos and videos for the families to keep. Thank you to everyone who made it possible.",
+      "impact": [
+        {
+          "value": "1",
+          "label": "day of joy"
+        },
+        {
+          "value": "Rs 20,000",
+          "label": "spent on the day"
+        },
+        {
+          "value": "1",
+          "label": "pre-school, together"
+        }
+      ],
+      "updates": [
+        {
+          "date": "2026-10-12",
+          "title": "A happy day out for Maha Arivagam",
+          "body": "The pre-school children spent the day out with their teachers and parents: the temple, snacks on the grass, treats for everyone and group photos at the old iron bridge."
+        },
+        {
+          "date": "2026-10-12",
+          "title": "Fully funded",
+          "body": "The full cost of Rs 20,000.00 is covered. Thank you to everyone who gave."
+        }
+      ],
+      "photos": [
+        {
+          "image": "/img/projects/maha-arivagam/at-the-bridge.jpg",
+          "caption": "Everyone together at the old iron bridge"
+        },
+        {
+          "image": "/img/projects/maha-arivagam/snacks-on-the-grass.jpg",
+          "caption": "Snacks in a circle on the grass"
+        },
+        {
+          "image": "/img/projects/maha-arivagam/temple-hall.jpg",
+          "caption": "Inside the temple hall"
+        },
+        {
+          "image": "/img/projects/maha-arivagam/at-the-temple.jpg",
+          "caption": "Children, teachers and parents at the temple"
+        },
+        {
+          "image": "/img/projects/maha-arivagam/sitting-together.jpg",
+          "caption": "Sitting together for treats"
+        },
+        {
+          "image": "/img/projects/maha-arivagam/sharing-treats.jpg",
+          "caption": "A treat for every child"
+        },
+        {
+          "image": "/img/projects/maha-arivagam/back-at-the-preschool.jpg",
+          "caption": "Back at the pre-school"
+        }
+      ],
+      "media": [],
+      "expectations": [
+        {
+          "text": "Every child travels safely there and back",
+          "result": "met",
+          "note": "The whole class went out and came back together with teachers and parents."
+        },
+        {
+          "text": "Every child gets snacks and a treat",
+          "result": "met",
+          "note": "Snacks on the grass and treats handed out to each child."
+        },
+        {
+          "text": "The day is recorded in photos and short videos, with permission, to share the joy",
+          "result": "met",
+          "note": "Photos and videos of the day were sent by the organisers."
+        }
+      ]
+    },
+    {
       "title": "Kids' day out at Casuarina Beach",
       "slug": "casuarina-beach-day",
       "hidden": false,

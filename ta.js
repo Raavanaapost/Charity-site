@@ -268,6 +268,7 @@
 
 "Pussellawa": "புசல்லாவ",
 "Pussellawa kids' trip": "புசல்லாவ சிறுவர் சுற்றுலா",
+"Maha Arivagam pre-school day out": "மகா அறிவகம் முன்பள்ளி சிறுவர்களின் ஒரு நாள் சுற்றுலா",
 "Trincomalee": "திருகோணமலை",
 "Vavuniya": "வவுனியா",
 "Mullaitivu": "முல்லைத்தீவு",
