@@ -664,6 +664,7 @@
   }
   /* rotating two-part slogans ("Create a" + "Moment"): Tamil puts the verb last, so each pair is translated as a whole */
   var PAIRS = {
+    "Request a Smile": ["ஒரு புன்னகையைக்", "கேளுங்கள்"], "Initiate a Smile": ["ஒரு புன்னகையைத்", "தொடங்குங்கள்"], "Spark a Day of Joy": ["ஒரு மகிழ்ச்சி நாளை", "உருவாக்குங்கள்"],
     "Create a Moment": ["ஒரு தருணத்தை", "உருவாக்குங்கள்"], "Start a Smile": ["ஒரு புன்னகையைத்", "தொடங்குங்கள்"],
     "Spark a Smile": ["ஒரு புன்னகையைப்", "பூக்கச் செய்யுங்கள்"], "Bring a Day of Joy": ["ஒரு மகிழ்ச்சி நாளைக்", "கொண்டு வாருங்கள்"],
     "Dream a Day for the Children": ["குழந்தைகளுக்காக", "ஒரு நாளைக் கனவு காணுங்கள்"], "Initiate an Opportunity": ["ஒரு வாய்ப்பைத்", "தொடங்குங்கள்"],

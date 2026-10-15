@@ -211,31 +211,27 @@
   }
  ],
  "slogans": {
-  "_note": "Rotating slogans. 'lead' is the small first line, 'key' the big coloured word(s). The first one shows on a first visit.",
+  "_note": "Rotating slogans. 'lead' is the small first line, 'key' the big coloured word(s). On Create a Moment, slogan 1 shows with picture 1 (img/moment-slide-1.svg), slogan 2 with picture 2, and so on.",
   "create": [
    {
     "lead": "Create a",
     "key": "Moment"
    },
    {
-    "lead": "Start a",
+    "lead": "Request a",
+    "key": "Smile"
+   },
+   {
+    "lead": "Initiate a",
     "key": "Smile"
    },
    {
     "lead": "Spark a",
-    "key": "Smile"
-   },
-   {
-    "lead": "Bring a",
     "key": "Day of Joy"
    },
    {
-    "lead": "Dream a Day",
-    "key": "for the Children"
-   },
-   {
-    "lead": "Initiate an",
-    "key": "Opportunity"
+    "lead": "Be the Reason for a",
+    "key": "Smile"
    }
   ],
   "sponsor": [

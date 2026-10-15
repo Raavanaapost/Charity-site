@@ -1478,7 +1478,10 @@
         const mt = document.querySelector("[data-moment-title]"), SL = ((site.slogans || {}).create || []).filter(x => x && x.key);
         if (mt && SL.length) {
           let i = 0; try { const n = +localStorage.getItem("raav-slogan"); if (n >= 0 && isFinite(n) && localStorage.getItem("raav-slogan") !== null) i = (n + 1) % SL.length; localStorage.setItem("raav-slogan", String(i)); } catch (e) {}
-          const put = k => { const x = SL[k]; mt.innerHTML = `<span class="mt-lead">${esc(x.lead || "")}</span><span class="mt-key">${esc(x.key)}</span>`; };
+          // Each slogan shows with its own picture in the slideshow behind it.
+          const slides = [...document.querySelectorAll("[data-moment-slides] img")];
+          const put = k => { const x = SL[k]; mt.innerHTML = `<span class="mt-lead">${esc(x.lead || "")}</span><span class="mt-key">${esc(x.key)}</span>`;
+            slides.forEach((im, j) => im.classList.toggle("on", slides.length && j === k % slides.length)); };
           put(i);
           if (SL.length > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) setInterval(() => {
             if (document.hidden) return;

@@ -1229,3 +1229,21 @@ body[data-page="home"] .bar .logo{visibility:hidden;pointer-events:none}
 .finder-search{min-width:0;box-sizing:border-box}
 .finder-search input{width:0}
 .finder-city select{field-sizing:content}
+
+/* Create a Moment: drawn slideshow behind the rotating slogan; the words sit on top of the picture. */
+.moment-slides{position:relative;aspect-ratio:1200/640;overflow:hidden;background:#a82c16}
+.moment-slides img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center bottom;opacity:0;transition:opacity .9s ease}
+.moment-slides img.on{opacity:1}
+.moment-hero .mt-lead{color:#fff3d6}
+.moment-hero .mt-key{color:#f7c63a;text-shadow:0 3px 18px rgba(0,0,0,.25)}
+.moment-hero .mt-key::after{background:#fff3d6;opacity:.85}
+.moment-hero .moment-sub{color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.3)}
+.moment-hero .moment-text{padding-top:4%}
+@media (max-width:600px){
+  .moment-hero{display:block}
+  .moment-text{position:absolute;padding:22px 18px 0}
+  .moment-slides{aspect-ratio:auto;height:400px}
+  .moment-slides img{object-position:center 85%}
+}
+@media (prefers-reduced-motion:reduce){.moment-slides img{transition:none}}
+@media (min-width:601px){.moment-slides{aspect-ratio:16/9}}
