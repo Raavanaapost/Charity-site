@@ -1475,7 +1475,7 @@
         // "Create a Moment" (the Initiate form): live letter count and the pick-several "Project Focus" box.
         document.title = `Create a Moment · ${site.name}`;
         // The banner title rotates through the "create" slogans (Site settings); a first visit starts on the first one.
-        const mt = document.querySelector("[data-moment-title]"), SL = ((site.slogans || {}).create || []).filter(x => x && x.key);
+        const mt = document.querySelector("[data-moment-title]"), SL = ((site.slogans || {})[(mt && mt.dataset.momentTitle) || "create"] || (site.slogans || {}).create || []).filter(x => x && x.key);
         if (mt && SL.length) {
           let i = 0; try { const n = +localStorage.getItem("raav-slogan"); if (n >= 0 && isFinite(n) && localStorage.getItem("raav-slogan") !== null) i = (n + 1) % SL.length; localStorage.setItem("raav-slogan", String(i)); } catch (e) {}
           // Each slogan shows with its own picture in the slideshow behind it.

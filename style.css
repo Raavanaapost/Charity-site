@@ -1230,20 +1230,32 @@ body[data-page="home"] .bar .logo{visibility:hidden;pointer-events:none}
 .finder-search input{width:0}
 .finder-city select{field-sizing:content}
 
-/* Create a Moment: drawn slideshow behind the rotating slogan; the words sit on top of the picture. */
-.moment-slides{position:relative;aspect-ratio:1200/640;overflow:hidden;background:#a82c16}
-.moment-slides img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center bottom;opacity:0;transition:opacity .9s ease}
+/* /initiate-slides: drawn slideshow behind the rotating slogan; the words sit on top of the picture. */
+.moment-slides{position:relative;overflow:hidden}
+.moment-slides img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .9s ease}
 .moment-slides img.on{opacity:1}
-.moment-hero .mt-lead{color:#fff3d6}
-.moment-hero .mt-key{color:#f7c63a;text-shadow:0 3px 18px rgba(0,0,0,.25)}
-.moment-hero .mt-key::after{background:#fff3d6;opacity:.85}
-.moment-hero .moment-sub{color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.3)}
-.moment-hero .moment-text{padding-top:4%}
-@media (max-width:600px){
-  .moment-hero{display:block}
-  .moment-text{position:absolute;padding:22px 18px 0}
-  .moment-slides{aspect-ratio:auto;height:400px}
-  .moment-slides img{object-position:center 85%}
-}
+.moment-band .mt-lead{color:#fff3d6}
+.moment-band .mt-key{color:#f7c63a;text-shadow:0 3px 18px rgba(0,0,0,.25)}
+.moment-band .moment-sub{color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.3)}
+@media (max-width:600px){.moment-band{display:block}}
 @media (prefers-reduced-motion:reduce){.moment-slides img{transition:none}}
-@media (min-width:601px){.moment-slides{aspect-ratio:16/9}}
+
+/* /initiate-slides: a short banner (half height). Words on the left, drawing on the right. */
+.moment-band .moment-slides{aspect-ratio:1600/400;background:#0f5132}
+.moment-band .moment-slides img{object-position:right center}
+.moment-band .moment-text{justify-items:start;text-align:left;padding:0 4% 28px 6%;inset:0 45% 0 0;align-content:center}
+.moment-band .moment-sprout,.moment-band .mt-key::after{display:none}
+.moment-band .moment-title{justify-items:start}
+.moment-band .mt-lead{font-size:clamp(18px,2.6vw,34px)}
+.moment-band .mt-key{font-size:clamp(30px,5.4vw,66px)}
+.moment-band .moment-sub{font-size:clamp(13px,1.4vw,16px)}
+@media (max-width:600px){
+  .moment-band .moment-slides{aspect-ratio:auto;height:200px}
+  .moment-band .moment-text{position:absolute;inset:0 38% 0 0;padding:0 0 0 18px}
+  .moment-band .moment-sub{display:none}
+  .moment-band .mt-lead{font-size:20px}.moment-band .mt-key{font-size:34px}
+}
+
+:lang(ta) .moment-band .mt-lead{font-size:clamp(15px,2vw,26px)}
+:lang(ta) .moment-band .mt-key{font-size:clamp(22px,3.6vw,46px)}
+@media (max-width:600px){:lang(ta) .moment-band .mt-lead{font-size:14px}:lang(ta) .moment-band .mt-key{font-size:21px}:lang(ta) .moment-band .moment-text{inset:0 42% 0 0}}
