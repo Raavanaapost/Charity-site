@@ -136,10 +136,10 @@
       "booked": true,
       "volunteers": true,
       "steps": [],
-      "summary": "The little ones of Maha Arivagam Pre-School had a day out together: a visit to the temple, snacks on the grass, treats for everyone and a group photo at the old iron bridge.",
+      "summary": "The little ones of Maha Arivagam Pre-School went out by bus for a day together: games on the grass, a visit to the temple, treats for everyone and a group photo at the old iron bridge.",
       "cover": "/img/projects/maha-arivagam/cover.jpg",
       "quote": "",
-      "story": "## Summary\n\nThe little ones of Maha Arivagam Pre-School (மகா அறிவகம் முன்பள்ளி) had a day out together with their teachers and parents: a visit to the temple, snacks on the grass, treats for everyone and a group photo at the old iron bridge.\n\n## The need\n\nFor many families a day out with small children costs more than they can spare. A shared trip gives every child in the class the same day to remember.\n\n## The day\n\nIn their navy pre-school shirts, the children sat in a circle on the grass with their snacks, walked through the bright temple hall, met the deer in the temple grounds and sat together while the teachers handed out treats. The day ended with group photos of children, teachers and parents.\n\n## Where the money went\n\nThe day cost Rs 20,000.00 in total.\n\n## What it leaves behind\n\nA happy day for the whole pre-school, and photos and videos for the families to keep. Thank you to everyone who made it possible.",
+      "story": "## Summary\n\nThe little ones of Maha Arivagam Pre-School (மகா அறிவகம் முன்பள்ளி) had a day out together with their teachers and parents: a visit to the temple, snacks on the grass, treats for everyone and a group photo at the old iron bridge.\n\n## The need\n\nFor many families a day out with small children costs more than they can spare. A shared trip gives every child in the class the same day to remember.\n\n## The day\n\nA bus took the whole class out for the day. In their navy pre-school shirts, the children ran and played games on the grass, sat in a circle on the grass with their snacks, walked through the bright temple hall, met the deer in the temple grounds and sat together while the teachers handed out treats. The day ended with group photos of children, teachers and parents.\n\n## Where the money went\n\nThe day cost Rs 20,000.00 in total.\n\n## What it leaves behind\n\nA happy day for the whole pre-school, and photos and videos for the families to keep. Thank you to everyone who made it possible.",
       "impact": [
         {
           "value": "1",
@@ -196,7 +196,12 @@
           "caption": "Back at the pre-school"
         }
       ],
-      "media": [],
+      "media": [
+        {
+          "url": "https://drive.google.com/file/d/1S6wsjfT3qBl2tXkxmaxocMLNDE77GlVQ/view",
+          "title": "Video: games on the grass"
+        }
+      ],
       "expectations": [
         {
           "text": "Every child travels safely there and back",
