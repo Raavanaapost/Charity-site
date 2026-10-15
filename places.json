@@ -11,7 +11,8 @@
     { "name": "Trincomalee", "type": "ref", "lat": 8.5874, "lng": 81.2152 },
     { "name": "Vavuniya", "type": "ref", "lat": 8.7514, "lng": 80.4971 },
     { "name": "Mannar", "type": "ref", "lat": 8.9810, "lng": 79.9044, "side": "left" },
-    { "name": "Mullaitivu", "type": "ref", "lat": 9.2671, "lng": 80.8142 },
+    { "name": "Mullaitivu", "type": "city", "lat": 9.2671, "lng": 80.8142 },
+    { "name": "Yogapuram", "type": "village", "city": "Mullaitivu", "lat": 9.1300, "lng": 80.3100 },
     { "name": "Galle", "type": "ref", "lat": 6.0535, "lng": 80.2210 }
   ]
 }

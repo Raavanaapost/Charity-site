@@ -107,16 +107,16 @@
       ]
     },
     {
-      "title": "Maha Arivagam pre-school day out",
+      "title": "Maha Arivagam pre-school trip to the Black Bridge",
       "slug": "maha-arivagam-preschool-day",
       "hidden": false,
       "featured": false,
       "theme": "Trips & Events",
       "status": "Complete",
-      "location": "",
+      "location": "Yogapuram, Mullaitivu District",
       "organization": "Raavanaa",
       "started": "October 2026",
-      "reach": "The children of Maha Arivagam Pre-School, with their teachers and parents",
+      "reach": "17 children, 20 parents and 2 teachers",
       "verified": true,
       "currency": "Rs ",
       "budget": [
@@ -136,60 +136,60 @@
       "booked": true,
       "volunteers": true,
       "steps": [],
-      "summary": "The little ones of Maha Arivagam Pre-School went out by bus for a day together: games on the grass, a visit to the temple, treats for everyone and a group photo at the old iron bridge.",
+      "summary": "Seventeen little ones from Maha Arivagam Yogapuram Trilingual Pre-School went by bus to the old Black Bridge over the Pali Aru and to Banalingeswaram temple at Oddankulam: ice cream, dancing, playing in the river and a day to remember.",
       "cover": "/img/projects/maha-arivagam/cover.jpg",
-      "quote": "",
-      "story": "## Summary\n\nThe little ones of Maha Arivagam Pre-School (மகா அறிவகம் முன்பள்ளி) had a day out together with their teachers and parents: a visit to the temple, snacks on the grass, treats for everyone and a group photo at the old iron bridge.\n\n## The need\n\nFor many families a day out with small children costs more than they can spare. A shared trip gives every child in the class the same day to remember.\n\n## The day\n\nA bus took the whole class out for the day. In their navy pre-school shirts, the children ran and played games on the grass, sat in a circle on the grass with their snacks, walked through the bright temple hall, met the deer in the temple grounds and sat together while the teachers handed out treats. The day ended with group photos of children, teachers and parents.\n\n## Where the money went\n\nThe day cost Rs 20,000.00 in total.\n\n## What it leaves behind\n\nA happy day for the whole pre-school, and photos and videos for the families to keep. Thank you to everyone who made it possible.",
+      "quote": "The happiness on the children's faces is the greatest gift we received.",
+      "story": "## Summary\n\nOn 12 October 2026, 17 children from Maha Arivagam Yogapuram Trilingual Pre-School, with 20 parents, two teachers and members of the management, went on a trip to the Black Bridge (Karutha Palam) over the Pali Aru and to the Banalingeswaram Narmatha Natheeswarar temple, both at Oddankulam.\n\n## The need\n\nThe pre-school is run by the Technical, Arts, Culture and Women's Development Centre, and 25 children study there. Before the trip, the manager, Sarvika Vijayathasan, wrote to us: *\"For many of these children a day like this comes rarely. It will be a day to remember, to play, to laugh and to eat together.\"* The trip was arranged by the pre-school's contact, Mr Karthigesu Yoganathan.\n\n## The day\n\nThe bus left the pre-school at 3.30 in the afternoon and reached the Black Bridge at 3.45. The old bridge, said to have been built by the Dutch, crosses the Pali Aru. The children had ice cream, danced together, watched the river flowing quietly under the bridge and then went down into the water to play. For many of them it was the first day like this in a long time.\n\nNext they visited Banalingeswaram temple, where they looked at the carved sculptures of the 64 Nayanmars and walked through the flower garden. Outside the temple they danced again and shared snacks. Everyone left at 5.45 and was back at the pre-school by 6.00.\n\nThe day after, the manager wrote: *\"It was a wonderful day! The happiness on the children's faces is the greatest gift we received. Our heartfelt thanks to Raavanaa and to everyone who helped make this day possible.\"*\n\n## Where the money went\n\nThe full cost of the trip, Rs 20,000.00, was covered: the bus, food and snacks, and what the children needed for the day.\n\n## What it leaves behind\n\nA happy afternoon by the river for the whole pre-school, and photos and videos for the families to keep. Thank you to everyone who made it possible.",
       "impact": [
         {
-          "value": "1",
-          "label": "day of joy"
+          "value": "17",
+          "label": "children"
+        },
+        {
+          "value": "20",
+          "label": "parents came along"
         },
         {
           "value": "Rs 20,000",
           "label": "spent on the day"
-        },
-        {
-          "value": "1",
-          "label": "pre-school, together"
         }
       ],
       "updates": [
         {
           "date": "2026-10-12",
-          "title": "A happy day out for Maha Arivagam",
-          "body": "The pre-school children spent the day out with their teachers and parents: the temple, snacks on the grass, treats for everyone and group photos at the old iron bridge."
+          "title": "Ice cream, the river and the temple",
+          "body": "Seventeen children, 20 parents and two teachers went to the Black Bridge over the Pali Aru and to Banalingeswaram temple. The children danced, played in the river and saw the sculptures of the 64 Nayanmars. The manager wrote: the happiness on the children's faces is the greatest gift we received."
         },
         {
           "date": "2026-10-12",
           "title": "Fully funded",
-          "body": "The full cost of Rs 20,000.00 is covered. Thank you to everyone who gave."
+          "body": "The full cost of Rs 20,000.00 is covered. The pre-school thanked Raavanaa and everyone who helped."
         }
       ],
       "photos": [
         {
           "image": "/img/projects/maha-arivagam/at-the-bridge.jpg",
-          "caption": "Everyone together at the old iron bridge"
+          "caption": "Everyone together at the Black Bridge"
         },
         {
           "image": "/img/projects/maha-arivagam/snacks-on-the-grass.jpg",
-          "caption": "Snacks in a circle on the grass"
+          "caption": "Ice cream on the grass by the river"
         },
         {
           "image": "/img/projects/maha-arivagam/temple-hall.jpg",
-          "caption": "Inside the temple hall"
+          "caption": "Inside Banalingeswaram temple"
         },
         {
           "image": "/img/projects/maha-arivagam/at-the-temple.jpg",
-          "caption": "Children, teachers and parents at the temple"
+          "caption": "Children, parents and teachers at the temple"
         },
         {
           "image": "/img/projects/maha-arivagam/sitting-together.jpg",
-          "caption": "Sitting together for treats"
+          "caption": "Sitting together at the temple"
         },
         {
           "image": "/img/projects/maha-arivagam/sharing-treats.jpg",
-          "caption": "A treat for every child"
+          "caption": "Snacks for every child"
         },
         {
           "image": "/img/projects/maha-arivagam/back-at-the-preschool.jpg",
@@ -206,19 +206,20 @@
         {
           "text": "Every child travels safely there and back",
           "result": "met",
-          "note": "The whole class went out and came back together with teachers and parents."
+          "note": "The bus left the pre-school at 3.30 and everyone was back by 6.00."
         },
         {
-          "text": "Every child gets snacks and a treat",
+          "text": "The children play, laugh and eat together",
           "result": "met",
-          "note": "Snacks on the grass and treats handed out to each child."
+          "note": "Ice cream at the bridge, dancing, playing in the river and snacks at the temple."
         },
         {
           "text": "The day is recorded in photos and short videos, with permission, to share the joy",
           "result": "met",
-          "note": "Photos and videos of the day were sent by the organisers."
+          "note": "Photos, videos and a before and after note were sent by the pre-school."
         }
-      ]
+      ],
+      "city": "Mullaitivu"
     },
     {
       "title": "Kids' day out at Casuarina Beach",
