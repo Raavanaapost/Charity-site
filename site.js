@@ -1342,7 +1342,7 @@
           <div style="min-width:0">
             <div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.cover ? "" : "Cover photo", 1400)}</div>
             ${ringPanel("only-narrow")}
-            <div class="only-narrow">${budgetBoxHTML(p, site, false)}</div>
+            ${stageNum(p) === 3 ? "" : `<div class="only-narrow">${budgetBoxHTML(p, site, false)}</div>`}
             <div class="tabs" role="tablist">
               ${tabs.map(([k, l]) => `<button class="tab t-${k}" role="tab" aria-selected="${k === tab}" data-t="${k}">${TAB_ICONS[k]}<span>${l}</span></button>`).join("")}
             </div>
@@ -1350,7 +1350,7 @@
           </div>
           <aside class="side">
             ${ringPanel("only-wide")}
-            <div class="only-wide">${budgetBoxHTML(p, site, false)}</div>
+            ${stageNum(p) === 3 ? "" : `<div class="only-wide">${budgetBoxHTML(p, site, false)}</div>`}
             <div class="panel">
               <h2>Project at a glance</h2>
               <dl class="facts">
