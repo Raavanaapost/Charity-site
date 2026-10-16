@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta property="og:title" content="Otonus.ai | AI Automation &amp; Intelligent Business Solutions">
+<meta property="og:description" content="AI automation, business automation, web development and digital marketing.">
+<meta property="og:image" content="https://otonus.ai/assets/og-image.jpg">
+<meta property="og:url" content="https://otonus.ai/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#cfe4ff">
+<title>Otonus.ai</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Otonus.ai: AI automation and intelligent business solutions. AI agents, workflow automation, web development, digital marketing and creative design. Call 437-535-3926.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
+<style>
+/* Layout: the poster as a website. A bright city-sky hero with a glowing network globe, the 3D ring logo centred, holographic service badges,
+   then glass panels over sky and one deep-blue photographic band taken from the poster's office view. */
+:root {
+  --sky: #eaf3ff;
+  --white: #ffffff;
+  --glass: rgba(255,255,255,.74);
+  --line: #d2e2fa;
+  --ink: #0e1a3d;
+  --navy: #0b1660;
+  --muted: #55627f;
+  --blue: #2448d8;
+  --cyan: #22d3ee;
+  --violet: #7c3aed;
+  --magenta: #c026d3;
+  --grad: linear-gradient(100deg, #1e63f0, #3b4fe0 40%, #7c3aed 75%, #c026d3);
+  --display: "Montserrat", system-ui, sans-serif;
+  --body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --glow: 0 0 0 1px rgba(255,255,255,.9) inset, 0 14px 36px -18px rgba(36,72,216,.45);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--sky); color: var(--ink); font: 400 17px/1.65 var(--body); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+a { color: inherit; }
+img { max-width: 100%; display: block; height: auto; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.12; letter-spacing: -.02em; color: var(--navy); }
+p { margin: 0; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+.grad { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.eyebrow { font: 700 13px/1 var(--display); letter-spacing: .16em; text-transform: uppercase; color: var(--blue); }
+.slogan { font: 800 clamp(20px, 2.6vw, 30px)/1.2 var(--display); letter-spacing: .02em; }
+.slogan span:nth-child(1) { color: #1e63f0; } .slogan span:nth-child(2) { color: var(--violet); } .slogan span:nth-child(3) { color: var(--magenta); }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 6px; }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; border-radius: 12px; font: 700 16px/1 var(--body); text-decoration: none; border: 0; cursor: pointer; transition: transform .2s, box-shadow .2s; }
+.btn-primary { color: #fff; background: var(--grad); box-shadow: 0 10px 26px -10px rgba(59,79,224,.9), 0 0 22px -6px rgba(192,38,211,.5); }
+.btn-primary:hover { transform: translateY(-2px); }
+.btn-glass { background: var(--glass); color: var(--navy); box-shadow: 0 0 0 1px var(--line) inset; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.btn-glass:hover { box-shadow: 0 0 0 1px var(--blue) inset; }
+
+/* the poster's glowing phone bar */
+.phonebar { display: inline-flex; align-items: center; gap: 16px; padding: 12px 42px 12px 26px; text-decoration: none; color: #fff; font: 800 clamp(26px, 3.8vw, 40px)/1 var(--display); letter-spacing: .02em;
+  background: linear-gradient(100deg, #0b1660, #1f3fd6 45%, #3b1d9a 80%, #6d28d9);
+  clip-path: polygon(24px 0, calc(100% - 24px) 0, 100% 50%, calc(100% - 24px) 100%, 24px 100%, 0 50%);
+  filter: drop-shadow(0 0 14px rgba(56,189,248,.65)); transition: filter .2s; }
+.phonebar:hover { filter: drop-shadow(0 0 22px rgba(56,189,248,.9)); }
+.phonebar i { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; box-shadow: 0 0 0 3px rgba(125,211,252,.9), 0 0 16px rgba(56,189,248,.9) inset; }
+.phonebar svg, .navcall svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
+.phonebar svg { width: 26px; height: 26px; }
+.phone-line { position: relative; display: grid; justify-items: center; width: min(720px, 100%); }
+.phone-line::before, .phone-line::after { content: ""; position: absolute; top: 50%; width: 20%; height: 2px; background: linear-gradient(90deg, transparent, var(--cyan)); box-shadow: 0 0 10px var(--cyan); }
+.phone-line::before { left: 0; } .phone-line::after { right: 0; transform: scaleX(-1); }
+
+/* nav */
+.nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; background: rgba(240,246,255,.78); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(210,226,250,.8); }
+.nav .wrap { display: flex; align-items: center; gap: 26px; padding-block: 10px; }
+.brand { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.brand img { width: 46px; height: auto; }
+.wordmark { font: 900 22px/1 var(--display); color: var(--navy); letter-spacing: -.01em; }
+.wordmark span { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; text-transform: lowercase; }
+.nav-links { display: flex; gap: 26px; margin-left: auto; }
+.nav-links a { text-decoration: none; color: var(--muted); font-weight: 500; font-size: 15px; }
+.nav-links a:hover { color: var(--navy); }
+.navcall { display: inline-flex; align-items: center; gap: 7px; text-decoration: none; color: var(--navy); font: 800 15px var(--display); white-space: nowrap; }
+.navcall svg { width: 17px; height: 17px; color: var(--blue); }
+.nav .btn { padding: 11px 18px; font-size: 15px; }
+
+/* hero */
+.hero { position: relative; overflow: hidden; background:
+  radial-gradient(42% 40% at 50% 22%, #ffffff 0, rgba(255,255,255,.85) 40%, transparent 75%),
+  radial-gradient(35% 45% at 88% 28%, rgba(124,58,237,.16), transparent 70%),
+  radial-gradient(30% 40% at 8% 30%, rgba(34,211,238,.16), transparent 70%),
+  linear-gradient(180deg, #cfe4ff 0, #e6f1ff 50%, #dfeeff 100%); }
+.hero::before { content: ""; position: absolute; inset: 0; pointer-events: none; background:
+  linear-gradient(118deg, transparent 18%, rgba(255,255,255,.6) 24%, transparent 30%),
+  linear-gradient(118deg, transparent 62%, rgba(255,255,255,.45) 67%, transparent 72%); }
+#net { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.hero-inner { position: relative; z-index: 2; display: grid; justify-items: center; text-align: center; gap: 18px; padding-block: 36px 40px; }
+.hero-logo { width: min(380px, 80vw); animation: float 6s ease-in-out infinite; mix-blend-mode: multiply; }
+@keyframes float { 50% { transform: translateY(-10px); } }
+.hero .wordmark { font-size: clamp(44px, 7vw, 84px); margin-top: -26px; text-shadow: 0 6px 24px rgba(36,72,216,.18); }
+.hero h1 { font-size: clamp(26px, 3.6vw, 44px); font-weight: 800; max-width: 22ch; }
+.hero h1 .grad { font-weight: 800; }
+.rule { width: 220px; height: 3px; border-radius: 3px; background: linear-gradient(90deg, transparent, #22d3ee 15%, #3b4fe0 45%, #c026d3 85%, transparent); }
+.badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 6px; margin-top: 4px; }
+.badge { width: 150px; display: grid; justify-items: center; gap: 8px; text-decoration: none; padding: 6px; position: relative; }
+.badge + .badge::before { content: ""; position: absolute; left: -4px; top: 22px; height: 64px; width: 1px; background: linear-gradient(transparent, #7c9cf5, transparent); }
+.badge img { width: 104px; height: 104px; border-radius: 50%; filter: drop-shadow(0 8px 18px rgba(36,72,216,.45)) drop-shadow(0 0 12px rgba(34,211,238,.35)); transition: transform .25s cubic-bezier(.2,.7,.2,1); }
+.badge:hover img { transform: translateY(-6px) scale(1.06); }
+.badge b { font: 700 15px/1.2 var(--display); color: var(--navy); max-width: 11ch; }
+.hero-ctas { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.pano { position: relative; z-index: 1; margin-top: -40px; height: clamp(180px, 26vw, 360px);
+  background: url("assets/pano.webp") center 60% / cover no-repeat;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 38%); mask-image: linear-gradient(180deg, transparent 0, #000 38%); }
+
+section { padding-block: 92px; }
+.head { display: grid; gap: 14px; max-width: 700px; margin-bottom: 44px; }
+.head.center { margin-inline: auto; text-align: center; justify-items: center; }
+.head h2 { font-size: clamp(30px, 4vw, 46px); font-weight: 800; }
+.head p { color: var(--muted); font-size: 18px; }
+
+/* services */
+.services-sec { background: linear-gradient(180deg, #f3f8ff, var(--sky)); }
+.services { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px; }
+.svc { position: relative; background: var(--glass); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-radius: 22px; padding: 26px 22px 24px; box-shadow: var(--glow), 0 0 0 1px var(--line); display: grid; gap: 12px; align-content: start; justify-items: center; text-align: center; transition: transform .25s, box-shadow .25s; }
+.svc:hover { transform: translateY(-5px); box-shadow: var(--glow), 0 0 0 1px #a9c4f5, 0 24px 44px -20px rgba(124,58,237,.45); }
+.svc img { width: 92px; height: 92px; border-radius: 50%; filter: drop-shadow(0 8px 16px rgba(36,72,216,.4)); }
+.svc h3 { font-size: 19px; font-weight: 800; }
+.svc p { color: var(--muted); font-size: 15px; }
+.svc ul { list-style: none; padding: 12px 0 0; margin: 0; border-top: 1px solid var(--line); width: 100%; display: grid; gap: 6px; font-size: 14.5px; text-align: left; }
+.svc li { display: flex; gap: 8px; align-items: baseline; }
+.svc li::before { content: ""; flex: none; width: 7px; height: 7px; border-radius: 2px; background: var(--grad); transform: translateY(-1px) rotate(45deg); }
+
+/* automation in action: photo + floating card */
+.action { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 64px; align-items: center; }
+.action .head { margin: 0; }
+.ticks { list-style: none; padding: 0; margin: 4px 0 0; display: grid; gap: 10px; }
+.ticks li { display: flex; gap: 10px; align-items: baseline; font-weight: 500; }
+.ticks li::before { content: "✓"; color: #fff; font-size: 12px; font-weight: 700; width: 20px; height: 20px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--grad); transform: translateY(2px); }
+.photo { position: relative; border-radius: 28px; min-height: 520px; background: url("assets/city-globe.webp") center 30% / cover no-repeat; box-shadow: 0 30px 60px -30px rgba(11,22,96,.55); }
+.photo::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(180deg, transparent 45%, rgba(11,22,96,.35)); }
+.flow { position: absolute; left: -48px; bottom: 34px; z-index: 1; width: min(380px, 92%); background: rgba(255,255,255,.9); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-radius: 20px; padding: 18px; box-shadow: 0 24px 50px -20px rgba(11,22,96,.5); display: grid; gap: 4px; }
+.flow-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-bottom: 10px; margin-bottom: 4px; border-bottom: 1px solid var(--line); }
+.flow-head b { font: 800 15px var(--display); color: var(--navy); }
+.flow-head span { font-size: 12px; font-weight: 700; color: #047857; background: #dcfce7; padding: 4px 9px; border-radius: 999px; }
+.step { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 8px; border-radius: 12px; animation: lit 6s infinite; }
+.step:nth-of-type(3) { animation-delay: 1.5s; } .step:nth-of-type(4) { animation-delay: 3s; } .step:nth-of-type(5) { animation-delay: 4.5s; }
+@keyframes lit { 2%, 22% { background: #eef3ff; } }
+.step i { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: #fff; font: 800 14px var(--display); font-style: normal; background: var(--grad); }
+.step b { display: block; font-size: 15px; color: var(--navy); }
+.step small { color: var(--muted); font-size: 13px; line-height: 1.4; display: block; }
+.step em { font-style: normal; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* process */
+.process { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; counter-reset: s; }
+.phase { position: relative; padding: 26px 22px; border-radius: 20px; background: var(--glass); box-shadow: var(--glow), 0 0 0 1px var(--line); display: grid; gap: 10px; align-content: start; }
+.phase .n { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; font: 900 20px var(--display); color: #fff;
+  background: linear-gradient(140deg, rgba(34,211,238,.9), rgba(36,72,216,.95) 50%, rgba(124,58,237,.95)); box-shadow: 0 0 0 2px rgba(255,255,255,.9), 0 0 0 3px rgba(129,140,248,.6), 0 0 22px rgba(56,189,248,.5); margin-bottom: 6px; }
+.phase h3 { font-size: 19px; font-weight: 800; }
+.phase p { color: var(--muted); font-size: 15.5px; }
+.phase:not(:last-child)::after { content: ""; position: absolute; top: 51px; right: -22px; width: 22px; height: 2px; background: linear-gradient(90deg, #7c9cf5, #c084fc); }
+
+/* why: deep blue photo band */
+.why-band { position: relative; color: #fff; background: linear-gradient(100deg, rgba(11,22,96,.94), rgba(31,63,214,.82) 55%, rgba(91,33,182,.8)), url("assets/pano.webp") center / cover no-repeat; overflow: hidden; }
+.why-band h2 { color: #fff; }
+.why-band .head p { color: rgba(255,255,255,.82); }
+.why-band .eyebrow { color: #7dd3fc; }
+.why { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+.why div { padding: 24px; border-radius: 18px; background: rgba(255,255,255,.1); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: 0 0 0 1px rgba(255,255,255,.22) inset; display: grid; gap: 8px; align-content: start; }
+.why h3 { color: #fff; font-size: 18px; font-weight: 800; }
+.why p { color: rgba(255,255,255,.8); font-size: 15.5px; }
+.why h3::before { content: ""; display: block; width: 34px; height: 3px; border-radius: 3px; margin-bottom: 14px; background: linear-gradient(90deg, var(--cyan), #c084fc); box-shadow: 0 0 10px var(--cyan); }
+
+/* contact */
+.contact { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 52px; align-items: start; }
+.contact .head { margin: 0; }
+.contact-side { display: grid; gap: 22px; justify-items: start; }
+.contact .phone-line { justify-items: start; width: auto; }
+.contact .phone-line::before, .contact .phone-line::after { display: none; }
+.email { font-size: 16px; color: var(--muted); }
+.email b { display: block; font-size: 19px; color: var(--navy); user-select: all; }
+.email b a { color: inherit; text-decoration: none; }
+form { background: var(--white); border-radius: 24px; padding: 28px; box-shadow: 0 0 0 1px var(--line), 0 30px 60px -30px rgba(36,72,216,.45); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.field { display: grid; gap: 6px; }
+.field.full { grid-column: 1 / -1; }
+label { font-size: 14px; font-weight: 500; color: var(--muted); }
+input, select, textarea { width: 100%; font: 400 16px var(--body); color: var(--ink); background: #f5f9ff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(36,72,216,.14); }
+textarea { min-height: 110px; resize: vertical; }
+form .btn { grid-column: 1 / -1; }
+.note { grid-column: 1 / -1; color: var(--blue); font-size: 14px; }
+.note:empty { display: none; }
+
+footer { background: linear-gradient(180deg, #e3efff, #cfe2ff); border-top: 1px solid var(--line); padding-block: 36px 44px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 18px 30px; align-items: center; justify-content: space-between; color: var(--muted); font-size: 15px; }
+footer .slogan { font-size: 17px; }
+
+/* reveal: only things below the fold at load are hidden, so the page is complete without script */
+.pre { opacity: 0; transform: translateY(24px); }
+.in { transition: opacity .6s ease, transform .6s cubic-bezier(.2,.7,.2,1); }
+.hero-inner > * { animation: rise .7s cubic-bezier(.2,.7,.2,1) both; }
+.hero-inner > :nth-child(2) { animation-delay: .06s; } .hero-inner > :nth-child(3) { animation-delay: .12s; } .hero-inner > :nth-child(5) { animation-delay: .18s; }
+.hero-inner > :nth-child(6) { animation-delay: .24s; } .hero-inner > :nth-child(7) { animation-delay: .3s; } .hero-inner > :nth-child(8) { animation-delay: .36s; }
+.hero-logo { animation: rise .7s cubic-bezier(.2,.7,.2,1) both, float 6s .8s ease-in-out infinite; }
+@keyframes rise { from { opacity: 0; transform: translateY(16px); } }
+
+@media (max-width: 1100px) {
+  .services { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .svc { grid-column: span 2; }
+  .svc:nth-child(4) { grid-column: 2 / span 2; }
+}
+@media (max-width: 960px) {
+  .nav-links { display: none; }
+  .navcall { margin-left: auto; }
+  .action, .contact { grid-template-columns: minmax(0, 1fr); }
+  .flow { left: 16px; }
+  .process, .why { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .phase::after { display: none; }
+  .services { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .svc, .svc:nth-child(4) { grid-column: auto; }
+  .svc:nth-child(5) { grid-column: 1 / -1; }
+}
+@media (max-width: 620px) {
+  .navcall span, .nav .btn { display: none; }
+  .wordmark { font-size: 19px; }
+  .badge { width: 104px; } .badge img { width: 78px; height: 78px; } .badge b { font-size: 13px; }
+  .badge + .badge::before, .phone-line::before, .phone-line::after { display: none; }
+  .phonebar { padding: 10px 32px 10px 22px; } .phonebar i { width: 44px; height: 44px; }
+  .services, .process, .why, form { grid-template-columns: minmax(0, 1fr); }
+  .svc:nth-child(5) { grid-column: auto; }
+  section { padding-block: 64px; }
+  .photo { min-height: 600px; }
+  .flow { left: 12px; right: 12px; width: auto; bottom: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; transition: none !important; } .pre { opacity: 1; transform: none; } html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Otonus.ai home"><img src="assets/logo-mark.webp" alt="" width="88" height="78"><span class="wordmark">OTONUS<span>.ai</span></span></a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="#services">Services</a>
+      <a href="#action">How it works</a>
+      <a href="#why">Why Otonus</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a class="navcall" href="tel:+14375353926"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg><span>437-535-3926</span></a>
+    <a class="btn btn-primary" href="#contact">Book a free call</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero" style="padding:0">
+    <canvas id="net" aria-hidden="true"></canvas>
+    <div class="wrap hero-inner">
+      <img class="hero-logo" src="assets/logo-ring.webp" alt="Otonus.ai logo: a glossy blue and purple ring circled by an orbit with three spheres" width="580" height="422">
+      <p class="wordmark" aria-hidden="true">OTONUS<span>.ai</span></p>
+      <h1><span class="grad">AI Automation</span> &amp; Intelligent Business Solutions</h1>
+      <span class="rule" aria-hidden="true"></span>
+      <nav class="badges" aria-label="Our services">
+        <a class="badge" href="#svc-ai"><img src="assets/icon-ai-agents.webp" alt="" width="232" height="232"><b>AI Agents</b></a>
+        <a class="badge" href="#svc-flow"><img src="assets/icon-workflow.webp" alt="" width="232" height="232"><b>Workflow Automation</b></a>
+        <a class="badge" href="#svc-web"><img src="assets/icon-web.webp" alt="" width="232" height="232"><b>Web Development</b></a>
+        <a class="badge" href="#svc-mkt"><img src="assets/icon-marketing.webp" alt="" width="232" height="232"><b>Digital Marketing</b></a>
+        <a class="badge" href="#svc-design"><img src="assets/icon-design.webp" alt="" width="232" height="232"><b>Creative Design</b></a>
+      </nav>
+      <p class="slogan"><span>Create.</span> <span>Automate.</span> <span>Evolve.</span></p>
+      <div class="phone-line"><a class="phonebar" href="tel:+14375353926"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></i>437-535-3926</a></div>
+      <div class="hero-ctas">
+        <a class="btn btn-primary" href="#contact">Get a free automation audit</a>
+        <a class="btn btn-glass" href="#services">Explore services</a>
+      </div>
+    </div>
+    <div class="pano" role="img" aria-label="A desk with a laptop and holographic AI icons, overlooking a city skyline"></div>
+  </section>
+
+  <section id="services" class="services-sec">
+    <div class="wrap">
+      <div class="head center">
+        <span class="eyebrow">What we do</span>
+        <h2>Five ways we help your business <span class="grad">run itself</span></h2>
+        <p>One team for the AI, the automations, the website, the marketing and the design behind your growth.</p>
+      </div>
+      <div class="services">
+        <article class="svc" id="svc-ai"><img src="assets/icon-ai-agents.webp" alt="" width="232" height="232"><h3>AI Agents</h3><p>Smart assistants that answer customers, qualify leads and handle paperwork around the clock.</p><ul><li>AI chatbots</li><li>Lead qualification</li><li>Document processing</li><li>Custom AI agents</li></ul></article>
+        <article class="svc" id="svc-flow"><img src="assets/icon-workflow.webp" alt="" width="232" height="232"><h3>Workflow Automation</h3><p>Connect your CRM, invoicing, email and WhatsApp so work moves on its own.</p><ul><li>Process automation</li><li>CRM integration</li><li>Invoices and reports</li><li>Zapier, Make, n8n</li></ul></article>
+        <article class="svc" id="svc-web"><img src="assets/icon-web.webp" alt="" width="232" height="232"><h3>Web Development</h3><p>Fast, modern websites and web apps that turn visitors into enquiries.</p><ul><li>Business websites</li><li>Landing pages</li><li>E-commerce</li><li>Web apps</li></ul></article>
+        <article class="svc" id="svc-mkt"><img src="assets/icon-marketing.webp" alt="" width="232" height="232"><h3>Digital Marketing</h3><p>Get found by the right customers with campaigns that keep improving.</p><ul><li>SEO</li><li>Google and Meta ads</li><li>Social media</li><li>Email campaigns</li></ul></article>
+        <article class="svc" id="svc-design"><img src="assets/icon-design.webp" alt="" width="232" height="232"><h3>Creative Design</h3><p>Logos, branding and graphics that make your business look as good as it works.</p><ul><li>Logo and branding</li><li>Social media graphics</li><li>Posters and flyers</li><li>Ad creatives</li></ul></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="action">
+    <div class="wrap action">
+      <div class="head">
+        <span class="eyebrow">Automation in action</span>
+        <h2>A new lead, handled in under a minute</h2>
+        <p>A customer reaches out on your website, WhatsApp or Instagram. Otonus systems take it from there, while you get on with your day.</p>
+        <ul class="ticks"><li>Replies instantly, day or night</li><li>Every lead saved in your CRM</li><li>Your team only steps in when it matters</li></ul>
+        <a class="btn btn-primary" href="#contact" style="justify-self:start;margin-top:8px">Automate my leads</a>
+      </div>
+      <div class="photo" role="img" aria-label="City skyline with a glowing digital network">
+        <div class="flow" aria-label="Example automation">
+          <div class="flow-head"><b>New lead automation</b><span>Running 24/7</span></div>
+          <div class="step"><i>1</i><div><b>Lead arrives</b><small>Website form, WhatsApp or Instagram</small></div><em>0:00</em></div>
+          <div class="step"><i>2</i><div><b>AI qualifies it</b><small>Reads the request and scores the lead</small></div><em>0:05</em></div>
+          <div class="step"><i>3</i><div><b>CRM updated</b><small>Contact and deal added, team notified</small></div><em>0:12</em></div>
+          <div class="step"><i>4</i><div><b>Follow-up sent</b><small>Personal reply with a booking link</small></div><em>0:40</em></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="process" style="padding-top:0">
+    <div class="wrap">
+      <div class="head center">
+        <span class="eyebrow">How we work</span>
+        <h2>From idea to autopilot in four steps</h2>
+      </div>
+      <div class="process">
+        <div class="phase"><span class="n">1</span><h3>Discover</h3><p>A free call and audit to find where your business loses the most time.</p></div>
+        <div class="phase"><span class="n">2</span><h3>Design</h3><p>We plan the AI, automations, website or campaigns that will make the biggest difference.</p></div>
+        <div class="phase"><span class="n">3</span><h3>Build</h3><p>We build, test and launch, connecting the tools you already use.</p></div>
+        <div class="phase"><span class="n">4</span><h3>Evolve</h3><p>We monitor results, report back and keep improving every month.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="why" class="why-band">
+    <div class="wrap">
+      <div class="head">
+        <span class="eyebrow">Why Otonus</span>
+        <h2>Built to keep working when you're not</h2>
+        <p>Intelligent systems that run quietly in the background, so your business keeps moving on your busiest days.</p>
+      </div>
+      <div class="why">
+        <div><h3>Hours back every week</h3><p>Repetitive tasks move to systems that never get tired or forget a step.</p></div>
+        <div><h3>One partner, end to end</h3><p>AI, automation, web, marketing and design from one team.</p></div>
+        <div><h3>Works with your tools</h3><p>We connect what you already use instead of starting over.</p></div>
+        <div><h3>Clear results</h3><p>Simple monthly reports show what's running and what it saves.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="wrap contact">
+      <div class="contact-side">
+        <div class="head">
+          <span class="eyebrow">Let's talk</span>
+          <h2>Ready to <span class="grad">create, automate and evolve?</span></h2>
+          <p>Call us or send a message. We'll come back with a free audit and a clear plan for your business.</p>
+        </div>
+        <div class="phone-line"><a class="phonebar" href="tel:+14375353926"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></i>437-535-3926</a></div>
+        <p class="email">Or email us<b><a href="mailto:info@otonus.ai">info@otonus.ai</a></b></p>
+      </div>
+      <form id="contact-form" name="contact" method="POST" action="contact.php">
+        <p hidden><label>Leave this empty <input id="hp" name="company-website"></label></p>
+        <div class="field"><label for="f-name">Your name</label><input id="f-name" name="name" required autocomplete="name"></div>
+        <div class="field"><label for="f-phone">Phone</label><input id="f-phone" name="phone" type="tel" autocomplete="tel"></div>
+        <div class="field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" required autocomplete="email"></div>
+        <div class="field"><label for="f-service">I'm interested in</label>
+          <select id="f-service" name="service"><option>AI Agents</option><option>Workflow Automation</option><option>Web Development</option><option>Digital Marketing</option><option>Creative Design</option><option>Not sure yet</option></select></div>
+        <div class="field full"><label for="f-msg">How can we help?</label><textarea id="f-msg" name="message" placeholder="For example: we answer the same customer questions on WhatsApp all day"></textarea></div>
+        <button class="btn btn-primary" type="submit">Get my free audit</button>
+        <p class="note" id="form-note" role="status"></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Otonus.ai home"><img src="assets/logo-mark.webp" alt="" width="88" height="78"><span class="wordmark">OTONUS<span>.ai</span></span></a>
+    <p class="slogan"><span>Create.</span> <span>Automate.</span> <span>Evolve.</span></p>
+    <span>© 2026 Otonus.ai · <a href="tel:+14375353926">437-535-3926</a> · <a href="mailto:info@otonus.ai">info@otonus.ai</a></span>
+  </div>
+</footer>
+
+<script>
+  // Hero network: drifting nodes joined by thin lines, denser on the right like the poster's globe.
+  // Capped at ~30 fps, paused when off screen or the tab is hidden, and drawn once (static) for reduced motion.
+  (function () {
+    var c = document.getElementById('net'); if (!c || !c.getContext) return;
+    var ctx = c.getContext('2d'), nodes = [], w = 0, h = 0, dpr = Math.min(window.devicePixelRatio || 1, 2), running = true, last = 0;
+    var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function size() {
+      var r = c.getBoundingClientRect(); w = r.width; h = r.height; c.width = w * dpr; c.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var n = Math.round(Math.min(90, w / 16)); nodes = [];
+      for (var i = 0; i < n; i++) {
+        var right = Math.random() < .55, cx = right ? w * .86 : w * .12, cy = h * .32, rad = Math.min(w, h) * (right ? .3 : .2);
+        var a = Math.random() * Math.PI * 2, d = Math.sqrt(Math.random()) * rad;
+        nodes.push({ x: cx + Math.cos(a) * d, y: cy + Math.sin(a) * d * .9, vx: (Math.random() - .5) * .25, vy: (Math.random() - .5) * .25, ox: cx, oy: cy, r: rad });
+      }
+    }
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+      for (var i = 0; i < nodes.length; i++) {
+        var p = nodes[i];
+        for (var j = i + 1; j < nodes.length; j++) {
+          var q = nodes[j], dx = p.x - q.x, dy = p.y - q.y, d2 = dx * dx + dy * dy;
+          if (d2 < 9000) { ctx.strokeStyle = 'rgba(59,130,246,' + (0.32 * (1 - d2 / 9000)).toFixed(3) + ')'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke(); }
+        }
+      }
+      for (var k = 0; k < nodes.length; k++) {
+        var n = nodes[k]; ctx.fillStyle = k % 5 ? 'rgba(96,165,250,.85)' : 'rgba(167,139,250,.9)';
+        ctx.beginPath(); ctx.arc(n.x, n.y, k % 7 ? 1.8 : 3, 0, 6.283); ctx.fill();
+      }
+    }
+    function step(t) {
+      if (!running) return;
+      requestAnimationFrame(step);
+      if (t - last < 33) return; last = t;
+      for (var i = 0; i < nodes.length; i++) {
+        var p = nodes[i]; p.x += p.vx; p.y += p.vy;
+        var dx = p.x - p.ox, dy = p.y - p.oy; if (dx * dx + dy * dy > p.r * p.r) { p.vx *= -1; p.vy *= -1; }
+      }
+      draw();
+    }
+    size(); draw();
+    if (still) return;
+    addEventListener('resize', function () { size(); draw(); });
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { running = e[0].isIntersecting && !document.hidden; if (running) requestAnimationFrame(step); }).observe(c);
+    else requestAnimationFrame(step);
+    document.addEventListener('visibilitychange', function () { var was = running; running = !document.hidden; if (running && !was) requestAnimationFrame(step); });
+  })();
+
+  // Fade sections in as they scroll into view; anything already on screen at load is left alone.
+  (function () {
+    if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var el = e.target, delay = (Array.prototype.indexOf.call(el.parentNode.children, el) % 5) * 80;
+        setTimeout(function () { el.classList.add('in'); el.classList.remove('pre'); el.addEventListener('transitionend', function () { el.classList.remove('in'); }, { once: true }); }, delay);
+        io.unobserve(el);
+      });
+    }, { rootMargin: '0px 0px -8% 0px' });
+    document.querySelectorAll('.head, .svc, .phase, .why > div, .photo, form').forEach(function (el) {
+      if (el.getBoundingClientRect().top > innerHeight) { el.classList.add('pre'); io.observe(el); }
+    });
+  })();
+
+  // On otonus.ai the form posts to contact.php, which emails info@otonus.ai; anywhere else it's a preview.
+  (function () {
+    var form = document.getElementById('contact-form'), note = document.getElementById('form-note');
+    var sent = /[?&]sent=(1|0)/.exec(location.search);
+    if (sent) note.textContent = sent[1] === '1' ? "Thanks! Your message is on its way. We'll be in touch shortly." : 'Sorry, that did not go through. Please call 437-535-3926 or email info@otonus.ai.';
+    if (/(^|\.)otonus\.ai$/.test(location.hostname)) return;
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      note.textContent = 'This is a preview, so nothing was sent. The form starts working once the site is live on otonus.ai.';
+    });
+  })();
+</script>
+
+</body>
+</html>
