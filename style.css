@@ -1292,3 +1292,9 @@ body[data-page="home"] .bar .logo{visibility:hidden;pointer-events:none}
   .wrap{max-width:1560px}
   .home-latest{grid-template-columns:minmax(0,300px) minmax(0,1fr);column-gap:64px}
 }
+@media (min-width:2000px){
+  .wrap{max-width:1780px;padding-inline:48px}
+  .home-latest{grid-template-columns:minmax(0,330px) minmax(0,1fr);column-gap:72px}
+  /* running text stays a comfortable line length on a very wide screen */
+  .story,.update,.media,.comments{max-width:78ch}
+}
