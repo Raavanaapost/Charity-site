@@ -293,23 +293,54 @@
   // place and title written on the photo. Tapping a picture opens that project's page.
   const isPhoto = u => !!u && !/\.svg$/i.test(u);
   const STAGE_LABEL = ["Initiated", "Activated", "Impact"];
-  function glanceHTML(projects) {
-    const shown = projects.filter(p => !p.hidden);
-    // Featured first, then real photos before drawings, then the rest in admin order.
-    const order = [...shown].sort((x, y) => (!!y.featured - !!x.featured) || (isPhoto(y.cover) - isPhoto(x.cover)));
-    const pick = order.slice(0, 5);
-    if (!pick.length) return "";
+  // "Explore projects" choices under the pictures; tapping one swaps the pictures above.
+  const EXPLORE = [
+    ["Featured", ps => [...ps].sort((x, y) => (!!y.featured - !!x.featured) || (isPhoto(y.cover) - isPhoto(x.cover)))],
+    ["Newest", ps => ps], // the admin page keeps projects newest first
+    ["Initiated", ps => ps.filter(p => stageNum(p) === 1)],
+    ["Activated", ps => ps.filter(p => stageNum(p) === 2)],
+    ["Impact", ps => ps.filter(p => stageNum(p) === 3)],
+    ...["Trips & Events", "Education", "Livelihood"].map(t => [t, ps => ps.filter(p => p.theme === t)])
+  ];
+  function mosaicTiles(list, projects) {
+    const pick = list.slice(0, 5);
+    if (!pick.length) return `<p class="mosaic-empty">No projects here yet.</p>`;
+    const odd = (pick.length - 1) % 2 === 1; // a lone last picture fills the row
     const tile = (p, k) => {
       const n = stageNum(p), town = p.city || (p.location || "").split(",")[0];
-      return `<a class="mosaic-tile s${n}${k === 0 ? " big" : ""}" href="/projects/${slugOf(p)}" style="${coverStyle(p, projects.indexOf(p))}">
-          ${p.cover ? `<img src="${esc(imgUrl(p.cover, k === 0 ? 1400 : 800))}" alt=""${k ? ' loading="lazy"' : ""}>` : ""}
+      const wide = k === 0 || (odd && k === pick.length - 1);
+      return `<a class="mosaic-tile s${n}${k === 0 ? " big" : wide ? " wide" : ""}" href="/projects/${slugOf(p)}" style="${coverStyle(p, projects.indexOf(p))}">
+          ${p.cover ? `<img src="${esc(imgUrl(p.cover, wide ? 1400 : 800))}" alt=""${k ? ' loading="lazy"' : ""}>` : ""}
           <span class="mosaic-text">
             <span class="mosaic-eyebrow"><i>${STAGE_LABEL[n - 1]}</i>${town ? ` ${esc(town)}` : ""}</span>
             <span class="mosaic-title">${esc(p.title)}</span>
           </span>
         </a>`;
     };
-    return `<div class="mosaic">${pick.map(tile).join("")}</div>`;
+    return pick.map(tile).join("");
+  }
+  function glanceHTML(projects) {
+    const shown = projects.filter(p => !p.hidden);
+    if (!shown.length) return "";
+    const tabs = EXPLORE.filter(([, f]) => f(shown).length);
+    return `<div class="mosaic" aria-live="polite">${mosaicTiles(tabs[0][1](shown), projects)}</div>
+      <div class="explore">
+        <h2 class="explore-title">Explore projects</h2>
+        <div class="explore-tabs" role="group" aria-label="Explore projects">
+          ${tabs.map(([t], i) => `<button type="button" data-ex="${esc(t)}" aria-pressed="${i === 0}">${esc(t)}</button>`).join("")}
+        </div>
+      </div>`;
+  }
+  function wireExplore(app, projects) {
+    const box = app.querySelector(".explore-tabs"), mo = app.querySelector(".mosaic");
+    if (!box || !mo) return;
+    const shown = projects.filter(p => !p.hidden);
+    box.addEventListener("click", e => {
+      const b = e.target.closest("button"); if (!b) return;
+      box.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+      const f = EXPLORE.find(([t]) => t === b.dataset.ex)[1];
+      mo.innerHTML = mosaicTiles(f(shown), projects);
+    });
   }
 
   function renderOverview(app, site, projects) {
@@ -352,6 +383,7 @@
           : `<div class="panel empty-state latest-empty"><p>No ${esc(cat)} projects here yet.</p>${r.n === 1 ? '<a class="btn" href="/initiate">Suggest one</a>' : ""}</div>`;
       });
     });
+    wireExplore(app, projects);
     wireForms(app);
     fitHeadline();
     rotTimers.forEach(clearInterval); rotTimers = [];

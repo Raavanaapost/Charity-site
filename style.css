@@ -1311,3 +1311,11 @@ body[data-page="home"] .bar .logo{visibility:hidden;pointer-events:none}
 .mosaic-tile.big .mosaic-title{font-size:clamp(24px,4.5vw,40px)}
 @media (min-width:760px){.mosaic-title{font-size:22px}}
 body[data-page="overview"] .intro .headline{margin-bottom:0}
+.mosaic-tile.wide{grid-column:1/-1;aspect-ratio:2/1}
+@media (min-width:760px){.mosaic-tile.wide{aspect-ratio:5/2}}
+.mosaic-empty{grid-column:1/-1;margin:0;padding:40px 16px;text-align:center;background:var(--surface);color:var(--muted)}
+.explore{margin-top:14px;padding:14px 0 6px;text-align:center}
+.explore-title{font-family:var(--display);font-size:15px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.explore-tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.explore-tabs button{font-family:var(--display);font-weight:700;font-size:15px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.explore-tabs button[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
