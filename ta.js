@@ -52,6 +52,7 @@
 "We are arranging a day at the bowling lanes for the special-needs children of Sivapoomi: a day out to play, laugh and be cheered on.": "சிவபூமியின் விசேட தேவையுடைய குழந்தைகளுக்காக பௌலிங் மைதானத்தில் ஒரு நாளை ஏற்பாடு செய்கிறோம்: விளையாடவும், சிரிக்கவும், உற்சாகப்படுத்தப்படவும் ஒரு நாள்.",
 "Raavanaa": "ராவணா",
 "See all →": "அனைத்தையும் பாருங்கள் →",
+"Read the story →": "கதையைப் படியுங்கள் →",
 "Moments on the Way": "வரவிருக்கும் தருணங்கள்",
 "Casuarina Beach, Karainagar, Jaffna": "கசூரினா கடற்கரை, காரைநகர், யாழ்ப்பாணம்",
 "Kids' day out at Casuarina Beach": "கசூரினா கடற்கரையில் குழந்தைகளின் ஒரு நாள்",

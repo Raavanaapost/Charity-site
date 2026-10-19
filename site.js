@@ -289,6 +289,42 @@
       </section>`;
   }
 
+  // Home top: one picture per stage (Initiated, Activated, Impact) with its story link underneath,
+  // so visitors see a story from every stage at a glance. Replaces the old sliding pictures.
+  const GLANCE = [
+    { n: 1, label: "Initiated", href: "/initiated", empty: "New ideas for a day of joy are on their way." },
+    { n: 2, label: "Activated", href: "/activated", empty: "Fully funded projects will appear here." },
+    { n: 3, label: "Impact", href: "/impact", empty: "Smiles and pictures from each day will appear here." }
+  ];
+  const isPhoto = u => !!u && !/\.svg$/i.test(u);
+  function glanceHTML(projects) {
+    const pick = n => {
+      const all = projects.filter(p => stageNum(p) === n);
+      return all.find(p => p.featured) || all.find(p => isPhoto(p.cover)) || all[0];
+    };
+    const tile = g => {
+      const p = pick(g.n), count = projects.filter(x => stageNum(x) === g.n).length;
+      if (!p) return `<article class="glance s${g.n}"><div class="glance-pic glance-none" style="${art(g.n)}"><span class="glance-stage">${g.label}</span></div>
+          <div class="glance-body"><p class="glance-soon">${g.empty}</p></div></article>`;
+      const photos = (Array.isArray(p.photos) ? p.photos : []).filter(x => x && x.image).length;
+      const video = (Array.isArray(p.media) ? p.media : []).some(x => x && x.url);
+      const href = `/projects/${slugOf(p)}`, town = p.city || p.location || "";
+      return `<article class="glance s${g.n}">
+          <a class="glance-pic" href="${href}" style="${coverStyle(p, projects.indexOf(p))}" aria-label="${esc(p.title)}">
+            ${p.cover ? `<img src="${esc(imgUrl(p.cover, 900))}" alt="" loading="lazy">` : ""}
+            <span class="glance-stage">${g.label}</span>
+            ${video || photos ? `<span class="glance-media">${video ? "▶ Video" : ""}${video && photos ? " · " : ""}${photos ? `${photos} photo${photos > 1 ? "s" : ""}` : ""}</span>` : ""}
+          </a>
+          <div class="glance-body">
+            <h3><a href="${href}">${esc(p.title)}</a></h3>
+            ${town ? `<p class="glance-town">${esc(town)}</p>` : ""}
+            <p class="glance-links"><a href="${href}">Read the story →</a>${count > 1 ? `<a href="${g.href}">All ${count} ${g.label.toLowerCase()} →</a>` : ""}</p>
+          </div>
+        </article>`;
+    };
+    return `<div class="glance-grid">${GLANCE.map(tile).join("")}</div>`;
+  }
+
   function renderOverview(app, site, projects) {
     const counts = {
       initiated: projects.filter(p => stageNum(p) === 1).length,
@@ -304,7 +340,7 @@
     app.innerHTML = `
       <section class="intro">
         <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
-        ${sayingsHTML(site, slides, start)}
+        ${glanceHTML(projects)}
       </section>
       <h2 class="section-title journey-title">The Journey of a Smile</h2>
       <nav class="stages" aria-label="Our projects by stage">

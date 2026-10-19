@@ -1293,3 +1293,26 @@ body[data-page="home"] .bar .logo{visibility:hidden;pointer-events:none}
   /* running text stays a comfortable line length on a very wide screen */
   .story,.update,.media,.comments{max-width:78ch}
 }
+
+/* Home top: one story per stage, at a glance (replaces the sliding pictures) */
+.glance-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:14px}
+@media (min-width:760px){.glance-grid{grid-template-columns:repeat(3,1fr);gap:18px}}
+.glance{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;border-top:4px solid #1f7a47}
+.glance.s2{border-top-color:#eaa21c}.glance.s3{border-top-color:#c8381e}
+.glance-pic{position:relative;display:block;aspect-ratio:4/3;overflow:hidden;background:var(--brand-soft)}
+.glance-pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.glance-pic:hover img{transform:scale(1.04)}
+.glance-stage{position:absolute;left:10px;top:10px;padding:4px 10px;border-radius:999px;background:#1f7a47;color:#fff;font-family:var(--display);font-weight:700;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase}
+.glance.s2 .glance-stage{background:#eaa21c;color:#3b2400}.glance.s3 .glance-stage{background:#c8381e}
+.glance-media{position:absolute;right:10px;bottom:10px;padding:4px 9px;border-radius:999px;background:rgba(0,0,0,.62);color:#fff;font-family:var(--display);font-size:12.5px;font-weight:600}
+.glance-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:4px;flex:1}
+.glance-body h3{font-size:18px;line-height:1.25;margin:0}
+.glance-body h3 a{color:inherit;text-decoration:none}
+.glance-body h3 a:hover{text-decoration:underline}
+.glance-town{margin:0;color:var(--muted);font-size:14px}
+.glance-soon{margin:0;color:var(--muted);font-size:15px}
+.glance-links{margin:auto 0 0;padding-top:8px;display:flex;flex-wrap:wrap;gap:6px 16px;font-family:var(--display);font-weight:700;font-size:14.5px}
+.glance-links a{color:var(--brand);text-decoration:none}
+.glance-links a:hover{text-decoration:underline}
+body[data-page="overview"] .intro .headline{margin-bottom:0}
+@media (max-width:759px){.glance-pic{aspect-ratio:16/10}}
