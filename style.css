@@ -1294,25 +1294,20 @@ body[data-page="home"] .bar .logo{visibility:hidden;pointer-events:none}
   .story,.update,.media,.comments{max-width:78ch}
 }
 
-/* Home top: one story per stage, at a glance (replaces the sliding pictures) */
-.glance-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:14px}
-@media (min-width:760px){.glance-grid{grid-template-columns:repeat(3,1fr);gap:18px}}
-.glance{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;border-top:4px solid #1f7a47}
-.glance.s2{border-top-color:#eaa21c}.glance.s3{border-top-color:#c8381e}
-.glance-pic{position:relative;display:block;aspect-ratio:4/3;overflow:hidden;background:var(--brand-soft)}
-.glance-pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .3s}
-.glance-pic:hover img{transform:scale(1.04)}
-.glance-stage{position:absolute;left:10px;top:10px;padding:4px 10px;border-radius:999px;background:#1f7a47;color:#fff;font-family:var(--display);font-weight:700;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase}
-.glance.s2 .glance-stage{background:#eaa21c;color:#3b2400}.glance.s3 .glance-stage{background:#c8381e}
-.glance-media{position:absolute;right:10px;bottom:10px;padding:4px 9px;border-radius:999px;background:rgba(0,0,0,.62);color:#fff;font-family:var(--display);font-size:12.5px;font-weight:600}
-.glance-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:4px;flex:1}
-.glance-body h3{font-size:18px;line-height:1.25;margin:0}
-.glance-body h3 a{color:inherit;text-decoration:none}
-.glance-body h3 a:hover{text-decoration:underline}
-.glance-town{margin:0;color:var(--muted);font-size:14px}
-.glance-soon{margin:0;color:var(--muted);font-size:15px}
-.glance-links{margin:auto 0 0;padding-top:8px;display:flex;flex-wrap:wrap;gap:6px 16px;font-family:var(--display);font-weight:700;font-size:14.5px}
-.glance-links a{color:var(--brand);text-decoration:none}
-.glance-links a:hover{text-decoration:underline}
+/* Home top, like GlobalGiving: one big picture, then four, text written on the photos */
+.mosaic{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:14px;border-radius:var(--r);overflow:hidden}
+.mosaic-tile{position:relative;display:block;aspect-ratio:1/1;overflow:hidden;color:#fff;text-decoration:none;background:#1b3a2a}
+.mosaic-tile.big{grid-column:1/-1;aspect-ratio:4/3}
+@media (min-width:760px){.mosaic-tile{aspect-ratio:16/9}.mosaic-tile.big{aspect-ratio:5/2}}
+.mosaic-tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.mosaic-tile:hover img{transform:scale(1.04)}
+.mosaic-tile::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,20,15,.05) 30%,rgba(10,20,15,.78) 100%)}
+.mosaic-text{position:absolute;left:0;right:0;bottom:0;z-index:1;padding:12px 14px 14px;display:grid;gap:4px}
+.mosaic-tile.big .mosaic-text{padding:18px 20px 22px}
+.mosaic-eyebrow{font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;opacity:.95;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.mosaic-eyebrow i{font-style:normal;padding:2px 8px;border-radius:999px;background:#1f7a47}
+.mosaic-tile.s2 .mosaic-eyebrow i{background:#eaa21c;color:#3b2400}.mosaic-tile.s3 .mosaic-eyebrow i{background:#c8381e}
+.mosaic-title{font-family:var(--display);font-weight:700;font-size:16px;line-height:1.2;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.mosaic-tile.big .mosaic-title{font-size:clamp(24px,4.5vw,40px)}
+@media (min-width:760px){.mosaic-title{font-size:22px}}
 body[data-page="overview"] .intro .headline{margin-bottom:0}
-@media (max-width:759px){.glance-pic{aspect-ratio:16/10}}

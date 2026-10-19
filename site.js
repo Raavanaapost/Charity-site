@@ -289,40 +289,27 @@
       </section>`;
   }
 
-  // Home top: one picture per stage (Initiated, Activated, Impact) with its story link underneath,
-  // so visitors see a story from every stage at a glance. Replaces the old sliding pictures.
-  const GLANCE = [
-    { n: 1, label: "Initiated", href: "/initiated", empty: "New ideas for a day of joy are on their way." },
-    { n: 2, label: "Activated", href: "/activated", empty: "Fully funded projects will appear here." },
-    { n: 3, label: "Impact", href: "/impact", empty: "Smiles and pictures from each day will appear here." }
-  ];
+  // Home top, like GlobalGiving: one big picture, then four smaller ones, each with its
+  // place and title written on the photo. Tapping a picture opens that project's page.
   const isPhoto = u => !!u && !/\.svg$/i.test(u);
+  const STAGE_LABEL = ["Initiated", "Activated", "Impact"];
   function glanceHTML(projects) {
-    const pick = n => {
-      const all = projects.filter(p => stageNum(p) === n);
-      return all.find(p => p.featured) || all.find(p => isPhoto(p.cover)) || all[0];
+    const shown = projects.filter(p => !p.hidden);
+    // Featured first, then real photos before drawings, then the rest in admin order.
+    const order = [...shown].sort((x, y) => (!!y.featured - !!x.featured) || (isPhoto(y.cover) - isPhoto(x.cover)));
+    const pick = order.slice(0, 5);
+    if (!pick.length) return "";
+    const tile = (p, k) => {
+      const n = stageNum(p), town = p.city || (p.location || "").split(",")[0];
+      return `<a class="mosaic-tile s${n}${k === 0 ? " big" : ""}" href="/projects/${slugOf(p)}" style="${coverStyle(p, projects.indexOf(p))}">
+          ${p.cover ? `<img src="${esc(imgUrl(p.cover, k === 0 ? 1400 : 800))}" alt=""${k ? ' loading="lazy"' : ""}>` : ""}
+          <span class="mosaic-text">
+            <span class="mosaic-eyebrow"><i>${STAGE_LABEL[n - 1]}</i>${town ? ` ${esc(town)}` : ""}</span>
+            <span class="mosaic-title">${esc(p.title)}</span>
+          </span>
+        </a>`;
     };
-    const tile = g => {
-      const p = pick(g.n), count = projects.filter(x => stageNum(x) === g.n).length;
-      if (!p) return `<article class="glance s${g.n}"><div class="glance-pic glance-none" style="${art(g.n)}"><span class="glance-stage">${g.label}</span></div>
-          <div class="glance-body"><p class="glance-soon">${g.empty}</p></div></article>`;
-      const photos = (Array.isArray(p.photos) ? p.photos : []).filter(x => x && x.image).length;
-      const video = (Array.isArray(p.media) ? p.media : []).some(x => x && x.url);
-      const href = `/projects/${slugOf(p)}`, town = p.city || p.location || "";
-      return `<article class="glance s${g.n}">
-          <a class="glance-pic" href="${href}" style="${coverStyle(p, projects.indexOf(p))}" aria-label="${esc(p.title)}">
-            ${p.cover ? `<img src="${esc(imgUrl(p.cover, 900))}" alt="" loading="lazy">` : ""}
-            <span class="glance-stage">${g.label}</span>
-            ${video || photos ? `<span class="glance-media">${video ? "▶ Video" : ""}${video && photos ? " · " : ""}${photos ? `${photos} photo${photos > 1 ? "s" : ""}` : ""}</span>` : ""}
-          </a>
-          <div class="glance-body">
-            <h3><a href="${href}">${esc(p.title)}</a></h3>
-            ${town ? `<p class="glance-town">${esc(town)}</p>` : ""}
-            <p class="glance-links"><a href="${href}">Read the story →</a>${count > 1 ? `<a href="${g.href}">All ${count} ${g.label.toLowerCase()} →</a>` : ""}</p>
-          </div>
-        </article>`;
-    };
-    return `<div class="glance-grid">${GLANCE.map(tile).join("")}</div>`;
+    return `<div class="mosaic">${pick.map(tile).join("")}</div>`;
   }
 
   function renderOverview(app, site, projects) {
