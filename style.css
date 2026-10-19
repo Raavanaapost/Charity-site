@@ -1319,3 +1319,22 @@ body[data-page="overview"] .intro .headline{margin-bottom:0}
 .explore-tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
 .explore-tabs button{font-family:var(--display);font-weight:700;font-size:15px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
 .explore-tabs button[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+/* Desktop, like GlobalGiving: big picture on the left, 2x2 on the right, Explore as one strip below */
+@media (min-width:900px){
+  .mosaic{grid-template-columns:2fr 1fr 1fr;grid-template-rows:repeat(2,250px);border-radius:var(--r) var(--r) 0 0}
+  .mosaic-tile,.mosaic-tile.big,.mosaic-tile.wide{aspect-ratio:auto}
+  .mosaic-tile.big{grid-column:1;grid-row:1/3}
+  .mosaic-tile.wide{grid-column:2/4}
+  .mosaic.n1 .mosaic-tile.big{grid-column:1/-1}
+  .mosaic.n2 .mosaic-tile:not(.big){grid-column:2/4;grid-row:1/3}
+  .mosaic.n3 .mosaic-tile:not(.big){grid-column:2/4}
+  .mosaic-title{font-size:18px}
+  .mosaic-tile.big .mosaic-title{font-size:30px}
+  .explore{margin-top:0;padding:12px 18px;display:flex;align-items:center;gap:18px;background:var(--brand-soft);border-radius:0 0 var(--r) var(--r);text-align:left}
+  .explore-title{margin:0;font-size:13px;white-space:nowrap}
+  .explore-tabs{justify-content:flex-start;gap:4px 6px}
+  .explore-tabs button{border-color:transparent;background:none;font-size:14.5px;padding:6px 12px}
+  .explore-tabs button:hover{background:var(--surface)}
+  .explore-tabs button[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink)}
+}
+@media (min-width:1200px){.mosaic{grid-template-rows:repeat(2,280px)}}

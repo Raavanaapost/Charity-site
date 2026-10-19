@@ -323,7 +323,8 @@
     const shown = projects.filter(p => !p.hidden);
     if (!shown.length) return "";
     const tabs = EXPLORE.filter(([, f]) => f(shown).length);
-    return `<div class="mosaic" aria-live="polite">${mosaicTiles(tabs[0][1](shown), projects)}</div>
+    const first = tabs[0][1](shown);
+    return `<div class="mosaic n${Math.min(first.length, 5)}" aria-live="polite">${mosaicTiles(first, projects)}</div>
       <div class="explore">
         <h2 class="explore-title">Explore projects</h2>
         <div class="explore-tabs" role="group" aria-label="Explore projects">
@@ -339,7 +340,9 @@
       const b = e.target.closest("button"); if (!b) return;
       box.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
       const f = EXPLORE.find(([t]) => t === b.dataset.ex)[1];
-      mo.innerHTML = mosaicTiles(f(shown), projects);
+      const list = f(shown);
+      mo.className = `mosaic n${Math.min(list.length, 5)}`;
+      mo.innerHTML = mosaicTiles(list, projects);
     });
   }
 
