@@ -1381,7 +1381,7 @@ body[data-page="overview"] .stages{margin-bottom:6px}
 .stage-path.run .sp-line{stroke-width:4;animation-duration:.5s}
 .stages .stage.lit{box-shadow:0 0 16px 2px color-mix(in srgb,var(--c) 35%,transparent)}
 @keyframes stage-glow{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--c) 0%,transparent)}50%{box-shadow:0 0 22px 4px color-mix(in srgb,var(--c) 45%,transparent)}}
-.stages .stage.arrive{animation:stage-blink .9s ease-out}
+.stages .stage.arrive{animation:stage-blink 1.8s ease-in-out}
 @keyframes stage-pop{0%{transform:scale(1)}45%{transform:scale(1.06)}100%{transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){.stages .stage.lit,.stages .stage.arrive{animation:none}.sp-spark{display:none}}
 /* Round 9 (19 Oct): no curved line, slogan close under the circles */
@@ -1411,13 +1411,11 @@ body[data-page="overview"] .stages{margin-bottom:6px}
 .create-cta{gap:24px;margin-top:22px}
 .cc-orbit{inset:-22px}
 .cc-says{margin-top:-4px}
-@keyframes stage-blink{0%{transform:scale(1);box-shadow:0 0 0 0 transparent;filter:brightness(1)}
-  20%{transform:scale(1.06);box-shadow:0 0 30px 8px color-mix(in srgb,var(--c) 60%,transparent);filter:brightness(1.18)}
-  40%{transform:scale(1);filter:brightness(1)}
-  60%{transform:scale(1.04);box-shadow:0 0 26px 6px color-mix(in srgb,var(--c) 55%,transparent);filter:brightness(1.14)}
-  100%{transform:scale(1);box-shadow:0 0 16px 2px color-mix(in srgb,var(--c) 35%,transparent);filter:brightness(1)}}
-.rail-say span.on{animation:say-blink .9s ease-out}
-@keyframes say-blink{0%{opacity:0;transform:translateY(6px)}20%{opacity:1;transform:none}40%{opacity:.45}60%{opacity:1}100%{opacity:1}}
+@keyframes stage-blink{0%{box-shadow:0 0 0 0 transparent;filter:brightness(1)}
+  45%{box-shadow:0 0 28px 6px color-mix(in srgb,var(--c) 50%,transparent);filter:brightness(1.1)}
+  100%{box-shadow:0 0 16px 2px color-mix(in srgb,var(--c) 35%,transparent);filter:brightness(1)}}
+.rail-say span.on{animation:say-in 1.8s ease-in-out}
+@keyframes say-in{0%{opacity:0;transform:translateY(4px)}45%{opacity:1;transform:none}100%{opacity:1}}
 /* Home: the three stage sections as lists, each on a soft shade of its own colour */
 .home-latest{--hc:#1f7a47;padding:20px 18px 22px;border-radius:16px;background:linear-gradient(160deg,color-mix(in srgb,var(--hc) 14%,var(--surface)) 0%,color-mix(in srgb,var(--hc) 4%,var(--surface)) 70%);box-shadow:0 14px 34px -22px var(--hc),inset 0 0 0 1px color-mix(in srgb,var(--hc) 16%,transparent)}
 .home-latest.s2{--hc:#eaa21c}.home-latest.s3{--hc:#c8381e}
@@ -1438,3 +1436,58 @@ body[data-page="overview"] .stages{margin-bottom:6px}
 .hrow-go{font-family:var(--display);font-weight:700;font-size:20px;color:var(--hc);padding-right:6px}
 @media (max-width:640px){.home-latest{padding:16px 12px 18px}.hrow{grid-template-columns:76px minmax(0,1fr);gap:11px;padding:8px}.hrow-pic{width:76px;height:64px}.hrow-go{display:none}.hrow-text b{font-size:15.5px}.hrow-sum{font-size:13px}}
 @media (prefers-reduced-motion:reduce){.stages .stage.arrive,.rail-say span.on{animation:none}}
+
+/* Project page: title, picture, then the story cut to three lines */
+.layout .phead{padding-block:6px 16px}
+.layout .hero{margin-bottom:18px}
+.ptale{margin:0 0 22px;--tc:#1f7a47}
+.ptale.s2{--tc:#b97a06}.ptale.s3{--tc:#c8381e}
+.ptale .pull{margin:0 0 10px}
+.ptale-text{max-height:calc(3 * 1.75em);overflow:hidden;line-height:1.75;-webkit-mask-image:linear-gradient(180deg,#000 55%,transparent);mask-image:linear-gradient(180deg,#000 55%,transparent);transition:max-height .5s ease}
+.ptale-text > :first-child{margin-top:0}
+.ptale-text h2,.ptale-text h3,.ptale-text h4{font-size:19px;margin:18px 0 6px}
+.ptale.open .ptale-text,.ptale.short .ptale-text{max-height:none;-webkit-mask-image:none;mask-image:none}
+.ptale-more{margin-top:8px;display:inline-flex;align-items:center;gap:8px;padding:9px 16px 9px 18px;border-radius:999px;border:1.5px solid var(--tc);background:color-mix(in srgb,var(--tc) 8%,var(--surface));color:var(--tc);font-family:"Playfair Display",Georgia,serif;font-style:italic;font-weight:800;font-size:17px;cursor:pointer;transition:background .2s,color .2s}
+.ptale-more:hover{background:var(--tc);color:#fff}
+.ptale-more i{font-style:normal;font-family:var(--display);transition:transform .3s}
+.ptale.open .ptale-more i{transform:rotate(180deg)}
+/* Initiated project: "Let's take this to 100%" */
+.go100{border:0;background:linear-gradient(165deg,#fff7e8,var(--surface) 55%);box-shadow:0 0 0 1.5px color-mix(in srgb,var(--sun) 45%,transparent),0 16px 34px -20px var(--sun)}
+.go-kicker{margin:0;font-family:var(--display);font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#1f7a47}
+.go-title{font-family:"Playfair Display",Georgia,serif!important;font-weight:900;font-size:clamp(21px,2.4vw,25px)!important;line-height:1.2;margin:4px 0 14px!important}
+.go-title span{display:block;background:linear-gradient(90deg,var(--sun),var(--flame));-webkit-background-clip:text;background-clip:text;color:transparent}
+.go100.previewing .ring-n{fill:var(--flame)}
+.go-open{margin-top:16px;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:13px 16px;border:0;border-radius:12px;background:var(--flame);color:#fff;font-family:var(--display);font-weight:700;font-size:16px;cursor:pointer;box-shadow:0 10px 20px -10px var(--flame);animation:go-nudge 3.2s ease-in-out infinite}
+.go-open i{font-style:normal;transition:transform .3s}
+.go100.open .go-open{animation:none;background:#1d2622}
+.go100.open .go-open i{transform:rotate(180deg)}
+@keyframes go-nudge{0%,80%,100%{transform:none}86%{transform:translateY(-2px)}92%{transform:translateY(1px)}}
+.go-fold{margin-top:16px;display:grid;gap:18px;animation:go-in .4s ease-out}
+@keyframes go-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.go-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.go-list li{display:grid;grid-template-columns:52px minmax(0,1fr);gap:10px;align-items:start;padding:10px 12px;border-radius:12px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.go-list li i{font-style:normal;display:grid;place-items:center;height:30px;border-radius:999px;font-family:var(--display);font-weight:800;font-size:13.5px}
+.go-list li.done i{background:#e2efe6;color:#1f7a47}
+.go-list li.todo{cursor:default;transition:box-shadow .2s,transform .2s}
+.go-list li.todo i{background:var(--flame);color:#fff}
+.go-list li.todo:hover,.go-list li.todo:focus{outline:none;box-shadow:inset 0 0 0 1.5px var(--flame),0 6px 14px -8px var(--flame);transform:translateX(2px)}
+.go-list b{display:block;font-family:var(--display);font-size:15px}
+.go-list span{display:block;font-size:13.5px;color:var(--muted);line-height:1.45}
+.go-list li.done b{color:var(--muted);text-decoration:line-through;text-decoration-color:color-mix(in srgb,#1f7a47 60%,transparent)}
+.go-form{display:grid;gap:10px;padding:16px;border-radius:14px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.go-form h3{margin:0;font-family:"Playfair Display",Georgia,serif;font-weight:900;font-size:22px;color:var(--flame)}
+.go-sub{margin:0;font-size:14px;color:var(--muted)}
+.go-ways{border:0;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.go-ways legend{font-family:var(--display);font-weight:700;font-size:14px;margin-bottom:6px;padding:0}
+.go-way{position:relative;cursor:pointer}
+.go-way input{position:absolute;opacity:0;pointer-events:none}
+.go-way span{display:inline-block;padding:7px 12px;border-radius:999px;border:1px solid var(--line);font-family:var(--display);font-weight:600;font-size:13.5px;background:var(--bg);transition:background .15s,color .15s,border-color .15s}
+.go-way input:checked + span{background:#1f7a47;border-color:#1f7a47;color:#fff}
+.go-way input:focus-visible + span{outline:2px solid var(--flame);outline-offset:2px}
+.go-form label{display:grid;gap:4px;font-family:var(--display);font-weight:600;font-size:14px}
+.go-form input:not([type=checkbox]),.go-form textarea{font:inherit;font-weight:400;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.go-send{background:var(--flame);border-color:var(--flame)}
+@media (prefers-reduced-motion:reduce){.go-open,.go-fold{animation:none}.ptale-text{transition:none}}
+.go-fold[hidden],.ptale-more[hidden]{display:none}
+.ptale:not(.open):not(.short) .ptale-text :is(h2,h3,h4){display:none}
+.ptale:not(.open):not(.short) .ptale-text p{margin:0 0 .4em}

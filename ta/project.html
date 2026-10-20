@@ -34,6 +34,9 @@
 </header>
 <main id="app" class="wrap"></main>
 <!-- Lets Netlify detect the comment form that the page builds with JavaScript -->
+<form name="make-it-happen" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input name="project"><input name="name"><input name="contact"><input type="checkbox" name="ways[]" value="x"><textarea name="note"></textarea><input name="bot-field">
+</form>
 <form name="comments" data-netlify="true" netlify-honeypot="bot-field" hidden>
   <input name="project"><input name="name"><textarea name="comment"></textarea><input name="bot-field">
 </form>

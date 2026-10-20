@@ -954,6 +954,85 @@
       </div>`;
   }
 
+  // Initiated project page: "Let's take this to 100%". The ring, then a fold that opens to show
+  // what is still missing (each with the % it adds) and a short note form to help make it happen.
+  // No payment here: people send a note and the team gets back to them.
+  function goPanelHTML(p, site, cls) {
+    const steps = ringSteps(p), pct = ringPercent(p), b = budgetOf(p), money = n => moneyOf(site, n, p);
+    const kids = String(p.reach || "").match(/\d+/), slice = 100 / steps.length, id = cls.replace(/\W/g, "");
+    const need = Math.max(0, b.goal - b.raised);
+    const say = [
+      d => d ? "Our team visited and saw the need for themselves." : "Our team visits to make sure the need is real. Know this place? Tell us below.",
+      d => d ? `We know what the day costs: ${money(b.goal)}.` : "We're working out what the day will cost: transport, food, tickets.",
+      d => d >= 1 ? "Every part of the day is covered." : b.goal ? `${money(need)} still to go. This is where you come in.` : "Opens as soon as the budget is ready. Send a note and we'll tell you first."
+    ];
+    const WAYS = ["Cover part of the day", "Cover the whole day", "Give something the day needs (a van, food, gifts)", "Help on the day", "Share it with friends"];
+    const ring = activatingPanelHTML(p, "").match(/<svg class="ring"[\s\S]*?<\/svg>/)[0];
+    const raw = steps.reduce((t, x) => t + Math.min(1, x.done), 0) * slice;
+    return `<div class="panel activating go100 ${cls}" data-pct="${pct}" data-raw="${raw}">
+        <p class="go-kicker">Activating</p>
+        <h2 class="go-title">Help ${kids ? kids[0] + " children" : "these children"} laugh. <span>Let's take this to 100%.</span></h2>
+        <div class="ring-row">
+          ${ring}
+          <ul class="ring-steps">${steps.map(x => { const d = x.done; return `<li class="${d >= 1 ? "done" : d > 0 ? "part" : ""}"><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${d >= 1 ? "✓" : x.pctLabel && d > 0 ? Math.round(d * 100) + "%" : "–"}</b></li>`; }).join("")}</ul>
+        </div>
+        ${pct < 100 ? `<button class="go-open" type="button" aria-expanded="false" aria-controls="go-fold-${id}"><span>See what's left to reach 100%</span><i aria-hidden="true">⌄</i></button>
+        <div class="go-fold" id="go-fold-${id}" hidden>
+          <ol class="go-list">${steps.map((x, k) => { const d = x.done, addRaw = slice * (1 - Math.min(1, d)), add = Math.round(addRaw);
+            return `<li class="${d >= 1 ? "done" : "todo"}" data-add="${addRaw}"${d >= 1 ? "" : ' tabindex="0"'}>
+              <i aria-hidden="true">${d >= 1 ? "✓" : "+" + add + "%"}</i>
+              <div><b>${esc(x.name)}</b><span>${say[k] ? say[k](d) : ""}</span></div></li>`; }).join("")}</ol>
+          <form class="go-form" name="make-it-happen" data-ajax data-done="Thank you! Your note is on its way. We'll be in touch soon, and you'll be part of a child's best day.">
+            <h3>Make this happen</h3>
+            <p class="go-sub">Send us a note. No payment here: just tell us how you'd like to help and we'll reach out.</p>
+            <input type="hidden" name="form-name" value="make-it-happen">
+            <input type="hidden" name="project" value="${esc(slugOf(p))}">
+            <p hidden><label>Leave empty <input name="bot-field"></label></p>
+            <fieldset class="go-ways"><legend>I'd love to…</legend>
+              ${WAYS.map(w => `<label class="go-way"><input type="checkbox" name="ways[]" value="${esc(w)}"><span>${esc(w)}</span></label>`).join("")}
+            </fieldset>
+            <label for="go-name-${id}">Your name<input id="go-name-${id}" name="name" required maxlength="80" autocomplete="name"></label>
+            <label for="go-contact-${id}">Email or WhatsApp<input id="go-contact-${id}" name="contact" required maxlength="120"></label>
+            <label for="go-note-${id}">A note for us (optional)<textarea id="go-note-${id}" name="note" maxlength="1500" rows="3"></textarea></label>
+            <button class="btn go-send" type="submit">Send my note</button>
+            <p class="note" data-msg hidden></p>
+          </form>
+        </div>` : ""}
+      </div>`;
+  }
+  function wireGo(root) {
+    root.querySelectorAll(".go100").forEach(box => {
+      const pct = +box.dataset.pct, n = box.querySelector(".ring-n"), l = box.querySelector(".ring-l");
+      const label = l ? l.textContent : "";
+      const setN = (v, preview) => { if (n) n.textContent = Math.round(v) + "%"; if (l) l.textContent = preview ? "IF DONE" : label; box.classList.toggle("previewing", !!preview); };
+      // The % counts up the first time the panel comes into view.
+      const countUp = () => { const t0 = performance.now(), dur = 1100; const step = now => { const t = Math.min(1, (now - t0) / dur); setN(pct * (1 - Math.pow(1 - t, 3))); if (t < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); };
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window) || box.offsetParent === null) setN(pct);
+      else { setN(0); const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); countUp(); } }, { threshold: .4 }); io.observe(box); }
+      const btn = box.querySelector(".go-open"), fold = box.querySelector(".go-fold");
+      if (btn && fold) btn.addEventListener("click", () => {
+        const open = btn.getAttribute("aria-expanded") !== "true";
+        btn.setAttribute("aria-expanded", open); fold.hidden = !open; box.classList.toggle("open", open);
+        btn.querySelector("span").textContent = open ? "Fold it away" : "See what's left to reach 100%";
+      });
+      // Pointing at a missing step shows what the % would become once it's done.
+      box.querySelectorAll(".go-list li.todo").forEach(li => {
+        const on = () => setN(Math.min(100, +box.dataset.raw + +li.dataset.add), true), off = () => setN(pct);
+        li.addEventListener("mouseenter", on); li.addEventListener("mouseleave", off);
+        li.addEventListener("focus", on); li.addEventListener("blur", off);
+      });
+    });
+  }
+  function wireTale(root, open, remember) {
+    const box = root.querySelector(".ptale"); if (!box) return;
+    const text = box.querySelector(".ptale-text"), btn = box.querySelector(".ptale-more");
+    const label = btn.querySelector("span").textContent;
+    const set = v => { box.classList.toggle("open", v); btn.setAttribute("aria-expanded", v); btn.querySelector("span").textContent = v ? "Show less" : label; remember(v); };
+    // Only offer the link when the story is longer than three lines.
+    requestAnimationFrame(() => { if (text.scrollHeight > text.clientHeight + 4) { btn.hidden = false; set(open); } else box.classList.add("short"); });
+    btn.addEventListener("click", () => { const v = !box.classList.contains("open"); set(v); if (!v) box.scrollIntoView({ block: "nearest", behavior: "smooth" }); });
+  }
+
   // Budget figures for a project: what it costs, what supporters have given, and the share funded.
   function budgetOf(p) {
     const lines = (p.budget || []).filter(x => x && x.item), funders = (p.funders || []).filter(x => x && x.name);
@@ -1416,7 +1495,7 @@
     const steps = ringSteps(p);
     const delivered = stageNum(p) === 3;
     const ringPct = delivered ? 100 : Math.round(steps.reduce((s, x) => s + x.done, 0) / steps.length * 100);
-    const ringPanel = cls => activatingPanelHTML(p, cls);
+    const ringPanel = cls => stageNum(p) === 1 && !p.sample ? goPanelHTML(p, site, cls) : activatingPanelHTML(p, cls);
     const moneyHTML = `
       ${lines.length ? `<section class="money">
         <h2 class="section-title">Where the money goes</h2>
@@ -1436,12 +1515,17 @@
       media: ic('<rect x="3.5" y="5.5" width="17" height="13" rx="3"/><path d="M10.2 9.300v5.400l4.6-2.700z" fill="currentColor"/>'),
       budget: ic('<rect x="3.5" y="6" width="17" height="12" rx="2.5"/><path d="M3.5 10h17"/><path d="M7 14.500h4"/>')
     };
-    const tabs = [
-      ["story", "Story"],
-      ["updates", "Impact"],
-      ["budget", "Budget"],
-      ["media", `Media${count(photos.length + media.length)}`]
-    ];
+    // Under the picture: the story, cut to three lines, with an inviting link to open the rest.
+    const st = stageNum(p);
+    const taleSrc = String(p.story || "").replace(/^\s*#{1,4}\s*Summary\s*\n+/i, "").trim() || p.summary || "";
+    const TALE_MORE = ["", "See how this smile begins", "See how this moment comes together", "Relive the whole day"];
+    const taleHTML = taleSrc ? `<section class="ptale s${st}">
+        ${p.quote ? `<p class="pull">“${esc(p.quote)}”</p>` : ""}
+        <div class="ptale-text story" id="ptale-text">${md(taleSrc)}</div>
+        <button class="ptale-more" type="button" aria-expanded="false" aria-controls="ptale-text" hidden><span>${TALE_MORE[st]}</span><i aria-hidden="true">⌄</i></button>
+      </section>` : "";
+    const tabs = (st === 3 ? [["updates", "Impact"], ["budget", "Budget"]] : [["budget", "Budget"], ["updates", "Impact"]])
+      .concat([["media", `Media${count(photos.length + media.length)}`]]);
 
     const panes = {
       story: `<div class="story">${p.quote ? `<p class="pull">“${esc(p.quote)}”</p>` : ""}${md(p.story)}</div>`,
@@ -1450,19 +1534,20 @@
       media: (photos.length || media.length) ? `${media.length ? `<div class="media">${media.map(m => { const e = embedFor(m.url); return e ? `<figure style="margin:0"><div class="embed"><iframe src="${esc(e)}" title="${esc(m.title)}" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy"></iframe></div>${m.title ? `<figcaption class="note" style="padding-top:6px">${esc(m.title)}</figcaption>` : ""}</figure>` : `<a class="media-link" href="${esc(m.url)}" target="_blank" rel="noopener">▶ ${esc(m.title || m.url)}</a>`; }).join("")}</div>` : ""}${photos.length ? `<div class="photos">${photos.map((ph, k) => `<figure><button data-src="${esc(imgUrl(ph.image, 1600))}" aria-label="Open picture"><div class="cover"><img src="${esc(imgUrl(ph.image, 600))}" alt="${esc(ph.caption)}" loading="lazy"></div></button>${ph.caption ? `<figcaption>${esc(ph.caption)}</figcaption>` : ""}</figure>`).join("")}</div>` : ""}` : `<p class="empty">No videos or pictures yet.</p>`
     };
 
+    let taleOpen = false;
     const draw = tab => {
       app.innerHTML = `
         ${p.sample ? `<p class="sample-note"><b>Sample page.</b> This shows how a project page looks once it is filled in. The project, the figures and the names are examples, not real.</p>` : ""}
         <nav class="crumbs"><a href="/initiated">Projects</a>${p.theme ? ` / ${esc(p.theme)}` : ""}</nav>
-        <header class="phead">
-          ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
-          <h1>${esc(p.title)}</h1>
-          <p class="lede">${esc(p.summary)}</p>
-          <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>by <strong>${esc(p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Visited and verified</span>` : ""}</div>
-        </header>
         <div class="layout">
           <div style="min-width:0">
+            <header class="phead">
+              ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
+              <h1>${esc(p.title)}</h1>
+              <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>by <strong>${esc(p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Visited and verified</span>` : ""}</div>
+            </header>
             <div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.cover ? "" : "Cover photo", 1400)}</div>
+            ${taleHTML}
             ${ringPanel("only-narrow")}
             ${stageNum(p) === 3 ? "" : `<div class="only-narrow">${budgetBoxHTML(p, site, false)}</div>`}
             <div class="tabs" role="tablist">
@@ -1490,6 +1575,8 @@
         </div>`;
       wireForms(app);
       app.querySelectorAll(".tab").forEach(b => b.onclick = () => { draw(b.dataset.t); history.replaceState(null, "", "#" + b.dataset.t); });
+      wireTale(app, taleOpen, v => { taleOpen = v; });
+      wireGo(app);
       app.querySelectorAll(".photos button").forEach(b => b.onclick = () => {
         const lb = document.createElement("div");
         lb.className = "lightbox"; lb.innerHTML = `<img src="${esc(b.dataset.src)}" alt="">`;
@@ -1497,7 +1584,7 @@
       });
     };
     const start = location.hash.slice(1);
-    draw(tabs.some(([k]) => k === start) ? start : "story");
+    draw(tabs.some(([k]) => k === start) ? start : tabs[0][0]);
   }
 
   function renderPrivacy(app, site) {
