@@ -1346,12 +1346,12 @@ body[data-page="overview"] .stages{margin-top:4px}
 .explore{margin-bottom:22px}
 /* Home: one slogan under the circles, with a moving line up to its stage */
 body[data-page="overview"] .stages{margin-bottom:6px}
-.stage-rail{--rc:#1f7a47;position:relative;margin:0 0 22px;text-align:center}
+.stage-rail{--rc:#1f7a47;position:relative;margin:2px 0 18px;text-align:center}
 .rail-svg{display:block;overflow:visible}
 .rail-path{fill:none;stroke:var(--rc);stroke-width:1.6;stroke-linecap:round;transition:stroke .5s}
 .rail-dot{fill:var(--rc);transition:fill .5s}
 .rail-end{fill:none;stroke:var(--rc);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-.rail-say{display:grid;margin:6px 0 0}
+.rail-say{display:grid;margin:1px 0 0}
 .rail-say span{grid-area:1/1;opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s;font-family:"Playfair Display",Georgia,serif;font-style:italic;font-weight:800;font-size:clamp(20px,4vw,30px);line-height:1.2}
 .rail-say span.on{opacity:1;transform:none}
 .rail-say .s1{color:#1f7a47}.rail-say .s2{color:#b97a06}.rail-say .s3{color:#c8381e}
@@ -1373,3 +1373,14 @@ body[data-page="overview"] .stages{margin-bottom:6px}
 .create-cta:hover .cc-go{background:var(--flame)}
 @media (prefers-reduced-motion:reduce){.cc-icon::before{animation:none}}
 .mosaic-empty a{color:var(--brand);font-weight:700}
+/* Home: the flow between stages. A spark runs along the arrow, the next circle lights up,
+   then the line and slogan follow. The lit circle keeps a soft glow. */
+.sp-spark{fill:#fff;stroke:var(--sun);stroke-width:2;opacity:0;filter:drop-shadow(0 0 4px var(--gold))}
+.stage-path.run .sp-spark{opacity:1}
+.stage-path.p1 .sp-spark{stroke:#3f9a5f}.stage-path.p2 .sp-spark{stroke:#e5851a}
+.stage-path.run .sp-line{stroke-width:4;animation-duration:.5s}
+.stages .stage.lit{box-shadow:0 0 0 0 var(--c);animation:stage-glow 2.2s ease-in-out infinite}
+@keyframes stage-glow{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--c) 0%,transparent)}50%{box-shadow:0 0 22px 4px color-mix(in srgb,var(--c) 45%,transparent)}}
+.stages .stage.arrive{animation:stage-pop .55s ease-out,stage-glow 2.2s ease-in-out .55s infinite}
+@keyframes stage-pop{0%{transform:scale(1)}45%{transform:scale(1.06)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.stages .stage.lit,.stages .stage.arrive{animation:none}.sp-spark{display:none}}

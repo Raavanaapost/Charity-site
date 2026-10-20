@@ -324,19 +324,32 @@
     if (!rail || !nav) return;
     const svg = rail.querySelector(".rail-svg"), path = rail.querySelector(".rail-path"), dot = rail.querySelector(".rail-dot"), end = rail.querySelector(".rail-end");
     const circles = [...nav.querySelectorAll(".stage")], says = [...rail.querySelectorAll(".rail-say span")];
-    const H = 46;
+    const H = 22;
     let k = 0, x = null, locked = false, anim = 0;
     const target = i => { const r = rail.getBoundingClientRect(), c = circles[i].getBoundingClientRect(); return c.left + c.width / 2 - r.left; };
     const draw = () => {
       const w = rail.clientWidth, cx = w / 2;
       svg.setAttribute("viewBox", `0 0 ${w} ${H}`); svg.setAttribute("width", w); svg.setAttribute("height", H);
-      path.setAttribute("d", `M${x} 3 C${x} ${H * .6}, ${cx} ${H * .35}, ${cx} ${H - 2}`);
-      dot.setAttribute("cx", x); dot.setAttribute("cy", 4);
-      end.setAttribute("d", `M${cx - 4} ${H - 4}l4 4 4-4`);
+      path.setAttribute("d", `M${x} 2 C${x} ${H * .7}, ${cx} ${H * .3}, ${cx} ${H - 1}`);
+      dot.setAttribute("cx", x); dot.setAttribute("cy", 2.5);
+      end.setAttribute("d", `M${cx - 3.5} ${H - 4}l3.5 3.5 3.5-3.5`);
       rail.style.setProperty("--rc", STAGE_COLOR[k]);
     };
+    const paths = [...nav.querySelectorAll(".stage-path")];
+    // Moving forward a stage, a spark runs along the arrow first, then the stage lights up.
+    const flow = (from, to) => {
+      const arrow = to === from + 1 ? paths[from] : null;
+      const anim = arrow && arrow.querySelector("animateMotion");
+      if (anim && anim.beginElement) { arrow.classList.add("run"); anim.beginElement(); setTimeout(() => arrow.classList.remove("run"), 800); }
+      return anim ? 560 : 0;
+    };
+    const light = i => circles.forEach((c, j) => { c.classList.toggle("lit", j === i); if (j === i) { c.classList.remove("arrive"); void c.offsetWidth; c.classList.add("arrive"); } });
     const go = (i, instant) => {
-      k = i;
+      if (!instant && i !== k) { const wait = flow(k, i); if (wait) { const n = i; setTimeout(() => move(n), wait); return; } }
+      move(i, instant);
+    };
+    const move = (i, instant) => {
+      k = i; light(i);
       says.forEach((sp, j) => sp.classList.toggle("on", j === i));
       cancelAnimationFrame(anim);
       const from = x == null ? target(i) : x, to = target(i), t0 = performance.now(), dur = instant ? 0 : 700;
@@ -426,7 +439,7 @@
         <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
       </section>
       <nav class="stages" aria-label="Show pictures by stage">
-        ${Object.entries(STAGES).map(([slug, st], k) => `${k ? `<span class="stage-path p${k}" aria-hidden="true"><svg viewBox="0 0 60 34"><path class="sp-line" d="M4 26Q30 -2 54 24"/><path class="sp-head" d="M47 17l8 8-11 2"/></svg></span>` : ""}
+        ${Object.entries(STAGES).map(([slug, st], k) => `${k ? `<span class="stage-path p${k}" aria-hidden="true"><svg viewBox="0 0 60 34"><path class="sp-line" d="M4 26Q30 -2 54 24"/><path class="sp-head" d="M47 17l8 8-11 2"/><circle class="sp-spark" r="3.6" cx="0" cy="0"><animateMotion dur="0.7s" begin="indefinite" fill="freeze" path="M4 26Q30 -2 54 24" calcMode="spline" keyTimes="0;1" keySplines="0.45 0 0.55 1"/></circle></svg></span>` : ""}
           <a class="stage art stat-${st.key}" href="/${slug}" data-ex="${st.label}">
             <i>${ICONS[st.key]}</i>
             <b${counts[slug] ? "" : ' class="zero"'}>${counts[slug] || "Soon"}</b>
