@@ -1344,12 +1344,17 @@ body:not([data-variant="royal"]) .bar::after{display:none}
 body[data-page="overview"] .stages{margin-top:4px}
 .stages .stage{cursor:pointer;transition:opacity .2s,transform .2s}
 .explore{margin-bottom:22px}
-/* Home: a slogan under each stage circle, joined by a fine line */
-body[data-page="overview"] .stages{margin-bottom:clamp(96px,14vw,128px)}
-.stage-say{position:absolute;top:calc(100% + 10px);left:50%;transform:translateX(-50%);width:max-content;max-width:min(30vw,230px);padding-top:clamp(26px,4vw,40px);text-align:center;font-family:"Playfair Display",Georgia,serif;font-style:italic;font-weight:800;font-size:clamp(13px,2.4vw,21px);line-height:1.2;color:var(--c);text-transform:none;letter-spacing:0;pointer-events:none}
-.stage-say::before{content:"";position:absolute;top:0;left:50%;width:1.5px;height:calc(clamp(26px,4vw,40px) - 8px);background:linear-gradient(var(--c),transparent);transform:translateX(-50%)}
-.stage-say::after{content:"";position:absolute;top:calc(clamp(26px,4vw,40px) - 9px);left:50%;width:6px;height:6px;background:var(--c);transform:translateX(-50%) rotate(45deg)}
-.stage.art.stat-active .stage-say{color:#b97a06}
+/* Home: one slogan under the circles, with a moving line up to its stage */
+body[data-page="overview"] .stages{margin-bottom:6px}
+.stage-rail{--rc:#1f7a47;position:relative;margin:0 0 22px;text-align:center}
+.rail-svg{display:block;overflow:visible}
+.rail-path{fill:none;stroke:var(--rc);stroke-width:1.6;stroke-linecap:round;transition:stroke .5s}
+.rail-dot{fill:var(--rc);transition:fill .5s}
+.rail-end{fill:none;stroke:var(--rc);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.rail-say{display:grid;margin:6px 0 0}
+.rail-say span{grid-area:1/1;opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s;font-family:"Playfair Display",Georgia,serif;font-style:italic;font-weight:800;font-size:clamp(20px,4vw,30px);line-height:1.2}
+.rail-say span.on{opacity:1;transform:none}
+.rail-say .s1{color:#1f7a47}.rail-say .s2{color:#b97a06}.rail-say .s3{color:#c8381e}
 /* Home: "Create a Smile" icon that opens the form */
 .create-cta{display:grid;justify-items:center;gap:10px;margin:8px auto 40px;padding:22px 16px 24px;max-width:520px;text-align:center;text-decoration:none;color:var(--ink);border-radius:20px;background:radial-gradient(120% 90% at 50% 0%,var(--sun-soft),transparent 70%)}
 .cc-titles,.cc-says{display:grid}
@@ -1368,4 +1373,3 @@ body[data-page="overview"] .stages{margin-bottom:clamp(96px,14vw,128px)}
 .create-cta:hover .cc-go{background:var(--flame)}
 @media (prefers-reduced-motion:reduce){.cc-icon::before{animation:none}}
 .mosaic-empty a{color:var(--brand);font-weight:700}
-@media (max-width:640px){.stage-say{width:31vw;font-size:12.5px}body[data-page="overview"] .stages{margin-bottom:84px}}

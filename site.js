@@ -316,6 +316,41 @@
       <span class="cc-says">${CREATE.map((c, i) => `<span class="${i ? "" : "on"}">${c.say}</span>`).join("")}</span>
       <span class="cc-go">Start here →</span>
     </a>`;
+  // Under the stage circles: one slogan in the middle, and a fine curved line from it up to
+  // its stage. The line glides from stage to stage on its own; tapping a circle keeps it there.
+  const STAGE_COLOR = ["#1f7a47", "#d08e0c", "#c8381e"];
+  function startRail(app) {
+    const rail = app.querySelector(".stage-rail"), nav = app.querySelector(".stages");
+    if (!rail || !nav) return;
+    const svg = rail.querySelector(".rail-svg"), path = rail.querySelector(".rail-path"), dot = rail.querySelector(".rail-dot"), end = rail.querySelector(".rail-end");
+    const circles = [...nav.querySelectorAll(".stage")], says = [...rail.querySelectorAll(".rail-say span")];
+    const H = 46;
+    let k = 0, x = null, locked = false, anim = 0;
+    const target = i => { const r = rail.getBoundingClientRect(), c = circles[i].getBoundingClientRect(); return c.left + c.width / 2 - r.left; };
+    const draw = () => {
+      const w = rail.clientWidth, cx = w / 2;
+      svg.setAttribute("viewBox", `0 0 ${w} ${H}`); svg.setAttribute("width", w); svg.setAttribute("height", H);
+      path.setAttribute("d", `M${x} 3 C${x} ${H * .6}, ${cx} ${H * .35}, ${cx} ${H - 2}`);
+      dot.setAttribute("cx", x); dot.setAttribute("cy", 4);
+      end.setAttribute("d", `M${cx - 4} ${H - 4}l4 4 4-4`);
+      rail.style.setProperty("--rc", STAGE_COLOR[k]);
+    };
+    const go = (i, instant) => {
+      k = i;
+      says.forEach((sp, j) => sp.classList.toggle("on", j === i));
+      cancelAnimationFrame(anim);
+      const from = x == null ? target(i) : x, to = target(i), t0 = performance.now(), dur = instant ? 0 : 700;
+      const step = now => { const t = dur ? Math.min(1, (now - t0) / dur) : 1, e = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        x = from + (to - from) * e; draw(); if (t < 1) anim = requestAnimationFrame(step); };
+      anim = requestAnimationFrame(step);
+    };
+    go(0, true);
+    window.addEventListener("resize", () => { x = target(k); draw(); });
+    if (document.fonts) document.fonts.ready.then(() => { x = target(k); draw(); });
+    nav.addEventListener("click", e => { const c = e.target.closest(".stage"); if (!c) return; locked = true; go(circles.indexOf(c)); });
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
+      rotTimers.push(setInterval(() => { if (!locked && !document.hidden) go((k + 1) % circles.length); }, 3600));
+  }
   function startCreate(app) {
     const box = app.querySelector(".create-cta"); if (!box) return;
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -396,9 +431,12 @@
             <i>${ICONS[st.key]}</i>
             <b${counts[slug] ? "" : ' class="zero"'}>${counts[slug] || "Soon"}</b>
             <span>${st.label}</span>
-            <em class="stage-say">${STAGE_SAY[k]}</em>
           </a>`).join("")}
       </nav>
+      <div class="stage-rail" aria-live="polite">
+        <svg class="rail-svg" aria-hidden="true"><path class="rail-path"/><circle class="rail-dot" r="4.5"/><path class="rail-end" d=""/></svg>
+        <p class="rail-say">${STAGE_SAY.map((t, i) => `<span class="s${i + 1}${i ? "" : " on"}">${t}</span>`).join("")}</p>
+      </div>
       ${glanceHTML(projects)}
       ${createHTML()}
       ${HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
@@ -422,6 +460,7 @@
     startSayings(app);
     startFollow(app);
     startCreate(app);
+    startRail(app);
     // arriving from the footer's "Keep me posted" button on another page
     if (location.hash === "#keep-posted") { const t = document.getElementById("keep-posted"); if (t) t.scrollIntoView(); }
   }
