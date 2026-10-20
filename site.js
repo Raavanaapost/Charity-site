@@ -312,7 +312,7 @@
   ];
   const createHTML = () => `<a class="create-cta" href="/initiate">
       <span class="cc-titles">${CREATE.map((c, i) => `<b class="${i ? "" : "on"}">${c.title}</b>`).join("")}</span>
-      <span class="cc-icon" aria-hidden="true">${CREATE.map((c, i) => `<img class="${i ? "" : "on"}" src="${c.img}" alt="" width="200" height="200">`).join("")}<i class="cc-plus">+</i></span>
+      <span class="cc-icon" aria-hidden="true"><i class="cc-ring"></i><i class="cc-orbit"><b>✦</b><b>♥</b><b>✦</b><b>♥</b></i>${CREATE.map((c, i) => `<img class="${i ? "" : "on"}" src="${c.img}" alt="" width="200" height="200">`).join("")}<i class="cc-plus">+</i></span>
       <span class="cc-says">${CREATE.map((c, i) => `<span class="${i ? "" : "on"}">${c.say}</span>`).join("")}</span>
       <span class="cc-go">Start here →</span>
     </a>`;
@@ -322,44 +322,23 @@
   function startRail(app) {
     const rail = app.querySelector(".stage-rail"), nav = app.querySelector(".stages");
     if (!rail || !nav) return;
-    const svg = rail.querySelector(".rail-svg"), path = rail.querySelector(".rail-path"), dot = rail.querySelector(".rail-dot"), end = rail.querySelector(".rail-end");
     const circles = [...nav.querySelectorAll(".stage")], says = [...rail.querySelectorAll(".rail-say span")];
-    const H = 22;
-    let k = 0, x = null, locked = false, anim = 0;
-    const target = i => { const r = rail.getBoundingClientRect(), c = circles[i].getBoundingClientRect(); return c.left + c.width / 2 - r.left; };
-    const draw = () => {
-      const w = rail.clientWidth, cx = w / 2;
-      svg.setAttribute("viewBox", `0 0 ${w} ${H}`); svg.setAttribute("width", w); svg.setAttribute("height", H);
-      path.setAttribute("d", `M${x} 2 C${x} ${H * .7}, ${cx} ${H * .3}, ${cx} ${H - 1}`);
-      dot.setAttribute("cx", x); dot.setAttribute("cy", 2.5);
-      end.setAttribute("d", `M${cx - 3.5} ${H - 4}l3.5 3.5 3.5-3.5`);
-      rail.style.setProperty("--rc", STAGE_COLOR[k]);
-    };
     const paths = [...nav.querySelectorAll(".stage-path")];
-    // Moving forward a stage, a spark runs along the arrow first, then the stage lights up.
+    let k = 0, locked = false;
+    // Moving forward a stage, a glowing spark runs along the little arrow, then the next stage lights up.
     const flow = (from, to) => {
       const arrow = to === from + 1 ? paths[from] : null;
       const anim = arrow && arrow.querySelector("animateMotion");
-      if (anim && anim.beginElement) { arrow.classList.add("run"); anim.beginElement(); setTimeout(() => arrow.classList.remove("run"), 800); }
-      return anim ? 560 : 0;
+      if (anim && anim.beginElement) { arrow.classList.add("run"); anim.beginElement(); setTimeout(() => arrow.classList.remove("run"), 900); return 700; }
+      return 0;
     };
-    const light = i => circles.forEach((c, j) => { c.classList.toggle("lit", j === i); if (j === i) { c.classList.remove("arrive"); void c.offsetWidth; c.classList.add("arrive"); } });
-    const go = (i, instant) => {
-      if (!instant && i !== k) { const wait = flow(k, i); if (wait) { const n = i; setTimeout(() => move(n), wait); return; } }
-      move(i, instant);
-    };
-    const move = (i, instant) => {
-      k = i; light(i);
+    const show = i => {
+      k = i;
       says.forEach((sp, j) => sp.classList.toggle("on", j === i));
-      cancelAnimationFrame(anim);
-      const from = x == null ? target(i) : x, to = target(i), t0 = performance.now(), dur = instant ? 0 : 700;
-      const step = now => { const t = dur ? Math.min(1, (now - t0) / dur) : 1, e = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-        x = from + (to - from) * e; draw(); if (t < 1) anim = requestAnimationFrame(step); };
-      anim = requestAnimationFrame(step);
+      circles.forEach((c, j) => { c.classList.toggle("lit", j === i); if (j === i) { c.classList.remove("arrive"); void c.offsetWidth; c.classList.add("arrive"); } });
     };
-    go(0, true);
-    window.addEventListener("resize", () => { x = target(k); draw(); });
-    if (document.fonts) document.fonts.ready.then(() => { x = target(k); draw(); });
+    const go = i => { if (i === k) return show(i); const wait = flow(k, i); wait ? setTimeout(() => show(i), wait) : show(i); };
+    show(0);
     nav.addEventListener("click", e => { const c = e.target.closest(".stage"); if (!c) return; locked = true; go(circles.indexOf(c)); });
     if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
       rotTimers.push(setInterval(() => { if (!locked && !document.hidden) go((k + 1) % circles.length); }, 3600));
@@ -396,13 +375,7 @@
     if (!shown.length) return "";
     const tabs = EXPLORE.filter(([t]) => CATS.includes(t));
     const first = EXPLORE[0][1](shown);
-    return `<div class="mosaic n${Math.min(first.length, 3)}" aria-live="polite">${mosaicTiles(first, projects)}</div>
-      <div class="explore">
-        <h2 class="explore-title">Explore projects</h2>
-        <div class="explore-tabs" role="group" aria-label="Explore projects">
-          ${tabs.map(([t], i) => `<button type="button" data-ex="${esc(t)}" aria-pressed="${i === 0}">${esc(t)}</button>`).join("")}
-        </div>
-      </div>`;
+    return `<div class="mosaic n${Math.min(first.length, 3)}" aria-live="polite">${mosaicTiles(first, projects)}</div>`;
   }
   function wireExplore(app, projects) {
     const box = app.querySelector(".explore-tabs"), mo = app.querySelector(".mosaic"), circles = app.querySelector(".stages");
@@ -439,7 +412,7 @@
         <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
       </section>
       <nav class="stages" aria-label="Show pictures by stage">
-        ${Object.entries(STAGES).map(([slug, st], k) => `${k ? `<span class="stage-path p${k}" aria-hidden="true"><svg viewBox="0 0 60 34"><path class="sp-line" d="M4 26Q30 -2 54 24"/><path class="sp-head" d="M47 17l8 8-11 2"/><circle class="sp-spark" r="3.6" cx="0" cy="0"><animateMotion dur="0.7s" begin="indefinite" fill="freeze" path="M4 26Q30 -2 54 24" calcMode="spline" keyTimes="0;1" keySplines="0.45 0 0.55 1"/></circle></svg></span>` : ""}
+        ${Object.entries(STAGES).map(([slug, st], k) => `${k ? `<span class="stage-path p${k}" aria-hidden="true"><svg viewBox="0 0 60 34"><path class="sp-line" d="M4 26Q30 -2 54 24"/><path class="sp-head" d="M47 17l8 8-11 2"/><circle class="sp-spark" r="3.6" cx="0" cy="0"><animateMotion dur="0.75s" begin="indefinite" fill="freeze" path="M4 26Q30 -2 54 24" calcMode="spline" keyTimes="0;1" keySplines="0.45 0 0.55 1"/></circle></svg></span>` : ""}
           <a class="stage art stat-${st.key}" href="/${slug}" data-ex="${st.label}">
             <i>${ICONS[st.key]}</i>
             <b${counts[slug] ? "" : ' class="zero"'}>${counts[slug] || "Soon"}</b>
@@ -447,7 +420,6 @@
           </a>`).join("")}
       </nav>
       <div class="stage-rail" aria-live="polite">
-        <svg class="rail-svg" aria-hidden="true"><path class="rail-path"/><circle class="rail-dot" r="4.5"/><path class="rail-end" d=""/></svg>
         <p class="rail-say">${STAGE_SAY.map((t, i) => `<span class="s${i + 1}${i ? "" : " on"}">${t}</span>`).join("")}</p>
       </div>
       ${glanceHTML(projects)}

@@ -1384,3 +1384,30 @@ body[data-page="overview"] .stages{margin-bottom:6px}
 .stages .stage.arrive{animation:stage-pop .55s ease-out,stage-glow 2.2s ease-in-out .55s infinite}
 @keyframes stage-pop{0%{transform:scale(1)}45%{transform:scale(1.06)}100%{transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){.stages .stage.lit,.stages .stage.arrive{animation:none}.sp-spark{display:none}}
+/* Round 9 (19 Oct): no curved line, slogan close under the circles */
+.stage-rail{margin:-2px 0 18px}
+.rail-say{margin:0}
+@media (min-width:900px){.mosaic{border-radius:var(--r)}}
+/* Glowing spark along the little arrow between stages */
+.sp-spark{fill:#fff8d6;stroke:none;opacity:0;filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 6px var(--gold)) drop-shadow(0 0 10px var(--sun))}
+.stage-path.run .sp-spark{opacity:1}
+.stage-path.run .sp-line,.stage-path.run .sp-head{filter:drop-shadow(0 0 4px var(--gold))}
+/* Create a Smile: red button always; a livelier icon */
+.cc-go,.create-cta:hover .cc-go{background:var(--flame);color:#fff;box-shadow:0 8px 18px -8px var(--flame)}
+.create-cta:hover .cc-go{filter:brightness(1.08)}
+.cc-icon{box-shadow:0 14px 34px -12px rgba(200,56,30,.6);animation:cc-float 3.6s ease-in-out infinite}
+@keyframes cc-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.cc-ring{position:absolute;inset:-9px;border-radius:50%;background:conic-gradient(from 0deg,#f2b21c,#e5851a,#c8381e,#1f7a47,#f2b21c);animation:spin 6s linear infinite;z-index:0}
+.cc-ring::after{content:"";position:absolute;inset:5px;border-radius:50%;background:var(--surface)}
+.cc-icon img{z-index:1}
+.cc-orbit{position:absolute;inset:-30px;border-radius:50%;animation:spin 14s linear infinite reverse;z-index:2;pointer-events:none;font-style:normal}
+.cc-orbit b{position:absolute;font-size:16px;line-height:1;color:var(--gold);text-shadow:0 0 6px rgba(242,178,28,.7)}
+.cc-orbit b:nth-child(1){top:0;left:50%}.cc-orbit b:nth-child(2){top:50%;right:0;color:var(--flame)}
+.cc-orbit b:nth-child(3){bottom:0;left:50%}.cc-orbit b:nth-child(4){top:50%;left:0;color:var(--flame)}
+.cc-plus{z-index:3;animation:cc-beat 1.6s ease-in-out infinite}
+@keyframes cc-beat{0%,100%{transform:scale(1)}15%{transform:scale(1.18)}30%{transform:scale(1)}45%{transform:scale(1.12)}}
+.create-cta:hover .cc-icon{animation-play-state:paused;transform:scale(1.06)}
+@media (prefers-reduced-motion:reduce){.cc-icon,.cc-ring,.cc-orbit,.cc-plus{animation:none}}
+.create-cta{gap:24px;margin-top:22px}
+.cc-orbit{inset:-22px}
+.cc-says{margin-top:-4px}
