@@ -792,7 +792,7 @@ body[data-variant="logo"] #app{max-width:none;padding:0}
 @media (max-width:560px){.logo-entry{gap:16px;padding-inline:14px}.le-logo{width:100%}}
 
 /* inside the site: a softer header logo so the page content stands out (full colour on hover) */
-header.bar .logo img{filter:saturate(.5) opacity(.72);transition:filter .25s}
+header.bar .logo img{filter:none}
 header.bar .logo:hover img,header.bar .logo:focus-visible img{filter:none}
 @media (prefers-reduced-motion:reduce){header.bar .logo img{transition:none}}
 
@@ -1338,3 +1338,11 @@ body[data-page="overview"] .intro .headline{margin-bottom:0}
   .explore-tabs button[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink)}
 }
 @media (min-width:1200px){.mosaic{grid-template-rows:repeat(2,280px)}}
+/* Header: no coloured line underneath (the royal Post page keeps its own) */
+body:not([data-variant="royal"]) .bar::after{display:none}
+/* Home: stage circles at the top switch the pictures; the chosen one stays bright */
+body[data-page="overview"] .stages{margin-top:4px}
+.stages .stage{cursor:pointer;transition:opacity .2s,transform .2s}
+.stages.picking .stage:not(.on){opacity:.5}
+.stages .stage.on{transform:scale(1.04)}
+.explore{margin-bottom:22px}

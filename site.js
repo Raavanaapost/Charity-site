@@ -303,7 +303,7 @@
     ...["Trips & Events", "Education", "Livelihood"].map(t => [t, ps => ps.filter(p => p.theme === t)])
   ];
   function mosaicTiles(list, projects) {
-    const pick = list.slice(0, 5);
+    const pick = list.slice(0, 3);
     if (!pick.length) return `<p class="mosaic-empty">No projects here yet.</p>`;
     const odd = (pick.length - 1) % 2 === 1; // a lone last picture fills the row
     const tile = (p, k) => {
@@ -324,7 +324,7 @@
     if (!shown.length) return "";
     const tabs = EXPLORE.filter(([, f]) => f(shown).length);
     const first = tabs[0][1](shown);
-    return `<div class="mosaic n${Math.min(first.length, 5)}" aria-live="polite">${mosaicTiles(first, projects)}</div>
+    return `<div class="mosaic n${Math.min(first.length, 3)}" aria-live="polite">${mosaicTiles(first, projects)}</div>
       <div class="explore">
         <h2 class="explore-title">Explore projects</h2>
         <div class="explore-tabs" role="group" aria-label="Explore projects">
@@ -333,17 +333,21 @@
       </div>`;
   }
   function wireExplore(app, projects) {
-    const box = app.querySelector(".explore-tabs"), mo = app.querySelector(".mosaic");
-    if (!box || !mo) return;
+    const box = app.querySelector(".explore-tabs"), mo = app.querySelector(".mosaic"), circles = app.querySelector(".stages");
+    if (!mo) return;
     const shown = projects.filter(p => !p.hidden);
-    box.addEventListener("click", e => {
-      const b = e.target.closest("button"); if (!b) return;
-      box.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
-      const f = EXPLORE.find(([t]) => t === b.dataset.ex)[1];
-      const list = f(shown);
-      mo.className = `mosaic n${Math.min(list.length, 5)}`;
+    const show = name => {
+      const e = EXPLORE.find(([t]) => t === name); if (!e) return;
+      if (box) box.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x.dataset.ex === name));
+      if (circles) { circles.querySelectorAll(".stage").forEach(c => c.classList.toggle("on", c.dataset.ex === name));
+        circles.classList.toggle("picking", [...circles.querySelectorAll(".stage")].some(c => c.dataset.ex === name)); }
+      const list = e[1](shown);
+      mo.className = `mosaic n${Math.min(list.length, 3)}`;
       mo.innerHTML = mosaicTiles(list, projects);
-    });
+    };
+    if (box) box.addEventListener("click", e => { const b = e.target.closest("button"); if (b) show(b.dataset.ex); });
+    // The three stage circles at the top switch the pictures too, instead of opening a new page.
+    if (circles) circles.addEventListener("click", e => { const c = e.target.closest(".stage"); if (!c) return; e.preventDefault(); show(c.dataset.ex); });
   }
 
   function renderOverview(app, site, projects) {
@@ -361,17 +365,16 @@
     app.innerHTML = `
       <section class="intro">
         <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
-        ${glanceHTML(projects)}
       </section>
-      <h2 class="section-title journey-title">The Journey of a Smile</h2>
-      <nav class="stages" aria-label="Our projects by stage">
+      <nav class="stages" aria-label="Show pictures by stage">
         ${Object.entries(STAGES).map(([slug, st], k) => `${k ? `<span class="stage-path p${k}" aria-hidden="true"><svg viewBox="0 0 60 34"><path class="sp-line" d="M4 26Q30 -2 54 24"/><path class="sp-head" d="M47 17l8 8-11 2"/></svg></span>` : ""}
-          <a class="stage art stat-${st.key}" href="/${slug}">
+          <a class="stage art stat-${st.key}" href="/${slug}" data-ex="${st.label}">
             <i>${ICONS[st.key]}</i>
             <b${counts[slug] ? "" : ' class="zero"'}>${counts[slug] || "Soon"}</b>
             <span>${st.label}</span>
           </a>`).join("")}
       </nav>
+      ${glanceHTML(projects)}
       ${HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
       <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
