@@ -1379,9 +1379,9 @@ body[data-page="overview"] .stages{margin-bottom:6px}
 .stage-path.run .sp-spark{opacity:1}
 .stage-path.p1 .sp-spark{stroke:#3f9a5f}.stage-path.p2 .sp-spark{stroke:#e5851a}
 .stage-path.run .sp-line{stroke-width:4;animation-duration:.5s}
-.stages .stage.lit{box-shadow:0 0 0 0 var(--c);animation:stage-glow 2.2s ease-in-out infinite}
+.stages .stage.lit{box-shadow:0 0 16px 2px color-mix(in srgb,var(--c) 35%,transparent)}
 @keyframes stage-glow{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--c) 0%,transparent)}50%{box-shadow:0 0 22px 4px color-mix(in srgb,var(--c) 45%,transparent)}}
-.stages .stage.arrive{animation:stage-pop .55s ease-out,stage-glow 2.2s ease-in-out .55s infinite}
+.stages .stage.arrive{animation:stage-blink .9s ease-out}
 @keyframes stage-pop{0%{transform:scale(1)}45%{transform:scale(1.06)}100%{transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){.stages .stage.lit,.stages .stage.arrive{animation:none}.sp-spark{display:none}}
 /* Round 9 (19 Oct): no curved line, slogan close under the circles */
@@ -1411,3 +1411,30 @@ body[data-page="overview"] .stages{margin-bottom:6px}
 .create-cta{gap:24px;margin-top:22px}
 .cc-orbit{inset:-22px}
 .cc-says{margin-top:-4px}
+@keyframes stage-blink{0%{transform:scale(1);box-shadow:0 0 0 0 transparent;filter:brightness(1)}
+  20%{transform:scale(1.06);box-shadow:0 0 30px 8px color-mix(in srgb,var(--c) 60%,transparent);filter:brightness(1.18)}
+  40%{transform:scale(1);filter:brightness(1)}
+  60%{transform:scale(1.04);box-shadow:0 0 26px 6px color-mix(in srgb,var(--c) 55%,transparent);filter:brightness(1.14)}
+  100%{transform:scale(1);box-shadow:0 0 16px 2px color-mix(in srgb,var(--c) 35%,transparent);filter:brightness(1)}}
+.rail-say span.on{animation:say-blink .9s ease-out}
+@keyframes say-blink{0%{opacity:0;transform:translateY(6px)}20%{opacity:1;transform:none}40%{opacity:.45}60%{opacity:1}100%{opacity:1}}
+/* Home: the three stage sections as lists, each on a soft shade of its own colour */
+.home-latest{--hc:#1f7a47;padding:20px 18px 22px;border-radius:16px;background:linear-gradient(160deg,color-mix(in srgb,var(--hc) 14%,var(--surface)) 0%,color-mix(in srgb,var(--hc) 4%,var(--surface)) 70%);box-shadow:0 14px 34px -22px var(--hc),inset 0 0 0 1px color-mix(in srgb,var(--hc) 16%,transparent)}
+.home-latest.s2{--hc:#eaa21c}.home-latest.s3{--hc:#c8381e}
+.home-latest + .home-latest{margin-top:26px}
+.home-latest .section-title{color:color-mix(in srgb,var(--hc) 85%,#000);border-color:color-mix(in srgb,var(--hc) 40%,transparent)}
+.home-latest .grid{display:block;padding:0 0 10px}
+.home-latest .chip[aria-pressed="false"]{background:color-mix(in srgb,var(--surface) 80%,transparent)}
+.home-latest .chip[aria-pressed="true"]{background:color-mix(in srgb,var(--hc) 85%,#000);border-color:transparent;color:#fff}
+.hlist{display:grid;gap:10px}
+.hrow{display:grid;grid-template-columns:96px minmax(0,1fr) auto;align-items:center;gap:14px;padding:10px;border-radius:12px;background:var(--surface);text-decoration:none;color:var(--ink);box-shadow:0 2px 8px -4px color-mix(in srgb,var(--hc) 50%,transparent);transition:transform .15s,box-shadow .15s}
+.hrow:hover{transform:translateX(3px);box-shadow:0 8px 18px -8px color-mix(in srgb,var(--hc) 60%,transparent)}
+.hrow-pic{width:96px;height:72px;border-radius:9px;overflow:hidden;display:block;position:relative}
+.hrow-pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hrow-text{min-width:0;display:grid;gap:3px}
+.hrow-text small{font-family:var(--display);font-weight:700;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:color-mix(in srgb,var(--hc) 80%,#000)}
+.hrow-text b{font-family:var(--display);font-weight:700;font-size:17px;line-height:1.25}
+.hrow-sum{font-size:14px;color:var(--muted);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hrow-go{font-family:var(--display);font-weight:700;font-size:20px;color:var(--hc);padding-right:6px}
+@media (max-width:640px){.home-latest{padding:16px 12px 18px}.hrow{grid-template-columns:76px minmax(0,1fr);gap:11px;padding:8px}.hrow-pic{width:76px;height:64px}.hrow-go{display:none}.hrow-text b{font-size:15.5px}.hrow-sum{font-size:13px}}
+@media (prefers-reduced-motion:reduce){.stages .stage.arrive,.rail-say span.on{animation:none}}

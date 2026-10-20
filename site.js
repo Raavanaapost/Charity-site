@@ -276,6 +276,14 @@
   ];
   // Each row shows the newest few; Impact keeps just one here and the rest live on the Impact page.
   const rowShow = r => r.show || 3;
+  // Home lists: one row per project, picture on the left, words on the right.
+  const homeListHTML = (list, projects) => `<div class="hlist" role="list">${list.map(p => {
+      const i = projects.indexOf(p), meta = [cityOf(p) || (p.location || "").split(",")[0], p.theme].filter(Boolean).join(" · ");
+      return `<a class="hrow" role="listitem" href="/projects/${slugOf(p)}">
+        <span class="hrow-pic" style="${coverStyle(p, i)}">${p.cover ? `<img src="${esc(imgUrl(p.cover, 320))}" alt="" loading="lazy">` : ""}</span>
+        <span class="hrow-text">${meta ? `<small>${esc(meta)}</small>` : ""}<b>${esc(p.title)}</b>${p.summary ? `<span class="hrow-sum">${esc(p.summary)}</span>` : ""}</span>
+        <span class="hrow-go" aria-hidden="true">→</span>
+      </a>`; }).join("")}</div>`;
   function homeRowHTML(r, projects) {
     const all = projects.filter(p => stageNum(p) === r.n), k = HOME_ROWS.indexOf(r);
     return `<section class="home-latest s${r.n}" data-row="${k}">
@@ -283,7 +291,7 @@
         ${all.length ? `<div class="latest-filters" role="group" aria-label="Show projects by category">
           ${["All", "Trips & Events", "Livelihood", "Education"].map(t => `<button type="button" class="chip" data-cat="${esc(t)}" aria-pressed="${t === "All"}">${esc(t)}</button>`).join("")}
         </div>
-        <div class="grid">${all.slice(0, rowShow(r)).map(p => card(p, projects.indexOf(p), journey(p))).join("")}</div>
+        <div class="grid">${homeListHTML(all.slice(0, rowShow(r)), projects)}</div>
         <p class="more"><a href="${r.href}">See all →</a></p>`
         : `<p class="latest-soon">${r.empty}</p>`}
       </section>`;
@@ -434,7 +442,7 @@
         lf.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === b));
         const cat = b.dataset.cat, all = projects.filter(p => stageNum(p) === r.n),
           list = (cat === "All" ? all : all.filter(p => (p.theme || "") === cat)).slice(0, rowShow(r));
-        lg.innerHTML = list.length ? list.map(p => card(p, projects.indexOf(p), journey(p))).join("")
+        lg.innerHTML = list.length ? homeListHTML(list, projects)
           : `<div class="panel empty-state latest-empty"><p>No ${esc(cat)} projects here yet.</p>${r.n === 1 ? '<a class="btn" href="/initiate">Suggest one</a>' : ""}</div>`;
       });
     });
