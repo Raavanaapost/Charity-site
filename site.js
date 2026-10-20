@@ -295,16 +295,40 @@
   const STAGE_LABEL = ["Initiated", "Activated", "Impact"];
   // "Explore projects" choices under the pictures; tapping one swaps the pictures above.
   const EXPLORE = [
-    ["Featured", ps => [...ps].sort((x, y) => (!!y.featured - !!x.featured) || (isPhoto(y.cover) - isPhoto(x.cover)))],
-    ["Newest", ps => ps], // the admin page keeps projects newest first
+    ["All", ps => [...ps].sort((x, y) => (!!y.featured - !!x.featured) || (isPhoto(y.cover) - isPhoto(x.cover)))],
     ["Initiated", ps => ps.filter(p => stageNum(p) === 1)],
     ["Activated", ps => ps.filter(p => stageNum(p) === 2)],
     ["Impact", ps => ps.filter(p => stageNum(p) === 3)],
     ...["Trips & Events", "Education", "Livelihood"].map(t => [t, ps => ps.filter(p => p.theme === t)])
   ];
+  const CATS = ["All", "Trips & Events", "Livelihood", "Education"];
+  const STAGE_SAY = ["Smiles in the Making", "Moments on the Way", "Days of Joy, Created"];
+  // "Create a Smile": a round, tappable icon with three little pictures taking turns,
+  // a title above and a line below. It opens the form to start a new project.
+  const CREATE = [
+    { img: "/img/create-smile.svg", title: "Create a Smile", say: "One small idea can light up a child's whole day." },
+    { img: "/img/create-moment.svg", title: "Create a Moment", say: "Tell us where joy is needed. We'll help make it happen." },
+    { img: "/img/create-day.svg", title: "Spark a Day of Joy", say: "A trip, a game, a good meal. Start it here." }
+  ];
+  const createHTML = () => `<a class="create-cta" href="/initiate">
+      <span class="cc-titles">${CREATE.map((c, i) => `<b class="${i ? "" : "on"}">${c.title}</b>`).join("")}</span>
+      <span class="cc-icon" aria-hidden="true">${CREATE.map((c, i) => `<img class="${i ? "" : "on"}" src="${c.img}" alt="" width="200" height="200">`).join("")}<i class="cc-plus">+</i></span>
+      <span class="cc-says">${CREATE.map((c, i) => `<span class="${i ? "" : "on"}">${c.say}</span>`).join("")}</span>
+      <span class="cc-go">Start here →</span>
+    </a>`;
+  function startCreate(app) {
+    const box = app.querySelector(".create-cta"); if (!box) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let k = 0;
+    rotTimers.push(setInterval(() => {
+      if (document.hidden) return;
+      k = (k + 1) % CREATE.length;
+      box.querySelectorAll(".cc-titles b, .cc-icon img, .cc-says span").forEach(el => el.classList.toggle("on", [...el.parentNode.children].filter(x => x.tagName === el.tagName).indexOf(el) === k));
+    }, 3200));
+  }
   function mosaicTiles(list, projects) {
     const pick = list.slice(0, 3);
-    if (!pick.length) return `<p class="mosaic-empty">No projects here yet.</p>`;
+    if (!pick.length) return `<p class="mosaic-empty">No projects in this group yet. <a href="/initiate">Start the first one →</a></p>`;
     const odd = (pick.length - 1) % 2 === 1; // a lone last picture fills the row
     const tile = (p, k) => {
       const n = stageNum(p), town = p.city || (p.location || "").split(",")[0];
@@ -322,8 +346,8 @@
   function glanceHTML(projects) {
     const shown = projects.filter(p => !p.hidden);
     if (!shown.length) return "";
-    const tabs = EXPLORE.filter(([, f]) => f(shown).length);
-    const first = tabs[0][1](shown);
+    const tabs = EXPLORE.filter(([t]) => CATS.includes(t));
+    const first = EXPLORE[0][1](shown);
     return `<div class="mosaic n${Math.min(first.length, 3)}" aria-live="polite">${mosaicTiles(first, projects)}</div>
       <div class="explore">
         <h2 class="explore-title">Explore projects</h2>
@@ -372,9 +396,11 @@
             <i>${ICONS[st.key]}</i>
             <b${counts[slug] ? "" : ' class="zero"'}>${counts[slug] || "Soon"}</b>
             <span>${st.label}</span>
+            <em class="stage-say">${STAGE_SAY[k]}</em>
           </a>`).join("")}
       </nav>
       ${glanceHTML(projects)}
+      ${createHTML()}
       ${HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
       <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
@@ -395,6 +421,7 @@
     rotTimers.forEach(clearInterval); rotTimers = [];
     startSayings(app);
     startFollow(app);
+    startCreate(app);
     // arriving from the footer's "Keep me posted" button on another page
     if (location.hash === "#keep-posted") { const t = document.getElementById("keep-posted"); if (t) t.scrollIntoView(); }
   }
