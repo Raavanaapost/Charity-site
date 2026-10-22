@@ -43,3 +43,7 @@
 /admin  /admin.html  200
 /smile-map  /smile-map.html  200
 /smile-map-v2  /smile-map-v2.html  200
+
+# Amara (memorial archive) preview: its own Netlify project, behind the same site password
+/temp/amara    https://raavanaa-amara.netlify.app/temp/amara          200!
+/temp/amara/*  https://raavanaa-amara.netlify.app/temp/amara/:splat   200!
