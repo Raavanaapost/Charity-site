@@ -67,6 +67,16 @@
       a.setAttribute("aria-label", onTa ? "Read this page in English" : "இந்தப் பக்கத்தைத் தமிழில் படிக்க");
       bar.appendChild(a);
     }
+    // Projects menu: a small drop-down with the three stages (on phones they show indented under Projects).
+    const proj = document.querySelector('#site-nav a[href="/initiated"], #site-nav a[href="/ta/initiated"]');
+    if (proj && !proj.closest(".nav-drop")) {
+      const wrap = document.createElement("div"); wrap.className = "nav-drop";
+      proj.replaceWith(wrap); wrap.appendChild(proj); proj.classList.add("nav-top");
+      const sub = document.createElement("div"); sub.className = "nav-sub";
+      sub.innerHTML = [["Initiated", "/initiated", "s1"], ["Activated", "/activated", "s2"], ["Impact", "/impact", "s3"]]
+        .map(([t, h, c]) => `<a class="${c}" href="${h}"><i aria-hidden="true"></i>${t}</a>`).join("");
+      wrap.appendChild(sub);
+    }
     document.querySelectorAll("[data-site-name]").forEach(el => el.textContent = site.name || "");
     const foot = document.querySelector("footer");
     if (!foot) return;
@@ -361,8 +371,8 @@
       box.querySelectorAll(".cc-titles b, .cc-icon img, .cc-says span").forEach(el => el.classList.toggle("on", [...el.parentNode.children].filter(x => x.tagName === el.tagName).indexOf(el) === k));
     }, 3200));
   }
-  function mosaicTiles(list, projects) {
-    const pick = list.slice(0, 3);
+  function mosaicTiles(list, projects, max = 3) {
+    const pick = list.slice(0, max);
     if (!pick.length) return `<p class="mosaic-empty">No projects in this group yet. <a href="/initiate">Start the first one →</a></p>`;
     const odd = (pick.length - 1) % 2 === 1; // a lone last picture fills the row
     const tile = (p, k) => {
@@ -420,7 +430,7 @@
         <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
       </section>
       <nav class="stages" aria-label="Show pictures by stage">
-        ${Object.entries(STAGES).map(([slug, st], k) => `${k ? `<span class="stage-path p${k}" aria-hidden="true"><svg viewBox="0 0 60 34"><path class="sp-line" d="M4 26Q30 -2 54 24"/><path class="sp-head" d="M47 17l8 8-11 2"/><circle class="sp-spark" r="3.6" cx="0" cy="0"><animateMotion dur="0.75s" begin="indefinite" fill="freeze" path="M4 26Q30 -2 54 24" calcMode="spline" keyTimes="0;1" keySplines="0.45 0 0.55 1"/></circle></svg></span>` : ""}
+        ${Object.entries(STAGES).map(([slug, st], k) => `${k ? `<span class="stage-path p${k}" aria-hidden="true"><svg viewBox="0 0 60 34"><path class="sp-base" d="M6 17H50"/><path class="sp-chev c1" d="M12 9l8 8-8 8"/><path class="sp-chev c2" d="M26 9l8 8-8 8"/><path class="sp-chev c3" d="M40 9l8 8-8 8"/><circle class="sp-spark" r="3.6" cx="0" cy="0"><animateMotion dur="0.75s" begin="indefinite" fill="freeze" path="M6 17H54" calcMode="spline" keyTimes="0;1" keySplines="0.45 0 0.55 1"/></circle></svg></span>` : ""}
           <a class="stage art stat-${st.key}" href="/${slug}" data-ex="${st.label}">
             <i>${ICONS[st.key]}</i>
             <b${counts[slug] ? "" : ' class="zero"'}>${counts[slug] || "Soon"}</b>
@@ -1342,10 +1352,11 @@
             <p class="theme-note">This is an example, not a real project. Open it to see the budget, where the money goes and who made it possible.</p>
             <div class="grid">${card(example, 0, journey(example))}</div>
           </section>` : "";
-      const one = slug !== "impact" && items.length ? (items.find(x => stageNum(x.p) === cfg.n) || items[0]) : null; // Initiated and Activated: one project shown in full, all of them in the list
+      // The projects at this stage, shown GlobalGiving-style: one big picture, then smaller ones, words on the photos.
+      const stageList = projects.filter(p => stageNum(p) === cfg.n && (filter === "All" || (p.theme || "Other") === filter));
       const body = !items.length ? `<div class="panel empty-state"><p>${cfg.empty.text}</p><a class="btn" href="${cfg.empty.href}">${cfg.empty.btn}</a></div>${exampleHTML}`
-        : one ? `<section class="featured-project">${card(one.p, one.i, journey(one.p))}<div class="featured-side">${activatingPanelHTML(one.p)}${budgetBoxHTML(one.p, site)}</div></section>`
-        : groups.map(([t, xs]) => `
+        : (stageList.length ? `<div class="mosaic n${Math.min(stageList.length, 5)} stage-mosaic">${mosaicTiles(stageList, projects, 5)}</div>` : "")
+          + (slug !== "impact" ? "" : `<h3 class="section-title stories-title">Stories from the day</h3>` + groups.map(([t, xs]) => `
           <section class="theme-group">
             <h3 class="theme-title">${esc(t)} <span class="count">${xs.length}</span></h3>
             ${slug === "impact" && notes[t] ? `<p class="theme-note">${esc(notes[t])}</p>` : ""}
@@ -1357,15 +1368,16 @@
               <div class="from">${esc(p.title)} →</div>
             </a>`).join("")}</div>`
             : `<div class="grid">${xs.map(({ p, i }) => card(p, i, journey(p))).join("")}</div>`}
-          </section>`).join("");
+          </section>`).join(""));
       app.innerHTML = `
         ${stageNav(slug)}
-        <header class="stage-hero s${cfg.n}">
-          <img src="${cfg.hero}" alt="" width="400" height="200">
+        <header class="stage-hero slim s${cfg.n}">
+          <img src="${cfg.hero.replace("-wide", "-slim")}" alt="" width="400" height="72">
+          <p class="stage-hero-lead">${cfg.lead}</p>
           <div class="stage-hero-text"><h1>${cfg.title}</h1><p>${sub}</p></div>
         </header>
+        <div class="stage-shade s${cfg.n}">
         <section class="stage-lead s${cfg.n}">
-          <p class="big">${cfg.lead}</p>
           <ul class="meaning two">${cfg.links.map(([t, h, d]) => `<li><a href="${h}">${ICON(d)}<span>${t}</span><b aria-hidden="true">→</b></a></li>`).join("")}</ul>
         </section>
         ${slug === "impact" && numbers.length ? `
@@ -1385,7 +1397,8 @@
             <a class="btn" href="${cfg.cta.href}">${cfg.cta.btn}</a>
           </div>
           <a class="next-stage to-${cfg.next.slug}" href="/${cfg.next.slug}"><span>${cfg.next.kicker}</span><b>${cfg.next.label} →</b><small>${cfg.next.text}</small></a>
-        </section>`;
+        </section>
+        </div>`;
       app.querySelectorAll(".chip").forEach(b => b.onclick = () => { filter = b.dataset.t; draw(); });
     };
     draw();

@@ -1491,3 +1491,85 @@ body[data-page="overview"] .stages{margin-bottom:6px}
 .go-fold[hidden],.ptale-more[hidden]{display:none}
 .ptale:not(.open):not(.short) .ptale-text :is(h2,h3,h4){display:none}
 .ptale:not(.open):not(.short) .ptale-text p{margin:0 0 .4em}
+
+/* ---------- 31 Oct: menu drop-down, new stage arrows, desktop sizing, slim stage banners ---------- */
+/* Projects drop-down */
+.nav-drop{position:relative;display:flex;align-items:center}
+.nav-drop .nav-top::after{content:"";display:inline-block;width:6px;height:6px;margin-left:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-3px) rotate(45deg);opacity:.6}
+.nav-sub{position:absolute;top:calc(100% + 10px);left:50%;transform:translateX(-50%);display:none;flex-direction:column;min-width:170px;padding:6px;border-radius:12px;background:var(--surface);box-shadow:0 14px 30px -12px rgba(0,0,0,.3),0 0 0 1px var(--line);z-index:30}
+.nav-sub::before{content:"";position:absolute;left:0;right:0;top:-12px;height:12px}
+.nav-drop:hover .nav-sub,.nav-drop:focus-within .nav-sub{display:flex}
+.nav-sub a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;color:var(--ink)!important;font-weight:700;letter-spacing:.02em}
+.nav-sub a i{width:10px;height:10px;border-radius:50%;background:#1f7a47}
+.nav-sub a.s2 i{background:#eaa21c}.nav-sub a.s3 i{background:#c8381e}
+.nav-sub a.s1:hover{background:#e2efe6}.nav-sub a.s2:hover{background:var(--sun-soft)}.nav-sub a.s3:hover{background:color-mix(in srgb,var(--flame) 10%,var(--surface))}
+@media (max-width:880px){
+  .nav-drop{display:block}
+  .nav-drop .nav-top{display:block}
+  .nav-drop .nav-top::after{display:none}
+  .nav-sub{position:static;transform:none;display:flex;box-shadow:none;padding:0 0 6px 14px;min-width:0;background:none}
+  .nav-sub::before{display:none}
+  .nav .nav-sub a{padding:9px 4px;border-bottom:0;font-size:15.5px}
+}
+/* Stage arrows: three chevrons that light up in turn; a spark rides through when a stage changes */
+.stage-path{align-self:center!important;margin-top:0!important}
+.stage-path .sp-line,.stage-path .sp-head{display:none}
+.sp-base{fill:none;stroke-width:1.4;stroke-linecap:round;opacity:.35;stroke-dasharray:2 4}
+.sp-chev{fill:none;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round;opacity:.22;animation:chev 1.8s ease-in-out infinite}
+.sp-chev.c2{animation-delay:.25s}.sp-chev.c3{animation-delay:.5s}
+@keyframes chev{0%,100%{opacity:.22}35%{opacity:1}}
+.stage-path.p1 .sp-base{stroke:#3f9a5f}.stage-path.p2 .sp-base{stroke:#e5851a}
+.stage-path.p1 .c1{stroke:#1f7a47}.stage-path.p1 .c2{stroke:#7a9a2a}.stage-path.p1 .c3{stroke:#d9a017}
+.stage-path.p2 .c1{stroke:#eaa21c}.stage-path.p2 .c2{stroke:#e5851a}.stage-path.p2 .c3{stroke:#c8381e}
+.stage-path.run .sp-chev{opacity:1;animation:none;filter:drop-shadow(0 0 3px var(--gold))}
+@media (prefers-reduced-motion:reduce){.sp-chev{animation:none;opacity:.8}}
+/* Overview on a computer: calmer sizes, in line with the other pages */
+@media (min-width:900px){
+  body[data-page="overview"] .intro .headline{font-size:clamp(34px,3vw,44px)}
+  body[data-page="overview"] .stages{margin-block:10px 4px}
+  body[data-page="overview"] .stage{flex-basis:200px}
+  body[data-page="overview"] .stage.art{padding-bottom:18px}
+  body[data-page="overview"] .stage.art span{font-size:17px}
+  body[data-page="overview"] .stage.art b{font-size:28px}
+  body[data-page="overview"] .stage-path{flex-basis:64px}
+  body[data-page="overview"] .rail-say span{font-size:22px}
+  body[data-page="overview"] .mosaic{grid-template-rows:repeat(2,200px)}
+  body[data-page="overview"] .mosaic-tile.big .mosaic-title{font-size:26px}
+  body[data-page="overview"] .mosaic-title{font-size:17px}
+  body[data-page="overview"] .home-latest .section-title{font-size:22px}
+  .cc-titles b{font-size:30px}
+  .cc-icon{width:140px}
+}
+/* Stage pages: slim banner, the words sit on the picture */
+.stage-hero.slim{border:0;background:#fffaf0}
+.stage-hero.slim img{aspect-ratio:400/72;object-fit:cover;object-position:right bottom}
+.stage-hero.slim .stage-hero-text{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:0 22px 9px}
+.stage-hero.slim h1{font-size:clamp(22px,3vw,34px)}
+.stage-hero.slim .stage-hero-text p{margin:0}
+.stage-hero-lead{position:absolute;left:22px;top:18px;max-width:42%;margin:0;font-size:clamp(14px,1.45vw,18px);line-height:1.5;color:var(--ink)}
+@media (max-width:760px){
+  .stage-hero.slim img{aspect-ratio:2/1}
+  .stage-hero.slim .stage-hero-text{padding:0 14px 7px;gap:2px 10px}
+  .stage-hero-lead{left:12px;right:12px;top:10px;max-width:none;font-size:13.5px;line-height:1.4;padding:7px 10px;border-radius:10px;background:rgba(255,250,240,.88)}
+}
+/* Stage pages: the same soft shade of the stage colour as the home page */
+.stage-shade{--hc:#1f7a47;margin-top:16px;padding:6px 18px 4px;border-radius:16px;background:linear-gradient(170deg,color-mix(in srgb,var(--hc) 12%,var(--surface)) 0%,color-mix(in srgb,var(--hc) 3%,var(--surface)) 55%);box-shadow:0 14px 34px -24px var(--hc),inset 0 0 0 1px color-mix(in srgb,var(--hc) 14%,transparent)}
+.stage-shade.s2{--hc:#eaa21c}.stage-shade.s3{--hc:#c8381e}
+.stage-shade .section-title{color:color-mix(in srgb,var(--hc) 80%,#000)}
+.stage-shade .section-title.lined{border-top-color:color-mix(in srgb,var(--hc) 25%,transparent)}
+.stage-shade .plist{box-shadow:0 6px 16px -10px var(--hc)}
+.stage-mosaic{margin:4px 0 22px}
+.stories-title{margin-top:8px}
+@media (max-width:640px){.stage-shade{padding:4px 10px 2px;margin-inline:-6px}}
+.stage-hero .stage-hero-lead{font-family:var(--body);font-weight:500;color:#1d2622;text-shadow:0 1px 0 rgba(255,250,240,.7)}
+.stage-mosaic.n1{grid-template-rows:auto}
+.stage-mosaic.n1 .mosaic-tile.big{grid-row:auto;aspect-ratio:21/9}
+@media (min-width:900px){.stage-mosaic{grid-template-rows:repeat(2,210px)}.stage-mosaic.n1 .mosaic-tile.big{aspect-ratio:auto;height:340px}}
+@media (max-width:760px){
+  .stage-hero.slim img{aspect-ratio:16/9}
+  .stage-hero.slim .stage-hero-text{display:block;padding:0 14px 6px}
+  .stage-hero.slim h1{font-size:21px}
+  .stage-hero.slim .stage-hero-text p{font-size:11.5px;margin-top:1px}
+  .stage-mosaic.n1 .mosaic-tile.big{aspect-ratio:4/3}
+}
+.stage-hero.slim .stage-hero-lead{color:#1d2622;font-size:clamp(14px,1.3vw,18px)}
