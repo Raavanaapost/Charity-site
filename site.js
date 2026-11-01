@@ -218,6 +218,63 @@
   const CITIES = ["Kilinochchi", "Batticaloa", "Jaffna", "Kandy"];
   const CATEGORIES = ["Livelihood", "Education", "Trips & Events"];
   const cityOf = p => p.city || CITIES.find(c => new RegExp(c, "i").test(p.location || "")) || "";
+  // Search page: one picture per stage, taking turns. The stage's slogan and sentence sit on the
+  // left, in the middle of the sky; the stage name and its count sit in the coloured band.
+  // Tapping a tab below shows that stage and stops the turning; tapping the picture opens its tab.
+  // A stage banner built in layers (sky, drawing, ground), so the drawing can shrink to fit
+  // a phone instead of being cut off.
+  const stageLayersHTML = (slug, lazy) => `<img class="sl-art" src="/img/stage-art-${slug}.svg" alt="" width="356" height="130"${lazy ? ' loading="lazy"' : ""}><img class="sl-ground" src="/img/stage-ground-${slug}.svg" alt="" width="400" height="22">`;
+  function stageShowHTML(projects) {
+    const count = n => projects.filter(p => stageNum(p) === n).length;
+    const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
+    const stories = projects.reduce((t, p) => t + (stageNum(p) === 3 ? (p.updates || []).length : 0), 0);
+    const SUB = [
+      count(1) ? `${plural(count(1), "project")} getting ready to activate` : "New projects coming soon",
+      count(2) ? `${plural(count(2), "project")} in action` : "First projects starting soon",
+      stories ? `${stories === 1 ? "1 story" : stories + " stories"} of impact · ${plural(count(3), "project")}` : "First stories coming soon"
+    ];
+    const slides = ["initiated", "activated", "impact"].map((slug, k) => {
+      const cfg = STAGE_PAGES[slug];
+      return `<figure class="ss-slide s${k + 1}${k ? "" : " on"}" data-n="${k + 1}" aria-hidden="${k ? "true" : "false"}">
+          ${stageLayersHTML(slug, k > 0)}
+          <figcaption class="ss-cap"><b class="ss-say">${STAGE_SAY[k]}</b><span class="ss-lead">${cfg.lead}</span></figcaption>
+          <div class="ss-band"><span class="ss-name">${cfg.title}</span><span class="ss-sub">${SUB[k]}</span></div>
+        </figure>`;
+    }).join("");
+    return `<section class="stage-show" aria-roledescription="carousel" aria-label="Our three stages">
+        <div class="ss-track" role="button" tabindex="0" aria-label="Show the projects at this stage">${slides}</div>
+        <div class="ss-dots" role="group" aria-label="Choose a stage">${["Initiated", "Activated", "Impact"].map((t, k) =>
+          `<button type="button" class="s${k + 1}" aria-label="${t}" aria-current="${k === 0}"><i></i></button>`).join("")}</div>
+      </section>`;
+  }
+  function startStageShow(root, onOpen) {
+    const box = root.querySelector(".stage-show"); if (!box) return null;
+    const slides = [...box.querySelectorAll(".ss-slide")], dots = [...box.querySelectorAll(".ss-dots button")], track = box.querySelector(".ss-track");
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let cur = 0, locked = false;
+    // The bar filling the active dot is the clock: when it is full, the next stage shows.
+    // Pausing the bar (pointer over the picture, finger on it) pauses the turning too.
+    const show = i => {
+      cur = (i + slides.length) % slides.length;
+      slides.forEach((s, j) => { s.classList.toggle("on", j === cur); s.setAttribute("aria-hidden", String(j !== cur)); });
+      dots.forEach((d, j) => d.setAttribute("aria-current", String(j === cur)));
+      box.classList.remove("ticking"); void box.offsetWidth; if (!locked && !reduce) box.classList.add("ticking");
+    };
+    box.addEventListener("animationend", e => { if (e.animationName === "ss-fill" && !locked) show(cur + 1); });
+    const hold = v => box.classList.toggle("paused", v);
+    dots.forEach((d, j) => d.addEventListener("click", () => show(j)));
+    box.addEventListener("mouseenter", () => hold(true)); box.addEventListener("mouseleave", () => hold(false));
+    let x0 = null;
+    track.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; hold(true); }, { passive: true });
+    track.addEventListener("touchend", e => { const dx = x0 === null ? 0 : e.changedTouches[0].clientX - x0; x0 = null; hold(false); if (Math.abs(dx) > 40) { e.preventDefault(); show(cur + (dx < 0 ? 1 : -1)); } });
+    const open = () => onOpen && onOpen(cur + 1);
+    track.addEventListener("click", open);
+    track.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } if (e.key === "ArrowRight") show(cur + 1); if (e.key === "ArrowLeft") show(cur - 1); });
+    show(0);
+    // Called when a tab is chosen: show that stage and stay there.
+    return n => { locked = true; show(n - 1); };
+  }
+
   function renderHome(app, site, projects) {
     const TABS = [["Initiated", 1], ["Activated", 2], ["Impact", 3]];
     const st = { q: "", city: "All", tab: 1 };
@@ -234,6 +291,7 @@
             <select id="find-city" aria-label="City"><option value="All">All</option>${cities.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("")}</select></label>
         </form>
       </section>
+      ${stageShowHTML(projects)}
       <section class="finder-results">
         <div class="finder-tabs" role="tablist" aria-label="Projects by stage"></div>
         <div id="find-list" role="tabpanel"></div>
@@ -272,9 +330,11 @@
     app.querySelector("#find-q").addEventListener("input", e => { st.q = e.target.value.trim(); draw(true); });
     const citySel = app.querySelector("#find-city");
     citySel.addEventListener("change", () => { st.city = citySel.value; citySel.closest(".finder-city").classList.toggle("on", st.city !== "All"); draw(true); });
-    tabsBox.addEventListener("click", e => { const b = e.target.closest(".ftab"); if (!b) return; st.tab = Number(b.dataset.n); draw(); });
+    tabsBox.addEventListener("click", e => { const b = e.target.closest(".ftab"); if (!b) return; st.tab = Number(b.dataset.n); draw(); if (pick) pick(st.tab); });
     draw();
     rotTimers.forEach(clearInterval); rotTimers = [];
+    // Tapping the picture opens that stage's tab and brings the list into view.
+    const pick = startStageShow(app, n => { st.tab = n; draw(); pick(n); const r = tabsBox.getBoundingClientRect(); if (r.top > innerHeight * .6 || r.top < 0) tabsBox.scrollIntoView({ behavior: "smooth", block: "start" }); });
   }
 
   // The earlier home page, kept at /overview: stage circles with numbers, latest projects and the sign-up box.
@@ -1372,7 +1432,7 @@
       app.innerHTML = `
         ${stageNav(slug)}
         <header class="stage-hero slim s${cfg.n}">
-          <img src="${cfg.hero.replace("-wide", "-slim")}" alt="" width="400" height="72">
+          ${stageLayersHTML(slug)}
           <p class="stage-hero-lead">${cfg.lead}</p>
           <div class="stage-hero-text"><h1>${cfg.title}</h1><p>${sub}</p></div>
         </header>

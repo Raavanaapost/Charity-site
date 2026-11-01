@@ -1573,3 +1573,75 @@ body[data-page="overview"] .stages{margin-bottom:6px}
   .stage-mosaic.n1 .mosaic-tile.big{aspect-ratio:4/3}
 }
 .stage-hero.slim .stage-hero-lead{color:#1d2622;font-size:clamp(14px,1.3vw,18px)}
+
+/* ---------- Search page (/home): title and slogan higher; the three stages taking turns ---------- */
+body[data-page="home"] .finder{padding-top:0;margin-top:-46px}
+body[data-page="home"] .finder-slogan{margin-top:-42px}
+@media (max-width:560px){body[data-page="home"] .finder{margin-top:-34px}body[data-page="home"] .finder-slogan{margin-top:-26px}}
+.stage-show{--sc:#1f7a47;margin:8px 0 26px}
+.ss-track{position:relative;display:grid;aspect-ratio:400/72;border-radius:16px;overflow:hidden;cursor:pointer;background:#fffaf0;box-shadow:0 18px 40px -28px rgba(15,81,50,.55),0 0 0 1px rgba(15,81,50,.06)}
+.ss-track:focus-visible{outline:3px solid var(--sun);outline-offset:3px}
+.ss-slide{grid-area:1/1;position:relative;margin:0;opacity:0;transition:opacity .9s ease;pointer-events:none}
+.ss-slide.on{opacity:1;z-index:1;pointer-events:auto}
+/* words: left side, middle of the sky, no box behind them */
+.ss-cap{position:absolute;z-index:2;left:clamp(16px,2.6vw,36px);top:0;bottom:21%;max-width:44%;display:flex;flex-direction:column;justify-content:center;gap:6px}
+.ss-say{font-family:"Playfair Display",Georgia,serif;font-style:italic;font-weight:900;font-size:clamp(20px,2.2vw,30px);line-height:1.15;color:#1f7a47}
+.ss-slide.s2 .ss-say{color:#b97a06}.ss-slide.s3 .ss-say{color:#c8381e}
+.ss-lead{font-family:var(--body);font-size:clamp(14px,1.25vw,17.5px);line-height:1.5;color:#1d2622}
+.ss-say,.ss-lead,.ss-band>*{opacity:0;transform:translateX(-14px);transition:opacity .6s ease,transform .7s cubic-bezier(.2,.7,.3,1)}
+.ss-slide.on .ss-say{opacity:1;transform:none;transition-delay:.25s}
+.ss-slide.on .ss-lead{opacity:1;transform:none;transition-delay:.4s}
+.ss-slide.on .ss-band>*{opacity:1;transform:none;transition-delay:.15s}
+/* stage name and count in the coloured band */
+.ss-band{position:absolute;z-index:2;left:0;right:0;bottom:0;height:20.5%;display:flex;align-items:center;gap:14px;padding:0 clamp(16px,2.6vw,36px)}
+.ss-name{font-family:"Inter",var(--display);font-weight:900;text-transform:uppercase;letter-spacing:.02em;font-size:clamp(17px,2.3vw,32px);line-height:1;color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.25)}
+.ss-sub{font-family:var(--display);font-weight:700;font-size:clamp(11.5px,1.15vw,16px);color:#ffd76a}
+.ss-slide.s2 .ss-name{color:#3b2400;text-shadow:0 1px 0 rgba(255,255,255,.4)}.ss-slide.s2 .ss-sub{color:#5a3a00}
+/* dots: the active one stretches and fills while the stage is showing */
+.ss-dots{display:flex;justify-content:center;gap:8px;margin-top:12px}
+.ss-dots button{--sc:#1f7a47;position:relative;width:10px;height:10px;padding:0;border:0;border-radius:999px;overflow:hidden;cursor:pointer;background:color-mix(in srgb,var(--sc) 30%,var(--line));transition:width .4s ease}
+.ss-dots button.s2{--sc:#eaa21c}.ss-dots button.s3{--sc:#c8381e}
+.ss-dots button i{position:absolute;inset:0;background:var(--sc);transform:scaleX(0);transform-origin:left}
+.ss-dots button[aria-current="true"]{width:44px}
+.ss-dots button[aria-current="true"] i{transform:scaleX(1)}
+.stage-show.ticking .ss-dots button[aria-current="true"] i{animation:ss-fill 5.4s linear forwards}
+.stage-show.paused .ss-dots button[aria-current="true"] i{animation-play-state:paused}
+@keyframes ss-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+/* phones: a taller picture, and a soft fade from the left so the words stay clear over the drawing */
+@media (max-width:760px){
+  .ss-track{aspect-ratio:16/10}
+  .ss-slide::before{content:"";position:absolute;z-index:1;inset:0 0 21% 0;background:linear-gradient(90deg,rgba(255,250,240,.96) 0%,rgba(255,250,240,.86) 46%,rgba(255,250,240,0) 80%);pointer-events:none}
+  .ss-cap{max-width:66%;gap:4px}
+  .ss-say{font-size:19px}
+  .ss-lead{font-size:13px;line-height:1.42}
+  .ss-band{gap:2px 10px;flex-wrap:wrap;align-content:center}
+  .ss-name{font-size:19px}.ss-sub{font-size:11px}
+}
+@media (prefers-reduced-motion:reduce){.ss-slide,.sl-art,.ss-say,.ss-lead,.ss-band>*{transition:none}.ss-slide .sl-art{transform:none}}
+
+/* Stage banners in layers: sky (a soft gradient), the drawing on the right, the ground band in front */
+.ss-slide,.stage-hero.slim{--sky:#fde3b0;background:linear-gradient(180deg,#fffaf0 0%,var(--sky) 100%)}
+.ss-slide.s2,.stage-hero.slim.s2{--sky:#fde0a6}.ss-slide.s3,.stage-hero.slim.s3{--sky:#fbd9c2}
+.sl-art{position:absolute;right:6%;bottom:8%;height:96%;width:auto;max-width:56%;object-fit:contain;object-position:right bottom;transform-origin:right bottom}
+.sl-ground{position:absolute;left:0;bottom:0;width:100%;height:30.5%;display:block}
+.ss-slide .sl-art{transform:scale(1.05);transition:transform 6.5s cubic-bezier(.2,.6,.3,1)}
+.ss-slide.on .sl-art{transform:scale(1)}
+.stage-hero.slim{aspect-ratio:400/72}
+.stage-hero.slim .stage-hero-text{z-index:2}
+.stage-hero.slim .stage-hero-lead{z-index:2}
+@media (max-width:760px){
+  .ss-track{aspect-ratio:16/9}
+  .stage-hero.slim{aspect-ratio:16/9}
+  .sl-art{right:3%;bottom:10%;height:78%;max-width:62%}
+  .ss-slide::before{inset:0 0 21% 0;background:linear-gradient(90deg,rgba(255,250,240,.9) 0%,rgba(255,250,240,.7) 45%,rgba(255,250,240,0) 70%)}
+  .stage-hero.slim::before{content:"";position:absolute;z-index:1;inset:0 0 21% 0;background:linear-gradient(90deg,rgba(255,250,240,.9) 0%,rgba(255,250,240,.7) 45%,rgba(255,250,240,0) 70%);pointer-events:none}
+  .stage-hero.slim .stage-hero-lead{background:none;padding:0;right:auto;max-width:62%;top:0;bottom:21%;display:flex;align-items:center}
+}
+/* layers win over the older single-picture rules */
+.stage-hero.slim .sl-art{display:block;aspect-ratio:auto;position:absolute;right:6%;bottom:8%;height:96%;width:auto;max-width:56%;object-fit:contain;object-position:right bottom}
+.stage-hero.slim .sl-ground{display:block;aspect-ratio:auto;position:absolute;left:0;bottom:0;width:100%;height:30.5%;object-fit:fill}
+@media (max-width:760px){
+  .sl-art,.stage-hero.slim .sl-art{right:3%;bottom:17%;height:74%;max-width:56%}
+  .ss-slide::before,.stage-hero.slim::before{background:linear-gradient(90deg,rgba(255,250,240,.92) 0%,rgba(255,250,240,.6) 40%,rgba(255,250,240,0) 58%)}
+  .ss-cap,.stage-hero.slim .stage-hero-lead{max-width:60%}
+}
