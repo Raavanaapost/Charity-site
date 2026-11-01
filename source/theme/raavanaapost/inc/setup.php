@@ -112,9 +112,9 @@ add_action(
 add_action(
 	'wp_head',
 	function () {
-		foreach ( array( 'rozha-one.woff', 'catamaran.woff' ) as $font ) {
+		foreach ( array( 'rozha-one-latin.woff2', 'catamaran-latin.woff2' ) as $font ) {
 			printf(
-				'<link rel="preload" href="%s" as="font" type="font/woff" crossorigin>' . "\n",
+				'<link rel="preload" href="%s" as="font" type="font/woff2" crossorigin>' . "\n",
 				esc_url( RP_URI . '/assets/fonts/' . $font )
 			);
 		}
@@ -181,6 +181,14 @@ add_action(
 		}
 	},
 	2
+);
+
+/* Phones never need a photo wider than 1024 pixels; bigger ones only slow the page. */
+add_filter(
+	'max_srcset_image_width',
+	function () {
+		return 1024;
+	}
 );
 
 add_filter(

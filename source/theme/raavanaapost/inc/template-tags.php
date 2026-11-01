@@ -364,9 +364,11 @@ function rp_logo() {
 			)
 		);
 	} else {
+		/* A smaller copy of the logo for phones. */
 		$img = sprintf(
-			'<img class="rp-logo__img" src="%s" width="1400" height="467" alt="%s">',
+			'<img class="rp-logo__img" src="%1$s" srcset="%2$s 720w, %1$s 1280w" sizes="(max-width: 680px) calc(100vw - 32px), 640px" width="1280" height="427" alt="%3$s">',
 			esc_url( rp_img( 'raavanaapost-logo.png' ) ),
+			esc_url( rp_img( 'raavanaapost-logo-720.png' ) ),
 			esc_attr( trim( $name . '. ' . $desc, ' .' ) )
 		);
 	}

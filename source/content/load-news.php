@@ -78,7 +78,8 @@ $ph = array(
 	'pus_look'    => n_photo( 'pussellawa/looking-out.jpg', 'A quiet moment with the view' ),
 );
 
-$now = time();
+/* Fixed to when the stories were first published, so a rebuild keeps their dates. */
+$now = strtotime( '2026-11-01T15:07:22+00:00' );
 $by  = 'RaavanaaPost team';
 $stories = array(
 	array(

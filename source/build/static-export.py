@@ -232,6 +232,28 @@ theme_assets = os.path.join(WP, "wp-content/themes/raavanaapost/assets")
 shutil.copytree(theme_assets, os.path.join(OUT, "wp-content/themes/raavanaapost/assets"), dirs_exist_ok=True)
 print("files copied:", copied)
 
+# 4b. Make the photos lighter so pages load quickly on phones. A photo is only
+# replaced when the lighter copy is clearly smaller. No location or camera data is kept.
+from PIL import Image  # noqa: E402
+
+saved = 0
+for root, _dirs, files in os.walk(os.path.join(OUT, "wp-content/uploads")):
+    for name in files:
+        if not name.lower().endswith((".jpg", ".jpeg")):
+            continue
+        path = os.path.join(root, name)
+        before = os.path.getsize(path)
+        with Image.open(path) as im:
+            icc = im.info.get("icc_profile")
+            tmp = path + ".tmp"
+            im.convert("RGB").save(tmp, "JPEG", quality=76, optimize=True, progressive=True, subsampling=2, icc_profile=icc)
+        if os.path.getsize(tmp) < before * 0.92:
+            saved += before - os.path.getsize(tmp)
+            os.replace(tmp, path)
+        else:
+            os.remove(tmp)
+print("photos made lighter by KB:", saved // 1024)
+
 # 5. Sitemap and robots.
 urls = sorted(p for p in docs if p.endswith("/") and p != "/search/")
 with open(os.path.join(OUT, "sitemap.xml"), "w") as f:

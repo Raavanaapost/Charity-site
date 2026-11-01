@@ -1,19 +1,32 @@
 /* RaavanaaPost: green, gold and orange from the logo. */
 
+/* Fonts are cut down to the letters the site uses. Tamil has its own file,
+   which a browser only downloads when a page has Tamil text on it. */
 @font-face {
 	font-family: "Rozha One";
-	src: url("../fonts/rozha-one.woff") format("woff");
+	src: url("../fonts/rozha-one-latin.woff2") format("woff2"), url("../fonts/rozha-one-latin.woff") format("woff");
 	font-weight: 400;
 	font-style: normal;
 	font-display: swap;
+	unicode-range: U+0000-00FF, U+0100-017F, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20A8, U+20AC, U+20B9, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
 	font-family: "Catamaran";
-	src: url("../fonts/catamaran.woff") format("woff");
+	src: url("../fonts/catamaran-latin.woff2") format("woff2"), url("../fonts/catamaran-latin.woff") format("woff");
 	font-weight: 100 900;
 	font-style: normal;
 	font-display: swap;
+	unicode-range: U+0000-00FF, U+0100-017F, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20A8, U+20AC, U+20B9, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+	font-family: "Catamaran";
+	src: url("../fonts/catamaran-tamil.woff2") format("woff2"), url("../fonts/catamaran-tamil.woff") format("woff");
+	font-weight: 100 900;
+	font-style: normal;
+	font-display: swap;
+	unicode-range: U+0B80-0BFF, U+200C-200D, U+25CC;
 }
 
 :root {
