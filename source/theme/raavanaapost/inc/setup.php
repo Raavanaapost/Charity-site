@@ -223,3 +223,22 @@ add_action(
 		update_post_meta( $id, 'rp_views', (int) get_post_meta( $id, 'rp_views', true ) + 1 );
 	}
 );
+
+/* Each section in the top menu gets its small icon above the name. */
+add_filter(
+	'nav_menu_item_title',
+	function ( $title, $item, $args ) {
+		if ( ! isset( $args->theme_location ) || 'primary' !== $args->theme_location ) {
+			return $title;
+		}
+		$key = untrailingslashit( $item->url ) === untrailingslashit( home_url( '/' ) ) ? 'home' : '';
+		if ( ! $key && 'category' === $item->object ) {
+			$term = get_term( (int) $item->object_id, 'category' );
+			$key  = ( $term && ! is_wp_error( $term ) ) ? $term->slug : '';
+		}
+		$icon = rp_menu_icon( $key );
+		return $icon ? $icon . '<span class="rp-nav__label">' . $title . '</span>' : $title;
+	},
+	10,
+	3
+);

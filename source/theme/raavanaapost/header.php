@@ -43,7 +43,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 <header class="rp-masthead">
 	<div class="rp-wrap rp-masthead__inner">
 		<?php rp_logo(); ?>
-	</div>
 	<nav class="rp-nav" aria-label="<?php esc_attr_e( 'Sections', 'raavanaapost' ); ?>">
 		<div class="rp-nav__scroll-area">
 			<div class="rp-nav__row">
@@ -65,6 +64,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</div>
 		</div>
 	</nav>
+	</div>
 	<div class="rp-search" id="rp-search" hidden>
 		<div class="rp-wrap"><?php get_search_form(); ?></div>
 	</div>
