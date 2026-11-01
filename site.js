@@ -571,6 +571,102 @@
     startSayings(app);
   }
 
+  // Front page (/front): two arched doors, one for people who want to make a day of joy happen
+  // and one for people who know children who need one. Then how a smile happens, in its three
+  // stages, and three projects to show it is real.
+  const sparkPath = (x, y, r) => `M${x} ${y - r}l${r * .32} ${r * .68} ${r * .68} ${r * .32}-${r * .68} ${r * .32}-${r * .32} ${r * .68}-${r * .32}-${r * .68}-${r * .68}-${r * .32} ${r * .68}-${r * .32}z`;
+  const DOOR_GIVE_SVG = `<svg class="door-svg" viewBox="0 0 200 200" aria-hidden="true">
+      <g class="d-spark"><path d="${sparkPath(42, 60, 11)}" fill="#f2b21c"/><path d="${sparkPath(160, 44, 9)}" fill="#e5851a"/><path d="${sparkPath(166, 120, 7)}" fill="#f2b21c"/></g>
+      <ellipse cx="100" cy="177" rx="58" ry="6" fill="#5a2a00" opacity=".1"/>
+      <rect x="56" y="112" width="88" height="62" rx="6" fill="#e5851a"/>
+      <rect x="56" y="112" width="88" height="9" fill="#b0560f" opacity=".35"/>
+      <rect x="92" y="112" width="16" height="62" fill="#c8381e"/>
+      <g class="dg-heart"><g transform="translate(0 -20)"><path d="M100 106C70 86 63 58 81 49c10-5 18 1 19 8 1-7 9-13 19-8 18 9 11 37-19 57z" fill="#c8381e"/>
+        <circle cx="91" cy="68" r="3.6" fill="#fff"/><circle cx="109" cy="68" r="3.6" fill="#fff"/><path d="M89 78q11 10 22 0" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/></g></g>
+      <g class="dg-lid"><rect x="48" y="96" width="104" height="20" rx="5" fill="#f2b21c"/><rect x="92" y="96" width="16" height="20" fill="#c8381e"/>
+        <path d="M100 96c-4-14-26-20-28-8-1 7 14 9 28 8zM100 96c4-14 26-20 28-8 1 7-14 9-28 8z" fill="#c8381e"/><circle cx="100" cy="95" r="5" fill="#9c2a14"/></g>
+    </svg>`;
+  const DOOR_ASK_SVG = `<svg class="door-svg" viewBox="0 0 200 200" aria-hidden="true">
+      <g class="d-spark"><path d="${sparkPath(44, 52, 10)}" fill="#f2b21c"/><path d="${sparkPath(170, 120, 8)}" fill="#3f9a5f"/><path d="${sparkPath(150, 170, 6)}" fill="#f2b21c"/></g>
+      <path class="da-trail" d="M30 170C54 152 38 128 64 122s30 8 40-4" fill="none" stroke="#1f7a47" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="1 11" opacity=".6"/>
+      <path d="M24 170c-5-6 3-11 6-5 3-6 11-1 6 5l-6 6z" fill="#c8381e"/>
+      <g class="da-plane" stroke="#1f7a47" stroke-width="5" stroke-linejoin="round">
+        <path d="M172 44L70 100l38 12z" fill="#fff"/>
+        <path d="M172 44l-64 68 14 36z" fill="#cfe6d6"/>
+        <path d="M108 112l-6 24 14-8z" fill="#1f7a47"/>
+        <g transform="rotate(-27 116 88)" stroke="none"><circle cx="108" cy="86" r="3.4" fill="#16432c"/><circle cx="124" cy="86" r="3.4" fill="#16432c"/><path d="M107 94q9 8 18 0" fill="none" stroke="#c8381e" stroke-width="3.6" stroke-linecap="round"/></g>
+      </g>
+    </svg>`;
+  const DOORS = [
+    { cls: "give", href: "/create", svg: DOOR_GIVE_SVG, title: "Make a Smile Happen", say: "Choose a day of joy that's waiting, and make it happen.", btn: "Make this happen" },
+    { cls: "ask", href: "/initiate", svg: DOOR_ASK_SVG, title: "Request a Smile", say: "Know children who deserve a day of joy? Tell us about them.", btn: "Request a smile" }
+  ];
+  const doorsHTML = () => `<div class="doors">${DOORS.map(d => `
+      <a class="door ${d.cls}" href="${d.href}">
+        <span class="door-art">${d.svg}</span>
+        <span class="door-title">${d.title}</span>
+        <span class="door-say">${d.say}</span>
+        <span class="door-btn">${d.btn} <span aria-hidden="true">→</span></span>
+      </a>`).join("")}</div>`;
+  const HAPPENS = [
+    { slug: "initiated", key: "projects", say: "Someone asks for a smile. Our team visits and plans the day." },
+    { slug: "activated", key: "active", say: "The whole day is covered and checked. Everything gets ready." },
+    { slug: "impact", key: "updates", say: "The children have their day, and the story comes back to you." }
+  ];
+  const happensHTML = () => `<section class="happens" aria-labelledby="happens-h">
+      <h2 class="happens-h" id="happens-h">How a smile happens</h2>
+      <ol class="happens-steps">${HAPPENS.map((h, i) => `
+        <li class="s${i + 1}"><a href="/${h.slug}">
+          <span class="hs-dot">${ICONS[h.key]}</span>
+          <span class="hs-text"><span class="hs-stage">${STAGES[h.slug].label}</span><span class="hs-say">${STAGE_SAY[i]}</span><span class="hs-line">${h.say}</span></span>
+        </a></li>`).join("")}</ol>
+      <a class="happens-more" href="/how-it-works">See the journey of a smile</a>
+    </section>`;
+  function renderFront(app, site, projects) {
+    // One project from each stage, so the three pictures tell the whole story; topped up if a stage is empty.
+    const picks = [1, 2, 3].map(n => projects.find(p => stageNum(p) === n)).filter(Boolean);
+    projects.forEach(p => { if (picks.length < 3 && !picks.includes(p)) picks.push(p); });
+    app.innerHTML = `
+      <section class="front-hero">
+        <h1 class="front-title">Creating smiles, creating moments</h1>
+        <p class="front-sub">Every child deserves a day of joy. Here are two ways to make one.</p>
+        ${doorsHTML()}
+        <p class="front-promise">Every penny goes to the day, and every smile is shared.</p>
+      </section>
+      ${happensHTML()}
+      ${picks.length ? `<section class="front-now">
+        <h2 class="happens-h">Smiles happening now</h2>
+        <div class="mosaic n${Math.min(picks.length, 3)}">${mosaicTiles(picks, projects)}</div>
+        <a class="happens-more" href="/overview">See all projects</a>
+      </section>` : ""}`;
+  }
+
+  // "Make a Smile Happen" (/create): three plain steps, then the days of joy waiting to happen.
+  const GIVE_STEPS = [
+    ["Choose a smile", "Each one below is a real day of joy our team has visited and planned."],
+    ["Make this happen", "Open it and tap \"Make this happen\". Cover the whole day or a part, on your own or with friends. We'll be in touch."],
+    ["See the joy", "When the day is done, the story and the photos come back to you."]
+  ];
+  function renderCreate(app, site, projects) {
+    const waiting = projects.filter(p => stageNum(p) === 1);
+    app.innerHTML = `
+      <section class="give-page">
+        <div class="give-head">
+          <span class="door-art give">${DOOR_GIVE_SVG}</span>
+          <div>
+            <h1 class="front-title">Make a Smile Happen</h1>
+            <p class="front-sub">Choose a day of joy that's waiting, and make it happen.</p>
+          </div>
+        </div>
+        <ol class="give-steps">${GIVE_STEPS.map(([t, d], k) => `<li><span class="gs-n">${k + 1}</span><b>${esc(t)}</b><p>${esc(d)}</p></li>`).join("")}</ol>
+        <h2 class="happens-h">Smiles waiting for you</h2>
+        ${waiting.length ? `<div class="mosaic stage-mosaic n${Math.min(waiting.length, 3)}">${mosaicTiles(waiting, projects, 5)}</div>`
+          : `<p class="mosaic-empty">Every smile is on its way right now. New ones are added soon.</p>`}
+        <p class="front-promise">Every penny goes to the day, and every smile is shared.</p>
+        <p class="give-other">Know children who need a day of joy? <a href="/initiate">Request a smile</a></p>
+      </section>`;
+  }
+
   // Second version: a deeper arch with heavier, larger lettering and the tagline inside the arch.
   function bigArcHTML() {
     const words = `<tspan class="arc-1">Raavanaa</tspan> <tspan class="arc-2">Community</tspan>`;
@@ -1923,6 +2019,12 @@
       } else if (page === "welcome") {
         document.title = site.name;
         renderWelcome(app, site);
+      } else if (page === "front") {
+        document.title = site.name;
+        renderFront(app, site, projects);
+      } else if (page === "create") {
+        document.title = `Make a Smile Happen · ${site.name}`;
+        renderCreate(app, site, projects);
       } else {
         document.title = site.name;
         renderHome(app, site, projects);

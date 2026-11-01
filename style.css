@@ -1645,3 +1645,92 @@ body[data-page="home"] .finder-slogan{margin-top:-42px}
   .ss-slide::before,.stage-hero.slim::before{background:linear-gradient(90deg,rgba(255,250,240,.92) 0%,rgba(255,250,240,.6) 40%,rgba(255,250,240,0) 58%)}
   .ss-cap,.stage-hero.slim .stage-hero-lead{max-width:60%}
 }
+
+/* Front page (/front): two arched doors to click, how a smile happens, and three projects */
+.front-hero{text-align:center;padding:clamp(20px,4vw,44px) 0 4px}
+.front-title{margin:0;font-family:"Playfair Display",Georgia,serif;font-style:italic;font-weight:900;font-size:clamp(26px,5vw,48px);line-height:1.15;color:color-mix(in srgb,var(--brand) 82%,var(--ink))}
+.front-sub{margin:10px auto 0;max-width:36ch;font-size:clamp(15px,1.9vw,18px);line-height:1.5;color:var(--muted)}
+.doors{display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,3vw,32px);max-width:860px;margin:clamp(22px,4vw,40px) auto 0}
+.door{--c:#c8381e;--c2:#e5851a;--tint:#f2b21c;--title:var(--c);position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:clamp(18px,3.4vw,34px) clamp(10px,2.4vw,28px) clamp(18px,3vw,28px);border-radius:50% 50% 22px 22px/34% 34% 22px 22px;background:linear-gradient(180deg,color-mix(in srgb,var(--tint) 20%,var(--surface)),var(--surface) 80%);border:2px solid color-mix(in srgb,var(--c2) 40%,transparent);border-bottom:6px solid var(--c);text-decoration:none;color:var(--ink);transition:transform .2s,box-shadow .2s}
+.door.ask{--c:#0f5132;--c2:#1f7a47;--tint:#3f9a5f}
+.door:hover{transform:translateY(-4px);box-shadow:0 18px 34px -20px var(--c)}
+.door:focus-visible{outline:3px solid var(--c2);outline-offset:4px}
+.door-art{--c:#c8381e;--c2:#e5851a;--tint:#f2b21c;position:relative;display:block;width:clamp(116px,24vw,200px);aspect-ratio:1;border-radius:50%;background:#fff;box-shadow:0 0 0 6px color-mix(in srgb,var(--tint) 24%,transparent),0 14px 26px -16px var(--c)}
+.door.ask .door-art{--c:#0f5132;--c2:#1f7a47;--tint:#3f9a5f}
+.door-art::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:3px solid var(--c2);opacity:0;animation:door-call 7s ease-out infinite;pointer-events:none}
+.door.ask .door-art::after{animation-delay:3.5s}
+@keyframes door-call{0%{opacity:.75;transform:scale(1)}24%,100%{opacity:0;transform:scale(1.24)}}
+.door-svg{display:block;width:100%;height:100%}
+.door-title{margin-top:8px;font-family:var(--display);font-weight:700;font-size:clamp(19px,3.2vw,30px);line-height:1.12;color:var(--title)}
+.door-say{max-width:26ch;margin-bottom:10px;font-size:clamp(13.5px,1.7vw,16px);line-height:1.45;color:var(--muted)}
+.door-btn{margin-top:auto;display:inline-flex;align-items:center;gap:8px;padding:12px clamp(16px,2.6vw,28px);border-radius:999px;background:linear-gradient(90deg,var(--c2),var(--c));color:#fff;font-family:var(--display);font-weight:700;font-size:clamp(14.5px,1.8vw,18px);white-space:nowrap;box-shadow:0 10px 20px -12px var(--c)}
+.door-btn span{transition:transform .2s}.door:hover .door-btn span{transform:translateX(4px)}
+.front-promise{margin:20px 0 0;font-family:"Playfair Display",Georgia,serif;font-style:italic;font-weight:700;font-size:clamp(15px,1.9vw,18px);color:#b35a0c}
+/* The little drawings move gently: the gift lid lifts and the heart floats; the paper plane glides */
+.dg-lid{transform-box:view-box;transform-origin:48px 116px;transform:translateY(-2px) rotate(-8deg);animation:dg-lid 3.4s ease-in-out infinite}
+.dg-heart{animation:dg-heart 3.4s ease-in-out infinite}
+@keyframes dg-lid{0%,100%{transform:translateY(-2px) rotate(-8deg)}50%{transform:translateY(-6px) rotate(-14deg)}}
+@keyframes dg-heart{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.d-spark path{transform-box:fill-box;transform-origin:center;animation:d-twinkle 2.6s ease-in-out infinite}
+.d-spark path:nth-child(2){animation-delay:.9s}.d-spark path:nth-child(3){animation-delay:1.7s}
+@keyframes d-twinkle{0%,100%{opacity:.35;transform:scale(.7)}50%{opacity:1;transform:scale(1.1)}}
+.da-plane{animation:da-fly 3.4s ease-in-out infinite}
+@keyframes da-fly{0%,100%{transform:translate(0,0)}50%{transform:translate(5px,-7px)}}
+.da-trail{animation:da-trail 2.4s linear infinite}
+@keyframes da-trail{to{stroke-dashoffset:-24}}
+/* How a smile happens: the three stages on one coloured line */
+.happens,.front-now{margin:clamp(40px,6vw,68px) auto 0;max-width:980px;text-align:center}
+.happens-h{margin:0 0 18px;font-family:var(--display);font-weight:700;font-size:clamp(21px,3vw,28px);color:var(--ink)}
+.happens-steps{position:relative;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(10px,2.6vw,28px)}
+.happens-steps::before{content:"";position:absolute;top:30px;left:16.6%;right:16.6%;height:3px;border-radius:3px;background:linear-gradient(90deg,#1f7a47,#eaa21c,#c8381e)}
+.happens-steps li{--c:#1f7a47}.happens-steps .s2{--c:#d08e0c}.happens-steps .s3{--c:#c8381e}
+.happens-steps a{position:relative;display:grid;justify-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.hs-dot{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;background:var(--c);box-shadow:0 0 0 6px var(--bg);transition:transform .2s}
+.happens-steps a:hover .hs-dot{transform:scale(1.08)}
+.hs-dot .ico{width:32px;height:32px;fill:none;stroke:#fff;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.hs-dot .ico .fill{fill:rgba(255,255,255,.28)}
+.hs-text{display:grid;gap:3px}
+.hs-stage{font-family:var(--display);font-weight:700;font-size:15px;color:var(--c)}
+.hs-say{font-family:"Playfair Display",Georgia,serif;font-style:italic;font-weight:900;font-size:clamp(18px,2.2vw,22px);line-height:1.2}
+.hs-line{justify-self:center;max-width:28ch;font-size:14.5px;line-height:1.5;color:var(--muted)}
+.happens-more{display:inline-block;margin-top:18px;font-family:var(--display);font-weight:700;color:var(--brand)}
+.front-now .mosaic,.give-page .mosaic{border-radius:var(--r)}
+/* "Make a Smile Happen" page (/create) */
+.give-page{max-width:980px;margin:0 auto;padding-top:clamp(20px,4vw,40px)}
+.give-head{display:flex;align-items:center;gap:clamp(14px,3vw,28px)}
+.give-head .door-art{flex:none;width:clamp(96px,16vw,150px)}
+.give-head .door-art::after{display:none}
+.give-head .front-sub{margin-left:0}
+.give-steps{list-style:none;padding:0;margin:clamp(22px,4vw,36px) 0;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.give-steps li{padding:18px;border-radius:16px;background:color-mix(in srgb,#f2b21c 12%,var(--surface));border:1px solid color-mix(in srgb,#e5851a 25%,transparent)}
+.gs-n{display:grid;place-items:center;width:34px;height:34px;margin-bottom:8px;border-radius:50%;background:linear-gradient(135deg,#e5851a,#c8381e);color:#fff;font-family:var(--display);font-weight:700}
+.give-steps b{display:block;font-family:var(--display);font-size:18px}
+.give-steps p{margin:4px 0 0;font-size:15px;line-height:1.5;color:var(--muted)}
+.give-page .happens-h{text-align:left}
+.give-page .front-promise{text-align:center;margin-top:26px}
+.give-other{margin:8px 0 0;text-align:center;font-family:var(--display);font-weight:600}
+@media (max-width:640px){
+  .happens-steps{grid-template-columns:1fr;gap:18px;text-align:left}
+  .happens-steps::before{top:30px;bottom:30px;left:29px;right:auto;width:3px;height:auto;background:linear-gradient(180deg,#1f7a47,#eaa21c,#c8381e)}
+  .happens-steps a{grid-template-columns:62px 1fr;justify-items:start;align-items:center;gap:14px}
+  .hs-line{justify-self:start}
+  .give-steps{grid-template-columns:1fr}
+}
+@media (max-width:420px){
+  .door{padding-inline:8px}
+  .door-btn{padding:11px 13px;font-size:13.5px;gap:5px}
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .door{--title:#ec6a4c}:root:not([data-theme="light"]) .door.ask{--title:#6cc58f}:root:not([data-theme="light"]) .front-promise{color:#f3a03a}}
+:root[data-theme="dark"] .door{--title:#ec6a4c}:root[data-theme="dark"] .door.ask{--title:#6cc58f}:root[data-theme="dark"] .front-promise{color:#f3a03a}
+@media (prefers-reduced-motion:reduce){.door,.door-btn span,.hs-dot,.door-art::after,.dg-lid,.dg-heart,.d-spark path,.da-plane,.da-trail{animation:none;transition:none}}
+.front-now .mosaic{text-align:left}
+.give-page .front-title{color:var(--flame)}
+@media (max-width:640px){
+  .give-steps{gap:10px}
+  .give-steps li{display:grid;grid-template-columns:34px 1fr;column-gap:12px;padding:14px 16px}
+  .gs-n{grid-row:1/3;margin:0}
+  .give-steps b,.give-steps p{grid-column:2}
+}
+.door{min-width:0}
+.door-btn{max-width:100%;white-space:normal;text-align:center;justify-content:center}
+@media (max-width:420px){.doors{gap:10px}.door{padding-inline:6px}.door-btn{padding:11px 12px;font-size:13.5px}.door-btn span{display:none}}

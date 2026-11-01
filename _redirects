@@ -3,6 +3,8 @@
 /ta/home  /ta/home.html  200
 /ta/initiate-slides  /ta/initiate-slides.html  200
 /ta/overview  /ta/overview.html  200
+/ta/front  /ta/front.html  200
+/ta/create  /ta/create.html  200
 /ta/initiated  /ta/stage.html  200
 /ta/activated  /ta/stage.html  200
 /ta/impact  /ta/stage.html  200
@@ -20,6 +22,8 @@
 /ta/smile-map  /ta/smile-map.html  200
 /home  /home.html  200
 /overview  /overview.html  200
+/front  /front.html  200
+/create  /create.html  200
 /welcome-picture  /welcome-picture.html  200
 /welcome-1  /welcome-1.html  200
 /welcome-2  /welcome-2.html  200
