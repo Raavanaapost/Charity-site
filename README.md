@@ -3,6 +3,9 @@
 The news site of Raavanaa – Beyond the Lanes, at **https://raavanaapost.raavanaa.org**.
 Community needs. Real impact.
 
+Netlify project: `raavanaapost` (production branch: `raavanaapost`). Every push to this
+branch is published automatically.
+
 This branch (`raavanaapost`) holds only the news site. It is separate from
 raavanaa.org: the `draft` and `main` branches are not touched by it.
 
