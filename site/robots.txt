@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://raavanaapost.raavanaa.org/sitemap.xml
