@@ -11,7 +11,6 @@
 - [ ] Publishing: work goes to the `draft` branch (free preview at draft--charity-projects-draft.netlify.app); merge to `main` only when the owner says "post" (15 Netlify credits per publish).
 - [ ] Launch: `SITE_PASSWORD` is set again (10 Oct 2026, owner asked: not going live yet). It locks raavanaa.org and the draft; the portal sign-in and /api are not blocked. Delete it and publish when ready to launch.
 - [ ] Optional: "Sign in with GitHub" button for admins.
-- [ ] Front page (/front) "Being checked" list: reads /api/pipeline, a safe summary of requests in the team portal (kind of day, district, children band, month, step; no names, villages, contacts or typed text). On the draft it adds rows marked "Example" while there are fewer than 2 real ones; the live site never shows examples.
 
 ### Portal and community (agreed 9 Oct 2026)
 - [x] Portal screens designed (preview at /portal): Dashboard, Suggestions, Projects + editor, Reports & feedback, Sponsors & pledges, Day preparation, Close the day, People, Team & logins.
