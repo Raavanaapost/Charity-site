@@ -36,6 +36,15 @@
 	if (area && current && area.scrollWidth > area.clientWidth) {
 		area.scrollLeft = Math.max(0, current.offsetLeft - 24);
 	}
+	/* Hide the fade at the right once the reader has swiped to the last section. */
+	if (area) {
+		var edge = function () {
+			area.classList.toggle('is-end', area.scrollLeft + area.clientWidth >= area.scrollWidth - 4);
+		};
+		area.addEventListener('scroll', edge, { passive: true });
+		window.addEventListener('resize', edge);
+		edge();
+	}
 
 	/* Dates: recent stories read "2 hours ago" or "Yesterday", in the reader's own time. */
 	var now = new Date();

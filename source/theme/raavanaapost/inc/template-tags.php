@@ -366,7 +366,7 @@ function rp_logo() {
 	} else {
 		/* A smaller copy of the logo for phones. */
 		$img = sprintf(
-			'<img class="rp-logo__img" src="%1$s" srcset="%2$s 720w, %1$s 1280w" sizes="(max-width: 720px) 210px, 300px" width="1280" height="427" alt="%3$s">',
+			'<img class="rp-logo__img" src="%1$s" srcset="%2$s 720w, %1$s 1280w" sizes="(max-width: 720px) 128px, (max-width: 990px) 190px, 300px" width="1280" height="427" alt="%3$s">',
 			esc_url( rp_img( 'raavanaapost-logo.png' ) ),
 			esc_url( rp_img( 'raavanaapost-logo-720.png' ) ),
 			esc_attr( trim( $name . '. ' . $desc, ' .' ) )
