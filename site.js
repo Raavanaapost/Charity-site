@@ -641,6 +641,135 @@
       </section>` : ""}`;
   }
 
+  // Second front page (/front-2): one live "smile lane" from request to done, with real numbers.
+  // The days waiting for help come first and big; the requests still being checked are listed with
+  // no links and no details (kind of day, district, how many children, month, step); then days already
+  // done, and a small "Request a smile" band. The two-door version stays at /front.
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const monthOf = ym => { const m = /^(\d{4})-(\d{2})/.exec(ym || ""); return m ? `${MONTHS[+m[2] - 1]} ${m[1]}` : ""; };
+  const Q_STEP = { received: [1, "Received"], checking: [2, "Being checked"], visit: [2, "Visit planned"], planning: [3, "Visited, planning the day"] };
+  const Q_KIND = { "Trips & Events": "A day out or trip", "Education": "Help with learning" };
+  const Q_DISTRICTS = ["Ampara", "Anuradhapura", "Badulla", "Batticaloa", "Colombo", "Galle", "Gampaha", "Hambantota", "Jaffna", "Kalutara", "Kandy", "Kegalle", "Kilinochchi", "Kurunegala", "Mannar", "Matale", "Matara", "Monaragala", "Mullaitivu", "Nuwara Eliya", "Polonnaruwa", "Puttalam", "Ratnapura", "Trincomalee", "Vavuniya"];
+  const qDistrict = v => { const t = String(v || "").replace(/\s+district$/i, "").trim().toLowerCase(); return Q_DISTRICTS.find(d => d.toLowerCase() === t) || ""; };
+  // Only on the draft preview and on this computer: example rows so the layout can be judged before real requests come in.
+  const isPreview = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname);
+  const Q_EXAMPLE = [
+    { kind: "A game or sports day", town: "Batticaloa", children: "25 to 50", month: "2026-10", step: "received", example: true },
+    { kind: "A day out or trip", town: "Kilinochchi", children: "10 to 25", month: "2026-10", step: "visit", example: true },
+    { kind: "A celebration or festival", town: "Jaffna", children: "50 to 100", month: "2026-09", step: "planning", example: true }
+  ];
+  const VERIFIED_TICK = `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
+  function laneHTML(n) {
+    const stops = [
+      { cls: "q", href: "#checking", num: n.checking, label: "Being checked", sub: "New requests" },
+      { cls: "s1 you", href: "#waiting", num: n.waiting, label: "Waiting for you", sub: "Initiated" },
+      { cls: "s2", href: "/activated", num: n.onway, label: "On the way", sub: "Activated" },
+      { cls: "s3", href: "/impact", num: n.done, label: "Done", sub: "Impact" }
+    ];
+    return `<div class="lane-wrap">
+        <p class="lane-push" aria-hidden="true"><span>Your help makes it happen</span>
+          <svg viewBox="0 0 200 44" preserveAspectRatio="none"><path d="M24 40C50 2 150 2 180 40" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 9"/></svg>
+          <svg class="lane-push-tip" viewBox="0 0 16 16"><path d="M2 3l12 5-12 5 3-5z" fill="currentColor"/></svg></p>
+        <ol class="lane" aria-label="Where every smile is right now">${stops.map(s => `
+          <li class="${s.cls}"><a href="${s.href}">
+            <span class="lane-dot"><b data-lane="${s.cls.split(" ")[0]}">${s.num}</b></span>
+            <span class="lane-label">${s.label}</span>
+            <span class="lane-sub">${s.sub}</span>
+          </a></li>`).join("")}</ol>
+      </div>`;
+  }
+  function waitCard(p, site, i, projects) {
+    const goal = numOf(p.goal) || (p.budget || []).filter(x => x && x.item).reduce((s, x) => s + numOf(x.amount), 0);
+    const raised = (p.funders || []).filter(x => x && x.name).reduce((s, x) => s + numOf(x.amount), 0);
+    const left = Math.max(0, goal - raised), pct = goal ? Math.min(100, Math.round(raised / goal * 100)) : 0;
+    const town = p.city || (p.location || "").split(",")[0].trim();
+    const covers = (p.budget || []).filter(x => x && x.item).slice(0, 3);
+    const href = `/projects/${slugOf(p)}`;
+    return `<article class="wait-card">
+        <a class="wait-pic" href="${href}" tabindex="-1" aria-hidden="true" style="${coverStyle(p, projects.indexOf(p))}">${p.cover ? `<img src="${esc(imgUrl(p.cover, 900))}" alt=""${i ? ' loading="lazy"' : ""}>` : ""}</a>
+        <div class="wait-body">
+          <span class="wait-ok">${VERIFIED_TICK} <span>Visited and verified</span></span>
+          <h3><a href="${href}">${esc(p.title)}</a></h3>
+          ${town || p.reach ? `<p class="wait-meta">${[town, p.reach].filter(Boolean).map(esc).join(" · ")}</p>` : ""}
+          ${goal ? `<div class="wait-money">
+              <p class="wait-gap">${left ? `<b>${moneyOf(site, left, p)}</b> <span>to go</span>` : `<span>The whole day is covered</span>`}</p>
+              <span class="wait-bar" role="img" aria-label="${pct}% covered"><i style="width:${Math.max(pct, 3)}%"></i></span>
+              <p class="wait-of">${moneyOf(site, raised, p)} of ${moneyOf(site, goal, p)} covered</p>
+            </div>` : `<div class="wait-money"><p class="wait-gap"><span>Costs being worked out</span></p><p class="wait-of"><span>You can join now. Tell us how you'd like to help.</span></p></div>`}
+          ${covers.length ? `<p class="wait-covers"><span class="wc-h">It covers</span> ${covers.map(x => `<span class="wc">${esc(x.item)}</span>`).join("")}</p>` : ""}
+          <a class="wait-btn" href="${href}">Make this happen <span aria-hidden="true">→</span></a>
+        </div>
+      </article>`;
+  }
+  const queueRow = r => {
+    const [lvl, say] = Q_STEP[r.step] || Q_STEP.received;
+    return `<li class="${r.example ? "q-example" : ""}">
+        <span class="q-steps l${lvl}" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="q-kind">${esc(r.kind)}${r.example ? ` <i class="q-ex">Example</i>` : ""}</span>
+        <span class="q-facts">${[r.town, r.children ? `${r.children} children` : "", monthOf(r.month)].filter(Boolean).map(t => `<span>${esc(t)}</span>`).join("")}</span>
+        <span class="q-say l${lvl}">${esc(say)}</span>
+      </li>`;
+  };
+  function queueHTML(rows, received, example) {
+    if (!rows.length) return `<p class="queue-empty">No requests waiting to be checked right now. <a href="/initiate">Request a smile</a></p>`;
+    const shown = rows.slice(0, 6), more = rows.length - shown.length;
+    return `<ul class="queue">${shown.map(queueRow).join("")}</ul>
+      ${more > 0 ? `<p class="queue-more">And ${more} more being checked</p>` : ""}
+      ${received > rows.length ? `<p class="queue-more">Requests received so far: ${received}</p>` : ""}
+      ${example ? `<p class="queue-note">Rows marked "Example" only show on the preview, to show the layout. Real requests replace them as they come in.</p>` : ""}`;
+  }
+  async function renderLane(app, site, projects, raw) {
+    const waiting = projects.filter(p => stageNum(p) === 1);
+    const onway = projects.filter(p => stageNum(p) === 2);
+    const done = projects.filter(p => stageNum(p) === 3);
+    // Projects the team has added but not yet visited and verified: listed as being checked, never shown in full.
+    const unchecked = (raw || []).filter(p => p && p.title && !p.hidden && !p.verified).map(p => ({
+      kind: Q_KIND[p.theme] || "A day of joy", town: qDistrict(p.city), children: "",
+      month: (() => { const m = /([A-Za-z]+)\s+(\d{4})/.exec(p.started || ""); const k = m ? MONTHS.findIndex(x => m[1].startsWith(x)) : -1; return k >= 0 ? `${m[2]}-${String(k + 1).padStart(2, "0")}` : ""; })(),
+      step: "checking"
+    }));
+    const n = { checking: unchecked.length, waiting: waiting.length, onway: onway.length, done: done.length };
+    app.innerHTML = `
+      <section class="lane-hero">
+        <h1 class="front-title">Creating smiles, creating moments</h1>
+        <p class="front-sub">Every day of joy here is real, and checked by our team. Pick one that's waiting, and make it happen.</p>
+        ${laneHTML(n)}
+      </section>
+      <section class="front-block" id="waiting" aria-labelledby="waiting-h">
+        <h2 class="block-h" id="waiting-h"><span>Waiting for you</span> <b class="block-n s1">${waiting.length}</b></h2>
+        <p class="block-say">Visited, planned and ready. When the whole day is covered, it moves on to Activated.</p>
+        ${waiting.length ? `<div class="wait-list">${waiting.slice(0, 3).map((p, i) => waitCard(p, site, i, projects)).join("")}</div>`
+          : `<p class="queue-empty">Every checked day is already on its way. The next ones appear here as soon as they're checked.</p>`}
+      </section>
+      <section class="front-block" id="checking" aria-labelledby="checking-h">
+        <h2 class="block-h" id="checking-h"><span>Being checked</span> <b class="block-n q" data-lane-n>${unchecked.length}</b></h2>
+        <p class="block-say">New requests for a day of joy. Our team calls and visits each one first, so we keep the details private until then.</p>
+        <div data-queue><ul class="queue">${unchecked.map(queueRow).join("")}</ul></div>
+      </section>
+      ${done.length ? `<section class="front-block front-done" aria-labelledby="done-h">
+        <h2 class="block-h" id="done-h"><span>Days of Joy, Created</span> <b class="block-n s3">${done.length}</b></h2>
+        <div class="mosaic n${Math.min(done.length, 3)}">${mosaicTiles(done, projects)}</div>
+        <a class="happens-more" href="/impact">See every story</a>
+      </section>` : ""}
+      <a class="ask-band" href="/initiate">
+        <span class="ask-art">${DOOR_ASK_SVG}</span>
+        <span class="ask-text"><b>Know children who deserve a day of joy?</b><span>Tell us about them. Our team will call, visit and plan it with you.</span></span>
+        <span class="ask-btn">Request a smile <span aria-hidden="true">→</span></span>
+      </a>
+      <p class="front-promise">Every penny goes to the day, and every smile is shared.</p>`;
+    // The requests still being checked come from the team's list, through a summary with no personal details.
+    let rows = unchecked, received = 0, example = false;
+    try {
+      const r = await fetch("/api/pipeline", { headers: { accept: "application/json" } });
+      const j = r.ok && /json/.test(r.headers.get("content-type") || "") ? await r.json() : null;
+      if (j && Array.isArray(j.list)) { rows = [...j.list, ...unchecked]; received = (j.received || 0) + unchecked.length; n.checking = (j.checking || 0) + unchecked.length; }
+    } catch (e) {}
+    if (rows.length < 2 && isPreview) { rows = [...rows, ...Q_EXAMPLE]; example = true; n.checking = rows.length; }
+    const box = app.querySelector("[data-queue]"); if (!box) return;
+    box.innerHTML = queueHTML(rows, received, example);
+    app.querySelectorAll('[data-lane="q"], [data-lane-n]').forEach(b => { b.textContent = n.checking; });
+  }
+
   // "Make a Smile Happen" (/create): three plain steps, then the days of joy waiting to happen.
   const GIVE_STEPS = [
     ["Choose a smile", "Each one below is a real day of joy our team has visited and planned."],
@@ -2022,6 +2151,9 @@
       } else if (page === "front") {
         document.title = site.name;
         renderFront(app, site, projects);
+      } else if (page === "front-2") {
+        document.title = site.name;
+        await renderLane(app, site, projects, data.projects);
       } else if (page === "create") {
         document.title = `Make a Smile Happen · ${site.name}`;
         renderCreate(app, site, projects);
