@@ -42,7 +42,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 <header class="rp-masthead">
 	<div class="rp-wrap rp-masthead__inner">
-		<?php rp_logo(); ?>
+		<div class="rp-brand">
+			<?php rp_logo(); ?>
+			<?php rp_partner_logo(); ?>
+		</div>
 	<nav class="rp-nav" aria-label="<?php esc_attr_e( 'Sections', 'raavanaapost' ); ?>">
 		<div class="rp-nav__scroll-area">
 			<div class="rp-nav__row">

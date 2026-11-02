@@ -144,7 +144,12 @@ a:hover { color: var(--rp-orange); text-decoration: underline; text-underline-of
 }
 /* Logo on the left, sections on the right, in one row. */
 .rp-masthead__inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 28px; padding-top: 12px; padding-bottom: 8px; }
-.rp-logo { display: block; flex: none; width: 300px; max-width: 100%; }
+/* RaavanaaPost logo, with the Beyond the Lanes logo beside it. */
+.rp-brand { display: flex; flex: none; align-items: center; gap: 16px; }
+.rp-logo { display: block; flex: none; width: 310px; max-width: 100%; }
+.rp-btl { display: block; flex: none; width: 160px; padding-left: 16px; border-left: 1px solid var(--rp-gold-line); }
+.rp-btl img { display: block; width: 100%; height: auto; }
+.rp-btl:hover { text-decoration: none; opacity: 0.85; }
 .rp-logo:hover { text-decoration: none; }
 .rp-logo__img { display: block; width: 100%; height: auto; }
 
@@ -171,14 +176,22 @@ a:hover { color: var(--rp-orange); text-decoration: underline; text-underline-of
 .rp-nav__list .current-post-ancestor > a .rp-nav__icon,
 .rp-nav__list .current-menu-parent > a .rp-nav__icon { color: var(--rp-orange); }
 
-@media (max-width: 1180px) {
-	.rp-logo { width: 230px; }
+@media (max-width: 1240px) {
+	.rp-masthead__inner { column-gap: 16px; }
+	.rp-logo { width: 250px; }
+	.rp-btl { width: 128px; padding-left: 12px; }
+	.rp-brand { gap: 12px; }
 	.rp-nav__list a { padding-inline: 6px; }
 }
-/* Smaller screens: logo and sections stay in one row; the sections scroll sideways. */
-@media (max-width: 990px) {
-	.rp-masthead__inner { flex-wrap: nowrap; gap: 14px; }
-	.rp-logo { width: 190px; }
+/* Smaller screens: the two logos share the top row; the sections sit in a row
+   below and scroll sideways. */
+@media (max-width: 1080px) {
+	.rp-masthead__inner { padding-bottom: 0; }
+	.rp-brand { width: 100%; justify-content: space-between; }
+	.rp-logo { width: 280px; }
+	.rp-btl { width: 150px; }
+	.rp-nav { flex-basis: 100%; margin-inline: calc(-1 * var(--rp-gutter)); border-top: 1px solid var(--rp-gold-line); }
+	.rp-nav__row { margin-inline: auto; padding-inline: var(--rp-gutter); }
 	/* A soft fade on the right shows there are more sections to swipe to. */
 	.rp-nav__scroll-area { -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); }
 	.rp-nav__scroll-area.is-end { -webkit-mask-image: none; mask-image: none; }
@@ -187,8 +200,9 @@ a:hover { color: var(--rp-orange); text-decoration: underline; text-underline-of
 	.rp-latest__label { padding: 7px 11px 7px 12px; font-size: 14px; }
 	.rp-latest.is-ticking .rp-latest__inner { gap: 10px; }
 	.rp-latest.is-ticking .rp-latest__list a { font-size: 15px; }
-	.rp-masthead__inner { gap: 10px; padding-top: 8px; padding-bottom: 4px; }
-	.rp-logo { width: 128px; }
+	.rp-masthead__inner { row-gap: 6px; padding-top: 10px; }
+	.rp-logo { width: 205px; }
+	.rp-btl { width: 112px; padding-left: 10px; }
 	.rp-nav__list a { min-height: 58px; padding-inline: 7px; gap: 4px; font-size: 12px; }
 	.rp-nav__icon { width: 22px; height: 22px; }
 	.rp-nav .rp-nav__search { width: 38px; height: 38px; margin-left: 4px; }

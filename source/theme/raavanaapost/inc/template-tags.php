@@ -394,12 +394,12 @@ function rp_logo() {
 			)
 		);
 	} else {
-		/* A smaller copy of the logo for phones. */
+		/* The logo with the "Creating moments, creating smiles" ribbon; a smaller copy for phones. */
 		$img = sprintf(
-			'<img class="rp-logo__img" src="%1$s" srcset="%2$s 720w, %1$s 1280w" sizes="(max-width: 720px) 128px, (max-width: 990px) 190px, 300px" width="1280" height="427" alt="%3$s">',
-			esc_url( rp_img( 'raavanaapost-logo.png' ) ),
-			esc_url( rp_img( 'raavanaapost-logo-720.png' ) ),
-			esc_attr( trim( $name . '. ' . $desc, ' .' ) )
+			'<img class="rp-logo__img" src="%1$s" srcset="%2$s 480w, %1$s 720w" sizes="(max-width: 720px) 205px, (max-width: 1080px) 280px, (max-width: 1240px) 250px, 310px" width="720" height="238" alt="%3$s">',
+			esc_url( rp_img( 'raavanaapost-logo-2-720.jpg' ) ),
+			esc_url( rp_img( 'raavanaapost-logo-2-480.jpg' ) ),
+			esc_attr( $name . '. ' . __( 'Creating moments, creating smiles.', 'raavanaapost' ) )
 		);
 	}
 	printf( '<a class="rp-logo" href="%s" rel="home">%s</a>', esc_url( home_url( '/' ) ), $img ); // phpcs:ignore WordPress.Security.EscapeOutput
@@ -648,4 +648,14 @@ function rp_menu_icon( $key ) {
 		return '';
 	}
 	return '<svg class="rp-nav__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' . $icons[ $key ] . '</svg>';
+}
+
+/** The Beyond the Lanes logo, shown beside RaavanaaPost's and linking to the charity site. */
+function rp_partner_logo() {
+	printf(
+		'<a class="rp-btl" href="%s"><img src="%s" width="480" height="127" alt="%s"></a>',
+		esc_url( 'https://raavanaa.org/' ),
+		esc_url( rp_img( 'beyond-the-lanes-480.jpg' ) ),
+		esc_attr__( 'Raavanaa – Beyond the Lanes: creating smiles (our charity site)', 'raavanaapost' )
+	);
 }

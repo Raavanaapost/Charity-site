@@ -131,7 +131,7 @@ add_action(
 			return;
 		}
 		$type  = 'website';
-		$image = rp_img( 'raavanaapost-logo.png' );
+		$image = rp_img( 'raavanaapost-logo-2-1280.jpg' );
 		$title = get_bloginfo( 'name' );
 		$desc  = get_bloginfo( 'description' );
 		$url   = home_url( '/' );
