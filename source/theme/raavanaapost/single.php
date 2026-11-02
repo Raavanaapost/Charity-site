@@ -54,6 +54,10 @@ while ( have_posts() ) :
 					<figcaption><?php the_post_thumbnail_caption(); ?></figcaption>
 				<?php endif; ?>
 			</figure>
+		<?php elseif ( rp_art( get_post() ) ) : ?>
+			<figure class="rp-wrap rp-article__figure rp-article__figure--art">
+				<img src="<?php echo esc_url( rp_img( 'art/' . rp_art( get_post() ) . '.svg' ) ); ?>" alt="" width="800" height="600" fetchpriority="high">
+			</figure>
 		<?php endif; ?>
 
 		<div class="rp-wrap rp-wrap--narrow rp-article__body">

@@ -107,6 +107,7 @@ $stories = array(
 	array(
 		'key'     => 'F',
 		'title'   => 'Two new requests reach the Raavanaa team',
+		'art'     => 'two-requests',
 		'cats'    => array( 'community-needs' ),
 		'place'   => '',
 		'excerpt' => 'A day out for children from a children\'s home, and a second request from Pussellawa in the hill country. Both are being checked.',
@@ -118,6 +119,7 @@ $stories = array(
 	array(
 		'key'     => 'M',
 		'title'   => 'How a Raavanaa day of joy happens: Initiated, Activated, Impact',
+		'art'     => 'day-of-joy',
 		'cats'    => array( 'community-needs' ),
 		'place'   => '',
 		'excerpt' => 'Every project is one simple, happy day: a game, a trip or a good meal. Here is how a need becomes a day the children remember.',
@@ -136,6 +138,7 @@ $stories = array(
 	array(
 		'key'     => 'H',
 		'title'   => 'Cholan v Pandiyan: inside the Kingpins Crew bowling league',
+		'art'     => 'cholan-pandiyan',
 		'cats'    => array( 'sports' ),
 		'place'   => '',
 		'excerpt' => 'Two teams, a 16-week season and medals every Saturday: a look at the Raavanaa bowling league.',
@@ -148,6 +151,7 @@ $stories = array(
 	array(
 		'key'     => 'D',
 		'title'   => 'Casuarina Beach day is funded: about 25 children are going to the sea',
+		'art'     => 'beach-day',
 		'cats'    => array( 'community-needs', 'sri-lanka' ),
 		'place'   => 'Karainagar, Jaffna',
 		'excerpt' => 'Sand, waves, kites and a good lunch under the casuarina trees. The day is fully funded and the van is booked.',
@@ -166,6 +170,7 @@ $stories = array(
 	array(
 		'key'     => 'E',
 		'title'   => 'A bowling day for children with special needs is being planned',
+		'art'     => 'bowling-day',
 		'cats'    => array( 'community-needs' ),
 		'place'   => '',
 		'excerpt' => 'A full day at the lanes, where every child gets a turn and every roll gets a cheer.',
@@ -199,6 +204,7 @@ $stories = array(
 	array(
 		'key'     => 'C',
 		'title'   => 'Mums and kids, united: a day out together in Kilinochchi',
+		'art'     => 'mums-and-kids',
 		'cats'    => array( 'real-impact', 'sri-lanka' ),
 		'place'   => 'Kilinochchi',
 		'excerpt' => 'Sack races, a tug of war the mums won, and a long lunch in the shade.',
@@ -274,6 +280,7 @@ $stories = array(
 	array(
 		'key'     => 'V1',
 		'title'   => 'The happiness on the children\'s faces is the greatest gift we received',
+		'art'     => 'voice-happiness',
 		'cats'    => array( 'opinion' ),
 		'place'   => '',
 		'byline'  => 'Sarvika, pre-school manager, Yogapuram',
@@ -287,6 +294,7 @@ $stories = array(
 	array(
 		'key'     => 'V2',
 		'title'   => 'The children truly enjoyed the experience and were very happy',
+		'art'     => 'voice-hills',
 		'cats'    => array( 'opinion' ),
 		'place'   => '',
 		'byline'  => 'The organisers in Pussellawa',
@@ -298,6 +306,7 @@ $stories = array(
 	array(
 		'key'     => 'V3',
 		'title'   => 'Beyond the Lanes is our promise to step out of our own lanes',
+		'art'     => 'beyond-the-lanes',
 		'cats'    => array( 'opinion' ),
 		'place'   => '',
 		'byline'  => 'Raavanaa – Beyond the Lanes',
@@ -338,6 +347,7 @@ foreach ( $stories as $s ) {
 	);
 	update_post_meta( $id, 'rp_byline', isset( $s['byline'] ) ? $s['byline'] : $by );
 	update_post_meta( $id, 'rp_views', $s['views'] );
+	if ( ! empty( $s['art'] ) ) { update_post_meta( $id, 'rp_art', $s['art'] ); }
 	if ( $s['place'] ) { update_post_meta( $id, 'rp_place', $s['place'] ); }
 	if ( ! empty( $s['stage'] ) ) {
 		update_post_meta( $id, 'rp_stage', $s['stage'] );

@@ -90,10 +90,40 @@ function rp_media( $post = null, $size = 'rp-card', $ratio = '4-3', $eager = fal
 	if ( has_post_thumbnail( $post ) ) {
 		$attrs = $eager ? array( 'loading' => 'eager', 'fetchpriority' => 'high' ) : array( 'loading' => 'lazy' );
 		echo get_the_post_thumbnail( $post, $size, $attrs ); // phpcs:ignore WordPress.Security.EscapeOutput
+	} elseif ( rp_art( $post ) ) {
+		echo '<img class="rp-art" src="' . esc_url( rp_img( 'art/' . rp_art( $post ) . '.svg' ) ) . '" alt="" width="800" height="600" loading="' . ( $eager ? 'eager' : 'lazy' ) . '">';
 	} else {
 		echo '<span class="rp-ph"><img src="' . esc_url( rp_img( 'crown.png' ) ) . '" alt="" width="330" height="207" loading="lazy"></span>';
 	}
 	echo '</a>';
+}
+
+/**
+ * The drawing shown for a story that has no photo: the story's own (field "rp_art"),
+ * else one that suits its section.
+ *
+ * @param WP_Post $post Story.
+ */
+function rp_art( $post ) {
+	$art = sanitize_key( (string) get_post_meta( $post->ID, 'rp_art', true ) );
+	if ( $art && file_exists( RP_DIR . '/assets/img/art/' . $art . '.svg' ) ) {
+		return $art;
+	}
+	$by_section = array(
+		'community-needs' => 'day-of-joy',
+		'real-impact'     => 'mums-and-kids',
+		'sri-lanka'       => 'beyond-the-lanes',
+		'diaspora'        => 'two-requests',
+		'culture'         => 'beyond-the-lanes',
+		'sports'          => 'bowling-day',
+		'opinion'         => 'voice-happiness',
+	);
+	foreach ( get_the_category( $post->ID ) as $cat ) {
+		if ( isset( $by_section[ $cat->slug ] ) ) {
+			return $by_section[ $cat->slug ];
+		}
+	}
+	return '';
 }
 
 /** Tapered gold line, like the one under the wordmark in the logo. */

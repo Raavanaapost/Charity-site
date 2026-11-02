@@ -228,6 +228,9 @@ a:hover { color: var(--rp-orange); text-decoration: underline; text-underline-of
 .rp-media--4-3 { aspect-ratio: 4 / 3; }
 .rp-media--1-1 { aspect-ratio: 1 / 1; }
 .rp-media > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* Drawings for stories without a photo: keep the whole drawing in view. */
+.rp-article__figure.rp-article__figure--art { max-width: calc(780px + 2 * var(--rp-gutter)); }
+.rp-article__figure--art img { border-radius: 6px; }
 .rp-ph {
 	position: absolute; inset: 0;
 	display: flex; align-items: center; justify-content: center;
