@@ -400,6 +400,14 @@ a:hover { color: var(--rp-orange); text-decoration: underline; text-underline-of
 .rp-needs__swoosh { margin: 12px 0 0; }
 .rp-needs__text { max-width: 56ch; margin: 14px 0 0; color: var(--rp-muted); font-size: 18px; line-height: 1.55; }
 .rp-needs__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-top: 24px; }
+/* "Coming soon" tag on links to pages that are not ready yet. */
+.rp-soon {
+	display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 999px;
+	background: var(--rp-green); color: var(--rp-ivory);
+	font-size: 11px; font-weight: 700; line-height: 1.45; white-space: nowrap; vertical-align: middle;
+}
+.rp-btn .rp-soon { margin-left: 8px; }
+.rp-topbar__links .rp-soon { font-size: 10.5px; }
 .rp-needs__all { display: inline-flex; align-items: center; min-height: 44px; color: var(--rp-orange); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
 .rp-needs__all:hover { color: var(--rp-green); }
 .rp-needs__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr)); gap: 20px; }
@@ -678,6 +686,9 @@ a:hover { color: var(--rp-orange); text-decoration: underline; text-underline-of
 .rp-footer__menus > nav:first-child .rp-footer__list { columns: 2; column-gap: 20px; }
 .rp-footer__menus > nav:first-child { grid-column: span 2; }
 .rp-footer__list a { display: inline-flex; align-items: center; min-height: 40px; font-size: 15px; }
+/* In the footer the "Coming soon" tag sits under the link's words. */
+.rp-footer__list a:has(.rp-soon) { flex-direction: column; align-items: flex-start; justify-content: center; padding: 4px 0; }
+.rp-footer__list .rp-soon { margin: 3px 0 0; }
 .rp-footer__list .current-menu-item > a, .rp-footer__list .current-cat > a { color: var(--rp-orange); }
 .rp-footer__bottom { background: var(--rp-green); color: #fff; font-size: 14px; }
 .rp-footer__bottom a { color: #fff; }
@@ -698,6 +709,9 @@ a:hover { color: var(--rp-orange); text-decoration: underline; text-underline-of
 	.rp-topbar__links { gap: 0 14px; }
 	.rp-topbar__date-long { display: none; }
 	.rp-topbar__date-short { display: inline; }
+	/* On phones the tag sits under each top link, so everything stays on one line. */
+	.rp-topbar__links a:not(.rp-btn) { flex-direction: column; align-items: center; justify-content: center; min-height: 44px; line-height: 1.15; }
+	.rp-topbar__links .rp-soon { margin: 2px 0 0; padding: 0 6px; font-size: 9px; }
 	.rp-top { gap: 32px; padding-top: 20px; padding-bottom: 48px; }
 	.rp-lead__standfirst { font-size: 17px; }
 	.rp-section { padding-top: 48px; }

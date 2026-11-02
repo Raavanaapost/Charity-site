@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'RP_VERSION', '1.1.7' );
+define( 'RP_VERSION', '1.1.8' );
 define( 'RP_DIR', get_template_directory() );
 define( 'RP_URI', get_template_directory_uri() );
 

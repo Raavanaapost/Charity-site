@@ -105,10 +105,10 @@ $rp_needs_url  = rp_page_url( 'needs' );
 				<p class="rp-needs__text"><?php echo esc_html( rp_mod( 'rp_needs_text' ) ); ?></p>
 				<div class="rp-needs__actions">
 					<?php if ( $rp_report_url ) : ?>
-						<a class="rp-btn rp-btn--gold" href="<?php echo esc_url( $rp_report_url ); ?>"><?php esc_html_e( 'Tell us about a need', 'raavanaapost' ); ?></a>
+						<a class="rp-btn rp-btn--gold" href="<?php echo esc_url( rp_soon_url( $rp_report_url ) ); ?>"><?php esc_html_e( 'Tell us about a need', 'raavanaapost' ); ?><?php echo rp_soon_tag(); // phpcs:ignore WordPress.Security.EscapeOutput ?></a>
 					<?php endif; ?>
 					<?php if ( $rp_needs_url ) : ?>
-						<a class="rp-needs__all" href="<?php echo esc_url( $rp_needs_url ); ?>"><?php esc_html_e( 'See every need we are following', 'raavanaapost' ); ?></a>
+						<a class="rp-needs__all" href="<?php echo esc_url( rp_soon_url( $rp_needs_url ) ); ?>"><?php esc_html_e( 'See every need we are following', 'raavanaapost' ); ?><?php echo rp_soon_tag(); // phpcs:ignore WordPress.Security.EscapeOutput ?></a>
 					<?php endif; ?>
 				</div>
 			</div>
@@ -303,7 +303,7 @@ if ( $rp_op ) :
 			<img class="rp-involve__crown" src="<?php echo esc_url( rp_img( 'crown.png' ) ); ?>" alt="" width="330" height="207" loading="lazy">
 			<h2><?php esc_html_e( 'Know a need in your community?', 'raavanaapost' ); ?></h2>
 			<p><?php esc_html_e( 'Tell us about it. Our team will call you, check the facts and keep following it until something changes.', 'raavanaapost' ); ?></p>
-			<a class="rp-btn rp-btn--orange" href="<?php echo esc_url( $rp_report_url ); ?>"><?php esc_html_e( 'Report a need', 'raavanaapost' ); ?></a>
+			<a class="rp-btn rp-btn--orange" href="<?php echo esc_url( rp_soon_url( $rp_report_url ) ); ?>"><?php esc_html_e( 'Report a need', 'raavanaapost' ); ?><?php echo rp_soon_tag(); // phpcs:ignore WordPress.Security.EscapeOutput ?></a>
 		</div>
 	<?php endif; ?>
 	<?php if ( rp_page_url( 'brief' ) ) : ?>
@@ -316,7 +316,7 @@ if ( $rp_op ) :
 		<div class="rp-involve__brief rp-involve__partner">
 			<h2><?php echo esc_html( rp_mod( 'rp_partner_title' ) ); ?></h2>
 			<p><?php echo esc_html( rp_mod( 'rp_partner_text' ) ); ?></p>
-			<p><a class="rp-btn rp-btn--gold" href="<?php echo esc_url( rp_mod( 'rp_partner_url' ) ); ?>"><?php echo esc_html( rp_mod( 'rp_partner_button' ) ); ?></a></p>
+			<p><a class="rp-btn rp-btn--gold" href="<?php echo esc_url( rp_soon_url( rp_mod( 'rp_partner_url' ) ) ); ?>"><?php echo esc_html( rp_mod( 'rp_partner_button' ) ); ?><?php echo rp_soon_tag(); // phpcs:ignore WordPress.Security.EscapeOutput ?></a></p>
 		</div>
 	<?php endif; ?>
 </section>

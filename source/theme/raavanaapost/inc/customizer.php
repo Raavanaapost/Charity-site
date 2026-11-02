@@ -27,6 +27,7 @@ function rp_defaults() {
 		'rp_partner_text'   => __( 'Every story here began with a need. See the days that are waiting, and help make the next one happen.', 'raavanaapost' ),
 		'rp_partner_button' => __( 'See the projects', 'raavanaapost' ),
 		'rp_mostread_title' => __( 'Most read', 'raavanaapost' ),
+		'rp_coming_soon'    => true,
 	);
 }
 
@@ -60,6 +61,22 @@ add_action(
 			'rp_show_latest',
 			array(
 				'label'   => __( 'Show the "Latest" line under the menu', 'raavanaapost' ),
+				'section' => 'rp_words',
+				'type'    => 'checkbox',
+			)
+		);
+
+		$wp->add_setting(
+			'rp_coming_soon',
+			array(
+				'default'           => $d['rp_coming_soon'],
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			)
+		);
+		$wp->add_control(
+			'rp_coming_soon',
+			array(
+				'label'   => __( 'Coming soon links: send "Report a need", "Needs we follow" and raavanaa.org links to raavanaa.org\'s front page, with a "Coming soon" tag', 'raavanaapost' ),
 				'section' => 'rp_words',
 				'type'    => 'checkbox',
 			)

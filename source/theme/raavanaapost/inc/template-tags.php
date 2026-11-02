@@ -659,3 +659,22 @@ function rp_partner_logo() {
 		esc_attr__( 'Raavanaa – Beyond the Lanes: creating smiles (our charity site)', 'raavanaapost' )
 	);
 }
+
+/*
+ * "Coming soon": while the charity site's pages are being finished, links to them
+ * (and to the needs list) go to raavanaa.org's front page and carry a small
+ * "Coming soon" tag. Switch off in the Customizer ("Coming soon links").
+ */
+function rp_soon_on() {
+	return (bool) rp_mod( 'rp_coming_soon' );
+}
+
+/** The address to use for a link that is not ready yet. */
+function rp_soon_url( $url ) {
+	return rp_soon_on() ? 'https://raavanaa.org/' : $url;
+}
+
+/** The small "Coming soon" tag shown inside such a link. */
+function rp_soon_tag() {
+	return rp_soon_on() ? ' <span class="rp-soon">' . esc_html__( 'Coming soon', 'raavanaapost' ) . '</span>' : '';
+}

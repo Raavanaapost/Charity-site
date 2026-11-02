@@ -89,7 +89,7 @@ $rp_q = new WP_Query(
 
 		<?php $rp_report = rp_page_url( 'report' ); ?>
 		<?php if ( $rp_report ) : ?>
-			<p class="rp-needs__cta"><a class="rp-btn rp-btn--gold" href="<?php echo esc_url( $rp_report ); ?>"><?php esc_html_e( 'Tell us about a need', 'raavanaapost' ); ?></a></p>
+			<p class="rp-needs__cta"><a class="rp-btn rp-btn--gold" href="<?php echo esc_url( rp_soon_url( $rp_report ) ); ?>"><?php esc_html_e( 'Tell us about a need', 'raavanaapost' ); ?><?php echo rp_soon_tag(); // phpcs:ignore WordPress.Security.EscapeOutput ?></a></p>
 		<?php endif; ?>
 	</div>
 </section>

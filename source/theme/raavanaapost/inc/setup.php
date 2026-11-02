@@ -242,3 +242,27 @@ add_filter(
 	10,
 	3
 );
+
+/* Footer menu links to raavanaa.org pages: front page plus "Coming soon" while those pages are being finished. */
+add_filter(
+	'nav_menu_link_attributes',
+	function ( $atts, $item, $args ) {
+		if ( isset( $args->theme_location ) && 'footer' === $args->theme_location && ! empty( $atts['href'] ) && false !== strpos( $atts['href'], '//raavanaa.org' ) ) {
+			$atts['href'] = rp_soon_url( $atts['href'] );
+		}
+		return $atts;
+	},
+	10,
+	3
+);
+add_filter(
+	'nav_menu_item_title',
+	function ( $title, $item, $args ) {
+		if ( isset( $args->theme_location ) && 'footer' === $args->theme_location && false !== strpos( (string) $item->url, '//raavanaa.org' ) ) {
+			$title .= rp_soon_tag();
+		}
+		return $title;
+	},
+	10,
+	3
+);

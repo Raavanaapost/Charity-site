@@ -66,10 +66,10 @@ $rp_brief  = rp_page_url( 'brief' );
 					<h2 id="rp-f-involved"><?php esc_html_e( 'Get involved', 'raavanaapost' ); ?></h2>
 					<ul class="rp-footer__list">
 						<?php if ( $rp_report ) : ?>
-							<li><a href="<?php echo esc_url( $rp_report ); ?>"><?php esc_html_e( 'Report a need', 'raavanaapost' ); ?></a></li>
+							<li><a href="<?php echo esc_url( rp_soon_url( $rp_report ) ); ?>"><?php esc_html_e( 'Report a need', 'raavanaapost' ); ?><?php echo rp_soon_tag(); // phpcs:ignore WordPress.Security.EscapeOutput ?></a></li>
 						<?php endif; ?>
 						<?php if ( $rp_needs ) : ?>
-							<li><a href="<?php echo esc_url( $rp_needs ); ?>"><?php esc_html_e( 'Needs we are following', 'raavanaapost' ); ?></a></li>
+							<li><a href="<?php echo esc_url( rp_soon_url( $rp_needs ) ); ?>"><?php esc_html_e( 'Needs we are following', 'raavanaapost' ); ?><?php echo rp_soon_tag(); // phpcs:ignore WordPress.Security.EscapeOutput ?></a></li>
 						<?php endif; ?>
 						<?php if ( $rp_brief ) : ?>
 							<li><a href="<?php echo esc_url( $rp_brief ); ?>"><?php esc_html_e( 'The morning brief', 'raavanaapost' ); ?></a></li>

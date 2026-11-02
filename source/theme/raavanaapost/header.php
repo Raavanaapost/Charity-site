@@ -26,11 +26,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<?php rp_language_links(); ?>
 			<?php $rp_needs = rp_page_url( 'needs' ); ?>
 			<?php if ( $rp_needs ) : ?>
-				<a href="<?php echo esc_url( $rp_needs ); ?>"><?php esc_html_e( 'Needs we follow', 'raavanaapost' ); ?></a>
+				<a href="<?php echo esc_url( rp_soon_url( $rp_needs ) ); ?>"><?php esc_html_e( 'Needs we follow', 'raavanaapost' ); ?><?php echo rp_soon_tag(); // phpcs:ignore WordPress.Security.EscapeOutput ?></a>
 			<?php endif; ?>
 			<?php $rp_report = rp_page_url( 'report' ); ?>
 			<?php if ( $rp_report ) : ?>
-				<a href="<?php echo esc_url( $rp_report ); ?>"><?php esc_html_e( 'Report a need', 'raavanaapost' ); ?></a>
+				<a href="<?php echo esc_url( rp_soon_url( $rp_report ) ); ?>"><?php esc_html_e( 'Report a need', 'raavanaapost' ); ?><?php echo rp_soon_tag(); // phpcs:ignore WordPress.Security.EscapeOutput ?></a>
 			<?php endif; ?>
 			<?php $rp_brief = rp_page_url( 'brief' ); ?>
 			<?php if ( $rp_brief ) : ?>
