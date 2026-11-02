@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 <div class="rp-topbar">
 	<div class="rp-wrap rp-topbar__inner">
-		<p class="rp-topbar__date" data-rp-today><?php echo esc_html( wp_date( 'l, j F Y' ) ); ?></p>
+		<p class="rp-topbar__date"><span class="rp-topbar__date-long" data-rp-today><?php echo esc_html( wp_date( 'l j F Y' ) ); ?></span><span class="rp-topbar__date-short" data-rp-today-short><?php echo esc_html( wp_date( 'D j M' ) ); ?></span></p>
 		<nav class="rp-topbar__links" aria-label="<?php esc_attr_e( 'Quick links', 'raavanaapost' ); ?>">
 			<?php rp_language_links(); ?>
 			<?php $rp_needs = rp_page_url( 'needs' ); ?>

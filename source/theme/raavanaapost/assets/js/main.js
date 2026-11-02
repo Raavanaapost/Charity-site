@@ -68,6 +68,10 @@
 		if (today) {
 			today.textContent = now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 		}
+		var todayShort = document.querySelector('[data-rp-today-short]');
+		if (todayShort) {
+			todayShort.textContent = now.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+		}
 		document.querySelectorAll('time[data-rp-when]').forEach(function (t) {
 			var d = new Date(t.getAttribute('datetime'));
 			var r = isNaN(d) ? '' : ago(d);

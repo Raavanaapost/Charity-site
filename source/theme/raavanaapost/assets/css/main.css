@@ -124,13 +124,15 @@ a:hover { color: var(--rp-orange); text-decoration: underline; text-underline-of
 
 /* ---------- Top bar ---------- */
 
-.rp-topbar { background: var(--rp-ivory); color: var(--rp-green); font-size: 14px; border-bottom: 1px solid var(--rp-gold-line); }
-.rp-topbar__inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 24px; }
-.rp-topbar__date { margin: 0; padding: 12px 0; font-weight: 600; }
-.rp-topbar__links { display: flex; flex-wrap: wrap; align-items: center; gap: 0 20px; }
-.rp-topbar__links a:not(.rp-btn) { display: inline-flex; align-items: center; min-height: 44px; color: var(--rp-green); font-weight: 700; }
-.rp-topbar__links a:not(.rp-btn):hover { color: var(--rp-orange); }
-.rp-topbar__links a.rp-lang { color: var(--rp-orange); }
+/* Top line: the light orange of "Post" in the logo, with the logo's green lettering. All on one row. */
+.rp-topbar { background: linear-gradient(90deg, #E88800, #EC8A12); color: var(--rp-green); font-size: 14px; border-bottom: 1px solid #C86A00; }
+.rp-topbar__inner { display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between; gap: 16px; }
+.rp-topbar__date { flex: none; margin: 0; padding: 0; font-weight: 700; white-space: nowrap; }
+.rp-topbar__date-short { display: none; }
+.rp-topbar__links { display: flex; flex-wrap: nowrap; align-items: center; gap: 0 20px; min-width: 0; }
+.rp-topbar__links a:not(.rp-btn) { display: inline-flex; align-items: center; min-height: 40px; color: var(--rp-green); font-weight: 800; white-space: nowrap; }
+.rp-topbar__links a:not(.rp-btn):hover { color: var(--rp-ink); text-decoration: underline; text-decoration-color: var(--rp-green); text-underline-offset: 4px; }
+.rp-topbar__links a.rp-lang { color: var(--rp-green); }
 
 /* ---------- Masthead and menu ---------- */
 
@@ -677,7 +679,11 @@ a:hover { color: var(--rp-orange); text-decoration: underline; text-underline-of
 
 @media (max-width: 720px) {
 	body { font-size: 16px; }
-	.rp-topbar__date { padding: 10px 0 0; width: 100%; }
+	.rp-topbar { font-size: 13px; }
+	.rp-topbar__inner { gap: 12px; }
+	.rp-topbar__links { gap: 0 14px; }
+	.rp-topbar__date-long { display: none; }
+	.rp-topbar__date-short { display: inline; }
 	.rp-top { gap: 32px; padding-top: 20px; padding-bottom: 48px; }
 	.rp-lead__standfirst { font-size: 17px; }
 	.rp-section { padding-top: 48px; }
