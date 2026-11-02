@@ -1,460 +1,489 @@
 {
-  "projects": [
+ "projects": [
+  {
+   "title": "Pussellawa kids' trip to Hanuman Kovil",
+   "slug": "pussellawa-kids-trip",
+   "hidden": false,
+   "featured": true,
+   "theme": "Trips & Events",
+   "status": "Complete",
+   "location": "Pussellawa, Kandy District",
+   "organization": "Raavanaa",
+   "started": "October 2026",
+   "reach": "Children of Pussellawa (number TBD)",
+   "verified": true,
+   "currency": "Rs ",
+   "budget": [
     {
-      "title": "Pussellawa kids' trip to Hanuman Kovil",
-      "slug": "pussellawa-kids-trip",
-      "hidden": false,
-      "featured": true,
-      "theme": "Trips & Events",
-      "status": "Complete",
-      "location": "Pussellawa, Kandy District",
-      "organization": "Raavanaa",
-      "started": "October 2026",
-      "reach": "Children of Pussellawa (number TBD)",
-      "verified": true,
-      "currency": "Rs ",
-      "budget": [
-        {
-          "item": "Vehicle hire for the trip",
-          "amount": 10500
-        },
-        {
-          "item": "Food for the children",
-          "amount": 8750
-        }
-      ],
-      "goal": 19250,
-      "funders": [
-        {
-          "name": "Friends of Raavanaa",
-          "amount": 19250
-        }
-      ],
-      "date_set": true,
-      "booked": true,
-      "volunteers": true,
-      "steps": [],
-      "summary": "The children of Pussellawa spent a day at Hanuman Kovil: running and playing on the lawn, dancing together and looking out over the hills, with transport and food fully covered.",
-      "cover": "/img/projects/pussellawa/cover.jpg",
-      "quote": "The children truly enjoyed the experience and were very happy.",
-      "story": "## Summary\n\nThe children of Pussellawa spent a day at Hanuman Kovil, in the hills on the road between Gampola and Nuwara Eliya. They ran and played on the lawn, danced together in their best clothes, shared a meal and looked out over the mountains.\n\n## The need\n\nPussellawa is a tea-country town, and many of its children grow up among the estates. Families work hard and a day away together is rare. Transport and food are what stand between these children and a day out.\n\n## The day\n\nOn 12 October 2026 a hired vehicle took the children to Hanuman Kovil. On the big lawn they played running games, held hands in circles and danced, while the grown-ups watched over them. Some of the little ones simply stood and looked out at the mountains.\n\nThe local organisers wrote to us the same day: *\"The children truly enjoyed the experience and were very happy.\"*\n\n## Where the money went\n\nEvery rupee went to the day itself: Rs 10,500 for the vehicle and Rs 8,750 for food, Rs 19,250 in total.\n\n## What it leaves behind\n\nA day of joy the children will remember, and the first Raavanaa day in the hill country. Thank you to everyone who made it possible.",
-      "impact": [
-        {
-          "value": "1",
-          "label": "day of joy"
-        },
-        {
-          "value": "Rs 19,250",
-          "label": "spent on the day"
-        },
-        {
-          "value": "100%",
-          "label": "to transport and food"
-        }
-      ],
-      "updates": [
-        {
-          "date": "2026-10-12",
-          "title": "A happy day at Hanuman Kovil",
-          "body": "The children spent the day at Hanuman Kovil: games on the lawn, dancing and a meal together. The organisers wrote to thank everyone: the children truly enjoyed it and were very happy."
-        },
-        {
-          "date": "2026-10-12",
-          "title": "Fully funded",
-          "body": "The full cost of Rs 19,250 is covered: Rs 10,500 for the vehicle and Rs 8,750 for food. Thank you to everyone who gave."
-        }
-      ],
-      "photos": [
-        {
-          "image": "/img/projects/pussellawa/hills-view.jpg",
-          "caption": "Looking out over the hills at Hanuman Kovil"
-        },
-        {
-          "image": "/img/projects/pussellawa/games-on-the-lawn.jpg",
-          "caption": "Games on the lawn"
-        },
-        {
-          "image": "/img/projects/pussellawa/running-together.jpg",
-          "caption": "Running together"
-        },
-        {
-          "image": "/img/projects/pussellawa/dancing.jpg",
-          "caption": "Dancing in their best clothes"
-        },
-        {
-          "image": "/img/projects/pussellawa/looking-out.jpg",
-          "caption": "A quiet moment with the view"
-        }
-      ],
-      "media": [],
-      "city": "Kandy",
-      "expectations": [
-        {
-          "text": "Every child travels safely there and back",
-          "result": "met",
-          "note": "The hired vehicle took the group to Hanuman Kovil and home again."
-        },
-        {
-          "text": "All the children share a good meal together",
-          "result": "met",
-          "note": "Food for the whole group was covered (Rs 8,750)."
-        },
-        {
-          "text": "The day is recorded in photos and short videos, with permission, to share the joy",
-          "result": "met",
-          "note": "Photos and videos of the day were sent by the organisers."
-        }
-      ]
+     "item": "Vehicle hire for the trip",
+     "amount": 10500
     },
     {
-      "title": "Maha Arivagam pre-school trip to the Black Bridge",
-      "slug": "maha-arivagam-preschool-day",
-      "hidden": false,
-      "featured": false,
-      "theme": "Trips & Events",
-      "status": "Complete",
-      "location": "Yogapuram, Mullaitivu District",
-      "organization": "Raavanaa",
-      "started": "October 2026",
-      "reach": "17 children, 20 parents and 2 teachers",
-      "verified": true,
-      "currency": "Rs ",
-      "budget": [
-        {
-          "item": "The day out for the pre-school children",
-          "amount": 20000
-        }
-      ],
-      "goal": 20000,
-      "funders": [
-        {
-          "name": "Friends of Raavanaa",
-          "amount": 20000
-        }
-      ],
-      "date_set": true,
-      "booked": true,
-      "volunteers": true,
-      "steps": [],
-      "summary": "Seventeen little ones from Maha Arivagam Yogapuram Trilingual Pre-School went by bus to the old Black Bridge over the Pali Aru and to Banalingeswaram temple at Oddankulam: ice cream, dancing, playing in the river and a day to remember.",
-      "cover": "/img/projects/maha-arivagam/cover.jpg",
-      "quote": "The happiness on the children's faces is the greatest gift we received.",
-      "story": "## Summary\n\nOn 12 October 2026, 17 children from Maha Arivagam Yogapuram Trilingual Pre-School, with 20 parents, two teachers and members of the management, went on a trip to the Black Bridge (Karutha Palam) over the Pali Aru and to the Banalingeswaram Narmatha Natheeswarar temple, both at Oddankulam.\n\n## The need\n\nThe pre-school is run by the Technical, Arts, Culture and Women's Development Centre, and 25 children study there. Before the trip, the manager, Sarvika Vijayathasan, wrote to us: *\"For many of these children a day like this comes rarely. It will be a day to remember, to play, to laugh and to eat together.\"* The trip was arranged by the pre-school's contact, Mr Karthigesu Yoganathan.\n\n## The day\n\nThe bus left the pre-school at 3.30 in the afternoon and reached the Black Bridge at 3.45. The old bridge, said to have been built by the Dutch, crosses the Pali Aru. The children had ice cream, danced together, watched the river flowing quietly under the bridge and then went down into the water to play. For many of them it was the first day like this in a long time.\n\nNext they visited Banalingeswaram temple, where they looked at the carved sculptures of the 64 Nayanmars and walked through the flower garden. Outside the temple they danced again and shared snacks. Everyone left at 5.45 and was back at the pre-school by 6.00.\n\nThe day after, the manager wrote: *\"It was a wonderful day! The happiness on the children's faces is the greatest gift we received. Our heartfelt thanks to Raavanaa and to everyone who helped make this day possible.\"*\n\n## Where the money went\n\nThe full cost of the trip, Rs 20,000.00, was covered: the bus, food and snacks, and what the children needed for the day.\n\n## What it leaves behind\n\nA happy afternoon by the river for the whole pre-school, and photos and videos for the families to keep. Thank you to everyone who made it possible.",
-      "impact": [
-        {
-          "value": "17",
-          "label": "children"
-        },
-        {
-          "value": "20",
-          "label": "parents came along"
-        },
-        {
-          "value": "Rs 20,000",
-          "label": "spent on the day"
-        }
-      ],
-      "updates": [
-        {
-          "date": "2026-10-12",
-          "title": "Ice cream, the river and the temple",
-          "body": "Seventeen children, 20 parents and two teachers went to the Black Bridge over the Pali Aru and to Banalingeswaram temple. The children danced, played in the river and saw the sculptures of the 64 Nayanmars. The manager wrote: the happiness on the children's faces is the greatest gift we received."
-        },
-        {
-          "date": "2026-10-12",
-          "title": "Fully funded",
-          "body": "The full cost of Rs 20,000.00 is covered. The pre-school thanked Raavanaa and everyone who helped."
-        }
-      ],
-      "photos": [
-        {
-          "image": "/img/projects/maha-arivagam/at-the-bridge.jpg",
-          "caption": "Everyone together at the Black Bridge"
-        },
-        {
-          "image": "/img/projects/maha-arivagam/snacks-on-the-grass.jpg",
-          "caption": "Ice cream on the grass by the river"
-        },
-        {
-          "image": "/img/projects/maha-arivagam/temple-hall.jpg",
-          "caption": "Inside Banalingeswaram temple"
-        },
-        {
-          "image": "/img/projects/maha-arivagam/at-the-temple.jpg",
-          "caption": "Children, parents and teachers at the temple"
-        },
-        {
-          "image": "/img/projects/maha-arivagam/sitting-together.jpg",
-          "caption": "Sitting together at the temple"
-        },
-        {
-          "image": "/img/projects/maha-arivagam/sharing-treats.jpg",
-          "caption": "Snacks for every child"
-        },
-        {
-          "image": "/img/projects/maha-arivagam/back-at-the-preschool.jpg",
-          "caption": "Back at the pre-school"
-        }
-      ],
-      "media": [
-        {
-          "url": "https://drive.google.com/file/d/1S6wsjfT3qBl2tXkxmaxocMLNDE77GlVQ/view",
-          "title": "Video: games on the grass"
-        }
-      ],
-      "expectations": [
-        {
-          "text": "Every child travels safely there and back",
-          "result": "met",
-          "note": "The bus left the pre-school at 3.30 and everyone was back by 6.00."
-        },
-        {
-          "text": "The children play, laugh and eat together",
-          "result": "met",
-          "note": "Ice cream at the bridge, dancing, playing in the river and snacks at the temple."
-        },
-        {
-          "text": "The day is recorded in photos and short videos, with permission, to share the joy",
-          "result": "met",
-          "note": "Photos, videos and a before and after note were sent by the pre-school."
-        }
-      ],
-      "city": "Mullaitivu"
-    },
-    {
-      "title": "Kids' day out at Casuarina Beach",
-      "slug": "casuarina-beach-day",
-      "hidden": false,
-      "featured": false,
-      "theme": "Trips & Events",
-      "status": "Active",
-      "location": "Casuarina Beach, Karainagar, Jaffna",
-      "organization": "Raavanaa",
-      "started": "October 2026",
-      "reach": "About 25 children",
-      "verified": true,
-      "budget": [
-        {
-          "item": "Van hire to Karainagar and back",
-          "amount": 220
-        },
-        {
-          "item": "Lunch, snacks and water",
-          "amount": 200
-        },
-        {
-          "item": "Beach games, balls and kites",
-          "amount": 80
-        },
-        {
-          "item": "Small gift for each child",
-          "amount": 60
-        },
-        {
-          "item": "First aid and sun care",
-          "amount": 40
-        }
-      ],
-      "goal": 600,
-      "funders": [
-        {
-          "name": "Kiri & Family",
-          "amount": 600
-        }
-      ],
-      "date_set": true,
-      "booked": true,
-      "volunteers": false,
-      "steps": [],
-      "summary": "A day at the sea for about 25 children: sand, waves, kites and a good lunch under the casuarina trees at Karainagar.",
-      "cover": "/img/project-beach.svg",
-      "quote": "",
-      "story": "## Summary\n\nA day at the sea for about 25 children: sand, waves, kites and a good lunch under the casuarina trees at Karainagar.\n\n## The need\n\nMany of these children live less than an hour from the sea and have never spent a day on the beach. Transport, food and a safe group are what stand between them and the shore.\n\n## The plan\n\nA van takes the group to Casuarina Beach in the morning. The children play games, fly kites and build sandcastles with volunteers watching the water, then share lunch in the shade before heading home with a small gift.\n\nThe project is **activated**: it is fully funded by Kiri & Family, the place is visited and the van is booked. We are now getting the volunteers ready.\n\n## What it leaves behind\n\nA first day at the sea that the children will remember. After the trip we will share the story and the pictures here.",
-      "impact": [],
-      "updates": [],
-      "photos": [],
-      "media": [],
-      "city": "Jaffna",
-      "expectations": [
-        {
-          "text": "Every child spends time in the sea, safely, with a volunteer close by"
-        },
-        {
-          "text": "All 25 children share a good lunch together"
-        },
-        {
-          "text": "Each child goes home with a small gift and a day to remember"
-        }
-      ]
-    },
-    {
-      "title": "Mums and kids, united: a day out together",
-      "slug": "mums-and-kids-day-out",
-      "hidden": false,
-      "featured": false,
-      "theme": "Trips & Events",
-      "status": "Complete",
-      "location": "Kilinochchi",
-      "organization": "Raavanaa",
-      "started": "August 2026",
-      "reach": "18 mums and 30 children",
-      "verified": true,
-      "budget": [
-        {
-          "item": "Bus for the families",
-          "amount": 150
-        },
-        {
-          "item": "Lunch for mums and children",
-          "amount": 180
-        },
-        {
-          "item": "Games and activities",
-          "amount": 70
-        },
-        {
-          "item": "Printed family photo for each mum",
-          "amount": 50
-        }
-      ],
-      "goal": 450,
-      "funders": [
-        {
-          "name": "Sasi",
-          "amount": 150
-        },
-        {
-          "name": "Shanker",
-          "amount": 150
-        },
-        {
-          "name": "Bala",
-          "amount": 150
-        }
-      ],
-      "date_set": true,
-      "booked": true,
-      "volunteers": true,
-      "steps": [],
-      "summary": "A day out for mums and their children together: games, a shared lunch and time to simply enjoy each other.",
-      "cover": "/img/project-mums.svg",
-      "quote": "",
-      "story": "## Summary\n\nA day out for mums and their children together: games, a shared lunch and time to simply enjoy each other.\n\n## The need\n\nThe mums we work with carry their families alone or nearly alone. Days off are rare, and days out with their children rarer still.\n\n## The day\n\nA bus took the families out for the day. The children and their mums played games side by side, shared a big lunch and finished with a family photo for each mum to keep.\n\nThis project is **complete**. It was made possible by Sasi, Shanker and Bala.\n\n## What it left behind\n\nMums who laughed with their children all day, and a photo on the wall to remember it by.",
-      "impact": [
-        {
-          "value": "18",
-          "label": "mums"
-        },
-        {
-          "value": "30",
-          "label": "children"
-        },
-        {
-          "value": "1",
-          "label": "day together"
-        }
-      ],
-      "updates": [
-        {
-          "date": "2026-09-20",
-          "title": "A day the mums said they will never forget",
-          "body": "Eighteen mums and thirty children spent the day together: sack races, a tug of war the mums won, and a long lunch in the shade. For many mums it was the first day in years with no work to do, only time with their children. Every family went home with a printed photo of the day."
-        }
-      ],
-      "photos": [],
-      "media": [],
-      "city": "Kilinochchi",
-      "expectations": [
-        {
-          "text": "Mums get a full day off, with nothing to do but enjoy their children",
-          "result": "met",
-          "note": "No cooking or chores: lunch was served for everyone."
-        },
-        {
-          "text": "Every mum and child plays at least one game together",
-          "result": "met",
-          "note": "Sack races and a tug of war, mums against kids."
-        },
-        {
-          "text": "Each family takes home a photo of the day",
-          "result": "met",
-          "note": "18 printed photos handed out before the bus left."
-        }
-      ]
-    },
-    {
-      "title": "An arcade trip for the orphanage kids",
-      "slug": "arcade-trip",
-      "hidden": false,
-      "featured": false,
-      "theme": "Trips & Events",
-      "status": "Planning",
-      "location": "",
-      "organization": "Raavanaa",
-      "started": "October 2026",
-      "reach": "Children from an orphanage",
-      "verified": false,
-      "budget": [
-        {
-          "item": "Arcade game cards for 20 children",
-          "amount": 250
-        },
-        {
-          "item": "Lunch and drinks",
-          "amount": 150
-        },
-        {
-          "item": "Bus to the arcade and back",
-          "amount": 100
-        }
-      ],
-      "goal": 500,
-      "funders": [
-        {
-          "name": "Kumar Family",
-          "amount": 250
-        }
-      ],
-      "date_set": false,
-      "booked": true,
-      "volunteers": true,
-      "steps": [],
-      "summary": "We are planning a trip to the arcade for children from an orphanage: games, lights, prizes and a day made just for them.",
-      "cover": "/img/project-arcade.svg",
-      "quote": "",
-      "story": "## Summary\n\nWe are planning a trip to the arcade for children from an orphanage: games, lights, prizes and a day made just for them.\n\n## The need\n\nChildren growing up in a home rarely get a day that is only about fun. A few hours of games and little prizes is a small thing to give and a big thing to receive.\n\n## The plan\n\nAn afternoon at the arcade where the only thing the children have to do is play, with transport, food and helpers arranged for the group.\n\nThe project has been **initiated**. We are waiting for the budget and the other details of the trip. As soon as they are ready, they will be shown on this page.\n\n## What it leaves behind\n\nA day the children will talk about for a long time. After the trip we will share the story and the pictures here, so that everyone who gave can see the smiles they created.",
-      "impact": [],
-      "updates": [],
-      "photos": [],
-      "media": []
-    },
-    {
-      "title": "A bowling day out for the Sivapoomi kids",
-      "slug": "bowling-day",
-      "hidden": false,
-      "featured": false,
-      "theme": "Trips & Events",
-      "status": "Planning",
-      "location": "",
-      "organization": "Raavanaa",
-      "started": "October 2026",
-      "reach": "Special-needs children of Sivapoomi",
-      "verified": true,
-      "budget": [],
-      "goal": null,
-      "funders": [],
-      "date_set": false,
-      "booked": false,
-      "volunteers": true,
-      "steps": [],
-      "summary": "We are arranging a day at the bowling lanes for the special-needs children of Sivapoomi: a day out to play, laugh and be cheered on.",
-      "cover": "/img/project-bowling.svg",
-      "quote": "",
-      "story": "## Summary\n\nWe are arranging a bowling day for the special-needs children of Sivapoomi: a day out to play, laugh and be cheered on.\n\n## The need\n\nA day out for a whole group of children with special needs takes transport, extra helpers and a budget, so it does not happen often. These are exactly the days a child remembers.\n\n## The plan\n\nA full day at the bowling lanes, where every child gets a turn and every roll gets a cheer, with transport, food and helpers arranged for the group.\n\nThe project has been **initiated**. We have requested the budget for the day and are waiting for a response. As soon as it is ready, it will be shown on this page.\n\n## What it leaves behind\n\nA happy memory for every child. After the day we will share the story and the pictures here, so that everyone who gave can see the smiles they created.",
-      "impact": [],
-      "updates": [],
-      "photos": [],
-      "media": []
+     "item": "Food for the children",
+     "amount": 8750
     }
-  ]
+   ],
+   "goal": 19250,
+   "funders": [
+    {
+     "name": "Friends of Raavanaa",
+     "amount": 19250
+    }
+   ],
+   "date_set": true,
+   "booked": true,
+   "volunteers": true,
+   "steps": [],
+   "summary": "The children of Pussellawa spent a day at Hanuman Kovil: running and playing on the lawn, dancing together and looking out over the hills, with transport and food fully covered.",
+   "cover": "/img/projects/pussellawa/cover.jpg",
+   "quote": "The children truly enjoyed the experience and were very happy.",
+   "story": "## Summary\n\nThe children of Pussellawa spent a day at Hanuman Kovil, in the hills on the road between Gampola and Nuwara Eliya. They ran and played on the lawn, danced together in their best clothes, shared a meal and looked out over the mountains.\n\n## The need\n\nPussellawa is a tea-country town, and many of its children grow up among the estates. Families work hard and a day away together is rare. Transport and food are what stand between these children and a day out.\n\n## The day\n\nOn 12 October 2026 a hired vehicle took the children to Hanuman Kovil. On the big lawn they played running games, held hands in circles and danced, while the grown-ups watched over them. Some of the little ones simply stood and looked out at the mountains.\n\nThe local organisers wrote to us the same day: *\"The children truly enjoyed the experience and were very happy.\"*\n\n## Where the money went\n\nEvery rupee went to the day itself: Rs 10,500 for the vehicle and Rs 8,750 for food, Rs 19,250 in total.\n\n## What it leaves behind\n\nA day of joy the children will remember, and the first Raavanaa day in the hill country. Thank you to everyone who made it possible.",
+   "impact": [
+    {
+     "value": "1",
+     "label": "day of joy"
+    },
+    {
+     "value": "Rs 19,250",
+     "label": "spent on the day"
+    },
+    {
+     "value": "100%",
+     "label": "to transport and food"
+    }
+   ],
+   "updates": [
+    {
+     "date": "2026-10-12",
+     "title": "A happy day at Hanuman Kovil",
+     "body": "The children spent the day at Hanuman Kovil: games on the lawn, dancing and a meal together. The organisers wrote to thank everyone: the children truly enjoyed it and were very happy."
+    },
+    {
+     "date": "2026-10-12",
+     "title": "Fully funded",
+     "body": "The full cost of Rs 19,250 is covered: Rs 10,500 for the vehicle and Rs 8,750 for food. Thank you to everyone who gave."
+    }
+   ],
+   "photos": [
+    {
+     "image": "/img/projects/pussellawa/hills-view.jpg",
+     "caption": "Looking out over the hills at Hanuman Kovil"
+    },
+    {
+     "image": "/img/projects/pussellawa/games-on-the-lawn.jpg",
+     "caption": "Games on the lawn"
+    },
+    {
+     "image": "/img/projects/pussellawa/running-together.jpg",
+     "caption": "Running together"
+    },
+    {
+     "image": "/img/projects/pussellawa/dancing.jpg",
+     "caption": "Dancing in their best clothes"
+    },
+    {
+     "image": "/img/projects/pussellawa/looking-out.jpg",
+     "caption": "A quiet moment with the view"
+    }
+   ],
+   "media": [],
+   "city": "Kandy",
+   "expectations": [
+    {
+     "text": "Every child travels safely there and back",
+     "result": "met",
+     "note": "The hired vehicle took the group to Hanuman Kovil and home again."
+    },
+    {
+     "text": "All the children share a good meal together",
+     "result": "met",
+     "note": "Food for the whole group was covered (Rs 8,750)."
+    },
+    {
+     "text": "The day is recorded in photos and short videos, with permission, to share the joy",
+     "result": "met",
+     "note": "Photos and videos of the day were sent by the organisers."
+    }
+   ]
+  },
+  {
+   "title": "Maha Arivagam pre-school trip to the Black Bridge",
+   "slug": "maha-arivagam-preschool-day",
+   "hidden": false,
+   "featured": false,
+   "theme": "Trips & Events",
+   "status": "Complete",
+   "location": "Yogapuram, Mullaitivu District",
+   "organization": "Raavanaa",
+   "started": "October 2026",
+   "reach": "17 children, 20 parents and 2 teachers",
+   "verified": true,
+   "currency": "Rs ",
+   "budget": [
+    {
+     "item": "The day out for the pre-school children",
+     "amount": 20000
+    }
+   ],
+   "goal": 20000,
+   "funders": [
+    {
+     "name": "Friends of Raavanaa",
+     "amount": 20000
+    }
+   ],
+   "date_set": true,
+   "booked": true,
+   "volunteers": true,
+   "steps": [],
+   "summary": "Seventeen little ones from Maha Arivagam Yogapuram Trilingual Pre-School went by bus to the old Black Bridge over the Pali Aru and to Banalingeswaram temple at Oddankulam: ice cream, dancing, playing in the river and a day to remember.",
+   "cover": "/img/projects/maha-arivagam/cover.jpg",
+   "quote": "The happiness on the children's faces is the greatest gift we received.",
+   "story": "## Summary\n\nOn 12 October 2026, 17 children from Maha Arivagam Yogapuram Trilingual Pre-School, with 20 parents, two teachers and members of the management, went on a trip to the Black Bridge (Karutha Palam) over the Pali Aru and to the Banalingeswaram Narmatha Natheeswarar temple, both at Oddankulam.\n\n## The need\n\nThe pre-school is run by the Technical, Arts, Culture and Women's Development Centre, and 25 children study there. Before the trip, the manager, Sarvika Vijayathasan, wrote to us: *\"For many of these children a day like this comes rarely. It will be a day to remember, to play, to laugh and to eat together.\"* The trip was arranged by the pre-school's contact, Mr Karthigesu Yoganathan.\n\n## The day\n\nThe bus left the pre-school at 3.30 in the afternoon and reached the Black Bridge at 3.45. The old bridge, said to have been built by the Dutch, crosses the Pali Aru. The children had ice cream, danced together, watched the river flowing quietly under the bridge and then went down into the water to play. For many of them it was the first day like this in a long time.\n\nNext they visited Banalingeswaram temple, where they looked at the carved sculptures of the 64 Nayanmars and walked through the flower garden. Outside the temple they danced again and shared snacks. Everyone left at 5.45 and was back at the pre-school by 6.00.\n\nThe day after, the manager wrote: *\"It was a wonderful day! The happiness on the children's faces is the greatest gift we received. Our heartfelt thanks to Raavanaa and to everyone who helped make this day possible.\"*\n\n## Where the money went\n\nThe full cost of the trip, Rs 20,000.00, was covered: the bus, food and snacks, and what the children needed for the day.\n\n## What it leaves behind\n\nA happy afternoon by the river for the whole pre-school, and photos and videos for the families to keep. Thank you to everyone who made it possible.",
+   "impact": [
+    {
+     "value": "17",
+     "label": "children"
+    },
+    {
+     "value": "20",
+     "label": "parents came along"
+    },
+    {
+     "value": "Rs 20,000",
+     "label": "spent on the day"
+    }
+   ],
+   "updates": [
+    {
+     "date": "2026-10-12",
+     "title": "Ice cream, the river and the temple",
+     "body": "Seventeen children, 20 parents and two teachers went to the Black Bridge over the Pali Aru and to Banalingeswaram temple. The children danced, played in the river and saw the sculptures of the 64 Nayanmars. The manager wrote: the happiness on the children's faces is the greatest gift we received."
+    },
+    {
+     "date": "2026-10-12",
+     "title": "Fully funded",
+     "body": "The full cost of Rs 20,000.00 is covered. The pre-school thanked Raavanaa and everyone who helped."
+    }
+   ],
+   "photos": [
+    {
+     "image": "/img/projects/maha-arivagam/at-the-bridge.jpg",
+     "caption": "Everyone together at the Black Bridge"
+    },
+    {
+     "image": "/img/projects/maha-arivagam/snacks-on-the-grass.jpg",
+     "caption": "Ice cream on the grass by the river"
+    },
+    {
+     "image": "/img/projects/maha-arivagam/temple-hall.jpg",
+     "caption": "Inside Banalingeswaram temple"
+    },
+    {
+     "image": "/img/projects/maha-arivagam/at-the-temple.jpg",
+     "caption": "Children, parents and teachers at the temple"
+    },
+    {
+     "image": "/img/projects/maha-arivagam/sitting-together.jpg",
+     "caption": "Sitting together at the temple"
+    },
+    {
+     "image": "/img/projects/maha-arivagam/sharing-treats.jpg",
+     "caption": "Snacks for every child"
+    },
+    {
+     "image": "/img/projects/maha-arivagam/back-at-the-preschool.jpg",
+     "caption": "Back at the pre-school"
+    }
+   ],
+   "media": [
+    {
+     "url": "https://drive.google.com/file/d/1S6wsjfT3qBl2tXkxmaxocMLNDE77GlVQ/view",
+     "title": "Video: games on the grass"
+    }
+   ],
+   "expectations": [
+    {
+     "text": "Every child travels safely there and back",
+     "result": "met",
+     "note": "The bus left the pre-school at 3.30 and everyone was back by 6.00."
+    },
+    {
+     "text": "The children play, laugh and eat together",
+     "result": "met",
+     "note": "Ice cream at the bridge, dancing, playing in the river and snacks at the temple."
+    },
+    {
+     "text": "The day is recorded in photos and short videos, with permission, to share the joy",
+     "result": "met",
+     "note": "Photos, videos and a before and after note were sent by the pre-school."
+    }
+   ],
+   "city": "Mullaitivu"
+  },
+  {
+   "title": "Kids' day out at Casuarina Beach",
+   "slug": "casuarina-beach-day",
+   "hidden": false,
+   "featured": false,
+   "theme": "Trips & Events",
+   "status": "Active",
+   "location": "Casuarina Beach, Karainagar, Jaffna",
+   "organization": "Raavanaa",
+   "started": "October 2026",
+   "reach": "About 25 children",
+   "verified": true,
+   "budget": [
+    {
+     "item": "Van hire to Karainagar and back",
+     "amount": 220
+    },
+    {
+     "item": "Lunch, snacks and water",
+     "amount": 200
+    },
+    {
+     "item": "Beach games, balls and kites",
+     "amount": 80
+    },
+    {
+     "item": "Small gift for each child",
+     "amount": 60
+    },
+    {
+     "item": "First aid and sun care",
+     "amount": 40
+    }
+   ],
+   "goal": 600,
+   "funders": [
+    {
+     "name": "Kiri & Family",
+     "amount": 600
+    }
+   ],
+   "date_set": true,
+   "booked": true,
+   "volunteers": false,
+   "steps": [],
+   "summary": "A day at the sea for about 25 children: sand, waves, kites and a good lunch under the casuarina trees at Karainagar.",
+   "cover": "/img/project-beach.svg",
+   "quote": "",
+   "story": "## Summary\n\nA day at the sea for about 25 children: sand, waves, kites and a good lunch under the casuarina trees at Karainagar.\n\n## The need\n\nMany of these children live less than an hour from the sea and have never spent a day on the beach. Transport, food and a safe group are what stand between them and the shore.\n\n## The plan\n\nA van takes the group to Casuarina Beach in the morning. The children play games, fly kites and build sandcastles with volunteers watching the water, then share lunch in the shade before heading home with a small gift.\n\nThe project is **activated**: it is fully funded by Kiri & Family, the place is visited and the van is booked. We are now getting the volunteers ready.\n\n## What it leaves behind\n\nA first day at the sea that the children will remember. After the trip we will share the story and the pictures here.",
+   "impact": [],
+   "updates": [],
+   "photos": [],
+   "media": [],
+   "city": "Jaffna",
+   "expectations": [
+    {
+     "text": "Every child spends time in the sea, safely, with a volunteer close by"
+    },
+    {
+     "text": "All 25 children share a good lunch together"
+    },
+    {
+     "text": "Each child goes home with a small gift and a day to remember"
+    }
+   ]
+  },
+  {
+   "title": "Mums and kids, united: a day out together",
+   "slug": "mums-and-kids-day-out",
+   "hidden": false,
+   "featured": false,
+   "theme": "Trips & Events",
+   "status": "Complete",
+   "location": "Kilinochchi",
+   "organization": "Raavanaa",
+   "started": "August 2026",
+   "reach": "18 mums and 30 children",
+   "verified": true,
+   "budget": [
+    {
+     "item": "Bus for the families",
+     "amount": 150
+    },
+    {
+     "item": "Lunch for mums and children",
+     "amount": 180
+    },
+    {
+     "item": "Games and activities",
+     "amount": 70
+    },
+    {
+     "item": "Printed family photo for each mum",
+     "amount": 50
+    }
+   ],
+   "goal": 450,
+   "funders": [
+    {
+     "name": "Sasi",
+     "amount": 150
+    },
+    {
+     "name": "Shanker",
+     "amount": 150
+    },
+    {
+     "name": "Bala",
+     "amount": 150
+    }
+   ],
+   "date_set": true,
+   "booked": true,
+   "volunteers": true,
+   "steps": [],
+   "summary": "A day out for mums and their children together: games, a shared lunch and time to simply enjoy each other.",
+   "cover": "/img/project-mums.svg",
+   "quote": "",
+   "story": "## Summary\n\nA day out for mums and their children together: games, a shared lunch and time to simply enjoy each other.\n\n## The need\n\nThe mums we work with carry their families alone or nearly alone. Days off are rare, and days out with their children rarer still.\n\n## The day\n\nA bus took the families out for the day. The children and their mums played games side by side, shared a big lunch and finished with a family photo for each mum to keep.\n\nThis project is **complete**. It was made possible by Sasi, Shanker and Bala.\n\n## What it left behind\n\nMums who laughed with their children all day, and a photo on the wall to remember it by.",
+   "impact": [
+    {
+     "value": "18",
+     "label": "mums"
+    },
+    {
+     "value": "30",
+     "label": "children"
+    },
+    {
+     "value": "1",
+     "label": "day together"
+    }
+   ],
+   "updates": [
+    {
+     "date": "2026-09-20",
+     "title": "A day the mums said they will never forget",
+     "body": "Eighteen mums and thirty children spent the day together: sack races, a tug of war the mums won, and a long lunch in the shade. For many mums it was the first day in years with no work to do, only time with their children. Every family went home with a printed photo of the day."
+    }
+   ],
+   "photos": [],
+   "media": [],
+   "city": "Kilinochchi",
+   "expectations": [
+    {
+     "text": "Mums get a full day off, with nothing to do but enjoy their children",
+     "result": "met",
+     "note": "No cooking or chores: lunch was served for everyone."
+    },
+    {
+     "text": "Every mum and child plays at least one game together",
+     "result": "met",
+     "note": "Sack races and a tug of war, mums against kids."
+    },
+    {
+     "text": "Each family takes home a photo of the day",
+     "result": "met",
+     "note": "18 printed photos handed out before the bus left."
+    }
+   ]
+  },
+  {
+   "title": "An arcade trip for the orphanage kids",
+   "slug": "arcade-trip",
+   "hidden": false,
+   "featured": false,
+   "theme": "Trips & Events",
+   "status": "Planning",
+   "location": "",
+   "organization": "Raavanaa",
+   "started": "October 2026",
+   "reach": "Children from an orphanage",
+   "verified": false,
+   "budget": [
+    {
+     "item": "Arcade game cards for 20 children",
+     "amount": 250
+    },
+    {
+     "item": "Lunch and drinks",
+     "amount": 150
+    },
+    {
+     "item": "Bus to the arcade and back",
+     "amount": 100
+    }
+   ],
+   "goal": 500,
+   "funders": [
+    {
+     "name": "Kumar Family",
+     "amount": 250
+    }
+   ],
+   "date_set": false,
+   "booked": true,
+   "volunteers": true,
+   "steps": [],
+   "summary": "We are planning a trip to the arcade for children from an orphanage: games, lights, prizes and a day made just for them.",
+   "cover": "/img/project-arcade.svg",
+   "quote": "",
+   "story": "## Summary\n\nWe are planning a trip to the arcade for children from an orphanage: games, lights, prizes and a day made just for them.\n\n## The need\n\nChildren growing up in a home rarely get a day that is only about fun. A few hours of games and little prizes is a small thing to give and a big thing to receive.\n\n## The plan\n\nAn afternoon at the arcade where the only thing the children have to do is play, with transport, food and helpers arranged for the group.\n\nThe project has been **initiated**. We are waiting for the budget and the other details of the trip. As soon as they are ready, they will be shown on this page.\n\n## What it leaves behind\n\nA day the children will talk about for a long time. After the trip we will share the story and the pictures here, so that everyone who gave can see the smiles they created.",
+   "impact": [],
+   "updates": [],
+   "photos": [],
+   "media": []
+  },
+  {
+   "title": "A bowling day out for the Sivapoomi kids",
+   "slug": "bowling-day",
+   "hidden": false,
+   "featured": false,
+   "theme": "Trips & Events",
+   "status": "Planning",
+   "location": "",
+   "organization": "Raavanaa",
+   "started": "October 2026",
+   "reach": "Special-needs children of Sivapoomi",
+   "verified": true,
+   "budget": [],
+   "goal": null,
+   "funders": [],
+   "date_set": false,
+   "booked": false,
+   "volunteers": true,
+   "steps": [],
+   "summary": "We are arranging a day at the bowling lanes for the special-needs children of Sivapoomi: a day out to play, laugh and be cheered on.",
+   "cover": "/img/project-bowling.svg",
+   "quote": "",
+   "story": "## Summary\n\nWe are arranging a bowling day for the special-needs children of Sivapoomi: a day out to play, laugh and be cheered on.\n\n## The need\n\nA day out for a whole group of children with special needs takes transport, extra helpers and a budget, so it does not happen often. These are exactly the days a child remembers.\n\n## The plan\n\nA full day at the bowling lanes, where every child gets a turn and every roll gets a cheer, with transport, food and helpers arranged for the group.\n\nThe project has been **initiated**. We have requested the budget for the day and are waiting for a response. As soon as it is ready, it will be shown on this page.\n\n## What it leaves behind\n\nA happy memory for every child. After the day we will share the story and the pictures here, so that everyone who gave can see the smiles they created.",
+   "impact": [],
+   "updates": [],
+   "photos": [],
+   "media": []
+  },
+  {
+   "title": "A day in Kandy for the pupils of Pussellawa",
+   "slug": "pussellawa-kandy-trip",
+   "hidden": false,
+   "featured": false,
+   "theme": "Trips & Events",
+   "status": "Planning",
+   "location": "Pussellawa, Kandy District",
+   "organization": "Raavanaa",
+   "started": "October 2026",
+   "reach": "52 children and 6 teachers",
+   "verified": false,
+   "budget": [],
+   "goal": null,
+   "funders": [],
+   "date_set": false,
+   "booked": false,
+   "volunteers": false,
+   "steps": [],
+   "summary": "The pupils of a small Tamil primary school in Pussellawa hope to spend a day in Kandy, at the Temple of the Tooth and the Peradeniya Botanical Gardens.",
+   "cover": "/img/project-kandy.svg",
+   "quote": "",
+   "story": "## Summary\n\nThe pupils of a small Tamil primary school in Pussellawa hope to spend a day in Kandy, at the Temple of the Tooth and the Peradeniya Botanical Gardens.\n\n## The need\n\nThe school has 52 children and 6 teachers in a hard-working tea-country community, where a trip to the city is out of reach for many families.\n\n## The plan\n\nA day trip to Kandy: a visit to the Temple of the Tooth, then the gardens at Peradeniya, with transport and food arranged for the whole group. The principal asked us for help after the first Raavanaa day in Pussellawa in October.\n\nThe project has been **initiated**. Our team is checking the request and working out the budget and the date with the school. As soon as they are ready, they will be shown on this page.\n\n## What it leaves behind\n\nA day of learning and wonder the children will remember. After the trip we will share the story and the pictures here, so that everyone who gave can see the smiles they created.",
+   "impact": [],
+   "updates": [],
+   "photos": [],
+   "media": [],
+   "city": "Kandy"
+  }
+ ]
 }
