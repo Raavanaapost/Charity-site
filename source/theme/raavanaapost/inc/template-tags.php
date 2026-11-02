@@ -512,20 +512,26 @@ function rp_latest_strip() {
 	if ( ! $posts ) {
 		return;
 	}
-	echo '<div class="rp-latest"><div class="rp-wrap rp-latest__inner">';
-	echo '<p class="rp-latest__label">' . esc_html__( 'Latest', 'raavanaapost' ) . '</p><ul class="rp-latest__list">';
+	/* One headline at a time, rolling up like a news ticker (see main.js). */
+	echo '<div class="rp-latest" data-rp-ticker><div class="rp-wrap rp-latest__inner">';
+	echo '<p class="rp-latest__label">' . esc_html__( 'Latest', 'raavanaapost' ) . '<svg width="10" height="12" viewBox="0 0 10 12" aria-hidden="true" focusable="false"><path d="M1 1l8 5-8 5z"/></svg></p><ul class="rp-latest__list">';
 	foreach ( $posts as $p ) {
 		$today = wp_date( 'Y-m-d' ) === get_post_time( 'Y-m-d', false, $p );
 		$when  = $today ? get_post_time( get_option( 'time_format' ), false, $p, true ) : get_the_date( 'j M', $p );
 		printf(
-			'<li><a href="%s"><time datetime="%s" data-rp-clock>%s</time> %s</a></li>',
+			'<li><a href="%s"><span class="rp-latest__run"><time datetime="%s" data-rp-clock>%s</time> <span class="rp-latest__title">%s</span></span></a></li>',
 			esc_url( get_permalink( $p ) ),
 			esc_attr( get_post_time( 'c', true, $p ) ),
 			esc_html( $when ),
 			esc_html( get_the_title( $p ) )
 		);
 	}
-	echo '</ul></div></div>';
+	echo '</ul>';
+	printf(
+		'<button class="rp-latest__pause" type="button" aria-pressed="false" hidden><svg class="rp-latest__icon-pause" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2 1h3v10H2zM7 1h3v10H7z"/></svg><svg class="rp-latest__icon-play" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2 1l9 5-9 5z"/></svg><span class="screen-reader-text">%s</span></button>',
+		esc_html__( 'Pause the latest news', 'raavanaapost' )
+	);
+	echo '</div></div>';
 }
 
 /** "Most read" box. */
