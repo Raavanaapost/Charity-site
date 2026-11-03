@@ -1,0 +1,52 @@
+<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Raavanaa Community</title>
+<meta name="description" content="A bridge between people who need a hand and people ready to give one.">
+<link rel="icon" href="/img/front3/crown.png"><style>:root{--u:min(1vw,1.778vh);--w:100vw;--h:100vh;--top:calc(2.9*var(--u));--crown:calc(7.8*var(--u));--name:calc(6.5*var(--u));--subf:calc(2.9*var(--u));--rule:calc(27*var(--u));--gap:calc(.83*var(--u));--tagf:calc(2.8*var(--u));--say:calc(1.46*var(--u));--sayw:calc(51*var(--u));--gap2:calc(.94*var(--u));--step:calc(1.25*var(--u));--stepgap:calc(2.5*var(--u));--enter:calc(1.35*var(--u));--bw:calc(100*var(--u));--url:calc(1.35*var(--u));--urlb:calc(1.15*var(--u));--ground:calc(5.8*var(--u))}
+@media (orientation:portrait){:root{--p:min(1vw,.5625vh);--top:calc(18*var(--p));--crown:calc(21.3*var(--p));--name:calc(15.7*var(--p));--subf:calc(7.4*var(--p));--rule:calc(59*var(--p));--gap:calc(2.8*var(--p));--tagf:calc(4.8*var(--p));--say:calc(3.9*var(--p));--sayw:calc(83*var(--p));--gap2:calc(3.1*var(--p));--step:calc(3.1*var(--p));--stepgap:calc(3.1*var(--p));--enter:calc(4.1*var(--p));--bw:calc(262*var(--p));--url:calc(3.7*var(--p));--urlb:calc(3.3*var(--p));--ground:calc(14*var(--p))}}
+html,body{min-height:100vh}
+body::after{content:"";position:absolute;left:0;right:0;bottom:0;height:var(--ground);background:#3F7A4A;z-index:-1}
+.top{z-index:1}.bridge{z-index:0}.url{z-index:1;text-decoration:none}
+.enter:focus-visible,.url:focus-visible{outline:3px solid #E88800;outline-offset:4px}
+
+@font-face{font-family:Rozha;src:url(/img/front3/rozha-one-latin.woff2) format("woff2")}
+@font-face{font-family:Cat;src:url(/img/front3/catamaran-latin.woff2) format("woff2");font-weight:100 900}
+*{margin:0;box-sizing:border-box}
+html,body{width:var(--w);height:var(--h);overflow:hidden}
+body{position:relative;font-family:Cat,sans-serif;color:#0B3D22;
+ background:radial-gradient(ellipse at 50% 30%,#FFF9EC 0%,#FBF1DC 55%,#F5E6C4 100%)}
+body::before{content:"";position:absolute;inset:0;background:radial-gradient(circle,rgba(201,138,30,.16) 1.4px,transparent 1.7px);background-size:26px 26px}
+.top{position:absolute;left:0;right:0;top:var(--top);display:flex;flex-direction:column;align-items:center;text-align:center}
+.crown{width:var(--crown)}
+.name{font-family:Rozha;font-size:var(--name);line-height:.95;color:#0B3D22;margin-top:-6px;letter-spacing:.5px}
+.sub{font-family:Rozha;font-size:var(--subf);color:#B8440A;line-height:1;margin-top:4px;letter-spacing:.06em}
+.rule{display:flex;align-items:center;gap:14px;margin:var(--gap) 0 8px;width:var(--rule)}
+.rule b{flex:1;height:2px;background:linear-gradient(90deg,transparent,#C98A1E)} .rule b+i+b{background:linear-gradient(90deg,#C98A1E,transparent)}
+.rule i{width:14px;height:14px;transform:rotate(45deg);background:#B8440A;box-shadow:0 0 0 4px #FBF1DC,0 0 0 5px #C98A1E}
+.soon{font-family:Rozha;font-size:var(--soon);line-height:1;background:linear-gradient(180deg,#E88800,#B8440A);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .05em}
+.ta{font-weight:700;font-size:var(--ta);color:#B8440A;margin-top:6px}
+.say{font-size:var(--say);font-weight:600;max-width:var(--sayw);line-height:1.35;margin-top:var(--gap2);color:#13251B}
+.steps{display:flex;gap:var(--stepgap);margin-top:calc(var(--gap2) * 1.1);font-size:var(--step);font-weight:800;color:#0B3D22}
+.steps span{display:flex;align-items:center;gap:10px}
+.steps span::before{content:"";width:12px;height:12px;transform:rotate(45deg);background:#C98A1E}
+.steps span:nth-child(2)::before{background:#E07018}.steps span:nth-child(3)::before{background:#0B3D22}
+.bridge{position:absolute;left:50%;bottom:0;width:var(--bw);transform:translateX(-50%)}
+.url{position:absolute;left:50%;bottom:var(--urlb);transform:translateX(-50%);padding:.25em 1.1em;border-radius:999px;background:#FBF6EA;box-shadow:0 0 0 2px #C98A1E;font-weight:800;font-size:var(--url);color:#0B3D22;letter-spacing:.5px}
+.tag{font-family:Rozha;font-size:var(--tagf);background:linear-gradient(180deg,#E88800,#B8440A);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1.1;margin-top:4px}
+.name{font-weight:400}
+.enter{display:inline-flex;align-items:center;gap:.5em;margin-top:var(--gap2);padding:.55em 1.5em;border-radius:999px;background:linear-gradient(180deg,#145232,#0B3D22);color:#FBF6EA;font-weight:800;font-size:var(--enter);text-decoration:none;box-shadow:0 0 0 2px #E3B54A,0 10px 24px rgba(11,61,34,.25)}
+.enter:hover{filter:brightness(1.08)}
+</style></head><body>
+<div class="top">
+ <img class="crown" src="/img/front3/crown.png" alt="">
+ <h1 class="name">Raavanaa</h1>
+ <div class="sub">Community</div>
+ <div class="rule"><b></b><i></i><b></b></div>
+ <p class="tag">Creating moments · Creating smiles</p>
+ <p class="say">A bridge between people who need a hand and people ready to give one. Anyone can ask. We check every need, share every cost, and show every result.</p>
+ <div class="steps"><span>Request</span><span>Make it happen</span><span>See the impact</span></div>
+ <a class="enter" href="/home">Enter Raavanaa <span aria-hidden="true">→</span></a>
+</div>
+<img class="bridge" src="/img/front3/bridge.svg" alt="">
+<a class="url" href="/home">raavanaa.org</a>
+</body></html>

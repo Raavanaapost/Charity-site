@@ -25,6 +25,7 @@
 /overview  /overview.html  200
 /front  /front.html  200
 /front-2  /front-2.html  200
+/front-3  /front-3.html  200
 /create  /create.html  200
 # New look (its own folder, still a preview)
 /new-look/projects/*  /new-look/project.html  200
