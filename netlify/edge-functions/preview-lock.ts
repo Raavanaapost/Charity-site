@@ -1,9 +1,20 @@
 // Keeps the site private until launch.
 // While the SITE_PASSWORD environment variable is set in Netlify, visitors must enter it.
 // To go live, delete SITE_PASSWORD in Netlify (Project configuration → Environment variables) and redeploy.
+// The "Coming soon" home page and its pictures are open to everyone; the rest stays private.
+const PUBLIC = new Set([
+  "/", "/index.html",
+  "/img/coming-soon-wide.webp", "/img/coming-soon-wide.jpg",
+  "/img/coming-soon-tall.webp", "/img/coming-soon-tall.jpg",
+  "/img/og-coming-soon.jpg",
+  "/img/favicon-32.png", "/img/icon-192.png", "/img/apple-touch-icon.png",
+  "/robots.txt", "/favicon.ico",
+]);
+
 export default async (request: Request, context: { next: () => Promise<Response> }) => {
   const password = Netlify.env.get("SITE_PASSWORD");
   if (!password) return context.next();
+  if (PUBLIC.has(new URL(request.url).pathname)) return context.next();
 
   const auth = request.headers.get("authorization") || "";
   if (auth.startsWith("Basic ")) {
