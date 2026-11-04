@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 -40 1100 825" width="800" height="600" role="img" aria-label="A school bus full of waving children winds down from the tea hills of Pussellawa towards the Temple of the Tooth by Kandy Lake and the royal palms of Peradeniya">
+<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6e3"/><stop offset=".7" stop-color="#fde3b0"/><stop offset="1" stop-color="#f9d58e"/></linearGradient>
+<radialGradient id="sun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd85a"/><stop offset="1" stop-color="#ef9a22"/></radialGradient>
+<linearGradient id="lake" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fd0c9"/><stop offset="1" stop-color="#5a9f98"/></linearGradient>
+<linearGradient id="road" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c79a63"/><stop offset="1" stop-color="#d9b07a"/></linearGradient>
+<g id="palm"><path d="M0 0 C-4 -60 4 -120 0 -170" stroke="#8b6a45" stroke-width="9" fill="none" stroke-linecap="round"/><g stroke="#2f7a45" stroke-width="8" fill="none" stroke-linecap="round"><path d="M0 -170 q-36 -16 -68 6"/><path d="M0 -170 q-38 -2 -66 30"/><path d="M0 -170 q-30 14 -50 50"/><path d="M0 -170 q36 -16 68 6"/><path d="M0 -170 q38 -2 66 30"/><path d="M0 -170 q30 14 50 50"/><path d="M0 -170 q-6 -26 -2 -46"/></g></g>
+<g id="tea"><ellipse cx="0" cy="0" rx="26" ry="11" fill="#3f8a50"/><ellipse cx="-6" cy="-4" rx="12" ry="5" fill="#5aa866"/></g>
+<g id="kid"><circle cx="0" cy="0" r="7" fill="#7a4b2a"/><path d="M-6 6 L-14 -10 M6 6 L14 -10" stroke="#7a4b2a" stroke-width="4" stroke-linecap="round"/></g>
+</defs>
+<rect y="-200" width="1200" height="900" fill="#fff6e3"/><rect width="1200" height="675" fill="url(#sky)"/>
+<circle cx="1010" cy="120" r="64" fill="url(#sun)"/>
+<g stroke="#ef9a22" stroke-width="6" stroke-linecap="round" opacity=".7"><path d="M1010 30v-18M1090 60l14-12M1110 120h18M930 60l-14-12M910 120h-18"/></g>
+<g fill="#fff" opacity=".85"><path d="M150 110 q20 -30 50 -10 q25 -22 50 4 q30 -2 26 22 h-136 q-12 -12 10 -16z"/><path d="M640 70 q16 -22 40 -8 q22 -16 40 4 q24 0 20 18 h-110 q-8 -10 10 -14z"/></g>
+<!-- far mountains -->
+<path d="M0 300 L90 200 L170 250 L270 150 L380 240 L470 190 L560 260 L680 200 L800 255 L920 210 L1060 250 L1200 215 V675 H0Z" fill="#b7d6a8"/>
+<!-- tea hill on the left -->
+<path d="M0 260 Q140 200 300 250 Q470 310 620 520 L620 675 H0Z" fill="#6fb06f"/>
+<g>
+<use href="#tea" x="40" y="280"/><use href="#tea" x="100" y="270"/><use href="#tea" x="160" y="268"/><use href="#tea" x="220" y="276"/><use href="#tea" x="280" y="290"/>
+<use href="#tea" x="20" y="320"/><use href="#tea" x="80" y="312"/><use href="#tea" x="140" y="308"/><use href="#tea" x="200" y="314"/><use href="#tea" x="260" y="326"/><use href="#tea" x="320" y="340"/><use href="#tea" x="380" y="358"/>
+<use href="#tea" x="40" y="360"/><use href="#tea" x="100" y="352"/><use href="#tea" x="160" y="350"/><use href="#tea" x="220" y="356"/><use href="#tea" x="280" y="368"/><use href="#tea" x="340" y="384"/><use href="#tea" x="400" y="402"/><use href="#tea" x="450" y="420"/>
+</g>
+<!-- the little school on the hill (no name) -->
+<g transform="translate(70 196)">
+<rect x="0" y="22" width="120" height="50" fill="#fffaf0" stroke="#d9b98a" stroke-width="3"/>
+<path d="M-10 24 L60 -6 L130 24Z" fill="#c0392b"/>
+<rect x="14" y="36" width="18" height="18" fill="#7fb7d6"/><rect x="46" y="36" width="18" height="18" fill="#7fb7d6"/><rect x="86" y="42" width="20" height="30" fill="#b8440a"/>
+<path d="M140 72 V8" stroke="#8b6a45" stroke-width="3"/><path d="M140 10 l26 8 -26 8z" fill="#f7c63a"/>
+</g>
+<!-- Kandy lake and the temple -->
+<path d="M420 560 Q560 420 800 412 Q1000 404 1200 410 V675 H420Z" fill="#4f9a5c"/>
+<path d="M560 452 Q820 430 1200 444 V520 Q900 528 640 520 Q560 500 560 452Z" fill="url(#lake)"/>
+<g stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".7"><path d="M640 480h60M760 470h80M900 492h70M1040 474h90"/></g>
+<!-- cloud wall along the lake -->
+<g transform="translate(600 430)">
+<rect x="0" y="0" width="420" height="16" fill="#fffaf0" stroke="#d9b98a" stroke-width="2"/>
+<path d="M0 0 q10 -12 20 0 q10 -12 20 0 q10 -12 20 0 q10 -12 20 0 q10 -12 20 0 q10 -12 20 0 q10 -12 20 0 q10 -12 20 0 q10 -12 20 0 q10 -12 20 0 q10 -12 20 0 q10 -12 20 0 q10 -12 20 0 q10 -12 20 0 q10 -12 20 0 q10 -12 20 0 q10 -12 20 0 q10 -12 20 0 q10 -12 20 0 q10 -12 20 0 q10 -12 20 0" fill="#fffaf0" stroke="#d9b98a" stroke-width="2"/>
+</g>
+<!-- temple buildings behind -->
+<g transform="translate(860 300)">
+<rect x="0" y="40" width="170" height="90" fill="#fffaf0" stroke="#d9b98a" stroke-width="3"/>
+<path d="M-14 42 L20 10 H150 L184 42Z" fill="#b8440a"/>
+<g fill="#e9d6b4"><rect x="16" y="66" width="14" height="50" rx="7"/><rect x="50" y="66" width="14" height="50" rx="7"/><rect x="106" y="66" width="14" height="50" rx="7"/><rect x="140" y="66" width="14" height="50" rx="7"/></g>
+<path d="M78 130 V82 q7 -14 14 0 V130Z" fill="#c0392b"/>
+</g>
+<!-- the octagon -->
+<g transform="translate(760 300)">
+<path d="M-74 42 L-58 12 H58 L74 42Z" fill="#c0392b"/>
+<rect x="-64" y="42" width="128" height="88" fill="#fffaf0" stroke="#d9b98a" stroke-width="3"/>
+<path d="M-50 -14 L-38 -40 H38 L50 -14Z" fill="#c0392b"/>
+<rect x="-44" y="-14" width="88" height="26" fill="#fffaf0" stroke="#d9b98a" stroke-width="3"/>
+<g fill="#7fb7d6"><rect x="-32" y="-8" width="12" height="14"/><rect x="-6" y="-8" width="12" height="14"/><rect x="20" y="-8" width="12" height="14"/></g>
+<path d="M0 -40 V-58" stroke="#e5851a" stroke-width="5" stroke-linecap="round"/><circle cx="0" cy="-62" r="7" fill="#f7c63a"/>
+<g fill="#e9d6b4"><rect x="-52" y="58" width="12" height="60" rx="6"/><rect x="-28" y="58" width="12" height="60" rx="6"/><rect x="-6" y="58" width="12" height="60" rx="6"/><rect x="16" y="58" width="12" height="60" rx="6"/><rect x="40" y="58" width="12" height="60" rx="6"/></g>
+</g>
+<!-- Peradeniya palms on the right -->
+<use href="#palm" x="1080" y="420"/><use href="#palm" x="1140" y="430" transform="scale(1)"/><g transform="translate(1180 432) scale(.85)"><use href="#palm"/></g><g transform="translate(1040 414) scale(.75)"><use href="#palm"/></g>
+<!-- the winding road from the hills to Kandy -->
+<path d="M210 272 C300 300 180 360 300 400 C420 440 380 520 560 560 C700 590 900 580 1200 600" fill="none" stroke="url(#road)" stroke-width="46" stroke-linecap="round"/>
+<path d="M210 272 C300 300 180 360 300 400 C420 440 380 520 560 560 C700 590 900 580 1200 600" fill="none" stroke="#fff6e3" stroke-width="4" stroke-dasharray="18 16" stroke-linecap="round"/>
+<rect y="640" width="1200" height="200" fill="#3f8a50"/><path d="M0 600 Q300 570 560 610 T1200 640 V675 H0Z" fill="#3f8a50"/>
+<!-- flowers -->
+<g><circle cx="80" cy="630" r="8" fill="#e5851a"/><circle cx="130" cy="644" r="8" fill="#c0392b"/><circle cx="190" cy="628" r="8" fill="#f7c63a"/><circle cx="700" cy="646" r="8" fill="#e5851a"/><circle cx="760" cy="636" r="8" fill="#c0392b"/><circle cx="1120" cy="652" r="8" fill="#f7c63a"/></g>
+<!-- the bus, children waving from every window -->
+<g transform="translate(470 470) rotate(8)">
+<rect x="0" y="0" width="250" height="96" rx="18" fill="#e5851a"/>
+<rect x="0" y="62" width="250" height="10" fill="#b8440a"/>
+<g fill="#fff6e3"><rect x="16" y="14" width="40" height="34" rx="5"/><rect x="66" y="14" width="40" height="34" rx="5"/><rect x="116" y="14" width="40" height="34" rx="5"/><rect x="166" y="14" width="40" height="34" rx="5"/><rect x="214" y="14" width="26" height="48" rx="5"/></g>
+<use href="#kid" x="36" y="36"/><use href="#kid" x="86" y="36"/><use href="#kid" x="136" y="36"/><use href="#kid" x="186" y="36"/>
+<circle cx="56" cy="98" r="19" fill="#3a2a1e"/><circle cx="56" cy="98" r="7" fill="#c9c2b6"/><circle cx="196" cy="98" r="19" fill="#3a2a1e"/><circle cx="196" cy="98" r="7" fill="#c9c2b6"/>
+<circle cx="246" cy="76" r="6" fill="#ffd85a"/>
+</g>
+<!-- a little trail of hearts behind the bus -->
+<g fill="#c0392b" opacity=".8"><path d="M420 470 c-6 -8 -18 -2 -12 8 l12 12 12 -12 c6 -10 -6 -16 -12 -8z"/><path d="M372 432 c-4 -6 -13 -2 -9 6 l9 9 9 -9 c4 -8 -5 -12 -9 -6z"/><path d="M336 400 c-3 -4 -9 -1 -6 4 l6 6 6 -6 c3 -5 -3 -8 -6 -4z"/></g>
+</svg>
