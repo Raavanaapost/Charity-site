@@ -467,23 +467,56 @@
    "organization": "Raavanaa",
    "started": "October 2026",
    "reach": "52 children and 6 teachers",
-   "verified": false,
-   "budget": [],
-   "goal": null,
+   "verified": true,
+   "budget": [
+    {
+     "item": "Bus to Kandy and back (about 50 km each way)",
+     "amount": 30000
+    },
+    {
+     "item": "Food for the whole group",
+     "amount": 31000
+    }
+   ],
+   "goal": 61000,
    "funders": [],
-   "date_set": false,
+   "date_set": true,
    "booked": false,
    "volunteers": false,
    "steps": [],
-   "summary": "The pupils of a small Tamil primary school in Pussellawa hope to spend a day in Kandy, at the Temple of the Tooth and the Peradeniya Botanical Gardens.",
-   "cover": "/img/project-kandy.svg",
-   "quote": "",
-   "story": "## Summary\n\nThe pupils of a small Tamil primary school in Pussellawa hope to spend a day in Kandy, at the Temple of the Tooth and the Peradeniya Botanical Gardens.\n\n## The need\n\nThe school has 52 children and 6 teachers in a hard-working tea-country community, where a trip to the city is out of reach for many families.\n\n## The plan\n\nA day trip to Kandy: a visit to the Temple of the Tooth, then the gardens at Peradeniya, with transport and food arranged for the whole group. The principal asked us for help after the first Raavanaa day in Pussellawa in October.\n\nThe project has been **initiated**. Our team is checking the request and working out the budget and the date with the school. As soon as they are ready, they will be shown on this page.\n\n## What it leaves behind\n\nA day of learning and wonder the children will remember. After the trip we will share the story and the pictures here, so that everyone who gave can see the smiles they created.",
+   "summary": "The pupils of a small Tamil primary school in Pussellawa have never been on a school trip. On 6 November 2026 they hope to spend a day in Kandy, at the Temple of the Tooth and the Peradeniya Botanical Gardens.",
+   "cover": "/img/projects/pussellawa-kandy/cover.svg",
+   "quote": "These students have never been anywhere on an excursion.",
+   "story": "## Summary\n\nThe pupils of a small Tamil primary school in Pussellawa have never been on a school trip. On 6 November 2026 they hope to spend a day in Kandy, at the Temple of the Tooth and the Peradeniya Botanical Gardens.\n\n## The need\n\nThe school has 52 children and 6 teachers in a hard-working tea-country community. The principal calls it a fully disadvantaged school, and says these children have never been anywhere on an excursion. She and her teachers decided together to give them a new experience, and asked Raavanaa for help after our first day in Pussellawa in October.\n\n## The plan\n\nOn Friday 6 November 2026, about 55 children and teachers travel by bus from the school to Kandy, about 50 km away. They visit the Sri Dalada Maligawa, the Temple of the Tooth, and stop at the Peradeniya gardens on the way back. The school has permission for the trip from the Department of Education.\n\nThe whole day costs Rs 61,000: about Rs 30,000 for the bus and the rest for food for the whole group.\n\n## What it leaves behind\n\nA first school trip the children will remember. After the day, the organiser will send photos and videos, and we will share the story and the pictures here, so that everyone who gave can see the smiles they created.",
    "impact": [],
-   "updates": [],
+   "updates": [
+    {
+     "date": "2026-11-04",
+     "title": "The plan is ready",
+     "body": "The day is set for 6 November 2026: the Temple of the Tooth in Kandy, then the Peradeniya gardens. The cost is Rs 61,000 for the bus and food, and the school has permission from the Department of Education."
+    }
+   ],
    "photos": [],
    "media": [],
-   "city": "Kandy"
+   "city": "Kandy",
+   "currency": "Rs ",
+   "expectations": [
+    {
+     "text": "Every child travels safely to Kandy and back",
+     "result": "",
+     "note": ""
+    },
+    {
+     "text": "The whole group shares a good meal together",
+     "result": "",
+     "note": ""
+    },
+    {
+     "text": "The children visit the Temple of the Tooth and the Peradeniya gardens",
+     "result": "",
+     "note": ""
+    }
+   ]
   }
  ]
 }
