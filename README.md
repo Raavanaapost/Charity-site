@@ -23,7 +23,8 @@ raavanaa.org: the `draft` and `main` branches are not touched by it.
 
 ## Rules for every story and photo
 
-- First names only. No full names, addresses or schools.
+- First names only. No full names or addresses.
+- Schools are not named unless SURESH approves it for that project (approved for Choughleigh Tamil Vidyalayam, Pussellawa, 5 Nov 2026).
 - Places are towns, never a home or school.
 - Children's faces only with a parent's or guardian's permission (photos already approved for raavanaa.org).
 - Evidence files are private and never go here.
