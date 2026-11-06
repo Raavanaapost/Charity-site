@@ -1,12 +1,14 @@
-/* raavanaa.org project page, copied rule for rule from raavanaa.org's style.css (by a script that keeps every rule
-   the project page uses) and scoped to .rorg, so a need story looks exactly like its raavanaa.org project page. */
+/* raavanaa.org project page (the new design on raavanaa.org's draft), copied rule for rule from its style.css
+   by a script that keeps every rule the project page uses, and scoped to .rorg. */
 .rorg{--bg:#f7f8f6;--surface:#ffffff;--ink:#1d2622;--muted:#5d6b64;--line:#dfe4e0;--brand:#0f5132;--brand-ink:#ffffff;--sun:#e5851a;--flame:#c8381e;--gold:#f2b21c;--sun-soft:#fdf0dc;--brand-soft:#e2efe6;
   --display:"Familjen Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;--body:"Literata",Georgia,"Times New Roman",serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--r:10px;
   background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;padding:6px 0 56px}
 .rorg *{box-sizing:border-box}
 .rorg .wrap{max-width:1120px;margin:0 auto;padding-inline:16px}
+@keyframes go-nudge{0%,80%,100%{transform:none}86%{transform:translateY(-2px)}92%{transform:translateY(1px)}}
+@keyframes go-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 .rorg a{color: var(--brand);}
-.rorg h1, .rorg h2, .rorg h3{font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0px;}
+.rorg h1, .rorg h2{font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0px;}
 .rorg .meta{font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 0.03em; display: flex; gap: 10px; flex-wrap: wrap;}
 .rorg .tag{display: inline-block; font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; background: var(--sun-soft); color: var(--ink); padding: 3px 8px; border-radius: 4px; align-self: flex-start;}
 .rorg .cover{aspect-ratio: 16 / 9; max-width: 100%; position: relative; overflow: hidden;}
@@ -14,7 +16,6 @@
 .rorg .crumbs a{color: var(--muted);}
 .rorg .phead{padding-block: 14px 22px; display: grid; gap: 10px;}
 .rorg .phead h1{font-size: clamp(28px, 4.6vw, 44px); max-width: 22ch;}
-.rorg .phead .lede{font-size: 18px; color: var(--muted); max-width: 62ch; margin: 0px;}
 .rorg .byline{display: flex; align-items: center; gap: 10px; font-family: var(--display); font-size: 15px;}
 .rorg .avatar{width: 34px; height: 34px; border-radius: 50%; background: var(--brand-soft); color: var(--brand); display: grid; place-items: center; font-weight: 700;}
 .rorg .layout{display: grid; grid-template-columns: minmax(0px, 1fr) 340px; gap: 40px; align-items: start; padding-block: 0px 72px;}
@@ -24,7 +25,9 @@
 .rorg .tab{font-family: var(--display); font-weight: 600; font-size: 16px; background: none; border-width: 0px 0px 3px; border-style: none none solid; border-color: currentcolor currentcolor transparent; border-image: none; color: var(--muted); padding: 10px 14px; cursor: pointer; white-space: nowrap;}
 .rorg .tab[aria-selected="true"]{color: var(--ink); border-color: var(--brand);}
 .rorg .tabs{gap: 4px; align-items: flex-end; border-bottom: 0px; margin-block: 28px 0px; overflow: visible; padding-inline: 2px;}
-.rorg .tab{--c: #1f7a47; flex: 1 1 0px; min-width: 0px; display: grid; justify-items: center; gap: 3px; padding: 8px 4px 7px; margin-top: 7px; font-weight: 700; font-size: 14px; line-height: 1.15; color: var(--c); background: color-mix(in srgb,var(--c) 13%,var(--surface)); border-top-color: ; border-top-style: ; border-top-width: ; border-right-color: ; border-right-style: ; border-right-width: ; border-left-color: ; border-left-style: ; border-left-width: ; border-image-source: ; border-image-slice: ; border-image-width: ; border-image-outset: ; border-image-repeat: ; border-bottom: 0px; border-radius: 13px 13px 0px 0px; transition: background 0.15s, color 0.15s;}
+.rorg .tab{--c:#1f7a47;flex:1 1 0;min-width:0;display:grid;justify-items:center;gap:3px;padding:8px 4px 7px;margin-top:7px;font-weight:700;font-size:14px;line-height:1.15;
+  color:var(--c);background:color-mix(in srgb,var(--c) 13%,var(--surface));border:1.5px solid color-mix(in srgb,var(--c) 38%,var(--surface));border-bottom:0;border-radius:13px 13px 0 0;
+  transition:background .15s ease,color .15s ease}
 .rorg .tab span{overflow: hidden; text-overflow: ellipsis; max-width: 100%;}
 .rorg .tab svg{display: block;}
 .rorg .tab:hover{background: color-mix(in srgb,var(--c) 22%,var(--surface));}
@@ -32,7 +35,7 @@
 .rorg .tab.t-updates, .rorg .folder.t-updates{--c: #c8381e;}
 .rorg .tab.t-budget, .rorg .folder.t-budget{--c: #b4560a;}
 .rorg .tab.t-media, .rorg .folder.t-media{--c: #8f6200;}
-.rorg .folder{--c: #1f7a47; background: var(--surface); border-right-color: ; border-right-style: ; border-right-width: ; border-bottom-color: ; border-bottom-style: ; border-bottom-width: ; border-left-color: ; border-left-style: ; border-left-width: ; border-image-source: ; border-image-slice: ; border-image-width: ; border-image-outset: ; border-image-repeat: ; border-top: 4px solid var(--c); border-radius: 0px 0px 14px 14px; padding: 20px 18px 18px; margin-bottom: 24px;}
+.rorg .folder{--c:#1f7a47;background:var(--surface);border:1.5px solid color-mix(in srgb,var(--c) 38%,var(--surface));border-top:4px solid var(--c);border-radius:0 0 14px 14px;padding:20px 18px 18px;margin-bottom:24px}
 @media (max-width: 480px){.rorg .tab{font-size: 13px;}}
 @media (max-width: 480px){.rorg .folder{padding: 18px 14px 16px;}}
 @media (prefers-reduced-motion: reduce){.rorg .tab{transition: none;}}
@@ -59,6 +62,8 @@
 .rorg .stat span{font-size: 13px; color: var(--muted);}
 .rorg .btn{display: block; width: 100%; text-align: center; font-family: var(--display); font-weight: 700; font-size: 16px; background: var(--brand); color: var(--brand-ink); border: 0px; border-radius: 8px; padding: 13px; cursor: pointer; text-decoration: none;}
 .rorg .btn.ghost{background: transparent; color: var(--brand); border: 1.5px solid var(--brand); margin-top: 10px;}
+.rorg .follow{display: grid; gap: 10px;}
+.rorg .follow input{font-style: inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-size: 15px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); width: 100%;}
 .rorg .note{font-size: 13px; color: var(--muted); margin: 0px;}
 .rorg .cover img, .rorg .hero img{width: 100%; height: 100%; object-fit: cover; display: block;}
 .rorg .hero{overflow: hidden; position: relative;}
@@ -67,9 +72,25 @@
 .rorg .empty{padding-block: 48px; color: var(--muted);}
 .rorg .photos button{color-scheme: unset; forced-color-adjust: unset; math-depth: unset; position: unset; position-anchor: unset; text-size-adjust: unset; appearance: unset; color: unset; font: unset; font-palette: unset; font-synthesis: unset; position-area: unset; text-orientation: unset; text-rendering: unset; text-spacing-trim: unset; -webkit-font-smoothing: unset; -webkit-locale: unset; -webkit-text-orientation: unset; -webkit-writing-mode: unset; writing-mode: unset; zoom: unset; accent-color: unset; place-content: unset; place-items: unset; place-self: unset; alignment-baseline: unset; anchor-name: unset; anchor-scope: unset; animation-composition: unset; animation: unset; animation-trigger: unset; app-region: unset; aspect-ratio: unset; backdrop-filter: unset; backface-visibility: unset; background: unset; background-blend-mode: unset; baseline-shift: unset; baseline-source: unset; block-size: unset; border-block: unset; border: unset; border-radius: unset; border-collapse: unset; border-end-end-radius: unset; border-end-start-radius: unset; border-inline: unset; border-shape: unset; border-start-end-radius: unset; border-start-start-radius: unset; inset: unset; box-decoration-break: unset; box-shadow: unset; box-sizing: unset; break-after: unset; break-before: unset; break-inside: unset; buffered-rendering: unset; caption-side: unset; caret-animation: unset; caret-color: unset; caret-shape: unset; clear: unset; clip: unset; clip-path: unset; clip-rule: unset; color-interpolation: unset; color-interpolation-filters: unset; color-rendering: unset; columns: unset; column-fill: unset; gap: unset; rule-break: unset; rule: unset; rule-inset: unset; rule-visibility-items: unset; column-span: unset; contain: unset; contain-intrinsic-block-size: unset; contain-intrinsic-size: unset; contain-intrinsic-inline-size: unset; container: unset; content: unset; content-visibility: unset; corner-shape: unset; corner-block-end-shape: unset; corner-block-start-shape: unset; counter-increment: unset; counter-reset: unset; counter-set: unset; cx: unset; cy: unset; d: unset; dominant-baseline: unset; dynamic-range-limit: unset; empty-cells: unset; field-sizing: unset; fill: unset; fill-opacity: unset; fill-rule: unset; filter: unset; flex: unset; flex-flow: unset; flex-line-count: unset; float: unset; flood-color: unset; flood-opacity: unset; grid: unset; grid-area: unset; height: unset; hyphenate-character: unset; hyphenate-limit-chars: unset; hyphens: unset; image-orientation: unset; image-rendering: unset; initial-letter: unset; inline-size: unset; inset-block: unset; inset-inline: unset; interactivity: unset; interest-delay: unset; interpolate-size: unset; isolation: unset; letter-spacing: unset; lighting-color: unset; line-break: unset; list-style: unset; margin-block: unset; margin: unset; margin-inline: unset; marker: unset; mask: unset; mask-type: unset; math-shift: unset; math-style: unset; max-block-size: unset; max-height: unset; max-inline-size: unset; max-width: unset; min-block-size: unset; min-height: unset; min-inline-size: unset; min-width: unset; mix-blend-mode: unset; object-fit: unset; object-position: unset; object-view-box: unset; offset: unset; opacity: unset; order: unset; orphans: unset; outline: unset; outline-offset: unset; overflow-anchor: unset; overflow-block: unset; overflow-clip-margin: unset; overflow-inline: unset; overflow-wrap: unset; overflow: unset; overlay: unset; overscroll-behavior-block: unset; overscroll-behavior-inline: unset; overscroll-behavior: unset; padding-block: unset; padding: unset; padding-inline: unset; page: unset; page-margin-safety: unset; page-orientation: unset; paint-order: unset; perspective: unset; perspective-origin: unset; pointer-events: unset; position-try: unset; position-visibility: unset; print-color-adjust: unset; quotes: unset; r: unset; reading-flow: unset; reading-order: unset; resize: unset; rotate: unset; ruby-align: unset; ruby-overhang: unset; ruby-position: unset; rule-overlap: unset; rx: unset; ry: unset; scale: unset; scroll-axis-lock: unset; scroll-behavior: unset; scroll-initial-target: unset; scroll-margin-block: unset; scroll-margin: unset; scroll-margin-inline: unset; scroll-marker-group: unset; scroll-padding-block: unset; scroll-padding: unset; scroll-padding-inline: unset; scroll-snap-align: unset; scroll-snap-stop: unset; scroll-snap-type: unset; scroll-target-group: unset; scroll-timeline: unset; scrollbar-color: unset; scrollbar-gutter: unset; scrollbar-width: unset; shape-image-threshold: unset; shape-margin: unset; shape-outside: unset; shape-rendering: unset; size: unset; speak: unset; stop-color: unset; stop-opacity: unset; stroke: unset; stroke-dasharray: unset; stroke-dashoffset: unset; stroke-linecap: unset; stroke-linejoin: unset; stroke-miterlimit: unset; stroke-opacity: unset; stroke-width: unset; tab-size: unset; table-layout: unset; text-align: unset; text-align-last: unset; text-anchor: unset; text-autospace: unset; text-box: unset; text-combine-upright: unset; text-decoration: unset; text-decoration-skip-ink: unset; text-emphasis: unset; text-emphasis-position: unset; text-fit: unset; text-indent: unset; text-justify: unset; text-overflow: unset; text-shadow: unset; text-transform: unset; text-underline-offset: unset; text-underline-position: unset; text-wrap: unset; timeline-scope: unset; timeline-trigger: unset; touch-action: unset; transform: unset; transform-box: unset; transform-origin: unset; transform-style: unset; transition: unset; translate: unset; trigger-scope: unset; user-select: unset; vector-effect: unset; vertical-align: unset; view-timeline: unset; view-transition-class: unset; view-transition-group: unset; view-transition-name: unset; view-transition-scope: unset; visibility: unset; border-spacing: unset; -webkit-box-align: unset; -webkit-box-decoration-break: unset; -webkit-box-direction: unset; -webkit-box-flex: unset; -webkit-box-ordinal-group: unset; -webkit-box-orient: unset; -webkit-box-pack: unset; -webkit-box-reflect: unset; -webkit-line-break: unset; -webkit-line-clamp: unset; -webkit-mask-box-image: unset; -webkit-rtl-ordering: unset; -webkit-ruby-position: unset; -webkit-tap-highlight-color: unset; -webkit-text-combine: unset; -webkit-text-decorations-in-effect: unset; -webkit-text-fill-color: unset; -webkit-text-security: unset; -webkit-text-stroke: unset; -webkit-user-drag: unset; white-space-collapse: unset; widows: unset; width: unset; will-change: unset; window-drag: unset; word-break: unset; word-spacing: unset; x: unset; y: unset; z-index: unset; cursor: pointer; display: block;}
 .rorg .photos .cover{aspect-ratio: 4 / 3;}
+.rorg .sr{position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap;}
+.rorg .form{display: grid; gap: 14px;}
+.rorg .form label{font-family: var(--display); font-weight: 600; font-size: 15px; display: grid; gap: 6px;}
+.rorg .form input, .rorg .form textarea{font-style: inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-size: 16px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); width: 100%;}
+.rorg .form textarea{min-height: 140px; resize: vertical;}
 .rorg .comments{max-width: 65ch; margin-top: 36px; padding-top: 24px; border-top: 2px solid var(--line); display: grid; gap: 14px;}
 .rorg .comments h2{font-size: 22px;}
+.rorg .comment-form h3{font-size: 18px;}
+.rorg .comment-form textarea{min-height: 110px;}
+.rorg .follow h2{margin-bottom: 0px;}
+.rorg .follow{gap: 8px;}
+.rorg .follow > .note{margin-top: -2px;}
+.rorg .follow-title{transition: opacity 0.32s;}
+@media (prefers-reduced-motion: reduce){.rorg .follow-title{transition: none;}}
+.rorg .follow h2.follow-title{font-family: Merriweather, Georgia, "Times New Roman", serif; font-weight: 900; font-size: 21px; line-height: 1.2; color: var(--ink); letter-spacing: -0.005em; padding-bottom: 2px;}
+.rorg .follow-title .initial{font-family:"Playfair Display",Didot,"Bodoni MT",Georgia,serif;font-style:italic;font-weight:900;font-size:1.55em;line-height:1;display:inline-block;vertical-align:-.05em;margin-right:.04em;padding:0 .06em .04em 0;color:var(--flame);background:linear-gradient(165deg,var(--gold) 5%,var(--sun) 40%,var(--flame) 85%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .rorg .journey{display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: auto; padding-top: 10px; border-top: 1px dashed var(--line); font-family: var(--display); font-size: 13px;}
+.rorg .form > label{display: block;}
+.rorg .form > label > input, .rorg .form > label > textarea{display: block; margin-top: 6px;}
 .rorg .phead .tag{width: fit-content;}
 .rorg .budget h2{font-size: 18px; margin-bottom: 10px;}
 .rorg .b-top{margin: 0px 0px 10px; font-family: var(--display); color: var(--muted); font-size: 15px;}
@@ -104,7 +125,7 @@
 .rorg .only-narrow.activating + .only-narrow{margin-top: 14px;}
 .rorg .money-h{font-family: var(--display); font-size: 14.5px; margin: 18px 0px 6px;}
 .rorg .bx-list{list-style: none; margin: 0px; padding: 0px; display: grid; gap: 6px;}
-.rorg .bx-list li{display: flex; justify-content: space-between; gap: 12px; padding: 8px 12px; border-radius: 8px; background: var(--surface); border-top-color: ; border-top-style: ; border-top-width: ; border-right-color: ; border-right-style: ; border-right-width: ; border-bottom-color: ; border-bottom-style: ; border-bottom-width: ; border-image-source: ; border-image-slice: ; border-image-width: ; border-image-outset: ; border-image-repeat: ; border-left: 4px solid var(--sun); font-size: 15px;}
+.rorg .bx-list li{display:flex;justify-content:space-between;gap:12px;padding:8px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--sun);font-size:15px}
 .rorg .bx-list b{font-family: var(--display); font-weight: 800; color: var(--sun); font-variant-numeric: tabular-nums; white-space: nowrap;}
 .rorg .bx-total{display: flex; justify-content: space-between; margin: 10px 0px 0px; padding: 10px 12px; border-top: 2px solid var(--line); font-family: var(--display); font-weight: 700;}
 .rorg .bx-total b{color: var(--sun); font-variant-numeric: tabular-nums;}
@@ -149,21 +170,69 @@
 .rorg .jr li.jr1.done i{background: rgb(31, 122, 71);}
 .rorg .jr li.jr2.done i{background: rgb(185, 122, 6);}
 .rorg .jr li.jr3.done i{background: rgb(200, 56, 30);}
+@media (min-width: 1700px){.rorg .story, .rorg .update, .rorg .comments, .rorg .media{max-width: 78ch;}}
+.rorg .layout .phead{padding-block: 6px 16px;}
+.rorg .layout .hero{margin-bottom: 18px;}
+.rorg .ptale{margin: 0px 0px 22px; --tc: #1f7a47;}
+.rorg .ptale.s2{--tc: #b97a06;}
+.rorg .ptale.s3{--tc: #c8381e;}
+.rorg .ptale .pull{margin: 0px 0px 10px;}
+.rorg .ptale-text{max-height: calc(5.25em); overflow: hidden; line-height: 1.75; mask-image: linear-gradient(rgb(0, 0, 0) 55%, transparent); transition: max-height 0.5s;}
+.rorg .ptale-text h2{font-size: 19px; margin: 18px 0px 6px;}
+.rorg .ptale.open .ptale-text{max-height: none; mask-image: none;}
+.rorg .ptale-more{margin-top: 8px; display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px 9px 18px; border-radius: 999px; border: 1.5px solid var(--tc); background: color-mix(in srgb,var(--tc) 8%,var(--surface)); color: var(--tc); font-family: "Playfair Display", Georgia, serif; font-style: italic; font-weight: 800; font-size: 17px; cursor: pointer; transition: background 0.2s, color 0.2s;}
+.rorg .ptale-more:hover{background: var(--tc); color: rgb(255, 255, 255);}
+.rorg .ptale-more i{font-style: normal; font-family: var(--display); transition: transform 0.3s;}
+.rorg .ptale.open .ptale-more i{transform: rotate(180deg);}
+.rorg .go100{border: 0px; background: linear-gradient(165deg,#fff7e8,var(--surface) 55%); box-shadow: 0 0 0 1.5px color-mix(in srgb,var(--sun) 45%,transparent),0 16px 34px -20px var(--sun);}
+.rorg .go-kicker{margin: 0px; font-family: var(--display); font-weight: 800; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: rgb(31, 122, 71);}
+.rorg .go-title{font-weight: 900; line-height: 1.2; font-family: "Playfair Display", Georgia, serif !important; font-size: clamp(21px, 2.4vw, 25px) !important; margin: 4px 0px 14px !important;}
+.rorg .go-title span{display:block;background:linear-gradient(90deg,var(--sun),var(--flame));-webkit-background-clip:text;background-clip:text;color:transparent}
+.rorg .go-open{margin-top: 16px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 13px 16px; border: 0px; border-radius: 12px; background: var(--flame); color: rgb(255, 255, 255); font-family: var(--display); font-weight: 700; font-size: 16px; cursor: pointer; box-shadow: 0 10px 20px -10px var(--flame); animation: 3.2s ease-in-out 0s infinite normal none running go-nudge;}
+.rorg .go-open i{font-style: normal; transition: transform 0.3s;}
+.rorg .go100.open .go-open{animation: auto ease 0s 1 normal none running none; background: rgb(29, 38, 34);}
+.rorg .go100.open .go-open i{transform: rotate(180deg);}
+.rorg .go-fold{margin-top: 16px; display: grid; gap: 18px; animation: 0.4s ease-out 0s 1 normal none running go-in;}
+.rorg .go-list{list-style: none; margin: 0px; padding: 0px; display: grid; gap: 8px;}
+.rorg .go-list li{display: grid; grid-template-columns: 52px minmax(0px, 1fr); gap: 10px; align-items: start; padding: 10px 12px; border-radius: 12px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line);}
+.rorg .go-list li i{font-style: normal; display: grid; place-items: center; height: 30px; border-radius: 999px; font-family: var(--display); font-weight: 800; font-size: 13.5px;}
+.rorg .go-list li.done i{background: rgb(226, 239, 230); color: rgb(31, 122, 71);}
+.rorg .go-list li.todo{cursor: default; transition: box-shadow 0.2s, transform 0.2s;}
+.rorg .go-list li.todo i{background: var(--flame); color: rgb(255, 255, 255);}
+.rorg .go-list li.todo:hover, .rorg .go-list li.todo:focus{outline: none; box-shadow: inset 0 0 0 1.5px var(--flame),0 6px 14px -8px var(--flame); transform: translateX(2px);}
+.rorg .go-list b{display: block; font-family: var(--display); font-size: 15px;}
+.rorg .go-list span{display: block; font-size: 13.5px; color: var(--muted); line-height: 1.45;}
+.rorg .go-list li.done b{color: var(--muted); text-decoration: line-through color-mix(in srgb, rgb(31, 122, 71) 60%, transparent 40%);}
+.rorg .go-form{display: grid; gap: 10px; padding: 16px; border-radius: 14px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line);}
+.rorg .go-form h3{margin: 0px; font-family: "Playfair Display", Georgia, serif; font-weight: 900; font-size: 22px; color: var(--flame);}
+.rorg .go-sub{margin: 0px; font-size: 14px; color: var(--muted);}
+.rorg .go-ways{border: 0px; margin: 0px; padding: 0px; display: flex; flex-wrap: wrap; gap: 6px;}
+.rorg .go-ways legend{font-family: var(--display); font-weight: 700; font-size: 14px; margin-bottom: 6px; padding: 0px;}
+.rorg .go-way{position: relative; cursor: pointer;}
+.rorg .go-way input{position: absolute; opacity: 0; pointer-events: none;}
+.rorg .go-way span{display: inline-block; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); font-family: var(--display); font-weight: 600; font-size: 13.5px; background: var(--bg); transition: background 0.15s, color 0.15s, border-color 0.15s;}
+.rorg .go-way input:focus-visible + span{outline: 2px solid var(--flame); outline-offset: 2px;}
+.rorg .go-form label{display: grid; gap: 4px; font-family: var(--display); font-weight: 600; font-size: 14px;}
+.rorg .go-form input:not([type="checkbox"]), .rorg .go-form textarea{font-style: inherit; font-variant: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-weight: 400; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink);}
+.rorg .go-send{background: var(--flame); border-color: var(--flame);}
+@media (prefers-reduced-motion: reduce){.rorg .go-open, .rorg .go-fold{animation: auto ease 0s 1 normal none running none;}}
+@media (prefers-reduced-motion: reduce){.rorg .ptale-text{transition: none;}}
+.rorg .go-fold[hidden]{display: none;}
+.rorg .ptale:not(.open):not(.short) .ptale-text p{margin: 0px 0px 0.4em;}
+.rorg .ptale:not(.open):not(.short) .ptale-text :is(h2,h3,h4){display:none}
 
 /* ---- RaavanaaPost additions (SURESH, 6 Nov 2026) ---- */
 /* The royal title stays: Cinzel, first letter bigger and orange. */
 .rorg .phead h1.rp-article__title{font-family:var(--rp-display);font-weight:400;color:var(--rp-green);line-height:1.08;max-width:26ch}
-/* Story: drop cap on the opening paragraph, pictures fit the column. */
-.rorg .story > .pull + p::first-letter,.rorg .story > p:first-child:not(.pull)::first-letter{float:left;margin:6px 10px 0 0;color:var(--rp-orange);font-family:var(--rp-display);font-size:3.6em;font-weight:700;line-height:.8}
-.rorg .story img{max-width:100%;height:auto;border-radius:8px}
-.rorg .story figure{margin:18px 0}
-.rorg .story figcaption{color:var(--muted);font-size:14px;padding-top:6px}
-/* The fold: the opening paragraph, then "Read the full story". */
-.rorg .fold > summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;margin:6px 0 4px;padding:9px 18px;border:1px solid var(--rp-gold,#c98a1e);border-radius:999px;background:#fff8ec;color:var(--rp-orange,#b8440a);font-family:var(--display);font-weight:700;font-size:15px}
-.rorg .fold > summary::-webkit-details-marker{display:none}
-.rorg .fold > summary::after{content:"";width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translateY(-2px)}
-.rorg .fold > summary:hover{background:#fdecd2}
-.rorg .fold[open] > summary{display:none}
+.rorg .phead .lede{margin:6px 0 12px}
+/* The story under the picture shows its opening paragraph in full, then folds; the button opens the rest. */
+.rorg .ptale-text{max-height:none;-webkit-mask-image:none;mask-image:none}
+.rorg .ptale:not(.open) .ptale-rest{display:none}
+.rorg .ptale:not(.open) .ptale-text p{margin:0 0 .4em}
+.rorg .ptale-text > p:first-child::first-letter{float:left;margin:6px 10px 0 0;color:var(--rp-orange);font-family:var(--rp-display);font-size:3.6em;font-weight:700;line-height:.8}
+.rorg .ptale-text img{max-width:100%;height:auto;border-radius:8px}
+.rorg .ptale-text figure{margin:18px 0}
+.rorg .ptale-text figcaption{color:var(--muted);font-size:14px;padding-top:6px}
 /* "Project at a glance" opens from the icon on the picture. */
 .rorg .hero-wrap{position:relative}
 .rorg .glance{position:absolute;top:12px;right:12px;z-index:5;display:flex;flex-direction:column;align-items:flex-end}
@@ -172,24 +241,12 @@
 .rorg .glance-card{display:none;width:min(320px,calc(100vw - 56px));margin-top:8px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
 .rorg .glance:hover .glance-card,.rorg .glance:focus-within .glance-card{display:block}
 .rorg .glance-card .facts{margin:0}
-/* Side column: "Where this need stands" first, then raavanaa.org's boxes. */
+/* "Where this need stands" leads the side column. */
 .rorg .panel.need{border-top:3px solid var(--rp-gold,#c98a1e);background:var(--rp-ivory,#fffaf0)}
 .rorg .panel.need h2{font-family:var(--rp-display);font-weight:400;color:var(--rp-green);font-size:20px}
 .rorg .panel.need h2::first-letter{font-size:1.25em;color:var(--rp-orange)}
 .rorg .panel.need .rp-need__update{margin:14px 0 0;font-size:15px}
 .rorg .side .btn{text-decoration:none}
-/* Budget box with the orange touches from the first RaavanaaPost version. */
-.rorg .budget--rp{border-top:3px solid var(--rp-gold,#c98a1e);background:var(--rp-ivory,#fffaf0)}
-.rorg .budget--rp h2{font-family:var(--rp-display);font-weight:400;color:var(--rp-green);font-size:20px}
-.rorg .budget--rp h2::first-letter{font-size:1.25em;color:var(--rp-orange)}
-.rorg .budget--rp .b-top b{color:var(--rp-green)}
-.rorg .budget--rp .b-bar{background:var(--rp-gold-pale,#f6ead2);border-color:var(--rp-gold-line,#e3cfa4)}
-.rorg .budget--rp .b-bar i{background:linear-gradient(90deg,var(--rp-gold-light,#e9b54a),var(--rp-gold,#c98a1e))}
-.rorg .budget--rp .money-h{margin:16px 0 8px;color:var(--rp-green);font-size:15px}
-.rorg .budget--rp .bx-list{display:grid;gap:6px;margin:0;padding:0;list-style:none}
-.rorg .budget--rp .bx-list li{display:flex;justify-content:space-between;gap:12px;padding:8px 12px;border-left:3px solid var(--rp-gold,#c98a1e);border-radius:4px;background:#fff;font-size:14px}
-.rorg .budget--rp .bx-list b,.rorg .budget--rp .bx-total b{color:var(--rp-orange);white-space:nowrap}
-.rorg .budget--rp .bx-total{display:flex;justify-content:space-between;margin:10px 0 0;padding:8px 12px 0;border-top:1px solid var(--rp-gold-line,#e3cfa4);font-weight:800}
-.rorg .rp-share{margin-top:22px}
 @media (min-width:881px){.rorg .only-wide{display:grid;gap:inherit}}
 .rorg .only-narrow > * + *{margin-top:14px}
+.rorg .rp-share{margin-top:22px}

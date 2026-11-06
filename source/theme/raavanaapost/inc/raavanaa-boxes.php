@@ -220,14 +220,67 @@ function rp_rorg_budget_detail( $p, $detail = false ) {
 		. ( 3 === $st || $detail ? $list( 3 === $st ? 'Where the money went' : 'Estimated costs', 3 === $st ? 'Total spent' : 'Estimated total' ) : '' );
 }
 
-/**
- * The Budget box. On RaavanaaPost it keeps the orange touches SURESH liked in the first version
- * (orange first letter, gold top line, the cost list with orange amounts): class "budget--rp".
- */
+/** budgetBoxHTML( p, site, false ) */
 function rp_rorg_budget_box( $p ) {
 	$b  = rp_rorg_budget( $p );
 	$st = rp_rorg_stage( $p );
-	return '<div class="panel budget budget--rp' . ( $b['full'] && $st > 1 ? ' full' : '' ) . '"><h2>Budget</h2>' . rp_rorg_budget_detail( $p, true ) . '</div>';
+	return '<div class="panel budget' . ( $b['full'] && $st > 1 ? ' full' : '' ) . '"><h2>Budget</h2>' . rp_rorg_budget_detail( $p ) . '</div>';
+}
+
+/**
+ * goPanelHTML(): the Initiated "Activating" box, "Help N children laugh. Let's take this to 100%.",
+ * with "See what's left to reach 100%" and the "Make this happen" note. On RaavanaaPost the note is a
+ * Netlify form of the RaavanaaPost site (form name "make-it-happen").
+ */
+function rp_rorg_go_panel( $p, $cls ) {
+	$steps = rp_rorg_steps( $p );
+	$b     = rp_rorg_budget( $p );
+	$pct   = (int) round( array_sum( array_column( $steps, 1 ) ) / count( $steps ) * 100 );
+	preg_match( '/\d+/', (string) ( $p['reach'] ?? '' ), $kids );
+	$slice = 100 / count( $steps );
+	$id    = preg_replace( '/\W/', '', $cls );
+	$need  = max( 0, $b['goal'] - $b['raised'] );
+	$say   = array(
+		function ( $d ) { return $d ? 'Our team visited and saw the need for themselves.' : 'Our team visits to make sure the need is real. Know this place? Tell us below.'; },
+		function ( $d ) use ( $p, $b ) { return $d ? 'We know what the day costs: ' . rp_rorg_money( $p, $b['goal'] ) . '.' : "We're working out what the day will cost: transport, food, tickets."; },
+		function ( $d ) use ( $p, $b, $need ) { return $d >= 1 ? 'Every part of the day is covered.' : ( $b['goal'] ? rp_rorg_money( $p, $need ) . ' still to go. This is where you come in.' : "Opens as soon as the budget is ready. Send a note and we'll tell you first." ); },
+	);
+	$ways = array( 'Cover part of the day', 'Cover the whole day', 'Give something the day needs (a van, food, gifts)', 'Help on the day', 'Share it with friends' );
+	preg_match( '/<svg class="ring"[\s\S]*?<\/svg>/', rp_rorg_activating( $p ), $ring );
+	$raw   = 0;
+	$items = '';
+	$list  = '';
+	foreach ( $steps as $k => $x ) {
+		$d      = $x[1];
+		$raw   += min( 1, $d ) * $slice;
+		$items .= sprintf( '<li class="%s"><i style="background:%s"></i><span>%s</span><b>%s</b></li>', $d >= 1 ? 'done' : ( $d > 0 ? 'part' : '' ), $x[2], esc_html( $x[0] ), $d >= 1 ? '✓' : ( $x[3] && $d > 0 ? round( $d * 100 ) . '%' : '–' ) );
+		$add    = $slice * ( 1 - min( 1, $d ) );
+		$list  .= '<li class="' . ( $d >= 1 ? 'done' : 'todo' ) . '" data-add="' . $add . '"' . ( $d >= 1 ? '' : ' tabindex="0"' ) . '><i aria-hidden="true">' . ( $d >= 1 ? '✓' : '+' . round( $add ) . '%' ) . '</i><div><b>' . esc_html( $x[0] ) . '</b><span>' . ( isset( $say[ $k ] ) ? $say[ $k ]( $d ) : '' ) . '</span></div></li>';
+	}
+	$form = '';
+	if ( $pct < 100 ) {
+		$w = '';
+		foreach ( $ways as $x ) { $w .= '<label class="go-way"><input type="checkbox" name="ways[]" value="' . esc_attr( $x ) . '"><span>' . esc_html( $x ) . '</span></label>'; }
+		$form = '<button class="go-open" type="button" aria-expanded="false" aria-controls="go-fold-' . $id . '"><span>See what\'s left to reach 100%</span><i aria-hidden="true">⌄</i></button>'
+			. '<div class="go-fold" id="go-fold-' . $id . '" hidden><ol class="go-list">' . $list . '</ol>'
+			. '<form class="go-form" name="make-it-happen" method="post" action="?sent=1#go-fold-' . $id . '" data-netlify="true" netlify-honeypot="bot-field"><h3>Make this happen</h3>'
+			. '<p class="go-sub">Send us a note. No payment here: just tell us how you\'d like to help and we\'ll reach out.</p>'
+			. '<input type="hidden" name="form-name" value="make-it-happen"><input type="hidden" name="project" value="' . esc_attr( get_post_field( 'post_name' ) ) . '">'
+			. '<p hidden><label>Leave empty <input name="bot-field"></label></p>'
+			. '<fieldset class="go-ways"><legend>I\'d love to…</legend>' . $w . '</fieldset>'
+			. '<label for="go-name-' . $id . '">Your name<input id="go-name-' . $id . '" name="name" required maxlength="80" autocomplete="name"></label>'
+			. '<label for="go-contact-' . $id . '">Email or WhatsApp<input id="go-contact-' . $id . '" name="contact" required maxlength="120"></label>'
+			. '<label for="go-note-' . $id . '">A note for us (optional)<textarea id="go-note-' . $id . '" name="note" maxlength="1500" rows="3"></textarea></label>'
+			. '<button class="btn go-send" type="submit">Send my note</button></form></div>';
+	}
+	return '<div class="panel activating go100 ' . $cls . '" data-pct="' . $pct . '" data-raw="' . $raw . '"><p class="go-kicker">Activating</p>'
+		. '<h2 class="go-title">Help ' . ( $kids ? esc_html( $kids[0] ) . ' children' : 'these children' ) . ' laugh. <span>Let\'s take this to 100%.</span></h2>'
+		. '<div class="ring-row">' . ( $ring ? $ring[0] : '' ) . '<ul class="ring-steps">' . $items . '</ul></div>' . $form . '</div>';
+}
+
+/** ringPanel(): the "go to 100%" box while a project is Initiated, the plain ring after that. */
+function rp_rorg_ring_panel( $p, $cls ) {
+	return 1 === rp_rorg_stage( $p ) ? rp_rorg_go_panel( $p, $cls ) : str_replace( 'class="panel activating"', 'class="panel activating ' . $cls . '"', rp_rorg_activating( $p ) );
 }
 
 /** expectHTML() */

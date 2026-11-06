@@ -94,7 +94,7 @@ add_action(
 		wp_enqueue_style( 'raavanaapost', RP_URI . '/assets/css/main.css', array(), RP_VERSION );
 		// A need story shows raavanaa.org's project boxes, in raavanaa.org's own fonts.
 		if ( is_singular( 'post' ) && rp_project() ) {
-			wp_enqueue_style( 'raavanaa-fonts', 'https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Inter:wght@900&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&family=IBM+Plex+Mono:wght@500&display=swap', array(), null );
+			wp_enqueue_style( 'raavanaa-fonts', 'https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Inter:wght@900&family=Playfair+Display:ital,wght@0,800;0,900;1,900&family=Merriweather:wght@900&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&family=IBM+Plex+Mono:wght@500&display=swap', array(), null );
 			wp_enqueue_style( 'raavanaa-page', RP_URI . '/assets/css/raavanaa-page.css', array( 'raavanaapost' ), RP_VERSION );
 		}
 		wp_enqueue_script(
