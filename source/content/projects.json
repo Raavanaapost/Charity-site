@@ -1,7 +1,13 @@
 {
  "pussellawa-kids-trip": {
-  "verified": true,
+  "title": "Pussellawa kids' trip to Hanuman Kovil",
+  "theme": "Trips & Events",
+  "organization": "Raavanaa",
+  "location": "Pussellawa, Kandy District",
+  "started": "October 2026",
   "status": "Complete",
+  "quote": "The children truly enjoyed the experience and were very happy.",
+  "verified": true,
   "goal": 19250,
   "budget": [
    {
@@ -25,26 +31,61 @@
   "booked": true,
   "volunteers": true,
   "steps": [],
-  "story": true,
-  "updates": 2,
+  "impact": [
+   {
+    "value": "1",
+    "label": "day of joy"
+   },
+   {
+    "value": "Rs 19,250",
+    "label": "spent on the day"
+   },
+   {
+    "value": "100%",
+    "label": "to transport and food"
+   }
+  ],
   "expectations": [
    {
     "text": "Every child travels safely there and back",
-    "result": "met"
+    "result": "met",
+    "note": "The hired vehicle took the group to Hanuman Kovil and home again."
    },
    {
     "text": "All the children share a good meal together",
-    "result": "met"
+    "result": "met",
+    "note": "Food for the whole group was covered (Rs 8,750)."
    },
    {
     "text": "The day is recorded in photos and short videos, with permission, to share the joy",
-    "result": "met"
+    "result": "met",
+    "note": "Photos and videos of the day were sent by the organisers."
    }
-  ]
+  ],
+  "story": true,
+  "updates": [
+   {
+    "date": "2026-10-12",
+    "title": "A happy day at Hanuman Kovil",
+    "body": "The children spent the day at Hanuman Kovil: games on the lawn, dancing and a meal together. The organisers wrote to thank everyone: the children truly enjoyed it and were very happy."
+   },
+   {
+    "date": "2026-10-12",
+    "title": "Fully funded",
+    "body": "The full cost of Rs 19,250 is covered: Rs 10,500 for the vehicle and Rs 8,750 for food. Thank you to everyone who gave."
+   }
+  ],
+  "pictures": 5
  },
  "maha-arivagam-preschool-day": {
-  "verified": true,
+  "title": "Maha Arivagam pre-school trip to the Black Bridge",
+  "theme": "Trips & Events",
+  "organization": "Raavanaa",
+  "location": "Yogapuram, Mullaitivu District",
+  "started": "October 2026",
   "status": "Complete",
+  "quote": "The happiness on the children's faces is the greatest gift we received.",
+  "verified": true,
   "goal": 20000,
   "budget": [
    {
@@ -64,26 +105,61 @@
   "booked": true,
   "volunteers": true,
   "steps": [],
-  "story": true,
-  "updates": 2,
+  "impact": [
+   {
+    "value": "17",
+    "label": "children"
+   },
+   {
+    "value": "20",
+    "label": "parents came along"
+   },
+   {
+    "value": "Rs 20,000",
+    "label": "spent on the day"
+   }
+  ],
   "expectations": [
    {
     "text": "Every child travels safely there and back",
-    "result": "met"
+    "result": "met",
+    "note": "The bus left the pre-school at 3.30 and everyone was back by 6.00."
    },
    {
     "text": "The children play, laugh and eat together",
-    "result": "met"
+    "result": "met",
+    "note": "Ice cream at the bridge, dancing, playing in the river and snacks at the temple."
    },
    {
     "text": "The day is recorded in photos and short videos, with permission, to share the joy",
-    "result": "met"
+    "result": "met",
+    "note": "Photos, videos and a before and after note were sent by the pre-school."
    }
-  ]
+  ],
+  "story": true,
+  "updates": [
+   {
+    "date": "2026-10-12",
+    "title": "Ice cream, the river and the temple",
+    "body": "Seventeen children, 20 parents and two teachers went to the Black Bridge over the Pali Aru and to Banalingeswaram temple. The children danced, played in the river and saw the sculptures of the 64 Nayanmars. The manager wrote: the happiness on the children's faces is the greatest gift we received."
+   },
+   {
+    "date": "2026-10-12",
+    "title": "Fully funded",
+    "body": "The full cost of Rs 20,000.00 is covered. The pre-school thanked Raavanaa and everyone who helped."
+   }
+  ],
+  "pictures": 8
  },
  "casuarina-beach-day": {
-  "verified": true,
+  "title": "Kids' day out at Casuarina Beach",
+  "theme": "Trips & Events",
+  "organization": "Raavanaa",
+  "location": "Casuarina Beach, Karainagar, Jaffna",
+  "started": "October 2026",
   "status": "Active",
+  "quote": "",
+  "verified": true,
   "goal": 600,
   "budget": [
    {
@@ -113,32 +189,36 @@
     "amount": 600
    }
   ],
-  "currency": null,
   "reach": "About 25 children",
   "date_set": true,
   "booked": true,
   "volunteers": false,
   "steps": [],
-  "story": true,
-  "updates": 0,
+  "impact": [],
   "expectations": [
    {
-    "text": "Every child spends time in the sea, safely, with a volunteer close by",
-    "result": ""
+    "text": "Every child spends time in the sea, safely, with a volunteer close by"
    },
    {
-    "text": "All 25 children share a good lunch together",
-    "result": ""
+    "text": "All 25 children share a good lunch together"
    },
    {
-    "text": "Each child goes home with a small gift and a day to remember",
-    "result": ""
+    "text": "Each child goes home with a small gift and a day to remember"
    }
-  ]
+  ],
+  "story": true,
+  "updates": [],
+  "pictures": 0
  },
  "mums-and-kids-day-out": {
-  "verified": true,
+  "title": "Mums and kids, united: a day out together",
+  "theme": "Trips & Events",
+  "organization": "Raavanaa",
+  "location": "Kilinochchi",
+  "started": "August 2026",
   "status": "Complete",
+  "quote": "",
+  "verified": true,
   "goal": 450,
   "budget": [
    {
@@ -172,48 +252,123 @@
     "amount": 150
    }
   ],
-  "currency": null,
   "reach": "18 mums and 30 children",
   "date_set": true,
   "booked": true,
   "volunteers": true,
   "steps": [],
-  "story": true,
-  "updates": 1,
+  "impact": [
+   {
+    "value": "18",
+    "label": "mums"
+   },
+   {
+    "value": "30",
+    "label": "children"
+   },
+   {
+    "value": "1",
+    "label": "day together"
+   }
+  ],
   "expectations": [
    {
     "text": "Mums get a full day off, with nothing to do but enjoy their children",
-    "result": "met"
+    "result": "met",
+    "note": "No cooking or chores: lunch was served for everyone."
    },
    {
     "text": "Every mum and child plays at least one game together",
-    "result": "met"
+    "result": "met",
+    "note": "Sack races and a tug of war, mums against kids."
    },
    {
     "text": "Each family takes home a photo of the day",
-    "result": "met"
+    "result": "met",
+    "note": "18 printed photos handed out before the bus left."
    }
-  ]
+  ],
+  "story": true,
+  "updates": [
+   {
+    "date": "2026-09-20",
+    "title": "A day the mums said they will never forget",
+    "body": "Eighteen mums and thirty children spent the day together: sack races, a tug of war the mums won, and a long lunch in the shade. For many mums it was the first day in years with no work to do, only time with their children. Every family went home with a printed photo of the day."
+   }
+  ],
+  "pictures": 0
+ },
+ "arcade-trip": {
+  "title": "An arcade trip for the orphanage kids",
+  "theme": "Trips & Events",
+  "organization": "Raavanaa",
+  "location": "",
+  "started": "October 2026",
+  "status": "Planning",
+  "quote": "",
+  "verified": false,
+  "goal": 500,
+  "budget": [
+   {
+    "item": "Arcade game cards for 20 children",
+    "amount": 250
+   },
+   {
+    "item": "Lunch and drinks",
+    "amount": 150
+   },
+   {
+    "item": "Bus to the arcade and back",
+    "amount": 100
+   }
+  ],
+  "funders": [
+   {
+    "name": "Kumar Family",
+    "amount": 250
+   }
+  ],
+  "reach": "Children from an orphanage",
+  "date_set": false,
+  "booked": true,
+  "volunteers": true,
+  "steps": [],
+  "impact": [],
+  "story": true,
+  "updates": [],
+  "pictures": 0
  },
  "bowling-day": {
-  "verified": true,
+  "title": "A bowling day out for the Sivapoomi kids",
+  "theme": "Trips & Events",
+  "organization": "Raavanaa",
+  "location": "",
+  "started": "October 2026",
   "status": "Planning",
+  "quote": "",
+  "verified": true,
   "goal": null,
   "budget": [],
   "funders": [],
-  "currency": null,
   "reach": "Special-needs children of Sivapoomi",
   "date_set": false,
   "booked": false,
   "volunteers": true,
   "steps": [],
+  "impact": [],
   "story": true,
-  "updates": 0,
-  "expectations": []
+  "updates": [],
+  "pictures": 0
  },
  "pussellawa-kandy-trip": {
-  "verified": true,
+  "title": "A day in Kandy for the pupils of Pussellawa",
+  "theme": "Trips & Events",
+  "organization": "Raavanaa",
+  "location": "Pussellawa, Kandy District",
+  "started": "October 2026",
   "status": "Planning",
+  "quote": "These students have never been anywhere on an excursion.",
+  "verified": true,
   "goal": 61000,
   "budget": [
    {
@@ -232,21 +387,37 @@
   "booked": false,
   "volunteers": false,
   "steps": [],
-  "story": true,
-  "updates": 2,
+  "impact": [],
   "expectations": [
    {
     "text": "Every child travels safely to Kandy and back",
-    "result": ""
+    "result": "",
+    "note": ""
    },
    {
     "text": "The whole group shares a good meal together",
-    "result": ""
+    "result": "",
+    "note": ""
    },
    {
     "text": "The children visit the Temple of the Tooth and the Peradeniya gardens",
-    "result": ""
+    "result": "",
+    "note": ""
    }
-  ]
+  ],
+  "story": true,
+  "updates": [
+   {
+    "date": "2026-11-06",
+    "title": "New date: 27 November",
+    "body": "The trip to Kandy has moved to Friday 27 November 2026. Everything else stays the same: the Temple of the Tooth, the Peradeniya gardens and Rs 61,000 for the bus and food."
+   },
+   {
+    "date": "2026-11-04",
+    "title": "The plan is ready",
+    "body": "The day is set for 27 November 2026: the Temple of the Tooth in Kandy, then the Peradeniya gardens. The cost is Rs 61,000 for the bus and food, and the school has permission from the Department of Education."
+   }
+  ],
+  "pictures": 0
  }
 }

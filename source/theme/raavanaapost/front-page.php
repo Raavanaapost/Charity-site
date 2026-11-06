@@ -21,7 +21,12 @@ global $rp_shown;
 $rp_shown = array();
 
 // The newest story is always the front-page lead.
-$rp_lead = rp_take( array( 'numberposts' => 1, 'ignore_sticky_posts' => true ) );
+// The lead is the newest story, unless a story has been rotated to the front (content/front-lead.txt).
+$rp_front = (int) get_option( 'rp_front_lead' );
+$rp_lead  = $rp_front ? rp_take( array( 'numberposts' => 1, 'include' => array( $rp_front ) ) ) : array();
+if ( ! $rp_lead ) {
+	$rp_lead = rp_take( array( 'numberposts' => 1, 'ignore_sticky_posts' => true ) );
+}
 
 if ( ! $rp_lead ) :
 	?>

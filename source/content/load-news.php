@@ -346,6 +346,10 @@ $stories = array(
 /* Budget and progress for need stories, copied from raavanaa.org's projects.json. */
 $projects = json_decode( file_get_contents( __DIR__ . '/projects.json' ), true );
 
+/* Which story leads the front page: a story key in front-lead.txt ("rotate front"), or the newest story when it is empty. */
+$front = trim( (string) @file_get_contents( __DIR__ . '/front-lead.txt' ) );
+delete_option( 'rp_front_lead' );
+
 $sticky = array();
 foreach ( $stories as $s ) {
 	$body = $s['body'];
@@ -386,6 +390,7 @@ foreach ( $stories as $s ) {
 	}
 	if ( ! empty( $s['thumb'] ) ) { set_post_thumbnail( $id, $ph[ $s['thumb'] ] ); }
 	if ( ! empty( $s['sticky'] ) ) { $sticky[] = $id; }
+	if ( $front && $s['key'] === $front ) { update_option( 'rp_front_lead', $id ); }
 }
 update_option( 'sticky_posts', $sticky );
 

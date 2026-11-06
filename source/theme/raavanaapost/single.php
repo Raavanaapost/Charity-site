@@ -13,6 +13,11 @@ get_header();
 
 while ( have_posts() ) :
 	the_post();
+	if ( rp_project() ) {
+		// Project stories look like the project's page on raavanaa.org.
+		get_template_part( 'template-parts/need-page' );
+		continue;
+	}
 	$rp_cats  = get_the_category();
 	$rp_cat   = $rp_cats ? $rp_cats[0] : null;
 	$rp_place = trim( (string) get_post_meta( get_the_ID(), 'rp_place', true ) );
@@ -68,8 +73,6 @@ while ( have_posts() ) :
 					<?php rp_need_update(); ?>
 				</aside>
 			<?php endif; ?>
-
-			<?php rp_raavanaa_boxes(); ?>
 
 			<div class="rp-prose">
 				<?php

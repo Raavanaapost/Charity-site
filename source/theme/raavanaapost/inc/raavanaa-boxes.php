@@ -140,38 +140,177 @@ function rp_rorg_activating( $p ) {
 	);
 }
 
-/** budgetBoxHTML( p, site, false ), with budgetDetailHTML() inside. */
-function rp_rorg_budget_box( $p ) {
+/** fmtDate() */
+function rp_rorg_date( $d ) {
+	$t = strtotime( strlen( (string) $d ) === 10 ? $d . ' 12:00:00' : (string) $d );
+	return $t ? wp_date( 'M j, Y', $t ) : esc_html( $d );
+}
+
+/** md(): the small Markdown used on raavanaa.org (headings, lists, quotes, paragraphs). */
+function rp_rorg_md( $src ) {
+	$inline = function ( $t ) {
+		$t = esc_html( $t );
+		$t = preg_replace( '/\*\*(.+?)\*\*/', '<strong>$1</strong>', $t );
+		return preg_replace( '/\*(.+?)\*/', '<em>$1</em>', $t );
+	};
+	$out = '';
+	foreach ( preg_split( '/\n{2,}/', str_replace( "\r", '', (string) $src ) ) as $b ) {
+		$t = trim( $b );
+		if ( '' === $t ) {
+			continue;
+		}
+		if ( false === strpos( $t, "\n" ) && preg_match( '/^(#{1,4})\s+(.*)$/', $t, $h ) ) {
+			$n    = min( max( strlen( $h[1] ), 2 ), 4 );
+			$out .= "<h$n>" . $inline( $h[2] ) . "</h$n>";
+			continue;
+		}
+		$lines = explode( "\n", $t );
+		if ( ! array_filter( $lines, function ( $l ) { return ! preg_match( '/^\s*[-*]\s+/', $l ); } ) ) {
+			$out .= '<ul>' . implode( '', array_map( function ( $l ) use ( $inline ) { return '<li>' . $inline( preg_replace( '/^\s*[-*]\s+/', '', $l ) ) . '</li>'; }, $lines ) ) . '</ul>';
+			continue;
+		}
+		$out .= '<p>' . implode( '<br>', array_map( $inline, $lines ) ) . '</p>';
+	}
+	return $out;
+}
+
+/** budgetDetailHTML( p, site, detail ). */
+function rp_rorg_budget_detail( $p, $detail = false ) {
 	$b  = rp_rorg_budget( $p );
 	$st = rp_rorg_stage( $p );
 	if ( ! $b['goal'] ) {
-		$inner = '<p class="b-wait">The budget for this project is being prepared. It will be shown here as soon as it is ready.</p>';
-	} else {
-		$funders = function ( $h ) use ( $b, $p ) {
-			if ( ! $b['funders'] ) {
-				return '';
-			}
-			$out = '<h3 class="money-h">' . $h . '</h3><ul class="funders">';
-			foreach ( $b['funders'] as $f ) {
-				$words = array_filter( preg_split( '/\s+/', trim( (string) $f['name'] ) ), function ( $w ) { return preg_match( '/^[A-Za-z0-9]/', $w ); } );
-				$init  = strtoupper( implode( '', array_slice( array_map( function ( $w ) { return $w[0]; }, $words ), 0, 2 ) ) );
-				$a     = rp_rorg_num( $f['amount'] ?? '' );
-				$out  .= '<li><span class="avatar">' . esc_html( $init ) . '</span><span class="f-name">' . esc_html( $f['name'] ) . '</span>' . ( $a ? '<b>' . rp_rorg_money( $p, $a ) . '</b>' : '' ) . '</li>';
-			}
-			return $out . '</ul>';
-		};
-		if ( 1 === $st ) {
-			preg_match( '/\d+/', (string) ( $p['reach'] ?? '' ), $kids );
-			$inner = '<p class="b-top"><b>' . rp_rorg_money( $p, $b['goal'] ) . '</b> <span>budget</span></p>'
-				. '<div class="b-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' . $b['pct'] . '" aria-label="Share of the budget funded"><i style="width:' . $b['pct'] . '%"></i></div>'
-				. '<dl class="b-facts"><div><dt>Funded</dt><dd>' . $b['pct'] . '%</dd></div><div><dt>Still needed</dt><dd>' . rp_rorg_money( $p, max( 0, $b['goal'] - $b['raised'] ) ) . '</dd></div></dl>'
-				. '<p class="b-ask">' . ( $b['raised'] ? 'Help us close the gap' : 'Be the first to sponsor' ) . ( $kids ? ' and give ' . esc_html( $kids[0] ) . ' children their day' : ' and make this day happen' ) . '.</p>'
-				. $funders( 'Pledged so far' );
-		} else {
-			$inner = '<p class="b-top"><b>' . rp_rorg_money( $p, $b['goal'] ) . '</b> <span>budget</span> <em class="b-full">✓ Fully funded</em></p>' . $funders( 'Made possible by' );
+		return '<p class="b-wait">The budget for this project is being prepared. It will be shown here as soon as it is ready.</p>';
+	}
+	$sum = 0;
+	foreach ( $b['lines'] as $x ) { $sum += rp_rorg_num( $x['amount'] ?? '' ); }
+	$list = function ( $h, $total ) use ( $b, $p, $sum ) {
+		if ( ! $b['lines'] ) {
+			return '';
+		}
+		$out = '<h3 class="money-h">' . $h . '</h3><ul class="bx-list">';
+		foreach ( $b['lines'] as $x ) {
+			$out .= '<li><span>' . esc_html( $x['item'] ) . '</span><b>' . rp_rorg_money( $p, rp_rorg_num( $x['amount'] ?? '' ) ) . '</b></li>';
+		}
+		return $out . '</ul><p class="bx-total"><span>' . $total . '</span><b>' . rp_rorg_money( $p, $sum ) . '</b></p>';
+	};
+	$funders = function ( $h ) use ( $b, $p ) {
+		if ( ! $b['funders'] ) {
+			return '';
+		}
+		$out = '<h3 class="money-h">' . $h . '</h3><ul class="funders">';
+		foreach ( $b['funders'] as $f ) {
+			$words = array_filter( preg_split( '/\s+/', trim( (string) $f['name'] ) ), function ( $w ) { return preg_match( '/^[A-Za-z0-9]/', $w ); } );
+			$init  = strtoupper( implode( '', array_slice( array_map( function ( $w ) { return $w[0]; }, $words ), 0, 2 ) ) );
+			$a     = rp_rorg_num( $f['amount'] ?? '' );
+			$out  .= '<li><span class="avatar">' . esc_html( $init ) . '</span><span class="f-name">' . esc_html( $f['name'] ) . '</span>' . ( $a ? '<b>' . rp_rorg_money( $p, $a ) . '</b>' : '' ) . '</li>';
+		}
+		return $out . '</ul>';
+	};
+	if ( 1 === $st ) {
+		preg_match( '/\d+/', (string) ( $p['reach'] ?? '' ), $kids );
+		return '<p class="b-top"><b>' . rp_rorg_money( $p, $b['goal'] ) . '</b> <span>budget</span></p>'
+			. '<div class="b-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' . $b['pct'] . '" aria-label="Share of the budget funded"><i style="width:' . $b['pct'] . '%"></i></div>'
+			. '<dl class="b-facts"><div><dt>Funded</dt><dd>' . $b['pct'] . '%</dd></div><div><dt>Still needed</dt><dd>' . rp_rorg_money( $p, max( 0, $b['goal'] - $b['raised'] ) ) . '</dd></div></dl>'
+			. '<p class="b-ask">' . ( $b['raised'] ? 'Help us close the gap' : 'Be the first to sponsor' ) . ( $kids ? ' and give ' . esc_html( $kids[0] ) . ' children their day' : ' and make this day happen' ) . '.</p>'
+			. $funders( 'Pledged so far' )
+			. ( $detail ? $list( 'Estimated costs', 'Estimated total' ) : '' );
+	}
+	return '<p class="b-top"><b>' . rp_rorg_money( $p, $b['goal'] ) . '</b> <span>budget</span> <em class="b-full">✓ Fully funded</em></p>'
+		. $funders( 'Made possible by' )
+		. ( 3 === $st || $detail ? $list( 3 === $st ? 'Where the money went' : 'Estimated costs', 3 === $st ? 'Total spent' : 'Estimated total' ) : '' );
+}
+
+/**
+ * The Budget box. On RaavanaaPost it keeps the orange touches SURESH liked in the first version
+ * (orange first letter, gold top line, the cost list with orange amounts): class "budget--rp".
+ */
+function rp_rorg_budget_box( $p ) {
+	$b  = rp_rorg_budget( $p );
+	$st = rp_rorg_stage( $p );
+	return '<div class="panel budget budget--rp' . ( $b['full'] && $st > 1 ? ' full' : '' ) . '"><h2>Budget</h2>' . rp_rorg_budget_detail( $p, true ) . '</div>';
+}
+
+/** expectHTML() */
+function rp_rorg_expect( $p ) {
+	$xs = rp_rorg_rows( $p, 'expectations', 'text' );
+	$st = rp_rorg_stage( $p );
+	if ( ! $xs || 1 === $st ) {
+		return '';
+	}
+	if ( 2 === $st ) {
+		$li = '';
+		foreach ( $xs as $x ) { $li .= '<li><span class="ex-mark pending" aria-hidden="true">◎</span><span>' . esc_html( $x['text'] ) . '</span></li>'; }
+		return '<section class="expect"><h3 class="money-h">What the organizers expect this day to achieve</h3><ul class="expect-list">' . $li . '</ul><p class="note">After the day, the organizers come back and mark each one, so you can see if it was achieved.</p></section>';
+	}
+	$r   = array( 'met' => array( '✓', 'Met' ), 'partly' => array( '◐', 'Partly met' ), 'not' => array( '✗', 'Not met' ) );
+	$met = count( array_filter( $xs, function ( $x ) { return 'met' === ( $x['result'] ?? '' ); } ) );
+	$li  = '';
+	foreach ( $xs as $x ) {
+		$res = $x['result'] ?? '';
+		$m   = $r[ $res ] ?? array( '…', 'Being reviewed' );
+		$li .= '<li class="r-' . esc_attr( $res ? $res : 'open' ) . '"><span class="ex-mark" aria-hidden="true">' . $m[0] . '</span><span>' . esc_html( $x['text'] ) . ( ! empty( $x['note'] ) ? '<small>' . esc_html( $x['note'] ) . '</small>' : '' ) . '</span><em>' . $m[1] . '</em></li>';
+	}
+	return '<section class="expect closed"><h3 class="money-h">Did the day deliver?</h3><p class="ex-score"><b>' . $met . ' of ' . count( $xs ) . '</b> expectations met</p><ul class="expect-list">' . $li . '</ul></section>';
+}
+
+/**
+ * journeyHTML(). On RaavanaaPost a need story shows only "Smiles in the Making";
+ * "Moments on the Way" and "Days of Joy, Created" are shown on impact stories only (SURESH, 6 Nov 2026).
+ */
+function rp_rorg_journey( $p ) {
+	$w   = (array) ( $p['people'] ?? array() );
+	$st  = rp_rorg_stage( $p );
+	$b   = rp_rorg_budget( $p );
+	$ex  = rp_rorg_rows( $p, 'expectations', 'text' );
+	$rev = $ex && ! array_filter( $ex, function ( $x ) { return empty( $x['result'] ); } );
+	$nf  = count( $b['funders'] );
+	$S   = array(
+		array( 1, 'Requested', $w['requested_by'] ?? '', $w['requested_on'] ?? '', true ),
+		array( 1, 'Visited and verified', $w['verified_by'] ?? '', $w['verified_on'] ?? '', ! empty( $p['verified'] ) ),
+		array( 1, 'Approved', $w['approved_by'] ?? '', $w['approved_on'] ?? '', ! empty( $w['approved_by'] ) || ! empty( $w['approved_on'] ) || $st > 1 ),
+		array( 1, 'Fully funded', $nf ? $nf . ' sponsor' . ( $nf > 1 ? 's' : '' ) : '', $w['funded_on'] ?? '', $b['full'] || $st > 1 ),
+		array( 2, 'Day prepared', ! empty( $w['day_lead'] ) ? 'Led by ' . $w['day_lead'] : '', '', $st > 2 || ( ! empty( $p['date_set'] ) && ! empty( $p['booked'] ) && ! empty( $p['volunteers'] ) ) ),
+		array( 2, 'The day', $p['reach'] ?? '', $w['day_on'] ?? '', $st > 2 ),
+		array( 3, 'Impact reviewed', $w['impact_by'] ?? '', $w['impact_on'] ?? '', $st > 2 && ( $rev || ! empty( $w['impact_by'] ) ) ),
+	);
+	$now = -1;
+	foreach ( $S as $k => $x ) {
+		if ( ! $x[4] ) { $now = $k; break; }
+	}
+	$G    = array( '', 'Smiles in the Making', 'Moments on the Way', 'Days of Joy, Created' );
+	$html = '';
+	$g    = 0;
+	foreach ( $S as $k => $x ) {
+		if ( $x[0] > 1 && $st < 3 ) {
+			break;
+		}
+		if ( $x[0] !== $g ) {
+			$g     = $x[0];
+			$html .= ( $k ? '</ol>' : '' ) . '<p class="jr-g jr-g' . $g . '">' . $G[ $g ] . '</p><ol class="jr">';
+		}
+		$state = $x[4] ? 'done' : ( $k === $now ? 'now' : 'next' );
+		$info  = implode( ' · ', array_filter( array( $x[2] ? esc_html( $x[2] ) : '', $x[3] ? rp_rorg_date( $x[3] ) : '' ) ) );
+		$html .= '<li class="' . $state . ' jr' . $x[0] . '"><i aria-hidden="true">' . ( $x[4] ? '✓' : '' ) . '</i><span><b>' . $x[1] . '</b>' . ( $info ? '<small>' . $info . '</small>' : ( 'now' === $state ? '<small>In progress</small>' : '' ) ) . '</span></li>';
+	}
+	return '<div class="panel journey"><h2>The journey</h2>' . $html . '</ol></div>';
+}
+
+/** "Project at a glance", shown from a small icon on the picture (hover, or tap on a phone). */
+function rp_rorg_glance( $p ) {
+	$rows = '';
+	foreach ( array( 'status' => 'Status', 'location' => 'Location', 'started' => 'Started', 'reach' => 'Reach' ) as $k => $l ) {
+		if ( ! empty( $p[ $k ] ) ) {
+			$rows .= '<dt>' . $l . '</dt><dd>' . esc_html( $p[ $k ] ) . '</dd>';
 		}
 	}
-	return '<div class="panel budget' . ( $b['full'] && $st > 1 ? ' full' : '' ) . '"><h2>Budget</h2>' . $inner . '</div>';
+	$stats = '';
+	foreach ( (array) ( $p['impact'] ?? array() ) as $s ) {
+		if ( is_array( $s ) && ! empty( $s['value'] ) ) {
+			$stats .= '<div class="stat"><b>' . esc_html( $s['value'] ) . '</b><span>' . esc_html( $s['label'] ?? '' ) . '</span></div>';
+		}
+	}
+	return '<div class="glance"><button type="button" class="glance-btn" aria-label="Project at a glance" aria-describedby="rp-glance"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg><span>At a glance</span></button>'
+		. '<div class="panel glance-card" id="rp-glance" role="tooltip"><h2>Project at a glance</h2><dl class="facts">' . $rows . '</dl>' . ( $stats ? '<div class="stats">' . $stats . '</div>' : '' ) . '</div></div>';
 }
 
 /** The two boxes as on the project page: Activating, then Budget (no Budget box once the day has happened). */
