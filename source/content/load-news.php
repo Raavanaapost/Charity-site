@@ -110,15 +110,15 @@ $stories = array(
 		'art'     => 'kandy-trip',
 		'cats'    => array( 'community-needs', 'sri-lanka' ),
 		'place'   => 'Pussellawa, Kandy District',
-		'excerpt' => 'The children of Choughleigh Tamil Vidyalayam, a small primary school in Pussellawa\'s tea country, have never been on a school trip. On Saturday 28 November they hope to visit the Temple of the Tooth and the Peradeniya gardens.',
+		'excerpt' => 'The children of Choughleigh Tamil Vidyalayam, a small primary school in Pussellawa\'s tea country, have never been on a school trip. On Friday 27 November they hope to visit the Temple of the Tooth and the Peradeniya gardens.',
 		'stage'   => 'reported',
-		'update'  => 'Visited and verified. The day has moved to 28 November, and the Rs 61,000 for the bus and food is still to be covered.',
+		'update'  => 'Visited and verified. The day has moved to 27 November, and the Rs 61,000 for the bus and food is still to be covered.',
 		'hours'   => -68,
 		'views'   => 30,
 		'body'    => n_p( 'The second request from Pussellawa has been checked and is now a project. It comes from Choughleigh Tamil Vidyalayam, a small Tamil primary school in the tea country, with 52 children and 6 teachers. The principal calls it a fully disadvantaged school, and says these children have never been anywhere on an excursion.' )
 			. n_p( 'The school\'s vision is to give society primary pupils with sound skills and good character. Its mission is to give every pupil all the core skills and the chance to go on to secondary education.' )
 			. n_h( 'The plan' )
-			. n_p( 'On Saturday 28 November 2026, about 55 children and teachers travel by bus to Kandy, about 50 km away. They visit the Sri Dalada Maligawa, the Temple of the Tooth, and stop at the Peradeniya gardens on the way back. The school has permission for the trip from the Department of Education.' )
+			. n_p( 'On Friday 27 November 2026, about 55 children and teachers travel by bus to Kandy, about 50 km away. They visit the Sri Dalada Maligawa, the Temple of the Tooth, and stop at the Peradeniya gardens on the way back. The school has permission for the trip from the Department of Education.' )
 			. n_h( 'What it costs' )
 			. n_ul( array( 'Bus to Kandy and back: about Rs 30,000', 'Food for the whole group: about Rs 31,000' ) )
 			. n_p( 'Rs 61,000 in all. After the day we will share the story and the pictures here.' )
