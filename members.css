@@ -7,17 +7,8 @@ body[data-page="members"]{
   --sun-soft:#fbe7c4; --brand-soft:#e6efd9; --leaf:#5f8f3a;
   --serif:"Playfair Display",Georgia,"Times New Roman",serif;
   background:var(--bg) radial-gradient(1200px 520px at 50% -120px,#fff3cf 0,transparent 70%) no-repeat;
+  color-scheme:light; /* always the warm cream look, even when the phone is in dark mode (owner's choice, 6 Nov 2026) */
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) body[data-page="members"]{
-  --bg:#17201a; --surface:#1f2a21; --ink:#f3ecd8; --muted:#bdb393; --line:#4a4128;
-  --brand:#8cc77a; --brand-ink:#132016; --sun:#f0913f; --gold:#e5b95a; --gold-deep:#e5b95a;
-  --sun-soft:#3a2c17; --brand-soft:#243522; --leaf:#8cc77a;
-  background:var(--bg) radial-gradient(1200px 520px at 50% -120px,#2f2a17 0,transparent 70%) no-repeat}}
-:root[data-theme="dark"] body[data-page="members"]{
-  --bg:#17201a; --surface:#1f2a21; --ink:#f3ecd8; --muted:#bdb393; --line:#4a4128;
-  --brand:#8cc77a; --brand-ink:#132016; --sun:#f0913f; --gold:#e5b95a; --gold-deep:#e5b95a;
-  --sun-soft:#3a2c17; --brand-soft:#243522; --leaf:#8cc77a;
-  background:var(--bg) radial-gradient(1200px 520px at 50% -120px,#2f2a17 0,transparent 70%) no-repeat}
 
 body[data-page="members"] .bar{background:var(--surface)}
 body[data-page="members"] .bar::after{background:linear-gradient(90deg,var(--leaf),var(--gold) 50%,var(--sun))}
@@ -49,8 +40,6 @@ body[data-page="members"] .panel{background:var(--surface);border:1.5px solid va
 body[data-page="members"] .form input{background:#fff;border-color:var(--line);border-radius:12px}
 body[data-page="members"] .form input:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold)}
 body[data-page="members"] .form input:disabled{background:var(--bg);color:var(--muted)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) body[data-page="members"] .form input:not(:disabled){background:#141b16}}
-:root[data-theme="dark"] body[data-page="members"] .form input:not(:disabled){background:#141b16}
 body[data-page="members"] .btn{border-radius:999px;font-family:var(--display);box-shadow:inset 0 -2px 0 rgba(0,0,0,.15)}
 body[data-page="members"] .btn.ghost{background:transparent;color:var(--brand);border:1.5px solid var(--gold);box-shadow:none}
 body[data-page="members"] .btn.ghost:hover{background:var(--sun-soft)}
