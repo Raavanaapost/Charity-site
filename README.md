@@ -3,7 +3,8 @@
 - [ ] Comments: paste the GitHub key into the `COMMENTS_GITHUB_TOKEN` setting in Netlify (it exists but is empty), then test a comment.
 - [ ] Form emails: in Netlify, Project configuration → Notifications → Form submission notifications, add an email notification to the owner's address for "Any form". Until then messages are only saved under Forms in Netlify.
 - [ ] Impact in numbers: Volunteers and Local visits are hidden until real figures are typed in (admin → Site settings).
-- [ ] Decide on member login (Netlify Identity): what members can do, and open sign-up or invite-only.
+- [x] Member login page (/members, 6 Nov 2026, draft): Sign in, Join, password reset, My account (name, "My donations" placeholder until card payments open). Same Netlify Identity as the team portal; portal access still needs the admin/team role. A "Sign in" / "My account" link sits at the end of the menu. RaavanaaPost has no login.
+- [ ] Owner: to let the public join, in Netlify → Identity → Registration set it to Open (now Invite only, so only "Sign in" shows). Optional: Identity → External providers → add Google for "Continue with Google".
 - [ ] About page: add who is behind Raavanaa, where it is based and how it started.
 - [ ] Contact details: email, Facebook, Instagram (admin → Site settings) so the footer shows "Follow us".
 - [ ] Keep me posted: decide how sign-ups get their news (the addresses are stored under Forms in Netlify).
@@ -11,6 +12,7 @@
 - [ ] Publishing: work goes to the `draft` branch (free preview at draft--charity-projects-draft.netlify.app); merge to `main` only when the owner says "post" (15 Netlify credits per publish).
 - [ ] Launch: `SITE_PASSWORD` is set again (10 Oct 2026, owner asked: not going live yet). It locks raavanaa.org and the draft; the portal sign-in and /api are not blocked. Delete it and publish when ready to launch.
 - [ ] Optional: "Sign in with GitHub" button for admins.
+- [ ] Second front page (/front-2) "Being checked" list: reads /api/pipeline, a safe summary of requests in the team portal (kind of day, district, children band, month, step; no names, villages, contacts or typed text). On the draft it adds rows marked "Example" while there are fewer than 2 real ones; the live site never shows examples.
 
 ### Portal and community (agreed 9 Oct 2026)
 - [x] Portal screens designed (preview at /portal): Dashboard, Suggestions, Projects + editor, Reports & feedback, Sponsors & pledges, Day preparation, Close the day, People, Team & logins.

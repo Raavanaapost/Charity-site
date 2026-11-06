@@ -211,7 +211,7 @@
   }
  ],
  "slogans": {
-  "_note": "Rotating slogans. 'lead' is the small first line, 'key' the big coloured word(s). The first one shows on a first visit.",
+  "_note": "Rotating slogans. 'lead' is the small first line, 'key' the big coloured word(s). 'create' is for /initiate; 'create_slides' is for /initiate-slides, where slogan 1 shows with picture 1 (img/moment-band-1.svg), and so on.",
   "create": [
    {
     "lead": "Create a",
@@ -249,6 +249,28 @@
    },
    {
     "lead": "Give a",
+    "key": "Day of Joy"
+   },
+   {
+    "lead": "Be the Reason for a",
+    "key": "Smile"
+   }
+  ],
+  "create_slides": [
+   {
+    "lead": "Create a",
+    "key": "Moment"
+   },
+   {
+    "lead": "Request a",
+    "key": "Smile"
+   },
+   {
+    "lead": "Initiate a",
+    "key": "Smile"
+   },
+   {
+    "lead": "Spark a",
     "key": "Day of Joy"
    },
    {

@@ -1,7 +1,11 @@
 # Tamil version: the same pages, translated in the browser by /ta.js
 /ta  /ta/index.html  200
 /ta/home  /ta/home.html  200
+/ta/initiate-slides  /ta/initiate-slides.html  200
 /ta/overview  /ta/overview.html  200
+/ta/front  /ta/front.html  200
+/ta/front-2  /ta/front-2.html  200
+/ta/create  /ta/create.html  200
 /ta/initiated  /ta/stage.html  200
 /ta/activated  /ta/stage.html  200
 /ta/impact  /ta/stage.html  200
@@ -10,6 +14,7 @@
 /ta/post  /ta/post.html  200
 /ta/how-it-works  /ta/how-it-works.html  200
 /ta/about  /ta/about.html  200
+/ta/members  /ta/members.html  200
 /ta/contact  /ta/contact.html  200
 /ta/volunteer  /ta/volunteer.html  200
 /ta/initiate  /ta/initiate.html  200
@@ -19,6 +24,12 @@
 /ta/smile-map  /ta/smile-map.html  200
 /home  /home.html  200
 /overview  /overview.html  200
+/front  /front.html  200
+/front-2  /front-2.html  200
+/front-3  /front-3.html  200
+/create  /create.html  200
+# New look (its own folder, still a preview)
+/new-look/projects/*  /new-look/project.html  200
 /welcome-picture  /welcome-picture.html  200
 /welcome-logo  /welcome-logo.html  200
 /welcome-1  /welcome-1.html  200
@@ -31,9 +42,11 @@
 /post-royal  /post-royal.html  200
 /how-it-works  /how-it-works.html  200
 /about  /about.html  200
+/members  /members.html  200
 /contact  /contact.html  200
 /volunteer  /volunteer.html  200
 /initiate  /initiate.html  200
+/initiate-slides  /initiate-slides.html  200
 /sample  /project.html  200
 /report  /report.html  200
 /feedback  /feedback.html  200

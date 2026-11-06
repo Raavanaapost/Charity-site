@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sponsor a Smile · Raavanaa · Beyond the Lanes</title>
+<meta name="description" content="Choose a day of joy that's waiting, and make it happen.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b4a26">
+<link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="preload" href="/new-look/assets/fonts/kaushan-script.woff" as="font" type="font/woff" crossorigin>
+<link rel="stylesheet" href="/new-look/assets/style.css">
+</head>
+<body data-page="sponsor">
+<header id="site-header" class="hdr"></header>
+<main>
+<section id="hero" class="hero"></section>
+<div id="app"></div>
+
+<section class="cards-sec">
+  <h2 class="sec-h">How it works</h2>
+  <div class="step-band">
+    <div class="step"><span class="step-n">1</span><b>Choose a smile</b><p>Each one below is a real day of joy our team has visited and planned.</p></div>
+    <div class="step"><span class="step-n">2</span><b>Tell us how you'd like to help</b><p>Cover the whole day or a part, on your own or with friends. We'll get in touch.</p></div>
+    <div class="step"><span class="step-n">3</span><b>See the joy</b><p>When the day is done, the story, the pictures and what was spent come back to you.</p></div>
+  </div>
+</section>
+<section class="list-sec"><h2 class="sec-h">Smiles waiting for you</h2><div class="pgrid" id="waiting"></div></section>
+<section class="form-sec" id="form">
+  <div class="form-copy">
+    <h2 class="sec-h">Make this happen</h2>
+    <p>Send us a note and our team will reach out with the simple ways to give. There's no payment on this page.</p>
+    <ul class="chip-list">
+      <li><span class="chip-ico s2"><i data-ico="coins"></i></span><span><b>Every penny goes to the day</b>Nothing is kept for running costs.</span></li>
+      <li><span class="chip-ico s1"><i data-ico="search"></i></span><span><b>Checked in person</b>Every need is visited before it's shared here.</span></li>
+      <li><span class="chip-ico s3"><i data-ico="heart"></i></span><span><b>You see the smiles</b>A story and pictures after the day.</span></li>
+    </ul>
+  </div>
+  <form class="card-form" name="new-look-sponsor-a-smile" method="POST" data-netlify="true" netlify-honeypot="bot-field" data-done="Your smile has started. Our team will be in touch soon.">
+    <input type="hidden" name="form-name" value="new-look-sponsor-a-smile">
+    <p hidden><label>Leave empty <input name="bot-field"></label></p>
+    <h3>I'd like to sponsor a smile</h3>
+    <div class="f-row"><label>Your name <input name="name" autocomplete="name" required></label><label>Email <input name="email" type="email" autocomplete="email" required></label></div>
+    <div class="f-row"><label>Phone <small>(optional)</small><input name="phone" type="tel" autocomplete="tel"></label>
+      <label>Which smile?<select name="project" id="s-project"><option value="Any smile that needs it most">Any smile that needs it most</option></select></label></div>
+    <label>I'd love to
+      <select name="help"><option>Cover the whole day</option><option>Cover part of the day</option><option>Give something the day needs (a van, food, gifts)</option><option>Give every month</option><option>Help on the day</option></select></label>
+    <label>A note for the team <small>(optional)</small><textarea name="message" rows="3"></textarea></label>
+    <label class="check"><input type="checkbox" name="show_name" value="yes"> Show my first name as a supporter on the project</label>
+    <button class="btn orange" type="submit"><i data-ico="heart"></i> Make this happen</button>
+  </form>
+</section>
+<p class="promise">Every penny goes to the day, and every smile is shared.</p>
+</main>
+<footer id="site-footer" class="ftr"></footer>
+<script src="/new-look/assets/app.js"></script>
+</body>
+</html>

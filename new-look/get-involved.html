@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Get Involved · Raavanaa · Beyond the Lanes</title>
+<meta name="description" content="Sponsor a smile, request a smile, volunteer or partner with us.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b4a26">
+<link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="preload" href="/new-look/assets/fonts/kaushan-script.woff" as="font" type="font/woff" crossorigin>
+<link rel="stylesheet" href="/new-look/assets/style.css">
+</head>
+<body data-page="involved">
+<header id="site-header" class="hdr"></header>
+<main>
+<section id="hero" class="hero"></section>
+<div id="app"></div>
+
+<section class="cards-sec">
+  <h2 class="sec-h">Four ways to make a child smile</h2>
+  <div class="ways">
+    <a class="way orange" href="/sponsor"><span class="way-ico"><i data-ico="handHeart"></i></span><h3>Sponsor a Smile</h3><p>Choose a day of joy that's waiting and make it happen, on your own or with friends.</p><span>Sponsor a Smile <i data-ico="right"></i></span></a>
+    <a class="way green" href="/request"><span class="way-ico"><i data-ico="peopleHeart"></i></span><h3>Request a Smile</h3><p>Know children who deserve a day of joy? Tell us about them and we'll plan it together.</p><span>Request a Smile <i data-ico="right"></i></span></a>
+    <a class="way blue" href="#volunteer"><span class="way-ico"><i data-ico="people"></i></span><h3>Volunteer</h3><p>Give an hour, share a skill or lead a game on the day. Bring a friend too.</p><span>Volunteer <i data-ico="right"></i></span></a>
+    <a class="way red" href="#partner"><span class="way-ico"><i data-ico="handshake"></i></span><h3>Partner with us</h3><p>Schools, homes, clubs and businesses: let's create a day of joy together.</p><span>Partner with us <i data-ico="right"></i></span></a>
+  </div>
+</section>
+<section class="form-sec" id="volunteer">
+  <div class="form-copy">
+    <h2 class="sec-h">Volunteer on the day</h2>
+    <p>One hour of your time can make a child's whole day. Come and help at a day out, and see the smiles for yourself.</p>
+    <ul class="chip-list">
+      <li><span class="chip-ico s1"><i data-ico="calendar"></i></span><span><b>Give an hour</b>Help at a day out and see it for yourself.</span></li>
+      <li><span class="chip-ico s2"><i data-ico="sparkle"></i></span><span><b>Share a skill</b>Coaching, cooking, driving, organizing or taking photos.</span></li>
+      <li><span class="chip-ico s3"><i data-ico="people"></i></span><span><b>Bring a friend</b>Volunteering is better together. Bring your family or your team.</span></li>
+      <li><span class="chip-ico s2"><i data-ico="gamepad"></i></span><span><b>Lead an activity</b>Run a game, host a bowling lane or guide a group of kids.</span></li>
+    </ul>
+  </div>
+  <form class="card-form" name="new-look-volunteer" method="POST" data-netlify="true" netlify-honeypot="bot-field" data-done="Thank you for joining in. We'll be in touch about the next day of joy.">
+    <input type="hidden" name="form-name" value="new-look-volunteer">
+    <p hidden><label>Leave empty <input name="bot-field"></label></p>
+    <h3>Count me in</h3>
+    <div class="f-row"><label>Your name <input name="name" autocomplete="name" required></label><label>Email <input name="email" type="email" autocomplete="email" required></label></div>
+    <div class="f-row"><label>Phone <small>(optional)</small><input name="phone" type="tel" autocomplete="tel"></label><label>Town or city <input name="town"></label></div>
+    <label>How would you like to help?
+      <select name="help"><option>Help on the day</option><option>Drive or arrange transport</option><option>Cook or serve food</option><option>Take photos</option><option>Lead a game or activity</option><option>Something else</option></select></label>
+    <label>Anything else? <small>(optional)</small><textarea name="message" rows="3"></textarea></label>
+    <button class="btn green" type="submit"><i data-ico="handHeart"></i> Count me in</button>
+  </form>
+</section>
+<section class="form-sec" id="partner">
+  <div class="form-copy">
+    <h2 class="sec-h">Partner with us</h2>
+    <p>Schools, children's homes, temples, clubs and businesses all help make these days happen. Tell us a little about you, and we'll find the right way to work together.</p>
+    <div class="safe-box"><i data-ico="shield"></i><div><b>Every partner follows our child safety promise</b><ul><li>First names only. No full names, addresses or schools.</li><li>Faces only with a parent's or guardian's permission.</li></ul></div></div>
+  </div>
+  <form class="card-form" name="new-look-partner" method="POST" data-netlify="true" netlify-honeypot="bot-field" data-done="Thank you. We'll reach out to plan something together.">
+    <input type="hidden" name="form-name" value="new-look-partner">
+    <p hidden><label>Leave empty <input name="bot-field"></label></p>
+    <h3>Let's work together</h3>
+    <div class="f-row"><label>Your name <input name="name" autocomplete="name" required></label><label>Email <input name="email" type="email" autocomplete="email" required></label></div>
+    <div class="f-row"><label>Organisation <small>(optional)</small><input name="organisation" autocomplete="organization"></label><label>Phone <small>(optional)</small><input name="phone" type="tel" autocomplete="tel"></label></div>
+    <label>How would you like to work together?<textarea name="message" rows="4" required></textarea></label>
+    <button class="btn orange" type="submit"><i data-ico="handshake"></i> Send</button>
+  </form>
+</section>
+</main>
+<footer id="site-footer" class="ftr"></footer>
+<script src="/new-look/assets/app.js"></script>
+</body>
+</html>

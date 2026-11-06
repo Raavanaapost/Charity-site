@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ta">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Create a Moment · Raavanaa · Beyond the Lanes</title>
+<meta name="description" content="Raavanaa gives children a day of joy they will remember: a game, a trip, a good meal. Every penny goes to the day, and every smile is shared.">
+<meta name="theme-color" content="#0f5132">
+<link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png?v=3">
+<link rel="icon" type="image/png" sizes="192x192" href="/img/icon-192.png?v=3">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png?v=3">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Raavanaa · Beyond the Lanes">
+<meta property="og:title" content="Raavanaa · Beyond the Lanes">
+<meta property="og:description" content="Giving children a day of joy they will remember. Every penny goes to the day, and every smile is shared.">
+<meta property="og:image" content="https://raavanaa.org/img/og-image.jpg?v=3">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Inter:wght@900&family=Playfair+Display:ital,wght@0,800;0,900;1,900&family=Merriweather:wght@900&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="initiate">
+<header class="bar">
+  <div class="wrap">
+    <a class="logo" href="/overview" aria-label="Raavanaa Beyond the Lanes, home">
+      <picture><source srcset="/img/logo.webp?v=3" type="image/webp"><img src="/img/logo.jpg?v=3" alt="Raavanaa · Beyond the Lanes · Creating Smiles" width="900" height="298"></picture>
+    </a>
+    <button class="menu-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="site-nav"><span></span><span></span><span></span></button>
+    <nav class="nav" id="site-nav"><a href="/overview">Home</a><a href="/initiated">Projects</a><a href="/smile-map">Smile Map</a><a href="/about">About us</a><a href="/contact">Contact</a></nav>
+  </div>
+</header>
+<main id="app" class="wrap">
+  <div class="initiate">
+    <div class="moment-hero moment-band">
+      <div class="moment-slides" data-moment-slides>
+        <img src="/img/moment-band-1.svg" alt="A camera with a heart lens" class="on" width="1200" height="640">
+        <img src="/img/moment-band-2.svg" alt="A speech bubble with a smiling face" width="1200" height="640">
+        <img src="/img/moment-band-3.svg" alt="A little plant growing from a heart" width="1200" height="640">
+        <img src="/img/moment-band-4.svg" alt="A bright sparkle of joy" width="1200" height="640">
+        <img src="/img/moment-band-5.svg" alt="Hands holding a heart" width="1200" height="640">
+      </div>
+      <div class="moment-text">
+        <svg class="moment-sprout" viewBox="0 0 40 32" width="40" height="32" aria-hidden="true"><path d="M20 31V15" stroke="#3f9a5f" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M20 16C19 7 12 3 4 4c0 8 7 13 16 12z" fill="#4caf6a"/><path d="M20 14c1-8 7-11 15-10 0 7-6 11-15 10z" fill="#3f9a5f"/></svg>
+        <h1 class="moment-title" data-moment-title="create_slides"><span class="mt-lead">Create a</span><span class="mt-key">Moment</span></h1>
+        <p class="moment-sub">Know children who deserve a day of joy? Tell us your idea, and together we'll make it happen.</p>
+      </div>
+    </div>
+    <form class="initiate-card" name="opportunity" method="POST" action="/initiate?sent=1" data-netlify="true" netlify-honeypot="bot-field" data-ajax data-done="Thank you! Your moment has started. Our team will be in touch to plan a visit.">
+      <input type="hidden" name="form-name" value="opportunity">
+      <p hidden><label>Leave empty <input name="bot-field"></label></p>
+      <div class="initiate-head">
+        <svg viewBox="0 0 48 44" width="46" height="42" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" aria-hidden="true"><path d="M30 5l8 13"></path><path d="M5 28l22 8"></path><path d="M14 10l14 14"></path></svg>
+        <div>
+          <h2>Tell us about the children and your idea</h2>
+          <p>Share the details below. Our team will visit and help make it happen.</p>
+        </div>
+      </div>
+
+      <ol class="i-steps">
+
+        <li class="i-q">
+          <label class="i-field" for="o-kind"><span><b class="i-n">1</b>What moment would you like to create? <b class="req" aria-hidden="true">*</b></span>
+            <select id="o-kind" name="kind" required>
+              <option value="" selected disabled>Choose one</option>
+              <option>A day out or trip</option>
+              <option>A game or sports day</option>
+              <option>A good meal together</option>
+              <option>A celebration or festival</option>
+              <option>Help with learning</option>
+              <option>Something else</option>
+            </select></label>
+          <label class="i-field" for="o-description"><span class="i-sub">Tell us a little more <u class="opt">(optional)</u></span>
+            <span class="i-area">
+              <textarea id="o-description" name="description" maxlength="1000" rows="3" placeholder="Who are the children, and what would make them happy?"></textarea>
+              <span class="i-count" aria-hidden="true"><span id="o-count">0</span>/1000</span>
+            </span></label>
+          <div class="ev ev-mini" data-evidence>
+            <label class="ev-add"><input type="file" accept="image/*,application/pdf" data-ev-pick><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Add a photo <u class="opt">(optional)</u></span></label>
+            <ul class="ev-list" data-ev-list></ul>
+            <p class="ev-msg" data-ev-msg role="status"></p>
+          </div>
+        </li>
+
+        <li class="i-q">
+          <div class="i-row">
+            <label class="i-field" for="o-city"><span><b class="i-n">2</b>Where? <b class="req" aria-hidden="true">*</b></span>
+              <select id="o-city" name="city" required data-city>
+                <option value="" selected disabled>Choose a city or district</option>
+                <option>Jaffna</option>
+                <option>Kilinochchi</option>
+                <option>Batticaloa</option>
+                <option value="Other">Somewhere else</option>
+              </select></label>
+            <label class="i-field" for="o-village"><span class="i-sub">Village or area <b class="req" aria-hidden="true">*</b></span>
+              <input id="o-village" name="village" required maxlength="80" placeholder="e.g. Karainagar"></label>
+          </div>
+          <label class="i-field" for="o-city-other" data-city-other hidden><span class="i-sub">Which city or district? <b class="req" aria-hidden="true">*</b></span>
+            <input id="o-city-other" name="city_other" maxlength="60" placeholder="e.g. Mullaitivu"></label>
+          <input type="hidden" name="location" value="" data-location>
+        </li>
+
+        <li class="i-q">
+          <label class="i-field" for="o-children"><span><b class="i-n">3</b>About how many will take part? <b class="req" aria-hidden="true">*</b></span>
+            <select id="o-children" name="children" required>
+              <option value="" selected disabled>Choose one</option>
+              <option>Fewer than 10</option>
+              <option>10 to 25</option>
+              <option>25 to 50</option>
+              <option>50 to 100</option>
+              <option>More than 100</option>
+            </select></label>
+        </li>
+
+        <li class="i-q">
+          <div class="i-row">
+            <label class="i-field" for="o-contact"><span><b class="i-n">4</b>Your name <b class="req" aria-hidden="true">*</b></span>
+              <input id="o-contact" name="contact" required maxlength="120" autocomplete="name" placeholder="Your name, and organisation if any" aria-describedby="o-contact-note">
+              <small class="i-note" id="o-contact-note">It may be shown on the project page. A nickname is fine.</small></label>
+            <label class="i-field" for="o-reach"><span class="i-sub">Phone, WhatsApp or email <b class="req" aria-hidden="true">*</b></span>
+              <input id="o-reach" name="reach" required maxlength="120" autocomplete="tel" inputmode="text" placeholder="So we can call you back"></label>
+          </div>
+        </li>
+      </ol>
+
+      <div class="i-next" aria-label="What happens next">
+        <p class="i-next-h">What happens next</p>
+        <ul>
+          <li><b>We contact you</b> about your request.</li>
+          <li><b>We visit in person.</b> A member of our local team verifies every request before it becomes a project.</li>
+          <li><b>Everything is recorded,</b> so every project is checked and accountable.</li>
+        </ul>
+      </div>
+
+      <button class="i-submit" type="submit">
+        <svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true"><path d="M21.5 2.5 2.5 10.2l6.3 2.4 1.9 6.9 3.3-4.3 4.6 3.3z"></path></svg>
+        Create this moment</button>
+      <p class="note" data-msg hidden></p>
+    </form>
+  </div>
+  <a class="i-story" href="/projects/pussellawa-kids-trip">
+    <img src="/.netlify/images?url=%2Fimg%2Fprojects%2Fpussellawa%2Fcover.jpg&w=900&q=75" alt="Children at Hanuman Kovil, Pussellawa" loading="lazy">
+    <span class="i-story-t">
+      <em>A moment we created</em>
+      <b>Pussellawa kids' trip to Hanuman Kovil</b>
+      <small>It started with one request. The children ran, danced and shared a meal in the hills, with transport and food fully covered.</small>
+      <i>Read their story →</i>
+    </span>
+  </a>
+</main>
+<footer><div class="wrap"><span>© <span data-year></span> <span data-site-name></span></span><span data-site-footer></span></div></footer>
+<script src="/ta.js"></script>
+<script src="/site.js"></script>
+</body>
+</html>

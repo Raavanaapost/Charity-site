@@ -67,6 +67,26 @@
       a.setAttribute("aria-label", onTa ? "Read this page in English" : "இந்தப் பக்கத்தைத் தமிழில் படிக்க");
       bar.appendChild(a);
     }
+    // Members link at the end of the menu: "Sign in", or "My account" once signed in (Netlify Identity keeps the session in localStorage).
+    const navEl = document.getElementById("site-nav");
+    if (navEl && !navEl.querySelector(".nav-member")) {
+      let signedIn = false; try { signedIn = !!localStorage.getItem("gotrue.user"); } catch (e) { /* storage blocked */ }
+      const m = document.createElement("a");
+      m.className = "nav-member"; m.href = (/^\/ta(\/|$)/.test(location.pathname) ? "/ta" : "") + "/members";
+      m.textContent = signedIn ? "My account" : "Sign in";
+      if (document.body.dataset.page === "members") m.setAttribute("aria-current", "page");
+      navEl.appendChild(m);
+    }
+    // Projects menu: a small drop-down with the three stages (on phones they show indented under Projects).
+    const proj = document.querySelector('#site-nav a[href="/initiated"], #site-nav a[href="/ta/initiated"]');
+    if (proj && !proj.closest(".nav-drop")) {
+      const wrap = document.createElement("div"); wrap.className = "nav-drop";
+      proj.replaceWith(wrap); wrap.appendChild(proj); proj.classList.add("nav-top");
+      const sub = document.createElement("div"); sub.className = "nav-sub";
+      sub.innerHTML = [["Initiated", "/initiated", "s1"], ["Activated", "/activated", "s2"], ["Impact", "/impact", "s3"]]
+        .map(([t, h, c]) => `<a class="${c}" href="${h}"><i aria-hidden="true"></i>${t}</a>`).join("");
+      wrap.appendChild(sub);
+    }
     document.querySelectorAll("[data-site-name]").forEach(el => el.textContent = site.name || "");
     const foot = document.querySelector("footer");
     if (!foot) return;
@@ -208,6 +228,63 @@
   const CITIES = ["Kilinochchi", "Batticaloa", "Jaffna", "Kandy"];
   const CATEGORIES = ["Livelihood", "Education", "Trips & Events"];
   const cityOf = p => p.city || CITIES.find(c => new RegExp(c, "i").test(p.location || "")) || "";
+  // Search page: one picture per stage, taking turns. The stage's slogan and sentence sit on the
+  // left, in the middle of the sky; the stage name and its count sit in the coloured band.
+  // Tapping a tab below shows that stage and stops the turning; tapping the picture opens its tab.
+  // A stage banner built in layers (sky, drawing, ground), so the drawing can shrink to fit
+  // a phone instead of being cut off.
+  const stageLayersHTML = (slug, lazy) => `<img class="sl-art" src="/img/stage-art-${slug}.svg" alt="" width="356" height="130"${lazy ? ' loading="lazy"' : ""}><img class="sl-ground" src="/img/stage-ground-${slug}.svg" alt="" width="400" height="22">`;
+  function stageShowHTML(projects) {
+    const count = n => projects.filter(p => stageNum(p) === n).length;
+    const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
+    const stories = projects.reduce((t, p) => t + (stageNum(p) === 3 ? (p.updates || []).length : 0), 0);
+    const SUB = [
+      count(1) ? `${plural(count(1), "project")} getting ready to activate` : "New projects coming soon",
+      count(2) ? `${plural(count(2), "project")} in action` : "First projects starting soon",
+      stories ? `${stories === 1 ? "1 story" : stories + " stories"} of impact · ${plural(count(3), "project")}` : "First stories coming soon"
+    ];
+    const slides = ["initiated", "activated", "impact"].map((slug, k) => {
+      const cfg = STAGE_PAGES[slug];
+      return `<figure class="ss-slide s${k + 1}${k ? "" : " on"}" data-n="${k + 1}" aria-hidden="${k ? "true" : "false"}">
+          ${stageLayersHTML(slug, k > 0)}
+          <figcaption class="ss-cap"><b class="ss-say">${STAGE_SAY[k]}</b><span class="ss-lead">${cfg.lead}</span></figcaption>
+          <div class="ss-band"><span class="ss-name">${cfg.title}</span><span class="ss-sub">${SUB[k]}</span></div>
+        </figure>`;
+    }).join("");
+    return `<section class="stage-show" aria-roledescription="carousel" aria-label="Our three stages">
+        <div class="ss-track" role="button" tabindex="0" aria-label="Show the projects at this stage">${slides}</div>
+        <div class="ss-dots" role="group" aria-label="Choose a stage">${["Initiated", "Activated", "Impact"].map((t, k) =>
+          `<button type="button" class="s${k + 1}" aria-label="${t}" aria-current="${k === 0}"><i></i></button>`).join("")}</div>
+      </section>`;
+  }
+  function startStageShow(root, onOpen) {
+    const box = root.querySelector(".stage-show"); if (!box) return null;
+    const slides = [...box.querySelectorAll(".ss-slide")], dots = [...box.querySelectorAll(".ss-dots button")], track = box.querySelector(".ss-track");
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let cur = 0, locked = false;
+    // The bar filling the active dot is the clock: when it is full, the next stage shows.
+    // Pausing the bar (pointer over the picture, finger on it) pauses the turning too.
+    const show = i => {
+      cur = (i + slides.length) % slides.length;
+      slides.forEach((s, j) => { s.classList.toggle("on", j === cur); s.setAttribute("aria-hidden", String(j !== cur)); });
+      dots.forEach((d, j) => d.setAttribute("aria-current", String(j === cur)));
+      box.classList.remove("ticking"); void box.offsetWidth; if (!locked && !reduce) box.classList.add("ticking");
+    };
+    box.addEventListener("animationend", e => { if (e.animationName === "ss-fill" && !locked) show(cur + 1); });
+    const hold = v => box.classList.toggle("paused", v);
+    dots.forEach((d, j) => d.addEventListener("click", () => show(j)));
+    box.addEventListener("mouseenter", () => hold(true)); box.addEventListener("mouseleave", () => hold(false));
+    let x0 = null;
+    track.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; hold(true); }, { passive: true });
+    track.addEventListener("touchend", e => { const dx = x0 === null ? 0 : e.changedTouches[0].clientX - x0; x0 = null; hold(false); if (Math.abs(dx) > 40) { e.preventDefault(); show(cur + (dx < 0 ? 1 : -1)); } });
+    const open = () => onOpen && onOpen(cur + 1);
+    track.addEventListener("click", open);
+    track.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } if (e.key === "ArrowRight") show(cur + 1); if (e.key === "ArrowLeft") show(cur - 1); });
+    show(0);
+    // Called when a tab is chosen: show that stage and stay there.
+    return n => { locked = true; show(n - 1); };
+  }
+
   function renderHome(app, site, projects) {
     const TABS = [["Initiated", 1], ["Activated", 2], ["Impact", 3]];
     const st = { q: "", city: "All", tab: 1 };
@@ -224,6 +301,7 @@
             <select id="find-city" aria-label="City"><option value="All">All</option>${cities.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("")}</select></label>
         </form>
       </section>
+      ${stageShowHTML(projects)}
       <section class="finder-results">
         <div class="finder-tabs" role="tablist" aria-label="Projects by stage"></div>
         <div id="find-list" role="tabpanel"></div>
@@ -262,9 +340,11 @@
     app.querySelector("#find-q").addEventListener("input", e => { st.q = e.target.value.trim(); draw(true); });
     const citySel = app.querySelector("#find-city");
     citySel.addEventListener("change", () => { st.city = citySel.value; citySel.closest(".finder-city").classList.toggle("on", st.city !== "All"); draw(true); });
-    tabsBox.addEventListener("click", e => { const b = e.target.closest(".ftab"); if (!b) return; st.tab = Number(b.dataset.n); draw(); });
+    tabsBox.addEventListener("click", e => { const b = e.target.closest(".ftab"); if (!b) return; st.tab = Number(b.dataset.n); draw(); if (pick) pick(st.tab); });
     draw();
     rotTimers.forEach(clearInterval); rotTimers = [];
+    // Tapping the picture opens that stage's tab and brings the list into view.
+    const pick = startStageShow(app, n => { st.tab = n; draw(); pick(n); const r = tabsBox.getBoundingClientRect(); if (r.top > innerHeight * .6 || r.top < 0) tabsBox.scrollIntoView({ behavior: "smooth", block: "start" }); });
   }
 
   // The earlier home page, kept at /overview: stage circles with numbers, latest projects and the sign-up box.
@@ -272,8 +352,18 @@
   const HOME_ROWS = [
     { n: 1, title: "Smiles in the Making", href: "/initiated", empty: "New ideas for a day of joy are on their way." },
     { n: 2, title: "Moments on the Way", href: "/activated", empty: "Projects arrive here once they are fully funded and the day is being planned." },
-    { n: 3, title: "Days of Joy, Created", href: "/impact", empty: "After each day happens, its smiles, pictures and story will be shared here." },
+    { n: 3, title: "Days of Joy, Created", href: "/impact", show: 1, empty: "After each day happens, its smiles, pictures and story will be shared here." },
   ];
+  // Each row shows the newest few; Impact keeps just one here and the rest live on the Impact page.
+  const rowShow = r => r.show || 3;
+  // Home lists: one row per project, picture on the left, words on the right.
+  const homeListHTML = (list, projects) => `<div class="hlist" role="list">${list.map(p => {
+      const i = projects.indexOf(p), meta = [cityOf(p) || (p.location || "").split(",")[0], p.theme].filter(Boolean).join(" · ");
+      return `<a class="hrow" role="listitem" href="/projects/${slugOf(p)}">
+        <span class="hrow-pic" style="${coverStyle(p, i)}">${p.cover ? `<img src="${esc(imgUrl(p.cover, 320))}" alt="" loading="lazy">` : ""}</span>
+        <span class="hrow-text">${meta ? `<small>${esc(meta)}</small>` : ""}<b>${esc(p.title)}</b>${p.summary ? `<span class="hrow-sum">${esc(p.summary)}</span>` : ""}</span>
+        <span class="hrow-go" aria-hidden="true">→</span>
+      </a>`; }).join("")}</div>`;
   function homeRowHTML(r, projects) {
     const all = projects.filter(p => stageNum(p) === r.n), k = HOME_ROWS.indexOf(r);
     return `<section class="home-latest s${r.n}" data-row="${k}">
@@ -281,10 +371,116 @@
         ${all.length ? `<div class="latest-filters" role="group" aria-label="Show projects by category">
           ${["All", "Trips & Events", "Livelihood", "Education"].map(t => `<button type="button" class="chip" data-cat="${esc(t)}" aria-pressed="${t === "All"}">${esc(t)}</button>`).join("")}
         </div>
-        <div class="grid">${all.slice(0, 3).map(p => card(p, projects.indexOf(p), journey(p))).join("")}</div>
+        <div class="grid">${homeListHTML(all.slice(0, rowShow(r)), projects)}</div>
         <p class="more"><a href="${r.href}">See all →</a></p>`
         : `<p class="latest-soon">${r.empty}</p>`}
       </section>`;
+  }
+
+  // Home top, like GlobalGiving: one big picture, then four smaller ones, each with its
+  // place and title written on the photo. Tapping a picture opens that project's page.
+  const isPhoto = u => !!u && !/\.svg$/i.test(u);
+  const STAGE_LABEL = ["Initiated", "Activated", "Impact"];
+  // "Explore projects" choices under the pictures; tapping one swaps the pictures above.
+  const EXPLORE = [
+    ["All", ps => [...ps].sort((x, y) => (!!y.featured - !!x.featured) || (isPhoto(y.cover) - isPhoto(x.cover)))],
+    ["Initiated", ps => ps.filter(p => stageNum(p) === 1)],
+    ["Activated", ps => ps.filter(p => stageNum(p) === 2)],
+    ["Impact", ps => ps.filter(p => stageNum(p) === 3)],
+    ...["Trips & Events", "Education", "Livelihood"].map(t => [t, ps => ps.filter(p => p.theme === t)])
+  ];
+  const CATS = ["All", "Trips & Events", "Livelihood", "Education"];
+  const STAGE_SAY = ["Smiles in the Making", "Moments on the Way", "Days of Joy, Created"];
+  // "Create a Smile": a round, tappable icon with three little pictures taking turns,
+  // a title above and a line below. It opens the form to start a new project.
+  const CREATE = [
+    { img: "/img/create-smile.svg", title: "Create a Smile", say: "One small idea can light up a child's whole day." },
+    { img: "/img/create-moment.svg", title: "Create a Moment", say: "Tell us where joy is needed. We'll help make it happen." },
+    { img: "/img/create-day.svg", title: "Spark a Day of Joy", say: "A trip, a game, a good meal. Start it here." }
+  ];
+  const createHTML = () => `<a class="create-cta" href="/initiate">
+      <span class="cc-titles">${CREATE.map((c, i) => `<b class="${i ? "" : "on"}">${c.title}</b>`).join("")}</span>
+      <span class="cc-icon" aria-hidden="true"><i class="cc-ring"></i><i class="cc-orbit"><b>✦</b><b>♥</b><b>✦</b><b>♥</b></i>${CREATE.map((c, i) => `<img class="${i ? "" : "on"}" src="${c.img}" alt="" width="200" height="200">`).join("")}<i class="cc-plus">+</i></span>
+      <span class="cc-says">${CREATE.map((c, i) => `<span class="${i ? "" : "on"}">${c.say}</span>`).join("")}</span>
+      <span class="cc-go">Start here →</span>
+    </a>`;
+  // Under the stage circles: one slogan in the middle, and a fine curved line from it up to
+  // its stage. The line glides from stage to stage on its own; tapping a circle keeps it there.
+  const STAGE_COLOR = ["#1f7a47", "#d08e0c", "#c8381e"];
+  function startRail(app) {
+    const rail = app.querySelector(".stage-rail"), nav = app.querySelector(".stages");
+    if (!rail || !nav) return;
+    const circles = [...nav.querySelectorAll(".stage")], says = [...rail.querySelectorAll(".rail-say span")];
+    const paths = [...nav.querySelectorAll(".stage-path")];
+    let k = 0, locked = false;
+    // Moving forward a stage, a glowing spark runs along the little arrow, then the next stage lights up.
+    const flow = (from, to) => {
+      const arrow = to === from + 1 ? paths[from] : null;
+      const anim = arrow && arrow.querySelector("animateMotion");
+      if (anim && anim.beginElement) { arrow.classList.add("run"); anim.beginElement(); setTimeout(() => arrow.classList.remove("run"), 900); return 700; }
+      return 0;
+    };
+    const show = i => {
+      k = i;
+      says.forEach((sp, j) => sp.classList.toggle("on", j === i));
+      circles.forEach((c, j) => { c.classList.toggle("lit", j === i); if (j === i) { c.classList.remove("arrive"); void c.offsetWidth; c.classList.add("arrive"); } });
+    };
+    const go = i => { if (i === k) return show(i); const wait = flow(k, i); wait ? setTimeout(() => show(i), wait) : show(i); };
+    show(0);
+    nav.addEventListener("click", e => { const c = e.target.closest(".stage"); if (!c) return; locked = true; go(circles.indexOf(c)); });
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
+      rotTimers.push(setInterval(() => { if (!locked && !document.hidden) go((k + 1) % circles.length); }, 3600));
+  }
+  function startCreate(app) {
+    const box = app.querySelector(".create-cta"); if (!box) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let k = 0;
+    rotTimers.push(setInterval(() => {
+      if (document.hidden) return;
+      k = (k + 1) % CREATE.length;
+      box.querySelectorAll(".cc-titles b, .cc-icon img, .cc-says span").forEach(el => el.classList.toggle("on", [...el.parentNode.children].filter(x => x.tagName === el.tagName).indexOf(el) === k));
+    }, 3200));
+  }
+  function mosaicTiles(list, projects, max = 3) {
+    const pick = list.slice(0, max);
+    if (!pick.length) return `<p class="mosaic-empty">No projects in this group yet. <a href="/initiate">Start the first one →</a></p>`;
+    const odd = (pick.length - 1) % 2 === 1; // a lone last picture fills the row
+    const tile = (p, k) => {
+      const n = stageNum(p), town = p.city || (p.location || "").split(",")[0];
+      const wide = k === 0 || (odd && k === pick.length - 1);
+      return `<a class="mosaic-tile s${n}${k === 0 ? " big" : wide ? " wide" : ""}" href="/projects/${slugOf(p)}" style="${coverStyle(p, projects.indexOf(p))}">
+          ${p.cover ? `<img src="${esc(imgUrl(p.cover, wide ? 1400 : 800))}" alt=""${k ? ' loading="lazy"' : ""}>` : ""}
+          <span class="mosaic-text">
+            <span class="mosaic-eyebrow"><i>${STAGE_LABEL[n - 1]}</i>${town ? ` ${esc(town)}` : ""}</span>
+            <span class="mosaic-title">${esc(p.title)}</span>
+          </span>
+        </a>`;
+    };
+    return pick.map(tile).join("");
+  }
+  function glanceHTML(projects) {
+    const shown = projects.filter(p => !p.hidden);
+    if (!shown.length) return "";
+    const tabs = EXPLORE.filter(([t]) => CATS.includes(t));
+    const first = EXPLORE[0][1](shown);
+    return `<div class="mosaic n${Math.min(first.length, 3)}" aria-live="polite">${mosaicTiles(first, projects)}</div>`;
+  }
+  function wireExplore(app, projects) {
+    const box = app.querySelector(".explore-tabs"), mo = app.querySelector(".mosaic"), circles = app.querySelector(".stages");
+    if (!mo) return;
+    const shown = projects.filter(p => !p.hidden);
+    const show = name => {
+      const e = EXPLORE.find(([t]) => t === name); if (!e) return;
+      if (box) box.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x.dataset.ex === name));
+      if (circles) { circles.querySelectorAll(".stage").forEach(c => c.classList.toggle("on", c.dataset.ex === name));
+        circles.classList.toggle("picking", [...circles.querySelectorAll(".stage")].some(c => c.dataset.ex === name)); }
+      const list = e[1](shown);
+      mo.className = `mosaic n${Math.min(list.length, 3)}`;
+      mo.innerHTML = mosaicTiles(list, projects);
+    };
+    if (box) box.addEventListener("click", e => { const b = e.target.closest("button"); if (b) show(b.dataset.ex); });
+    // The three stage circles at the top switch the pictures too, instead of opening a new page.
+    if (circles) circles.addEventListener("click", e => { const c = e.target.closest(".stage"); if (!c) return; e.preventDefault(); show(c.dataset.ex); });
   }
 
   function renderOverview(app, site, projects) {
@@ -302,17 +498,20 @@
     app.innerHTML = `
       <section class="intro">
         <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
-        ${sayingsHTML(site, slides, start)}
       </section>
-      <h2 class="section-title journey-title">The Journey of a Smile</h2>
-      <nav class="stages" aria-label="Our projects by stage">
-        ${Object.entries(STAGES).map(([slug, st], k) => `${k ? `<span class="stage-path p${k}" aria-hidden="true"><svg viewBox="0 0 60 34"><path class="sp-line" d="M4 26Q30 -2 54 24"/><path class="sp-head" d="M47 17l8 8-11 2"/></svg></span>` : ""}
-          <a class="stage art stat-${st.key}" href="/${slug}">
+      <nav class="stages" aria-label="Show pictures by stage">
+        ${Object.entries(STAGES).map(([slug, st], k) => `${k ? `<span class="stage-path p${k}" aria-hidden="true"><svg viewBox="0 0 60 34"><path class="sp-base" d="M6 17H50"/><path class="sp-chev c1" d="M12 9l8 8-8 8"/><path class="sp-chev c2" d="M26 9l8 8-8 8"/><path class="sp-chev c3" d="M40 9l8 8-8 8"/><circle class="sp-spark" r="3.6" cx="0" cy="0"><animateMotion dur="0.75s" begin="indefinite" fill="freeze" path="M6 17H54" calcMode="spline" keyTimes="0;1" keySplines="0.45 0 0.55 1"/></circle></svg></span>` : ""}
+          <a class="stage art stat-${st.key}" href="/${slug}" data-ex="${st.label}">
             <i>${ICONS[st.key]}</i>
             <b${counts[slug] ? "" : ' class="zero"'}>${counts[slug] || "Soon"}</b>
             <span>${st.label}</span>
           </a>`).join("")}
       </nav>
+      <div class="stage-rail" aria-live="polite">
+        <p class="rail-say">${STAGE_SAY.map((t, i) => `<span class="s${i + 1}${i ? "" : " on"}">${t}</span>`).join("")}</p>
+      </div>
+      ${glanceHTML(projects)}
+      ${createHTML()}
       ${HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
       <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
@@ -322,16 +521,19 @@
         const b = e.target.closest(".chip"); if (!b) return;
         lf.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === b));
         const cat = b.dataset.cat, all = projects.filter(p => stageNum(p) === r.n),
-          list = (cat === "All" ? all : all.filter(p => (p.theme || "") === cat)).slice(0, 3);
-        lg.innerHTML = list.length ? list.map(p => card(p, projects.indexOf(p), journey(p))).join("")
+          list = (cat === "All" ? all : all.filter(p => (p.theme || "") === cat)).slice(0, rowShow(r));
+        lg.innerHTML = list.length ? homeListHTML(list, projects)
           : `<div class="panel empty-state latest-empty"><p>No ${esc(cat)} projects here yet.</p>${r.n === 1 ? '<a class="btn" href="/initiate">Suggest one</a>' : ""}</div>`;
       });
     });
+    wireExplore(app, projects);
     wireForms(app);
     fitHeadline();
     rotTimers.forEach(clearInterval); rotTimers = [];
     startSayings(app);
     startFollow(app);
+    startCreate(app);
+    startRail(app);
     // arriving from the footer's "Keep me posted" button on another page
     if (location.hash === "#keep-posted") { const t = document.getElementById("keep-posted"); if (t) t.scrollIntoView(); }
   }
@@ -377,6 +579,231 @@
       </section>`;
     rotTimers.forEach(clearInterval); rotTimers = [];
     startSayings(app);
+  }
+
+  // Front page (/front): two arched doors, one for people who want to make a day of joy happen
+  // and one for people who know children who need one. Then how a smile happens, in its three
+  // stages, and three projects to show it is real.
+  const sparkPath = (x, y, r) => `M${x} ${y - r}l${r * .32} ${r * .68} ${r * .68} ${r * .32}-${r * .68} ${r * .32}-${r * .32} ${r * .68}-${r * .32}-${r * .68}-${r * .68}-${r * .32} ${r * .68}-${r * .32}z`;
+  const DOOR_GIVE_SVG = `<svg class="door-svg" viewBox="0 0 200 200" aria-hidden="true">
+      <g class="d-spark"><path d="${sparkPath(42, 60, 11)}" fill="#f2b21c"/><path d="${sparkPath(160, 44, 9)}" fill="#e5851a"/><path d="${sparkPath(166, 120, 7)}" fill="#f2b21c"/></g>
+      <ellipse cx="100" cy="177" rx="58" ry="6" fill="#5a2a00" opacity=".1"/>
+      <rect x="56" y="112" width="88" height="62" rx="6" fill="#e5851a"/>
+      <rect x="56" y="112" width="88" height="9" fill="#b0560f" opacity=".35"/>
+      <rect x="92" y="112" width="16" height="62" fill="#c8381e"/>
+      <g class="dg-heart"><g transform="translate(0 -20)"><path d="M100 106C70 86 63 58 81 49c10-5 18 1 19 8 1-7 9-13 19-8 18 9 11 37-19 57z" fill="#c8381e"/>
+        <circle cx="91" cy="68" r="3.6" fill="#fff"/><circle cx="109" cy="68" r="3.6" fill="#fff"/><path d="M89 78q11 10 22 0" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/></g></g>
+      <g class="dg-lid"><rect x="48" y="96" width="104" height="20" rx="5" fill="#f2b21c"/><rect x="92" y="96" width="16" height="20" fill="#c8381e"/>
+        <path d="M100 96c-4-14-26-20-28-8-1 7 14 9 28 8zM100 96c4-14 26-20 28-8 1 7-14 9-28 8z" fill="#c8381e"/><circle cx="100" cy="95" r="5" fill="#9c2a14"/></g>
+    </svg>`;
+  const DOOR_ASK_SVG = `<svg class="door-svg" viewBox="0 0 200 200" aria-hidden="true">
+      <g class="d-spark"><path d="${sparkPath(44, 52, 10)}" fill="#f2b21c"/><path d="${sparkPath(170, 120, 8)}" fill="#3f9a5f"/><path d="${sparkPath(150, 170, 6)}" fill="#f2b21c"/></g>
+      <path class="da-trail" d="M30 170C54 152 38 128 64 122s30 8 40-4" fill="none" stroke="#1f7a47" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="1 11" opacity=".6"/>
+      <path d="M24 170c-5-6 3-11 6-5 3-6 11-1 6 5l-6 6z" fill="#c8381e"/>
+      <g class="da-plane" stroke="#1f7a47" stroke-width="5" stroke-linejoin="round">
+        <path d="M172 44L70 100l38 12z" fill="#fff"/>
+        <path d="M172 44l-64 68 14 36z" fill="#cfe6d6"/>
+        <path d="M108 112l-6 24 14-8z" fill="#1f7a47"/>
+        <g transform="rotate(-27 116 88)" stroke="none"><circle cx="108" cy="86" r="3.4" fill="#16432c"/><circle cx="124" cy="86" r="3.4" fill="#16432c"/><path d="M107 94q9 8 18 0" fill="none" stroke="#c8381e" stroke-width="3.6" stroke-linecap="round"/></g>
+      </g>
+    </svg>`;
+  const DOORS = [
+    { cls: "give", href: "/create", svg: DOOR_GIVE_SVG, title: "Make a Smile Happen", say: "Choose a day of joy that's waiting, and make it happen.", btn: "Make this happen" },
+    { cls: "ask", href: "/initiate", svg: DOOR_ASK_SVG, title: "Request a Smile", say: "Know children who deserve a day of joy? Tell us about them.", btn: "Request a smile" }
+  ];
+  const doorsHTML = () => `<div class="doors">${DOORS.map(d => `
+      <a class="door ${d.cls}" href="${d.href}">
+        <span class="door-art">${d.svg}</span>
+        <span class="door-title">${d.title}</span>
+        <span class="door-say">${d.say}</span>
+        <span class="door-btn">${d.btn} <span aria-hidden="true">→</span></span>
+      </a>`).join("")}</div>`;
+  const HAPPENS = [
+    { slug: "initiated", key: "projects", say: "Someone asks for a smile. Our team visits and plans the day." },
+    { slug: "activated", key: "active", say: "The whole day is covered and checked. Everything gets ready." },
+    { slug: "impact", key: "updates", say: "The children have their day, and the story comes back to you." }
+  ];
+  const happensHTML = () => `<section class="happens" aria-labelledby="happens-h">
+      <h2 class="happens-h" id="happens-h">How a smile happens</h2>
+      <ol class="happens-steps">${HAPPENS.map((h, i) => `
+        <li class="s${i + 1}"><a href="/${h.slug}">
+          <span class="hs-dot">${ICONS[h.key]}</span>
+          <span class="hs-text"><span class="hs-stage">${STAGES[h.slug].label}</span><span class="hs-say">${STAGE_SAY[i]}</span><span class="hs-line">${h.say}</span></span>
+        </a></li>`).join("")}</ol>
+      <a class="happens-more" href="/how-it-works">See the journey of a smile</a>
+    </section>`;
+  function renderFront(app, site, projects) {
+    // One project from each stage, so the three pictures tell the whole story; topped up if a stage is empty.
+    const picks = [1, 2, 3].map(n => projects.find(p => stageNum(p) === n)).filter(Boolean);
+    projects.forEach(p => { if (picks.length < 3 && !picks.includes(p)) picks.push(p); });
+    app.innerHTML = `
+      <section class="front-hero">
+        <h1 class="front-title">Creating smiles, creating moments</h1>
+        <p class="front-sub">Every child deserves a day of joy. Here are two ways to make one.</p>
+        ${doorsHTML()}
+        <p class="front-promise">Every penny goes to the day, and every smile is shared.</p>
+      </section>
+      ${happensHTML()}
+      ${picks.length ? `<section class="front-now">
+        <h2 class="happens-h">Smiles happening now</h2>
+        <div class="mosaic n${Math.min(picks.length, 3)}">${mosaicTiles(picks, projects)}</div>
+        <a class="happens-more" href="/overview">See all projects</a>
+      </section>` : ""}`;
+  }
+
+  // Second front page (/front-2): one live "smile lane" from request to done, with real numbers.
+  // The days waiting for help come first and big; the requests still being checked are listed with
+  // no links and no details (kind of day, district, how many children, month, step); then days already
+  // done, and a small "Request a smile" band. The two-door version stays at /front.
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const monthOf = ym => { const m = /^(\d{4})-(\d{2})/.exec(ym || ""); return m ? `${MONTHS[+m[2] - 1]} ${m[1]}` : ""; };
+  const Q_STEP = { received: [1, "Received"], checking: [2, "Being checked"], visit: [2, "Visit planned"], planning: [3, "Visited, planning the day"] };
+  const Q_KIND = { "Trips & Events": "A day out or trip", "Education": "Help with learning" };
+  const Q_DISTRICTS = ["Ampara", "Anuradhapura", "Badulla", "Batticaloa", "Colombo", "Galle", "Gampaha", "Hambantota", "Jaffna", "Kalutara", "Kandy", "Kegalle", "Kilinochchi", "Kurunegala", "Mannar", "Matale", "Matara", "Monaragala", "Mullaitivu", "Nuwara Eliya", "Polonnaruwa", "Puttalam", "Ratnapura", "Trincomalee", "Vavuniya"];
+  const qDistrict = v => { const t = String(v || "").replace(/\s+district$/i, "").trim().toLowerCase(); return Q_DISTRICTS.find(d => d.toLowerCase() === t) || ""; };
+  // Only on the draft preview and on this computer: example rows so the layout can be judged before real requests come in.
+  const isPreview = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname);
+  const Q_EXAMPLE = [
+    { kind: "A game or sports day", town: "Batticaloa", children: "25 to 50", month: "2026-10", step: "received", example: true },
+    { kind: "A day out or trip", town: "Kilinochchi", children: "10 to 25", month: "2026-10", step: "visit", example: true },
+    { kind: "A celebration or festival", town: "Jaffna", children: "50 to 100", month: "2026-09", step: "planning", example: true }
+  ];
+  const VERIFIED_TICK = `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
+  function laneHTML(n) {
+    const stops = [
+      { cls: "q", href: "#checking", num: n.checking, label: "Being checked", sub: "New requests" },
+      { cls: "s1 you", href: "#waiting", num: n.waiting, label: "Waiting for you", sub: "Initiated" },
+      { cls: "s2", href: "/activated", num: n.onway, label: "On the way", sub: "Activated" },
+      { cls: "s3", href: "/impact", num: n.done, label: "Done", sub: "Impact" }
+    ];
+    return `<div class="lane-wrap">
+        <p class="lane-push" aria-hidden="true"><span>Your help makes it happen</span>
+          <svg viewBox="0 0 200 44" preserveAspectRatio="none"><path d="M24 40C50 2 150 2 180 40" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 9"/></svg>
+          <svg class="lane-push-tip" viewBox="0 0 16 16"><path d="M2 3l12 5-12 5 3-5z" fill="currentColor"/></svg></p>
+        <ol class="lane" aria-label="Where every smile is right now">${stops.map(s => `
+          <li class="${s.cls}"><a href="${s.href}">
+            <span class="lane-dot"><b data-lane="${s.cls.split(" ")[0]}">${s.num}</b></span>
+            <span class="lane-label">${s.label}</span>
+            <span class="lane-sub">${s.sub}</span>
+          </a></li>`).join("")}</ol>
+      </div>`;
+  }
+  function waitCard(p, site, i, projects) {
+    const goal = numOf(p.goal) || (p.budget || []).filter(x => x && x.item).reduce((s, x) => s + numOf(x.amount), 0);
+    const raised = (p.funders || []).filter(x => x && x.name).reduce((s, x) => s + numOf(x.amount), 0);
+    const left = Math.max(0, goal - raised), pct = goal ? Math.min(100, Math.round(raised / goal * 100)) : 0;
+    const town = p.city || (p.location || "").split(",")[0].trim();
+    const covers = (p.budget || []).filter(x => x && x.item).slice(0, 3);
+    const href = `/projects/${slugOf(p)}`;
+    return `<article class="wait-card">
+        <a class="wait-pic" href="${href}" tabindex="-1" aria-hidden="true" style="${coverStyle(p, projects.indexOf(p))}">${p.cover ? `<img src="${esc(imgUrl(p.cover, 900))}" alt=""${i ? ' loading="lazy"' : ""}>` : ""}</a>
+        <div class="wait-body">
+          <span class="wait-ok">${VERIFIED_TICK} <span>Visited and verified</span></span>
+          <h3><a href="${href}">${esc(p.title)}</a></h3>
+          ${town || p.reach ? `<p class="wait-meta">${[town, p.reach].filter(Boolean).map(esc).join(" · ")}</p>` : ""}
+          ${goal ? `<div class="wait-money">
+              <p class="wait-gap">${left ? `<b>${moneyOf(site, left, p)}</b> <span>to go</span>` : `<span>The whole day is covered</span>`}</p>
+              <span class="wait-bar" role="img" aria-label="${pct}% covered"><i style="width:${Math.max(pct, 3)}%"></i></span>
+              <p class="wait-of">${moneyOf(site, raised, p)} of ${moneyOf(site, goal, p)} covered</p>
+            </div>` : `<div class="wait-money"><p class="wait-gap"><span>Costs being worked out</span></p><p class="wait-of"><span>You can join now. Tell us how you'd like to help.</span></p></div>`}
+          ${covers.length ? `<p class="wait-covers"><span class="wc-h">It covers</span> ${covers.map(x => `<span class="wc">${esc(x.item)}</span>`).join("")}</p>` : ""}
+          <a class="wait-btn" href="${href}">Make this happen <span aria-hidden="true">→</span></a>
+        </div>
+      </article>`;
+  }
+  const queueRow = r => {
+    const [lvl, say] = Q_STEP[r.step] || Q_STEP.received;
+    return `<li class="${r.example ? "q-example" : ""}">
+        <span class="q-steps l${lvl}" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="q-kind">${esc(r.kind)}${r.example ? ` <i class="q-ex">Example</i>` : ""}</span>
+        <span class="q-facts">${[r.town, r.children ? `${r.children} children` : "", monthOf(r.month)].filter(Boolean).map(t => `<span>${esc(t)}</span>`).join("")}</span>
+        <span class="q-say l${lvl}">${esc(say)}</span>
+      </li>`;
+  };
+  function queueHTML(rows, received, example) {
+    if (!rows.length) return `<p class="queue-empty">No requests waiting to be checked right now. <a href="/initiate">Request a smile</a></p>`;
+    const shown = rows.slice(0, 6), more = rows.length - shown.length;
+    return `<ul class="queue">${shown.map(queueRow).join("")}</ul>
+      ${more > 0 ? `<p class="queue-more">And ${more} more being checked</p>` : ""}
+      ${received > rows.length ? `<p class="queue-more">Requests received so far: ${received}</p>` : ""}
+      ${example ? `<p class="queue-note">Rows marked "Example" only show on the preview, to show the layout. Real requests replace them as they come in.</p>` : ""}`;
+  }
+  async function renderLane(app, site, projects, raw) {
+    const waiting = projects.filter(p => stageNum(p) === 1);
+    const onway = projects.filter(p => stageNum(p) === 2);
+    const done = projects.filter(p => stageNum(p) === 3);
+    // Projects the team has added but not yet visited and verified: listed as being checked, never shown in full.
+    const unchecked = (raw || []).filter(p => p && p.title && !p.hidden && !p.verified).map(p => ({
+      kind: Q_KIND[p.theme] || "A day of joy", town: qDistrict(p.city), children: "",
+      month: (() => { const m = /([A-Za-z]+)\s+(\d{4})/.exec(p.started || ""); const k = m ? MONTHS.findIndex(x => m[1].startsWith(x)) : -1; return k >= 0 ? `${m[2]}-${String(k + 1).padStart(2, "0")}` : ""; })(),
+      step: "checking"
+    }));
+    const n = { checking: unchecked.length, waiting: waiting.length, onway: onway.length, done: done.length };
+    app.innerHTML = `
+      <section class="lane-hero">
+        <h1 class="front-title">Creating smiles, creating moments</h1>
+        <p class="front-sub">Every day of joy here is real, and checked by our team. Pick one that's waiting, and make it happen.</p>
+        ${laneHTML(n)}
+      </section>
+      <section class="front-block" id="waiting" aria-labelledby="waiting-h">
+        <h2 class="block-h" id="waiting-h"><span>Waiting for you</span> <b class="block-n s1">${waiting.length}</b></h2>
+        <p class="block-say">Visited, planned and ready. When the whole day is covered, it moves on to Activated.</p>
+        ${waiting.length ? `<div class="wait-list">${waiting.slice(0, 3).map((p, i) => waitCard(p, site, i, projects)).join("")}</div>`
+          : `<p class="queue-empty">Every checked day is already on its way. The next ones appear here as soon as they're checked.</p>`}
+      </section>
+      <section class="front-block" id="checking" aria-labelledby="checking-h">
+        <h2 class="block-h" id="checking-h"><span>Being checked</span> <b class="block-n q" data-lane-n>${unchecked.length}</b></h2>
+        <p class="block-say">New requests for a day of joy. Our team calls and visits each one first, so we keep the details private until then.</p>
+        <div data-queue><ul class="queue">${unchecked.map(queueRow).join("")}</ul></div>
+      </section>
+      ${done.length ? `<section class="front-block front-done" aria-labelledby="done-h">
+        <h2 class="block-h" id="done-h"><span>Days of Joy, Created</span> <b class="block-n s3">${done.length}</b></h2>
+        <div class="mosaic n${Math.min(done.length, 3)}">${mosaicTiles(done, projects)}</div>
+        <a class="happens-more" href="/impact">See every story</a>
+      </section>` : ""}
+      <a class="ask-band" href="/initiate">
+        <span class="ask-art">${DOOR_ASK_SVG}</span>
+        <span class="ask-text"><b>Know children who deserve a day of joy?</b><span>Tell us about them. Our team will call, visit and plan it with you.</span></span>
+        <span class="ask-btn">Request a smile <span aria-hidden="true">→</span></span>
+      </a>
+      <p class="front-promise">Every penny goes to the day, and every smile is shared.</p>`;
+    // The requests still being checked come from the team's list, through a summary with no personal details.
+    let rows = unchecked, received = 0, example = false;
+    try {
+      const r = await fetch("/api/pipeline", { headers: { accept: "application/json" } });
+      const j = r.ok && /json/.test(r.headers.get("content-type") || "") ? await r.json() : null;
+      if (j && Array.isArray(j.list)) { rows = [...j.list, ...unchecked]; received = (j.received || 0) + unchecked.length; n.checking = (j.checking || 0) + unchecked.length; }
+    } catch (e) {}
+    if (rows.length < 2 && isPreview) { rows = [...rows, ...Q_EXAMPLE]; example = true; n.checking = rows.length; }
+    const box = app.querySelector("[data-queue]"); if (!box) return;
+    box.innerHTML = queueHTML(rows, received, example);
+    app.querySelectorAll('[data-lane="q"], [data-lane-n]').forEach(b => { b.textContent = n.checking; });
+  }
+
+  // "Make a Smile Happen" (/create): three plain steps, then the days of joy waiting to happen.
+  const GIVE_STEPS = [
+    ["Choose a smile", "Each one below is a real day of joy our team has visited and planned."],
+    ["Make this happen", "Open it and tap \"Make this happen\". Cover the whole day or a part, on your own or with friends. We'll be in touch."],
+    ["See the joy", "When the day is done, the story and the photos come back to you."]
+  ];
+  function renderCreate(app, site, projects) {
+    const waiting = projects.filter(p => stageNum(p) === 1);
+    app.innerHTML = `
+      <section class="give-page">
+        <div class="give-head">
+          <span class="door-art give">${DOOR_GIVE_SVG}</span>
+          <div>
+            <h1 class="front-title">Make a Smile Happen</h1>
+            <p class="front-sub">Choose a day of joy that's waiting, and make it happen.</p>
+          </div>
+        </div>
+        <ol class="give-steps">${GIVE_STEPS.map(([t, d], k) => `<li><span class="gs-n">${k + 1}</span><b>${esc(t)}</b><p>${esc(d)}</p></li>`).join("")}</ol>
+        <h2 class="happens-h">Smiles waiting for you</h2>
+        ${waiting.length ? `<div class="mosaic stage-mosaic n${Math.min(waiting.length, 3)}">${mosaicTiles(waiting, projects, 5)}</div>`
+          : `<p class="mosaic-empty">Every smile is on its way right now. New ones are added soon.</p>`}
+        <p class="front-promise">Every penny goes to the day, and every smile is shared.</p>
+        <p class="give-other">Know children who need a day of joy? <a href="/initiate">Request a smile</a></p>
+      </section>`;
   }
 
   // Second version: a deeper arch with heavier, larger lettering and the tagline inside the arch.
@@ -809,6 +1236,11 @@
           </a>`; }).join("")}`;
   }
 
+  // Sponsors' names and their share of the budget, shown under "Funded" (SURESH, 6 Nov 2026).
+  const whoFunded = p => { const b = budgetOf(p); if (!b.goal || !b.funders.length) return "";
+    return `<small class="who">${b.funders.map(f => `${esc(f.name)} <b>${Math.round(numOf(f.amount) / b.goal * 100)}%</b>`).join(" · ")}</small>`; };
+  // The Donate button. While Raavanaa is a pilot it opens a note instead of a payment page (wireGo).
+  const DONATE_BTN = `<button class="donate-btn" type="button" data-donate><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg><span>Donate</span></button>`;
   // The "Activating" circle with its list of steps, as on a project page.
   function activatingPanelHTML(p, cls = "") {
     const steps = ringSteps(p), T = RING_TEXT[stageNum(p)];
@@ -827,9 +1259,144 @@
         <h2>${T.h}</h2>
         <div class="ring-row">
           ${ringSVG()}
-          <ul class="ring-steps">${steps.map(x => { const d = x.done; return `<li class="${d >= 1 ? "done" : d > 0 ? "part" : ""}"><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${d >= 1 ? "✓" : x.pctLabel && d > 0 ? Math.round(d * 100) + "%" : "–"}</b></li>`; }).join("")}</ul>
+          <ul class="ring-steps">${steps.map(x => { const d = x.done; return `<li class="${d >= 1 ? "done" : d > 0 ? "part" : ""}"><i style="background:${x.c}"></i><span>${esc(x.name)}${x.name === "Funded" ? whoFunded(p) : ""}</span><b>${d >= 1 ? "✓" : x.pctLabel && d > 0 ? Math.round(d * 100) + "%" : "–"}</b></li>`; }).join("")}</ul>
         </div>
       </div>`;
+  }
+
+  // Initiated project page: "Let's take this to 100%". The ring, then a fold that opens to show
+  // what is still missing (each with the % it adds) and a short note form to help make it happen.
+  // No payment here: people send a note and the team gets back to them.
+  function goPanelHTML(p, site, cls) {
+    const steps = ringSteps(p), pct = ringPercent(p), b = budgetOf(p), money = n => moneyOf(site, n, p);
+    const kids = String(p.reach || "").match(/\d+/), slice = 100 / steps.length, id = cls.replace(/\W/g, "");
+    const need = Math.max(0, b.goal - b.raised);
+    const say = [
+      d => d ? "Our team visited and saw the need for themselves." : "Our team visits to make sure the need is real. Know this place? Tell us below.",
+      d => d ? `We know what the day costs: ${money(b.goal)}.` : "We're working out what the day will cost: transport, food, tickets.",
+      d => d >= 1 ? "Every part of the day is covered." : b.goal ? `${money(need)} still to go. This is where you come in.` : "Opens as soon as the budget is ready. Send a note and we'll tell you first."
+    ];
+    const WAYS = ["Give something the day needs (a van, food, gifts)", "Help on the day", "Share it with friends"];
+    const ring = activatingPanelHTML(p, "").match(/<svg class="ring"[\s\S]*?<\/svg>/)[0];
+    const raw = steps.reduce((t, x) => t + Math.min(1, x.done), 0) * slice;
+    return `<div class="panel activating go100 ${cls}" data-pct="${pct}" data-raw="${raw}">
+        <p class="go-kicker">Activating</p>
+        <h2 class="go-title">Help ${kids ? kids[0] + " children" : "these children"} laugh. <span>Let's take this to 100%.</span></h2>
+        <div class="ring-row">
+          ${ring}
+          <ul class="ring-steps">${steps.map(x => { const d = x.done; return `<li class="${d >= 1 ? "done" : d > 0 ? "part" : ""}"><i style="background:${x.c}"></i><span>${esc(x.name)}${x.name === "Funded" ? whoFunded(p) : ""}</span><b>${d >= 1 ? "✓" : x.pctLabel && d > 0 ? Math.round(d * 100) + "%" : "–"}</b></li>`; }).join("")}</ul>
+        </div>
+        ${pct < 100 ? `<button class="go-open" type="button" aria-expanded="false" aria-controls="go-fold-${id}"><span>See what's left to reach 100%</span><i aria-hidden="true">⌄</i></button>
+        <div class="go-fold" id="go-fold-${id}" hidden>
+          <ol class="go-list">${b.funders.map(f => `<li class="done funder"><i aria-hidden="true">${b.goal ? Math.round(numOf(f.amount) / b.goal * 100) : 0}%</i>
+              <div><b>${esc(f.name)}</b><span>Pledged ${money(numOf(f.amount))} for this day.</span></div></li>`).join("")}
+            <li class="todo" data-add="${slice * (1 - Math.min(1, b.goal ? b.raised / b.goal : 0))}" tabindex="0">
+              <i aria-hidden="true">${b.goal ? Math.max(0, 100 - b.pct) + "%" : "…"}</i>
+              <div><b>${b.funders.length ? "Still to fund" : "Be the first sponsor"}</b><span>${b.goal ? `${money(need)} still to go. This is where you come in.` : "Opens as soon as the budget is ready. Send a note and we'll tell you first."}</span></div></li></ol>
+          <div class="go-form go-make">
+            <h3>Make this happen</h3>
+            <div class="mk-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-mk="donate"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>Donate</button><button type="button" role="tab" aria-selected="false" data-mk="other">Help another way</button></div>
+            <div class="mk-pane" data-mkpane="donate"><p class="go-sub">Want to give towards this day? Tap Donate and we'll tell you how it works during our pilot.</p>${DONATE_BTN}</div>
+            <form class="mk-pane" data-mkpane="other" hidden name="make-it-happen" data-ajax data-done="Thank you! Your note is on its way. We'll be in touch soon, and you'll be part of a child's best day.">
+              <p class="go-sub">Not able to give money? There are other ways to make this day happen. Tell us how you'd like to help and we'll reach out.</p>
+              <input type="hidden" name="form-name" value="make-it-happen">
+              <input type="hidden" name="project" value="${esc(slugOf(p))}">
+              <p hidden><label>Leave empty <input name="bot-field"></label></p>
+              <fieldset class="go-ways"><legend>I'd love to…</legend>
+                ${WAYS.map(w => `<label class="go-way"><input type="checkbox" name="ways[]" value="${esc(w)}"><span>${esc(w)}</span></label>`).join("")}
+              </fieldset>
+              <label for="go-name-${id}">Your name<input id="go-name-${id}" name="name" required maxlength="80" autocomplete="name"></label>
+              <label for="go-contact-${id}">Email or WhatsApp<input id="go-contact-${id}" name="contact" required maxlength="120"></label>
+              <label for="go-note-${id}">A note for us (optional)<textarea id="go-note-${id}" name="note" maxlength="1500" rows="3"></textarea></label>
+              <button class="btn go-send" type="submit">Send my note</button>
+              <p class="note" data-msg hidden></p>
+            </form>
+          </div>
+        </div>` : ""}
+      </div>`;
+  }
+  function wireGo(root) {
+    root.querySelectorAll(".go100").forEach(box => {
+      const pct = +box.dataset.pct, n = box.querySelector(".ring-n"), l = box.querySelector(".ring-l");
+      const label = l ? l.textContent : "";
+      const setN = (v, preview) => { if (n) n.textContent = Math.round(v) + "%"; if (l) l.textContent = preview ? "IF DONE" : label; box.classList.toggle("previewing", !!preview); };
+      // The % counts up the first time the panel comes into view.
+      const countUp = () => { const t0 = performance.now(), dur = 1100; const step = now => { const t = Math.min(1, (now - t0) / dur); setN(pct * (1 - Math.pow(1 - t, 3))); if (t < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); };
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window) || box.offsetParent === null) setN(pct);
+      else { setN(0); const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); countUp(); } }, { threshold: .4 }); io.observe(box); }
+      const btn = box.querySelector(".go-open"), fold = box.querySelector(".go-fold");
+      if (btn && fold) btn.addEventListener("click", () => {
+        const open = btn.getAttribute("aria-expanded") !== "true";
+        btn.setAttribute("aria-expanded", open); fold.hidden = !open; box.classList.toggle("open", open);
+        btn.querySelector("span").textContent = open ? "Fold it away" : "See what's left to reach 100%";
+      });
+      // "Make this happen": Donate, or Help another way.
+      box.querySelectorAll(".go-make").forEach(m => m.querySelectorAll("[data-mk]").forEach(t => t.addEventListener("click", () => {
+        m.querySelectorAll("[data-mk]").forEach(x => x.setAttribute("aria-selected", String(x === t)));
+        m.querySelectorAll("[data-mkpane]").forEach(pn => { pn.hidden = pn.dataset.mkpane !== t.dataset.mk; });
+      })));
+      // Pointing at a missing step shows what the % would become once it's done.
+      box.querySelectorAll(".go-list li.todo").forEach(li => {
+        const on = () => setN(Math.min(100, +box.dataset.raw + +li.dataset.add), true), off = () => setN(pct);
+        li.addEventListener("mouseenter", on); li.addEventListener("mouseleave", off);
+        li.addEventListener("focus", on); li.addEventListener("blur", off);
+      });
+    });
+  }
+  // Donate: during the pilot there are no online donations. The pop-up says so and asks people
+  // to join the community: sign up and follow the project (SURESH, 6 Nov 2026).
+  /* "At a glance": tap or click the small icon to open; tap it again, tap anywhere else or press Esc to close. */
+  function wireGlance(root) {
+    root.querySelectorAll(".glance").forEach(g => {
+      const b = g.querySelector(".glance-btn");
+      const set = on => { g.classList.toggle("is-open", on); g.classList.toggle("is-shut", !on); b.setAttribute("aria-expanded", String(on)); };
+      b.addEventListener("click", e => { e.stopPropagation(); set(!g.classList.contains("is-open")); });
+      g.addEventListener("pointerleave", e => { if (e.pointerType !== "mouse") return; set(false); g.classList.remove("is-shut"); });
+    });
+    if (!wireGlance.done) {
+      wireGlance.done = true;
+      const shut = () => document.querySelectorAll(".glance.is-open").forEach(g => { g.classList.remove("is-open"); g.querySelector(".glance-btn").setAttribute("aria-expanded", "false"); });
+      document.addEventListener("click", e => { if (!e.target.closest(".glance")) shut(); });
+      document.addEventListener("keydown", e => { if (e.key === "Escape") shut(); });
+    }
+  }
+
+  function wireDonate(root, slug) {
+    root.querySelectorAll("[data-donate]").forEach(b => b.addEventListener("click", () => {
+      const pop = document.createElement("div");
+      pop.className = "donate-pop";
+      pop.innerHTML = `<div class="donate-card" role="dialog" aria-modal="true" aria-labelledby="donate-h">
+          <button class="donate-x" type="button" data-close aria-label="Close">×</button>
+          <p class="donate-heart" aria-hidden="true"><svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg></p>
+          <h2 id="donate-h">Thank you for wanting to give!</h2>
+          <p>We are in our <b>pilot phase</b>, so we are not taking donations online yet. Every day so far has been made possible by our community.</p>
+          <p>Join the Raavanaa community: sign up and follow this project. We'll tell you the moment you can give, and share every smile you help create.</p>
+          ${signupHTML(slug + "-donate", "Sign up and follow")}
+          <p class="donate-other"><button type="button" data-other>Or help another way →</button></p>
+        </div>`;
+      const close = () => { pop.remove(); document.removeEventListener("keydown", esc_); b.focus(); };
+      const esc_ = e => { if (e.key === "Escape") close(); };
+      pop.addEventListener("click", e => { if (e.target === pop || e.target.closest("[data-close]")) close(); });
+      document.addEventListener("keydown", esc_);
+      pop.querySelector("[data-other]").addEventListener("click", () => {
+        close();
+        const g = [...root.querySelectorAll(".go100")].find(x => x.offsetParent !== null); if (!g) return;
+        const open = g.querySelector(".go-open"); if (open && open.getAttribute("aria-expanded") !== "true") open.click();
+        const t = g.querySelector("[data-mk=other]"); if (t) { t.click(); t.scrollIntoView({ block: "center", behavior: "smooth" }); }
+      });
+      document.body.appendChild(pop); wireForms(pop);
+      const f = pop.querySelector("input[name=email]"); if (f) f.focus();
+    }));
+  }
+  function wireTale(root, open, remember) {
+    const box = root.querySelector(".ptale"); if (!box) return;
+    const text = box.querySelector(".ptale-text"), btn = box.querySelector(".ptale-more");
+    const label = btn.querySelector("span").textContent;
+    const set = v => { box.classList.toggle("open", v); btn.setAttribute("aria-expanded", v); btn.querySelector("span").textContent = v ? "Show less" : label; remember(v); };
+    // Only offer the link when the story is longer than three lines.
+    // The opening paragraph shows in full; the link opens the rest (SURESH, 6 Nov 2026).
+    if (text.querySelector(".ptale-rest")) { btn.hidden = false; set(open); } else box.classList.add("short");
+    btn.addEventListener("click", () => { const v = !box.classList.contains("open"); set(v); if (!v) box.scrollIntoView({ block: "nearest", behavior: "smooth" }); });
   }
 
   // Budget figures for a project: what it costs, what supporters have given, and the share funded.
@@ -1141,10 +1708,11 @@
             <p class="theme-note">This is an example, not a real project. Open it to see the budget, where the money goes and who made it possible.</p>
             <div class="grid">${card(example, 0, journey(example))}</div>
           </section>` : "";
-      const one = slug !== "impact" && items.length ? (items.find(x => stageNum(x.p) === cfg.n) || items[0]) : null; // Initiated and Activated: one project shown in full, all of them in the list
+      // The projects at this stage, shown GlobalGiving-style: one big picture, then smaller ones, words on the photos.
+      const stageList = projects.filter(p => stageNum(p) === cfg.n && (filter === "All" || (p.theme || "Other") === filter));
       const body = !items.length ? `<div class="panel empty-state"><p>${cfg.empty.text}</p><a class="btn" href="${cfg.empty.href}">${cfg.empty.btn}</a></div>${exampleHTML}`
-        : one ? `<section class="featured-project">${card(one.p, one.i, journey(one.p))}<div class="featured-side">${activatingPanelHTML(one.p)}${budgetBoxHTML(one.p, site)}</div></section>`
-        : groups.map(([t, xs]) => `
+        : (stageList.length ? `<div class="mosaic n${Math.min(stageList.length, 5)} stage-mosaic">${mosaicTiles(stageList, projects, 5)}</div>` : "")
+          + (slug !== "impact" ? "" : `<h3 class="section-title stories-title">Stories from the day</h3>` + groups.map(([t, xs]) => `
           <section class="theme-group">
             <h3 class="theme-title">${esc(t)} <span class="count">${xs.length}</span></h3>
             ${slug === "impact" && notes[t] ? `<p class="theme-note">${esc(notes[t])}</p>` : ""}
@@ -1156,15 +1724,16 @@
               <div class="from">${esc(p.title)} →</div>
             </a>`).join("")}</div>`
             : `<div class="grid">${xs.map(({ p, i }) => card(p, i, journey(p))).join("")}</div>`}
-          </section>`).join("");
+          </section>`).join(""));
       app.innerHTML = `
         ${stageNav(slug)}
-        <header class="stage-hero s${cfg.n}">
-          <img src="${cfg.hero}" alt="" width="400" height="200">
+        <header class="stage-hero slim s${cfg.n}">
+          ${stageLayersHTML(slug)}
+          <p class="stage-hero-lead">${cfg.lead}</p>
           <div class="stage-hero-text"><h1>${cfg.title}</h1><p>${sub}</p></div>
         </header>
+        <div class="stage-shade s${cfg.n}">
         <section class="stage-lead s${cfg.n}">
-          <p class="big">${cfg.lead}</p>
           <ul class="meaning two">${cfg.links.map(([t, h, d]) => `<li><a href="${h}">${ICON(d)}<span>${t}</span><b aria-hidden="true">→</b></a></li>`).join("")}</ul>
         </section>
         ${slug === "impact" && numbers.length ? `
@@ -1184,7 +1753,8 @@
             <a class="btn" href="${cfg.cta.href}">${cfg.cta.btn}</a>
           </div>
           <a class="next-stage to-${cfg.next.slug}" href="/${cfg.next.slug}"><span>${cfg.next.kicker}</span><b>${cfg.next.label} →</b><small>${cfg.next.text}</small></a>
-        </section>`;
+        </section>
+        </div>`;
       app.querySelectorAll(".chip").forEach(b => b.onclick = () => { filter = b.dataset.t; draw(); });
     };
     draw();
@@ -1246,7 +1816,8 @@
     const now = S.findIndex(x => !x.done);
     const G = ["", "Smiles in the Making", "Moments on the Way", "Days of Joy, Created"];
     let html = "", g = 0;
-    S.forEach((x, k) => {
+    // "Moments on the Way" and "Days of Joy, Created" are shown once the day has happened (SURESH, 6 Nov 2026).
+    S.filter(x => st === 3 || x.g === 1).forEach((x, k) => {
       if (x.g !== g) { g = x.g; html += `${k ? "</ol>" : ""}<p class="jr-g jr-g${g}">${G[g]}</p><ol class="jr">`; }
       const state = x.done ? "done" : k === now ? "now" : "next", info = [x.who && esc(x.who), x.when && d(x.when)].filter(Boolean).join(" · ");
       html += `<li class="${state} jr${x.g}"><i aria-hidden="true">${x.done ? "✓" : ""}</i><span><b>${x.label}</b>${info ? `<small>${info}</small>` : state === "now" ? "<small>In progress</small>" : ""}</span></li>`;
@@ -1294,7 +1865,7 @@
     const steps = ringSteps(p);
     const delivered = stageNum(p) === 3;
     const ringPct = delivered ? 100 : Math.round(steps.reduce((s, x) => s + x.done, 0) / steps.length * 100);
-    const ringPanel = cls => activatingPanelHTML(p, cls);
+    const ringPanel = cls => stageNum(p) === 1 && !p.sample ? goPanelHTML(p, site, cls) : activatingPanelHTML(p, cls);
     const moneyHTML = `
       ${lines.length ? `<section class="money">
         <h2 class="section-title">Where the money goes</h2>
@@ -1314,33 +1885,54 @@
       media: ic('<rect x="3.5" y="5.5" width="17" height="13" rx="3"/><path d="M10.2 9.300v5.400l4.6-2.700z" fill="currentColor"/>'),
       budget: ic('<rect x="3.5" y="6" width="17" height="12" rx="2.5"/><path d="M3.5 10h17"/><path d="M7 14.500h4"/>')
     };
-    const tabs = [
-      ["story", "Story"],
-      ["updates", "Impact"],
-      ["budget", "Budget"],
-      ["media", `Media${count(photos.length + media.length)}`]
-    ];
+    // Under the picture: the story, cut to three lines, with an inviting link to open the rest.
+    const st = stageNum(p);
+    const taleSrc = String(p.story || "").replace(/^\s*#{1,4}\s*Summary\s*\n+/i, "").trim() || p.summary || "";
+    const TALE_MORE = ["", "See how this smile begins", "See how this moment comes together", "Relive the whole day"];
+    const taleHTML = taleSrc ? `<section class="ptale s${st}">
+        ${p.quote ? `<p class="pull">“${esc(p.quote)}”</p>` : ""}
+        <div class="ptale-text story" id="ptale-text">${(h => { const k = h.indexOf("</p>") + 4; return k > 3 && h.slice(k).trim() ? h.slice(0, k) + `<div class="ptale-rest">${h.slice(k)}</div>` : h; })(md(taleSrc))}</div>
+        <button class="ptale-more" type="button" aria-expanded="false" aria-controls="ptale-text" hidden><span>${TALE_MORE[st]}</span><i aria-hidden="true">⌄</i></button>
+      </section>` : "";
+    // Story first, then Impact, Budget, Media: the same order as on RaavanaaPost (SURESH, 6 Nov 2026).
+    const tabs = [["story", "Story"], ["updates", "Impact"], ["budget", "Budget"], ["media", `Media${count(photos.length + media.length)}`]];
 
     const panes = {
-      story: `<div class="story">${p.quote ? `<p class="pull">“${esc(p.quote)}”</p>` : ""}${md(p.story)}</div>`,
+      // The story tab: the opening paragraph in full, the rest behind "See how this smile begins".
+      story: taleHTML || `<p class="empty">The story is on its way.</p>`,
       updates: expectHTML(p) + (updates.length ? updates.map(u => `<article class="update"><div class="meta">${fmtDate(u.date)}</div><h3>${esc(u.title)}</h3><div>${md(u.body)}</div></article>`).join("") : `<p class="empty">No impact updates yet.</p>`) + (p.sample ? "" : commentsHTML(slugOf(p))),
       budget: `<div class="budget-tab">${budgetDetailHTML(p, site, true)}${stageNum(p) === 1 && budgetOf(p).lines.length ? `<p class="note">These are estimates. Once the day has happened, the real costs are shown here.</p>` : stageNum(p) === 2 ? `<p class="note">Once the day has happened, a breakdown of where the money went is shown here.</p>` : ""}</div>`,
       media: (photos.length || media.length) ? `${media.length ? `<div class="media">${media.map(m => { const e = embedFor(m.url); return e ? `<figure style="margin:0"><div class="embed"><iframe src="${esc(e)}" title="${esc(m.title)}" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy"></iframe></div>${m.title ? `<figcaption class="note" style="padding-top:6px">${esc(m.title)}</figcaption>` : ""}</figure>` : `<a class="media-link" href="${esc(m.url)}" target="_blank" rel="noopener">▶ ${esc(m.title || m.url)}</a>`; }).join("")}</div>` : ""}${photos.length ? `<div class="photos">${photos.map((ph, k) => `<figure><button data-src="${esc(imgUrl(ph.image, 1600))}" aria-label="Open picture"><div class="cover"><img src="${esc(imgUrl(ph.image, 600))}" alt="${esc(ph.caption)}" loading="lazy"></div></button>${ph.caption ? `<figcaption>${esc(ph.caption)}</figcaption>` : ""}</figure>`).join("")}</div>` : ""}` : `<p class="empty">No videos or pictures yet.</p>`
     };
 
+    let taleOpen = false;
     const draw = tab => {
       app.innerHTML = `
         ${p.sample ? `<p class="sample-note"><b>Sample page.</b> This shows how a project page looks once it is filled in. The project, the figures and the names are examples, not real.</p>` : ""}
         <nav class="crumbs"><a href="/initiated">Projects</a>${p.theme ? ` / ${esc(p.theme)}` : ""}</nav>
-        <header class="phead">
-          ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
-          <h1>${esc(p.title)}</h1>
-          <p class="lede">${esc(p.summary)}</p>
-          <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>by <strong>${esc(p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Visited and verified</span>` : ""}</div>
-        </header>
         <div class="layout">
           <div style="min-width:0">
-            <div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.cover ? "" : "Cover photo", 1400)}</div>
+            <div class="hero-wrap">
+              <div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.cover ? "" : "Cover photo", 1400)}</div>
+              <div class="glance">
+                <button type="button" class="glance-btn" aria-label="Project at a glance" aria-expanded="false" aria-controls="glance-card" title="Project at a glance"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></button>
+                <div class="panel glance-card" id="glance-card">
+                  <h2>Project at a glance</h2>
+                  <dl class="facts">
+                    ${p.status ? `<dt>Status</dt><dd>${esc(p.status)}</dd>` : ""}
+                    ${p.location ? `<dt>Location</dt><dd>${esc(p.location)}</dd>` : ""}
+                    ${p.started ? `<dt>Started</dt><dd>${esc(p.started)}</dd>` : ""}
+                    ${p.reach ? `<dt>Reach</dt><dd>${esc(p.reach)}</dd>` : ""}
+                  </dl>
+                  ${(p.impact || []).length ? `<div class="stats">${p.impact.map(s => `<div class="stat"><b>${esc(s.value)}</b><span>${esc(s.label)}</span></div>`).join("")}</div>` : ""}
+                </div>
+              </div>
+            </div>
+            <header class="phead">
+              ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
+              <h1>${esc(p.title)}</h1>
+              <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>by <strong>${esc(p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Visited and verified</span>` : ""}</div>
+            </header>
             ${ringPanel("only-narrow")}
             ${stageNum(p) === 3 ? "" : `<div class="only-narrow">${budgetBoxHTML(p, site, false)}</div>`}
             <div class="tabs" role="tablist">
@@ -1351,16 +1943,6 @@
           <aside class="side">
             ${ringPanel("only-wide")}
             ${stageNum(p) === 3 ? "" : `<div class="only-wide">${budgetBoxHTML(p, site, false)}</div>`}
-            <div class="panel">
-              <h2>Project at a glance</h2>
-              <dl class="facts">
-                ${p.status ? `<dt>Status</dt><dd>${esc(p.status)}</dd>` : ""}
-                ${p.location ? `<dt>Location</dt><dd>${esc(p.location)}</dd>` : ""}
-                ${p.started ? `<dt>Started</dt><dd>${esc(p.started)}</dd>` : ""}
-                ${p.reach ? `<dt>Reach</dt><dd>${esc(p.reach)}</dd>` : ""}
-              </dl>
-              ${(p.impact || []).length ? `<div class="stats">${p.impact.map(s => `<div class="stat"><b>${esc(s.value)}</b><span>${esc(s.label)}</span></div>`).join("")}</div>` : ""}
-            </div>
             ${journeyHTML(p, full)}
             ${signupHTML(slugOf(p), "Follow this project")}
             <a class="btn ghost" href="/initiated">Back to all projects</a>
@@ -1368,6 +1950,10 @@
         </div>`;
       wireForms(app);
       app.querySelectorAll(".tab").forEach(b => b.onclick = () => { draw(b.dataset.t); history.replaceState(null, "", "#" + b.dataset.t); });
+      wireTale(app, taleOpen, v => { taleOpen = v; });
+      wireGo(app);
+      wireDonate(app, slugOf(p));
+      wireGlance(app);
       app.querySelectorAll(".photos button").forEach(b => b.onclick = () => {
         const lb = document.createElement("div");
         lb.className = "lightbox"; lb.innerHTML = `<img src="${esc(b.dataset.src)}" alt="">`;
@@ -1375,7 +1961,7 @@
       });
     };
     const start = location.hash.slice(1);
-    draw(tabs.some(([k]) => k === start) ? start : "story");
+    draw(tabs.some(([k]) => k === start) ? start : tabs[0][0]);
   }
 
   function renderPrivacy(app, site) {
@@ -1397,9 +1983,12 @@
     nav.addEventListener("click", e => { if (e.target.closest("a")) { menuBtn.setAttribute("aria-expanded", "false"); nav.classList.remove("open"); } });
   }
 
-  // Links from team-portal emails (invite, password reset, confirmation) land on the site; send them to the portal.
-  if (/(invite_token|recovery_token|confirmation_token|email_change_token)=/.test(location.hash) && !/^\/portal/.test(location.pathname)) {
+  // Links from Identity emails land on the site. Team invites and email changes go to the portal;
+  // sign-up confirmations and password resets go to the members page (it links team members on to the portal).
+  if (/(invite_token|email_change_token)=/.test(location.hash) && !/^\/portal/.test(location.pathname)) {
     location.replace("/portal" + location.hash);
+  } else if (/(recovery_token|confirmation_token)=/.test(location.hash) && !/^\/(portal|members|ta\/members)/.test(location.pathname)) {
+    location.replace("/members" + location.hash);
   }
 
   async function main() {
@@ -1475,10 +2064,13 @@
         // "Create a Moment" (the Initiate form): live letter count and the pick-several "Project Focus" box.
         document.title = `Create a Moment · ${site.name}`;
         // The banner title rotates through the "create" slogans (Site settings); a first visit starts on the first one.
-        const mt = document.querySelector("[data-moment-title]"), SL = ((site.slogans || {}).create || []).filter(x => x && x.key);
+        const mt = document.querySelector("[data-moment-title]"), SL = ((site.slogans || {})[(mt && mt.dataset.momentTitle) || "create"] || (site.slogans || {}).create || []).filter(x => x && x.key);
         if (mt && SL.length) {
           let i = 0; try { const n = +localStorage.getItem("raav-slogan"); if (n >= 0 && isFinite(n) && localStorage.getItem("raav-slogan") !== null) i = (n + 1) % SL.length; localStorage.setItem("raav-slogan", String(i)); } catch (e) {}
-          const put = k => { const x = SL[k]; mt.innerHTML = `<span class="mt-lead">${esc(x.lead || "")}</span><span class="mt-key">${esc(x.key)}</span>`; };
+          // Each slogan shows with its own picture in the slideshow behind it.
+          const slides = [...document.querySelectorAll("[data-moment-slides] img")];
+          const put = k => { const x = SL[k]; mt.innerHTML = `<span class="mt-lead">${esc(x.lead || "")}</span><span class="mt-key">${esc(x.key)}</span>`;
+            slides.forEach((im, j) => im.classList.toggle("on", slides.length && j === k % slides.length)); };
           put(i);
           if (SL.length > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) setInterval(() => {
             if (document.hidden) return;
@@ -1638,6 +2230,18 @@
       } else if (page === "welcome") {
         document.title = site.name;
         renderWelcome(app, site);
+      } else if (page === "front") {
+        document.title = site.name;
+        renderFront(app, site, projects);
+      } else if (page === "front-2") {
+        document.title = site.name;
+        await renderLane(app, site, projects, data.projects);
+      } else if (page === "members") {
+        document.title = `Members · ${site.name}`;
+        await (await import("/members.js")).render(app, site);
+      } else if (page === "create") {
+        document.title = `Make a Smile Happen · ${site.name}`;
+        renderCreate(app, site, projects);
       } else {
         document.title = site.name;
         renderHome(app, site, projects);
