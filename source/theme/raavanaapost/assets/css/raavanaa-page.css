@@ -301,3 +301,8 @@
 .rorg .rp-hl__dots button[aria-current="true"]{width:24px;border-radius:5px;background:#f6b23c}
 @media (max-width:600px){.rorg .rp-hl{min-height:120px;padding:26px 14px 12px}.rorg .rp-hl__line{left:14px;right:14px;bottom:30px;font-size:17px}.rorg .rp-hl__dots{left:14px;right:auto;bottom:12px}}
 @media (prefers-reduced-motion:reduce){.rorg .rp-hl__line{transition:none}}
+/* Small Donate button on the picture of Initiated stories. */
+.rorg .rp-donate-pic{position:absolute;top:12px;left:12px;z-index:5}
+.rorg .rp-donate-pic .rp-donate{width:auto;margin:0;padding:7px 14px 7px 11px;gap:6px;border-radius:999px;font-size:14px;box-shadow:0 4px 14px -4px rgba(200,56,30,.7)}
+.rorg .rp-donate-pic .rp-donate svg{width:15px;height:15px}
+.rorg .rp-mk-pane .rp-donate{width:auto;justify-self:start;margin-top:4px;padding:9px 18px 9px 14px;border-radius:999px;font-size:15px}

@@ -298,7 +298,12 @@ function rp_rorg_go_panel( $p, $cls ) {
 	}
 	return '<div class="panel activating go100 ' . $cls . '" data-pct="' . $pct . '" data-raw="' . $raw . '"><p class="go-kicker">Activating</p>'
 		. '<h2 class="go-title">Help ' . ( $kids ? esc_html( $kids[0] ) . ' children' : 'these children' ) . ' laugh. <span>Let\'s take this to 100%.</span></h2>'
-		. '<div class="ring-row">' . ( $ring ? $ring[0] : '' ) . '<ul class="ring-steps">' . $items . '</ul></div>' . ( $pct < 100 ? $donate : '' ) . $form . '</div>';
+		. '<div class="ring-row">' . ( $ring ? $ring[0] : '' ) . '<ul class="ring-steps">' . $items . '</ul></div>' . $form . '</div>';
+}
+
+/** The small Donate button on the picture of an Initiated story (SURESH, 6 Nov 2026). */
+function rp_rorg_donate_btn() {
+	return '<button class="rp-donate" type="button" data-donate><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg><span>Donate</span></button>';
 }
 
 /** The Donate pop-up: no donations during the pilot; join, sign up and follow instead. */

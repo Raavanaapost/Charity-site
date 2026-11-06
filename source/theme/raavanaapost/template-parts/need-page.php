@@ -122,6 +122,7 @@ $box = function ( $cls ) use ( $p, $st ) {
 							<?php endif; ?>
 						</div>
 					<?php endif; ?>
+					<?php echo 1 === $st ? '<div class="rp-donate-pic">' . rp_rorg_donate_btn() . '</div>' : ''; // phpcs:ignore ?>
 					<?php echo rp_rorg_glance( $p ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 				</div>
 				<div class="only-narrow"><?php echo $top; // phpcs:ignore ?></div>
