@@ -1952,3 +1952,8 @@ html[lang="ta"] .lane-label{font-size:clamp(12px,1.6vw,15px)}html[lang="ta"] .la
 .give-thanks p{margin:0;font-size:17px}
 .give-thanks .btn{max-width:320px}
 .give-heart{font-size:44px;color:var(--flame);line-height:1}
+.jr-cta{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 12px;border:0;border-radius:999px;background:linear-gradient(135deg,#e2552b,#c8381e);color:#fff;font:700 12.5px/1.2 var(--display);cursor:pointer;box-shadow:0 4px 12px -4px rgba(200,56,30,.6);text-align:left}
+.jr-cta svg{flex:none;animation:jrbeat 1.6s ease-in-out infinite}
+@keyframes jrbeat{0%,100%{transform:scale(1)}15%{transform:scale(1.25)}30%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.jr-cta svg{animation:none}}
+.journey li span{display:grid;justify-items:start}

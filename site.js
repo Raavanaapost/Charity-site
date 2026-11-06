@@ -1836,7 +1836,9 @@
     S.filter(x => st === 3 || x.g === 1).forEach((x, k) => {
       if (x.g !== g) { g = x.g; html += `${k ? "</ol>" : ""}<p class="jr-g jr-g${g}">${G[g]}</p><ol class="jr">`; }
       const state = x.done ? "done" : k === now ? "now" : "next", info = [x.who && esc(x.who), x.when && d(x.when)].filter(Boolean).join(" · ");
-      html += `<li class="${state} jr${x.g}"><i aria-hidden="true">${x.done ? "✓" : ""}</i><span><b>${x.label}</b>${info ? `<small>${info}</small>` : state === "now" ? "<small>In progress</small>" : ""}</span></li>`;
+      // The funding step, while it is the current one, gets a small "Make it happen" nudge (SURESH, 6 Nov 2026).
+      const cta = state === "now" && x.label === "Fully funded" && st === 1 && !p.sample ? `<button type="button" class="jr-cta" data-fund><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>Be the reason they smile. Make it happen</button>` : "";
+      html += `<li class="${state} jr${x.g}"><i aria-hidden="true">${x.done ? "✓" : ""}</i><span><b>${x.label}</b>${info ? `<small>${info}</small>` : state === "now" ? "<small>In progress</small>" : ""}${cta}</span></li>`;
     });
     return `<div class="panel journey"><h2>The journey</h2>${html}</ol></div>`;
   }
@@ -1972,6 +1974,12 @@
       wireGo(app);
       wireDonate(app, slugOf(p));
       wireGlance(app);
+      app.querySelectorAll("[data-fund]").forEach(b => b.addEventListener("click", () => {
+        const g = [...app.querySelectorAll(".go100")].find(x => x.offsetParent !== null); if (!g) return;
+        const open = g.querySelector(".go-open"); if (open && open.getAttribute("aria-expanded") !== "true") open.click();
+        const t = g.querySelector("[data-mk=donate]") || g.querySelector(".go-make") || g; if (t.matches && t.matches("[data-mk]")) t.click();
+        (g.querySelector(".go-make") || g).scrollIntoView({ block: "center", behavior: "smooth" });
+      }));
       app.querySelectorAll(".photos button").forEach(b => b.onclick = () => {
         const lb = document.createElement("div");
         lb.className = "lightbox"; lb.innerHTML = `<img src="${esc(b.dataset.src)}" alt="">`;
