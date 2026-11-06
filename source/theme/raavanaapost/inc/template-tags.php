@@ -197,13 +197,21 @@ function rp_tracker( $post = null, $tone = 'dark' ) {
 	$at    = (int) array_search( $stage, $keys, true );
 	printf( '<div class="rp-track rp-track--%s rp-track--at-%d">', esc_attr( $tone ), (int) $at );
 	echo '<ol class="rp-track__steps" aria-label="' . esc_attr__( 'Where this need stands', 'raavanaapost' ) . '">';
+	// A small drawing for each stage: a sprout (Initiated), a heart (Activated), a crown (Impact).
+	$icons = array(
+		'reported' => '<path d="M12 21v-8"/><path d="M12 13c0-4-3-6-7-6 0 4 3 6 7 6z"/><path d="M12 11c0-3.5 2.5-5.5 6.5-5.5 0 3.5-2.5 5.5-6.5 5.5z"/>',
+		'help'     => '<path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/>',
+		'solved'   => '<path d="M4 18h16"/><path d="M5 15.5 3.5 7l5 3.5L12 5l3.5 5.5 5-3.5-1.5 8.5z"/>',
+	);
 	foreach ( $keys as $i => $key ) {
 		$class = $i < $at ? 'is-done' : ( $i === $at ? 'is-current' : 'is-next' );
 		printf(
-			'<li class="%s"%s><i aria-hidden="true"></i><span>%s</span></li>',
+			'<li class="%s"%s><i aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" focusable="false">%s</svg></i><span>%s</span>%s</li>',
 			esc_attr( $class ),
 			$i === $at ? ' aria-current="step"' : '',
-			esc_html( $steps[ $key ] )
+			isset( $icons[ $key ] ) ? $icons[ $key ] : '', // phpcs:ignore WordPress.Security.EscapeOutput
+			esc_html( $steps[ $key ] ),
+			$i === $at ? '<em>' . esc_html__( 'Now', 'raavanaapost' ) . '</em>' : ''
 		);
 	}
 	echo '</ol></div>';

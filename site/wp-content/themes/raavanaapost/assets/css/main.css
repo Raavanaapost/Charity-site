@@ -448,29 +448,43 @@ a:hover { color: var(--rp-orange); text-decoration: underline; text-underline-of
 .rp-tabs a[aria-current="page"] span { color: var(--rp-green); }
 
 /* Tracker: three diamonds, like the jewels on the crown. */
+/* Need tracker: a badge with a small drawing for each stage; the current stage stands out. */
 .rp-track { position: relative; padding-top: 1px; }
-.rp-track::before, .rp-track::after { content: ""; position: absolute; top: 8px; left: 8px; height: 2px; }
-.rp-track::before { right: 8px; background: #3E6B50; }
+.rp-track::before, .rp-track::after { content: ""; position: absolute; top: 29px; left: 28px; height: 3px; border-radius: 3px; }
+.rp-track::before { right: 28px; background: #3E6B50; }
 .rp-track::after { width: 0; background: var(--rp-gold-light); }
-.rp-track--at-1::after { width: calc(50% - 8px); }
-.rp-track--at-2::after { width: calc(100% - 16px); }
+.rp-track--at-1::after { width: calc(50% - 28px); }
+.rp-track--at-2::after { width: calc(100% - 56px); }
 .rp-track__steps { position: relative; z-index: 1; display: flex; justify-content: space-between; margin: 0; padding: 0; list-style: none; }
-.rp-track__steps li { display: flex; flex-direction: column; gap: 9px; color: #fff; font-size: 13px; font-weight: 700; line-height: 1.2; }
+.rp-track__steps li { display: flex; flex-direction: column; gap: 8px; min-width: 76px; color: #fff; font-family: var(--rp-display); font-size: 14px; font-weight: 700; line-height: 1.2; }
 .rp-track__steps li:nth-child(1) { align-items: flex-start; }
 .rp-track__steps li:nth-child(2) { align-items: center; text-align: center; }
 .rp-track__steps li:nth-child(3) { align-items: flex-end; text-align: right; }
-.rp-track__steps i { display: block; width: 12px; height: 12px; margin: 2px; background: var(--rp-gold-light); transform: rotate(45deg); }
-.rp-track__steps .is-current i { background: var(--rp-ruby); box-shadow: 0 0 0 2px var(--rp-gold-light), 0 0 0 7px rgba(227, 181, 74, 0.22); }
-.rp-track__steps .is-next { color: var(--rp-sage); font-weight: 600; }
-.rp-track__steps .is-next i { background: var(--rp-green-2); box-shadow: inset 0 0 0 2px var(--rp-sage); }
+.rp-track__steps i { display: grid; place-items: center; width: 44px; height: 44px; margin: 8px 6px 0; border-radius: 50%; color: var(--rp-green-3); background: var(--rp-gold-light); }
+.rp-track__steps i svg { width: 22px; height: 22px; }
+.rp-track__steps .is-current i {
+	width: 58px; height: 58px; margin: 1px 0 0; color: #fff;
+	background: radial-gradient(circle at 35% 30%, #F08A3C, var(--rp-orange) 70%);
+	box-shadow: 0 0 0 3px var(--rp-gold-light), 0 0 0 9px rgba(227, 181, 74, 0.25), 0 6px 16px rgba(184, 68, 10, 0.35);
+}
+.rp-track__steps .is-current i svg { width: 28px; height: 28px; }
+.rp-track__steps .is-current span { color: var(--rp-gold-light); font-size: 17px; }
+.rp-track__steps em {
+	display: inline-block; padding: 2px 9px; border-radius: 999px; color: var(--rp-green-3); background: var(--rp-gold-light);
+	font-family: var(--rp-text); font-size: 11px; font-style: normal; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.rp-track__steps .is-next { color: var(--rp-sage); font-weight: 400; }
+.rp-track__steps .is-next i { color: var(--rp-sage); background: var(--rp-green-2); box-shadow: inset 0 0 0 2px var(--rp-sage); }
 
 .rp-track--light::before { background: #D3DDD6; }
 .rp-track--light::after { background: var(--rp-gold); }
 .rp-track--light .rp-track__steps li { color: var(--rp-ink); }
-.rp-track--light .rp-track__steps i { background: var(--rp-gold); }
-.rp-track--light .rp-track__steps .is-current i { background: var(--rp-orange); box-shadow: 0 0 0 2px var(--rp-gold), 0 0 0 7px rgba(201, 138, 30, 0.2); }
+.rp-track--light .rp-track__steps i { color: #fff; background: var(--rp-gold); }
+.rp-track--light .rp-track__steps .is-current i { background: radial-gradient(circle at 35% 30%, #F08A3C, var(--rp-orange) 70%); box-shadow: 0 0 0 3px var(--rp-gold), 0 0 0 9px rgba(201, 138, 30, 0.2), 0 6px 16px rgba(184, 68, 10, 0.3); }
+.rp-track--light .rp-track__steps .is-current span { color: var(--rp-orange); }
+.rp-track--light .rp-track__steps em { color: #fff; background: var(--rp-orange); }
 .rp-track--light .rp-track__steps .is-next { color: var(--rp-muted); }
-.rp-track--light .rp-track__steps .is-next i { background: #fff; box-shadow: inset 0 0 0 2px #93A99A; }
+.rp-track--light .rp-track__steps .is-next i { color: #93A99A; background: #fff; box-shadow: inset 0 0 0 2px #C9D5CC; }
 
 /* ---------- Voices ---------- */
 
