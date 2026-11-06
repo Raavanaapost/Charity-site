@@ -1201,7 +1201,7 @@
     const st = stageNum(p);
     if (st === 1) return [
       { name: "Visited and verified", done: p.verified ? 1 : 0, c: "#1f7a47" },
-      { name: "Budget ready", done: goal > 0 ? 1 : 0, c: "#3f9a5f" },
+      { name: "Budgeted", done: goal > 0 ? 1 : 0, c: "#3f9a5f" },
       { name: "Funded", done: goal > 0 ? Math.min(1, raised / goal) : 0, c: "#eaa21c", pctLabel: true }
     ];
     if (st === 2) return [
@@ -1218,9 +1218,11 @@
       { name: "Expectations reviewed", done: !ex.length ? 0 : ex.filter(x => x.result).length / ex.length, c: "#c8381e" }
     ];
   }
-  const ringPercent = p => (st => Math.round(st.reduce((s, x) => s + x.done, 0) / st.length * 100))(ringSteps(p));
+  // Initiated: the % is only how much is funded so far; verified and budgeted are shown as ticks but do not count (SURESH, 6 Nov 2026).
+  const ringArcs = p => stageNum(p) === 1 ? ringSteps(p).filter(x => x.name === "Funded") : ringSteps(p);
+  const ringPercent = p => (st => Math.round(st.reduce((s, x) => s + x.done, 0) / st.length * 100))(ringArcs(p));
   const RING_TEXT = {
-    1: { h: "Activating", l: "ACTIVATING", done: "ACTIVATED", aria: "of the way to being activated" },
+    1: { h: "Activating", l: "FUNDED", done: "ACTIVATED", aria: "funded so far" },
     2: { h: "Preparing the day", l: "PREPARING", done: "READY", aria: "of the preparations done" },
     3: { h: "Delivered", l: "REPORTING", done: "DELIVERED", aria: "of the results reported" }
   };
@@ -1246,10 +1248,10 @@
     const steps = ringSteps(p), T = RING_TEXT[stageNum(p)];
     const ringPct = ringPercent(p);
     const ringSVG = () => {
-      const n = steps.length, gap = n > 5 ? 16 : 20, len = 360 / n - gap; // the rounded ends eat most of the gap
+      const arcs = ringArcs(p), n = arcs.length, gap = n === 1 ? 0 : n > 5 ? 16 : 20, len = 360 / n - gap; // the rounded ends eat most of the gap
       const arc = (start, l, c, o) => l > 0.01 ? `<circle cx="60" cy="60" r="48" fill="none" stroke="${c}" stroke-opacity="${o}" stroke-width="13" stroke-linecap="round" pathLength="360" stroke-dasharray="${l.toFixed(2)} ${(360 - l).toFixed(2)}" stroke-dashoffset="${(-start).toFixed(2)}"/>` : "";
       return `<svg class="ring" viewBox="0 0 120 120" role="img" aria-label="${ringPct}% ${T.aria}">
-        <g transform="rotate(-90 60 60)">${steps.map((x, k) => { const start = k * (len + gap) + gap / 2; return arc(start, len, x.c, .18) + arc(start, len * x.done, x.c, 1); }).join("")}</g>
+        <g transform="rotate(-90 60 60)">${arcs.map((x, k) => { const start = k * (len + gap) + gap / 2; return arc(start, len, x.c, .18) + arc(start, len * x.done, x.c, 1); }).join("")}</g>
         <text x="60" y="${ringPct === 100 ? 60 : 62}" text-anchor="middle" class="ring-n">${ringPct}%</text>
         <text x="60" y="${ringPct === 100 ? 77 : 78}" text-anchor="middle" class="ring-l">${ringPct === 100 ? T.done : T.l}</text>
       </svg>`;
@@ -1269,7 +1271,7 @@
   // No payment here: people send a note and the team gets back to them.
   function goPanelHTML(p, site, cls) {
     const steps = ringSteps(p), pct = ringPercent(p), b = budgetOf(p), money = n => moneyOf(site, n, p);
-    const kids = String(p.reach || "").match(/\d+/), slice = 100 / steps.length, id = cls.replace(/\W/g, "");
+    const kids = String(p.reach || "").match(/\d+/), slice = 100 / ringArcs(p).length, id = cls.replace(/\W/g, "");
     const need = Math.max(0, b.goal - b.raised);
     const say = [
       d => d ? "Our team visited and saw the need for themselves." : "Our team visits to make sure the need is real. Know this place? Tell us below.",
@@ -1278,7 +1280,7 @@
     ];
     const WAYS = ["Give something the day needs (a van, food, gifts)", "Help on the day", "Share it with friends"];
     const ring = activatingPanelHTML(p, "").match(/<svg class="ring"[\s\S]*?<\/svg>/)[0];
-    const raw = steps.reduce((t, x) => t + Math.min(1, x.done), 0) * slice;
+    const raw = ringArcs(p).reduce((t, x) => t + Math.min(1, x.done), 0) * slice;
     return `<div class="panel activating go100 ${cls}" data-pct="${pct}" data-raw="${raw}">
         <p class="go-kicker">Activating</p>
         <h2 class="go-title">Help ${kids ? kids[0] + " children" : "these children"} laugh. <span>Let's take this to 100%.</span></h2>
@@ -1837,7 +1839,7 @@
       if (x.g !== g) { g = x.g; html += `${k ? "</ol>" : ""}<p class="jr-g jr-g${g}">${G[g]}</p><ol class="jr">`; }
       const state = x.done ? "done" : k === now ? "now" : "next", info = [x.who && esc(x.who), x.when && d(x.when)].filter(Boolean).join(" · ");
       // The funding step, while it is the current one, gets a small "Make it happen" nudge (SURESH, 6 Nov 2026).
-      const cta = state === "now" && x.label === "Fully funded" && st === 1 && !p.sample ? `<button type="button" class="jr-cta" data-fund><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>Be the reason they smile. Make it happen</button>` : "";
+      const cta = state === "now" && x.label === "Fully funded" && st === 1 && !p.sample ? `<span class="jr-nudge"><svg class="jr-arrow" viewBox="0 0 56 34" width="44" height="27" aria-hidden="true"><path class="jr-arrow-line" d="M5 3c2 15 14 24 40 22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" pathLength="100"/><path class="jr-arrow-head" d="M37 17l9 8-10 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><button type="button" class="jr-cta" data-fund><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>Be the reason they smile. Make it happen</button></span>` : "";
       html += `<li class="${state} jr${x.g}"><i aria-hidden="true">${x.done ? "✓" : ""}</i><span><b>${x.label}</b>${info ? `<small>${info}</small>` : state === "now" ? "<small>In progress</small>" : ""}${cta}</span></li>`;
     });
     return `<div class="panel journey"><h2>The journey</h2>${html}</ol></div>`;
