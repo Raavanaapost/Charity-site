@@ -229,16 +229,15 @@
 .rorg .ptale-text{max-height:none;-webkit-mask-image:none;mask-image:none}
 .rorg .ptale:not(.open) .ptale-rest{display:none}
 .rorg .ptale:not(.open) .ptale-text p{margin:0 0 .4em}
-.rorg .ptale-text > p:first-child::first-letter{float:left;margin:6px 10px 0 0;color:var(--rp-orange);font-family:var(--rp-display);font-size:3.6em;font-weight:700;line-height:.8}
 .rorg .ptale-text img{max-width:100%;height:auto;border-radius:8px}
 .rorg .ptale-text figure{margin:18px 0}
 .rorg .ptale-text figcaption{color:var(--muted);font-size:14px;padding-top:6px}
 /* "Project at a glance" opens from the icon on the picture. */
 .rorg .hero-wrap{position:relative}
-.rorg .glance{position:absolute;top:12px;right:12px;z-index:5;display:flex;flex-direction:column;align-items:flex-end}
-.rorg .glance-btn{display:inline-grid;place-items:center;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.94);color:var(--brand);box-shadow:0 2px 10px rgba(0,0,0,.18);font:700 14px/1 var(--display);cursor:pointer}
+.rorg .glance{position:relative;display:inline-flex}
+.rorg .glance-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border:1px solid var(--line,#e3dccb);border-radius:999px;background:var(--rp-ivory,#fffaf0);color:var(--rp-green,#1f4d36);font:600 13px/1 var(--display);cursor:pointer}
 .rorg .glance-btn svg{color:var(--rp-orange,#b8440a)}
-.rorg .glance-card{display:none;width:min(320px,calc(100vw - 56px));margin-top:8px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.rorg .glance-card{display:none;position:absolute;top:calc(100% + 8px);left:0;z-index:20;width:min(320px,calc(100vw - 40px));box-shadow:0 10px 30px rgba(0,0,0,.2)}
 .rorg .glance.is-open .glance-card{display:block}
 @media (hover:hover){.rorg .glance:hover .glance-card{display:block}}
 .rorg .glance.is-shut .glance-card{display:none}

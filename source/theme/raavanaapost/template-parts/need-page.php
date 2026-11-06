@@ -92,6 +92,11 @@ $box = function ( $cls ) use ( $p, $st ) {
 		<nav class="crumbs"><?php if ( $cat ) : ?><a href="<?php echo esc_url( get_category_link( $cat ) ); ?>"><?php echo esc_html( $cat->name ); ?></a><?php endif; ?><?php echo ! empty( $p['theme'] ) ? ' / ' . esc_html( $p['theme'] ) : ''; ?></nav>
 		<div class="layout">
 			<div style="min-width:0">
+				<header class="phead">
+					<?php if ( ! empty( $p['theme'] ) ) : ?><span class="tag"><?php echo esc_html( $p['theme'] ); ?></span><?php endif; ?>
+					<h1 class="rp-article__title"><?php the_title(); ?></h1>
+					<div class="byline"><span class="avatar">RP</span><span>by <strong><?php echo esc_html( rp_byline() ); ?></strong> · <time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time><?php echo $place ? ' · ' . esc_html( $place ) : ''; ?></span><?php if ( ! empty( $p['verified'] ) ) : ?><span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Visited and verified</span><?php endif; ?><?php echo rp_rorg_glance( $p ); // phpcs:ignore ?></div>
+				</header>
 				<div class="hero-wrap">
 					<div class="hero cover">
 						<?php
@@ -102,28 +107,7 @@ $box = function ( $cls ) use ( $p, $st ) {
 						}
 						?>
 					</div>
-					<?php
-					// Story highlights, taking turns on the picture (SURESH, 6 Nov 2026).
-					$hl = json_decode( (string) get_post_meta( get_the_ID(), 'rp_highlights', true ), true );
-					if ( is_array( $hl ) && $hl ) :
-						?>
-						<div class="rp-hl" aria-label="Story highlights">
-							<?php foreach ( array_values( $hl ) as $k => $line ) : ?>
-								<p class="rp-hl__line<?php echo 0 === $k ? ' is-on' : ''; ?>"<?php echo $k ? ' aria-hidden="true"' : ''; ?>><?php echo esc_html( $line ); ?></p>
-							<?php endforeach; ?>
-							<?php if ( count( $hl ) > 1 ) : ?>
-								<span class="rp-hl__dots"><?php foreach ( array_values( $hl ) as $k => $line ) : ?><button type="button" aria-label="Highlight <?php echo (int) $k + 1; ?>"<?php echo 0 === $k ? ' aria-current="true"' : ''; ?>></button><?php endforeach; ?></span>
-							<?php endif; ?>
-						</div>
-					<?php endif; ?>
-					<?php echo rp_rorg_glance( $p ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 				</div>
-				<header class="phead">
-					<?php if ( ! empty( $p['theme'] ) ) : ?><span class="tag"><?php echo esc_html( $p['theme'] ); ?></span><?php endif; ?>
-					<h1 class="rp-article__title"><?php the_title(); ?></h1>
-					<?php if ( has_excerpt() ) : ?><p class="lede"><?php echo esc_html( get_the_excerpt() ); ?></p><?php endif; ?>
-					<div class="byline"><span class="avatar">RP</span><span>by <strong><?php echo esc_html( rp_byline() ); ?></strong> · <time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time><?php echo $place ? ' · ' . esc_html( $place ) : ''; ?></span><?php if ( ! empty( $p['verified'] ) ) : ?><span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Visited and verified</span><?php endif; ?></div>
-				</header>
 				<div class="only-narrow"><?php echo $top; // phpcs:ignore ?></div>
 				<?php echo $box( 'only-narrow' ); // phpcs:ignore ?>
 				<div class="tabs" role="tablist">

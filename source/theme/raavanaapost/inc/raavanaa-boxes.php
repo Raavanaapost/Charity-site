@@ -408,7 +408,7 @@ function rp_rorg_glance( $p ) {
 			$stats .= '<div class="stat"><b>' . esc_html( $s['value'] ) . '</b><span>' . esc_html( $s['label'] ?? '' ) . '</span></div>';
 		}
 	}
-	return '<div class="glance"><button type="button" class="glance-btn" aria-label="Project at a glance" aria-expanded="false" aria-controls="rp-glance" title="Project at a glance"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></button>'
+	return '<div class="glance"><button type="button" class="glance-btn" aria-expanded="false" aria-controls="rp-glance"><span>At a glance</span><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>'
 		. '<div class="panel glance-card" id="rp-glance"><h2>Project at a glance</h2><dl class="facts">' . $rows . '</dl>' . ( $stats ? '<div class="stats">' . $stats . '</div>' : '' ) . '</div></div>';
 }
 
