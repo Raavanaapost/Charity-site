@@ -44,8 +44,23 @@ export async function render(app, site) {
   return signedOut(app, site, new URLSearchParams(location.search).get("join") !== null ? "join" : "login");
 }
 
-const header = (eyebrow, title, sub) => `<span class="eyebrow">${esc(eyebrow)}</span>
-  <h1 class="follow-title">${title}</h1>${sub ? `<p class="lede">${esc(sub)}</p>` : ""}`;
+const header = (eyebrow, title, sub) => `<div class="m-head"><span class="m-ribbon">${esc(eyebrow)}</span>
+  <h1 class="m-title">${title}</h1>${sub ? `<p class="lede">${esc(sub)}</p>` : ""}</div>`;
+// The bridge picture from the Raavanaa Community poster, with its line underneath.
+const hero = (small = false) => `<figure class="m-hero${small ? " small" : ""}">
+    <picture><source srcset="/img/members-bridge.webp" type="image/webp"><img src="/img/members-bridge.jpg" alt="Neighbours crossing a little bridge to help each other: carrying food, a box, a hand for an elder." width="941" height="395"></picture>
+    ${small ? "" : `<figcaption>A bridge between people who need a hand<br>and people ready to give one.</figcaption>`}
+  </figure>`;
+const ICONS = {
+  join: '<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="16" r="8"/><path d="M8 42c2-9 8-14 16-14s14 5 16 14"/></svg>',
+  give: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 22s-9-6-9-12a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6-9 12-9 12z" class="fill"/><path d="M6 34c6-4 12-4 18 0h10c2 0 2 4 0 4H22"/><path d="M6 42h24l12-8c2-2 0-5-3-4l-9 5"/></svg>',
+  see: '<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="9" y="6" width="26" height="34" rx="3"/><path d="M15 32v-6M21 32V20M27 32v-9"/><circle cx="36" cy="36" r="7" class="fill"/><path d="M33 36l2 2 4-4" class="tick"/></svg>'
+};
+const steps = () => `<ol class="m-steps">
+    <li>${ICONS.join}<b>Join</b><span>Make a free account in a minute.</span></li>
+    <li>${ICONS.give}<b>Give openly</b><span>Soon: give by card. Every cost is shown clearly.</span></li>
+    <li>${ICONS.see}<b>See results</b><span>Your gifts, receipts and the smiles they made, in one place.</span></li>
+  </ol>`;
 
 async function signedOut(app, site, mode = "login", msg = "") {
   let settings = { disableSignup: true, providers: {} };
@@ -55,9 +70,10 @@ async function signedOut(app, site, mode = "login", msg = "") {
   const google = settings.providers && settings.providers.google;
   const join = mode === "join";
   app.innerHTML = `<section class="intro about-page member-page">
-    ${header("Members", join ? "Join <span class=\"org\">Raavanaa</span>" : "Member <span class=\"org\">sign in</span>",
+    ${header("Members", join ? "Join <span class=\"org\">Raavanaa</span> Community" : "Welcome <span class=\"org\">back</span>",
       join ? "Make an account now, and soon you will see your gifts and receipts in one place."
            : "Sign in to see your account. You do not need an account to read about our projects.")}
+    ${hero()}
     <div class="member-grid">
       <form class="panel form member-card" id="m-form" novalidate>
         ${canJoin ? `<div class="member-tabs" role="tablist">
@@ -74,12 +90,8 @@ async function signedOut(app, site, mode = "login", msg = "") {
         <p class="note member-msg" role="status">${esc(msg)}</p>
       </form>
       <aside class="panel member-why">
-        <h2>What members get</h2>
-        <ul>
-          <li>Your own account page on raavanaa.org.</li>
-          <li>Soon: give by card, and see every gift and receipt here.</li>
-          <li>Your details filled in for you when you give or volunteer.</li>
-        </ul>
+        <h2>How it works for members</h2>
+        ${steps()}
         ${canJoin ? "" : `<p class="note">Joining is by invite while we get ready. Want to be one of the first? <a href="${onTa ? "/ta" : ""}/contact">Contact us</a>.</p>`}
         <p class="note">Part of the Raavanaa team? Use the <a href="/portal">team portal</a>.</p>
       </aside>
@@ -144,6 +156,7 @@ async function account(app, site, msg = "") {
   const since = me.createdAt ? new Date(me.createdAt).toLocaleDateString("en-GB", { month: "long", year: "numeric" }) : "";
   app.innerHTML = `<section class="intro about-page member-page">
     ${header("My account", `Welcome, <span class="org">${esc(name)}</span>`, since ? `Member since ${since}.` : "")}
+    ${hero(true)}
     ${msg ? `<p class="member-flash" role="status">${esc(msg)}</p>` : ""}
     <div class="member-grid">
       <section class="panel member-card">
