@@ -168,6 +168,13 @@ $box = function ( $cls ) use ( $p, $st ) {
 				});
 			});
 		});
+		/* After a form is sent, Netlify brings the reader back here with ?sent=1 or ?followed=1: say thank you. */
+		var q = location.search;
+		if (/[?&](sent|followed)=1/.test(q)) {
+			var t = document.createElement('p'); t.className = 'rp-thanks'; t.setAttribute('role', 'status');
+			t.textContent = /followed=1/.test(q) ? "Thank you! You're following this project. We'll tell you the moment you can give, and share every smile." : "Thank you! Your note is on its way. We'll be in touch soon, and you'll be part of a child's best day.";
+			a.querySelector('.phead').after(t);
+		}
 		a.querySelectorAll('.go100').forEach(function (g) {
 			var pct = +g.dataset.pct, n = g.querySelector('.ring-n'), l = g.querySelector('.ring-l'), lab = l ? l.textContent : '';
 			var setN = function (v, preview) { if (n) n.textContent = Math.round(v) + '%'; if (l) l.textContent = preview ? 'IF DONE' : lab; g.classList.toggle('previewing', !!preview); };

@@ -290,3 +290,4 @@
 .rorg .rp-pop__other button{border:0;background:none;color:var(--brand);font-family:var(--display);font-weight:700;font-size:15px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .rorg .go100.open > .rp-donate{display:none}
 .rorg .rp-mk-tabs button{white-space:nowrap;font-size:13.5px}
+.rorg .rp-thanks{margin:0 0 16px;padding:12px 16px;border-radius:12px;background:#e2efe6;color:#0f5132;font-family:var(--display);font-weight:700}
