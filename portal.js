@@ -589,7 +589,7 @@
   const STAGE = { 1: ["Initiated", "st-1"], 2: ["Activated", "st-2"], 3: ["Impact", "st-3"] };
   function ringSteps(p) {
     const b = budget(p), n = stageNum(p);
-    if (n === 1) return [["Visited and verified", p.verified ? 1 : 0, "verified"], ["Budget ready", b.goal > 0 ? 1 : 0, null], ["Funded", b.goal ? Math.min(1, b.raised / b.goal) : 0, null]];
+    if (n === 1) return [["Visited and verified", p.verified ? 1 : 0, "verified"], ["Budgeted", b.goal > 0 ? 1 : 0, null], ["Funded", b.goal ? Math.min(1, b.raised / b.goal) : 0, null]];
     if (n === 2) return [["Date confirmed", p.date_set ? 1 : 0, null], ["Place and transport booked", p.booked ? 1 : 0, null], ["Volunteers ready", p.volunteers ? 1 : 0, null],
       ...(p.steps || []).filter(x => x && x.name).map((x, k) => [x.name, x.done ? 1 : 0, "step:" + k])];
     const ex = (p.expectations || []).filter(x => x && x.text);
@@ -649,7 +649,7 @@
       checklist: `
         <p class="pt-sub" style="margin:0 0 10px">${n === 1 ? "Before a project can be Activated it must be visited and verified, and fully funded." : n === 2 ? 'What has to be ready before the day. These also tick themselves from <a href="#/day/' + esc(p.slug) + '">Day preparation</a>.' : "After the day: these fill in from the story, costs and expectations."}</p>
         <ul class="pt-checks">${ringSteps(p).map(([name, done, key]) => `<li class="${done >= 1 ? "done" : done > 0 ? "part" : ""}">
-          ${key ? `<label><input type="checkbox" data-ck="${key}" ${done >= 1 ? "checked" : ""}> <span>${esc(name)}</span></label>` : `<span class="pt-auto"><i>${done >= 1 ? "✓" : done > 0 ? Math.round(done * 100) + "%" : "–"}</i>${esc(name)}</span><small>${name === "Funded" ? "From received pledges" : name === "Budget ready" ? "From the Budget tab" : n === 2 ? '<a href="#/day/' + esc(p.slug) + '">From Day preparation</a>' : "Automatic"}</small>`}</li>`).join("")}</ul>
+          ${key ? `<label><input type="checkbox" data-ck="${key}" ${done >= 1 ? "checked" : ""}> <span>${esc(name)}</span></label>` : `<span class="pt-auto"><i>${done >= 1 ? "✓" : done > 0 ? Math.round(done * 100) + "%" : "–"}</i>${esc(name)}</span><small>${name === "Funded" ? "From received pledges" : name === "Budgeted" ? "From the Budget tab" : n === 2 ? '<a href="#/day/' + esc(p.slug) + '">From Day preparation</a>' : "Automatic"}</small>`}</li>`).join("")}</ul>
         ${n === 2 ? `<form class="pt-addstep"><input placeholder="Add a step, e.g. Permission letter from the home" aria-label="New step"><button class="pt-btn ghost" type="submit">Add</button></form>` : ""}`,
       sponsors: `
         <ul class="pt-spons">${(p.funders || []).map(f => `<li><span class="pt-av">${esc(initials(f.name))}</span><b>${esc(f.name)}</b><em>${money(num(f.amount))}</em></li>`).join("") || `<li class="pt-empty">No pledges yet.</li>`}</ul>
