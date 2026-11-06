@@ -49,7 +49,7 @@ const header = (eyebrow, title, sub) => `<div class="m-head"><span class="m-ribb
 // The bridge picture from the Raavanaa Community poster, with its line underneath.
 const hero = (small = false) => `<figure class="m-hero${small ? " small" : ""}">
     <picture><source srcset="/img/members-bridge.webp" type="image/webp"><img src="/img/members-bridge.jpg" alt="Neighbours crossing a little bridge to help each other: carrying food, a box, a hand for an elder." width="941" height="395"></picture>
-    ${small ? "" : `<figcaption>A bridge between people who need a hand<br>and people ready to give one.</figcaption>`}
+    ${small ? "" : `<figcaption>A bridge between people who need a hand <br>and people ready to give one.</figcaption>`}
   </figure>`;
 const ICONS = {
   join: '<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="16" r="8"/><path d="M8 42c2-9 8-14 16-14s14 5 16 14"/></svg>',
@@ -66,7 +66,7 @@ async function signedOut(app, site, mode = "login", msg = "") {
   let settings = { disableSignup: true, providers: {} };
   try { const id = await identity(); settings = await id.getSettings(); } catch (e) { /* keep defaults */ }
   const canJoin = !settings.disableSignup;
-  if (mode === "join" && !canJoin) mode = "login";
+  const ask = mode === "join" && !canJoin; // sign-ups are invite-only in Netlify: collect a request instead
   const google = settings.providers && settings.providers.google;
   const join = mode === "join";
   app.innerHTML = `<section class="intro about-page member-page">
@@ -76,23 +76,23 @@ async function signedOut(app, site, mode = "login", msg = "") {
     ${hero()}
     <div class="member-grid">
       <form class="panel form member-card" id="m-form" novalidate>
-        ${canJoin ? `<div class="member-tabs" role="tablist">
+        <div class="member-tabs" role="tablist">
           <button type="button" role="tab" aria-selected="${!join}" data-mode="login">Sign in</button>
-          <button type="button" role="tab" aria-selected="${join}" data-mode="join">Join</button></div>` : ""}
-        ${google ? `<button type="button" class="btn ghost member-google" data-google>Continue with Google</button>
+          <button type="button" role="tab" aria-selected="${join}" data-mode="join">Join</button></div>
+        ${ask ? `<p class="member-flash">Joining is by invite while we get ready. Leave your name and email and we will send you an invite.</p>` : ""}
+        ${google && !ask ? `<button type="button" class="btn ghost member-google" data-google>Continue with Google</button>
           <p class="member-or"><span>or with email</span></p>` : ""}
         ${join ? `<label>Your name<input name="name" autocomplete="name" required></label>` : ""}
         <label>Email<input name="email" type="email" autocomplete="${join ? "email" : "username"}" required></label>
-        <label>Password<input name="password" type="password" minlength="8" autocomplete="${join ? "new-password" : "current-password"}" required>
-          ${join ? `<span class="opt">At least 8 characters.</span>` : ""}</label>
-        <button class="btn" type="submit">${join ? "Create my account" : "Sign in"}</button>
+        ${ask ? "" : `<label>Password<input name="password" type="password" minlength="8" autocomplete="${join ? "new-password" : "current-password"}" required>
+          ${join ? `<span class="opt">At least 8 characters.</span>` : ""}</label>`}
+        <button class="btn" type="submit">${ask ? "Ask for an invite" : join ? "Create my account" : "Sign in"}</button>
         ${join ? "" : `<button type="button" class="member-link" data-forgot>Forgot your password?</button>`}
         <p class="note member-msg" role="status">${esc(msg)}</p>
       </form>
       <aside class="panel member-why">
         <h2>How it works for members</h2>
         ${steps()}
-        ${canJoin ? "" : `<p class="note">Joining is by invite while we get ready. Want to be one of the first? <a href="${onTa ? "/ta" : ""}/contact">Contact us</a>.</p>`}
         <p class="note">Part of the Raavanaa team? Use the <a href="/portal">team portal</a>.</p>
       </aside>
     </div>
@@ -106,6 +106,15 @@ async function signedOut(app, site, mode = "login", msg = "") {
     if (!f.reportValidity()) return;
     const fd = new FormData(f), email = String(fd.get("email")).trim(), pw = String(fd.get("password"));
     const btn = f.querySelector("button[type=submit]"); btn.disabled = true; out.textContent = "One moment...";
+    if (ask) { // saved under Forms → "updates" in Netlify, marked page = members-join
+      try {
+        const body = new URLSearchParams({ "form-name": "updates", page: "members-join", name: String(fd.get("name") || "").trim(), email });
+        const r = await fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
+        if (!r.ok) throw new Error();
+        f.innerHTML = `<h2>Thank you!</h2><p>We have your request. We will email <b>${esc(email)}</b> an invite to join Raavanaa Community.</p>`;
+      } catch (err) { out.textContent = "We could not send that. Please try again."; btn.disabled = false; }
+      return;
+    }
     try {
       const id = await identity();
       if (join) {
