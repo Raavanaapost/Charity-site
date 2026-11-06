@@ -1835,3 +1835,55 @@ html[lang="ta"] .lane-label{font-size:clamp(12px,1.6vw,15px)}html[lang="ta"] .la
 
 /* Members menu link (the members pages have their own members.css) */
 .nav .nav-member{font-weight:700;color:var(--brand)}
+
+/* ---- Project page, as on RaavanaaPost (SURESH, 6 Nov 2026) ---- */
+/* Royal news title: Cinzel, first letter large and orange. */
+.phead h1{font-family:"Cinzel",Georgia,"Times New Roman",serif;font-weight:600;color:#0b3d22;line-height:1.1;letter-spacing:.01em;max-width:24ch}
+.phead h1::first-letter{font-size:1.45em;color:#b8440a}
+:root[data-theme="dark"] .phead h1{color:#e7ece9}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .phead h1{color:#e7ece9}}
+/* Sponsors' names under "Funded". */
+.ring-steps .who{display:block;margin-top:2px;color:var(--muted);font-family:var(--display);font-size:12.5px;font-weight:600;line-height:1.35}
+.ring-steps .who b{color:var(--flame);font-weight:800}
+.go-list li.funder b{color:var(--ink);text-decoration:none}
+.go-list li.funder i{background:#fde7c9;color:#b4560a;font-size:13px}
+/* The story under the picture: the opening paragraph in full, the rest folded. */
+.ptale-text{max-height:none;-webkit-mask-image:none;mask-image:none}
+.ptale:not(.open) .ptale-rest{display:none}
+/* Donate: a warm, glowing button with a beating heart. */
+.donate-btn{position:relative;margin-top:12px;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 16px;border:0;border-radius:12px;background:linear-gradient(100deg,#f2b21c,#e5851a 45%,#c8381e);background-size:200% 100%;color:#fff;font-family:var(--display);font-weight:800;font-size:17px;letter-spacing:.02em;cursor:pointer;box-shadow:0 10px 22px -10px #c8381e,inset 0 1px 0 rgba(255,255,255,.35);animation:donate-shine 4s ease-in-out infinite}
+.donate-btn svg{animation:donate-beat 1.6s ease-in-out infinite}
+.donate-btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.donate-btn:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.go100 .donate-btn + .go-open{margin-top:10px}
+.go100.open > .donate-btn{display:none}
+@keyframes donate-beat{0%,100%{transform:scale(1)}15%{transform:scale(1.22)}30%{transform:scale(1)}45%{transform:scale(1.14)}}
+@keyframes donate-shine{0%,100%{background-position:0 0}50%{background-position:100% 0}}
+@media (prefers-reduced-motion:reduce){.donate-btn,.donate-btn svg,.donate-heart svg{animation:none}}
+/* "Make this happen": Donate and Help another way. */
+.mk-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px;border-radius:12px;background:color-mix(in srgb,var(--sun) 10%,var(--surface))}
+.mk-tabs button{display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 8px;border:0;border-radius:9px;background:none;color:var(--muted);font-family:var(--display);font-weight:700;font-size:13.5px;white-space:nowrap;cursor:pointer}
+.mk-tabs button svg{width:16px;height:16px;color:var(--flame)}
+.mk-tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 2px 8px -4px rgba(0,0,0,.3)}
+.mk-pane{display:grid;gap:10px}
+.mk-pane[hidden]{display:none}
+.mk-pane .go-sub{margin:0}
+/* The Donate pop-up. */
+.donate-pop{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:16px;background:rgba(20,28,24,.55);animation:go-in .25s ease-out}
+.donate-card{position:relative;width:min(440px,100%);max-height:calc(100vh - 32px);overflow:auto;padding:26px 24px 20px;border-radius:18px;background:var(--surface);border-top:4px solid var(--sun);box-shadow:0 24px 60px -20px rgba(0,0,0,.5);text-align:center}
+.donate-x{position:absolute;top:8px;right:10px;width:36px;height:36px;border:0;border-radius:50%;background:none;color:var(--muted);font-size:26px;line-height:1;cursor:pointer}
+.donate-heart{margin:0 auto 6px;color:var(--flame)}
+.donate-heart svg{animation:donate-beat 1.6s ease-in-out infinite}
+.donate-card h2{margin:0 0 10px;font-family:"Playfair Display",Georgia,serif;font-weight:900;font-size:24px}
+.donate-card > p{margin:0 0 10px;font-size:15.5px;line-height:1.55}
+.donate-card .follow{margin-top:14px;text-align:left;box-shadow:none}
+.donate-other{margin:12px 0 0}
+.donate-other button{border:0;background:none;color:var(--brand);font-family:var(--display);font-weight:700;font-size:15px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+/* "Project at a glance" opens from the icon on the picture. */
+.hero-wrap{position:relative}
+.glance{position:absolute;top:12px;right:12px;z-index:5;display:flex;flex-direction:column;align-items:flex-end}
+.glance-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px 7px 8px;border:0;border-radius:999px;background:rgba(255,255,255,.94);color:#0f5132;box-shadow:0 2px 10px rgba(0,0,0,.18);font:700 14px/1 var(--display);cursor:pointer}
+.glance-btn svg{color:#b8440a}
+.glance-card{display:none;width:min(320px,calc(100vw - 56px));margin-top:8px;box-shadow:0 10px 30px rgba(0,0,0,.2);text-align:left}
+.glance:hover .glance-card,.glance:focus-within .glance-card{display:block}
+.glance-card .facts{margin:0}

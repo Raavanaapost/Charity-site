@@ -479,7 +479,7 @@
     }
    ],
    "goal": 61000,
-   "funders": [],
+   "funders": [{ "name": "Kiri Family", "amount": 15250 }, { "name": "Sathees Family", "amount": 15250 }],
    "date_set": true,
    "booked": false,
    "volunteers": false,

@@ -1236,6 +1236,11 @@
           </a>`; }).join("")}`;
   }
 
+  // Sponsors' names and their share of the budget, shown under "Funded" (SURESH, 6 Nov 2026).
+  const whoFunded = p => { const b = budgetOf(p); if (!b.goal || !b.funders.length) return "";
+    return `<small class="who">${b.funders.map(f => `${esc(f.name)} <b>${Math.round(numOf(f.amount) / b.goal * 100)}%</b>`).join(" · ")}</small>`; };
+  // The Donate button. While Raavanaa is a pilot it opens a note instead of a payment page (wireGo).
+  const DONATE_BTN = `<button class="donate-btn" type="button" data-donate><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg><span>Donate</span></button>`;
   // The "Activating" circle with its list of steps, as on a project page.
   function activatingPanelHTML(p, cls = "") {
     const steps = ringSteps(p), T = RING_TEXT[stageNum(p)];
@@ -1254,7 +1259,7 @@
         <h2>${T.h}</h2>
         <div class="ring-row">
           ${ringSVG()}
-          <ul class="ring-steps">${steps.map(x => { const d = x.done; return `<li class="${d >= 1 ? "done" : d > 0 ? "part" : ""}"><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${d >= 1 ? "✓" : x.pctLabel && d > 0 ? Math.round(d * 100) + "%" : "–"}</b></li>`; }).join("")}</ul>
+          <ul class="ring-steps">${steps.map(x => { const d = x.done; return `<li class="${d >= 1 ? "done" : d > 0 ? "part" : ""}"><i style="background:${x.c}"></i><span>${esc(x.name)}${x.name === "Funded" ? whoFunded(p) : ""}</span><b>${d >= 1 ? "✓" : x.pctLabel && d > 0 ? Math.round(d * 100) + "%" : "–"}</b></li>`; }).join("")}</ul>
         </div>
       </div>`;
   }
@@ -1271,7 +1276,7 @@
       d => d ? `We know what the day costs: ${money(b.goal)}.` : "We're working out what the day will cost: transport, food, tickets.",
       d => d >= 1 ? "Every part of the day is covered." : b.goal ? `${money(need)} still to go. This is where you come in.` : "Opens as soon as the budget is ready. Send a note and we'll tell you first."
     ];
-    const WAYS = ["Cover part of the day", "Cover the whole day", "Give something the day needs (a van, food, gifts)", "Help on the day", "Share it with friends"];
+    const WAYS = ["Give something the day needs (a van, food, gifts)", "Help on the day", "Share it with friends"];
     const ring = activatingPanelHTML(p, "").match(/<svg class="ring"[\s\S]*?<\/svg>/)[0];
     const raw = steps.reduce((t, x) => t + Math.min(1, x.done), 0) * slice;
     return `<div class="panel activating go100 ${cls}" data-pct="${pct}" data-raw="${raw}">
@@ -1279,29 +1284,35 @@
         <h2 class="go-title">Help ${kids ? kids[0] + " children" : "these children"} laugh. <span>Let's take this to 100%.</span></h2>
         <div class="ring-row">
           ${ring}
-          <ul class="ring-steps">${steps.map(x => { const d = x.done; return `<li class="${d >= 1 ? "done" : d > 0 ? "part" : ""}"><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${d >= 1 ? "✓" : x.pctLabel && d > 0 ? Math.round(d * 100) + "%" : "–"}</b></li>`; }).join("")}</ul>
+          <ul class="ring-steps">${steps.map(x => { const d = x.done; return `<li class="${d >= 1 ? "done" : d > 0 ? "part" : ""}"><i style="background:${x.c}"></i><span>${esc(x.name)}${x.name === "Funded" ? whoFunded(p) : ""}</span><b>${d >= 1 ? "✓" : x.pctLabel && d > 0 ? Math.round(d * 100) + "%" : "–"}</b></li>`; }).join("")}</ul>
         </div>
+        ${pct < 100 ? DONATE_BTN : ""}
         ${pct < 100 ? `<button class="go-open" type="button" aria-expanded="false" aria-controls="go-fold-${id}"><span>See what's left to reach 100%</span><i aria-hidden="true">⌄</i></button>
         <div class="go-fold" id="go-fold-${id}" hidden>
-          <ol class="go-list">${steps.map((x, k) => { const d = x.done, addRaw = slice * (1 - Math.min(1, d)), add = Math.round(addRaw);
-            return `<li class="${d >= 1 ? "done" : "todo"}" data-add="${addRaw}"${d >= 1 ? "" : ' tabindex="0"'}>
-              <i aria-hidden="true">${d >= 1 ? "✓" : "+" + add + "%"}</i>
-              <div><b>${esc(x.name)}</b><span>${say[k] ? say[k](d) : ""}</span></div></li>`; }).join("")}</ol>
-          <form class="go-form" name="make-it-happen" data-ajax data-done="Thank you! Your note is on its way. We'll be in touch soon, and you'll be part of a child's best day.">
+          <ol class="go-list">${b.funders.map(f => `<li class="done funder"><i aria-hidden="true">${b.goal ? Math.round(numOf(f.amount) / b.goal * 100) : 0}%</i>
+              <div><b>${esc(f.name)}</b><span>Pledged ${money(numOf(f.amount))} for this day.</span></div></li>`).join("")}
+            <li class="todo" data-add="${slice * (1 - Math.min(1, b.goal ? b.raised / b.goal : 0))}" tabindex="0">
+              <i aria-hidden="true">${b.goal ? Math.max(0, 100 - b.pct) + "%" : "…"}</i>
+              <div><b>${b.funders.length ? "Still to fund" : "Be the first sponsor"}</b><span>${b.goal ? `${money(need)} still to go. This is where you come in.` : "Opens as soon as the budget is ready. Send a note and we'll tell you first."}</span></div></li></ol>
+          <div class="go-form go-make">
             <h3>Make this happen</h3>
-            <p class="go-sub">Send us a note. No payment here: just tell us how you'd like to help and we'll reach out.</p>
-            <input type="hidden" name="form-name" value="make-it-happen">
-            <input type="hidden" name="project" value="${esc(slugOf(p))}">
-            <p hidden><label>Leave empty <input name="bot-field"></label></p>
-            <fieldset class="go-ways"><legend>I'd love to…</legend>
-              ${WAYS.map(w => `<label class="go-way"><input type="checkbox" name="ways[]" value="${esc(w)}"><span>${esc(w)}</span></label>`).join("")}
-            </fieldset>
-            <label for="go-name-${id}">Your name<input id="go-name-${id}" name="name" required maxlength="80" autocomplete="name"></label>
-            <label for="go-contact-${id}">Email or WhatsApp<input id="go-contact-${id}" name="contact" required maxlength="120"></label>
-            <label for="go-note-${id}">A note for us (optional)<textarea id="go-note-${id}" name="note" maxlength="1500" rows="3"></textarea></label>
-            <button class="btn go-send" type="submit">Send my note</button>
-            <p class="note" data-msg hidden></p>
-          </form>
+            <div class="mk-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-mk="donate"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>Donate</button><button type="button" role="tab" aria-selected="false" data-mk="other">Help another way</button></div>
+            <div class="mk-pane" data-mkpane="donate"><p class="go-sub">Want to give towards this day? Tap Donate and we'll tell you how it works during our pilot.</p>${DONATE_BTN}</div>
+            <form class="mk-pane" data-mkpane="other" hidden name="make-it-happen" data-ajax data-done="Thank you! Your note is on its way. We'll be in touch soon, and you'll be part of a child's best day.">
+              <p class="go-sub">Not able to give money? There are other ways to make this day happen. Tell us how you'd like to help and we'll reach out.</p>
+              <input type="hidden" name="form-name" value="make-it-happen">
+              <input type="hidden" name="project" value="${esc(slugOf(p))}">
+              <p hidden><label>Leave empty <input name="bot-field"></label></p>
+              <fieldset class="go-ways"><legend>I'd love to…</legend>
+                ${WAYS.map(w => `<label class="go-way"><input type="checkbox" name="ways[]" value="${esc(w)}"><span>${esc(w)}</span></label>`).join("")}
+              </fieldset>
+              <label for="go-name-${id}">Your name<input id="go-name-${id}" name="name" required maxlength="80" autocomplete="name"></label>
+              <label for="go-contact-${id}">Email or WhatsApp<input id="go-contact-${id}" name="contact" required maxlength="120"></label>
+              <label for="go-note-${id}">A note for us (optional)<textarea id="go-note-${id}" name="note" maxlength="1500" rows="3"></textarea></label>
+              <button class="btn go-send" type="submit">Send my note</button>
+              <p class="note" data-msg hidden></p>
+            </form>
+          </div>
         </div>` : ""}
       </div>`;
   }
@@ -1320,6 +1331,11 @@
         btn.setAttribute("aria-expanded", open); fold.hidden = !open; box.classList.toggle("open", open);
         btn.querySelector("span").textContent = open ? "Fold it away" : "See what's left to reach 100%";
       });
+      // "Make this happen": Donate, or Help another way.
+      box.querySelectorAll(".go-make").forEach(m => m.querySelectorAll("[data-mk]").forEach(t => t.addEventListener("click", () => {
+        m.querySelectorAll("[data-mk]").forEach(x => x.setAttribute("aria-selected", String(x === t)));
+        m.querySelectorAll("[data-mkpane]").forEach(pn => { pn.hidden = pn.dataset.mkpane !== t.dataset.mk; });
+      })));
       // Pointing at a missing step shows what the % would become once it's done.
       box.querySelectorAll(".go-list li.todo").forEach(li => {
         const on = () => setN(Math.min(100, +box.dataset.raw + +li.dataset.add), true), off = () => setN(pct);
@@ -1328,13 +1344,43 @@
       });
     });
   }
+  // Donate: during the pilot there are no online donations. The pop-up says so and asks people
+  // to join the community: sign up and follow the project (SURESH, 6 Nov 2026).
+  function wireDonate(root, slug) {
+    root.querySelectorAll("[data-donate]").forEach(b => b.addEventListener("click", () => {
+      const pop = document.createElement("div");
+      pop.className = "donate-pop";
+      pop.innerHTML = `<div class="donate-card" role="dialog" aria-modal="true" aria-labelledby="donate-h">
+          <button class="donate-x" type="button" data-close aria-label="Close">×</button>
+          <p class="donate-heart" aria-hidden="true"><svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg></p>
+          <h2 id="donate-h">Thank you for wanting to give!</h2>
+          <p>We are in our <b>pilot phase</b>, so we are not taking donations online yet. Every day so far has been made possible by our community.</p>
+          <p>Join the Raavanaa community: sign up and follow this project. We'll tell you the moment you can give, and share every smile you help create.</p>
+          ${signupHTML(slug + "-donate", "Sign up and follow")}
+          <p class="donate-other"><button type="button" data-other>Or help another way →</button></p>
+        </div>`;
+      const close = () => { pop.remove(); document.removeEventListener("keydown", esc_); b.focus(); };
+      const esc_ = e => { if (e.key === "Escape") close(); };
+      pop.addEventListener("click", e => { if (e.target === pop || e.target.closest("[data-close]")) close(); });
+      document.addEventListener("keydown", esc_);
+      pop.querySelector("[data-other]").addEventListener("click", () => {
+        close();
+        const g = [...root.querySelectorAll(".go100")].find(x => x.offsetParent !== null); if (!g) return;
+        const open = g.querySelector(".go-open"); if (open && open.getAttribute("aria-expanded") !== "true") open.click();
+        const t = g.querySelector("[data-mk=other]"); if (t) { t.click(); t.scrollIntoView({ block: "center", behavior: "smooth" }); }
+      });
+      document.body.appendChild(pop); wireForms(pop);
+      const f = pop.querySelector("input[name=email]"); if (f) f.focus();
+    }));
+  }
   function wireTale(root, open, remember) {
     const box = root.querySelector(".ptale"); if (!box) return;
     const text = box.querySelector(".ptale-text"), btn = box.querySelector(".ptale-more");
     const label = btn.querySelector("span").textContent;
     const set = v => { box.classList.toggle("open", v); btn.setAttribute("aria-expanded", v); btn.querySelector("span").textContent = v ? "Show less" : label; remember(v); };
     // Only offer the link when the story is longer than three lines.
-    requestAnimationFrame(() => { if (text.scrollHeight > text.clientHeight + 4) { btn.hidden = false; set(open); } else box.classList.add("short"); });
+    // The opening paragraph shows in full; the link opens the rest (SURESH, 6 Nov 2026).
+    if (text.querySelector(".ptale-rest")) { btn.hidden = false; set(open); } else box.classList.add("short");
     btn.addEventListener("click", () => { const v = !box.classList.contains("open"); set(v); if (!v) box.scrollIntoView({ block: "nearest", behavior: "smooth" }); });
   }
 
@@ -1755,7 +1801,8 @@
     const now = S.findIndex(x => !x.done);
     const G = ["", "Smiles in the Making", "Moments on the Way", "Days of Joy, Created"];
     let html = "", g = 0;
-    S.forEach((x, k) => {
+    // "Moments on the Way" and "Days of Joy, Created" are shown once the day has happened (SURESH, 6 Nov 2026).
+    S.filter(x => st === 3 || x.g === 1).forEach((x, k) => {
       if (x.g !== g) { g = x.g; html += `${k ? "</ol>" : ""}<p class="jr-g jr-g${g}">${G[g]}</p><ol class="jr">`; }
       const state = x.done ? "done" : k === now ? "now" : "next", info = [x.who && esc(x.who), x.when && d(x.when)].filter(Boolean).join(" · ");
       html += `<li class="${state} jr${x.g}"><i aria-hidden="true">${x.done ? "✓" : ""}</i><span><b>${x.label}</b>${info ? `<small>${info}</small>` : state === "now" ? "<small>In progress</small>" : ""}</span></li>`;
@@ -1829,7 +1876,7 @@
     const TALE_MORE = ["", "See how this smile begins", "See how this moment comes together", "Relive the whole day"];
     const taleHTML = taleSrc ? `<section class="ptale s${st}">
         ${p.quote ? `<p class="pull">“${esc(p.quote)}”</p>` : ""}
-        <div class="ptale-text story" id="ptale-text">${md(taleSrc)}</div>
+        <div class="ptale-text story" id="ptale-text">${(h => { const k = h.indexOf("</p>") + 4; return k > 3 && h.slice(k).trim() ? h.slice(0, k) + `<div class="ptale-rest">${h.slice(k)}</div>` : h; })(md(taleSrc))}</div>
         <button class="ptale-more" type="button" aria-expanded="false" aria-controls="ptale-text" hidden><span>${TALE_MORE[st]}</span><i aria-hidden="true">⌄</i></button>
       </section>` : "";
     const tabs = (st === 3 ? [["updates", "Impact"], ["budget", "Budget"]] : [["budget", "Budget"], ["updates", "Impact"]])
@@ -1854,7 +1901,22 @@
               <h1>${esc(p.title)}</h1>
               <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>by <strong>${esc(p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Visited and verified</span>` : ""}</div>
             </header>
-            <div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.cover ? "" : "Cover photo", 1400)}</div>
+            <div class="hero-wrap">
+              <div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.cover ? "" : "Cover photo", 1400)}</div>
+              <div class="glance">
+                <button type="button" class="glance-btn" aria-label="Project at a glance" aria-describedby="glance-card"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg><span>At a glance</span></button>
+                <div class="panel glance-card" id="glance-card" role="tooltip">
+                  <h2>Project at a glance</h2>
+                  <dl class="facts">
+                    ${p.status ? `<dt>Status</dt><dd>${esc(p.status)}</dd>` : ""}
+                    ${p.location ? `<dt>Location</dt><dd>${esc(p.location)}</dd>` : ""}
+                    ${p.started ? `<dt>Started</dt><dd>${esc(p.started)}</dd>` : ""}
+                    ${p.reach ? `<dt>Reach</dt><dd>${esc(p.reach)}</dd>` : ""}
+                  </dl>
+                  ${(p.impact || []).length ? `<div class="stats">${p.impact.map(s => `<div class="stat"><b>${esc(s.value)}</b><span>${esc(s.label)}</span></div>`).join("")}</div>` : ""}
+                </div>
+              </div>
+            </div>
             ${taleHTML}
             ${ringPanel("only-narrow")}
             ${stageNum(p) === 3 ? "" : `<div class="only-narrow">${budgetBoxHTML(p, site, false)}</div>`}
@@ -1866,16 +1928,6 @@
           <aside class="side">
             ${ringPanel("only-wide")}
             ${stageNum(p) === 3 ? "" : `<div class="only-wide">${budgetBoxHTML(p, site, false)}</div>`}
-            <div class="panel">
-              <h2>Project at a glance</h2>
-              <dl class="facts">
-                ${p.status ? `<dt>Status</dt><dd>${esc(p.status)}</dd>` : ""}
-                ${p.location ? `<dt>Location</dt><dd>${esc(p.location)}</dd>` : ""}
-                ${p.started ? `<dt>Started</dt><dd>${esc(p.started)}</dd>` : ""}
-                ${p.reach ? `<dt>Reach</dt><dd>${esc(p.reach)}</dd>` : ""}
-              </dl>
-              ${(p.impact || []).length ? `<div class="stats">${p.impact.map(s => `<div class="stat"><b>${esc(s.value)}</b><span>${esc(s.label)}</span></div>`).join("")}</div>` : ""}
-            </div>
             ${journeyHTML(p, full)}
             ${signupHTML(slugOf(p), "Follow this project")}
             <a class="btn ghost" href="/initiated">Back to all projects</a>
@@ -1885,6 +1937,7 @@
       app.querySelectorAll(".tab").forEach(b => b.onclick = () => { draw(b.dataset.t); history.replaceState(null, "", "#" + b.dataset.t); });
       wireTale(app, taleOpen, v => { taleOpen = v; });
       wireGo(app);
+      wireDonate(app, slugOf(p));
       app.querySelectorAll(".photos button").forEach(b => b.onclick = () => {
         const lb = document.createElement("div");
         lb.className = "lightbox"; lb.innerHTML = `<img src="${esc(b.dataset.src)}" alt="">`;
