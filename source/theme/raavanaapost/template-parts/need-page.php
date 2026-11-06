@@ -123,6 +123,7 @@ $box = function ( $cls ) use ( $p, $st ) {
 			</aside>
 		</div>
 	</div>
+	<?php echo 1 === $st ? rp_rorg_donate_pop() : ''; // phpcs:ignore ?>
 	<script>
 	/* Tabs, the folded story and the "go to 100%" box, as in raavanaa.org's site.js (wireTale, wireGo). */
 	(function () {
@@ -143,6 +144,30 @@ $box = function ( $cls ) use ( $p, $st ) {
 				if (!v) box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 			});
 		}
+		/* Donate: the pilot-phase pop-up. "Make this happen": Donate and Help another way tabs. */
+		var pop = a.querySelector('#rp-donate-pop'), last = null;
+		var showPop = function (v) { if (!pop) return; pop.hidden = !v; document.documentElement.style.overflow = v ? 'hidden' : ''; if (v) pop.querySelector('input[name=name]').focus(); else if (last) last.focus(); };
+		a.querySelectorAll('[data-donate]').forEach(function (b) { b.addEventListener('click', function () { last = b; showPop(true); }); });
+		if (pop) {
+			pop.addEventListener('click', function (e) { if (e.target === pop || e.target.closest('[data-pop-close]')) showPop(false); });
+			document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !pop.hidden) showPop(false); });
+			pop.querySelector('[data-pop-other]').addEventListener('click', function () {
+				var g = [].find.call(a.querySelectorAll('.go100'), function (x) { return x.offsetParent !== null; });
+				showPop(false);
+				if (!g) return;
+				var btn = g.querySelector('.go-open');
+				if (btn && btn.getAttribute('aria-expanded') !== 'true') btn.click();
+				var t = g.querySelector('[data-mk=other]'); if (t) { t.click(); t.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+			});
+		}
+		a.querySelectorAll('.rp-make').forEach(function (m) {
+			m.querySelectorAll('[data-mk]').forEach(function (t) {
+				t.addEventListener('click', function () {
+					m.querySelectorAll('[data-mk]').forEach(function (x) { x.setAttribute('aria-selected', String(x === t)); });
+					m.querySelectorAll('[data-mkpane]').forEach(function (p) { p.hidden = p.dataset.mkpane !== t.dataset.mk; });
+				});
+			});
+		});
 		a.querySelectorAll('.go100').forEach(function (g) {
 			var pct = +g.dataset.pct, n = g.querySelector('.ring-n'), l = g.querySelector('.ring-l'), lab = l ? l.textContent : '';
 			var setN = function (v, preview) { if (n) n.textContent = Math.round(v) + '%'; if (l) l.textContent = preview ? 'IF DONE' : lab; g.classList.toggle('previewing', !!preview); };

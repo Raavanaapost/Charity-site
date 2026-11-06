@@ -250,3 +250,43 @@
 @media (min-width:881px){.rorg .only-wide{display:grid;gap:inherit}}
 .rorg .only-narrow > * + *{margin-top:14px}
 .rorg .rp-share{margin-top:22px}
+/* Sponsors' names under "Funded" in the Activating box. */
+.rorg .ring-steps .rp-who{display:block;margin-top:2px;color:var(--muted);font-family:var(--display);font-size:12.5px;font-weight:600;line-height:1.35}
+.rorg .ring-steps .rp-who b{color:var(--flame);font-weight:800}
+/* The fold-out lists sponsors, not crossed out. */
+.rorg .go-list li.rp-funder b{color:var(--ink);text-decoration:none}
+.rorg .go-list li.rp-funder i{background:#fde7c9;color:#b4560a;font-size:13px}
+/* Donate: a warm, glowing button with a beating heart. */
+.rorg .rp-donate{position:relative;margin-top:12px;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 16px;border:0;border-radius:12px;background:linear-gradient(100deg,#f2b21c,#e5851a 45%,#c8381e);background-size:200% 100%;color:#fff;font-family:var(--display);font-weight:800;font-size:17px;letter-spacing:.02em;cursor:pointer;box-shadow:0 10px 22px -10px #c8381e,inset 0 1px 0 rgba(255,255,255,.35);animation:rp-donate-shine 4s ease-in-out infinite;overflow:hidden}
+.rorg .rp-donate svg{animation:rp-beat 1.6s ease-in-out infinite}
+.rorg .rp-donate:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.rorg .rp-donate:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.rorg .go100 .rp-donate + .go-open{margin-top:10px}
+@keyframes rp-beat{0%,100%{transform:scale(1)}15%{transform:scale(1.22)}30%{transform:scale(1)}45%{transform:scale(1.14)}}
+@keyframes rp-donate-shine{0%,100%{background-position:0 0}50%{background-position:100% 0}}
+@media (prefers-reduced-motion:reduce){.rorg .rp-donate,.rorg .rp-donate svg{animation:none}}
+/* "Make this happen": Donate and Help another way. */
+.rorg .rp-mk-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px;border-radius:12px;background:#f3ece2}
+.rorg .rp-mk-tabs button{display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 8px;border:0;border-radius:9px;background:none;color:var(--muted);font-family:var(--display);font-weight:700;font-size:14px;cursor:pointer}
+.rorg .rp-mk-tabs button svg{width:16px;height:16px;color:var(--flame)}
+.rorg .rp-mk-tabs button[aria-selected="true"]{background:#fff;color:var(--ink);box-shadow:0 2px 8px -4px rgba(0,0,0,.3)}
+.rorg .rp-mk-pane{display:grid;gap:10px}
+.rorg .rp-mk-pane[hidden]{display:none}
+.rorg .rp-mk-pane .go-sub{margin:0}
+/* The Donate pop-up. */
+.rorg .rp-pop{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:16px;background:rgba(20,28,24,.55);animation:go-in .25s ease-out}
+.rorg .rp-pop[hidden]{display:none}
+.rorg .rp-pop__card{position:relative;width:min(440px,100%);max-height:calc(100vh - 32px);overflow:auto;padding:26px 24px 20px;border-radius:18px;background:#fffaf2;border-top:4px solid #e5851a;box-shadow:0 24px 60px -20px rgba(0,0,0,.5);text-align:center}
+.rorg .rp-pop__x{position:absolute;top:8px;right:10px;width:36px;height:36px;border:0;border-radius:50%;background:none;color:var(--muted);font-size:26px;line-height:1;cursor:pointer}
+.rorg .rp-pop__icon{margin:0 auto 6px;color:#c8381e}
+.rorg .rp-pop__icon svg{animation:rp-beat 1.6s ease-in-out infinite}
+.rorg .rp-pop h2{margin:0 0 10px;font-family:"Playfair Display",Georgia,serif;font-weight:900;font-size:24px;color:var(--ink)}
+.rorg .rp-pop p{margin:0 0 10px;font-size:15.5px;line-height:1.55}
+.rorg .rp-pop__form{display:grid;gap:10px;margin-top:14px;text-align:left}
+.rorg .rp-pop__form label{display:grid;gap:4px;font-family:var(--display);font-weight:600;font-size:14px}
+.rorg .rp-pop__form input{padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;font:inherit;font-family:var(--body);font-weight:400}
+.rorg .rp-pop__go{margin-top:4px}
+.rorg .rp-pop__other{margin:12px 0 0}
+.rorg .rp-pop__other button{border:0;background:none;color:var(--brand);font-family:var(--display);font-weight:700;font-size:15px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.rorg .go100.open > .rp-donate{display:none}
+.rorg .rp-mk-tabs button{white-space:nowrap;font-size:13.5px}

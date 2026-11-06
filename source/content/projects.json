@@ -380,7 +380,16 @@
     "amount": 31000
    }
   ],
-  "funders": [],
+  "funders": [
+   {
+    "name": "Kiri Family",
+    "amount": 15250
+   },
+   {
+    "name": "Sathees Family",
+    "amount": 15250
+   }
+  ],
   "currency": "Rs ",
   "reach": "52 children and 6 teachers",
   "date_set": true,

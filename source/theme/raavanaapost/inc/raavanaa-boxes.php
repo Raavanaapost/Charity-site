@@ -227,55 +227,96 @@ function rp_rorg_budget_box( $p ) {
 	return '<div class="panel budget' . ( $b['full'] && $st > 1 ? ' full' : '' ) . '"><h2>Budget</h2>' . rp_rorg_budget_detail( $p ) . '</div>';
 }
 
+/** Each sponsor's share of the budget: name, amount, % of the goal. */
+function rp_rorg_shares( $p ) {
+	$b   = rp_rorg_budget( $p );
+	$out = array();
+	foreach ( $b['funders'] as $f ) {
+		$a     = rp_rorg_num( $f['amount'] ?? '' );
+		$out[] = array( $f['name'], $a, $b['goal'] ? (int) round( $a / $b['goal'] * 100 ) : 0 );
+	}
+	return $out;
+}
+
 /**
- * goPanelHTML(): the Initiated "Activating" box, "Help N children laugh. Let's take this to 100%.",
- * with "See what's left to reach 100%" and the "Make this happen" note. On RaavanaaPost the note is a
- * Netlify form of the RaavanaaPost site (form name "make-it-happen").
+ * goPanelHTML(): the Initiated "Activating" box, "Help N children laugh. Let's take this to 100%."
+ * RaavanaaPost changes (SURESH, 6 Nov 2026):
+ *  - The sponsors' names sit under "Funded" with their share, e.g. "Kiri Family 25%".
+ *  - A Donate button; it opens the pilot-phase note (no donations yet, sign up and follow).
+ *  - The fold-out lists only the funding, sponsor by sponsor, and what is still to go.
+ *  - "Make this happen" has two tabs: Donate, and Help another way (the note form).
  */
 function rp_rorg_go_panel( $p, $cls ) {
-	$steps = rp_rorg_steps( $p );
-	$b     = rp_rorg_budget( $p );
-	$pct   = (int) round( array_sum( array_column( $steps, 1 ) ) / count( $steps ) * 100 );
+	$steps  = rp_rorg_steps( $p );
+	$b      = rp_rorg_budget( $p );
+	$shares = rp_rorg_shares( $p );
+	$pct    = (int) round( array_sum( array_column( $steps, 1 ) ) / count( $steps ) * 100 );
 	preg_match( '/\d+/', (string) ( $p['reach'] ?? '' ), $kids );
 	$slice = 100 / count( $steps );
 	$id    = preg_replace( '/\W/', '', $cls );
 	$need  = max( 0, $b['goal'] - $b['raised'] );
-	$say   = array(
-		function ( $d ) { return $d ? 'Our team visited and saw the need for themselves.' : 'Our team visits to make sure the need is real. Know this place? Tell us below.'; },
-		function ( $d ) use ( $p, $b ) { return $d ? 'We know what the day costs: ' . rp_rorg_money( $p, $b['goal'] ) . '.' : "We're working out what the day will cost: transport, food, tickets."; },
-		function ( $d ) use ( $p, $b, $need ) { return $d >= 1 ? 'Every part of the day is covered.' : ( $b['goal'] ? rp_rorg_money( $p, $need ) . ' still to go. This is where you come in.' : "Opens as soon as the budget is ready. Send a note and we'll tell you first." ); },
-	);
-	$ways = array( 'Cover part of the day', 'Cover the whole day', 'Give something the day needs (a van, food, gifts)', 'Help on the day', 'Share it with friends' );
 	preg_match( '/<svg class="ring"[\s\S]*?<\/svg>/', rp_rorg_activating( $p ), $ring );
+	$names = implode( ' · ', array_map( function ( $x ) { return esc_html( $x[0] ) . ' <b>' . $x[2] . '%</b>'; }, $shares ) );
 	$raw   = 0;
 	$items = '';
-	$list  = '';
 	foreach ( $steps as $k => $x ) {
 		$d      = $x[1];
 		$raw   += min( 1, $d ) * $slice;
-		$items .= sprintf( '<li class="%s"><i style="background:%s"></i><span>%s</span><b>%s</b></li>', $d >= 1 ? 'done' : ( $d > 0 ? 'part' : '' ), $x[2], esc_html( $x[0] ), $d >= 1 ? '✓' : ( $x[3] && $d > 0 ? round( $d * 100 ) . '%' : '–' ) );
-		$add    = $slice * ( 1 - min( 1, $d ) );
-		$list  .= '<li class="' . ( $d >= 1 ? 'done' : 'todo' ) . '" data-add="' . $add . '"' . ( $d >= 1 ? '' : ' tabindex="0"' ) . '><i aria-hidden="true">' . ( $d >= 1 ? '✓' : '+' . round( $add ) . '%' ) . '</i><div><b>' . esc_html( $x[0] ) . '</b><span>' . ( isset( $say[ $k ] ) ? $say[ $k ]( $d ) : '' ) . '</span></div></li>';
+		$who    = ( 2 === $k && $names ) ? '<small class="rp-who">' . $names . '</small>' : '';
+		$items .= sprintf( '<li class="%s"><i style="background:%s"></i><span>%s%s</span><b>%s</b></li>', $d >= 1 ? 'done' : ( $d > 0 ? 'part' : '' ), $x[2], esc_html( $x[0] ), $who, $d >= 1 ? '✓' : ( $x[3] && $d > 0 ? round( $d * 100 ) . '%' : '–' ) );
 	}
-	$form = '';
+	$heart  = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>';
+	$donate = '<button class="rp-donate" type="button" data-donate>' . $heart . '<span>Donate</span></button>';
+	$form   = '';
 	if ( $pct < 100 ) {
-		$w = '';
-		foreach ( $ways as $x ) { $w .= '<label class="go-way"><input type="checkbox" name="ways[]" value="' . esc_attr( $x ) . '"><span>' . esc_html( $x ) . '</span></label>'; }
+		$list = '';
+		foreach ( $shares as $x ) {
+			$list .= '<li class="done rp-funder"><i aria-hidden="true">' . $x[2] . '%</i><div><b>' . esc_html( $x[0] ) . '</b><span>Pledged ' . rp_rorg_money( $p, $x[1] ) . ' for this day.</span></div></li>';
+		}
+		$open_pct = $b['goal'] ? max( 0, 100 - array_sum( array_column( $shares, 2 ) ) ) : 0;
+		$add      = $slice * ( 1 - min( 1, $b['goal'] ? $b['raised'] / $b['goal'] : 0 ) );
+		$list    .= '<li class="todo" data-add="' . $add . '" tabindex="0"><i aria-hidden="true">' . ( $b['goal'] ? $open_pct . '%' : '…' ) . '</i><div><b>' . ( $shares ? 'Still to fund' : 'Be the first sponsor' ) . '</b><span>'
+			. ( $b['goal'] ? rp_rorg_money( $p, $need ) . ' still to go. This is where you come in.' : "Opens as soon as the budget is ready. Send a note and we'll tell you first." ) . '</span></div></li>';
+		$ways = '';
+		foreach ( array( 'Give something the day needs (a van, food, gifts)', 'Help on the day', 'Share it with friends' ) as $x ) {
+			$ways .= '<label class="go-way"><input type="checkbox" name="ways[]" value="' . esc_attr( $x ) . '"><span>' . esc_html( $x ) . '</span></label>';
+		}
 		$form = '<button class="go-open" type="button" aria-expanded="false" aria-controls="go-fold-' . $id . '"><span>See what\'s left to reach 100%</span><i aria-hidden="true">⌄</i></button>'
 			. '<div class="go-fold" id="go-fold-' . $id . '" hidden><ol class="go-list">' . $list . '</ol>'
-			. '<form class="go-form" name="make-it-happen" method="post" action="?sent=1#go-fold-' . $id . '" data-netlify="true" netlify-honeypot="bot-field"><h3>Make this happen</h3>'
-			. '<p class="go-sub">Send us a note. No payment here: just tell us how you\'d like to help and we\'ll reach out.</p>'
+			. '<div class="go-form rp-make"><h3>Make this happen</h3>'
+			. '<div class="rp-mk-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-mk="donate">' . $heart . 'Donate</button><button type="button" role="tab" aria-selected="false" data-mk="other">Help another way</button></div>'
+			. '<div class="rp-mk-pane" data-mkpane="donate"><p class="go-sub">Want to give towards this day? Tap Donate and we\'ll tell you how it works during our pilot.</p>' . $donate . '</div>'
+			. '<form class="rp-mk-pane" data-mkpane="other" hidden name="make-it-happen" method="post" action="?sent=1#go-fold-' . $id . '" data-netlify="true" netlify-honeypot="bot-field">'
+			. '<p class="go-sub">Not able to give money? There are other ways to make this day happen. Tell us how you\'d like to help and we\'ll reach out.</p>'
 			. '<input type="hidden" name="form-name" value="make-it-happen"><input type="hidden" name="project" value="' . esc_attr( get_post_field( 'post_name' ) ) . '">'
 			. '<p hidden><label>Leave empty <input name="bot-field"></label></p>'
-			. '<fieldset class="go-ways"><legend>I\'d love to…</legend>' . $w . '</fieldset>'
+			. '<fieldset class="go-ways"><legend>I\'d love to…</legend>' . $ways . '</fieldset>'
 			. '<label for="go-name-' . $id . '">Your name<input id="go-name-' . $id . '" name="name" required maxlength="80" autocomplete="name"></label>'
 			. '<label for="go-contact-' . $id . '">Email or WhatsApp<input id="go-contact-' . $id . '" name="contact" required maxlength="120"></label>'
 			. '<label for="go-note-' . $id . '">A note for us (optional)<textarea id="go-note-' . $id . '" name="note" maxlength="1500" rows="3"></textarea></label>'
-			. '<button class="btn go-send" type="submit">Send my note</button></form></div>';
+			. '<button class="btn go-send" type="submit">Send my note</button></form></div></div>';
 	}
 	return '<div class="panel activating go100 ' . $cls . '" data-pct="' . $pct . '" data-raw="' . $raw . '"><p class="go-kicker">Activating</p>'
 		. '<h2 class="go-title">Help ' . ( $kids ? esc_html( $kids[0] ) . ' children' : 'these children' ) . ' laugh. <span>Let\'s take this to 100%.</span></h2>'
-		. '<div class="ring-row">' . ( $ring ? $ring[0] : '' ) . '<ul class="ring-steps">' . $items . '</ul></div>' . $form . '</div>';
+		. '<div class="ring-row">' . ( $ring ? $ring[0] : '' ) . '<ul class="ring-steps">' . $items . '</ul></div>' . ( $pct < 100 ? $donate : '' ) . $form . '</div>';
+}
+
+/** The Donate pop-up: no donations during the pilot; join, sign up and follow instead. */
+function rp_rorg_donate_pop() {
+	return '<div class="rp-pop" id="rp-donate-pop" hidden><div class="rp-pop__card" role="dialog" aria-modal="true" aria-labelledby="rp-pop-h">'
+		. '<button class="rp-pop__x" type="button" data-pop-close aria-label="Close">×</button>'
+		. '<p class="rp-pop__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg></p>'
+		. '<h2 id="rp-pop-h">Thank you for wanting to give!</h2>'
+		. '<p>We are in our <b>pilot phase</b>, so we are not taking donations online yet. Every day so far has been made possible by our community.</p>'
+		. '<p>Join the Raavanaa community: sign up and follow this project. We\'ll tell you the moment you can give, and share every smile you help create.</p>'
+		. '<form class="rp-pop__form" name="follow" method="post" action="?followed=1" data-netlify="true" netlify-honeypot="bot-field">'
+		. '<input type="hidden" name="form-name" value="follow"><input type="hidden" name="project" value="' . esc_attr( get_post_field( 'post_name' ) ) . '">'
+		. '<p hidden><label>Leave empty <input name="bot-field"></label></p>'
+		. '<label>Your name<input name="name" maxlength="80" autocomplete="name"></label>'
+		. '<label>Email or WhatsApp<input name="contact" required maxlength="120"></label>'
+		. '<button class="rp-donate rp-pop__go" type="submit"><span>Sign up and follow</span></button></form>'
+		. '<p class="rp-pop__other"><button type="button" data-pop-other>Or help another way →</button></p>'
+		. '</div></div>';
 }
 
 /** ringPanel(): the "go to 100%" box while a project is Initiated, the plain ring after that. */
