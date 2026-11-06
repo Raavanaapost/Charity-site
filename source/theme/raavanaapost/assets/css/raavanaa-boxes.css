@@ -1,0 +1,44 @@
+/* raavanaa.org project boxes ("Activating" and "Budget"), copied rule for rule from raavanaa.org's style.css
+   and scoped to .rorg so they look exactly as on a raavanaa.org project page. */
+.rorg{--bg:#f7f8f6;--surface:#ffffff;--ink:#1d2622;--muted:#5d6b64;--line:#dfe4e0;--brand:#0f5132;--brand-ink:#ffffff;--sun:#e5851a;--flame:#c8381e;--gold:#f2b21c;--sun-soft:#fdf0dc;--brand-soft:#e2efe6;
+  --display:"Familjen Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;--body:"Literata",Georgia,"Times New Roman",serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--r:10px;
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start;margin:0 0 34px;color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6}
+.rorg *{box-sizing:border-box}
+@media (max-width:720px){.rorg{grid-template-columns:1fr}}
+.rorg h2{font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0px;}
+.rorg .panel{background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 22px;}
+.rorg .panel h2{font-size: 18px; margin-bottom: 14px;}
+.rorg .budget h2{font-size: 18px; margin-bottom: 10px;}
+.rorg .b-top{margin: 0px 0px 10px; font-family: var(--display); color: var(--muted); font-size: 15px;}
+.rorg .b-top b{font-size: 34px; line-height: 1; color: var(--ink); font-weight: 800; font-variant-numeric: tabular-nums; margin-right: 4px;}
+.rorg .b-bar{height: 12px; border-radius: 999px; background: color-mix(in srgb,var(--sun) 16%,var(--surface)); overflow: hidden; border: 1px solid color-mix(in srgb,var(--sun) 30%,var(--surface));}
+.rorg .b-bar i{display: block; height: 100%; min-width: 6px; border-radius: 999px; background: linear-gradient(90deg,var(--sun),var(--gold));}
+.rorg .b-facts{display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0px 0px;}
+.rorg .b-facts dt{font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted);}
+.rorg .b-facts dd{margin: 2px 0px 0px; font-family: var(--display); font-weight: 700; font-size: 18px;}
+.rorg .activating h2{font-size: 18px; margin-bottom: 12px;}
+.rorg .ring-row{display: grid; grid-template-columns: 128px minmax(0px, 1fr); gap: 16px; align-items: center;}
+.rorg .ring{width: 128px; height: 128px; display: block;}
+.rorg .ring-n{font-family: "Inter",var(--display); font-weight: 900; font-size: 25px; fill: var(--ink);}
+.rorg .ring-l{font-family: "Inter",var(--display); font-weight: 900; font-size: 8.2px; letter-spacing: 0.09em; fill: var(--muted);}
+.rorg .ring-steps{list-style: none; margin: 0px; padding: 0px; display: grid; gap: 7px; font-family: var(--display); font-size: 14px; line-height: 1.25;}
+.rorg .ring-steps li{display: grid; grid-template-columns: 11px minmax(0px, 1fr) auto; gap: 9px; align-items: center; color: var(--muted);}
+.rorg .ring-steps i{width: 11px; height: 11px; border-radius: 50%; opacity: 0.3;}
+.rorg .ring-steps li.done{color: var(--ink); font-weight: 600;}
+.rorg .ring-steps li.done i{opacity: 1;}
+.rorg .ring-steps b{font-weight: 800; font-variant-numeric: tabular-nums;}
+.rorg .ring-steps li.done b{color: rgb(31, 122, 71);}
+.rorg .b-ask{margin: 14px 0px 0px; color: var(--ink); font-size: 15px; line-height: 1.5;}
+.rorg h2, .rorg h3{font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0px;}
+.rorg .avatar{width: 34px; height: 34px; border-radius: 50%; background: var(--brand-soft); color: var(--brand); display: grid; place-items: center; font-weight: 700;}
+.rorg .funders{list-style: none; margin: 0px; padding: 0px; display: grid; gap: 8px;}
+.rorg .funders{grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));}
+.rorg .funders li{display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;}
+.rorg .funders .f-name{flex: 1 1 0%; min-width: 0px; font-family: var(--display); font-weight: 600; font-size: 15.5px; overflow-wrap: anywhere;}
+.rorg .funders b{font-family: var(--display); font-weight: 800; color: var(--brand); font-variant-numeric: tabular-nums;}
+.rorg .money-h{font-family: var(--display); font-size: 14.5px; margin: 18px 0px 6px;}
+.rorg .b-full{font-style: normal; display: inline-block; margin-left: 8px; padding: 3px 10px; border-radius: 999px; background: rgb(230, 242, 234); color: rgb(31, 122, 71); font-family: var(--display); font-weight: 700; font-size: 13.5px; vertical-align: middle;}
+.rorg .b-wait{margin: 0px; color: var(--muted); font-size: 15.5px; line-height: 1.5;}
+.rorg .budget.full .b-bar i{background:linear-gradient(90deg,#1f7a47,#3f9a5f)}
+.rorg .b-wait{margin:0;color:var(--muted);font-size:15.5px;line-height:1.5}
+.rorg .b-full{font-style:normal;display:inline-block;margin-left:8px;padding:3px 10px;border-radius:999px;background:#e6f2ea;color:#1f7a47;font-family:var(--display);font-weight:700;font-size:13.5px;vertical-align:middle}

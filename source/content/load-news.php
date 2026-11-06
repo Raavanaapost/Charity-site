@@ -84,6 +84,7 @@ $by  = 'RaavanaaPost team';
 $stories = array(
 	array(
 		'key'     => 'A',
+		'project' => 'maha-arivagam-preschool-day',
 		'title'   => 'Ice cream, a river and a temple: a day to remember for Yogapuram\'s pre-schoolers',
 		'cats'    => array( 'real-impact', 'sri-lanka' ),
 		'place'   => 'Yogapuram, Mullaitivu',
@@ -104,7 +105,8 @@ $stories = array(
 			. n_p( 'This was a Raavanaa – Beyond the Lanes day of joy. See every project at <a href="https://raavanaa.org">raavanaa.org</a>.' ),
 	),
 	array(
-		'key'     => 'K',
+		'key'     => 'KT',
+		'project' => 'pussellawa-kandy-trip',
 		'title'   => 'A first school trip: Pussellawa pupils hope to see Kandy',
 		'art'     => 'kandy-trip',
 		'cats'    => array( 'community-needs', 'sri-lanka' ),
@@ -169,6 +171,7 @@ $stories = array(
 	),
 	array(
 		'key'     => 'D',
+		'project' => 'casuarina-beach-day',
 		'title'   => 'Casuarina Beach day is funded: about 25 children are going to the sea',
 		'art'     => 'beach-day',
 		'cats'    => array( 'community-needs', 'sri-lanka' ),
@@ -188,6 +191,7 @@ $stories = array(
 	),
 	array(
 		'key'     => 'E',
+		'project' => 'bowling-day',
 		'title'   => 'A bowling day for children with special needs is being planned',
 		'art'     => 'bowling-day',
 		'cats'    => array( 'community-needs' ),
@@ -204,6 +208,7 @@ $stories = array(
 	),
 	array(
 		'key'     => 'B',
+		'project' => 'pussellawa-kids-trip',
 		'title'   => 'A day in the hills for the children of Pussellawa',
 		'cats'    => array( 'real-impact', 'sri-lanka' ),
 		'place'   => 'Pussellawa, Kandy District',
@@ -222,6 +227,7 @@ $stories = array(
 	),
 	array(
 		'key'     => 'C',
+		'project' => 'mums-and-kids-day-out',
 		'title'   => 'Mums and kids, united: a day out together in Kilinochchi',
 		'art'     => 'mums-and-kids',
 		'cats'    => array( 'real-impact', 'sri-lanka' ),
@@ -337,6 +343,9 @@ $stories = array(
 	),
 );
 
+/* Budget and progress for need stories, copied from raavanaa.org's projects.json. */
+$projects = json_decode( file_get_contents( __DIR__ . '/projects.json' ), true );
+
 $sticky = array();
 foreach ( $stories as $s ) {
 	$body = $s['body'];
@@ -371,6 +380,9 @@ foreach ( $stories as $s ) {
 	if ( ! empty( $s['stage'] ) ) {
 		update_post_meta( $id, 'rp_stage', $s['stage'] );
 		update_post_meta( $id, 'rp_update', $s['update'] );
+	}
+	if ( ! empty( $s['project'] ) && isset( $projects[ $s['project'] ] ) ) {
+		update_post_meta( $id, 'rp_project', wp_slash( wp_json_encode( $projects[ $s['project'] ] ) ) );
 	}
 	if ( ! empty( $s['thumb'] ) ) { set_post_thumbnail( $id, $ph[ $s['thumb'] ] ); }
 	if ( ! empty( $s['sticky'] ) ) { $sticky[] = $id; }

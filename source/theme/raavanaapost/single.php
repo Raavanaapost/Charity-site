@@ -69,6 +69,8 @@ while ( have_posts() ) :
 				</aside>
 			<?php endif; ?>
 
+			<?php rp_raavanaa_boxes(); ?>
+
 			<div class="rp-prose">
 				<?php
 				the_content();

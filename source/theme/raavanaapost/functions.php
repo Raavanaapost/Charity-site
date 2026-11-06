@@ -15,6 +15,7 @@ define( 'RP_URI', get_template_directory_uri() );
 
 require RP_DIR . '/inc/setup.php';
 require RP_DIR . '/inc/template-tags.php';
+require RP_DIR . '/inc/raavanaa-boxes.php';
 require RP_DIR . '/inc/story-fields.php';
 require RP_DIR . '/inc/forms.php';
 require RP_DIR . '/inc/customizer.php';

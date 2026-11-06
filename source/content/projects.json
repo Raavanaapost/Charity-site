@@ -1,0 +1,252 @@
+{
+ "pussellawa-kids-trip": {
+  "verified": true,
+  "status": "Complete",
+  "goal": 19250,
+  "budget": [
+   {
+    "item": "Vehicle hire for the trip",
+    "amount": 10500
+   },
+   {
+    "item": "Food for the children",
+    "amount": 8750
+   }
+  ],
+  "funders": [
+   {
+    "name": "Friends of Raavanaa",
+    "amount": 19250
+   }
+  ],
+  "currency": "Rs ",
+  "reach": "Children of Pussellawa (number TBD)",
+  "date_set": true,
+  "booked": true,
+  "volunteers": true,
+  "steps": [],
+  "story": true,
+  "updates": 2,
+  "expectations": [
+   {
+    "text": "Every child travels safely there and back",
+    "result": "met"
+   },
+   {
+    "text": "All the children share a good meal together",
+    "result": "met"
+   },
+   {
+    "text": "The day is recorded in photos and short videos, with permission, to share the joy",
+    "result": "met"
+   }
+  ]
+ },
+ "maha-arivagam-preschool-day": {
+  "verified": true,
+  "status": "Complete",
+  "goal": 20000,
+  "budget": [
+   {
+    "item": "The day out for the pre-school children",
+    "amount": 20000
+   }
+  ],
+  "funders": [
+   {
+    "name": "Friends of Raavanaa",
+    "amount": 20000
+   }
+  ],
+  "currency": "Rs ",
+  "reach": "17 children, 20 parents and 2 teachers",
+  "date_set": true,
+  "booked": true,
+  "volunteers": true,
+  "steps": [],
+  "story": true,
+  "updates": 2,
+  "expectations": [
+   {
+    "text": "Every child travels safely there and back",
+    "result": "met"
+   },
+   {
+    "text": "The children play, laugh and eat together",
+    "result": "met"
+   },
+   {
+    "text": "The day is recorded in photos and short videos, with permission, to share the joy",
+    "result": "met"
+   }
+  ]
+ },
+ "casuarina-beach-day": {
+  "verified": true,
+  "status": "Active",
+  "goal": 600,
+  "budget": [
+   {
+    "item": "Van hire to Karainagar and back",
+    "amount": 220
+   },
+   {
+    "item": "Lunch, snacks and water",
+    "amount": 200
+   },
+   {
+    "item": "Beach games, balls and kites",
+    "amount": 80
+   },
+   {
+    "item": "Small gift for each child",
+    "amount": 60
+   },
+   {
+    "item": "First aid and sun care",
+    "amount": 40
+   }
+  ],
+  "funders": [
+   {
+    "name": "Kiri & Family",
+    "amount": 600
+   }
+  ],
+  "currency": null,
+  "reach": "About 25 children",
+  "date_set": true,
+  "booked": true,
+  "volunteers": false,
+  "steps": [],
+  "story": true,
+  "updates": 0,
+  "expectations": [
+   {
+    "text": "Every child spends time in the sea, safely, with a volunteer close by",
+    "result": ""
+   },
+   {
+    "text": "All 25 children share a good lunch together",
+    "result": ""
+   },
+   {
+    "text": "Each child goes home with a small gift and a day to remember",
+    "result": ""
+   }
+  ]
+ },
+ "mums-and-kids-day-out": {
+  "verified": true,
+  "status": "Complete",
+  "goal": 450,
+  "budget": [
+   {
+    "item": "Bus for the families",
+    "amount": 150
+   },
+   {
+    "item": "Lunch for mums and children",
+    "amount": 180
+   },
+   {
+    "item": "Games and activities",
+    "amount": 70
+   },
+   {
+    "item": "Printed family photo for each mum",
+    "amount": 50
+   }
+  ],
+  "funders": [
+   {
+    "name": "Sasi",
+    "amount": 150
+   },
+   {
+    "name": "Shanker",
+    "amount": 150
+   },
+   {
+    "name": "Bala",
+    "amount": 150
+   }
+  ],
+  "currency": null,
+  "reach": "18 mums and 30 children",
+  "date_set": true,
+  "booked": true,
+  "volunteers": true,
+  "steps": [],
+  "story": true,
+  "updates": 1,
+  "expectations": [
+   {
+    "text": "Mums get a full day off, with nothing to do but enjoy their children",
+    "result": "met"
+   },
+   {
+    "text": "Every mum and child plays at least one game together",
+    "result": "met"
+   },
+   {
+    "text": "Each family takes home a photo of the day",
+    "result": "met"
+   }
+  ]
+ },
+ "bowling-day": {
+  "verified": true,
+  "status": "Planning",
+  "goal": null,
+  "budget": [],
+  "funders": [],
+  "currency": null,
+  "reach": "Special-needs children of Sivapoomi",
+  "date_set": false,
+  "booked": false,
+  "volunteers": true,
+  "steps": [],
+  "story": true,
+  "updates": 0,
+  "expectations": []
+ },
+ "pussellawa-kandy-trip": {
+  "verified": true,
+  "status": "Planning",
+  "goal": 61000,
+  "budget": [
+   {
+    "item": "Bus to Kandy and back (about 50 km each way)",
+    "amount": 30000
+   },
+   {
+    "item": "Food for the whole group",
+    "amount": 31000
+   }
+  ],
+  "funders": [],
+  "currency": "Rs ",
+  "reach": "52 children and 6 teachers",
+  "date_set": true,
+  "booked": false,
+  "volunteers": false,
+  "steps": [],
+  "story": true,
+  "updates": 2,
+  "expectations": [
+   {
+    "text": "Every child travels safely to Kandy and back",
+    "result": ""
+   },
+   {
+    "text": "The whole group shares a good meal together",
+    "result": ""
+   },
+   {
+    "text": "The children visit the Temple of the Tooth and the Peradeniya gardens",
+    "result": ""
+   }
+  ]
+ }
+}
