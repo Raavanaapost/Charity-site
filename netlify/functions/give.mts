@@ -1,25 +1,35 @@
-// Card payments through Stripe Checkout.
+// Card payments: PayHere (Sri Lanka, in rupees) or Stripe Checkout (Canadian dollars), whichever is switched on.
 //   POST /api/give/checkout   start a payment: sponsor a project, a monthly Smile member gift, or a general gift
-//   POST /api/give/webhook    Stripe tells us a payment went through; the gift is recorded here (and only here)
+//   POST /api/give/payhere    PayHere tells us a payment went through (signed); the gift is recorded here
+//   POST /api/give/webhook    Stripe tells us a payment went through (signed); the gift is recorded here
 //   GET  /api/give/totals     what has been given by card to each project (names only with permission)
 //   GET  /api/give/session    a short summary for the thank-you page
-// Needs two environment variables in Netlify: STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET.
-// Until they are set, the site says card payments are coming soon and nothing is charged.
+// PayHere needs PAYHERE_MERCHANT_ID and PAYHERE_MERCHANT_SECRET in Netlify (PAYHERE_LIVE=yes for real money;
+// without it the PayHere sandbox is used). Stripe needs STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET.
+// PayHere wins when both are set. Until one is set, the site says card payments are coming soon and nothing is charged.
 import type { Config, Context } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
 import data from "../../projects.json" with { type: "json" };
 import siteData from "../../site.json" with { type: "json" };
-import { centsPerUnit, checkoutParams, openFor, readRequest, slugOf, takesCards, verifyStripe, type Project } from "../lib/give-core.mts";
+import {
+  checkoutParams, currencyOf, newOrderId, openFor, payhereFields, payhereUrl, readRequest, slugOf,
+  toProjectUnits, verifyPayhere, verifyStripe, type Cur, type Project, type Provider,
+} from "../lib/give-core.mts";
 
 const json = (body: unknown, status = 200, cache = "no-store") => Response.json(body, { status, headers: { "Cache-Control": cache } });
 const projects = ((data as { projects?: Project[] }).projects || []).filter((p) => p && p.title);
 const find = (slug: string) => projects.find((p) => slugOf(p) === slug);
 const FRIEND = "A friend of Raavanaa";
-// Sri Lankan rupees to one Canadian dollar, set by the team in site.json (0 = rupee projects don't take cards).
+// Sri Lankan rupees to one Canadian dollar, set by the team in site.json (only used for Stripe gifts in CAD).
 const RATE = Number((siteData as { rate_lkr_per_cad?: unknown }).rate_lkr_per_cad) || 0;
 
+const env = (k: string) => (Netlify.env.get(k) || "").trim();
+const payhereOn = () => !!(env("PAYHERE_MERCHANT_ID") && env("PAYHERE_MERCHANT_SECRET"));
+const stripeOn = () => !!env("STRIPE_SECRET_KEY");
+const providerOf = (): Provider | null => (payhereOn() ? "payhere" : stripeOn() ? "stripe" : null);
+
 async function stripe(path: string, body?: URLSearchParams) {
-  const key = Netlify.env.get("STRIPE_SECRET_KEY");
+  const key = env("STRIPE_SECRET_KEY");
   if (!key) throw Object.assign(new Error("not configured"), { code: 503 });
   const r = await fetch(`https://api.stripe.com/v1/${path}`, {
     method: body ? "POST" : "GET",
@@ -31,33 +41,52 @@ async function stripe(path: string, body?: URLSearchParams) {
   return out;
 }
 
-// Gifts count only in their own world: live payments on the live site, test payments everywhere else.
-const liveSite = (context: Context) => context.deploy?.context === "production" && (Netlify.env.get("STRIPE_SECRET_KEY") || "").startsWith("sk_live_");
+// Gifts count only in their own world: real payments on the live site, test payments everywhere else.
+const liveSite = (context: Context, provider: Provider | null = providerOf()) =>
+  context.deploy?.context === "production" &&
+  (provider === "payhere" ? env("PAYHERE_LIVE").toLowerCase() === "yes" : env("STRIPE_SECRET_KEY").startsWith("sk_live_"));
 
-async function paidFor(db: ReturnType<typeof getDatabase>, slug: string, live: boolean) {
-  const [row] = await db.sql<{ cents: number }>`SELECT COALESCE(SUM(amount_cents), 0)::int AS cents FROM gifts WHERE kind = 'project' AND project_slug = ${slug} AND livemode = ${live}`;
-  return row ? Number(row.cents) : 0;
+// Card gifts already recorded for a project, in the project's own currency.
+async function paidFor(db: ReturnType<typeof getDatabase>, p: Project, live: boolean) {
+  const rows = await db.sql<{ currency: string; cents: number }>`
+    SELECT currency, COALESCE(SUM(amount_cents), 0)::bigint AS cents FROM gifts
+    WHERE kind = 'project' AND project_slug = ${slugOf(p)} AND livemode = ${live} GROUP BY currency`;
+  return rows.reduce((s, r) => s + toProjectUnits(p, Number(r.cents), r.currency, RATE), 0);
 }
 
 async function checkout(req: Request, context: Context) {
-  if (!Netlify.env.get("STRIPE_SECRET_KEY")) return json({ ok: false, error: "Card payments are coming soon. Please check back shortly." }, 503);
+  const provider = providerOf();
+  if (!provider) return json({ ok: false, error: "Card payments are coming soon. Please check back shortly." }, 503);
+  const cur: Cur = currencyOf(provider);
   let body: Record<string, unknown>;
   try { body = await req.json(); } catch { return json({ ok: false, error: "Could not read the form." }, 400); }
   if (String(body["bot-field"] || "")) return json({ ok: false, error: "Something went wrong." }, 400);
-  const g = readRequest(body);
+  const g = readRequest(body, cur);
   if (typeof g === "string") return json({ ok: false, error: g }, 400);
+  const live = liveSite(context, provider);
 
   let title = "";
   if (g.kind === "project") {
     const p = find(g.slug);
     const db = getDatabase();
-    const open = openFor(p, p ? await paidFor(db, g.slug, liveSite(context)) : 0, RATE);
+    const open = p ? openFor(p, await paidFor(db, p, live), RATE, cur) : null;
     if (!p || !open) return json({ ok: false, error: "This project isn't taking gifts right now. It may already be fully covered." }, 409);
     if (g.amountCents > open.leftCents) g.amountCents = open.leftCents; // never more than what is still needed
     if (g.amountCents < 100) return json({ ok: false, error: "This project is fully covered. Thank you!" }, 409);
     title = String(p.title);
   }
   const origin = new URL(req.url).origin;
+
+  if (provider === "payhere") {
+    // Remember the order, so PayHere's confirmation can be matched to what the giver chose.
+    const orderId = newOrderId();
+    await getDatabase().sql`INSERT INTO give_orders (order_id, kind, project_slug, amount_cents, fee_cents, currency, display_name, show_name, email, livemode)
+      VALUES (${orderId}, ${g.kind}, ${g.slug}, ${g.amountCents}, ${g.feeCents}, 'lkr', ${g.name}, ${g.showName}, ${g.email}, ${live})`;
+    const fields = payhereFields(g, { origin, title, orderId, merchantId: env("PAYHERE_MERCHANT_ID"), secret: env("PAYHERE_MERCHANT_SECRET") });
+    // Real money only on the live site with PAYHERE_LIVE=yes; the draft and previews always use PayHere's sandbox.
+    return json({ ok: true, form: { action: payhereUrl(!live), fields } });
+  }
+
   try {
     const s = await stripe("checkout/sessions", checkoutParams(g, origin, title));
     return json({ ok: true, url: s.url });
@@ -66,8 +95,46 @@ async function checkout(req: Request, context: Context) {
   }
 }
 
+// PayHere's notification (a form post). status_code: 2 paid, 0 pending, -1 cancelled, -2 failed, -3 charged back.
+// A monthly gift arrives here each month with the same order_id, a new payment_id and its subscription_id.
+async function payhereNotify(req: Request) {
+  const merchantId = env("PAYHERE_MERCHANT_ID"), secret = env("PAYHERE_MERCHANT_SECRET");
+  if (!merchantId || !secret) return new Response("Not configured", { status: 503 });
+  const f = Object.fromEntries([...(await req.formData()).entries()].map(([k, v]) => [k, String(v)])) as Record<string, string>;
+  if (!verifyPayhere(f, merchantId, secret)) return new Response("Bad signature", { status: 400 });
+  const db = getDatabase();
+  const [o] = await db.sql<{ order_id: string; kind: string; project_slug: string; amount_cents: number; fee_cents: number; display_name: string; show_name: boolean; email: string; livemode: boolean }>`
+    SELECT order_id, kind, project_slug, amount_cents, fee_cents, display_name, show_name, email, livemode FROM give_orders WHERE order_id = ${String(f.order_id)}`;
+  if (!o) return new Response("Unknown order", { status: 404 });
+  const status = Number(f.status_code);
+  const sub = String(f.subscription_id || "");
+  const word = status === 2 ? "paid" : status === 0 ? "pending" : status === -3 ? "charged_back" : status === -1 ? "cancelled" : "failed";
+  await db.sql`UPDATE give_orders SET status = ${word}, payment_id = ${String(f.payment_id || "")}, updated_at = NOW() WHERE order_id = ${o.order_id}`;
+
+  if (status === 2 && String(f.payhere_currency).toUpperCase() === "LKR") {
+    const paid = Math.round(parseFloat(f.payhere_amount) * 100) || 0;
+    const amount = Math.min(paid, Number(o.amount_cents) || paid); // only what reaches the cause counts, not the fee
+    if (o.kind === "member" && sub) {
+      await db.sql`INSERT INTO members (subscription_id, display_name, show_name, email, monthly_cents, fee_cents, livemode, provider)
+        VALUES (${sub}, ${o.display_name}, ${o.show_name}, ${o.email}, ${Number(o.amount_cents)}, ${Number(o.fee_cents)}, ${o.livemode}, 'payhere')
+        ON CONFLICT (subscription_id) DO NOTHING`;
+    }
+    if (paid > 0 && f.payment_id) {
+      await db.sql`INSERT INTO gifts (stripe_id, kind, project_slug, amount_cents, paid_cents, currency, display_name, show_name, email, subscription_id, livemode, provider)
+        VALUES (${"ph_" + String(f.payment_id)}, ${o.kind}, ${o.project_slug}, ${amount}, ${paid}, 'lkr', ${o.display_name}, ${o.show_name}, ${o.email}, ${sub}, ${o.livemode}, 'payhere')
+        ON CONFLICT (stripe_id) DO NOTHING`;
+    }
+  } else if (status === -3 && f.payment_id) {
+    // A chargeback: the money went back, so the gift no longer counts.
+    await db.sql`DELETE FROM gifts WHERE stripe_id = ${"ph_" + String(f.payment_id)}`;
+  }
+  // A monthly gift that was cancelled or has stopped (item_rec_status -1 cancelled, -2 failed).
+  if (sub && Number(f.item_rec_status) < 0) await db.sql`UPDATE members SET status = 'canceled', updated_at = NOW() WHERE subscription_id = ${sub}`;
+  return new Response("ok");
+}
+
 async function webhook(req: Request) {
-  const secret = Netlify.env.get("STRIPE_WEBHOOK_SECRET");
+  const secret = env("STRIPE_WEBHOOK_SECRET");
   if (!secret) return new Response("Not configured", { status: 503 });
   const payload = await req.text();
   if (!(await verifyStripe(payload, req.headers.get("stripe-signature") || "", secret))) return new Response("Bad signature", { status: 400 });
@@ -112,32 +179,47 @@ async function webhook(req: Request) {
 }
 
 async function totals(context: Context) {
-  if (!Netlify.env.get("STRIPE_SECRET_KEY")) return json({ enabled: false, projects: {}, members: 0 }, 200, "public, max-age=60");
+  const provider = providerOf();
+  if (!provider) return json({ enabled: false, projects: {}, members: 0 }, 200, "public, max-age=60");
   const db = getDatabase();
-  const live = liveSite(context);
-  const rows = await db.sql<{ project_slug: string; amount_cents: number; display_name: string; show_name: boolean }>`
-    SELECT project_slug, amount_cents, display_name, show_name FROM gifts WHERE kind = 'project' AND livemode = ${live} ORDER BY created_at`;
+  const live = liveSite(context, provider);
+  const rows = await db.sql<{ project_slug: string; amount_cents: number; currency: string; display_name: string; show_name: boolean }>`
+    SELECT project_slug, amount_cents, currency, display_name, show_name FROM gifts WHERE kind = 'project' AND livemode = ${live} ORDER BY created_at`;
   const [m] = await db.sql<{ n: number }>`SELECT COUNT(*)::int AS n FROM members WHERE status = 'active' AND livemode = ${live}`;
   const out: Record<string, { cents: number; gifts: { name: string; amount: number }[] }> = {};
   for (const r of rows) {
     const p = find(r.project_slug);
-    if (!p || !takesCards(p, RATE)) continue;
+    if (!p) continue;
+    // Amounts are given in the project's own currency, so they add up with its budget.
+    const units = toProjectUnits(p, Number(r.amount_cents), r.currency, RATE);
+    if (!units) continue;
     const t = (out[r.project_slug] ||= { cents: 0, gifts: [] });
     t.cents += Number(r.amount_cents);
-    // Amounts are given in the project's own currency, so they add up with its budget.
-    t.gifts.push({ name: r.show_name && r.display_name ? r.display_name : FRIEND, amount: Math.round((Number(r.amount_cents) / centsPerUnit(p, RATE)) * 100) / 100 });
+    t.gifts.push({ name: r.show_name && r.display_name ? r.display_name : FRIEND, amount: Math.round(units * 100) / 100 });
   }
-  return json({ enabled: true, test: !live, rate: RATE, projects: out, members: m ? Number(m.n) : 0 }, 200, "public, max-age=30");
+  return json({ enabled: true, provider, currency: currencyOf(provider).toUpperCase(), test: !live, rate: RATE, projects: out, members: m ? Number(m.n) : 0 }, 200, "public, max-age=30");
 }
 
 async function session(req: Request) {
-  const id = new URL(req.url).searchParams.get("id") || "";
+  const q = new URL(req.url).searchParams;
+  const order = q.get("order") || "";
+  if (order) {
+    // PayHere: what the giver chose, and whether PayHere has confirmed it yet.
+    if (!/^RV[A-Z0-9]{6,24}$/.test(order)) return json({ ok: false }, 400);
+    const [o] = await getDatabase().sql<{ kind: string; project_slug: string; amount_cents: number; fee_cents: number; status: string; livemode: boolean }>`
+      SELECT kind, project_slug, amount_cents, fee_cents, status, livemode FROM give_orders WHERE order_id = ${order}`;
+    if (!o) return json({ ok: false }, 404);
+    const p = o.kind === "project" ? find(o.project_slug) : undefined;
+    return json({ ok: true, provider: "payhere", currency: "LKR", kind: o.kind, amount: Number(o.amount_cents) / 100, paid: (Number(o.amount_cents) + Number(o.fee_cents)) / 100,
+      project: p ? { title: p.title, slug: slugOf(p) } : null, status: o.status, test: !o.livemode });
+  }
+  const id = q.get("id") || "";
   if (!/^cs_[A-Za-z0-9_]+$/.test(id)) return json({ ok: false }, 400);
   try {
     const s = await stripe(`checkout/sessions/${id}`);
     const m = s.metadata || {};
     const p = m.kind === "project" ? find(String(m.project || "")) : undefined;
-    return json({ ok: true, kind: m.kind, amount: (Number(m.amount_cents) || Number(s.amount_total) || 0) / 100, paid: (Number(s.amount_total) || 0) / 100,
+    return json({ ok: true, provider: "stripe", currency: "CAD", kind: m.kind, amount: (Number(m.amount_cents) || Number(s.amount_total) || 0) / 100, paid: (Number(s.amount_total) || 0) / 100,
       project: p ? { title: p.title, slug: slugOf(p) } : null, status: s.payment_status || s.status, test: !s.livemode });
   } catch {
     return json({ ok: false }, 502);
@@ -148,6 +230,7 @@ export default async (req: Request, context: Context) => {
   const route = new URL(req.url).pathname.replace(/\/+$/, "").split("/").pop();
   try {
     if (route === "checkout" && req.method === "POST") return await checkout(req, context);
+    if (route === "payhere" && req.method === "POST") return await payhereNotify(req);
     if (route === "webhook" && req.method === "POST") return await webhook(req);
     if (route === "totals" && req.method === "GET") return await totals(context);
     if (route === "session" && req.method === "GET") return await session(req);
@@ -159,6 +242,6 @@ export default async (req: Request, context: Context) => {
 };
 
 export const config: Config = {
-  path: ["/api/give/checkout", "/api/give/webhook", "/api/give/totals", "/api/give/session"],
+  path: ["/api/give/checkout", "/api/give/payhere", "/api/give/webhook", "/api/give/totals", "/api/give/session"],
   rateLimit: { action: "rate_limit", aggregateBy: ["ip", "domain"], windowSize: 60, windowLimit: 30 },
 };
