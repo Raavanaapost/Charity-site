@@ -65,7 +65,7 @@ function rp_rorg_steps( $p ) {
 	if ( 1 === $st ) {
 		return array(
 			array( 'Visited and verified', ! empty( $p['verified'] ) ? 1 : 0, '#1f7a47', false ),
-			array( 'Budget ready', $b['goal'] > 0 ? 1 : 0, '#3f9a5f', false ),
+			array( 'Budgeted', $b['goal'] > 0 ? 1 : 0, '#3f9a5f', false ),
 			array( 'Funded', $b['goal'] > 0 ? min( 1, $b['raised'] / $b['goal'] ) : 0, '#eaa21c', true ),
 		);
 	}
@@ -96,23 +96,30 @@ function rp_rorg_money( $p, $n ) {
 }
 
 /** activatingPanelHTML() */
+/** Initiated: the % is only how much is funded so far; verified and budgeted show as ticks but do not count (SURESH, 6 Nov 2026). */
+function rp_rorg_arcs( $p ) {
+	$steps = rp_rorg_steps( $p );
+	return 1 === rp_rorg_stage( $p ) ? array_values( array_filter( $steps, function ( $x ) { return 'Funded' === $x[0]; } ) ) : $steps;
+}
+
 function rp_rorg_activating( $p ) {
 	$steps = rp_rorg_steps( $p );
 	$texts = array(
-		1 => array( 'Activating', 'ACTIVATING', 'ACTIVATED', 'of the way to being activated' ),
+		1 => array( 'Activating', 'FUNDED', 'ACTIVATED', 'funded so far' ),
 		2 => array( 'Preparing the day', 'PREPARING', 'READY', 'of the preparations done' ),
 		3 => array( 'Delivered', 'REPORTING', 'DELIVERED', 'of the results reported' ),
 	);
 	$t   = $texts[ rp_rorg_stage( $p ) ];
-	$pct = (int) round( array_sum( array_column( $steps, 1 ) ) / count( $steps ) * 100 );
-	$n   = count( $steps );
-	$gap = $n > 5 ? 16 : 20;
+	$rings = rp_rorg_arcs( $p );
+	$pct = (int) round( array_sum( array_column( $rings, 1 ) ) / count( $rings ) * 100 );
+	$n   = count( $rings );
+	$gap = 1 === $n ? 0 : ( $n > 5 ? 16 : 20 );
 	$len = 360 / $n - $gap;
 	$arc = function ( $start, $l, $c, $o ) {
 		return $l > 0.01 ? sprintf( '<circle cx="60" cy="60" r="48" fill="none" stroke="%s" stroke-opacity="%s" stroke-width="13" stroke-linecap="round" pathLength="360" stroke-dasharray="%.2f %.2f" stroke-dashoffset="%.2f"/>', $c, $o, $l, 360 - $l, -$start ) : '';
 	};
 	$arcs = '';
-	foreach ( $steps as $k => $x ) {
+	foreach ( $rings as $k => $x ) {
 		$start = $k * ( $len + $gap ) + $gap / 2;
 		$arcs .= $arc( $start, $len, $x[2], '.18' ) . $arc( $start, $len * $x[1], $x[2], '1' );
 	}
@@ -250,9 +257,10 @@ function rp_rorg_go_panel( $p, $cls ) {
 	$steps  = rp_rorg_steps( $p );
 	$b      = rp_rorg_budget( $p );
 	$shares = rp_rorg_shares( $p );
-	$pct    = (int) round( array_sum( array_column( $steps, 1 ) ) / count( $steps ) * 100 );
+	$rings  = rp_rorg_arcs( $p );
+	$pct    = (int) round( array_sum( array_column( $rings, 1 ) ) / count( $rings ) * 100 );
 	preg_match( '/\d+/', (string) ( $p['reach'] ?? '' ), $kids );
-	$slice = 100 / count( $steps );
+	$slice = 100 / count( $rings );
 	$id    = preg_replace( '/\W/', '', $cls );
 	$need  = max( 0, $b['goal'] - $b['raised'] );
 	preg_match( '/<svg class="ring"[\s\S]*?<\/svg>/', rp_rorg_activating( $p ), $ring );
@@ -261,9 +269,11 @@ function rp_rorg_go_panel( $p, $cls ) {
 	$items = '';
 	foreach ( $steps as $k => $x ) {
 		$d      = $x[1];
-		$raw   += min( 1, $d ) * $slice;
 		$who    = ( 2 === $k && $names ) ? '<small class="rp-who">' . $names . '</small>' : '';
 		$items .= sprintf( '<li class="%s"><i style="background:%s"></i><span>%s%s</span><b>%s</b></li>', $d >= 1 ? 'done' : ( $d > 0 ? 'part' : '' ), $x[2], esc_html( $x[0] ), $who, $d >= 1 ? '✓' : ( $x[3] && $d > 0 ? round( $d * 100 ) . '%' : '–' ) );
+	}
+	foreach ( $rings as $x ) {
+		$raw += min( 1, $x[1] ) * $slice;
 	}
 	$heart  = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>';
 	$donate = '<button class="rp-donate" type="button" data-donate>' . $heart . '<span>Donate</span></button>';
@@ -390,7 +400,7 @@ function rp_rorg_journey( $p ) {
 		$state = $x[4] ? 'done' : ( $k === $now ? 'now' : 'next' );
 		$info  = implode( ' · ', array_filter( array( $x[2] ? esc_html( $x[2] ) : '', $x[3] ? rp_rorg_date( $x[3] ) : '' ) ) );
 		// The funding step, while it is the current one, gets a small "Make it happen" nudge (SURESH, 6 Nov 2026).
-		$cta   = ( 'now' === $state && 'Fully funded' === $x[1] && 1 === $st ) ? '<button type="button" class="jr-cta" data-fund><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>Be the reason they smile. Make it happen</button>' : '';
+		$cta   = ( 'now' === $state && 'Fully funded' === $x[1] && 1 === $st ) ? '<span class="jr-nudge"><svg class="jr-arrow" viewBox="0 0 56 34" width="44" height="27" aria-hidden="true"><path class="jr-arrow-line" d="M5 3c2 15 14 24 40 22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" pathLength="100"/><path class="jr-arrow-head" d="M37 17l9 8-10 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><button type="button" class="jr-cta" data-fund><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>Be the reason they smile. Make it happen</button></span>' : '';
 		$html .= '<li class="' . $state . ' jr' . $x[0] . '"><i aria-hidden="true">' . ( $x[4] ? '✓' : '' ) . '</i><span><b>' . $x[1] . '</b>' . ( $info ? '<small>' . $info . '</small>' : ( 'now' === $state ? '<small>In progress</small>' : '' ) ) . $cta . '</span></li>';
 	}
 	return '<div class="panel journey"><h2>The journey</h2>' . $html . '</ol></div>';
