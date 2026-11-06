@@ -37,6 +37,8 @@
 /initiated  /stage.html  200
 /activated  /stage.html  200
 /impact  /stage.html  200
+/give  /give.html  200
+/thank-you  /thank-you.html  200
 /projects/*  /project.html  200
 /post  /post.html  200
 /post-royal  /post-royal.html  200
