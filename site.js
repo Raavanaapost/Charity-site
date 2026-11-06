@@ -67,6 +67,16 @@
       a.setAttribute("aria-label", onTa ? "Read this page in English" : "இந்தப் பக்கத்தைத் தமிழில் படிக்க");
       bar.appendChild(a);
     }
+    // Members link at the end of the menu: "Sign in", or "My account" once signed in (Netlify Identity keeps the session in localStorage).
+    const navEl = document.getElementById("site-nav");
+    if (navEl && !navEl.querySelector(".nav-member")) {
+      let signedIn = false; try { signedIn = !!localStorage.getItem("gotrue.user"); } catch (e) { /* storage blocked */ }
+      const m = document.createElement("a");
+      m.className = "nav-member"; m.href = (/^\/ta(\/|$)/.test(location.pathname) ? "/ta" : "") + "/members";
+      m.textContent = signedIn ? "My account" : "Sign in";
+      if (document.body.dataset.page === "members") m.setAttribute("aria-current", "page");
+      navEl.appendChild(m);
+    }
     // Projects menu: a small drop-down with the three stages (on phones they show indented under Projects).
     const proj = document.querySelector('#site-nav a[href="/initiated"], #site-nav a[href="/ta/initiated"]');
     if (proj && !proj.closest(".nav-drop")) {
@@ -1904,9 +1914,12 @@
     nav.addEventListener("click", e => { if (e.target.closest("a")) { menuBtn.setAttribute("aria-expanded", "false"); nav.classList.remove("open"); } });
   }
 
-  // Links from team-portal emails (invite, password reset, confirmation) land on the site; send them to the portal.
-  if (/(invite_token|recovery_token|confirmation_token|email_change_token)=/.test(location.hash) && !/^\/portal/.test(location.pathname)) {
+  // Links from Identity emails land on the site. Team invites and email changes go to the portal;
+  // sign-up confirmations and password resets go to the members page (it links team members on to the portal).
+  if (/(invite_token|email_change_token)=/.test(location.hash) && !/^\/portal/.test(location.pathname)) {
     location.replace("/portal" + location.hash);
+  } else if (/(recovery_token|confirmation_token)=/.test(location.hash) && !/^\/(portal|members|ta\/members)/.test(location.pathname)) {
+    location.replace("/members" + location.hash);
   }
 
   async function main() {
@@ -2154,6 +2167,9 @@
       } else if (page === "front-2") {
         document.title = site.name;
         await renderLane(app, site, projects, data.projects);
+      } else if (page === "members") {
+        document.title = `Members · ${site.name}`;
+        await (await import("/members.js")).render(app, site);
       } else if (page === "create") {
         document.title = `Make a Smile Happen · ${site.name}`;
         renderCreate(app, site, projects);

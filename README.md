@@ -3,7 +3,8 @@
 - [ ] Comments: paste the GitHub key into the `COMMENTS_GITHUB_TOKEN` setting in Netlify (it exists but is empty), then test a comment.
 - [ ] Form emails: in Netlify, Project configuration → Notifications → Form submission notifications, add an email notification to the owner's address for "Any form". Until then messages are only saved under Forms in Netlify.
 - [ ] Impact in numbers: Volunteers and Local visits are hidden until real figures are typed in (admin → Site settings).
-- [ ] Decide on member login (Netlify Identity): what members can do, and open sign-up or invite-only.
+- [x] Member login page (/members, 6 Nov 2026, draft): Sign in, Join, password reset, My account (name, "My donations" placeholder until card payments open). Same Netlify Identity as the team portal; portal access still needs the admin/team role. A "Sign in" / "My account" link sits at the end of the menu. RaavanaaPost has no login.
+- [ ] Owner: to let the public join, in Netlify → Identity → Registration set it to Open (now Invite only, so only "Sign in" shows). Optional: Identity → External providers → add Google for "Continue with Google".
 - [ ] About page: add who is behind Raavanaa, where it is based and how it started.
 - [ ] Contact details: email, Facebook, Instagram (admin → Site settings) so the footer shows "Follow us".
 - [ ] Keep me posted: decide how sign-ups get their news (the addresses are stored under Forms in Netlify).

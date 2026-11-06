@@ -1832,3 +1832,24 @@ body[data-page="home"] .finder-slogan{margin-top:-42px}
 }
 html[lang="ta"] .lane-label{font-size:clamp(12px,1.6vw,15px)}html[lang="ta"] .lane .you .lane-label{font-size:clamp(12.5px,1.7vw,16px)}html[lang="ta"] .lane-sub{font-size:10.5px}
 @media (prefers-reduced-motion:reduce){.lane .you .lane-dot::after{animation:none}.lane-dot,.wait-btn span,.ask-btn span{transition:none}}
+
+/* Members area (/members): sign in, join, my account */
+.member-page .lede{font-size:17px;color:var(--muted);margin:0;max-width:60ch}
+.member-grid{display:grid;gap:18px;margin-top:10px}
+@media (min-width:820px){.member-grid{grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);align-items:start}}
+.member-card h2,.member-why h2{font-family:var(--display);font-size:20px;margin:0 0 4px}
+.member-tabs{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--bg)}
+.member-tabs button{font:inherit;font-family:var(--display);font-weight:700;font-size:15px;border:0;border-radius:999px;padding:9px;background:transparent;color:var(--muted);cursor:pointer}
+.member-tabs button[aria-selected="true"]{background:var(--brand);color:var(--brand-ink)}
+.member-or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;margin:0}
+.member-or::before,.member-or::after{content:"";flex:1;border-top:1px solid var(--line)}
+.member-google{margin-top:0}
+.member-link{font:inherit;font-size:14px;background:none;border:0;padding:0;color:var(--brand);text-decoration:underline;cursor:pointer;justify-self:start}
+.member-msg:empty{display:none}
+.member-why ul{margin:8px 0 12px;padding-left:20px;display:grid;gap:6px}
+.member-why .note + .note{margin-top:8px}
+.member-actions{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0 0}
+.member-actions .btn{width:auto;padding-inline:20px;margin:0}
+.member-flash{background:var(--brand-soft);color:var(--ink);border-radius:8px;padding:10px 14px;margin:4px 0 0}
+.member-foot{margin-top:18px;font-size:14px;color:var(--muted)}
+.nav .nav-member{font-weight:700;color:var(--brand)}
