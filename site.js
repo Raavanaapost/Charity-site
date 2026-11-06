@@ -1286,7 +1286,6 @@
           ${ring}
           <ul class="ring-steps">${steps.map(x => { const d = x.done; return `<li class="${d >= 1 ? "done" : d > 0 ? "part" : ""}"><i style="background:${x.c}"></i><span>${esc(x.name)}${x.name === "Funded" ? whoFunded(p) : ""}</span><b>${d >= 1 ? "✓" : x.pctLabel && d > 0 ? Math.round(d * 100) + "%" : "–"}</b></li>`; }).join("")}</ul>
         </div>
-        ${pct < 100 ? DONATE_BTN : ""}
         ${pct < 100 ? `<button class="go-open" type="button" aria-expanded="false" aria-controls="go-fold-${id}"><span>See what's left to reach 100%</span><i aria-hidden="true">⌄</i></button>
         <div class="go-fold" id="go-fold-${id}" hidden>
           <ol class="go-list">${b.funders.map(f => `<li class="done funder"><i aria-hidden="true">${b.goal ? Math.round(numOf(f.amount) / b.goal * 100) : 0}%</i>
@@ -1879,11 +1878,12 @@
         <div class="ptale-text story" id="ptale-text">${(h => { const k = h.indexOf("</p>") + 4; return k > 3 && h.slice(k).trim() ? h.slice(0, k) + `<div class="ptale-rest">${h.slice(k)}</div>` : h; })(md(taleSrc))}</div>
         <button class="ptale-more" type="button" aria-expanded="false" aria-controls="ptale-text" hidden><span>${TALE_MORE[st]}</span><i aria-hidden="true">⌄</i></button>
       </section>` : "";
-    const tabs = (st === 3 ? [["updates", "Impact"], ["budget", "Budget"]] : [["budget", "Budget"], ["updates", "Impact"]])
-      .concat([["media", `Media${count(photos.length + media.length)}`]]);
+    // Story first, then Impact, Budget, Media: the same order as on RaavanaaPost (SURESH, 6 Nov 2026).
+    const tabs = [["story", "Story"], ["updates", "Impact"], ["budget", "Budget"], ["media", `Media${count(photos.length + media.length)}`]];
 
     const panes = {
-      story: `<div class="story">${p.quote ? `<p class="pull">“${esc(p.quote)}”</p>` : ""}${md(p.story)}</div>`,
+      // The story tab: the opening paragraph in full, the rest behind "See how this smile begins".
+      story: taleHTML || `<p class="empty">The story is on its way.</p>`,
       updates: expectHTML(p) + (updates.length ? updates.map(u => `<article class="update"><div class="meta">${fmtDate(u.date)}</div><h3>${esc(u.title)}</h3><div>${md(u.body)}</div></article>`).join("") : `<p class="empty">No impact updates yet.</p>`) + (p.sample ? "" : commentsHTML(slugOf(p))),
       budget: `<div class="budget-tab">${budgetDetailHTML(p, site, true)}${stageNum(p) === 1 && budgetOf(p).lines.length ? `<p class="note">These are estimates. Once the day has happened, the real costs are shown here.</p>` : stageNum(p) === 2 ? `<p class="note">Once the day has happened, a breakdown of where the money went is shown here.</p>` : ""}</div>`,
       media: (photos.length || media.length) ? `${media.length ? `<div class="media">${media.map(m => { const e = embedFor(m.url); return e ? `<figure style="margin:0"><div class="embed"><iframe src="${esc(e)}" title="${esc(m.title)}" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy"></iframe></div>${m.title ? `<figcaption class="note" style="padding-top:6px">${esc(m.title)}</figcaption>` : ""}</figure>` : `<a class="media-link" href="${esc(m.url)}" target="_blank" rel="noopener">▶ ${esc(m.title || m.url)}</a>`; }).join("")}</div>` : ""}${photos.length ? `<div class="photos">${photos.map((ph, k) => `<figure><button data-src="${esc(imgUrl(ph.image, 1600))}" aria-label="Open picture"><div class="cover"><img src="${esc(imgUrl(ph.image, 600))}" alt="${esc(ph.caption)}" loading="lazy"></div></button>${ph.caption ? `<figcaption>${esc(ph.caption)}</figcaption>` : ""}</figure>`).join("")}</div>` : ""}` : `<p class="empty">No videos or pictures yet.</p>`
@@ -1903,6 +1903,7 @@
             </header>
             <div class="hero-wrap">
               <div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.cover ? "" : "Cover photo", 1400)}</div>
+              ${stageNum(p) === 1 && !p.sample ? `<div class="donate-on-pic">${DONATE_BTN}</div>` : ""}
               <div class="glance">
                 <button type="button" class="glance-btn" aria-label="Project at a glance" aria-describedby="glance-card"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg><span>At a glance</span></button>
                 <div class="panel glance-card" id="glance-card" role="tooltip">
@@ -1917,7 +1918,6 @@
                 </div>
               </div>
             </div>
-            ${taleHTML}
             ${ringPanel("only-narrow")}
             ${stageNum(p) === 3 ? "" : `<div class="only-narrow">${budgetBoxHTML(p, site, false)}</div>`}
             <div class="tabs" role="tablist">

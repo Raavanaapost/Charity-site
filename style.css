@@ -1887,3 +1887,8 @@ html[lang="ta"] .lane-label{font-size:clamp(12px,1.6vw,15px)}html[lang="ta"] .la
 .glance-card{display:none;width:min(320px,calc(100vw - 56px));margin-top:8px;box-shadow:0 10px 30px rgba(0,0,0,.2);text-align:left}
 .glance:hover .glance-card,.glance:focus-within .glance-card{display:block}
 .glance-card .facts{margin:0}
+/* A small Donate button on the picture of Initiated projects. */
+.donate-on-pic{position:absolute;top:12px;left:12px;z-index:5}
+.donate-on-pic .donate-btn{width:auto;margin:0;padding:7px 14px 7px 11px;gap:6px;border-radius:999px;font-size:14px;box-shadow:0 4px 14px -4px rgba(200,56,30,.7)}
+.donate-on-pic .donate-btn svg{width:15px;height:15px}
+.mk-pane .donate-btn{width:auto;justify-self:start;margin-top:4px;padding:9px 18px 9px 14px;border-radius:999px;font-size:15px}
