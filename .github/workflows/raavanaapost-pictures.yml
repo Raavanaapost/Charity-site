@@ -1,0 +1,62 @@
+# Picture robot for RaavanaaPost: makes AI pictures (no children's faces, no text) for chosen stories
+# with Gemini, and puts them on the raavanaapost-pictures branch for a look before anything goes live.
+# Run it from GitHub: Actions -> "RaavanaaPost pictures" -> Run workflow.
+# Needs the repository secret GEMINI_API_KEY (Google AI Studio key).
+name: RaavanaaPost pictures
+
+on:
+  workflow_dispatch:
+    inputs:
+      stories:
+        description: "Story keys, space separated (e.g. KT B), or 'all'"
+        required: true
+        default: "KT"
+      inside:
+        description: "Pictures inside each story, besides the cover"
+        required: false
+        default: "2"
+      force:
+        description: "Make them again even if a story already has pictures"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  pictures:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: raavanaapost
+          fetch-depth: 0
+      - name: Start from the latest pictures branch, if there is one
+        run: |
+          git fetch origin raavanaapost-pictures || true
+          if git rev-parse --verify -q origin/raavanaapost-pictures >/dev/null; then
+            git checkout -B raavanaapost-pictures origin/raavanaapost-pictures
+            git merge --no-edit origin/raavanaapost || true
+          else
+            git checkout -B raavanaapost-pictures
+          fi
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pillow
+      - name: Make the pictures
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          args=""
+          if [ "${{ inputs.stories }}" = "all" ]; then args="--all"; else for k in ${{ inputs.stories }}; do args="$args --story $k"; done; fi
+          if [ "${{ inputs.force }}" = "true" ]; then args="$args --force"; fi
+          python3 tools/pictures/make_pictures.py $args --inside "${{ inputs.inside }}"
+      - name: Save them on the raavanaapost-pictures branch
+        run: |
+          git config user.name "raavanaa-picture-robot"
+          git config user.email "actions@users.noreply.github.com"
+          git add source/content/photos/ai
+          if git diff --cached --quiet; then echo "No new pictures."; exit 0; fi
+          git commit -m "AI pictures for: ${{ inputs.stories }}"
+          git push origin raavanaapost-pictures
