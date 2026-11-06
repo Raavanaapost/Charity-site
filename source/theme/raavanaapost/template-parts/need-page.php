@@ -33,11 +33,13 @@ $ic = function ( $d ) {
 	return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $d . '</svg>';
 };
 $tab_names = array(
+	'story'   => array( 'Story', $ic( '<path d="M12 6.5C10 5 7 4.5 4 5v13c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.500V5c-3-.5-6 0-8 1.500z"/><path d="M12 6.500V19.5"/>' ) ),
 	'updates' => array( 'Impact', $ic( '<path d="M12 20s-7-4.4-7-9.600A4.2 4.2 0 0 1 12 7.700a4.2 4.2 0 0 1 7 2.700C19 15.6 12 20 12 20z"/>' ) ),
 	'budget'  => array( 'Budget', $ic( '<rect x="3.5" y="6" width="17" height="12" rx="2.5"/><path d="M3.5 10h17"/><path d="M7 14.500h4"/>' ) ),
 	'media'   => array( 'Media' . ( ! empty( $p['pictures'] ) ? ' (' . (int) $p['pictures'] . ')' : '' ), $ic( '<rect x="3.5" y="5.5" width="17" height="13" rx="3"/><path d="M10.2 9.300v5.400l4.6-2.700z" fill="currentColor"/>' ) ),
 );
-$order = 3 === $st ? array( 'updates', 'budget', 'media' ) : array( 'budget', 'updates', 'media' );
+// As on raavanaa.org's live project page: Story first, then Impact, Budget, Media (SURESH, 6 Nov 2026).
+$order = array( 'story', 'updates', 'budget', 'media' );
 $tabs  = array();
 foreach ( $order as $k ) {
 	$tabs[ $k ] = $tab_names[ $k ];
@@ -54,7 +56,17 @@ if ( ! $updates ) {
 	$impact .= '<p class="empty">No impact updates yet.</p>';
 }
 $budget_note = 1 === $st && $b['lines'] ? 'These are estimates. Once the day has happened, the real costs are shown here.' : ( 2 === $st ? 'Once the day has happened, a breakdown of where the money went is shown here.' : '' );
+ob_start();
+?>
+				<section class="ptale s<?php echo (int) $st; ?><?php echo $rest ? '' : ' short'; ?>">
+					<?php if ( ! empty( $p['quote'] ) ) : ?><p class="pull">“<?php echo esc_html( $p['quote'] ); ?>”</p><?php endif; ?>
+					<div class="ptale-text story" id="ptale-text"><?php echo $open; // phpcs:ignore ?><?php if ( $rest ) : ?><div class="ptale-rest"><?php echo $rest; // phpcs:ignore ?></div><?php endif; ?></div>
+					<?php if ( $rest ) : ?><button class="ptale-more" type="button" aria-expanded="false" aria-controls="ptale-text"><span><?php echo esc_html( $tale_more[ $st ] ); ?></span><i aria-hidden="true">⌄</i></button><?php endif; ?>
+				</section>
+<?php
+$tale_html = ob_get_clean();
 $panes = array(
+	'story'   => $tale_html,
 	'updates' => $impact,
 	'budget'  => '<div class="budget-tab">' . rp_rorg_budget_detail( $p, true ) . ( $budget_note ? '<p class="note">' . $budget_note . '</p>' : '' ) . '</div>',
 	'media'   => ! empty( $p['pictures'] ) ? '<p class="empty">The pictures and videos from this day are on the project page on raavanaa.org.</p>' : '<p class="empty">No videos or pictures yet.</p>',
@@ -78,14 +90,14 @@ $box = function ( $cls ) use ( $p, $st ) {
 <article <?php post_class( 'rp-article rorg' ); ?>>
 	<div class="wrap">
 		<nav class="crumbs"><?php if ( $cat ) : ?><a href="<?php echo esc_url( get_category_link( $cat ) ); ?>"><?php echo esc_html( $cat->name ); ?></a><?php endif; ?><?php echo ! empty( $p['theme'] ) ? ' / ' . esc_html( $p['theme'] ) : ''; ?></nav>
+		<header class="phead">
+			<?php if ( ! empty( $p['theme'] ) ) : ?><span class="tag"><?php echo esc_html( $p['theme'] ); ?></span><?php endif; ?>
+			<h1 class="rp-article__title"><?php the_title(); ?></h1>
+			<?php if ( has_excerpt() ) : ?><p class="lede"><?php echo esc_html( get_the_excerpt() ); ?></p><?php endif; ?>
+			<div class="byline"><span class="avatar">RP</span><span>by <strong><?php echo esc_html( rp_byline() ); ?></strong> · <time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time><?php echo $place ? ' · ' . esc_html( $place ) : ''; ?></span><?php if ( ! empty( $p['verified'] ) ) : ?><span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Visited and verified</span><?php endif; ?></div>
+		</header>
 		<div class="layout">
 			<div style="min-width:0">
-				<header class="phead">
-					<?php if ( ! empty( $p['theme'] ) ) : ?><span class="tag"><?php echo esc_html( $p['theme'] ); ?></span><?php endif; ?>
-					<h1 class="rp-article__title"><?php the_title(); ?></h1>
-					<?php if ( has_excerpt() ) : ?><p class="lede"><?php echo esc_html( get_the_excerpt() ); ?></p><?php endif; ?>
-					<div class="byline"><span class="avatar">RP</span><span>by <strong><?php echo esc_html( rp_byline() ); ?></strong> · <time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time><?php echo $place ? ' · ' . esc_html( $place ) : ''; ?></span><?php if ( ! empty( $p['verified'] ) ) : ?><span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Visited and verified</span><?php endif; ?></div>
-				</header>
 				<div class="hero-wrap">
 					<div class="hero cover">
 						<?php
@@ -112,11 +124,6 @@ $box = function ( $cls ) use ( $p, $st ) {
 					<?php endif; ?>
 					<?php echo rp_rorg_glance( $p ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 				</div>
-				<section class="ptale s<?php echo (int) $st; ?><?php echo $rest ? '' : ' short'; ?>">
-					<?php if ( ! empty( $p['quote'] ) ) : ?><p class="pull">“<?php echo esc_html( $p['quote'] ); ?>”</p><?php endif; ?>
-					<div class="ptale-text story" id="ptale-text"><?php echo $open; // phpcs:ignore ?><?php if ( $rest ) : ?><div class="ptale-rest"><?php echo $rest; // phpcs:ignore ?></div><?php endif; ?></div>
-					<?php if ( $rest ) : ?><button class="ptale-more" type="button" aria-expanded="false" aria-controls="ptale-text"><span><?php echo esc_html( $tale_more[ $st ] ); ?></span><i aria-hidden="true">⌄</i></button><?php endif; ?>
-				</section>
 				<div class="only-narrow"><?php echo $top; // phpcs:ignore ?></div>
 				<?php echo $box( 'only-narrow' ); // phpcs:ignore ?>
 				<div class="tabs" role="tablist">
