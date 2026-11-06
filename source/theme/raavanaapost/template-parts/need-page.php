@@ -97,6 +97,7 @@ $box = function ( $cls ) use ( $p, $st ) {
 					<h1 class="rp-article__title"><?php the_title(); ?></h1>
 					<div class="byline"><span class="avatar">RP</span><span>by <strong><?php echo esc_html( rp_byline() ); ?></strong> · <time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time><?php echo $place ? ' · ' . esc_html( $place ) : ''; ?></span><?php if ( ! empty( $p['verified'] ) ) : ?><span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Visited and verified</span><?php endif; ?><?php echo rp_rorg_glance( $p ); // phpcs:ignore ?></div>
 				</header>
+				<?php if ( ! empty( $p['tagline'] ) ) : ?><p class="psum"><?php echo esc_html( $p['tagline'] ); ?></p><?php endif; ?>
 				<div class="hero-wrap">
 					<div class="hero cover">
 						<?php
