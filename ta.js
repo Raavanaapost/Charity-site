@@ -366,6 +366,7 @@
 "The whole day costs Rs 61,000: about Rs 30,000 for the bus and the rest for food for the whole group.": "முழு நாளுக்குமான செலவு ரூ. 61,000: பேருந்துக்குச் சுமார் ரூ. 30,000, மீதி முழுக் குழுவுக்குமான உணவுக்கு.",
 "A first school trip the children will remember. After the day, the organiser will send photos and videos, and we will share the story and the pictures here, so that everyone who gave can see the smiles they created.": "குழந்தைகள் என்றும் நினைவில் வைத்திருக்கும் முதல் பாடசாலைச் சுற்றுலா. அந்த நாளுக்குப் பிறகு ஏற்பாட்டாளர் புகைப்படங்களையும் வீடியோக்களையும் அனுப்புவார். அதன் கதையையும் படங்களையும் இங்கே பகிர்வோம், அதனால் உதவிய அனைவரும் அவர்கள் உருவாக்கிய புன்னகைகளைக் காணலாம்.",
 "These students have never been anywhere on an excursion.": "இந்த மாணவர்கள் இதுவரை எங்கும் சுற்றுலா சென்றதில்லை.",
+"The 52 children of Choughleigh Tamil Vidyalayam in Pussellawa have never been on a school trip, and on Friday 27 November they hope to see Kandy.": "புசல்லாவ சௌளி தமிழ் வித்தியாலயத்தின் 52 குழந்தைகள் இதுவரை ஒரு பாடசாலைச் சுற்றுலாவுக்கும் சென்றதில்லை. நவம்பர் 27 வெள்ளிக்கிழமை அவர்கள் கண்டியைப் பார்க்க ஆவலுடன் இருக்கிறார்கள்.",
 "Bus to Kandy and back (about 50 km each way)": "கண்டிக்குச் சென்று திரும்பப் பேருந்து (ஒரு வழி சுமார் 50 கி.மீ.)",
 "Food for the whole group": "முழுக் குழுவுக்குமான உணவு",
 "New date: 27 November": "புதிய திகதி: நவம்பர் 27",
