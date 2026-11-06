@@ -389,7 +389,9 @@ function rp_rorg_journey( $p ) {
 		}
 		$state = $x[4] ? 'done' : ( $k === $now ? 'now' : 'next' );
 		$info  = implode( ' · ', array_filter( array( $x[2] ? esc_html( $x[2] ) : '', $x[3] ? rp_rorg_date( $x[3] ) : '' ) ) );
-		$html .= '<li class="' . $state . ' jr' . $x[0] . '"><i aria-hidden="true">' . ( $x[4] ? '✓' : '' ) . '</i><span><b>' . $x[1] . '</b>' . ( $info ? '<small>' . $info . '</small>' : ( 'now' === $state ? '<small>In progress</small>' : '' ) ) . '</span></li>';
+		// The funding step, while it is the current one, gets a small "Make it happen" nudge (SURESH, 6 Nov 2026).
+		$cta   = ( 'now' === $state && 'Fully funded' === $x[1] && 1 === $st ) ? '<button type="button" class="jr-cta" data-fund><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>Be the reason they smile. Make it happen</button>' : '';
+		$html .= '<li class="' . $state . ' jr' . $x[0] . '"><i aria-hidden="true">' . ( $x[4] ? '✓' : '' ) . '</i><span><b>' . $x[1] . '</b>' . ( $info ? '<small>' . $info . '</small>' : ( 'now' === $state ? '<small>In progress</small>' : '' ) ) . $cta . '</span></li>';
 	}
 	return '<div class="panel journey"><h2>The journey</h2>' . $html . '</ol></div>';
 }

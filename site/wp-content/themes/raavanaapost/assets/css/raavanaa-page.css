@@ -309,3 +309,8 @@
 .rorg .rp-mk-pane .rp-donate{width:auto;justify-self:start;margin-top:4px;padding:9px 18px 9px 14px;border-radius:999px;font-size:15px}
 .rorg .crumbs + .layout{margin-top:10px}
 .rorg .psum{margin:0 0 14px;padding-left:14px;border-left:3px solid var(--rp-gold,#c98a1e);font-size:clamp(17px,1.7vw,19px);line-height:1.5;color:var(--ink,#1d2b24)}
+.rorg .jr-cta{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 12px;border:0;border-radius:999px;background:linear-gradient(135deg,#e2552b,#c8381e);color:#fff;font:700 12.5px/1.2 var(--display);cursor:pointer;box-shadow:0 4px 12px -4px rgba(200,56,30,.6);text-align:left}
+.rorg .jr-cta svg{flex:none;animation:jrbeat 1.6s ease-in-out infinite}
+@keyframes jrbeat{0%,100%{transform:scale(1)}15%{transform:scale(1.25)}30%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.rorg .jr-cta svg{animation:none}}
+.rorg .journey li span{display:grid;justify-items:start}

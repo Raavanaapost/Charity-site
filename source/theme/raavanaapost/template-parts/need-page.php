@@ -181,6 +181,15 @@ $box = function ( $cls ) use ( $p, $st ) {
 			t.textContent = /followed=1/.test(q) ? "Thank you! You're following this project. We'll tell you the moment you can give, and share every smile." : "Thank you! Your note is on its way. We'll be in touch soon, and you'll be part of a child's best day.";
 			a.querySelector('.phead').after(t);
 		}
+		/* "Make it happen" on the journey opens the 100% fold at the Donate tab. */
+		a.querySelectorAll('[data-fund]').forEach(function (b) {
+			b.addEventListener('click', function () {
+				var g = Array.prototype.find.call(a.querySelectorAll('.go100'), function (x) { return x.offsetParent !== null; }); if (!g) return;
+				var o = g.querySelector('.go-open'); if (o && o.getAttribute('aria-expanded') !== 'true') o.click();
+				var t = g.querySelector('[data-mk=donate]'); if (t) t.click();
+				(g.querySelector('.rp-make') || g).scrollIntoView({ block: 'center', behavior: 'smooth' });
+			});
+		});
 		/* "At a glance": tap or click the small icon to open, tap again, tap anywhere else or press Esc to close. */
 		a.querySelectorAll('.glance').forEach(function (g) {
 			var b = g.querySelector('.glance-btn');
