@@ -1296,7 +1296,7 @@
           <div class="go-form go-make">
             <h3>Make this happen</h3>
             <div class="mk-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-mk="donate"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>Donate</button><button type="button" role="tab" aria-selected="false" data-mk="other">Help another way</button></div>
-            <div class="mk-pane" data-mkpane="donate"><p class="go-sub">${canGive(p) ? "Give towards this day by card. Secure payment by Stripe." : "Want to give towards this day? Tap Donate and we'll tell you how it works during our pilot."}</p>${DONATE_BTN}</div>
+            <div class="mk-pane" data-mkpane="donate"><p class="go-sub">${canGive(p) ? `Give towards this day by card. Secure payment by ${GIVE_BY}.` : "Want to give towards this day? Tap Donate and we'll tell you how it works during our pilot."}</p>${DONATE_BTN}</div>
             <form class="mk-pane" data-mkpane="other" hidden name="make-it-happen" data-ajax data-done="Thank you! Your note is on its way. We'll be in touch soon, and you'll be part of a child's best day.">
               <p class="go-sub">Not able to give money? There are other ways to make this day happen. Tell us how you'd like to help and we'll reach out.</p>
               <input type="hidden" name="form-name" value="make-it-happen">
@@ -1400,15 +1400,19 @@
     btn.addEventListener("click", () => { const v = !box.classList.contains("open"); set(v); if (!v) box.scrollIntoView({ block: "nearest", behavior: "smooth" }); });
   }
 
-  // Card payments (Stripe, in Canadian dollars) are open for a verified project that is still being planned,
-  // has a budget in dollars and isn't fully covered yet. Until Stripe is switched on, Donate shows the pilot note.
+  // Card payments are open for a verified project that is still being planned and isn't fully covered yet.
+  // PayHere (Sri Lanka) takes rupees, so it serves rupee projects; Stripe takes Canadian dollars (rupee projects
+  // too, at the team's rate). Until one is switched on in Netlify, Donate shows the pilot note.
   let GIVE_ON = false;
   const GIVE_OPEN = new Set();
-  let GIVE_RATE = 0; // Sri Lankan rupees to one Canadian dollar (site.json "rate_lkr_per_cad")
+  let GIVE_RATE = 0; // Sri Lankan rupees to one Canadian dollar (site.json "rate_lkr_per_cad"), Stripe only
+  let GIVE_BY = "Stripe", GIVE_CUR = "CAD";
   const isRupees = p => /rs|lkr|රු|ரூ/i.test(p.currency || "");
-  const takesCards = p => !p.currency || /^\s*\$\s*$/.test(p.currency) || (isRupees(p) && GIVE_RATE > 0);
-  // What a project still needs, in Canadian dollars (card gifts are in CAD).
-  const leftCad = p => { const b = budgetOf(p), left = Math.max(0, b.goal - b.raised); return isRupees(p) ? (GIVE_RATE ? left / GIVE_RATE : 0) : left; };
+  const takesCards = p => GIVE_CUR === "LKR" ? isRupees(p) : (!p.currency || /^\s*\$\s*$/.test(p.currency) || (isRupees(p) && GIVE_RATE > 0));
+  // What a project still needs, in the card currency (rupees with PayHere, Canadian dollars with Stripe).
+  const leftCad = p => { const b = budgetOf(p), left = Math.max(0, b.goal - b.raised); if (GIVE_CUR === "LKR") return isRupees(p) ? left : 0; return isRupees(p) ? (GIVE_RATE ? left / GIVE_RATE : 0) : left; };
+  // Money in the card currency: "Rs 2,500" or "$25".
+  const cash = (n, cur = GIVE_CUR) => (cur === "LKR" ? "Rs " : "$") + (Math.round(n * 100) / 100).toLocaleString("en-US", { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
   const canGive = p => { if (!GIVE_ON || !p || !p.verified || stageNum(p) !== 1 || !takesCards(p)) return false; const b = budgetOf(p); return b.goal > 0 && b.raised < b.goal; };
 
   // Budget figures for a project: what it costs, what supporters have given, and the share funded.
@@ -2005,14 +2009,17 @@
     location.replace("/members" + location.hash);
   }
 
-  // Sponsor a smile: card payments through Stripe Checkout.
+  // Sponsor a smile: card payments through PayHere (rupees) or Stripe Checkout (Canadian dollars).
   //   /give                  monthly Smile member, a one-time gift to Raavanaa, or pick a project
   //   /give?project=<slug>   sponsor that project (never more than what it still needs)
   function renderGive(app, site, projects, GIVE) {
     const q = new URLSearchParams(location.search);
     const on = !!(GIVE && GIVE.enabled);
-    const fee = c => Math.max(0, Math.ceil((c + 30) / (1 - 0.029)) - c);
-    const dollars = n => "$" + (Math.round(n * 100) / 100).toLocaleString("en-US", { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
+    const LKR = GIVE_CUR === "LKR";
+    // An estimate of the card fee, so a giver can choose to cover it (PayHere about 3.3%, Stripe about 2.9% + 30¢).
+    const fee = c => LKR ? Math.max(0, Math.ceil((c / (1 - 0.033) - c) / 100) * 100) : Math.max(0, Math.ceil((c + 30) / (1 - 0.029)) - c);
+    const dollars = n => cash(n);
+    const MIN = LKR ? 500 : 5;
     const p = q.get("project") ? projects.find(x => slugOf(x) === slugify(q.get("project"))) : null;
     const open = projects.filter(canGive);
     document.title = (p ? `Sponsor a smile: ${p.title}` : "Sponsor a smile") + ` · ${site.name}`;
@@ -2023,45 +2030,47 @@
         <input type="hidden" name="kind" value="${kind}">
         ${opts.slug ? `<input type="hidden" name="project" value="${esc(opts.slug)}">` : ""}
         <p hidden><label>Leave empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
-        <fieldset class="give-amounts"><legend>${kind === "member" ? "Each month" : "Amount"} (CAD)</legend>
+        <fieldset class="give-amounts"><legend>${kind === "member" ? "Each month" : "Amount"} (${LKR ? "Sri Lankan rupees" : "CAD"})</legend>
           ${amounts.map((a, i) => `<label class="give-chip"><input type="radio" name="pick" value="${a.v}"${i === (opts.pick || 0) ? " checked" : ""}><span>${esc(a.label || dollars(a.v))}</span></label>`).join("")}
           <label class="give-chip give-other"><input type="radio" name="pick" value="other"><span>Other</span></label>
         </fieldset>
         <label class="give-own" hidden>Your amount
-          <span class="give-dollar"><b aria-hidden="true">$</b><input name="own" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Your amount in Canadian dollars"></span></label>
+          <span class="give-dollar"><b aria-hidden="true">${LKR ? "Rs" : "$"}</b><input name="own" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Your amount in ${LKR ? "Sri Lankan rupees" : "Canadian dollars"}"></span></label>
         ${kind === "general" ? "" : `<label><span>Your name <small>(optional)</small></span><input name="name" maxlength="60" autocomplete="name"></label>
         <label class="give-check"><input type="checkbox" name="show_name" value="yes"> <span>${kind === "member" ? "Show my name with the Smile members" : "Show my name on the project page"}</span></label>
         <p class="note give-hint">If you leave this unticked, you'll appear as “A friend of Raavanaa”.</p>`}
-        <label class="give-check"><input type="checkbox" name="cover_fee" value="yes" checked> <span>Add <b class="give-fee">$0</b> so the card fee doesn't come out of the gift</span></label>
+        ${LKR ? `<label><span>Email <small>(for your receipt)</small></span><input name="email" type="email" maxlength="120" autocomplete="email" required></label>
+        <label><span>Phone</span><input name="phone" type="tel" maxlength="20" autocomplete="tel" required placeholder="07X XXX XXXX"></label>` : ""}
+        <label class="give-check"><input type="checkbox" name="cover_fee" value="yes" checked> <span>Add <b class="give-fee">${dollars(0)}</b> so the card fee doesn't come out of the gift</span></label>
         <button class="btn give-pay" type="submit"${on ? "" : " disabled"}>${on ? "Continue to secure payment" : "Card payments coming soon"}</button>
         <p class="note give-msg" role="status" hidden></p>
       </form>`;
     };
     const card = x => { const b = budgetOf(x), left = Math.max(0, b.goal - b.raised), cad = leftCad(x);
-      const need = isRupees(x) ? `${moneyOf(site, left, x)} still needed (about ${dollars(Math.round(cad))} CAD)` : `${dollars(left)} still needed`;
+      const need = isRupees(x) && !LKR ? `${moneyOf(site, left, x)} still needed (about ${dollars(Math.round(cad))} CAD)` : `${isRupees(x) ? moneyOf(site, left, x) : dollars(left)} still needed`;
       return `<a class="give-proj" href="/give?project=${encodeURIComponent(slugOf(x))}">
         <span class="give-proj-pic" style="${coverStyle(x, 0)}">${x.cover ? `<img src="${esc(imgUrl(x.cover, 400))}" alt="" loading="lazy">` : ""}</span>
         <span class="give-proj-text"><b>${esc(x.title)}</b><span>${esc(need)} · ${b.pct}% covered</span>
         <span class="b-bar" aria-hidden="true"><i style="width:${b.pct}%"></i></span></span></a>`; };
     const notes = `<ul class="give-notes">
-        <li>Payments are handled securely by Stripe. Raavanaa never sees your card details.</li>
-        <li>Raavanaa Community is a nonprofit, not a registered charity, so gifts don't come with a tax receipt. Stripe emails you a payment receipt.</li>
+        <li>Payments are handled securely by ${GIVE_BY}. Raavanaa never sees your card details.${LKR ? " Cards from any country are welcome; your bank converts from rupees." : ""}</li>
+        <li>Raavanaa Community is a nonprofit, not a registered charity, so gifts don't come with a tax receipt. ${GIVE_BY} emails you a payment receipt.</li>
         <li>Every gift shows on the project page, and after the day you'll see the photos and where the money went.</li>
       </ul>`;
     const banner = `${q.get("cancelled") ? `<p class="give-banner">Payment cancelled. Nothing was charged.</p>` : ""}
-      ${on ? (GIVE.test ? `<p class="give-banner test">Test mode: use Stripe's test card 4242 4242 4242 4242. No real money is taken.</p>` : "") : `<p class="give-banner">Card payments are coming soon. Until then, send us a note from any project page and we'll reach out.</p>`}`;
+      ${on ? (GIVE.test ? `<p class="give-banner test">Test mode: ${LKR ? "this opens PayHere's sandbox; use one of PayHere's test cards" : "use Stripe's test card 4242 4242 4242 4242"}. No real money is taken.</p>` : "") : `<p class="give-banner">Card payments are coming soon. Until then, send us a note from any project page and we'll reach out.</p>`}`;
 
     let body;
     if (p) {
       const left = Math.floor(leftCad(p) * 100) / 100, open1 = canGive(p);
-      const picks = [25, 50, 100].filter(v => v < left).map(v => ({ v }));
+      const picks = (LKR ? [2500, 5000, 10000] : [25, 50, 100]).filter(v => v < left).map(v => ({ v }));
       picks.push({ v: left, label: `All of it: ${dollars(left)}` });
       body = `<section class="give-one">
         <div class="give-proj big">${card(p).replace(/^<a [^>]*>/, "").replace(/<\/a>$/, "")}</div>
         <div class="panel give-box">
           <h2>${open1 ? "Sponsor a smile" : "This project is fully covered"}</h2>
           ${open1 ? formHTML("project", picks, { slug: slugOf(p), left, pick: Math.min(1, picks.length - 1) }) : `<p>Thank you to everyone who made it happen. <a href="/projects/${esc(slugOf(p))}">See the project</a>.</p>`}
-          ${open1 && isRupees(p) ? `<p class="note">This project's budget is in Sri Lankan rupees. Card gifts are in Canadian dollars and shown on the project at 1 CAD = Rs ${GIVE_RATE}.</p>` : ""}
+          ${open1 && isRupees(p) && !LKR ? `<p class="note">This project's budget is in Sri Lankan rupees. Card gifts are in Canadian dollars and shown on the project at 1 CAD = Rs ${GIVE_RATE}.</p>` : ""}
         </div>
       </section>`;
     } else {
@@ -2070,14 +2079,14 @@
             <p class="give-tag">Every month</p>
             <h2>Become a Smile member</h2>
             <p>A small gift every month keeps the bridge open, so the next need can be met quickly.${GIVE && GIVE.members ? ` <b>${GIVE.members} Smile member${GIVE.members === 1 ? "" : "s"}</b> already.` : ""}</p>
-            ${formHTML("member", [{ v: 15 }, { v: 25 }, { v: 50 }])}
+            ${formHTML("member", (LKR ? [1000, 2500, 5000] : [15, 25, 50]).map(v => ({ v })))}
             <p class="note">You can stop your monthly gift at any time: reply to your receipt email or <a href="/contact">contact us</a>.</p>
           </div>
           <div class="panel give-box">
             <p class="give-tag">Once</p>
             <h2>Give to Raavanaa</h2>
             <p>A one-time gift the team uses where it is needed most.</p>
-            ${formHTML("general", [{ v: 25 }, { v: 50 }, { v: 100 }], { pick: 1 })}
+            ${formHTML("general", (LKR ? [2500, 5000, 10000] : [25, 50, 100]).map(v => ({ v })), { pick: 1 })}
           </div>
         </section>
         ${open.length ? `<section class="give-list"><h2>Or sponsor a project</h2><div class="give-grid">${open.map(card).join("")}</div></section>` : ""}`;
@@ -2085,7 +2094,7 @@
     app.innerHTML = `<div class="give-page">
       <header class="give-head"><p class="eyebrow">Sponsor a smile</p>
         <h1>${p ? esc(p.title) : "Be part of the next moment"}</h1>
-        <p>${p ? "Your gift goes straight to this project. You'll see it on the project page, and after the day you'll see the photos and where every dollar went." : "Raavanaa is a bridge between people who need a hand and people ready to give one. Choose how you'd like to help."}</p>
+        <p>${p ? "Your gift goes straight to this project. You'll see it on the project page, and after the day you'll see the photos and where every " + (LKR ? "rupee" : "dollar") + " went." : "Raavanaa is a bridge between people who need a hand and people ready to give one. Choose how you'd like to help."}</p>
       </header>
       ${banner}${body}${notes}</div>`;
 
@@ -2097,8 +2106,8 @@
         own.hidden = (f.querySelector('[name="pick"]:checked') || {}).value !== "other";
         const a = amount(), c = Math.round(a * 100), add = fee(c) / 100, cover = f.querySelector('[name="cover_fee"]').checked;
         feeEl.textContent = dollars(add);
-        if (msg.classList.contains("bad") && a >= 5) msg.hidden = true;
-        if (on) pay.textContent = a >= 5 ? `Pay ${dollars(a + (cover ? add : 0))}${f.dataset.kind === "member" ? " a month" : ""} securely` : "Continue to secure payment";
+        if (msg.classList.contains("bad") && a >= MIN) msg.hidden = true;
+        if (on) pay.textContent = a >= MIN ? `Pay ${dollars(a + (cover ? add : 0))}${f.dataset.kind === "member" ? " a month" : ""} securely` : "Continue to secure payment";
       };
       f.addEventListener("change", update); f.addEventListener("input", update); update();
       f.addEventListener("submit", async e => {
@@ -2106,7 +2115,10 @@
         if (!on) return;
         const a = amount();
         const say = (t, bad) => { msg.hidden = false; msg.textContent = t; msg.classList.toggle("bad", !!bad); };
-        if (!(a >= 5)) { say("The smallest gift by card is $5.", true); (ownIn.offsetParent ? ownIn : pay).focus(); return; }
+        if (!(a >= MIN)) { say(`The smallest gift by card is ${dollars(MIN)}.`, true); (ownIn.offsetParent ? ownIn : pay).focus(); return; }
+        const em = f.querySelector('[name="email"]'), ph = f.querySelector('[name="phone"]');
+        if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())) { say("Please add your email address for the receipt.", true); em.focus(); return; }
+        if (ph && ph.value.replace(/\D/g, "").length < 7) { say("Please add your phone number.", true); ph.focus(); return; }
         const fd = new FormData(f), body = { amount: a };
         for (const [k, v] of fd.entries()) if (k !== "pick" && k !== "own") body[k] = v;
         pay.disabled = true; say("Opening the secure payment page…");
@@ -2114,6 +2126,13 @@
           const r = await fetch("/api/give/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
           const out = await r.json().catch(() => ({}));
           if (r.ok && out.url) { location.href = out.url; return; }
+          // PayHere: the browser posts the signed form straight to PayHere's secure checkout page.
+          if (r.ok && out.form && out.form.action) {
+            const go = document.createElement("form");
+            go.method = "POST"; go.action = out.form.action; go.hidden = true;
+            for (const [k, v] of Object.entries(out.form.fields || {})) { const i = document.createElement("input"); i.type = "hidden"; i.name = k; i.value = v; go.appendChild(i); }
+            document.body.appendChild(go); go.submit(); return;
+          }
           say(out.error || "We couldn't start the payment. Please try again.", true);
         } catch (_) { say("We couldn't reach the payment service. Please check your connection and try again.", true); }
         pay.disabled = false;
@@ -2121,17 +2140,19 @@
     });
   }
 
-  // After Stripe: thank the giver and say where their gift went.
+  // After paying (PayHere or Stripe): thank the giver and say where their gift went.
   async function renderThanks(app, site) {
     document.title = `Thank you · ${site.name}`;
-    const id = new URLSearchParams(location.search).get("session_id") || "";
-    const s = /^cs_/.test(id) ? await load("/api/give/session?id=" + encodeURIComponent(id)).catch(() => null) : null;
-    const dollars = n => "$" + Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 });
-    let h = "Thank you", t = "Your gift is on its way. Stripe will email you a receipt.", link = `<a class="btn" href="/give">Back to Sponsor a smile</a>`;
+    const q = new URLSearchParams(location.search), id = q.get("session_id") || "", order = q.get("order") || q.get("order_id") || "";
+    const s = /^RV[A-Z0-9]+$/.test(order) ? await load("/api/give/session?order=" + encodeURIComponent(order)).catch(() => null)
+      : /^cs_/.test(id) ? await load("/api/give/session?id=" + encodeURIComponent(id)).catch(() => null) : null;
+    const by = s && s.provider === "payhere" ? "PayHere" : GIVE_BY;
+    const dollars = n => cash(Number(n), (s && s.currency) || GIVE_CUR);
+    let h = "Thank you", t = `Your gift is on its way. ${by} will email you a receipt.`, link = `<a class="btn" href="/give">Back to Sponsor a smile</a>`;
     if (s && s.ok) {
-      if (s.kind === "project" && s.project) { h = "Thank you for sponsoring a smile"; t = `Your ${dollars(s.amount)} is helping make “${esc(s.project.title)}” happen. It will show on the project page within a minute, and after the day you'll see the photos and where the money went.`; link = `<a class="btn" href="/projects/${esc(s.project.slug)}">See the project</a>`; }
-      else if (s.kind === "member") { h = "Welcome, Smile member"; t = `Your ${dollars(s.amount)} a month keeps the bridge open for the next person who needs a hand. Stripe will email you a receipt each month.`; }
-      else { h = "Thank you for your gift"; t = `Your ${dollars(s.amount)} goes where it's needed most. Stripe will email you a receipt.`; }
+      if (s.kind === "project" && s.project) { h = "Thank you for sponsoring a smile"; t = `Your ${dollars(s.amount)} is helping make “${esc(s.project.title)}” happen. It will show on the project page within a minute${s.status === "pending" ? " once your bank confirms it" : ""}, and after the day you'll see the photos and where the money went.`; link = `<a class="btn" href="/projects/${esc(s.project.slug)}">See the project</a>`; }
+      else if (s.kind === "member") { h = "Welcome, Smile member"; t = `Your ${dollars(s.amount)} a month keeps the bridge open for the next person who needs a hand. ${by} will email you a receipt each month.`; }
+      else { h = "Thank you for your gift"; t = `Your ${dollars(s.amount)} goes where it's needed most. ${by} will email you a receipt.`; }
     }
     app.innerHTML = `<section class="give-thanks panel">
       <p class="give-heart" aria-hidden="true">♥</p>
@@ -2149,9 +2170,10 @@
       frame(site);
       // Only projects that have been visited and verified are public (Decisions log, 10 Oct 2026).
       const projects = (data.projects || []).filter(p => p && p.title && !p.hidden && p.verified);
-      // Card gifts (Stripe) are added to each project's supporters, so the budget bars and stages stay right.
+      // Card gifts (PayHere or Stripe) are added to each project's supporters, so the budget bars and stages stay right.
       const GIVE = await load("/api/give/totals").catch(() => null);
       GIVE_ON = !!(GIVE && GIVE.enabled);
+      if (GIVE && GIVE.provider === "payhere") { GIVE_BY = "PayHere"; GIVE_CUR = "LKR"; }
       GIVE_RATE = (GIVE && +GIVE.rate) || +site.rate_lkr_per_cad || 0;
       if (GIVE && GIVE.projects) projects.forEach(p => { const t = GIVE.projects[slugOf(p)]; if (t && takesCards(p)) p.funders = [...(p.funders || []), ...t.gifts]; });
       projects.filter(canGive).forEach(p => GIVE_OPEN.add(slugOf(p)));

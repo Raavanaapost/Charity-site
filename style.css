@@ -1919,7 +1919,7 @@ html[lang="ta"] .lane-label{font-size:clamp(12px,1.6vw,15px)}html[lang="ta"] .la
 .give-tag{font-family:var(--display);font-weight:700;font-size:13px;color:var(--flame)}
 .give-form{display:grid;gap:12px;margin-top:6px}
 .give-form label{display:grid;gap:4px;font-family:var(--display);font-weight:600;font-size:15px}
-.give-form input[name="name"],.give-dollar{border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:inherit;font-family:var(--body);background:var(--surface);color:var(--ink)}
+.give-form input[name="name"],.give-form input[name="email"],.give-form input[name="phone"],.give-dollar{border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:inherit;font-family:var(--body);background:var(--surface);color:var(--ink)}
 .give-amounts{border:0;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
 .give-amounts legend{font-family:var(--display);font-weight:600;font-size:15px;margin-bottom:6px;padding:0}
 .give-chip{position:relative}

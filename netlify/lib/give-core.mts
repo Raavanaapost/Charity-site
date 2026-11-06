@@ -1,5 +1,11 @@
-// Card payments (Stripe): the parts that don't touch the network or the database,
-// kept here so they can be tested on their own. Used by netlify/functions/give.mts.
+// Card payments (PayHere in Sri Lankan rupees, or Stripe in Canadian dollars): the parts that don't touch
+// the network or the database, kept here so they can be tested on their own. Used by netlify/functions/give.mts.
+import { createHash } from "node:crypto";
+
+// Which card service is switched on. PayHere wins when both are set up (SURESH chose PayHere, 6 Nov 2026).
+export type Provider = "payhere" | "stripe";
+export type Cur = "lkr" | "cad";
+export const currencyOf = (provider: Provider): Cur => (provider === "payhere" ? "lkr" : "cad");
 
 export type Project = {
   title?: string; slug?: string; status?: string; verified?: boolean; hidden?: boolean;
@@ -15,11 +21,17 @@ export type GiveRequest = {
   name: string;
   showName: boolean;
   email: string;
+  phone?: string;
 };
 
-export const MIN_CENTS = 500;        // $5
-export const MAX_CENTS = 500000;     // $5,000
-export const MEMBER_MAX_CENTS = 50000;
+// Smallest and largest gifts by card, in cents of the gift currency (rupee cents for PayHere).
+export const LIMITS: Record<Cur, { min: number; max: number; memberMax: number; sign: string }> = {
+  cad: { min: 500, max: 500000, memberMax: 50000, sign: "$" },              // $5 to $5,000; $500 a month
+  lkr: { min: 50000, max: 150000000, memberMax: 10000000, sign: "Rs " },  // Rs 500 to Rs 1,500,000; Rs 100,000 a month
+};
+export const MIN_CENTS = LIMITS.cad.min;
+export const MAX_CENTS = LIMITS.cad.max;
+export const MEMBER_MAX_CENTS = LIMITS.cad.memberMax;
 
 const numOf = (v: unknown) => { const n = parseFloat(String(v ?? "").replace(/[^0-9.]/g, "")); return isFinite(n) ? n : 0; };
 export const slugify = (s: unknown) => String(s || "").toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").trim().replace(/[\s_]+/g, "-").replace(/-+/g, "-");
@@ -32,6 +44,15 @@ export const isRupees = (p: Project) => /rs|lkr|රු|ரூ/i.test(p.currency 
 export const takesCards = (p: Project, rate = 0) => !p.currency || /^\s*\$\s*$/.test(p.currency) || (isRupees(p) && rate > 0);
 // One unit of the project's own currency, in Canadian cents.
 export const centsPerUnit = (p: Project, rate = 0) => (isRupees(p) ? 100 / rate : 100);
+// The same for any gift currency: rupee gifts go only to rupee projects (one rupee = 100 rupee cents).
+export const takesCardsIn = (p: Project, cur: Cur, rate = 0) => (cur === "lkr" ? isRupees(p) : takesCards(p, rate));
+export const unitCents = (p: Project, cur: Cur, rate = 0) => (cur === "lkr" ? (isRupees(p) ? 100 : 0) : centsPerUnit(p, rate));
+// A recorded gift (cents in its own currency) in the project's currency, or 0 if it can't count towards it.
+export const toProjectUnits = (p: Project, cents: number, cur: string, rate = 0) => {
+  const c: Cur = String(cur || "cad").toLowerCase() === "lkr" ? "lkr" : "cad";
+  if (!takesCardsIn(p, c, rate)) return 0;
+  return cents / unitCents(p, c, rate);
+};
 
 export const goalOf = (p: Project) =>
   numOf(p.goal) || (p.budget || []).filter((x) => x && x.item).reduce((s, x) => s + numOf(x.amount), 0);
@@ -40,32 +61,45 @@ export const listedOf = (p: Project) =>
 
 // A project can be sponsored by card while it is public, verified, still being planned,
 // has a budget in dollars and is not yet fully covered.
-export function openFor(p: Project | undefined, paidCents: number, rate = 0) {
-  if (!p || p.hidden || !p.verified || /complete/i.test(p.status || "") || !takesCards(p, rate)) return null;
-  const unit = centsPerUnit(p, rate);
+// paidUnits = card gifts already recorded, in the project's own currency; the answer is in cents of `cur`.
+export function openFor(p: Project | undefined, paidUnits: number, rate = 0, cur: Cur = "cad") {
+  if (!p || p.hidden || !p.verified || /complete/i.test(p.status || "") || !takesCardsIn(p, cur, rate)) return null;
+  const unit = unitCents(p, cur, rate);
   const goal = Math.round(goalOf(p) * unit);
   if (!goal) return null;
-  const left = goal - Math.round(listedOf(p) * unit) - paidCents;
+  const left = goal - Math.round(listedOf(p) * unit) - Math.round(paidUnits * unit);
   return left > 0 ? { goalCents: goal, leftCents: left } : null;
 }
 
 // An estimate of Stripe's fee on a Canadian card (about 2.9% + 30¢), so a giver can choose to cover it.
 export const feeFor = (cents: number) => Math.max(0, Math.ceil((cents + 30) / (1 - 0.029)) - cents);
 
-export function readRequest(body: Record<string, unknown>): GiveRequest | string {
+// PayHere's fee is a share of the payment (about 3.3% on the Lite plan; check the plan once registered).
+export const PAYHERE_FEE = 0.033;
+export const feeForIn = (cents: number, cur: Cur) => (cur === "lkr" ? Math.max(0, Math.ceil((cents / (1 - PAYHERE_FEE) - cents) / 100) * 100) : feeFor(cents)) // whole rupees;
+
+const fmt = (cents: number, cur: Cur) => LIMITS[cur].sign + (cents / 100).toLocaleString("en-US");
+
+export function readRequest(body: Record<string, unknown>, cur: Cur = "cad"): GiveRequest | string {
   const kind = String(body.kind || "");
   if (!["project", "general", "member"].includes(kind)) return "Please choose what you would like to give to.";
-  const dollars = numOf(body.amount);
-  const amountCents = Math.round(dollars * 100);
-  const max = kind === "member" ? MEMBER_MAX_CENTS : MAX_CENTS;
-  if (amountCents < MIN_CENTS) return "The smallest gift by card is $5.";
-  if (amountCents > max) return `For gifts over $${(max / 100).toLocaleString("en-US")}, please contact us and we'll arrange it.`;
-  const feeCents = body.cover_fee === true || body.cover_fee === "yes" ? feeFor(amountCents) : 0;
+  const amountCents = Math.round(numOf(body.amount) * 100);
+  const L = LIMITS[cur];
+  const max = kind === "member" ? L.memberMax : L.max;
+  if (amountCents < L.min) return `The smallest gift by card is ${fmt(L.min, cur)}.`;
+  if (amountCents > max) return `For gifts over ${fmt(max, cur)}, please contact us and we'll arrange it.`;
+  const feeCents = body.cover_fee === true || body.cover_fee === "yes" ? feeForIn(amountCents, cur) : 0;
   const showName = body.show_name === true || body.show_name === "yes";
   const name = clip(body.name, 60);
   const email = clip(body.email, 120);
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Please check your email address.";
-  return { kind: kind as GiveRequest["kind"], slug: kind === "project" ? slugify(body.project) : "", amountCents, feeCents, name, showName: showName && !!name, email };
+  const phone = clip(body.phone, 20).replace(/[^\d+ ]/g, "");
+  if (cur === "lkr") {
+    // PayHere asks every payer for an email and a phone number (its receipts and card checks use them).
+    if (!email) return "Please add your email address for the receipt.";
+    if (phone.replace(/\D/g, "").length < 7) return "Please add your phone number.";
+  }
+  return { kind: kind as GiveRequest["kind"], slug: kind === "project" ? slugify(body.project) : "", amountCents, feeCents, name, showName: showName && !!name, email, phone };
 }
 
 // Form fields for Stripe's "create a Checkout Session" call.
@@ -110,3 +144,56 @@ export async function verifyStripe(payload: string, header: string, secret: stri
   return sigs.some((s) => s.length === hex.length && timingSafe(s, hex));
 }
 const timingSafe = (a: string, b: string) => { let d = 0; for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i); return d === 0; };
+
+// ---------- PayHere (Sri Lanka) ----------
+// Checkout: the browser posts a form straight to PayHere; we only sign it. PayHere then calls our notify URL
+// with the result, signed with the same merchant secret. Docs: support.payhere.lk (Checkout API, Recurring API).
+
+const md5 = (v: string) => createHash("md5").update(v, "utf8").digest("hex").toUpperCase();
+// Amounts go to PayHere as rupees with two decimals and no thousands separators, e.g. "1500.00".
+export const phAmount = (cents: number) => (Math.round(cents) / 100).toFixed(2);
+export const payhereHash = (merchantId: string, orderId: string, amount: string, currency: string, secret: string) =>
+  md5(merchantId + orderId + amount + currency + md5(secret));
+export const payhereUrl = (sandbox: boolean) => `https://${sandbox ? "sandbox" : "www"}.payhere.lk/pay/checkout`;
+
+export const newOrderId = (now = Date.now()) =>
+  "RV" + now.toString(36).toUpperCase() + Math.random().toString(36).slice(2, 7).toUpperCase();
+
+export const whatFor = (g: GiveRequest, title: string) =>
+  (g.kind === "project" ? `Sponsor a smile: ${title}` : g.kind === "member" ? "Smile member: monthly gift" : "A gift to Raavanaa Community").slice(0, 250);
+
+// The fields of the form the browser sends to PayHere's checkout page.
+export function payhereFields(g: GiveRequest, o: { origin: string; title: string; orderId: string; merchantId: string; secret: string }) {
+  const amount = phAmount(g.amountCents + g.feeCents);
+  const [first, ...rest] = (g.name || "").split(" ").filter(Boolean);
+  const f: Record<string, string> = {
+    merchant_id: o.merchantId,
+    return_url: `${o.origin}/thank-you?order=${o.orderId}`,
+    cancel_url: g.kind === "project" ? `${o.origin}/give?project=${encodeURIComponent(g.slug)}&cancelled=1` : `${o.origin}/give?cancelled=1`,
+    notify_url: `${o.origin}/api/give/payhere`,
+    order_id: o.orderId,
+    items: whatFor(g, o.title),
+    currency: "LKR",
+    amount,
+    first_name: first || "Friend",
+    last_name: rest.join(" ") || "of Raavanaa",
+    email: g.email,
+    phone: g.phone || "",
+    address: "Online gift",
+    city: "Online",
+    country: "Sri Lanka",
+    custom_1: g.kind,
+    custom_2: g.slug,
+    hash: payhereHash(o.merchantId, o.orderId, amount, "LKR", o.secret),
+  };
+  if (g.kind === "member") { f.recurrence = "1 Month"; f.duration = "Forever"; }
+  return f;
+}
+
+// Checks that a notification really came from PayHere (its md5sig field).
+export function verifyPayhere(f: Record<string, string>, merchantId: string, secret: string) {
+  if (!f.md5sig || String(f.merchant_id) !== String(merchantId)) return false;
+  const want = md5(String(f.merchant_id) + String(f.order_id) + String(f.payhere_amount) + String(f.payhere_currency) + String(f.status_code) + md5(secret));
+  const got = String(f.md5sig).toUpperCase();
+  return want.length === got.length && timingSafe(want, got);
+}
