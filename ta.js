@@ -10,6 +10,7 @@
 "Donate": "நன்கொடை",
 "Help another way": "வேறு வழியில் உதவுங்கள்",
 "At a glance": "ஒரே பார்வையில்",
+"Be the reason they smile. Make it happen": "அவர்கள் புன்னகைக்கு நீங்கள் காரணமாகுங்கள். இதை நடத்துங்கள்",
 "Sign up and follow": "பதிவு செய்து பின்தொடருங்கள்",
 "Thank you for wanting to give!": "கொடுக்க விரும்பியதற்கு நன்றி!",
 "Still to fund": "இன்னும் தேவை",
