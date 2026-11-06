@@ -792,3 +792,13 @@ a:hover { color: var(--rp-orange); text-decoration: underline; text-underline-of
 	float: left; margin: 6px 10px 0 0; color: var(--rp-orange);
 	font-family: var(--rp-display); font-size: 3.6em; font-weight: 700; line-height: 0.8;
 }
+
+/* The current stage glows slowly so it stands out. */
+@keyframes rp-stage-glow {
+	0%, 100% { box-shadow: 0 0 0 3px var(--rp-gold), 0 0 0 9px rgba(201, 138, 30, 0.22), 0 6px 16px rgba(184, 68, 10, 0.3); transform: scale(1); }
+	50% { box-shadow: 0 0 0 3px var(--rp-gold-light), 0 0 0 16px rgba(227, 181, 74, 0.08), 0 0 28px 6px rgba(240, 138, 60, 0.55); transform: scale(1.07); }
+}
+.rp-track__steps .is-current i { animation: rp-stage-glow 2.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+	.rp-track__steps .is-current i { animation: none; }
+}
