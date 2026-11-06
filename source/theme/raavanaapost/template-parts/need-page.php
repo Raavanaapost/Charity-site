@@ -96,6 +96,20 @@ $box = function ( $cls ) use ( $p, $st ) {
 						}
 						?>
 					</div>
+					<?php
+					// Story highlights, taking turns on the picture (SURESH, 6 Nov 2026).
+					$hl = json_decode( (string) get_post_meta( get_the_ID(), 'rp_highlights', true ), true );
+					if ( is_array( $hl ) && $hl ) :
+						?>
+						<div class="rp-hl" aria-label="Story highlights">
+							<?php foreach ( array_values( $hl ) as $k => $line ) : ?>
+								<p class="rp-hl__line<?php echo 0 === $k ? ' is-on' : ''; ?>"<?php echo $k ? ' aria-hidden="true"' : ''; ?>><?php echo esc_html( $line ); ?></p>
+							<?php endforeach; ?>
+							<?php if ( count( $hl ) > 1 ) : ?>
+								<span class="rp-hl__dots"><?php foreach ( array_values( $hl ) as $k => $line ) : ?><button type="button" aria-label="Highlight <?php echo (int) $k + 1; ?>"<?php echo 0 === $k ? ' aria-current="true"' : ''; ?>></button><?php endforeach; ?></span>
+							<?php endif; ?>
+						</div>
+					<?php endif; ?>
 					<?php echo rp_rorg_glance( $p ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 				</div>
 				<section class="ptale s<?php echo (int) $st; ?><?php echo $rest ? '' : ' short'; ?>">
@@ -175,6 +189,17 @@ $box = function ( $cls ) use ( $p, $st ) {
 			t.textContent = /followed=1/.test(q) ? "Thank you! You're following this project. We'll tell you the moment you can give, and share every smile." : "Thank you! Your note is on its way. We'll be in touch soon, and you'll be part of a child's best day.";
 			a.querySelector('.phead').after(t);
 		}
+		/* Highlights on the picture take turns every 4.5 seconds; a dot shows one; pointing at the picture pauses. */
+		a.querySelectorAll('.rp-hl').forEach(function (h) {
+			var ls = h.querySelectorAll('.rp-hl__line'), ds = h.querySelectorAll('.rp-hl__dots button'), i = 0, timer = null;
+			if (ls.length < 2) return;
+			var show = function (n) { i = (n + ls.length) % ls.length; ls.forEach(function (l, k) { l.classList.toggle('is-on', k === i); l.setAttribute('aria-hidden', String(k !== i)); }); ds.forEach(function (d, k) { if (k === i) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current'); }); };
+			var play = function () { if (!timer && !matchMedia('(prefers-reduced-motion: reduce)').matches) timer = setInterval(function () { show(i + 1); }, 4500); };
+			var stop = function () { clearInterval(timer); timer = null; };
+			ds.forEach(function (d, k) { d.addEventListener('click', function () { stop(); show(k); play(); }); });
+			var w = h.closest('.hero-wrap'); w.addEventListener('mouseenter', stop); w.addEventListener('mouseleave', play);
+			play();
+		});
 		a.querySelectorAll('.go100').forEach(function (g) {
 			var pct = +g.dataset.pct, n = g.querySelector('.ring-n'), l = g.querySelector('.ring-l'), lab = l ? l.textContent : '';
 			var setN = function (v, preview) { if (n) n.textContent = Math.round(v) + '%'; if (l) l.textContent = preview ? 'IF DONE' : lab; g.classList.toggle('previewing', !!preview); };

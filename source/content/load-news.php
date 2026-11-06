@@ -114,6 +114,12 @@ $stories = array(
 		'excerpt' => 'The children of Choughleigh Tamil Vidyalayam, a small primary school in Pussellawa\'s tea country, have never been on a school trip. On Friday 27 November they hope to visit the Temple of the Tooth and the Peradeniya gardens.',
 		'stage'   => 'reported',
 		'update'  => 'Visited and verified. The day has moved to 27 November, and the Rs 61,000 for the bus and food is still to be covered.',
+		'highlights' => array(
+			'52 children have never been on a school trip',
+			'Friday 27 November: the Temple of the Tooth, Kandy',
+			'Then the Peradeniya gardens on the way home',
+			'Half pledged. Rs 30,500 still to go',
+		),
 		'hours'   => -68,
 		'views'   => 30,
 		'body'    => n_p( 'The second request from Pussellawa has been checked and is now a project. It comes from Choughleigh Tamil Vidyalayam, a small Tamil primary school in the tea country, with 52 children and 6 teachers. The principal calls it a fully disadvantaged school, and says these children have never been anywhere on an excursion.' )
@@ -380,6 +386,7 @@ foreach ( $stories as $s ) {
 	update_post_meta( $id, 'rp_byline', isset( $s['byline'] ) ? $s['byline'] : $by );
 	update_post_meta( $id, 'rp_views', $s['views'] );
 	if ( ! empty( $s['art'] ) ) { update_post_meta( $id, 'rp_art', $s['art'] ); }
+	if ( ! empty( $s['highlights'] ) ) { update_post_meta( $id, 'rp_highlights', wp_slash( wp_json_encode( $s['highlights'] ) ) ); }
 	if ( $s['place'] ) { update_post_meta( $id, 'rp_place', $s['place'] ); }
 	if ( ! empty( $s['stage'] ) ) {
 		update_post_meta( $id, 'rp_stage', $s['stage'] );
