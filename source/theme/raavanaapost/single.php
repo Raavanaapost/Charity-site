@@ -61,7 +61,9 @@ while ( have_posts() ) :
 					<?php endif; ?>
 				</p>
 			</div>
-			<?php if ( rp_stage() ) : ?>
+			<?php if ( rp_project() ) : ?>
+				<?php rp_project_panels(); ?>
+			<?php elseif ( rp_stage() ) : ?>
 				<aside class="rp-article__need" aria-labelledby="rp-need-h">
 					<h2 id="rp-need-h"><?php esc_html_e( 'Where this need stands', 'raavanaapost' ); ?></h2>
 					<?php rp_tracker( null, 'light' ); ?>
