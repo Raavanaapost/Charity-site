@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 -40 1100 825" width="800" height="600" role="img" aria-label="Pre-school children cross the black iron bridge over the Pali Aru on their way to a riverside picnic with ice cream, with palmyra palms and a temple tower beyond">
+<defs>
+<linearGradient id="ysky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6e3"/><stop offset=".7" stop-color="#fde3b0"/><stop offset="1" stop-color="#f9d58e"/></linearGradient>
+<radialGradient id="ysun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd85a"/><stop offset="1" stop-color="#ef9a22"/></radialGradient>
+<linearGradient id="yriver" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fd0c9"/><stop offset="1" stop-color="#5a9f98"/></linearGradient>
+<g id="palmyra"><path d="M0 0 C-3 -70 3 -150 0 -210" stroke="#6e5236" stroke-width="10" fill="none" stroke-linecap="round"/><g fill="#2f7a45"><path d="M0 -210 l-62 -26 l8 14 l-30 -2 l20 14 l-26 8 l30 4z"/><path d="M0 -210 l62 -26 l-8 14 l30 -2 l-20 14 l26 8 l-30 4z"/><path d="M0 -212 l-26 -48 l2 18 l-18 -14 l8 22 z"/><path d="M0 -212 l26 -48 l-2 18 l18 -14 l-8 22 z"/></g><circle cx="-6" cy="-202" r="6" fill="#4a3322"/><circle cx="7" cy="-200" r="6" fill="#4a3322"/></g>
+<g id="ykid"><circle cx="0" cy="-22" r="7" fill="#7a4b2a"/><path d="M-8 -14 h16 l4 20 h-24z" fill="#fffaf0" stroke="#d9b98a" stroke-width="1.5"/><path d="M-4 6 v10 M4 6 v10" stroke="#7a4b2a" stroke-width="4" stroke-linecap="round"/></g>
+<g id="ykidb"><circle cx="0" cy="-22" r="7" fill="#7a4b2a"/><path d="M-8 -14 h16 l4 20 h-24z" fill="#f7c63a"/><path d="M-4 6 v10 M4 6 v10" stroke="#7a4b2a" stroke-width="4" stroke-linecap="round"/></g>
+<g id="ykidr"><circle cx="0" cy="-22" r="7" fill="#7a4b2a"/><path d="M-8 -14 h16 l4 20 h-24z" fill="#c0392b"/><path d="M-4 6 v10 M4 6 v10" stroke="#7a4b2a" stroke-width="4" stroke-linecap="round"/></g>
+<g id="cone"><path d="M-16 0 L0 46 L16 0Z" fill="#d9a35a" stroke="#b07a3a" stroke-width="2"/><path d="M-12 8 l20 24 M12 8 l-20 24" stroke="#b07a3a" stroke-width="2"/><circle cx="-7" cy="-6" r="12" fill="#fde7f0"/><circle cx="8" cy="-8" r="12" fill="#fff3c4"/><circle cx="0" cy="-20" r="11" fill="#f7a8b8"/><circle cx="1" cy="-34" r="4" fill="#c0392b"/></g>
+</defs>
+<rect y="-200" width="1200" height="900" fill="#fff6e3"/><rect width="1200" height="675" fill="url(#ysky)"/>
+<circle cx="660" cy="120" r="56" fill="url(#ysun)"/>
+<g stroke="#ef9a22" stroke-width="6" stroke-linecap="round" opacity=".7"><path d="M660 40v-18M732 70l14-12M748 120h18M588 70l-14-12M572 120h-18"/></g>
+<g fill="#fff" opacity=".85"><path d="M520 100 q20 -30 50 -10 q25 -22 50 4 q30 -2 26 22 h-136 q-12 -12 10 -16z"/><path d="M880 70 q16 -22 40 -8 q22 -16 40 4 q24 0 20 18 h-110 q-8 -10 10 -14z"/></g>
+<!-- flat northern land with red earth -->
+<path d="M0 330 Q300 300 600 318 Q900 336 1200 312 V790 H0Z" fill="#b7d6a8"/>
+<path d="M0 370 Q260 350 560 366 Q860 384 1200 360 V790 H0Z" fill="#8fc27f"/>
+<!-- the temple tower far away (no name) -->
+<g transform="translate(930 214)">
+<path d="M-56 120 L-44 70 H44 L56 120Z" fill="#f2b21c"/>
+<path d="M-44 70 L-34 34 H34 L44 70Z" fill="#e5851a"/>
+<path d="M-34 34 L-24 6 H24 L34 34Z" fill="#c0392b"/>
+<path d="M-24 6 L-14 -16 H14 L24 6Z" fill="#2f7a45"/>
+<path d="M-14 -16 q14 -26 28 0Z" fill="#f7c63a"/>
+<g fill="#fffaf0"><rect x="-30" y="84" width="10" height="22" rx="5"/><rect x="-5" y="84" width="10" height="22" rx="5"/><rect x="20" y="84" width="10" height="22" rx="5"/><rect x="-20" y="44" width="8" height="16" rx="4"/><rect x="12" y="44" width="8" height="16" rx="4"/></g>
+<path d="M-90 120 h180 v22 h-180z" fill="#fffaf0" stroke="#d9b98a" stroke-width="3"/>
+<path d="M-14 142 v-14 q14 -14 28 0 v14z" fill="#b8440a"/>
+</g>
+<use href="#palmyra" x="80" y="392"/><use href="#palmyra" x="150" y="380"/><use href="#palmyra" x="1110" y="384"/><use href="#palmyra" x="800" y="366"/>
+<!-- the river -->
+<path d="M0 470 Q300 440 600 456 Q900 472 1200 444 V540 Q900 566 600 548 Q300 532 0 560Z" fill="url(#yriver)"/>
+<g stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".7"><path d="M80 520h60M240 500h80M700 520h70M960 506h90"/></g>
+<!-- the black iron bridge -->
+<g transform="translate(330 380)">
+<path d="M0 100 H420" stroke="#2b2b2b" stroke-width="12"/>
+<path d="M0 100 V40 H420 V100" stroke="#2b2b2b" stroke-width="8" fill="none"/>
+<g stroke="#2b2b2b" stroke-width="6" fill="none"><path d="M0 100 L42 40 L84 100 L126 40 L168 100 L210 40 L252 100 L294 40 L336 100 L378 40 L420 100"/></g>
+<g fill="#5a4a3a"><rect x="30" y="106" width="22" height="70"/><rect x="200" y="106" width="22" height="70"/><rect x="370" y="106" width="22" height="70"/></g>
+<!-- little ones crossing, holding hands -->
+<g transform="translate(0 92)"><use href="#ykid" x="96"/><use href="#ykidb" x="124"/><use href="#ykidr" x="152"/><use href="#ykid" x="180"/><use href="#ykidb" x="208"/><use href="#ykidr" x="236"/><use href="#ykid" x="264"/><use href="#ykidb" x="292"/>
+<path d="M104 -6 h12 M132 -6 h12 M160 -6 h12 M188 -6 h12 M216 -6 h12 M244 -6 h12 M272 -6 h12" stroke="#7a4b2a" stroke-width="3" stroke-linecap="round"/></g>
+</g>
+<!-- the riverside lawn and the picnic -->
+<path d="M0 560 Q300 532 600 548 Q900 566 1200 540 V790 H0Z" fill="#4f9a5c"/>
+<rect x="420" y="600" width="300" height="60" rx="10" fill="#fff6e3" stroke="#e5851a" stroke-width="3" transform="rotate(-2 570 630)"/>
+<g stroke="#e5851a" stroke-width="3" opacity=".5"><path d="M470 600 v60 M520 598 v60 M570 596 v60 M620 594 v60 M670 592 v60"/></g>
+<use href="#cone" x="500" y="580"/><use href="#cone" x="590" y="574"/><use href="#cone" x="680" y="570"/>
+<!-- hearts rising -->
+<g fill="#e24a3b"><path d="M860 590 c-10 -14 -30 -4 -20 12 l20 18 l20 -18 c10 -16 -10 -26 -20 -12z"/><path d="M930 560 c-6 -9 -20 -3 -13 8 l13 12 l13 -12 c7 -11 -7 -17 -13 -8z" opacity=".8"/><path d="M300 600 c-6 -9 -20 -3 -13 8 l13 12 l13 -12 c7 -11 -7 -17 -13 -8z" opacity=".8"/></g>
+<g fill="#f7c63a"><circle cx="140" cy="630" r="7"/><circle cx="1040" cy="640" r="7"/><circle cx="240" cy="650" r="5"/></g>
+<g fill="#e5851a"><circle cx="980" cy="620" r="7"/><circle cx="360" cy="640" r="6"/></g>
+</svg>

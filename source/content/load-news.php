@@ -93,7 +93,7 @@ $stories = array(
 		'update'  => 'The day happened on 12 October, and the full Rs 20,000 went to the trip.',
 		'hours'   => 0,
 		'views'   => 140,
-		'thumb'   => 'maha_cover',
+		'art'     => 'yogapuram-day', // drawing in place of the group photo (SURESH, 6 Nov 2026)
 		'body'    => n_p( 'On 12 October 2026, 17 children from a pre-school in Yogapuram set off for an afternoon out with 20 parents, two teachers and members of the pre-school\'s management. The bus left at 3.30 and reached the Black Bridge (Karutha Palam) over the Pali Aru at 3.45.' )
 			. n_p( 'The children had ice cream, danced together and watched the river flow quietly under the old bridge, said to have been built by the Dutch. Then they went down into the water to play. For many of them it was the first day like this in a long time.' )
 			. '%IMG_GRASS%'
@@ -303,7 +303,7 @@ $stories = array(
 		'excerpt' => 'Friends of Raavanaa, Sasi, Shanker and Bala, and Kiri & Family: who made four days possible, and what each one paid for.',
 		'hours'   => 12,
 		'views'   => 65,
-		'thumb'   => 'maha_temple',
+		'art'     => 'friends-temple', // drawing in place of the group photo (SURESH, 6 Nov 2026)
 		'body'    => n_p( 'All over the world there are people who would gladly give a child a day of joy, if only they knew where it was needed and could trust that it would truly reach the child. These are the friends behind this autumn\'s days.' )
 			. n_ul( array( '<strong>Pussellawa, a day in the hills:</strong> Friends of Raavanaa, Rs 19,250', '<strong>Yogapuram, the Black Bridge and the temple:</strong> Friends of Raavanaa, Rs 20,000', '<strong>Kilinochchi, mums and kids:</strong> Sasi, Shanker and Bala, $450', '<strong>Karainagar, Casuarina Beach:</strong> Kiri &amp; Family, $600' ) )
 			. n_p( 'Every penny goes to the project itself, and every project shows its budget and who made it possible. Want to be part of the next one? Visit <a href="https://raavanaa.org">raavanaa.org</a>.' ),

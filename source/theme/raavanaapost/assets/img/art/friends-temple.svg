@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 -40 1100 825" width="800" height="600" role="img" aria-label="Friends near and far: a ribbon of hearts runs from a far-away city skyline across the sea to a temple garden where children play">
+<defs>
+<linearGradient id="fsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6e3"/><stop offset=".7" stop-color="#fde3b0"/><stop offset="1" stop-color="#f9d58e"/></linearGradient>
+<radialGradient id="fsun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd85a"/><stop offset="1" stop-color="#ef9a22"/></radialGradient>
+<linearGradient id="fsea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fd0c9"/><stop offset="1" stop-color="#5a9f98"/></linearGradient>
+<g id="fkid"><circle cx="0" cy="-22" r="7" fill="#7a4b2a"/><path d="M-8 -14 h16 l4 20 h-24z" fill="#c0392b"/><path d="M-4 6 v10 M4 6 v10" stroke="#7a4b2a" stroke-width="4" stroke-linecap="round"/></g>
+<g id="fkidy"><circle cx="0" cy="-22" r="7" fill="#7a4b2a"/><path d="M-8 -14 h16 l4 20 h-24z" fill="#f7c63a"/><path d="M-4 6 v10 M4 6 v10" stroke="#7a4b2a" stroke-width="4" stroke-linecap="round"/></g>
+<g id="fkidw"><circle cx="0" cy="-22" r="7" fill="#7a4b2a"/><path d="M-8 -14 h16 l4 20 h-24z" fill="#fffaf0" stroke="#d9b98a" stroke-width="1.5"/><path d="M-4 6 v10 M4 6 v10" stroke="#7a4b2a" stroke-width="4" stroke-linecap="round"/></g>
+<g id="heart"><path d="M0 0 c-10 -14 -30 -4 -20 12 l20 18 l20 -18 c10 -16 -10 -26 -20 -12z"/></g>
+<g id="flower"><circle r="6" fill="#f7c63a"/><g fill="#e24a3b"><circle cx="0" cy="-10" r="6"/><circle cx="10" cy="0" r="6"/><circle cx="0" cy="10" r="6"/><circle cx="-10" cy="0" r="6"/></g></g>
+</defs>
+<rect y="-200" width="1200" height="900" fill="#fff6e3"/><rect width="1200" height="675" fill="url(#fsky)"/>
+<circle cx="600" cy="110" r="58" fill="url(#fsun)"/>
+<g fill="#fff" opacity=".85"><path d="M330 90 q20 -30 50 -10 q25 -22 50 4 q30 -2 26 22 h-136 q-12 -12 10 -16z"/><path d="M820 60 q16 -22 40 -8 q22 -16 40 4 q24 0 20 18 h-110 q-8 -10 10 -14z"/></g>
+<!-- far away: a city where friends live -->
+<g fill="#c9b6a0" opacity=".9" transform="translate(40 236)">
+<rect x="0" y="40" width="40" height="80"/><rect x="46" y="10" width="34" height="110"/><rect x="86" y="54" width="44" height="66"/><rect x="136" y="0" width="26" height="120"/><path d="M149 0 v-30" stroke="#c9b6a0" stroke-width="4"/><rect x="168" y="36" width="40" height="84"/><rect x="214" y="64" width="34" height="56"/>
+<g fill="#fff6e3"><rect x="8" y="54" width="8" height="10"/><rect x="24" y="54" width="8" height="10"/><rect x="54" y="26" width="8" height="10"/><rect x="66" y="26" width="8" height="10"/><rect x="54" y="46" width="8" height="10"/><rect x="96" y="68" width="8" height="10"/><rect x="112" y="68" width="8" height="10"/><rect x="176" y="50" width="8" height="10"/><rect x="192" y="50" width="8" height="10"/></g>
+</g>
+<!-- the sea between -->
+<path d="M0 356 Q300 340 600 352 Q900 364 1200 344 V430 Q900 446 600 436 Q300 426 0 444Z" fill="url(#fsea)"/>
+<g stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".7"><path d="M60 400h60M260 384h80M520 410h70M760 392h90M1000 404h70"/></g>
+<!-- the ribbon of hearts from the city to the temple -->
+<path d="M180 230 C 360 120 620 160 760 230 S 960 300 960 330" fill="none" stroke="#e5851a" stroke-width="5" stroke-dasharray="2 14" stroke-linecap="round"/>
+<g fill="#e24a3b"><use href="#heart" x="300" y="160"/><use href="#heart" x="480" y="140" transform="scale(1)"/><use href="#heart" x="660" y="180"/></g>
+<g fill="#f2b21c"><use href="#heart" x="390" y="140" opacity=".9"/><use href="#heart" x="580" y="150" opacity=".9"/></g>
+<!-- Sri Lanka: green land and a temple garden -->
+<path d="M0 440 Q300 420 600 434 Q900 448 1200 424 V790 H0Z" fill="#8fc27f"/>
+<path d="M420 790 L420 675 Q520 500 800 470 Q1000 450 1200 470 V790Z" fill="#4f9a5c"/>
+<!-- temple (no name) -->
+<g transform="translate(960 330)">
+<path d="M-60 120 L-48 74 H48 L60 120Z" fill="#f2b21c"/>
+<path d="M-48 74 L-38 40 H38 L48 74Z" fill="#e5851a"/>
+<path d="M-38 40 L-28 12 H28 L38 40Z" fill="#c0392b"/>
+<path d="M-28 12 L-18 -10 H18 L28 12Z" fill="#2f7a45"/>
+<path d="M-18 -10 q18 -30 36 0Z" fill="#f7c63a"/>
+<g fill="#fffaf0"><rect x="-32" y="86" width="10" height="24" rx="5"/><rect x="-5" y="86" width="10" height="24" rx="5"/><rect x="22" y="86" width="10" height="24" rx="5"/><rect x="-22" y="48" width="8" height="16" rx="4"/><rect x="14" y="48" width="8" height="16" rx="4"/></g>
+<path d="M-120 120 h240 v28 h-240z" fill="#fffaf0" stroke="#d9b98a" stroke-width="3"/>
+<path d="M-16 148 v-18 q16 -16 32 0 v18z" fill="#b8440a"/>
+</g>
+<!-- garden and children dancing, seen small -->
+<g transform="translate(0 600)"><use href="#flower" x="560" y="10"/><use href="#flower" x="640" y="30"/><use href="#flower" x="1080" y="20"/><use href="#flower" x="880" y="40"/><use href="#flower" x="500" y="50"/></g>
+<g transform="translate(0 560)"><use href="#fkid" x="700"/><use href="#fkidy" x="740" y="-8"/><use href="#fkidw" x="780"/><use href="#fkid" x="820" y="-8"/><use href="#fkidy" x="860"/>
+<path d="M708 -12 h24 M748 -18 h24 M788 -12 h24 M828 -18 h24" stroke="#7a4b2a" stroke-width="3" stroke-linecap="round"/></g>
+<g fill="#e24a3b"><use href="#heart" x="780" y="490" opacity=".85"/></g>
+<g fill="#f7c63a"><circle cx="140" cy="620" r="7"/><circle cx="300" cy="650" r="5"/></g>
+<g fill="#e5851a"><circle cx="220" cy="600" r="7"/><circle cx="380" cy="630" r="6"/></g>
+</svg>
