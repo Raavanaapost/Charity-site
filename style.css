@@ -1832,3 +1832,9 @@ body[data-page="home"] .finder-slogan{margin-top:-42px}
 }
 html[lang="ta"] .lane-label{font-size:clamp(12px,1.6vw,15px)}html[lang="ta"] .lane .you .lane-label{font-size:clamp(12.5px,1.7vw,16px)}html[lang="ta"] .lane-sub{font-size:10.5px}
 @media (prefers-reduced-motion:reduce){.lane .you .lane-dot::after{animation:none}.lane-dot,.wait-btn span,.ask-btn span{transition:none}}
+
+/* Project story folded after its opening paragraph: "Read the full story" opens the rest. */
+.story .fold > summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;margin:6px 0 4px;padding:9px 18px;border:1px solid color-mix(in srgb,var(--sun) 45%,var(--surface));border-radius:999px;background:var(--sun-soft);color:var(--brand);font-family:var(--display);font-weight:700;font-size:15px}
+.story .fold > summary::-webkit-details-marker{display:none}
+.story .fold > summary::after{content:"";width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translateY(-2px)}
+.story .fold[open] > summary{display:none}
