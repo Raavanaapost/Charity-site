@@ -1438,7 +1438,8 @@ body[data-page="overview"] .stages{margin-bottom:6px}
 @media (prefers-reduced-motion:reduce){.stages .stage.arrive,.rail-say span.on{animation:none}}
 
 /* Project page: title, picture, then the story cut to three lines */
-.layout .phead{padding-block:6px 16px}
+.layout .phead{padding-block:18px 16px}
+.crumbs + .layout{margin-top:10px}
 .layout .hero{margin-bottom:18px}
 .ptale{margin:0 0 22px;--tc:#1f7a47}
 .ptale.s2{--tc:#b97a06}.ptale.s3{--tc:#c8381e}
@@ -1882,10 +1883,12 @@ html[lang="ta"] .lane-label{font-size:clamp(12px,1.6vw,15px)}html[lang="ta"] .la
 /* "Project at a glance" opens from the icon on the picture. */
 .hero-wrap{position:relative}
 .glance{position:absolute;top:12px;right:12px;z-index:5;display:flex;flex-direction:column;align-items:flex-end}
-.glance-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px 7px 8px;border:0;border-radius:999px;background:rgba(255,255,255,.94);color:#0f5132;box-shadow:0 2px 10px rgba(0,0,0,.18);font:700 14px/1 var(--display);cursor:pointer}
+.glance-btn{display:inline-grid;place-items:center;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.94);color:#0f5132;box-shadow:0 2px 10px rgba(0,0,0,.18);font:700 14px/1 var(--display);cursor:pointer}
 .glance-btn svg{color:#b8440a}
 .glance-card{display:none;width:min(320px,calc(100vw - 56px));margin-top:8px;box-shadow:0 10px 30px rgba(0,0,0,.2);text-align:left}
-.glance:hover .glance-card,.glance:focus-within .glance-card{display:block}
+.glance.is-open .glance-card{display:block}
+@media (hover:hover){.glance:hover .glance-card{display:block}}
+.glance.is-shut .glance-card{display:none}
 .glance-card .facts{margin:0}
 /* A small Donate button on the picture of Initiated projects. */
 .donate-on-pic{position:absolute;top:12px;left:12px;z-index:5}

@@ -1345,6 +1345,22 @@
   }
   // Donate: during the pilot there are no online donations. The pop-up says so and asks people
   // to join the community: sign up and follow the project (SURESH, 6 Nov 2026).
+  /* "At a glance": tap or click the small icon to open; tap it again, tap anywhere else or press Esc to close. */
+  function wireGlance(root) {
+    root.querySelectorAll(".glance").forEach(g => {
+      const b = g.querySelector(".glance-btn");
+      const set = on => { g.classList.toggle("is-open", on); g.classList.toggle("is-shut", !on); b.setAttribute("aria-expanded", String(on)); };
+      b.addEventListener("click", e => { e.stopPropagation(); set(!g.classList.contains("is-open")); });
+      g.addEventListener("pointerleave", e => { if (e.pointerType !== "mouse") return; set(false); g.classList.remove("is-shut"); });
+    });
+    if (!wireGlance.done) {
+      wireGlance.done = true;
+      const shut = () => document.querySelectorAll(".glance.is-open").forEach(g => { g.classList.remove("is-open"); g.querySelector(".glance-btn").setAttribute("aria-expanded", "false"); });
+      document.addEventListener("click", e => { if (!e.target.closest(".glance")) shut(); });
+      document.addEventListener("keydown", e => { if (e.key === "Escape") shut(); });
+    }
+  }
+
   function wireDonate(root, slug) {
     root.querySelectorAll("[data-donate]").forEach(b => b.addEventListener("click", () => {
       const pop = document.createElement("div");
@@ -1896,17 +1912,11 @@
         <nav class="crumbs"><a href="/initiated">Projects</a>${p.theme ? ` / ${esc(p.theme)}` : ""}</nav>
         <div class="layout">
           <div style="min-width:0">
-            <header class="phead">
-              ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
-              <h1>${esc(p.title)}</h1>
-              <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>by <strong>${esc(p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Visited and verified</span>` : ""}</div>
-            </header>
             <div class="hero-wrap">
               <div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.cover ? "" : "Cover photo", 1400)}</div>
-              ${stageNum(p) === 1 && !p.sample ? `<div class="donate-on-pic">${DONATE_BTN}</div>` : ""}
               <div class="glance">
-                <button type="button" class="glance-btn" aria-label="Project at a glance" aria-describedby="glance-card"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg><span>At a glance</span></button>
-                <div class="panel glance-card" id="glance-card" role="tooltip">
+                <button type="button" class="glance-btn" aria-label="Project at a glance" aria-expanded="false" aria-controls="glance-card" title="Project at a glance"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></button>
+                <div class="panel glance-card" id="glance-card">
                   <h2>Project at a glance</h2>
                   <dl class="facts">
                     ${p.status ? `<dt>Status</dt><dd>${esc(p.status)}</dd>` : ""}
@@ -1918,6 +1928,11 @@
                 </div>
               </div>
             </div>
+            <header class="phead">
+              ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
+              <h1>${esc(p.title)}</h1>
+              <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>by <strong>${esc(p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Visited and verified</span>` : ""}</div>
+            </header>
             ${ringPanel("only-narrow")}
             ${stageNum(p) === 3 ? "" : `<div class="only-narrow">${budgetBoxHTML(p, site, false)}</div>`}
             <div class="tabs" role="tablist">
@@ -1938,6 +1953,7 @@
       wireTale(app, taleOpen, v => { taleOpen = v; });
       wireGo(app);
       wireDonate(app, slugOf(p));
+      wireGlance(app);
       app.querySelectorAll(".photos button").forEach(b => b.onclick = () => {
         const lb = document.createElement("div");
         lb.className = "lightbox"; lb.innerHTML = `<img src="${esc(b.dataset.src)}" alt="">`;
