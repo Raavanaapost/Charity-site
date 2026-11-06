@@ -3,6 +3,15 @@
 /* Fonts are cut down to the letters the site uses. Tamil has its own file,
    which a browser only downloads when a page has Tamil text on it. */
 @font-face {
+	font-family: "Cinzel";
+	src: url("../fonts/cinzel-latin.woff2") format("woff2"), url("../fonts/cinzel-latin.woff") format("woff");
+	font-weight: 100 900;
+	font-style: normal;
+	font-display: swap;
+	unicode-range: U+0000-00FF, U+0100-017F, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20A8, U+20AC, U+20B9, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
 	font-family: "Rozha One";
 	src: url("../fonts/rozha-one-latin.woff2") format("woff2"), url("../fonts/rozha-one-latin.woff") format("woff");
 	font-weight: 400;
@@ -48,7 +57,7 @@
 	--rp-ivory: #FBF6EA;
 	--rp-ivory-2: #F5ECD5;
 	--rp-gold-line: #E8D6A6;
-	--rp-display: "Rozha One", Georgia, "Times New Roman", serif;
+	--rp-display: "Cinzel", "Rozha One", Georgia, "Times New Roman", serif;
 	--rp-text: "Catamaran", system-ui, -apple-system, "Segoe UI", sans-serif;
 	--rp-gutter: clamp(16px, 3vw, 32px);
 	--rp-radius: 6px;
@@ -310,7 +319,7 @@ a:hover { color: var(--rp-orange); text-decoration: underline; text-underline-of
 .rp-top { display: flex; flex-wrap: wrap; gap: 40px; padding-top: 32px; padding-bottom: 64px; }
 .rp-lead { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
 .rp-lead > .rp-kicker { margin-top: 6px; font-size: 15px; }
-.rp-lead__title { margin: 0; color: var(--rp-green); font-family: var(--rp-display); font-size: clamp(34px, 4vw, 54px); font-weight: 400; line-height: 1.06; }
+.rp-lead__title { margin: 0; color: var(--rp-green); font-family: var(--rp-display); font-size: clamp(28px, 3.3vw, 44px); font-weight: 400; line-height: 1.06; }
 .rp-lead__title a { color: inherit; }
 .rp-lead__standfirst { margin: 0; max-width: 62ch; color: var(--rp-muted); font-size: 19px; line-height: 1.55; }
 .rp-lead__need { max-width: 560px; margin-top: 8px; padding: 18px 20px; border-radius: var(--rp-radius); background: var(--rp-ivory); border: 1px solid var(--rp-gold-line); }
@@ -373,7 +382,7 @@ a:hover { color: var(--rp-orange); text-decoration: underline; text-underline-of
 .rp-card--feature { flex: 999 1 520px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 24px 28px; align-items: start; }
 .rp-card--feature > .rp-media { margin: 0; }
 .rp-card--feature .rp-card__body { display: flex; flex-direction: column; gap: 12px; }
-.rp-card--feature .rp-card__title { color: var(--rp-green); font-family: var(--rp-display); font-size: clamp(28px, 2.8vw, 34px); font-weight: 400; line-height: 1.12; }
+.rp-card--feature .rp-card__title { color: var(--rp-green); font-family: var(--rp-display); font-size: clamp(24px, 2.4vw, 29px); font-weight: 400; line-height: 1.12; }
 .rp-card--feature .rp-card__text { font-size: 17px; line-height: 1.55; }
 .rp-list { flex: 1 1 300px; min-width: 0; margin: 0; padding: 0; list-style: none; }
 .rp-list > li { padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--rp-line); }
@@ -567,9 +576,9 @@ a:hover { color: var(--rp-orange); text-decoration: underline; text-underline-of
 .rp-article__trail a { color: var(--rp-green); }
 .rp-article__trail a::after { content: ""; display: inline-block; width: 7px; height: 7px; margin-left: 14px; background: var(--rp-gold); transform: rotate(45deg) translateY(-2px); }
 .rp-article__trail a:last-child::after { display: none; }
-.rp-article__title { margin: 0; color: var(--rp-green); font-family: var(--rp-display); font-size: clamp(36px, 4.6vw, 58px); font-weight: 400; line-height: 1.06; }
+.rp-article__title { margin: 0; color: var(--rp-green); font-family: var(--rp-display); font-size: clamp(30px, 3.8vw, 48px); font-weight: 400; line-height: 1.06; }
 .rp-article__standfirst { margin: 18px 0 0; color: var(--rp-muted); font-size: 21px; line-height: 1.5; }
-.rp-article__byline { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 24px; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--rp-line); }
+.rp-article__byline { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 24px; margin: 0 0 28px; padding-bottom: 14px; border-bottom: 1px solid var(--rp-line); }
 .rp-article__updated { margin-left: 10px; }
 .rp-article__figure { margin: 0 auto 36px; max-width: 1080px; }
 .rp-article__figure img { display: block; width: 100%; height: auto; border-radius: 4px; }
@@ -758,4 +767,14 @@ a:hover { color: var(--rp-orange); text-decoration: underline; text-underline-of
 @media print {
 	.rp-topbar, .rp-nav, .rp-search, .rp-latest, .rp-share, .rp-related, .rp-footer, .rp-comments-wrap { display: none !important; }
 	body { font-size: 12pt; }
+}
+
+/* Royal titles: Cinzel, with the first letter one size up. */
+.rp-article__title::first-letter, .rp-lead__title::first-letter, .rp-card--feature .rp-card__title::first-letter { font-size: 1.28em; color: var(--rp-orange); }
+.rp-article__need h2::first-letter { font-size: 1.25em; color: var(--rp-orange); }
+.rp-article__need h2 { letter-spacing: 0.01em; }
+/* A story opens with a big royal first letter. */
+.rp-prose > p:first-child::first-letter {
+	float: left; margin: 6px 10px 0 0; color: var(--rp-orange);
+	font-family: var(--rp-display); font-size: 3.6em; font-weight: 700; line-height: 0.8;
 }

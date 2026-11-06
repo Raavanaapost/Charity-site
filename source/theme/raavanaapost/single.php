@@ -31,20 +31,6 @@ while ( have_posts() ) :
 			<?php if ( has_excerpt() ) : ?>
 				<p class="rp-article__standfirst"><?php echo esc_html( get_the_excerpt() ); ?></p>
 			<?php endif; ?>
-			<div class="rp-article__byline">
-				<p class="rp-byline"><?php esc_html_e( 'By', 'raavanaapost' ); ?> <span class="rp-byline__name"><?php echo esc_html( rp_byline() ); ?></span></p>
-				<p class="rp-byline">
-					<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
-					<?php if ( get_the_modified_time( 'U' ) - get_the_time( 'U' ) > HOUR_IN_SECONDS ) : ?>
-						<span class="rp-article__updated">
-							<?php
-							/* translators: %s: date */
-							printf( esc_html__( 'Updated %s', 'raavanaapost' ), esc_html( get_the_modified_date() ) );
-							?>
-						</span>
-					<?php endif; ?>
-				</p>
-			</div>
 		</header>
 
 		<?php if ( has_post_thumbnail() ) : ?>
@@ -61,6 +47,20 @@ while ( have_posts() ) :
 		<?php endif; ?>
 
 		<div class="rp-wrap rp-wrap--narrow rp-article__body">
+			<div class="rp-article__byline">
+				<p class="rp-byline"><?php esc_html_e( 'By', 'raavanaapost' ); ?> <span class="rp-byline__name"><?php echo esc_html( rp_byline() ); ?></span></p>
+				<p class="rp-byline">
+					<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
+					<?php if ( get_the_modified_time( 'U' ) - get_the_time( 'U' ) > HOUR_IN_SECONDS ) : ?>
+						<span class="rp-article__updated">
+							<?php
+							/* translators: %s: date */
+							printf( esc_html__( 'Updated %s', 'raavanaapost' ), esc_html( get_the_modified_date() ) );
+							?>
+						</span>
+					<?php endif; ?>
+				</p>
+			</div>
 			<?php if ( rp_stage() ) : ?>
 				<aside class="rp-article__need" aria-labelledby="rp-need-h">
 					<h2 id="rp-need-h"><?php esc_html_e( 'Where this need stands', 'raavanaapost' ); ?></h2>

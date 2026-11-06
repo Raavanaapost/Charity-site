@@ -20,16 +20,8 @@ get_header();
 global $rp_shown;
 $rp_shown = array();
 
-$rp_sticky = array_filter( array_map( 'intval', (array) get_option( 'sticky_posts', array() ) ) );
-$rp_lead   = $rp_sticky ? rp_take(
-	array(
-		'numberposts' => 1,
-		'post__in'    => $rp_sticky,
-	)
-) : array();
-if ( ! $rp_lead ) {
-	$rp_lead = rp_take( array( 'numberposts' => 1 ) );
-}
+// The newest story is always the front-page lead.
+$rp_lead = rp_take( array( 'numberposts' => 1, 'ignore_sticky_posts' => true ) );
 
 if ( ! $rp_lead ) :
 	?>

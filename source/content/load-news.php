@@ -92,7 +92,6 @@ $stories = array(
 		'update'  => 'The day happened on 12 October, and the full Rs 20,000 went to the trip.',
 		'hours'   => 0,
 		'views'   => 140,
-		'sticky'  => true,
 		'thumb'   => 'maha_cover',
 		'body'    => n_p( 'On 12 October 2026, 17 children from a pre-school in Yogapuram set off for an afternoon out with 20 parents, two teachers and members of the pre-school\'s management. The bus left at 3.30 and reached the Black Bridge (Karutha Palam) over the Pali Aru at 3.45.' )
 			. n_p( 'The children had ice cream, danced together and watched the river flow quietly under the old bridge, said to have been built by the Dutch. Then they went down into the water to play. For many of them it was the first day like this in a long time.' )
