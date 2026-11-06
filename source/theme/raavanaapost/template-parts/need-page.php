@@ -90,12 +90,6 @@ $box = function ( $cls ) use ( $p, $st ) {
 <article <?php post_class( 'rp-article rorg' ); ?>>
 	<div class="wrap">
 		<nav class="crumbs"><?php if ( $cat ) : ?><a href="<?php echo esc_url( get_category_link( $cat ) ); ?>"><?php echo esc_html( $cat->name ); ?></a><?php endif; ?><?php echo ! empty( $p['theme'] ) ? ' / ' . esc_html( $p['theme'] ) : ''; ?></nav>
-		<header class="phead">
-			<?php if ( ! empty( $p['theme'] ) ) : ?><span class="tag"><?php echo esc_html( $p['theme'] ); ?></span><?php endif; ?>
-			<h1 class="rp-article__title"><?php the_title(); ?></h1>
-			<?php if ( has_excerpt() ) : ?><p class="lede"><?php echo esc_html( get_the_excerpt() ); ?></p><?php endif; ?>
-			<div class="byline"><span class="avatar">RP</span><span>by <strong><?php echo esc_html( rp_byline() ); ?></strong> · <time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time><?php echo $place ? ' · ' . esc_html( $place ) : ''; ?></span><?php if ( ! empty( $p['verified'] ) ) : ?><span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Visited and verified</span><?php endif; ?></div>
-		</header>
 		<div class="layout">
 			<div style="min-width:0">
 				<div class="hero-wrap">
@@ -122,9 +116,14 @@ $box = function ( $cls ) use ( $p, $st ) {
 							<?php endif; ?>
 						</div>
 					<?php endif; ?>
-					<?php echo 1 === $st ? '<div class="rp-donate-pic">' . rp_rorg_donate_btn() . '</div>' : ''; // phpcs:ignore ?>
 					<?php echo rp_rorg_glance( $p ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 				</div>
+				<header class="phead">
+					<?php if ( ! empty( $p['theme'] ) ) : ?><span class="tag"><?php echo esc_html( $p['theme'] ); ?></span><?php endif; ?>
+					<h1 class="rp-article__title"><?php the_title(); ?></h1>
+					<?php if ( has_excerpt() ) : ?><p class="lede"><?php echo esc_html( get_the_excerpt() ); ?></p><?php endif; ?>
+					<div class="byline"><span class="avatar">RP</span><span>by <strong><?php echo esc_html( rp_byline() ); ?></strong> · <time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time><?php echo $place ? ' · ' . esc_html( $place ) : ''; ?></span><?php if ( ! empty( $p['verified'] ) ) : ?><span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Visited and verified</span><?php endif; ?></div>
+				</header>
 				<div class="only-narrow"><?php echo $top; // phpcs:ignore ?></div>
 				<?php echo $box( 'only-narrow' ); // phpcs:ignore ?>
 				<div class="tabs" role="tablist">
@@ -197,7 +196,16 @@ $box = function ( $cls ) use ( $p, $st ) {
 			t.textContent = /followed=1/.test(q) ? "Thank you! You're following this project. We'll tell you the moment you can give, and share every smile." : "Thank you! Your note is on its way. We'll be in touch soon, and you'll be part of a child's best day.";
 			a.querySelector('.phead').after(t);
 		}
-		/* Highlights on the picture take turns every 4.5 seconds; a dot shows one; pointing at the picture pauses. */
+		/* "At a glance": tap or click the small icon to open, tap again, tap anywhere else or press Esc to close. */
+		a.querySelectorAll('.glance').forEach(function (g) {
+			var b = g.querySelector('.glance-btn');
+			var set = function (on) { g.classList.toggle('is-open', on); g.classList.toggle('is-shut', !on); b.setAttribute('aria-expanded', String(on)); };
+			b.addEventListener('click', function (e) { e.stopPropagation(); set(!g.classList.contains('is-open')); });
+			g.addEventListener('pointerleave', function (e) { if (e.pointerType !== 'mouse') return; set(false); g.classList.remove('is-shut'); });
+			document.addEventListener('click', function (e) { if (!g.contains(e.target)) set(false); });
+			document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { set(false); } });
+		});
+		/* Highlights under the picture take turns every 4.5 seconds; a dot shows one; pointing at the picture pauses. */
 		a.querySelectorAll('.rp-hl').forEach(function (h) {
 			var ls = h.querySelectorAll('.rp-hl__line'), ds = h.querySelectorAll('.rp-hl__dots button'), i = 0, timer = null;
 			if (ls.length < 2) return;
