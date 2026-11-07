@@ -95,7 +95,7 @@ CHECK = """You are checking a picture for a children's charity news site. Answer
 A face counts as recognisable if a parent could tell who the child is."""
 
 
-def call(model, body, key, tries=4):
+def call(model, body, key, tries=7):
     req = urllib.request.Request(API.format(model=model), data=json.dumps(body).encode(),
                                  headers={"Content-Type": "application/json", "x-goog-api-key": key})
     for t in range(tries):
@@ -104,12 +104,13 @@ def call(model, body, key, tries=4):
                 return json.load(r)
         except urllib.error.HTTPError as e:
             msg = e.read().decode()[:400]
-            if e.code in (429, 500, 503) and t < tries - 1:
-                time.sleep(5 * 2 ** t); continue
+            if e.code in (429, 500, 503) and t < tries - 1 and "limit: 0" not in msg:
+                print(f"  ({model} is busy ({e.code}); waiting and trying again)", flush=True)
+                time.sleep(min(10 * 2 ** t, 120)); continue
             sys.exit(f"Gemini {model} said {e.code}: {msg}")
         except (urllib.error.URLError, TimeoutError, OSError) as e:
             print(f"  ({model} did not answer: {e}; trying again)", flush=True)
-            if t < tries - 1: time.sleep(5 * 2 ** t); continue
+            if t < tries - 1: time.sleep(min(10 * 2 ** t, 120)); continue
             sys.exit(f"Could not reach Gemini: {e}")
 
 
