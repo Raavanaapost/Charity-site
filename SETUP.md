@@ -3,15 +3,14 @@
 Abhyasa lives on its own branch (`abhyasa`) and its own Netlify site (`abhyasa-portal`).
 It shares nothing with raavanaa.org.
 
-## 1. Create the database (free)
+## 1. Database (done)
 
-1. Go to supabase.com and sign up (free plan).
-2. Click **New project**. Name: `abhyasa`. Region: **Canada (Central)**. Save the database password somewhere safe.
-3. When it's ready, open **SQL Editor → New query**, paste everything from `supabase/schema.sql`, and click **Run**.
-4. Open **Authentication → URL Configuration**:
+The Supabase project **riyaz** (Canada Central) has the tables and privacy rules, and `config.js` points to it.
+Still to do by hand:
+
+1. Open **Authentication → URL Configuration**:
    - Site URL: `https://abhyasa-portal.netlify.app` (later, your own domain)
    - Redirect URLs: add `https://abhyasa-portal.netlify.app/**`
-5. Open **Project Settings → API** and copy the **Project URL** and the **anon public** key into `config.js`.
 
 ## 2. Connect Netlify
 

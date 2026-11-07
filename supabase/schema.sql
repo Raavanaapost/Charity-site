@@ -1,8 +1,8 @@
 -- Abhyasa database (Stage 1)
--- Run once in Supabase: Dashboard > SQL Editor > New query > paste all > Run.
+-- Already applied to the Supabase project "riyaz" (ca-central-1). Keep this file in step with every database change.
 -- Privacy rules are enforced here (row level security), not just on screens.
 
-create extension if not exists pgcrypto;
+create extension if not exists pgcrypto with schema extensions;
 
 -- ---------- Tables ----------
 
@@ -33,7 +33,7 @@ create table public.classes (
   day_of_week smallint not null check (day_of_week between 0 and 6),  -- 0 = Sunday
   start_time time not null,
   duration_min smallint not null default 60 check (duration_min between 10 and 300),
-  join_code text not null unique default lower(substr(encode(gen_random_bytes(6),'hex'),1,8)),
+  join_code text not null unique default lower(substr(encode(extensions.gen_random_bytes(6),'hex'),1,8)),
   created_at timestamptz not null default now()
 );
 
@@ -182,3 +182,18 @@ end $$;
 
 grant execute on function public.class_by_code(text) to anon, authenticated;
 grant execute on function public.join_class(text, text, boolean, boolean) to authenticated;
+
+revoke execute on function public.join_class(text, text, boolean, boolean) from public, anon;
+
+-- ---------- Change 2: keep helper checks out of the public web address ----------
+create schema if not exists private;
+grant usage on schema private to anon, authenticated;
+alter function public.owns_group(uuid) set schema private;
+alter function public.owns_class(uuid) set schema private;
+alter function public.in_class(uuid) set schema private;
+alter function public.my_student(uuid) set schema private;
+alter function public.teaches_student(uuid) set schema private;
+alter function public.keep_approval() set schema private;
+create or replace function private.teaches_student(s uuid) returns boolean
+language sql stable security definer set search_path = public as
+$$ select exists (select 1 from students st where st.id = s and private.owns_class(st.class_id)) $$;
