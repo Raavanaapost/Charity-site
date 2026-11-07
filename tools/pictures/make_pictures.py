@@ -21,8 +21,44 @@ import argparse, base64, datetime, io, json, os, subprocess, sys, time, urllib.e
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT = os.path.join(ROOT, "source", "content", "photos", "ai")
 API = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
-TEXT_MODEL = os.environ.get("GEMINI_TEXT_MODEL", "gemini-2.5-flash")
-IMAGE_MODEL = os.environ.get("GEMINI_IMAGE_MODEL", "gemini-2.5-flash-image")
+# Google renames its models often, so by default the robot asks which ones this key can use.
+TEXT_MODEL = os.environ.get("GEMINI_TEXT_MODEL", "")
+IMAGE_MODEL = os.environ.get("GEMINI_IMAGE_MODEL", "")
+
+
+def pick_models(key):
+    """Choose a fast text model and an image model from the models this key can use."""
+    global TEXT_MODEL, IMAGE_MODEL
+    names, token = [], ""
+    while True:
+        url = "https://generativelanguage.googleapis.com/v1beta/models?pageSize=200" + ("&pageToken=" + token if token else "")
+        req = urllib.request.Request(url, headers={"x-goog-api-key": key})
+        with urllib.request.urlopen(req, timeout=60) as r:
+            d = json.load(r)
+        names += [m["name"].split("/", 1)[1] for m in d.get("models", [])
+                  if "generateContent" in m.get("supportedGenerationMethods", [])]
+        token = d.get("nextPageToken", "")
+        if not token: break
+
+    def ver(n):
+        import re
+        m = re.search(r"(\d+(?:\.\d+)?)", n)
+        return float(m.group(1)) if m else 0.0
+
+    def best(cands):
+        # newest version first; a finished model beats a preview of the same version
+        return sorted(cands, key=lambda n: (ver(n), "preview" not in n and "exp" not in n), reverse=True)[0] if cands else ""
+
+    if not TEXT_MODEL:
+        if "gemini-flash-latest" in names: TEXT_MODEL = "gemini-flash-latest"
+        else: TEXT_MODEL = best([n for n in names if n.startswith("gemini") and "flash" in n
+                                 and not any(w in n for w in ("image", "lite", "tts", "audio", "live", "embedding"))])
+    if not IMAGE_MODEL:
+        img = [n for n in names if "image" in n and n.startswith("gemini")]
+        IMAGE_MODEL = best([n for n in img if "flash" in n]) or best(img)
+    print(f"models: text={TEXT_MODEL or '?'} image={IMAGE_MODEL or '?'}", flush=True)
+    if not TEXT_MODEL or not IMAGE_MODEL:
+        sys.exit("Could not find a usable model. Models this key can use: " + ", ".join(sorted(names)))
 
 HOUSE = """You make pictures for RaavanaaPost (raavanaapost.raavanaa.org), the news site of RAAVANAA,
 a small volunteer charity in Sri Lanka. Raavanaa - Beyond the Lanes: "Creating moments, creating smiles".
@@ -135,6 +171,7 @@ def main():
     o = a.parse_args()
     key = os.environ.get("GEMINI_API_KEY", "")
     if not key: sys.exit("GEMINI_API_KEY is not set.")
+    pick_models(key)
     todo = [s for s in stories() if (o.all or s["key"] in o.story)]
     if not todo: sys.exit("No matching stories. Keys: " + ", ".join(s["key"] for s in stories()))
     for s in todo:
