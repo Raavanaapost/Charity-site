@@ -4,22 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Riyaz</title>
-<meta name="description" content="Find a dance, music, yoga or art class, and keep up your practice between lessons.">
-<meta name="theme-color" content="#1b2350">
+<meta name="description" content="Learn, practise, progress. Find a dance, music, yoga or art class, and keep up your practice between lessons.">
+<meta name="theme-color" content="#171f51">
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="icon" href="/icon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/icon-48.png">
 <link rel="apple-touch-icon" href="/icon-180.png">
+<meta property="og:title" content="Riyaz">
+<meta property="og:description" content="Learn, practise, progress. Dance, music, yoga and art classes, with practice between lessons.">
+<meta property="og:image" content="/icon-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Hind:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="/"><span class="mark" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Riyaz</a>
+  <a class="brand" href="/" aria-label="Riyaz home"><img src="/assets/logo-mark.png" alt="" width="40" height="40">Riyaz</a>
   <nav id="topnav"></nav>
 </header>
 <main id="app" class="wrap"><p class="muted">Loading…</p></main>
-<footer class="foot wrap"><span>Riyaz · practice a little, every day</span></footer>
+<footer class="foot">
+  <div class="wrap foot-in">
+    <img src="/assets/logo-full.png" alt="Riyaz. Learn, practise, progress." width="180" height="63">
+    <span>Dance · Music · Yoga · Art</span>
+  </div>
+</footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="/config.js"></script>
 <script src="/app.js"></script>

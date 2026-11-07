@@ -78,8 +78,9 @@ function viewSetup(){
 
 /* ---------- homepage ---------- */
 async function viewHome(){
-  $app.innerHTML = `<section class="hero"><span class="eyebrow">Dance · Music · Yoga · Art</span>
+  $app.innerHTML = `<section class="hero"><span class="tagline">Learn <i></i> Practise <i></i> Progress</span>
     <h1>A little practice, every day.</h1>
+    <svg class="wave" viewBox="0 0 140 18" aria-hidden="true"><path d="M2 12 C 30 0, 50 0, 70 9 S 112 18, 138 4" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/></svg>
     <p class="lead">Find a teacher, join their class, and keep up your practice between lessons.</p>
     <div class="row">${link("/teacher","I'm a teacher","btn")}</div></section>
     <section class="card" style="gap:16px"><div class="row between"><h2>Browse classes</h2></div>
