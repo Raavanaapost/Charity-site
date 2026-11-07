@@ -360,6 +360,28 @@ delete_option( 'rp_front_lead' );
 $sticky = array();
 foreach ( $stories as $s ) {
 	$body = $s['body'];
+	/*
+	 * AI pictures from the picture robot (tools/pictures), when a story has them: they replace the story's
+	 * real photos, the cover becomes the story's picture, and each caption says it is an AI illustration.
+	 */
+	$ai = N_IMG . 'ai/' . $s['key'] . '/manifest.json';
+	if ( is_readable( $ai ) ) {
+		$ai_pics = (array) ( json_decode( file_get_contents( $ai ), true )['pictures'] ?? array() );
+		$inside  = '';
+		foreach ( $ai_pics as $x ) {
+			$cap = trim( $x['caption'] ?? '' ) . ' (AI illustration)';
+			$pid = n_photo( 'ai/' . $s['key'] . '/' . $x['file'], $cap );
+			if ( 'cover.jpg' === $x['file'] ) {
+				$s['thumb_id'] = $pid;
+			} else {
+				$inside .= n_img( $pid, $cap );
+			}
+		}
+		$body = preg_replace( '/%IMG_[A-Z_]+%/', '', $body );
+		$cut  = strpos( $body, '<!-- /wp:paragraph -->' );
+		$body = false === $cut ? $body . $inside : substr_replace( $body, "<!-- /wp:paragraph -->\n\n" . $inside, $cut, strlen( '<!-- /wp:paragraph -->' ) );
+		unset( $s['thumb'] );
+	}
 	$body = str_replace( '%IMG_GRASS%', n_img( $ph['maha_grass'], 'Ice cream on the grass by the river' ), $body );
 	$body = str_replace( '%IMG_HALL%', n_img( $ph['maha_hall'], 'Inside Banalingeswaram temple' ), $body );
 	$body = str_replace( '%IMG_GAMES%', n_img( $ph['pus_games'], 'Games on the lawn' ), $body );
@@ -396,7 +418,11 @@ foreach ( $stories as $s ) {
 	if ( ! empty( $s['project'] ) && isset( $projects[ $s['project'] ] ) ) {
 		update_post_meta( $id, 'rp_project', wp_slash( wp_json_encode( $projects[ $s['project'] ] ) ) );
 	}
-	if ( ! empty( $s['thumb'] ) ) { set_post_thumbnail( $id, $ph[ $s['thumb'] ] ); }
+	if ( ! empty( $s['thumb_id'] ) ) {
+		set_post_thumbnail( $id, $s['thumb_id'] );
+	} elseif ( ! empty( $s['thumb'] ) ) {
+		set_post_thumbnail( $id, $ph[ $s['thumb'] ] );
+	}
 	if ( ! empty( $s['sticky'] ) ) { $sticky[] = $id; }
 	if ( $front && $s['key'] === $front ) { update_option( 'rp_front_lead', $id ); }
 }
