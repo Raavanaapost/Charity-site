@@ -1,4 +1,4 @@
-/* Abhyasa – Stage 1 app (steps 1–3: sign in, teacher groups and classes, public group pages, homepage) */
+/* Riyaz – Stage 1 app (steps 1–3: sign in, teacher groups and classes, public group pages, homepage) */
 (() => {
 const C = window.ABHYASA_CONFIG || {};
 const ARTS = {
@@ -33,7 +33,7 @@ function friendly(err){
   const m = (err && (err.message || err.error_description)) || "Something went wrong. Please try again.";
   if (/duplicate key|groups_slug_key/i.test(m)) return "That web address is already taken. Please try another.";
   if (/rate limit/i.test(m)) return "Too many tries. Please wait a minute and try again.";
-  if (/Failed to fetch|NetworkError/i.test(m)) return "Can't reach Abhyasa. Check your internet connection.";
+  if (/Failed to fetch|NetworkError/i.test(m)) return "Can't reach Riyaz. Check your internet connection.";
   return m;
 }
 
@@ -72,7 +72,7 @@ function renderNav(){
 
 /* ---------- setup notice (before Supabase is connected) ---------- */
 function viewSetup(){
-  $app.innerHTML = `<section class="hero"><span class="eyebrow">Almost ready</span><h1>Abhyasa needs its database</h1>
+  $app.innerHTML = `<section class="hero"><span class="eyebrow">Almost ready</span><h1>Riyaz needs its database</h1>
   <p class="lead">The site is installed. To switch it on, create the free Supabase project and fill in <strong>config.js</strong>. The steps are in SETUP.md.</p></section>`;
 }
 
@@ -110,11 +110,11 @@ async function viewGroup(slug){
   $app.innerHTML = `<p class="muted">Loading…</p>`;
   const { data: g } = await sb.from("groups").select("*").eq("slug", slug).maybeSingle();
   if (!g) { $app.innerHTML = `<section class="hero"><h1>Page not found</h1><p class="lead">This class page isn't available. It may not be approved yet.</p>${link("/","See all classes","btn ghost")}</section>`; return; }
-  document.title = g.name + " · Abhyasa";
+  document.title = g.name + " · Riyaz";
   const { data: classes } = await sb.from("classes").select("name,day_of_week,start_time,duration_min").eq("group_id", g.id).order("day_of_week").order("start_time");
   const mine = user && user.id === g.owner_id;
   $app.innerHTML = `
-    ${!g.approved && mine ? `<p class="notice">Only you can see this page for now. It goes public once Abhyasa approves it.</p>` : ""}
+    ${!g.approved && mine ? `<p class="notice">Only you can see this page for now. It goes public once Riyaz approves it.</p>` : ""}
     <section class="hero"><span class="row" style="gap:8px"><span class="dot" style="background:${ARTS[g.art_type]?.dot}"></span><span class="eyebrow">${esc(ARTS[g.art_type]?.label)}</span></span>
       <h1>${esc(g.name)}</h1>
       <p class="lead">With ${esc(g.teacher_name)}${g.location ? " · " + esc(g.location) : ""}${g.is_online ? " · Online classes" : ""}</p></section>
@@ -148,12 +148,12 @@ function viewSignIn(){
   $app.innerHTML = `<section class="card" style="max-width:460px;width:100%;margin:0 auto">
     <h1 style="font-size:1.7rem">Sign in</h1><p class="muted" style="margin:0">We'll email you a sign-in link. No password needed.</p>
     <form id="si"><label for="si-email">Email<input id="si-email" type="email" required autocomplete="email"></label>
-    <button class="btn" type="submit">Email me a link</button><p id="si-out" role="status" class="muted" style="margin:0"></p></form></section>`;
+    <button class="btn" type="submit">Email me a link</button><div id="si-out" role="status"></div></form></section>`;
   document.getElementById("si").onsubmit = async e => {
     e.preventDefault(); const b = e.target.querySelector("button"), out = document.getElementById("si-out"); b.disabled = true;
     const { error } = await sb.auth.signInWithOtp({ email: val("si-email"), options: { emailRedirectTo: siteUrl("/teacher") } });
     b.disabled = false;
-    out.innerHTML = error ? `<span class="notice">${esc(friendly(error))}</span>` : `<span class="notice ok">Check your email and tap the link to sign in. You can close this page.</span>`;
+    out.innerHTML = error ? `<div class="notice">${esc(friendly(error))}</div>` : `<div class="notice ok">Check your email and tap the link to sign in. You can close this page.</div>`;
   };
 }
 
@@ -186,12 +186,12 @@ const groupValues = () => ({ name: val("gf-name"), teacher_name: val("gf-teacher
 function viewNewGroup(more = false){
   $app.innerHTML = `<section class="card" style="max-width:640px;width:100%;margin:0 auto">
     <span class="eyebrow">${more ? "New group" : "Welcome"}</span><h1 style="font-size:1.7rem">Create your group page</h1>
-    <p class="muted" style="margin:0">This becomes your class page. Abhyasa checks each new teacher before the page goes public.</p>
+    <p class="muted" style="margin:0">This becomes your class page. Riyaz checks each new teacher before the page goes public.</p>
     <form id="ng">${groupForm()}
       <label for="gf-slug">Web address<input id="gf-slug" required pattern="[a-z0-9][a-z0-9-]{1,38}[a-z0-9]" maxlength="40">
       <span class="hint" id="slug-prev"></span></label>
       <div class="row"><button class="btn" type="submit">Create page</button>${more ? link("/teacher","Cancel","btn ghost") : ""}</div>
-      <p id="ng-out" role="status" style="margin:0"></p></form></section>`;
+      <div id="ng-out" role="status"></div></form></section>`;
   const name = document.getElementById("gf-name"), slug = document.getElementById("gf-slug"), prev = document.getElementById("slug-prev");
   let touched = false;
   const show = () => prev.textContent = "Your page: " + groupUrl(slug.value || "your-name").replace(/^https?:\/\//, "");
@@ -202,7 +202,7 @@ function viewNewGroup(more = false){
     e.preventDefault(); const b = e.target.querySelector("button[type=submit]"); b.disabled = true;
     const { error } = await sb.from("groups").insert({ ...groupValues(), slug: slug.value, owner_id: user.id });
     b.disabled = false;
-    if (error) { document.getElementById("ng-out").innerHTML = `<span class="notice">${esc(friendly(error))}</span>`; return; }
+    if (error) { document.getElementById("ng-out").innerHTML = `<div class="notice">${esc(friendly(error))}</div>`; return; }
     go("/teacher");
   };
 }
