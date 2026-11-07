@@ -1,0 +1,17 @@
+# Abhyasa only. Builds on the "abhyasa-portal" Netlify site and is skipped everywhere else,
+# so this branch can never create a build on the raavanaa.org site.
+[build]
+  publish = "."
+  ignore = "if [ \"$SITE_NAME\" = \"abhyasa-portal\" ]; then exit 1; else exit 0; fi"
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "DENY"
