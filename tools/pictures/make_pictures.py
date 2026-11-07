@@ -23,12 +23,13 @@ OUT = os.path.join(ROOT, "source", "content", "photos", "ai")
 API = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 # Google renames its models often, so by default the robot asks which ones this key can use.
 TEXT_MODEL = os.environ.get("GEMINI_TEXT_MODEL", "")
+TEXT_SPARES = []
 IMAGE_MODEL = os.environ.get("GEMINI_IMAGE_MODEL", "")
 
 
 def pick_models(key):
     """Choose a fast text model and an image model from the models this key can use."""
-    global TEXT_MODEL, IMAGE_MODEL
+    global TEXT_MODEL, IMAGE_MODEL, TEXT_SPARES
     names, token = [], ""
     while True:
         url = "https://generativelanguage.googleapis.com/v1beta/models?pageSize=200" + ("&pageToken=" + token if token else "")
@@ -53,10 +54,16 @@ def pick_models(key):
         if "gemini-flash-latest" in names: TEXT_MODEL = "gemini-flash-latest"
         else: TEXT_MODEL = best([n for n in names if n.startswith("gemini") and "flash" in n
                                  and not any(w in n for w in ("image", "lite", "tts", "audio", "live", "embedding"))])
+    # other text models to switch to when the first one is overloaded (newest first)
+    plain = [n for n in names if n.startswith("gemini") and not any(
+        w in n for w in ("image", "tts", "audio", "live", "embedding", "robotics", "computer"))]
+    TEXT_SPARES = sorted([n for n in plain if n != TEXT_MODEL],
+                         key=lambda n: (ver(n), "flash" in n, "preview" not in n and "exp" not in n), reverse=True)[:5]
     if not IMAGE_MODEL:
         img = [n for n in names if "image" in n and n.startswith("gemini")]
         IMAGE_MODEL = best([n for n in img if "flash" in n]) or best(img)
     print(f"models: text={TEXT_MODEL or '?'} image={IMAGE_MODEL or '?'}", flush=True)
+    print("spare text models: " + ", ".join(TEXT_SPARES), flush=True)
     if not TEXT_MODEL or not IMAGE_MODEL:
         sys.exit("Could not find a usable model. Models this key can use: " + ", ".join(sorted(names)))
 
@@ -95,7 +102,7 @@ CHECK = """You are checking a picture for a children's charity news site. Answer
 A face counts as recognisable if a parent could tell who the child is."""
 
 
-def call(model, body, key, tries=7):
+def call(model, body, key, tries=7, busy_ok=False):
     req = urllib.request.Request(API.format(model=model), data=json.dumps(body).encode(),
                                  headers={"Content-Type": "application/json", "x-goog-api-key": key})
     for t in range(tries):
@@ -107,11 +114,30 @@ def call(model, body, key, tries=7):
             if e.code in (429, 500, 503) and t < tries - 1 and "limit: 0" not in msg:
                 print(f"  ({model} is busy ({e.code}); waiting and trying again)", flush=True)
                 time.sleep(min(10 * 2 ** t, 120)); continue
+            if busy_ok and e.code in (429, 500, 503, 404): raise Busy()
             sys.exit(f"Gemini {model} said {e.code}: {msg}")
         except (urllib.error.URLError, TimeoutError, OSError) as e:
             print(f"  ({model} did not answer: {e}; trying again)", flush=True)
             if t < tries - 1: time.sleep(min(10 * 2 ** t, 120)); continue
             sys.exit(f"Could not reach Gemini: {e}")
+
+
+class Busy(Exception):
+    pass
+
+
+def call_text(body, key):
+    """Ask the text model; if it stays overloaded, move on to the next one."""
+    global TEXT_MODEL
+    for m in [TEXT_MODEL] + [x for x in TEXT_SPARES if x != TEXT_MODEL]:
+        try:
+            r = call(m, body, key, tries=3, busy_ok=True)
+            if m != TEXT_MODEL:
+                print(f"  (using {m} from now on)", flush=True); TEXT_MODEL = m
+            return r
+        except Busy:
+            print(f"  ({m} stays busy; trying another model)", flush=True)
+    sys.exit("Every Gemini text model is busy right now. Please run the robot again later.")
 
 
 def text_of(resp):
@@ -123,7 +149,7 @@ def plan(story, n_inside, key):
     body = {"systemInstruction": {"parts": [{"text": HOUSE}]},
             "contents": [{"role": "user", "parts": [{"text": PLAN.format(n=n_inside + 1, m=n_inside, story=s)}]}],
             "generationConfig": {"responseMimeType": "application/json", "temperature": 0.8}}
-    return json.loads(text_of(call(TEXT_MODEL, body, key)))["pictures"]
+    return json.loads(text_of(call_text(body, key)))["pictures"]
 
 
 def make_image(prompt, key):
@@ -142,7 +168,7 @@ def check(img, mime, key):
     body = {"contents": [{"role": "user", "parts": [{"inlineData": {"mimeType": mime, "data": base64.b64encode(img).decode()}}, {"text": CHECK}]}],
             "generationConfig": {"responseMimeType": "application/json", "temperature": 0}}
     try:
-        r = json.loads(text_of(call(TEXT_MODEL, body, key)))
+        r = json.loads(text_of(call_text(body, key)))
     except Exception:
         return False, {"note": "check did not answer"}
     ok = not r.get("recognisable_child_face", True) and not r.get("any_text_or_logo", True)
