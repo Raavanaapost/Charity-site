@@ -100,14 +100,15 @@ def call(model, body, key, tries=4):
                                  headers={"Content-Type": "application/json", "x-goog-api-key": key})
     for t in range(tries):
         try:
-            with urllib.request.urlopen(req, timeout=180) as r:
+            with urllib.request.urlopen(req, timeout=420) as r:
                 return json.load(r)
         except urllib.error.HTTPError as e:
             msg = e.read().decode()[:400]
             if e.code in (429, 500, 503) and t < tries - 1:
                 time.sleep(5 * 2 ** t); continue
             sys.exit(f"Gemini {model} said {e.code}: {msg}")
-        except urllib.error.URLError as e:
+        except (urllib.error.URLError, TimeoutError, OSError) as e:
+            print(f"  ({model} did not answer: {e}; trying again)", flush=True)
             if t < tries - 1: time.sleep(5 * 2 ** t); continue
             sys.exit(f"Could not reach Gemini: {e}")
 
