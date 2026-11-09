@@ -161,6 +161,77 @@
     q.oninput = () => { query = q.value.trim().toLowerCase(); const pos = q.selectionStart; render(); const n = app.querySelector(".pt-search"); n.focus(); n.setSelectionRange(pos, pos); };
   }
 
+  // ---------- Request check: files by kind, the AI draft, what's missing, and approval for sharing ----------
+  const KINDS = [["document", "Documents"], ["image", "Images"], ["video", "Video"], ["audio", "Voice notes"]];
+  const AI_LABEL = { "": ["Not checked yet", "gray"], running: ["AI check running…", "amber"], done: ["AI draft ready", "blue"], failed: ["AI check failed", "red"] };
+  const profileOf = s => {
+    const p = s.profile || {}, d = (s.ai && s.ai.draft) || {};
+    const budget = d.budget_total ? `${d.budget_total}${(d.budget_items || []).length ? " (" + d.budget_items.map(x => `${x.item} ${x.amount}`).join(", ") + ")" : ""}` : "";
+    return { title: p.title || d.title || s.title || "", summary: p.summary || d.summary || "", activity: p.activity || d.activity || s.kind || "",
+      place: p.place || d.place || [s.village, s.city].filter(Boolean).join(", "), children: p.children || d.children || howMany(s.children), when: p.when || d.when || "", budget: p.budget || budget };
+  };
+  const reviewHTML = s => {
+    const ai = s.ai || { status: "", draft: {} }, d = ai.draft || {}, files = s.files || [];
+    const [lab, tone] = s.shareOk ? ["Approved for sharing", "green"] : AI_LABEL[ai.status] || AI_LABEL[""];
+    const counts = KINDS.map(([k, l]) => { const n = files.filter(f => (f.kind || "document") === k).length; return `<span class="pt-kind ${n ? "" : "none"}">${l} <b>${n}</b></span>`; }).join("");
+    const miss = d.missing || [], conc = d.concerns || [], pf = profileOf(s);
+    const inp = (k, l, area) => `<label class="pt-pf"><span>${l}</span>${area ? `<textarea rows="4" data-pf="${k}">${esc(pf[k])}</textarea>` : `<input data-pf="${k}" value="${esc(pf[k])}">`}</label>`;
+    return `<section class="pt-card pt-review">
+      <h2>Request check <span class="pt-pill ${tone}">${lab}</span></h2>
+      <div class="pt-kinds">${counts}</div>
+      ${ai.status === "failed" ? `<p class="pt-flag red">${esc(ai.error || "The AI check did not finish.")}</p>` : ""}
+      ${ai.status === "running" ? `<p class="pt-sub">Gemini is reading the request and its files. This takes a minute or two.</p>` : ""}
+      <p><button type="button" class="pt-btn ${ai.status === "done" ? "ghost" : ""}" data-ai ${ai.status === "running" ? "disabled" : ""}>${ai.status === "done" ? "Run the AI check again" : "Run the AI check"}</button>
+        ${ai.at && ai.status === "done" ? `<span class="pt-sub">Checked ${ago(ai.at)}${d._model ? ` · ${esc(d._model)}` : ""}</span>` : ""}</p>
+      ${ai.status === "done" ? `
+        <h3>Missing <span class="pt-count">${miss.length}</span></h3>
+        ${miss.length ? `<ul class="pt-flags">${miss.map(m => `<li class="pt-flag red"><b>${esc(m.field)}</b> ${esc(m.why)}</li>`).join("")}</ul>` : `<p class="pt-sub">Nothing missing.</p>`}
+        ${conc.length ? `<h3>Concerns</h3><ul class="pt-flags">${conc.map(c => `<li class="pt-flag amber">${esc(c)}</li>`).join("")}</ul>` : ""}
+        ${(d.files || []).length ? `<h3>What the files show</h3><ul class="pt-what">${d.files.map(f => `<li><b>${esc(f.name)}</b> <small>${esc(f.kind)}</small><br>${esc(f.what)}</li>`).join("")}</ul>` : ""}
+        ${(d._skipped || []).length ? `<p class="pt-flag amber">Too big for the AI check, please look yourself: ${esc(d._skipped.join(", "))}</p>` : ""}
+        ${(d.transcripts || []).map(t => `<details class="pt-tr"><summary>Voice note: ${esc(t.file)} (${esc(t.language)})</summary><p>${esc(t.english)}</p>${t.original && t.original !== t.english ? `<p class="pt-sub">${esc(t.original)}</p>` : ""}</details>`).join("")}
+        ${(d.people || []).length ? `<h3>People named</h3><p class="pt-sub">${d.people.map(x => `${esc(x.name)} (${esc(x.role)})`).join(" · ")}</p>` : ""}` : ""}
+      <h3>The page people will see</h3>
+      <p class="pt-sub">Check every line. No children's names. A school is named only if you have agreed it.</p>
+      <div class="pt-pfs">${inp("title", "Title")}${inp("summary", "Summary", true)}${inp("activity", "The day")}${inp("place", "Place")}${inp("children", "Children")}${inp("when", "When")}${inp("budget", "Budget")}</div>
+      ${s.shareOk
+        ? `<p class="pt-sub">Approved by ${esc(s.shareOkBy || "the team")}${s.shareOkAt ? ` ${ago(s.shareOkAt)}` : ""}. The requester can share it now.</p>
+           <p><button type="button" class="pt-btn" data-share="save">Save changes</button> <button type="button" class="pt-btn ghost" data-share="stop">Stop sharing</button></p>`
+        : `<p><button type="button" class="pt-btn" data-share="yes">Approve page for sharing</button></p>`}
+      ${s.endorseLink ? `<p class="pt-sub">Page: <a href="${esc(s.endorseLink)}" target="_blank" rel="noopener">raavanaa.org${esc(s.endorseLink)}</a></p>` : ""}
+    </section>`;
+  };
+  function wireReview(s) {
+    const aiBtn = app.querySelector("[data-ai]");
+    if (aiBtn) aiBtn.onclick = async () => {
+      if (!LIVE) { toast("The AI check works on the real portal only"); return; }
+      aiBtn.disabled = true; s.ai = { ...(s.ai || {}), status: "running" }; render();
+      try { await fetch("/.netlify/functions/analyse-background", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ref: s.id }) }); } catch (e) { /* the poll below shows the result */ }
+      const t0 = Date.now();
+      const poll = async () => {
+        try {
+          const r = await api("/api/portal/suggestions"), n = (r.suggestions || []).find(x => x.id === s.id);
+          if (n) Object.assign(s, n);
+        } catch (e) { /* try again */ }
+        if (s.ai && s.ai.status === "running" && Date.now() - t0 < 6 * 60e3) { setTimeout(poll, 6000); return; }
+        if (s.ai && s.ai.status === "running") s.ai = { ...s.ai, status: "failed", error: "No answer yet. Try again in a few minutes." };
+        render(); toast(s.ai.status === "done" ? "AI draft ready" : "AI check failed");
+      };
+      setTimeout(poll, 8000);
+    };
+    app.querySelectorAll("[data-share]").forEach(b => b.onclick = async () => {
+      const profile = {}; app.querySelectorAll("[data-pf]").forEach(i => profile[i.dataset.pf] = i.value.trim());
+      const share = b.dataset.share !== "stop";
+      if (share && !profile.title) { toast("Give the page a title first"); return; }
+      if (!LIVE) { Object.assign(s, { shareOk: share, profile, shareOkBy: D.user.name, shareOkAt: NOW.toISOString() }); render(); toast((share ? "Approved" : "Stopped") + " (demo)"); return; }
+      b.disabled = true;
+      try {
+        const r = await api(`/api/portal/suggestions/${encodeURIComponent(s.id)}`, { method: "PATCH", body: JSON.stringify({ share, profile, note: share ? (b.dataset.share === "yes" ? "Page approved for sharing and vouching." : "") : "Sharing stopped." }) });
+        Object.assign(s, r.suggestion); render(); toast(share ? "Saved. The requester can share the page." : "Sharing stopped");
+      } catch (e) { b.disabled = false; toast(e.message || "Could not save"); }
+    });
+  }
+
   // Community endorsement: people who vouched through the request's share link. 3, one of them in a role = backed.
   const vouch = s => { const e = s.endorsements || []; return { n: e.length, role: e.some(x => x.relation === "role"), backed: e.length >= 3 && e.some(x => x.relation === "role") }; };
   const REL = { role: "Role", know: "Knows them", seen: "Seen the need" };
@@ -183,6 +254,8 @@
     const evidenceHTML = s => {
       const files = s.files || [];
       if (!files.length) return s.noEvidence || LIVE ? `<div class="pt-ev"><h3>Evidence</h3><p class="pt-sub">${s.noEvidence ? "No evidence yet – they will show it at the visit." : "No files."}</p></div>` : "";
+      const order = { document: 0, image: 1, video: 2, audio: 3 };
+      files.sort((a, b) => (order[a.kind] ?? 0) - (order[b.kind] ?? 0));
       return `<div class="pt-ev"><h3>Evidence <small>private · team only</small></h3><ul>${files.map(f => {
         const u = `/api/portal/files/${f.id}`;
         if (/^image\//.test(f.type)) return `<li><a href="${u}" target="_blank" rel="noopener"><img src="${u}" alt="${esc(f.name)}" loading="lazy"></a></li>`;
@@ -217,6 +290,7 @@
           ${evidenceHTML(s)}
         </section>
         <div class="pt-col">
+          ${reviewHTML(s)}
           ${vouchHTML(s)}
           ${flowHTML(s, F, cur)}
           ${visitFeedbackHTML(s)}
@@ -405,7 +479,7 @@
   }
   function wireDetail(id) {
     const s = D.suggestions.find(x => x.id === id); if (!s) return;
-    wireOnboard(s); wireFlow(s);
+    wireOnboard(s); wireFlow(s); wireReview(s);
     const sel = app.querySelector("[data-assign]");
     if (sel) sel.onchange = () => { s.takenAt = sel.value ? NOW.toISOString() : ""; save(s, { assigned: sel.value }, sel.value ? `${sel.value} is looking after this.` : "Nobody is looking after this now.", "Saved"); };
     app.querySelectorAll("[data-act]").forEach(btn => btn.onclick = () => {

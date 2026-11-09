@@ -26,7 +26,10 @@
     $("[data-title]").textContent = r.title;
     $("[data-desc]").textContent = r.description || "";
     $("[data-desc]").hidden = !r.description;
-    const facts = [r.kind, r.place, r.children ? r.children + " children" : ""].filter(Boolean);
+    const facts = [r.kind, r.place, r.children ? (/child/i.test(r.children) ? r.children : r.children + " children") : "", r.when, r.budget].filter(Boolean);
+    $("[data-pending]").hidden = !r.pending;
+    $("[data-people-card]").hidden = !!r.pending;
+    $("[data-share-card]").hidden = !!r.pending;
     $("[data-facts]").innerHTML = facts.map((f) => `<li><b>${esc(f)}</b></li>`).join("");
     document.title = (r.title ? r.title + " · " : "") + "Vouch for a project · Raavanaa";
 
@@ -34,13 +37,15 @@
     const step = (done, num, title, text) => `<li class="${done ? "done" : ""}"><i aria-hidden="true">${done ? "✓" : num}</i><div><b>${esc(title)}</b><span>${esc(text)}</span></div></li>`;
     $("[data-ladder]").innerHTML =
       step(true, 1, "Request sent", r.by ? `${r.by} told us about the children and the day.` : "Someone told us about the children and the day.") +
-      step(L.backed, 2, L.backed ? "Backed by the community" : "Waiting for people to vouch",
+      step(!r.pending, 2, r.pending ? "Raavanaa is checking it" : "Checked and approved by Raavanaa", r.pending ? "The team reads it and may call with a few questions." : "The team read it and approved this page for sharing.") +
+      step(L.backed, 3, L.backed ? "Backed by the community" : "Waiting for people to vouch",
         L.backed ? `${n} people vouched, including someone in a role.` : `${n} of ${r.needed} so far${n >= r.needed && !L.hasRole ? ". Still needs someone in a role, like a principal or teacher." : "."}`) +
-      step(L.verified, 3, L.verified ? "Checked by a Raavanaa volunteer" : "A Raavanaa volunteer checks it",
+      step(L.verified, 4, L.verified ? "Visited by a Raavanaa volunteer" : "A Raavanaa volunteer visits",
         L.verified ? "A volunteer called or visited and confirmed it. It can now take gifts." : "A volunteer near the children calls or visits. Only then can it take any money.");
 
     $("[data-count]").textContent = `${Math.min(n, r.needed)} of ${r.needed}`;
     $("[data-bars]").innerHTML = Array.from({ length: r.needed }, (_, i) => `<span class="${i < n ? "on" : ""}"></span>`).join("");
+    if (r.pending) { $("[data-form-card]").hidden = true; $("[data-thanks]").hidden = true; return; }
     $("[data-people]").innerHTML = n
       ? r.endorsements.map((e) => `<li><span class="dot" aria-hidden="true">${esc((e.name || "?").trim().charAt(0).toUpperCase())}</span><span class="who"><b>${esc(e.name)}</b><small>${esc(e.role || RELATION[e.relation] || "")}</small></span>${e.relation === "role" ? '<span class="tag">ROLE</span>' : ""}</li>`).join("")
       : `<li class="note">Nobody has vouched yet. Be the first.</li>`;
@@ -50,7 +55,7 @@
     $("[data-link]").textContent = pageUrl.replace(/^https?:\/\//, "");
 
     const already = (() => { try { return localStorage.getItem(doneKey) === "1"; } catch (_) { return false; } })();
-    const closed = r.closed || L.verified;
+    const closed = r.closed || L.verified || r.pending;
     $("[data-form-card]").hidden = isNew || already || closed;
     $("[data-thanks]").hidden = !already;
   }

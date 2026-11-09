@@ -27,12 +27,23 @@ async function view(db: ReturnType<typeof getDatabase>, s: Row) {
   const hasRole = endorsements.some((e) => e.relation === "role");
   const backed = endorsements.length >= NEEDED && hasRole;
   const verified = ["verified", "project"].includes(s.status);
+  const p = (s.profile || {}) as Record<string, string>;
+  // Until the team approves the page, people only see that it is being checked (SURESH, 9 Nov 2026).
+  if (!s.share_ok) {
+    return {
+      pending: true, title: p.title || s.title, by: firstName(s.contact || ""), received: s.received_at, closed: s.status === "declined",
+      needed: NEEDED, endorsements: [], ladder: { submitted: true, backed: false, hasRole: false, verified: false, project: false },
+    };
+  }
   return {
-    title: s.title,
-    kind: (s.focus || [])[0] || "",
-    description: s.description === (s.focus || [])[0] ? "" : s.description,
-    place: s.location || [s.village, s.city].filter(Boolean).join(", "),
-    children: s.children,
+    pending: false,
+    title: p.title || s.title,
+    kind: p.activity || (s.focus || [])[0] || "",
+    description: p.summary || (s.description === (s.focus || [])[0] ? "" : s.description),
+    place: p.place || s.location || [s.village, s.city].filter(Boolean).join(", "),
+    children: p.children || s.children,
+    when: p.when || "",
+    budget: p.budget || "",
     by: firstName(s.contact || ""),
     received: s.received_at,
     closed: s.status === "declined",
@@ -56,6 +67,7 @@ export default async (req: Request) => {
   if (clip(f["bot-field"], 10)) return json({ ok: true, request: await view(db, s) }); // robots fill the hidden field
 
   if (s.status === "declined") return json({ ok: false, error: "This request is closed, so it can't take endorsements." }, 409);
+  if (!s.share_ok) return json({ ok: false, error: "Raavanaa is still checking this request. You can vouch once it is approved." }, 409);
   const e = {
     name: clip(f.name, 80),
     relation: clip(f.relation, 10),

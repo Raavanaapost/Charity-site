@@ -182,6 +182,10 @@ async function account(app, site, msg = "") {
     ${header("My account", `Welcome, <span class="org">${esc(name)}</span>`, since ? `Member since ${since}.` : "")}
     ${hero(true)}
     ${msg ? `<p class="member-flash" role="status">${esc(msg)}</p>` : ""}
+    <section class="panel member-card m-requests" data-my-requests hidden>
+      <h2>My requests</h2>
+      <ul class="m-req-list" data-req-list></ul>
+    </section>
     <div class="member-grid">
       <section class="panel member-card">
         <h2>My donations</h2>
@@ -199,6 +203,16 @@ async function account(app, site, msg = "") {
     </div>
     <p class="member-foot">${team ? `<a href="/portal">Open the team portal</a> · ` : ""}<button type="button" class="member-link" data-signout>Sign out</button></p>
   </section>`;
+  // The requests this member sent, with where each one is and its page link.
+  fetch("/api/my-requests", { credentials: "same-origin" }).then(r => r.ok ? r.json() : null).then(d => {
+    const box = app.querySelector("[data-my-requests]"), list = d && d.requests;
+    if (!box || !list || !list.length) return;
+    box.hidden = false;
+    box.querySelector("[data-req-list]").innerHTML = list.map(r => `<li>
+      <a href="${esc(r.project || r.link)}"><b>${esc(r.title)}</b></a>
+      <span>${esc(r.step)}${r.shareOk ? ` · vouched ${r.vouched} of 3` : ""}</span>
+      <small>${esc(r.ref)} · sent ${esc(new Date(r.received).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }))}</small></li>`).join("");
+  }).catch(() => {});
   const f = app.querySelector("#m-me"), out = f.querySelector(".member-msg");
   f.onsubmit = async e => {
     e.preventDefault(); out.textContent = "Saving...";

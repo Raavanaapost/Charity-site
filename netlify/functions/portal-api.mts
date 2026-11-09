@@ -31,13 +31,16 @@ async function member(): Promise<Member | null> {
 const evidenceStore = (context: Context) =>
   getStore({ name: context.deploy?.context === "production" ? "evidence" : "evidence-preview", consistency: "strong" });
 
+// Every file is sorted into one of four kinds for the request dashboard.
+const kindOf = (type: string) => type.startsWith("image/") ? "image" : type.startsWith("video/") ? "video" : type.startsWith("audio/") ? "audio" : "document";
+
 async function filesFor(db: ReturnType<typeof getDatabase>, ids: number[]) {
   const by = new Map<number, unknown[]>();
   if (!ids.length) return by;
   const rows = await db.sql`SELECT id, suggestion_id, name, type, size FROM suggestion_files WHERE complete AND suggestion_id = ANY(${ids}::int[]) ORDER BY id`;
   for (const f of rows as { id: number; suggestion_id: number; name: string; type: string; size: number }[]) {
     const list = by.get(f.suggestion_id) || [];
-    list.push({ id: f.id, name: f.name, type: f.type, size: f.size });
+    list.push({ id: f.id, name: f.name, type: f.type, size: f.size, kind: kindOf(f.type) });
     by.set(f.suggestion_id, list);
   }
   return by;
@@ -81,6 +84,8 @@ function shape(r: Record<string, any>, notes: unknown[], files: unknown[] = [], 
     onboard: r.onboard || {}, project: r.project_slug, notes, files, noEvidence: !!r.no_evidence,
     memberEmail: r.member_email || "",
     endorseLink: r.endorse_token ? `/e/${r.endorse_token}` : "", endorsements,
+    ai: { status: r.ai_status || "", error: r.ai_error || "", at: r.ai_at, draft: r.ai_draft || {} },
+    profile: r.profile || {}, shareOk: !!r.share_ok, shareOkBy: r.share_ok_by || "", shareOkAt: r.share_ok_at,
   };
 }
 
@@ -160,6 +165,19 @@ export default async (req: Request, context: Context) => {
         }
         changes.status = body.status;
         await db.sql`UPDATE suggestions SET status = ${body.status}, updated_at = NOW() WHERE id = ${row.id}`;
+      }
+      // Approve the request's page for sharing and vouching, with the profile the team checked.
+      if (body.share !== undefined) {
+        const ok = body.share === true;
+        const p = (body.profile && typeof body.profile === "object") ? body.profile : {};
+        const profile = {
+          title: clip(p.title, 120), summary: clip(p.summary, 1200), place: clip(p.place, 120), children: clip(p.children, 60),
+          when: clip(p.when, 80), activity: clip(p.activity, 300), budget: clip(p.budget, 300),
+        };
+        if (ok && !profile.title) return json({ error: "Give the page a title first." }, 400);
+        changes.share = ok;
+        if (ok) await db.sql`UPDATE suggestions SET share_ok = TRUE, share_ok_by = ${me.name}, share_ok_at = NOW(), profile = ${JSON.stringify(profile)}::jsonb, updated_at = NOW() WHERE id = ${row.id}`;
+        else await db.sql`UPDATE suggestions SET share_ok = FALSE, updated_at = NOW() WHERE id = ${row.id}`;
       }
       const note = clip(body.note, 2000);
       if (note) await db.sql`INSERT INTO suggestion_notes (suggestion_id, by_email, by_name, body) VALUES (${row.id}, ${me.email}, ${me.name}, ${note})`;

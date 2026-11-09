@@ -74,3 +74,10 @@ body[data-page="members"] .foot-wave .w2,body[data-page="members"] .foot-main{fi
 body[data-page="members"] .foot-bar{background:#173a1f}
 .member-page .member-foot{justify-self:center}
 @media (max-width:600px){.m-hero figcaption br{display:none}}
+/* My requests: each request the member sent, where it is, and its page */
+.m-requests{margin-top:22px}
+.m-req-list{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:10px}
+.m-req-list li{display:grid;gap:2px;padding:12px 14px;border:1.5px solid var(--line);border-radius:14px;background:#fff}
+.m-req-list a{color:var(--brand);text-decoration:none}.m-req-list a:hover b{text-decoration:underline}
+.m-req-list span{font-size:14px;color:var(--ink)}
+.m-req-list small{font-size:12.5px;color:var(--muted)}
