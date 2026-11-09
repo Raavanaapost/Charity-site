@@ -128,6 +128,26 @@ export default async (req: Request, context: Context) => {
     let body: Record<string, any> = {};
     try { body = await req.json(); } catch { /* empty body */ }
 
+    if (parts[2] === "analyse" && req.method === "POST") {
+      // Start the AI check: mark it running here, where the team sign-in is checked, then hand it to the background
+      // function with a one-time job code.
+      if (!Netlify.env.get("GEMINI_API_KEY")) {
+        await db.sql`UPDATE suggestions SET ai_status = 'failed', ai_error = 'GEMINI_API_KEY is not set in Netlify for this site yet.', ai_at = NOW() WHERE id = ${row.id}`;
+        return json({ error: "GEMINI_API_KEY is not set in Netlify for this site yet." }, 503);
+      }
+      const job = crypto.randomUUID();
+      await db.sql`UPDATE suggestions SET ai_status = 'running', ai_error = '', ai_job = ${job}, ai_by = ${me.email}, ai_at = NOW() WHERE id = ${row.id}`;
+      const res = await fetch(new URL("/.netlify/functions/analyse-background", req.url), {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ref, job }),
+      }).catch((e) => ({ ok: false, status: 0, statusText: String(e) }) as Response);
+      if (!res.ok) {
+        const msg = `The AI check could not start (${res.status || "no answer"}).`;
+        await db.sql`UPDATE suggestions SET ai_status = 'failed', ai_error = ${msg}, ai_job = '' WHERE id = ${row.id}`;
+        return json({ error: msg }, 502);
+      }
+      return json({ ok: true, started: true }, 202);
+    }
+
     if (parts[2] === "notes" && req.method === "POST") {
       const text = clip(body.text, 2000);
       if (!text) return json({ error: "Write a note first." }, 400);

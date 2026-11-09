@@ -206,7 +206,8 @@
     if (aiBtn) aiBtn.onclick = async () => {
       if (!LIVE) { toast("The AI check works on the real portal only"); return; }
       aiBtn.disabled = true; s.ai = { ...(s.ai || {}), status: "running" }; render();
-      try { await fetch("/.netlify/functions/analyse-background", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ref: s.id }) }); } catch (e) { /* the poll below shows the result */ }
+      try { await api(`/api/portal/suggestions/${encodeURIComponent(s.id)}/analyse`, { method: "POST", body: "{}" }); }
+      catch (e) { s.ai = { ...s.ai, status: "failed", error: e.message }; render(); toast("AI check failed"); return; }
       const t0 = Date.now();
       const poll = async () => {
         try {

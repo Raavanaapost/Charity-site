@@ -1,26 +1,18 @@
 // Team only: the AI check of a request (SURESH, 9 Nov 2026). Runs in the background (up to 15 minutes), because reading
 // voice notes, videos and documents takes longer than a normal page request.
-//   POST /.netlify/functions/analyse-background   { ref: "S-1001" }
+//   POST /.netlify/functions/analyse-background   { ref: "S-1001", job: "…" }
+// Started only by the portal (POST /api/portal/suggestions/:ref/analyse), which checks the team sign-in and leaves a
+// one-time job code on the request. This function runs only when the code matches.
 // Sends the request's words and its files (documents, photos, video, voice notes) to Gemini, which writes a draft
 // profile, transcribes and translates voice notes, and lists what is missing. The result is saved on the request
 // (ai_draft) for the team to check in the portal. Nothing is shown to the public until the team approves it.
 // Needs GEMINI_API_KEY in Netlify (Project configuration → Environment variables).
 import type { Context } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
-import { getUser } from "@netlify/identity";
 import { getStore } from "@netlify/blobs";
 
 const MODELS = ["gemini-flash-latest", "gemini-2.5-flash", "gemini-2.5-flash-lite"];
 const MAX_INLINE = 14 * 1024 * 1024; // Gemini takes about 20 MB per request, and files grow by a third when sent
-
-async function isTeam() {
-  const user = await getUser();
-  if (!user || !user.email) return null;
-  const email = user.email.toLowerCase();
-  const admins = (Netlify.env.get("PORTAL_ADMINS") || "").toLowerCase().split(",").map((x) => x.trim()).filter(Boolean);
-  const roles: string[] = Array.isArray(user.roles) ? user.roles : [];
-  return roles.includes("admin") || roles.includes("team") || admins.includes(email) ? email : null;
-}
 
 const PROMPT = `You help RAAVANAA, a small volunteer charity in Sri Lanka that gives children a day of joy (a school trip, a meal,
 games, a festival, help with learning). Anyone can ask for a "moment" through a short form, in English or Tamil, by
@@ -93,19 +85,21 @@ async function callGemini(key: string, parts: unknown[]) {
 
 export default async (req: Request, context: Context) => {
   if (req.method !== "POST") return;
-  const by = await isTeam();
-  if (!by) return;
-  let ref = "";
-  try { ref = String((await req.json()).ref || "").slice(0, 20); } catch { return; }
+  let ref = "", job = "";
+  try { const b = await req.json(); ref = String(b.ref || "").slice(0, 20); job = String(b.job || "").slice(0, 64); } catch { return; }
+  if (!ref || !job) return;
   const db = getDatabase();
   const [s] = await db.sql<Record<string, any>>`SELECT * FROM suggestions WHERE ref = ${ref}`;
-  if (!s) return;
+  if (!s || s.ai_job !== job) { console.log(`analyse: ${ref} job code did not match`); return; }
+  const by = s.ai_by || "team";
+  await db.sql`UPDATE suggestions SET ai_job = '' WHERE id = ${s.id}`; // the code works once
   const fail = async (msg: string) => {
+    console.log(`analyse: ${ref} failed: ${msg}`);
     await db.sql`UPDATE suggestions SET ai_status = 'failed', ai_error = ${msg.slice(0, 500)}, ai_at = NOW() WHERE id = ${s.id}`;
   };
   const key = Netlify.env.get("GEMINI_API_KEY");
   if (!key) return fail("GEMINI_API_KEY is not set in Netlify yet.");
-  await db.sql`UPDATE suggestions SET ai_status = 'running', ai_error = '' WHERE id = ${s.id}`;
+  console.log(`analyse: ${ref} started by ${by}`);
 
   try {
     const form = {
