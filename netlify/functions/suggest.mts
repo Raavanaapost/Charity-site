@@ -6,6 +6,10 @@ import { getDatabase } from "@netlify/database";
 const clip = (v: unknown, max: number) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, max);
 const clipText = (v: unknown, max: number) => String(v ?? "").replace(/\r\n/g, "\n").trim().slice(0, max);
 
+// 12 letters and digits, without look-alikes (0/o, 1/l/i), so it can be read out over the phone.
+const ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789";
+const endorseToken = () => Array.from(crypto.getRandomValues(new Uint8Array(12)), (b) => ALPHABET[b % ALPHABET.length]).join("");
+
 export default async (req: Request) => {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
 
@@ -48,14 +52,17 @@ export default async (req: Request) => {
   const noEvidence = !files;
   const nonce = files ? crypto.randomUUID() : "";
 
+  // The private link the person shares so people who know the project can vouch for it (/e/<token>).
+  const endorse = endorseToken();
+
   const db = getDatabase();
   const [row] = await db.sql<{ ref: string }>`
-    INSERT INTO suggestions (ref, title, category, focus, description, city, village, location, children, contact, reach, trusted, additional, upload_nonce, no_evidence)
+    INSERT INTO suggestions (ref, title, category, focus, description, city, village, location, children, contact, reach, trusted, additional, upload_nonce, no_evidence, endorse_token)
     VALUES ('S-' || nextval('suggestion_ref_seq'), ${s.title}, ${s.category}, ${s.focus}, ${s.description}, ${s.city}, ${s.village}, ${s.location},
-            ${s.children}, ${s.contact}, ${s.reach}, ${s.trusted}, ${s.additional}, ${nonce}, ${noEvidence && !files})
+            ${s.children}, ${s.contact}, ${s.reach}, ${s.trusted}, ${s.additional}, ${nonce}, ${noEvidence && !files}, ${endorse})
     RETURNING ref`;
   await db.sql`INSERT INTO audit_log (actor, action, target) VALUES ('website', 'suggestion.received', ${row.ref})`;
-  return Response.json({ ok: true, ref: row.ref, upload: nonce });
+  return Response.json({ ok: true, ref: row.ref, upload: nonce, endorse });
 };
 
 export const config: Config = {

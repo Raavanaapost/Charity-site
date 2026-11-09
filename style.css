@@ -1967,3 +1967,12 @@ html[lang="ta"] .lane-label{font-size:clamp(12px,1.6vw,15px)}html[lang="ta"] .la
 @keyframes jrglow{0%,30%{box-shadow:0 4px 12px -4px rgba(200,56,30,.6),0 0 0 0 rgba(200,56,30,.45)}45%{box-shadow:0 4px 12px -4px rgba(200,56,30,.6),0 0 0 8px rgba(200,56,30,0)}100%{box-shadow:0 4px 12px -4px rgba(200,56,30,.6),0 0 0 0 rgba(200,56,30,0)}}
 @media (prefers-reduced-motion:reduce){.jr-arrow-line{animation:none;stroke-dashoffset:0}.jr-arrow-head{animation:none;opacity:1}.jr-nudge .jr-cta{animation:none}}
 .journey li span.jr-nudge{display:flex;align-items:center}
+
+/* "Vouched for by" on a project page: the people who vouched through the request's share link */
+.vouched h2{margin:0 0 8px;font-size:18px}
+.vouched ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.vouched li{display:flex;justify-content:space-between;gap:10px;font-size:14px}
+.vouched li span{color:var(--muted);text-align:right}
+.vouched-check{display:flex;gap:6px;align-items:center;margin:12px 0 0;padding-top:10px;border-top:1px dashed var(--line);font-size:13px;font-weight:600;color:var(--brand)}
+.vouched-check.wait{color:var(--muted);font-weight:500}
+.vouched-check svg{flex:none}

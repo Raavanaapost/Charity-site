@@ -148,10 +148,17 @@
         const [r, p] = await Promise.all([toForms.catch(() => null), toPortal]);
         if (!(r && r.ok) && !(p && p.ok)) throw new Error(r ? r.status : "offline");
         // Then the evidence files, once the suggestion exists.
-        if (f._after && p && p.ok) { msg.hidden = false; msg.className = "note"; await f._after(await p.json().catch(() => ({})), msg); }
+        const pj = p && p.ok ? await p.json().catch(() => ({})) : null;
+        if (f._after && pj) { msg.hidden = false; msg.className = "note"; await f._after(pj, msg); }
         f.querySelectorAll("input:not([type=hidden]),textarea,select").forEach(el => el.disabled = true);
         if (f._done) f._done();
         msg.textContent = msg.dataset.warn || f.dataset.done; msg.className = msg.dataset.warn ? "note error" : "toast";
+        // A new request gets its own endorse page: the person shares it so people who know the project can vouch.
+        if (pj && pj.endorse) {
+          const to = `/e/${encodeURIComponent(pj.endorse)}?new=1`;
+          msg.insertAdjacentHTML("beforeend", ` <a href="${to}"><b>Next: ask 3 people to vouch for it →</b></a>`);
+          if (!msg.dataset.warn) setTimeout(() => { location.href = to; }, 2500);
+        }
         if (f.hasAttribute("data-comment")) {
           const art = document.createElement("article");
           const nm = String(fd.get("name") || "Anonymous");
@@ -1818,6 +1825,19 @@
 
   // The journey: every step from the request to the impact review, with who did it and when.
   // Names and dates come from the project's "people" (requested_by, verified_by, approved_by, day_lead, impact_by + *_on dates).
+  // "Vouched for by": people who vouched for the request through its share link (projects.json "vouched":
+  // [{ "name", "role" }]). Shown with the check by a Raavanaa volunteer, so visitors see why the project is real.
+  function vouchedHTML(p) {
+    const list = (Array.isArray(p.vouched) ? p.vouched : []).filter(v => v && v.name);
+    if (!list.length) return "";
+    const w = p.people || {};
+    return `<section class="panel vouched" aria-labelledby="vouched-h">
+      <h2 id="vouched-h">Vouched for by</h2>
+      <ul>${list.map(v => `<li><b>${esc(v.name)}</b>${v.role ? `<span>${esc(v.role)}</span>` : ""}</li>`).join("")}</ul>
+      ${p.verified ? `<p class="vouched-check">${VERIFIED_TICK} <span>Checked by a Raavanaa volunteer${w.verified_by ? `, ${esc(w.verified_by)}` : ""}${w.verified_on ? ` (${esc(w.verified_on)})` : ""}</span></p>` : `<p class="vouched-check wait">A Raavanaa volunteer is checking it.</p>`}
+    </section>`;
+  }
+
   function journeyHTML(p, full) {
     const w = p.people || {}, st = stageNum(p), d = v => v ? fmtDate(v) : "";
     const ex = (p.expectations || []).filter(x => x && x.text), reviewed = ex.length && ex.every(x => x.result);
@@ -1965,6 +1985,7 @@
           <aside class="side">
             ${ringPanel("only-wide")}
             ${stageNum(p) === 3 ? "" : `<div class="only-wide">${budgetBoxHTML(p, site, false)}</div>`}
+            ${vouchedHTML(p)}
             ${journeyHTML(p, full)}
             ${signupHTML(slugOf(p), "Follow this project")}
             <a class="btn ghost" href="/initiated">Back to all projects</a>

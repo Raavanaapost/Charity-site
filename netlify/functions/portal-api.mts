@@ -43,6 +43,20 @@ async function filesFor(db: ReturnType<typeof getDatabase>, ids: number[]) {
   return by;
 }
 
+// Who vouched for each request through its endorse link (/e/<link>). Phone numbers are for the team only.
+async function endorsementsFor(db: ReturnType<typeof getDatabase>, ids: number[]) {
+  const by = new Map<number, unknown[]>();
+  if (!ids.length) return by;
+  const rows = await db.sql`SELECT suggestion_id, name, relation, role, phone, created_at FROM endorsements
+    WHERE NOT hidden AND suggestion_id = ANY(${ids}::int[]) ORDER BY created_at`;
+  for (const e of rows as Record<string, any>[]) {
+    const list = by.get(e.suggestion_id) || [];
+    list.push({ name: e.name, relation: e.relation, role: e.role, phone: e.phone, at: e.created_at });
+    by.set(e.suggestion_id, list);
+  }
+  return by;
+}
+
 async function allSuggestions(db: ReturnType<typeof getDatabase>) {
   const rows = await db.sql`SELECT * FROM suggestions ORDER BY received_at DESC LIMIT 500`;
   const notes = await db.sql`SELECT suggestion_id, by_name, body, created_at FROM suggestion_notes ORDER BY created_at`;
@@ -52,17 +66,20 @@ async function allSuggestions(db: ReturnType<typeof getDatabase>) {
     list.push({ by: n.by_name, at: n.created_at, text: n.body });
     bySid.set(n.suggestion_id, list);
   }
-  const files = await filesFor(db, (rows as { id: number }[]).map((r) => r.id));
-  return (rows as Record<string, any>[]).map((r) => shape(r, bySid.get(r.id) || [], files.get(r.id) || []));
+  const ids = (rows as { id: number }[]).map((r) => r.id);
+  const files = await filesFor(db, ids);
+  const endorsed = await endorsementsFor(db, ids);
+  return (rows as Record<string, any>[]).map((r) => shape(r, bySid.get(r.id) || [], files.get(r.id) || [], endorsed.get(r.id) || []));
 }
 
-function shape(r: Record<string, any>, notes: unknown[], files: unknown[] = []) {
+function shape(r: Record<string, any>, notes: unknown[], files: unknown[] = [], endorsements: unknown[] = []) {
   return {
     id: r.ref, received: r.received_at, status: r.status, assigned: r.assigned,
     visit: r.visit_date ? new Date(r.visit_date).toISOString().slice(0, 10) : "",
     title: r.title, category: r.category, focus: r.focus || [], description: r.description, location: r.location, city: r.city || "", village: r.village || "",
     children: r.children, contact: r.contact, reach: r.reach, trusted: r.trusted, additional: r.additional,
     onboard: r.onboard || {}, project: r.project_slug, notes, files, noEvidence: !!r.no_evidence,
+    endorseLink: r.endorse_token ? `/e/${r.endorse_token}` : "", endorsements,
   };
 }
 
@@ -151,7 +168,8 @@ export default async (req: Request, context: Context) => {
     const [r] = await db.sql`SELECT * FROM suggestions WHERE id = ${row.id}`;
     const notes = await db.sql`SELECT by_name, body, created_at FROM suggestion_notes WHERE suggestion_id = ${row.id} ORDER BY created_at`;
     const files = await filesFor(db, [row.id]);
-    return json({ suggestion: shape(r as Record<string, any>, (notes as any[]).map((n) => ({ by: n.by_name, at: n.created_at, text: n.body })), files.get(row.id) || []) });
+    const endorsed = await endorsementsFor(db, [row.id]);
+    return json({ suggestion: shape(r as Record<string, any>, (notes as any[]).map((n) => ({ by: n.by_name, at: n.created_at, text: n.body })), files.get(row.id) || [], endorsed.get(row.id) || []) });
   }
 
   return json({ error: "Not found" }, 404);

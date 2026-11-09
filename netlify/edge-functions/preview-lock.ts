@@ -14,7 +14,10 @@ const PUBLIC = new Set([
 export default async (request: Request, context: { next: () => Promise<Response> }) => {
   const password = Netlify.env.get("SITE_PASSWORD");
   if (!password) return context.next();
-  if (PUBLIC.has(new URL(request.url).pathname)) return context.next();
+  const path = new URL(request.url).pathname;
+  if (PUBLIC.has(path)) return context.next();
+  // Endorse links (/e/<link>) are shared on WhatsApp before launch too, so people can vouch without the password.
+  if (path.startsWith("/e/") || path === "/endorse.html" || path === "/endorse.js") return context.next();
 
   const auth = request.headers.get("authorization") || "";
   if (auth.startsWith("Basic ")) {

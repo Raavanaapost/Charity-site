@@ -139,7 +139,7 @@
   const rowHTML = s => { const d = callDue(s), m = s.status === "new" && s.called ? callMissing(s) : [];
     return `<li><a class="pt-row" href="#/suggestions/${s.id}">
       <span class="pt-row-main"><b>${esc(det(s).title || s.title)}</b><small>${esc(s.category || s.kind || "")} · ${esc(s.village || s.location.split(",")[0])} · ${esc(howMany(s.children))}</small>
-        ${d ? `<em class="pt-due ${d.late ? "late" : ""}">${d.text}</em>` : ""}${m.length ? `<em class="pt-miss">Missing ${m.length}</em>` : ""}</span>
+        ${d ? `<em class="pt-due ${d.late ? "late" : ""}">${d.text}</em>` : ""}${m.length ? `<em class="pt-miss">Missing ${m.length}</em>` : ""}${(s.endorsements || []).length ? `<em class="pt-due">${vouch(s).backed ? "Community-backed" : `Vouched ${s.endorsements.length} of 3`}</em>` : ""}</span>
       <span class="pt-row-side"><span class="pt-pill ${STATUS[s.status].c}">${STATUS[s.status].label}</span><time>${ago(s.received)}</time></span></a></li>`; };
   let filter = "new", query = "";
   function suggestions() {
@@ -160,6 +160,20 @@
     const q = app.querySelector(".pt-search");
     q.oninput = () => { query = q.value.trim().toLowerCase(); const pos = q.selectionStart; render(); const n = app.querySelector(".pt-search"); n.focus(); n.setSelectionRange(pos, pos); };
   }
+
+  // Community endorsement: people who vouched through the request's share link. 3, one of them in a role = backed.
+  const vouch = s => { const e = s.endorsements || []; return { n: e.length, role: e.some(x => x.relation === "role"), backed: e.length >= 3 && e.some(x => x.relation === "role") }; };
+  const REL = { role: "Role", know: "Knows them", seen: "Seen the need" };
+  const vouchHTML = s => {
+    const e = s.endorsements || [], v = vouch(s);
+    if (!e.length && !s.endorseLink) return "";
+    return `<section class="pt-card">
+      <h2>Vouched for by <span class="pt-count">${e.length} of 3</span></h2>
+      <p class="pt-sub">${v.backed ? "Backed by the community. Call one of them before the visit." : e.length >= 3 ? "Still needs someone in a role (principal, teacher, Grama Niladhari…)." : "Waiting for people to vouch through the share link."}</p>
+      <ul class="pt-notes">${e.map(x => `<li><span class="pt-av">${esc(initials(x.name))}</span><div><b>${esc(x.name)}</b> <time>${ago(x.at)}</time><p>${esc(x.role || REL[x.relation] || "")} · <a href="tel:${esc(String(x.phone).replace(/\s/g, ""))}">${esc(x.phone)}</a> <small>(private)</small></p></div></li>`).join("") || `<li class="pt-empty">Nobody yet.</li>`}</ul>
+      ${s.endorseLink ? `<p class="pt-sub">Share link: <a href="${esc(s.endorseLink)}" target="_blank" rel="noopener">raavanaa.org${esc(s.endorseLink)}</a></p>` : ""}
+    </section>`;
+  };
 
   function detail(id) {
     const s = D.suggestions.find(x => x.id === id);
@@ -201,6 +215,7 @@
           ${evidenceHTML(s)}
         </section>
         <div class="pt-col">
+          ${vouchHTML(s)}
           ${flowHTML(s, F, cur)}
           ${visitFeedbackHTML(s)}
           <section class="pt-card">
