@@ -75,7 +75,11 @@ async function callGemini(key: string, parts: unknown[]) {
         const text = out?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text || "").join("") || "";
         return { model, draft: JSON.parse(text) };
       }
-      last = `${model}: ${res.status} ${(await res.text()).slice(0, 300)}`;
+      const body = await res.text();
+      // Say the two common problems in plain words.
+      if (/API_KEY_INVALID|API key not valid/i.test(body)) throw new Error("Google says the GEMINI_API_KEY in Netlify is not valid. Copy it again from aistudio.google.com/apikey and save it in Netlify.");
+      if (/limit: 0|free_tier/i.test(body)) throw new Error("Google's free tier does not allow this. Turn on billing for the key in AI Studio.");
+      last = `${model}: ${res.status} ${body.slice(0, 300)}`;
       if (res.status === 503 || res.status === 429 || res.status === 500) { await new Promise((r) => setTimeout(r, 4000)); continue; }
       break; // 404 (model not available) or 400: try the next model
     }
