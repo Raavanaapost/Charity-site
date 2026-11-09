@@ -88,6 +88,7 @@ async function callGemini(key: string, parts: unknown[]) {
 }
 
 export default async (req: Request, context: Context) => {
+  console.log("analyse: woke up");
   if (req.method !== "POST") return;
   let ref = "", job = "";
   try { const b = await req.json(); ref = String(b.ref || "").slice(0, 20); job = String(b.job || "").slice(0, 64); } catch { return; }
@@ -130,7 +131,9 @@ export default async (req: Request, context: Context) => {
     }
     if (skipped.length) parts.push({ text: `These files were too big to send and still need a person to check them: ${skipped.join(", ")}` });
 
+    console.log(`analyse: ${ref} sending ${files.length} file(s), ${Math.round(used / 1024)} KB, to Gemini`);
     const { model, draft } = await callGemini(key, parts);
+    console.log(`analyse: ${ref} done with ${model}`);
     draft._model = model;
     if (skipped.length) draft._skipped = skipped;
     await db.sql`UPDATE suggestions SET ai_draft = ${JSON.stringify(draft)}::jsonb, ai_status = 'done', ai_error = '', ai_at = NOW() WHERE id = ${s.id}`;

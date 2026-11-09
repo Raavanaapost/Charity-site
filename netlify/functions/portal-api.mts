@@ -31,6 +31,9 @@ async function member(): Promise<Member | null> {
 const evidenceStore = (context: Context) =>
   getStore({ name: context.deploy?.context === "production" ? "evidence" : "evidence-preview", consistency: "strong" });
 
+// A check still "running" after 16 minutes has died (background functions stop at 15), so it can be run again.
+const stuck = (r: Record<string, any>) => r.ai_status === "running" && r.ai_at && Date.now() - new Date(r.ai_at).getTime() > 16 * 60e3;
+
 // Every file is sorted into one of four kinds for the request dashboard.
 const kindOf = (type: string) => type.startsWith("image/") ? "image" : type.startsWith("video/") ? "video" : type.startsWith("audio/") ? "audio" : "document";
 
@@ -84,7 +87,9 @@ function shape(r: Record<string, any>, notes: unknown[], files: unknown[] = [], 
     onboard: r.onboard || {}, project: r.project_slug, notes, files, noEvidence: !!r.no_evidence,
     memberEmail: r.member_email || "",
     endorseLink: r.endorse_token ? `/e/${r.endorse_token}` : "", endorsements,
-    ai: { status: r.ai_status || "", error: r.ai_error || "", at: r.ai_at, draft: r.ai_draft || {} },
+    ai: stuck(r)
+      ? { status: "failed", error: "The AI check stopped without an answer. Press Run the AI check again.", at: r.ai_at, draft: r.ai_draft || {} }
+      : { status: r.ai_status || "", error: r.ai_error || "", at: r.ai_at, draft: r.ai_draft || {} },
     profile: r.profile || {}, shareOk: !!r.share_ok, shareOkBy: r.share_ok_by || "", shareOkAt: r.share_ok_at,
   };
 }
