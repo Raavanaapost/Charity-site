@@ -79,6 +79,7 @@ function shape(r: Record<string, any>, notes: unknown[], files: unknown[] = [], 
     title: r.title, category: r.category, focus: r.focus || [], description: r.description, location: r.location, city: r.city || "", village: r.village || "",
     children: r.children, contact: r.contact, reach: r.reach, trusted: r.trusted, additional: r.additional,
     onboard: r.onboard || {}, project: r.project_slug, notes, files, noEvidence: !!r.no_evidence,
+    memberEmail: r.member_email || "",
     endorseLink: r.endorse_token ? `/e/${r.endorse_token}` : "", endorsements,
   };
 }
@@ -106,7 +107,9 @@ export default async (req: Request, context: Context) => {
         controller.close();
       },
     });
-    return new Response(stream, { headers: { "Content-Type": f.type, "Cache-Control": "private, max-age=3600", "Content-Disposition": `inline; filename="${f.name.replace(/"/g, "")}"` } });
+    return new Response(stream, { headers: { "Content-Type": f.type, "Cache-Control": "private, max-age=3600", "Content-Disposition": `inline; filename="${f.name.replace(/"/g, "")}"`,
+      // Never let the browser treat a file as something else, and never let it run scripts from it.
+      "X-Content-Type-Options": "nosniff", "Content-Security-Policy": "sandbox; default-src 'none'; img-src 'self'; media-src 'self'; style-src 'unsafe-inline'" } });
   }
 
   if (parts[0] === "suggestions" && parts.length === 1 && req.method === "GET") {

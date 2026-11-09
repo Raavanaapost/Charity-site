@@ -23,6 +23,20 @@ export async function getMember() {
   try { const id = await identity(); return await id.getUser(); } catch (e) { return null; }
 }
 
+// "?next=/initiate": after signing in or confirming the email, go back there. Kept for a day in localStorage,
+// because the confirmation email may open in a new tab. Only paths on this site are accepted.
+const NEXT_KEY = "raav-next";
+const nextFromUrl = new URLSearchParams(location.search).get("next") || "";
+if (/^\/[a-z0-9\/-]*$/i.test(nextFromUrl) && !nextFromUrl.startsWith("//")) { try { localStorage.setItem(NEXT_KEY, JSON.stringify({ to: nextFromUrl, at: Date.now() })); } catch (e) {} }
+function goNext() {
+  try {
+    const n = JSON.parse(localStorage.getItem(NEXT_KEY) || "null");
+    localStorage.removeItem(NEXT_KEY);
+    if (n && n.to && Date.now() - n.at < 864e5) { location.replace(n.to); return true; }
+  } catch (e) {}
+  return false;
+}
+
 export async function render(app, site) {
   // Links from Identity emails arrive with a token in the address.
   const h = location.hash;
@@ -159,6 +173,7 @@ function newPassword(app, token) {
 async function account(app, site, msg = "") {
   const me = await getMember();
   if (!me) return signedOut(app, site, "login", msg);
+  if (goNext()) return;
   const name = me.name || (me.email || "").split("@")[0];
   const roles = [].concat(me.roles || [], me.role ? [me.role] : []);
   const team = roles.some(r => r === "admin" || r === "team");

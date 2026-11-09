@@ -10,6 +10,19 @@ const TYPES = /^(image\/(jpeg|png|webp|heic|heif)|application\/pdf|video\/(mp4|q
 const evidenceStore = (context: Context) =>
   getStore({ name: context.deploy?.context === "production" ? "evidence" : "evidence-preview", consistency: "strong" });
 
+// The first bytes of a file say what it really is. A file named "photo.jpg" that is really a program is refused.
+function looksLike(type: string, b: Uint8Array) {
+  const at = (o: number, ...xs: number[]) => xs.every((x, i) => b[o + i] === x);
+  const ascii = (o: number, t: string) => at(o, ...[...t].map((c) => c.charCodeAt(0)));
+  if (type === "image/jpeg") return at(0, 0xff, 0xd8, 0xff);
+  if (type === "image/png") return at(0, 0x89, 0x50, 0x4e, 0x47);
+  if (type === "image/webp") return ascii(0, "RIFF") && ascii(8, "WEBP");
+  if (type === "application/pdf") return ascii(0, "%PDF");
+  if (type === "video/webm") return at(0, 0x1a, 0x45, 0xdf, 0xa3);
+  // HEIC/HEIF photos, MP4, MOV and 3GP videos all start with a "ftyp" box
+  return ascii(4, "ftyp");
+}
+
 export default async (req: Request, context: Context) => {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
   const h = (k: string) => (req.headers.get(k) || "").trim();
@@ -38,6 +51,10 @@ export default async (req: Request, context: Context) => {
 
   const body = await req.arrayBuffer();
   if (!body.byteLength || body.byteLength > MAX_PART) return bad("That part of the file is too big.");
+  if (part === 0 && !looksLike(type, new Uint8Array(body, 0, Math.min(16, body.byteLength)))) {
+    await db.sql`DELETE FROM suggestion_files WHERE file_key = ${key} AND NOT complete`;
+    return bad("That file doesn't look like a real photo, PDF or video, so it was not added.");
+  }
   await evidenceStore(context).set(`${key}/${part}`, body, { metadata: { type } });
   if (part === parts - 1) {
     await db.sql`UPDATE suggestion_files SET complete = TRUE WHERE file_key = ${key}`;

@@ -2,6 +2,7 @@
 // The same form is also sent to Netlify Forms, which keeps a copy and can email the team.
 import type { Config } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
+import { getUser } from "@netlify/identity";
 
 const clip = (v: unknown, max: number) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, max);
 const clipText = (v: unknown, max: number) => String(v ?? "").replace(/\r\n/g, "\n").trim().slice(0, max);
@@ -20,6 +21,11 @@ export default async (req: Request) => {
     return Response.json({ ok: false, error: "Could not read the form." }, { status: 400 });
   }
   if (clip(f["bot-field"], 10)) return Response.json({ ok: true }); // robots fill the hidden field
+
+  // Only members can send a request, so every request is tied to an account (SURESH, 9 Nov 2026).
+  const user = await getUser().catch(() => null);
+  if (!user || !user.email) return Response.json({ ok: false, error: "Please sign in first." }, { status: 401 });
+  const memberEmail = user.email.toLowerCase();
 
   const s = {
     title: clip(f.title, 120),
@@ -57,9 +63,9 @@ export default async (req: Request) => {
 
   const db = getDatabase();
   const [row] = await db.sql<{ ref: string }>`
-    INSERT INTO suggestions (ref, title, category, focus, description, city, village, location, children, contact, reach, trusted, additional, upload_nonce, no_evidence, endorse_token)
+    INSERT INTO suggestions (ref, title, category, focus, description, city, village, location, children, contact, reach, trusted, additional, upload_nonce, no_evidence, endorse_token, member_email)
     VALUES ('S-' || nextval('suggestion_ref_seq'), ${s.title}, ${s.category}, ${s.focus}, ${s.description}, ${s.city}, ${s.village}, ${s.location},
-            ${s.children}, ${s.contact}, ${s.reach}, ${s.trusted}, ${s.additional}, ${nonce}, ${noEvidence && !files}, ${endorse})
+            ${s.children}, ${s.contact}, ${s.reach}, ${s.trusted}, ${s.additional}, ${nonce}, ${noEvidence && !files}, ${endorse}, ${memberEmail})
     RETURNING ref`;
   await db.sql`INSERT INTO audit_log (actor, action, target) VALUES ('website', 'suggestion.received', ${row.ref})`;
   return Response.json({ ok: true, ref: row.ref, upload: nonce, endorse });

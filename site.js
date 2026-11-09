@@ -146,6 +146,7 @@
           toPortal = fetch("/api/suggest", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).catch(() => null);
         }
         const [r, p] = await Promise.all([toForms.catch(() => null), toPortal]);
+        if (p && p.status === 401) { btn.disabled = false; msg.textContent = "Please sign in first, then send it again."; msg.className = "note error"; msg.hidden = false; const g = document.querySelector("[data-gate]"); if (g) { g.hidden = false; f.hidden = true; } return; }
         if (!(r && r.ok) && !(p && p.ok)) throw new Error(r ? r.status : "offline");
         // Then the evidence files, once the suggestion exists.
         const pj = p && p.ok ? await p.json().catch(() => ({})) : null;
@@ -2287,6 +2288,17 @@
             mt.classList.add("out"); setTimeout(() => { i = (i + 1) % SL.length; put(i); mt.classList.remove("out"); }, 450);
           }, 5200);
         }
+        // Step 1 of 2: only members can send a request (SURESH, 9 Nov 2026). Not signed in: show the sign-in card instead.
+        const gate = document.querySelector("[data-gate]"), oform = document.querySelector('form[name="opportunity"]');
+        if (gate && oform) {
+          oform.hidden = true;
+          import("/members.js").then(m => m.getMember()).catch(() => null).then(me => {
+            if (!me) { gate.hidden = false; return; }
+            oform.hidden = false;
+            const c = oform.querySelector("#o-contact"), nm = me.name || (me.userMetadata && me.userMetadata.full_name) || (me.user_metadata && me.user_metadata.full_name) || "";
+            if (c && !c.value && nm) c.value = nm;
+          });
+        }
         const area = document.getElementById("o-description"), count = document.getElementById("o-count");
         if (area && count) { const upd = () => { count.textContent = area.value.length; }; area.addEventListener("input", upd); upd(); }
         const multi = document.getElementById("o-focus"), shown = document.getElementById("o-focus-value");
@@ -2373,10 +2385,39 @@
               const more = form.querySelector("[data-more]"); if (more && (items.length || [...more.querySelectorAll("input:not([type=file]),select,textarea")].some(el => (el.type === "checkbox" ? el.checked : el.value)))) more.open = true;
             }
             if (cam && Date.now() - cam < 15 * 60e3) { const more = form.querySelector("[data-more]"); if (more) more.open = true; }
-            if (cam && Date.now() - cam < 15 * 60e3) say.textContent = "Your phone closed this page while the camera was open, so the photo was lost. What you typed is kept. Please take the photo with your camera app first, then tap \"Add a photo\" and pick it from your gallery.";
+            if (cam && Date.now() - cam < 15 * 60e3) say.textContent = "Your phone closed this page while the camera was open, so the photo was lost. What you typed is kept. Please take the photo with your camera app first, then tap \"Attach a file\" and pick it from your gallery.";
             restoring = false;
           })();
           const camIn = ev.querySelector("[data-ev-camera]") || ev.querySelector("[data-ev-pick]");
+          // "Take a photo" opens the camera inside this page, so the phone never closes the form.
+          // Phones without that (or old browsers) fall back to the phone's own camera.
+          const live = ev.querySelector("[data-ev-live]");
+          if (live) live.addEventListener("click", async () => {
+            if (items.length >= MAX) { say.textContent = `Up to ${MAX} files.`; return; }
+            if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) { camIn.click(); return; }
+            let stream;
+            try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false }); }
+            catch (e) {
+              if (e && e.name === "NotAllowedError") say.textContent = "The camera was not allowed. Allow it in your browser, or tap \"Attach a file\" and pick a photo from your gallery.";
+              else camIn.click();
+              return;
+            }
+            const box = document.createElement("div");
+            box.className = "ev-cam"; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-label", "Take a photo");
+            box.innerHTML = `<video playsinline autoplay muted></video><p class="ev-cam-tip">Please don't show children's faces.</p><div class="ev-cam-bar"><button type="button" class="ev-cam-x" data-x>Cancel</button><button type="button" class="ev-cam-shot" data-shot aria-label="Take the photo"></button><span></span></div>`;
+            document.body.appendChild(box); document.documentElement.classList.add("ev-cam-on");
+            const v = box.querySelector("video"); v.srcObject = stream;
+            const close = () => { stream.getTracks().forEach(t => t.stop()); box.remove(); document.documentElement.classList.remove("ev-cam-on"); live.focus(); };
+            box.querySelector("[data-x]").onclick = close;
+            box.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+            box.querySelector("[data-shot]").onclick = () => {
+              const c = document.createElement("canvas"); c.width = v.videoWidth; c.height = v.videoHeight;
+              if (!c.width) return; // camera not ready yet
+              c.getContext("2d").drawImage(v, 0, 0);
+              c.toBlob(b => { close(); if (b) { say.textContent = "Adding..."; add([new File([b], "photo-" + Date.now() + ".jpg", { type: "image/jpeg" })]); } }, "image/jpeg", 0.9);
+            };
+            box.querySelector("[data-shot]").focus();
+          });
           camIn.addEventListener("click", () => { try { localStorage.setItem("raav-cam", String(Date.now())); } catch (e) {} keep(); });
           window.addEventListener("focus", () => setTimeout(() => { try { localStorage.removeItem("raav-cam"); } catch (e) {} }, 4000));
           ev.querySelectorAll("input[type=file]").forEach(inp => inp.addEventListener("change", () => { try { localStorage.removeItem("raav-cam"); } catch (e) {} fromCamera = inp === camIn; const fl = [...inp.files]; inp.value = ""; if (fl.length) { say.textContent = "Adding..."; add(fl); } }));

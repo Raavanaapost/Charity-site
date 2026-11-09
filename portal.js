@@ -209,6 +209,7 @@
             ${s.village || s.city ? `${field("Village", esc(s.village || ""))}${field("City or district", esc(s.city || ""))}` : field("Location", esc(s.location))}
             ${field("How many", esc(howMany(s.children)))}
             ${field("Contact", esc(s.contact))}
+            ${field("Member account", esc(s.memberEmail || ""))}
             ${field("Email or phone", `<a href="${/@/.test(s.reach) ? "mailto:" : "tel:"}${esc(s.reach.replace(/\s/g, ""))}">${esc(s.reach)}</a>`)}
             ${field("More", esc(s.additional))}
           </dl>

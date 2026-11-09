@@ -45,6 +45,12 @@
         <p class="moment-sub">Know children who deserve a day of joy? Tell us your idea, and together we'll make it happen.</p>
       </div>
     </div>
+    <section class="initiate-card i-gate" data-gate hidden>
+      <p class="i-gate-step">Step 1 of 2</p>
+      <h2>Sign in to start a moment</h2>
+      <p>Every request on Raavanaa comes from a member, so each one is accountable. It takes a minute, and you only do it once.</p>
+      <a class="i-submit" href="/ta/members?next=/ta/initiate">Sign in or join</a>
+    </section>
     <form class="initiate-card" name="opportunity" method="POST" action="/initiate?sent=1" data-netlify="true" netlify-honeypot="bot-field" data-ajax data-done="Thank you! Your moment has started.">
       <input type="hidden" name="form-name" value="opportunity">
       <p hidden><label>Leave empty <input name="bot-field"></label></p>
@@ -74,8 +80,14 @@
               <textarea id="o-description" name="description" maxlength="1000" rows="3" placeholder="Who are the children, and what would make them happy?"></textarea>
               <span class="i-count" aria-hidden="true"><span id="o-count">0</span>/1000</span>
             </span></label>
-          <div class="ev ev-mini" data-evidence>
-            <label class="ev-add"><input type="file" accept="image/*,application/pdf" data-ev-pick><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Add a photo <u class="opt">(optional)</u></span></label>
+          <div class="ev" data-evidence>
+            <p class="ev-help">Photos or documents <u class="opt">(optional, up to 3)</u>: the place, a letter from the school, a price quote. Only our team sees them.</p>
+            <div class="ev-btns">
+              <button type="button" class="ev-btn" data-ev-live><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Take a photo</span></button>
+              <label class="ev-btn"><input type="file" multiple accept="image/*,application/pdf,video/*" data-ev-pick><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5l-8.6 8.6a5 5 0 0 1-7.1-7.1l8.6-8.6a3.3 3.3 0 0 1 4.7 4.7l-8.6 8.6a1.7 1.7 0 0 1-2.4-2.4l7.9-7.9"/></svg><span>Attach a file</span></label>
+            </div>
+            <input type="file" accept="image/*" capture="environment" data-ev-camera hidden>
+            <p class="ev-note">Photos, PDF documents or a short video (up to 15 seconds). Word file? Save it as PDF first.</p>
             <ul class="ev-list" data-ev-list></ul>
             <p class="ev-msg" data-ev-msg role="status"></p>
           </div>
