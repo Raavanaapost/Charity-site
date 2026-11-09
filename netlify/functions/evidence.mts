@@ -5,8 +5,8 @@ import type { Config, Context } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
 import { getStore } from "@netlify/blobs";
 
-const MAX_FILES = 3, MAX_PARTS = 8, MAX_PART = 4 * 1024 * 1024 + 1024, WINDOW_MIN = 60;
-const TYPES = /^(image\/(jpeg|png|webp|heic|heif)|application\/pdf|video\/(mp4|quicktime|webm|3gpp))$/;
+const MAX_FILES = 4, MAX_PARTS = 8, MAX_PART = 4 * 1024 * 1024 + 1024, WINDOW_MIN = 60;
+const TYPES = /^(image\/(jpeg|png|webp|heic|heif)|application\/pdf|video\/(mp4|quicktime|webm|3gpp)|audio\/(webm|mp4|ogg|mpeg|wav|aac))$/;
 const evidenceStore = (context: Context) =>
   getStore({ name: context.deploy?.context === "production" ? "evidence" : "evidence-preview", consistency: "strong" });
 
@@ -18,7 +18,11 @@ function looksLike(type: string, b: Uint8Array) {
   if (type === "image/png") return at(0, 0x89, 0x50, 0x4e, 0x47);
   if (type === "image/webp") return ascii(0, "RIFF") && ascii(8, "WEBP");
   if (type === "application/pdf") return ascii(0, "%PDF");
-  if (type === "video/webm") return at(0, 0x1a, 0x45, 0xdf, 0xa3);
+  if (type === "video/webm" || type === "audio/webm") return at(0, 0x1a, 0x45, 0xdf, 0xa3);
+  if (type === "audio/ogg") return ascii(0, "OggS");
+  if (type === "audio/wav") return ascii(0, "RIFF") && ascii(8, "WAVE");
+  if (type === "audio/mpeg") return ascii(0, "ID3") || (b[0] === 0xff && (b[1] & 0xe0) === 0xe0);
+  if (type === "audio/aac") return b[0] === 0xff && (b[1] & 0xf6) === 0xf0;
   // HEIC/HEIF photos, MP4, MOV and 3GP videos all start with a "ftyp" box
   return ascii(4, "ftyp");
 }
@@ -32,7 +36,7 @@ export default async (req: Request, context: Context) => {
   const bad = (msg: string, status = 400) => Response.json({ ok: false, error: msg }, { status });
 
   if (!/^[0-9a-f-]{36}$/.test(nonce) || !/^[0-9a-z-]{8,40}$/i.test(fileId)) return bad("Upload not allowed.", 403);
-  if (!TYPES.test(type)) return bad("Only photos, PDF documents and short videos can be added.");
+  if (!TYPES.test(type)) return bad("Only voice notes, photos, PDF documents and short videos can be added.");
   if (!Number.isInteger(part) || !Number.isInteger(parts) || parts < 1 || parts > MAX_PARTS || part < 0 || part >= parts) return bad("That file is too big.");
 
   const db = getDatabase();
@@ -53,7 +57,7 @@ export default async (req: Request, context: Context) => {
   if (!body.byteLength || body.byteLength > MAX_PART) return bad("That part of the file is too big.");
   if (part === 0 && !looksLike(type, new Uint8Array(body, 0, Math.min(16, body.byteLength)))) {
     await db.sql`DELETE FROM suggestion_files WHERE file_key = ${key} AND NOT complete`;
-    return bad("That file doesn't look like a real photo, PDF or video, so it was not added.");
+    return bad("That file doesn't look like a real voice note, photo, PDF or video, so it was not added.");
   }
   await evidenceStore(context).set(`${key}/${part}`, body, { metadata: { type } });
   if (part === parts - 1) {

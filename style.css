@@ -1995,3 +1995,25 @@ html.ev-cam-on{overflow:hidden}
 .ev-cam-shot:active{transform:scale(.94)}
 .ev-cam button:focus-visible{outline:3px solid #e8b04a;outline-offset:3px}
 .ev{display:grid;gap:10px;margin-top:8px}
+/* Never let a long file name (or big phone text) push the form wider than the screen */
+.initiate-card,.i-steps,.i-q,.ev,.ev-list{grid-template-columns:minmax(0,1fr)}
+.ev-btns{grid-template-columns:repeat(2,minmax(0,1fr))}
+.ev-btn span{min-width:0;overflow-wrap:anywhere}
+.ev-list li{min-width:0}
+.ev-name{white-space:normal;overflow-wrap:anywhere}
+.i-submit{white-space:normal;text-align:center}
+.i-who{max-width:100%;overflow-wrap:anywhere}
+/* "Tell us a little more" + How? tip, and the voice recorder (9 Nov 2026) */
+.i-desc-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.i-desc-head .i-sub{font-family:var(--display);font-size:16px}
+.i-info{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:999px;border:1px solid #d3e5d9;background:#eef5f0;color:#0f5132;font:700 14px var(--display);cursor:pointer}
+.i-info[aria-expanded="true"]{background:#0f5132;color:#fff}
+.i-tip{margin:0;padding:10px 14px;border-radius:12px;background:#fff7e3;border:1px solid #efd9a4;font-family:var(--display);font-size:14.5px;line-height:1.45;color:#2f4a40}
+.i-tip[hidden]{display:none}
+.ev-rec{grid-column:1/-1}
+.ev-rec.on{border-style:solid;border-color:#b42318;background:#fff1ee;color:#8a1c12}
+.ev-rec.on svg{animation:ev-rec-pulse 1s ease-in-out infinite}
+@keyframes ev-rec-pulse{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.ev-rec.on svg{animation:none}}
+.pt-ev-audio{display:grid;gap:4px}
+.pt-ev-audio audio{width:100%}

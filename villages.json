@@ -1,0 +1,18 @@
+{
+  "_note": "Districts and the villages or towns in them, for the Initiate form's 'Where?' question (9 Nov 2026). A list to pick from; people can always type a place that isn't here. Add places as we reach them.",
+  "districts": [
+    { "name": "Jaffna", "villages": ["Jaffna town", "Achchuveli", "Alaveddy", "Ariyalai", "Atchuvely", "Chankanai", "Chavakachcheri", "Chunnakam", "Delft (Neduntheevu)", "Elalai", "Gurunagar", "Inuvil", "Kaithady", "Kankesanthurai", "Karainagar", "Karaveddy", "Kayts", "Kodikamam", "Kokuvil", "Kondavil", "Kopay", "Mallakam", "Manipay", "Maruthankerny", "Mirusuvil", "Nagarkovil", "Nallur", "Nelliady", "Pandateruppu", "Point Pedro", "Punguduthivu", "Puttur", "Sandilipay", "Tellippalai", "Thirunelveli", "Uduvil", "Vaddukoddai", "Valvettithurai", "Varani", "Velanai"] },
+    { "name": "Kilinochchi", "villages": ["Kilinochchi town", "Akkarayan", "Elephant Pass", "Iyakachchi", "Kandavalai", "Mulankavil", "Pallai", "Paranthan", "Poonakary", "Tharmapuram", "Uruthirapuram", "Vaddakachchi"] },
+    { "name": "Mullaitivu", "villages": ["Mullaitivu town", "Alampil", "Kokkilai", "Kumulamunai", "Mallavi", "Mankulam", "Mulliyavalai", "Mullivaikkal", "Oddusuddan", "Puthukkudiyiruppu", "Thunukkai", "Udayarkattu", "Visuvamadu", "Yogapuram"] },
+    { "name": "Mannar", "villages": ["Mannar town", "Adampan", "Erukkalampiddy", "Madhu", "Murunkan", "Musali", "Nanattan", "Pesalai", "Silavathurai", "Talaimannar", "Vidathaltivu"] },
+    { "name": "Vavuniya", "villages": ["Vavuniya town", "Cheddikulam", "Kanagarayankulam", "Nedunkerny", "Omanthai", "Pampaimadu", "Puliyankulam"] },
+    { "name": "Trincomalee", "villages": ["Trincomalee town", "Kantale", "Kinniya", "Kuchchaveli", "Muttur", "Nilaveli", "Sampur", "Seruvila", "Thampalagamam", "Verugal"] },
+    { "name": "Batticaloa", "villages": ["Batticaloa town", "Arayampathy", "Chenkalady", "Eravur", "Kaluwanchikudy", "Kattankudy", "Kokkadicholai", "Oddamavadi", "Paddiruppu", "Vakarai", "Valaichchenai", "Vavunathivu", "Vellaveli"] },
+    { "name": "Ampara", "villages": ["Addalachchenai", "Akkaraipattu", "Alayadivembu", "Kalmunai", "Karaitivu", "Navithanveli", "Nintavur", "Pottuvil", "Sammanthurai", "Thirukkovil"] },
+    { "name": "Kandy", "villages": ["Kandy town", "Doluwa", "Galaha", "Gampola", "Hantane", "Hewaheta", "Katugastota", "Kundasale", "Nawalapitiya", "Peradeniya", "Pussellawa", "Rikillagaskada"] },
+    { "name": "Nuwara Eliya", "villages": ["Nuwara Eliya town", "Agarapathana", "Bogawantalawa", "Dickoya", "Ginigathena", "Hatton", "Kotagala", "Lindula", "Maskeliya", "Norwood", "Pundaluoya", "Ragala", "Talawakele", "Walapane"] },
+    { "name": "Badulla", "villages": ["Badulla town", "Bandarawela", "Ella", "Haldummulla", "Haputale", "Lunugala", "Namunukula", "Passara", "Welimada"] },
+    { "name": "Matale", "villages": ["Matale town", "Dambulla", "Naula", "Rattota", "Ukuwela"] },
+    { "name": "Colombo", "villages": ["Colombo city", "Dehiwala", "Kotahena", "Mattakkuliya", "Modara", "Wellawatte"] }
+  ]
+}

@@ -187,6 +187,7 @@
         const u = `/api/portal/files/${f.id}`;
         if (/^image\//.test(f.type)) return `<li><a href="${u}" target="_blank" rel="noopener"><img src="${u}" alt="${esc(f.name)}" loading="lazy"></a></li>`;
         if (/^video\//.test(f.type)) return `<li><video src="${u}" controls preload="metadata" playsinline></video></li>`;
+        if (/^audio\//.test(f.type)) return `<li class="pt-ev-audio"><audio src="${u}" controls preload="metadata"></audio><small>${esc(f.name)} · voice note, to turn into text</small></li>`;
         return `<li><a class="pt-ev-doc" href="${u}" target="_blank" rel="noopener">📄 ${esc(f.name)}</a></li>`;
       }).join("")}</ul></div>`;
     };

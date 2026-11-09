@@ -47,3 +47,6 @@ body[data-look="bridge"] .i-story{background:#1f4a28;box-shadow:0 0 0 2px var(--
 body[data-look="bridge"] .foot-wave .w1{fill:#6f9a3e}
 body[data-look="bridge"] .foot-wave .w2,body[data-look="bridge"] .foot-main{fill:#1f4a28;background:#1f4a28}
 body[data-look="bridge"] .foot-bar{background:#173a1f}
+body[data-look="bridge"] .i-info{background:var(--brand-soft);border-color:#cfe0bf;color:var(--brand)}
+body[data-look="bridge"] .i-info[aria-expanded="true"]{background:var(--brand);color:var(--brand-ink)}
+body[data-look="bridge"] .i-tip{background:var(--sun-soft);border-color:var(--line)}

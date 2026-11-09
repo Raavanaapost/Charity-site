@@ -54,7 +54,7 @@ export default async (req: Request) => {
     return Response.json({ ok: false, error: "Please fill in every required field." }, { status: 400 });
   }
   // A photo or document is optional; without one, the team sees it at the visit.
-  const files = Math.max(0, Math.min(3, Number(f.evidence_files) || 0));
+  const files = Math.max(0, Math.min(4, Number(f.evidence_files) || 0));
   const noEvidence = !files;
   const nonce = files ? crypto.randomUUID() : "";
 

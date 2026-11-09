@@ -2319,10 +2319,10 @@
         const ev = document.querySelector("[data-evidence]");
         if (ev) {
           const form = ev.closest("form"), list = ev.querySelector("[data-ev-list]"), say = ev.querySelector("[data-ev-msg]"), skip = ev.querySelector("[data-ev-skip]");
-          const items = [], MAX = 3, PART = 4 * 1024 * 1024;
+          const items = [], MAX = 4, PART = 4 * 1024 * 1024;
           const kb = n => n > 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB";
           const draw = () => {
-            list.innerHTML = items.map((it, k) => `<li>${it.preview ? `<img src="${it.preview}" alt="">` : `<span class="ev-ico">${it.type === "application/pdf" ? "PDF" : "VIDEO"}</span>`}<span class="ev-name">${esc(it.name)}<small>${kb(it.blob.size)}</small></span><button type="button" data-ev-del="${k}" aria-label="Remove">✕</button></li>`).join("");
+            list.innerHTML = items.map((it, k) => `<li>${it.preview ? `<img src="${it.preview}" alt="">` : `<span class="ev-ico">${it.type === "application/pdf" ? "PDF" : it.type.startsWith("audio/") ? "VOICE" : "VIDEO"}</span>`}<span class="ev-name">${esc(it.name)}<small>${kb(it.blob.size)}</small></span><button type="button" data-ev-del="${k}" aria-label="Remove">✕</button></li>`).join("");
             list.querySelectorAll("[data-ev-del]").forEach(b => b.onclick = () => { const it = items.splice(+b.dataset.evDel, 1)[0]; if (it && it.preview) URL.revokeObjectURL(it.preview); draw(); keep(); });
             ev.classList.toggle("has", items.length > 0);
           };
@@ -2356,14 +2356,17 @@
                 const secs = await videoLength(file);
                 if (secs > 20 || file.size > 30 * 1048576) { say.textContent = "Videos must be short (about 15 seconds). For longer ones, paste a YouTube or WhatsApp link under Additional Information."; continue; }
                 items.push({ blob: file, name: file.name || "video.mp4", type: t });
-              } else { say.textContent = "Only photos, PDF documents and short videos."; }
+              } else if (t.startsWith("audio/")) {
+                if (file.size > 12 * 1048576) { say.textContent = "That voice note is too long. Please keep it under about 5 minutes."; continue; }
+                items.push({ blob: file, name: file.name || "voice-note", type: t.split(";")[0] });
+              } else { say.textContent = "Only voice notes, photos, PDF documents and short videos."; }
             }
             if (say.textContent === "Adding...") say.textContent = "";
             if (items.length && skip) skip.checked = false;
             draw(); keep();
           };
           // Some phones close the page while the camera is open, so the form is kept on the phone (and cleared once sent).
-          const guess = n => { const x = (String(n || "").match(/\.(\w+)$/) || [])[1]; x && (x = x.toLowerCase()); return { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp", heic: "image/heic", heif: "image/heif", pdf: "application/pdf", mp4: "video/mp4", mov: "video/quicktime", "3gp": "video/3gpp", webm: "video/webm" }[x] || ""; };
+          const guess = n => { const x = (String(n || "").match(/\.(\w+)$/) || [])[1]; x && (x = x.toLowerCase()); return { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp", heic: "image/heic", heif: "image/heif", pdf: "application/pdf", mp4: "video/mp4", mov: "video/quicktime", "3gp": "video/3gpp", webm: "video/webm", ogg: "audio/ogg", opus: "audio/ogg", oga: "audio/ogg", m4a: "audio/mp4", mp3: "audio/mpeg", wav: "audio/wav", aac: "audio/aac" }[x] || ""; };
           let fromCamera = false;
           const db = () => new Promise((ok, no) => { try { const r = indexedDB.open("raavanaa-initiate", 1); r.onupgradeneeded = () => r.result.createObjectStore("draft"); r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error); } catch (e) { no(e); } });
           const idb = async (mode, fn) => { try { const d = await db(); return await new Promise(ok => { const tx = d.transaction("draft", mode), st = tx.objectStore("draft"), r = fn(st); tx.oncomplete = () => ok(r && r.result); tx.onerror = () => ok(null); }); } catch (e) { return null; } };
@@ -2392,6 +2395,37 @@
             restoring = false;
           })();
           const camIn = ev.querySelector("[data-ev-camera]") || ev.querySelector("[data-ev-pick]");
+          // "Record your voice": a voice note in English or Tamil (up to 3 minutes). The team turns it into text.
+          const rec = ev.querySelector("[data-ev-rec]");
+          if (rec) {
+            const label = rec.querySelector("[data-rec-label]"), LIMIT = 180;
+            let mr = null, chunks = [], tick = 0, started = 0;
+            const mmss = n => `${Math.floor(n / 60)}:${String(n % 60).padStart(2, "0")}`;
+            const stop = () => { if (mr && mr.state !== "inactive") mr.stop(); };
+            rec.addEventListener("click", async () => {
+              if (mr && mr.state === "recording") return stop();
+              if (items.length >= MAX) { say.textContent = `Up to ${MAX} files.`; return; }
+              if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder)) { say.textContent = "This phone can't record here. Record a WhatsApp voice note instead, then tap \"Attach a file\" and pick it."; return; }
+              let stream;
+              try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+              catch (e) { say.textContent = "The microphone was not allowed. Allow it in your browser and try again."; return; }
+              const type = ["audio/webm;codecs=opus", "audio/mp4", "audio/ogg;codecs=opus", "audio/webm"].find(t => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) || "";
+              mr = new MediaRecorder(stream, type ? { mimeType: type } : undefined); chunks = [];
+              mr.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+              mr.onstop = () => {
+                clearInterval(tick); stream.getTracks().forEach(t => t.stop());
+                rec.classList.remove("on"); rec.setAttribute("aria-pressed", "false"); label.textContent = "Record your voice";
+                const t = (mr.mimeType || type || "audio/webm").split(";")[0], ext = t === "audio/mp4" ? "m4a" : t === "audio/ogg" ? "ogg" : "webm";
+                const secs = Math.round((Date.now() - started) / 1000);
+                if (chunks.length && secs >= 1) { say.textContent = "Adding..."; add([new File(chunks, `voice-note-${mmss(secs).replace(":", "m")}s.${ext}`, { type: t })]); }
+                mr = null;
+              };
+              mr.start(1000); started = Date.now();
+              rec.classList.add("on"); rec.setAttribute("aria-pressed", "true"); say.textContent = "";
+              const upd = () => { const n = Math.round((Date.now() - started) / 1000); label.textContent = `Stop recording ${mmss(n)}`; if (n >= LIMIT) stop(); };
+              upd(); tick = setInterval(upd, 500);
+            });
+          }
           // "Take a photo" opens the camera inside this page, so the phone never closes the form.
           // Phones without that (or old browsers) fall back to the phone's own camera.
           const live = ev.querySelector("[data-ev-live]");
@@ -2444,6 +2478,29 @@
             if (failed) f_warn(msg, failed);
           };
           const f_warn = (msg, n) => { msg.dataset.warn = `Your suggestion was sent, but ${n} file${n > 1 ? "s" : ""} could not be uploaded. Our team will ask you for ${n > 1 ? "them" : "it"} at the visit.`; };
+        }
+        // "How?" next to "Tell us a little more": write, record or attach.
+        const info = document.querySelector("[data-info]"), tip = document.getElementById("o-desc-tip");
+        if (info && tip) info.addEventListener("click", () => { tip.hidden = !tip.hidden; info.setAttribute("aria-expanded", String(!tip.hidden)); });
+        // Districts and their villages (villages.json): pick from the list, or type any other place.
+        const citySel = document.querySelector("[data-city]"), vlist = document.querySelector("[data-villages]");
+        if (citySel && vlist) {
+          load("/villages.json").then(data => {
+            const D = (data && data.districts) || [];
+            if (!D.length) return;
+            const keep = citySel.value, first = citySel.querySelector("option[disabled]"), otherOpt = citySel.querySelector('option[value="Other"]');
+            citySel.innerHTML = "";
+            if (first) citySel.append(first);
+            D.forEach(d => { const o = document.createElement("option"); o.textContent = d.name; citySel.append(o); });
+            if (otherOpt) citySel.append(otherOpt);
+            if (keep) citySel.value = keep;
+            const fill = () => {
+              const d = D.find(x => x.name === citySel.value);
+              const names = d ? d.villages : D.flatMap(x => x.villages);
+              vlist.innerHTML = names.map(n => `<option value="${esc(n)}"></option>`).join("");
+            };
+            citySel.addEventListener("change", fill); fill();
+          }).catch(() => {});
         }
         // City: pick from the list, or choose Other and type it. "Location" is filled from city + village for Netlify Forms.
         const city = document.querySelector("[data-city]"), other = document.querySelector("[data-city-other]"), village = document.getElementById("o-village"), loc = document.querySelector("[data-location]");
