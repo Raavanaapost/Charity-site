@@ -48,6 +48,8 @@
 /contact  /contact.html  200
 /volunteer  /volunteer.html  200
 /initiate  /initiate.html  200
+# The first Initiate design (kids picture, orange), kept as a template
+/initiate-kids  /initiate-kids.html  200
 # Community endorsement: the link a person shares so others can vouch for their request
 /e/*  /endorse.html  200
 /initiate-slides  /initiate-slides.html  200

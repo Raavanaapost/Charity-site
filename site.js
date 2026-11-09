@@ -2297,6 +2297,9 @@
             oform.hidden = false;
             const c = oform.querySelector("#o-contact"), nm = me.name || (me.userMetadata && me.userMetadata.full_name) || (me.user_metadata && me.user_metadata.full_name) || "";
             if (c && !c.value && nm) c.value = nm;
+            // A small line, not a big welcome: the person sees whose account sends the request.
+            const who = oform.querySelector("[data-who]");
+            if (who) { who.textContent = `Signed in as ${nm || me.email}`; who.hidden = false; }
           });
         }
         const area = document.getElementById("o-description"), count = document.getElementById("o-count");

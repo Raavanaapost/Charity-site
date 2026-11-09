@@ -1,0 +1,49 @@
+/* Initiate page in the members look (SURESH, 9 Nov 2026): warm cream paper, deep leaf green, honey gold and
+   marigold, with the bridge picture from the "Raavanaa Community" poster. Same words and rotating titles as before.
+   The first design (kids picture, orange) is kept as a template at /initiate-kids. */
+body[data-look="bridge"]{
+  --bg:#fbf4e2; --surface:#fffbf1; --ink:#2a3423; --muted:#6c6a52; --line:#ead7a4;
+  --brand:#1f5a2e; --brand-ink:#fffbf1; --sun:#d26a14; --gold:#d4a23c; --gold-deep:#b07f1f;
+  --sun-soft:#fbe7c4; --brand-soft:#e6efd9; --leaf:#5f8f3a;
+  --serif:"Playfair Display",Georgia,"Times New Roman",serif;
+  background:var(--bg) radial-gradient(1200px 520px at 50% -120px,#fff3cf 0,transparent 70%) no-repeat;
+  color-scheme:light; /* always cream, even in phone dark mode */
+}
+body[data-look="bridge"] .bar{background:var(--surface)}
+body[data-look="bridge"] .bar::after{background:linear-gradient(90deg,var(--leaf),var(--gold) 50%,var(--sun))}
+body[data-look="bridge"] .initiate{--o1:var(--brand);--o2:var(--brand);padding-top:22px}
+
+/* Title above the bridge picture */
+body[data-look="bridge"] .moment-hero{display:flex;flex-direction:column;gap:16px;margin-inline:0}
+body[data-look="bridge"] .moment-text{position:static;padding:0;gap:.4em;order:-1}
+body[data-look="bridge"] .moment-sprout{display:block}
+body[data-look="bridge"] .moment-title{font-family:var(--serif);font-weight:900}
+body[data-look="bridge"] .mt-lead{color:var(--brand);font-size:clamp(24px,5vw,40px)}
+body[data-look="bridge"] .mt-key{color:var(--gold-deep);font-style:italic;font-size:clamp(40px,9vw,72px);text-shadow:none}
+body[data-look="bridge"] .mt-key::after{background:var(--sun);opacity:.8}
+body[data-look="bridge"] .moment-sub{color:var(--muted);text-shadow:none;font-weight:500;font-size:clamp(15px,2vw,18px)}
+body[data-look="bridge"] .moment-hero picture{display:block;border-radius:22px;overflow:hidden;box-shadow:0 0 0 2px var(--line),0 14px 30px -18px rgba(90,60,10,.45)}
+body[data-look="bridge"] .moment-hero img{aspect-ratio:941/395;object-fit:cover}
+
+/* The form card: cream with a soft gold edge */
+body[data-look="bridge"] .initiate-card{margin-top:20px;background:var(--surface);border:1.5px solid var(--line);border-radius:22px;box-shadow:0 10px 24px -20px rgba(90,60,10,.5);color:var(--ink)}
+body[data-look="bridge"] .initiate-head{color:var(--gold)}
+body[data-look="bridge"] .initiate-head h2,body[data-look="bridge"] .i-gate h2{font-family:var(--serif);font-weight:800;color:var(--brand)}
+body[data-look="bridge"] .initiate-head p{color:var(--muted)}
+body[data-look="bridge"] .i-n{background:var(--brand);color:var(--brand-ink)}
+body[data-look="bridge"] .initiate-card input,body[data-look="bridge"] .initiate-card select,body[data-look="bridge"] .initiate-card textarea{border-color:var(--line)}
+body[data-look="bridge"] .initiate-card input:focus,body[data-look="bridge"] .initiate-card select:focus,body[data-look="bridge"] .initiate-card textarea:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold)}
+body[data-look="bridge"] .ev-btn{border-color:var(--gold)}
+body[data-look="bridge"] .i-next{background:var(--brand-soft);border-color:#cfe0bf}
+body[data-look="bridge"] .i-next-h{color:var(--brand)}
+body[data-look="bridge"] .i-submit{background:var(--brand);box-shadow:inset 0 -3px 0 rgba(0,0,0,.18),0 12px 22px -14px rgba(31,90,46,.8);text-shadow:none}
+body[data-look="bridge"] .i-submit:hover{background:#184a25}
+body[data-look="bridge"] .i-gate-step{color:var(--gold-deep)}
+.i-who{margin:0;justify-self:end;font-size:13px;font-weight:600;color:var(--brand);background:var(--brand-soft);padding:4px 12px;border-radius:999px}
+.i-who[hidden]{display:none}
+
+/* "A moment we created" and the footer in the poster's deep green */
+body[data-look="bridge"] .i-story{background:#1f4a28;box-shadow:0 0 0 2px var(--line),0 18px 40px -26px rgba(31,74,40,.6)}
+body[data-look="bridge"] .foot-wave .w1{fill:#6f9a3e}
+body[data-look="bridge"] .foot-wave .w2,body[data-look="bridge"] .foot-main{fill:#1f4a28;background:#1f4a28}
+body[data-look="bridge"] .foot-bar{background:#173a1f}
