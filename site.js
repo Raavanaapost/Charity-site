@@ -1866,6 +1866,82 @@
     return `<div class="panel journey"><h2>The journey</h2>${html}</ol></div>`;
   }
 
+  // "Share this moment": WhatsApp, Facebook, X, copy link, and an Instagram story picture
+  // (SURESH, 10 Nov 2026). Words come from share.json, which never names a child or a school.
+  // Pictures in img/share/ are made by tools/share-cards.mjs; a project without its own uses the default.
+  const shareIcon = d => `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">${d}</svg>`;
+  const SHARE_ICONS = {
+    wa: shareIcon('<path fill="currentColor" d="M12 2.2a9.7 9.7 0 0 0-8.4 14.6L2.3 21.7l5-1.3A9.7 9.7 0 1 0 12 2.2zm0 17.7c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 19.9zm4.4-6c-.2-.1-1.4-.7-1.7-.8-.2-.1-.4-.1-.5.1l-.8.9c-.1.2-.3.2-.5.1a6.6 6.6 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.5-.4h-.5a.9.9 0 0 0-.7.3 2.8 2.8 0 0 0-.9 2.1c0 1.3.9 2.5 1 2.6.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1l-.6-.2z"/>'),
+    fb: shareIcon('<path fill="currentColor" d="M13.5 21v-7.5H16l.4-3h-2.9V8.6c0-.9.3-1.5 1.5-1.5h1.5V4.4c-.3 0-1.2-.1-2.2-.1-2.2 0-3.7 1.3-3.7 3.8v2.4H8v3h2.6V21z"/>'),
+    x: shareIcon('<path fill="currentColor" d="M17.8 3h3l-6.6 7.6L22 21h-6.1l-4.8-6.3L5.6 21h-3l7-8.1L2 3h6.2l4.4 5.8zm-1 16.2h1.7L7.3 4.7H5.5z"/>'),
+    ig: shareIcon('<rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor"/>'),
+    link: shareIcon('<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/>'),
+    more: shareIcon('<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 3v12M7.5 7.5L12 3l4.5 4.5M5 13v6.5h14V13"/>')
+  };
+  const shareHTML = p => `
+    <div class="panel share-box" data-share="${esc(slugOf(p))}">
+      <h2>Share this moment</h2>
+      <p class="note">One share can bring the next sponsor. Every rupee is shown openly.</p>
+      <div class="share-row">
+        <a class="sh sh-wa" data-sh="wa" target="_blank" rel="noopener">${SHARE_ICONS.wa}<span>WhatsApp</span></a>
+        <a class="sh sh-fb" data-sh="fb" target="_blank" rel="noopener">${SHARE_ICONS.fb}<span>Facebook</span></a>
+        <a class="sh sh-x" data-sh="x" target="_blank" rel="noopener">${SHARE_ICONS.x}<span>X</span></a>
+        <button class="sh sh-link" type="button" data-sh="link">${SHARE_ICONS.link}<span>Copy link</span></button>
+        <button class="sh sh-ig" type="button" data-sh="ig">${SHARE_ICONS.ig}<span>Instagram story</span></button>
+        <button class="sh sh-more" type="button" data-sh="more" hidden>${SHARE_ICONS.more}<span>More</span></button>
+      </div>
+      <p class="share-tip note" hidden></p>
+    </div>`;
+  async function wireShare(root) {
+    const box = root.querySelector("[data-share]");
+    if (!box) return;
+    const slug = box.dataset.share;
+    const ta = location.pathname.startsWith("/ta/");
+    const url = `${location.origin}${ta ? "/ta" : ""}/projects/${slug}`;
+    let data = null;
+    try { data = await (await fetch("/share.json")).json(); } catch (_) {}
+    const own = data && data.projects && data.projects[slug];
+    const c = Object.assign({}, data && data.default, own);
+    const title = (ta && c.title_ta) || c.title || document.title;
+    const text = (ta && c.text_ta) || c.text || "";
+    const pic = `/img/share/${own ? slug : "default"}-story${ta ? "-ta" : ""}.jpg`;
+    const enc = encodeURIComponent;
+    const picBlob = fetch(pic).then(r => r.ok ? r.blob() : Promise.reject()).catch(() => null);
+    box.querySelector('[data-sh="wa"]').href = `https://wa.me/?text=${enc(`${title}\n${text}\n${url}`)}`;
+    box.querySelector('[data-sh="fb"]').href = `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`;
+    box.querySelector('[data-sh="x"]').href = `https://twitter.com/intent/tweet?text=${enc(title)}&url=${enc(url)}`;
+    const tip = box.querySelector(".share-tip");
+    const say = t => { tip.textContent = t; tip.hidden = false; };
+    const more = box.querySelector('[data-sh="more"]');
+    if (navigator.share) {
+      more.hidden = false;
+      more.onclick = () => navigator.share({ title, text, url }).catch(() => {});
+    }
+    box.querySelector('[data-sh="link"]').onclick = async () => {
+      try { await navigator.clipboard.writeText(url); say("Link copied. Paste it anywhere."); }
+      catch (_) { say(url); }
+    };
+    // Instagram takes no links in posts: phones get the story picture straight in the share sheet
+    // (pick Instagram); computers download it. The tip says to add the link sticker.
+    box.querySelector('[data-sh="ig"]').onclick = async () => {
+      try {
+        const blob = await picBlob;
+        if (!blob) throw new Error("no picture");
+        const file = new File([blob], `raavanaa-${slug}.jpg`, { type: "image/jpeg" });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try { await navigator.clipboard.writeText(url); } catch (_) {}
+          await navigator.share({ files: [file] });
+          say("Pick Instagram, then Story. The link is copied: add it with the link sticker.");
+          return;
+        }
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob); a.download = file.name;
+        document.body.appendChild(a); a.click(); a.remove();
+        say("Story picture saved. Post it to your Instagram story and add this page's link with the link sticker.");
+      } catch (_) { say("Could not get the picture. Please try again."); }
+    };
+  }
+
   function renderProject(app, site, projects, slug) {
     const i = projects.findIndex(p => slugOf(p) === slug);
     const p = projects[i];
@@ -1986,6 +2062,7 @@
           <aside class="side">
             ${ringPanel("only-wide")}
             ${stageNum(p) === 3 ? "" : `<div class="only-wide">${budgetBoxHTML(p, site, false)}</div>`}
+            ${p.sample ? "" : shareHTML(p)}
             ${vouchedHTML(p)}
             ${journeyHTML(p, full)}
             ${signupHTML(slugOf(p), "Follow this project")}
@@ -1998,6 +2075,7 @@
       wireGo(app);
       wireDonate(app, slugOf(p));
       wireGlance(app);
+      wireShare(app);
       app.querySelectorAll("[data-fund]").forEach(b => b.addEventListener("click", () => {
         const g = [...app.querySelectorAll(".go100")].find(x => x.offsetParent !== null); if (!g) return;
         const open = g.querySelector(".go-open"); if (open && open.getAttribute("aria-expanded") !== "true") open.click();

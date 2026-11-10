@@ -5,6 +5,15 @@
 (function () {
   "use strict";
   var D = {
+"Share this moment": "இந்தத் தருணத்தைப் பகிருங்கள்",
+"One share can bring the next sponsor. Every rupee is shown openly.": "ஒரு பகிர்வு அடுத்த அனுசரணையாளரைக் கொண்டுவரலாம். ஒவ்வொரு ரூபாயும் வெளிப்படையாகக் காட்டப்படும்.",
+"Instagram story": "இன்ஸ்டாகிராம் ஸ்டோரி",
+"Copy link": "இணைப்பை நகலெடு",
+"More": "மேலும்",
+"Link copied. Paste it anywhere.": "இணைப்பு நகலெடுக்கப்பட்டது. எங்கும் ஒட்டலாம்.",
+"Pick Instagram, then Story. The link is copied: add it with the link sticker.": "இன்ஸ்டாகிராம், பின் ஸ்டோரியைத் தேர்ந்தெடுங்கள். இணைப்பு நகலெடுக்கப்பட்டது: இணைப்பு ஸ்டிக்கர் மூலம் சேருங்கள்.",
+"Story picture saved. Post it to your Instagram story and add this page's link with the link sticker.": "ஸ்டோரி படம் சேமிக்கப்பட்டது. அதை உங்கள் இன்ஸ்டாகிராம் ஸ்டோரியில் பதிவிட்டு, இணைப்பு ஸ்டிக்கர் மூலம் இந்தப் பக்கத்தின் இணைப்பைச் சேருங்கள்.",
+"Could not get the picture. Please try again.": "படத்தைப் பெற முடியவில்லை. மீண்டும் முயலுங்கள்.",
 "Home": "முகப்பு",
 "Projects": "திட்டங்கள்",
 "Donate": "நன்கொடை",

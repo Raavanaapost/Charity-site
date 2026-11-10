@@ -2020,3 +2020,17 @@ html.ev-cam-on{overflow:hidden}
 /* Rotating messages (titles, lines and picture captions) fade out and back in */
 [data-rot],.moment-sub{transition:opacity .45s ease}
 .rot-out{opacity:0}
+
+/* Share this moment (project pages) */
+.share-box .note{margin:0 0 12px}
+.share-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.share-row .sh{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:600;font-size:14px;line-height:1.2;font-family:inherit;text-decoration:none;cursor:pointer;min-height:44px}
+.share-row .sh:hover{border-color:#c9a24a}
+.share-row .sh svg{flex:none}
+.share-row .sh-wa svg{color:#1fa855}
+.share-row .sh-fb svg{color:#1877f2}
+.share-row .sh-ig svg{color:#d6246e}
+.share-row .sh-ig{grid-column:1/-1;border-color:#c9a24a}
+.share-row .sh[hidden]{display:none}
+.share-tip{margin:10px 0 0;color:var(--ink);font-weight:600}
+.share-row .sh-more{grid-column:1/-1}
