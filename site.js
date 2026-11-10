@@ -100,7 +100,7 @@
       <svg class="foot-wave" viewBox="0 0 400 30" preserveAspectRatio="none" aria-hidden="true"><path class="w1" d="M0 16C70 2 140 4 200 12 260 20 330 4 400 10V30H0Z"/><path class="w2" d="M0 24C80 10 150 12 210 18 270 24 336 12 400 16V30H0Z"/></svg>
       <div class="foot-main"><div class="wrap">
         <nav class="foot-cols" aria-label="Footer">
-          ${col("Explore", [["Home", "/overview"], ["Raavanaa Post", "/post"], ["Smile Map", "/smile-map"], ["About us", "/about"], ["Contact", "/contact"]])}
+          ${col("Explore", [["Home", "/moment"], ["Raavanaa Post", "/post"], ["Smile Map", "/smile-map"], ["About us", "/about"], ["Contact", "/contact"]])}
           ${col("Our stages", [["Initiated", "/initiated"], ["Activated", "/activated"], ["Impact", "/impact"]])}
           ${col("Get involved", [["Volunteer with us", "/volunteer"], ["Suggest a project", "/contact?topic=suggest"], ["Partner with us", "/contact?topic=partner"]])}
           ${follow.length ? col("Follow us", follow) : ""}
@@ -355,6 +355,7 @@
     const pick = startStageShow(app, n => { st.tab = n; draw(); pick(n); const r = tabsBox.getBoundingClientRect(); if (r.top > innerHeight * .6 || r.top < 0) tabsBox.scrollIntoView({ behavior: "smooth", block: "start" }); });
   }
 
+  // Home is the moment page, /moment (SURESH, 10 Nov 2026: the logo and every "Home" link open it).
   // The earlier home page, kept at /overview: stage circles with numbers, latest projects and the sign-up box.
   // Home: one row per stage, each with its own title.
   const HOME_ROWS = [
