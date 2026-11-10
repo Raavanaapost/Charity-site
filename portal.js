@@ -166,9 +166,10 @@
   const AI_LABEL = { "": ["Not checked yet", "gray"], running: ["AI check running…", "amber"], done: ["AI draft ready", "blue"], failed: ["AI check failed", "red"] };
   const profileOf = s => {
     const p = s.profile || {}, d = (s.ai && s.ai.draft) || {};
-    const budget = d.budget_total ? `${d.budget_total}${(d.budget_items || []).length ? " (" + d.budget_items.map(x => `${x.item} ${x.amount}`).join(", ") + ")" : ""}` : "";
-    return { title: p.title || d.title || s.title || "", summary: p.summary || d.summary || "", activity: p.activity || d.activity || s.kind || "",
-      place: p.place || d.place || [s.village, s.city].filter(Boolean).join(", "), children: p.children || d.children || howMany(s.children), when: p.when || d.when || "", budget: p.budget || budget };
+    const lines = (d.budget_items || []).map(x => `${x.item}: ${x.amount}`).join("\n");
+    return { title: p.title || d.title || s.title || "", tagline: p.tagline || d.tagline || "", summary: p.summary || d.summary || "", activity: p.activity || d.activity || s.kind || "",
+      place: p.place || d.place || [s.village, s.city].filter(Boolean).join(", "), children: p.children || d.children || howMany(s.children), when: p.when || d.when || "",
+      budget: p.budget || lines, budget_total: p.budget_total || d.budget_total || "" };
   };
   const reviewHTML = s => {
     const ai = s.ai || { status: "", draft: {} }, d = ai.draft || {}, files = s.files || [];
@@ -193,12 +194,13 @@
         ${(d.people || []).length ? `<h3>People named</h3><p class="pt-sub">${d.people.map(x => `${esc(x.name)} (${esc(x.role)})`).join(" · ")}</p>` : ""}` : ""}
       <h3>The page people will see</h3>
       <p class="pt-sub">Check every line. No children's names. A school is named only if you have agreed it.</p>
-      <div class="pt-pfs">${inp("title", "Title")}${inp("summary", "Summary", true)}${inp("activity", "The day")}${inp("place", "Place")}${inp("children", "Children")}${inp("when", "When")}${inp("budget", "Budget")}</div>
+      <div class="pt-pfs">${inp("title", "Title")}${inp("tagline", "One line under the title")}${inp("summary", "The story (a blank line starts a new paragraph)", true)}${inp("activity", "The day")}${inp("place", "Place")}${inp("children", "Children")}${inp("when", "When")}${inp("budget", "Budget, one item per line, e.g. Bus: Rs 30,000", true)}${inp("budget_total", "Total, e.g. Rs 61,000")}</div>
       ${s.shareOk
         ? `<p class="pt-sub">Approved by ${esc(s.shareOkBy || "the team")}${s.shareOkAt ? ` ${ago(s.shareOkAt)}` : ""}. The requester can share it now.</p>
            <p><button type="button" class="pt-btn" data-share="save">Save changes</button> <button type="button" class="pt-btn ghost" data-share="stop">Stop sharing</button></p>`
         : `<p><button type="button" class="pt-btn" data-share="yes">Approve page for sharing</button></p>`}
-      ${s.endorseLink ? `<p class="pt-sub">Page: <a href="${esc(s.endorseLink)}" target="_blank" rel="noopener">raavanaa.org${esc(s.endorseLink)}</a></p>` : ""}
+      ${s.endorseLink ? `<p><button type="button" class="pt-btn ghost" data-preview>Preview the page</button></p>
+        <p class="pt-sub">Page: <a href="${esc(s.endorseLink)}" target="_blank" rel="noopener">raavanaa.org${esc(s.endorseLink)}</a></p>` : ""}
     </section>`;
   };
   function wireReview(s) {
@@ -219,6 +221,14 @@
         render(); toast(s.ai.status === "done" ? "AI draft ready" : "AI check failed");
       };
       setTimeout(poll, 8000);
+    };
+    // Preview: the page as people will see it, with what is in the boxes now (nothing is saved or shared).
+    const pv = app.querySelector("[data-preview]");
+    if (pv) pv.onclick = () => {
+      const profile = {}; app.querySelectorAll("[data-pf]").forEach(i => profile[i.dataset.pf] = i.value.trim());
+      const token = (s.endorseLink || "").split("/").pop().toLowerCase();
+      try { localStorage.setItem("raav-preview-" + token, JSON.stringify(profile)); } catch (e) { /* private mode */ }
+      window.open(s.endorseLink + "?preview=1", "_blank", "noopener");
     };
     app.querySelectorAll("[data-share]").forEach(b => b.onclick = async () => {
       const profile = {}; app.querySelectorAll("[data-pf]").forEach(i => profile[i.dataset.pf] = i.value.trim());

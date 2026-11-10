@@ -31,6 +31,9 @@ async function member(): Promise<Member | null> {
 const evidenceStore = (context: Context) =>
   getStore({ name: context.deploy?.context === "production" ? "evidence" : "evidence-preview", consistency: "strong" });
 
+// Like clip, but keeps line breaks (paragraphs of the story, one budget item per line).
+const lines = (v: unknown, max: number) => String(v ?? "").split(/\r?\n/).map((l) => l.replace(/[ \t]+/g, " ").trim()).filter(Boolean).join("\n").slice(0, max);
+
 // A check still "running" after 16 minutes has died (background functions stop at 15), so it can be run again.
 const stuck = (r: Record<string, any>) => r.ai_status === "running" && r.ai_at && Date.now() - new Date(r.ai_at).getTime() > 16 * 60e3;
 
@@ -196,8 +199,8 @@ export default async (req: Request, context: Context) => {
         const ok = body.share === true;
         const p = (body.profile && typeof body.profile === "object") ? body.profile : {};
         const profile = {
-          title: clip(p.title, 120), summary: clip(p.summary, 1200), place: clip(p.place, 120), children: clip(p.children, 60),
-          when: clip(p.when, 80), activity: clip(p.activity, 300), budget: clip(p.budget, 300),
+          title: clip(p.title, 120), tagline: clip(p.tagline, 200), summary: lines(p.summary, 2000), place: clip(p.place, 120), children: clip(p.children, 60),
+          when: clip(p.when, 80), activity: clip(p.activity, 300), budget: lines(p.budget, 1000), budget_total: clip(p.budget_total, 60),
         };
         if (ok && !profile.title) return json({ error: "Give the page a title first." }, 400);
         changes.share = ok;

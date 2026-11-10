@@ -17,7 +17,8 @@ export default async (request: Request, context: { next: () => Promise<Response>
   const path = new URL(request.url).pathname;
   if (PUBLIC.has(path)) return context.next();
   // Endorse links (/e/<link>) are shared on WhatsApp before launch too, so people can vouch without the password.
-  if (path.startsWith("/e/") || path === "/endorse.html" || path === "/endorse.js") return context.next();
+  if (path.startsWith("/e/") || path === "/endorse.html" || path === "/endorse.js" || path === "/endorse.css"
+    || /^\/img\/(project-[a-z]+|hero-initiated)\.svg$/.test(path) || path === "/img/logo.webp") return context.next();
 
   const auth = request.headers.get("authorization") || "";
   if (auth.startsWith("Basic ")) {

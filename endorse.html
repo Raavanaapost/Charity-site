@@ -15,7 +15,7 @@
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
 <style>
   /* Always the warm cream look, like the members pages (owner's choice, 6 Nov 2026). */
   :root{--bg:#fbf6ea;--card:#fff;--line:#e3d9bf;--field:#c9bfa6;--ink:#1e2a24;--muted:#4a5650;--green:#1f4d3a;--green-dark:#163a2b;--green-soft:#e1ede4;
@@ -86,11 +86,49 @@
   .report{text-align:center;font-size:13px;font-weight:600;color:var(--warn)}
   .thanks{text-align:center;justify-items:center}
   .thanks .tick{width:64px;height:64px;border-radius:50%;background:var(--green);display:grid;place-items:center}
+
+  /* Story template (SURESH, 10 Nov 2026): the shared page looks like a Raavanaa project story. */
+  .serif{font-family:"Source Serif 4",Georgia,serif}
+  .story-head{display:grid;gap:10px}
+  .story-head h1{font:800 clamp(28px,7.6vw,38px)/1.12 Cinzel,Georgia,serif;letter-spacing:.01em}
+  .story-head h1::first-letter{color:var(--gold-ink)}
+  .tagline{margin:0;font:italic 400 19px/1.45 "Source Serif 4",Georgia,serif;color:var(--muted);border-left:4px solid var(--gold);padding-left:12px}
+  .byline{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:13px;color:var(--muted);margin:0}
+  .byline b{color:var(--ink)}
+  .stage-pill{display:inline-flex;align-items:center;gap:6px;font:700 11px/1 Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:#c2410c;border-radius:12px;padding:6px 10px}
+  .stage-pill.check{background:var(--gold-ink)}
+  .art{margin:0;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#fdf3dc;aspect-ratio:16/9}
+  .art img{display:block;width:100%;height:100%;object-fit:cover}
+  .art figcaption{position:absolute;left:-9999px}
+  .glance{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none}
+  .glance li{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:4px;min-width:0;align-content:start}
+  .glance small{font:700 11px/1 Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-ink);display:flex;gap:6px;align-items:center}
+  .glance b{font:600 15px/1.35 Inter,sans-serif;overflow-wrap:anywhere}
+  .story p{margin:0;font:400 18px/1.6 "Source Serif 4",Georgia,serif;color:var(--ink)}
+  .story{display:grid;gap:12px}
+  .journey{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:4px 0 0;padding:0;list-style:none;position:relative}
+  .journey::before{content:"";position:absolute;left:12.5%;right:12.5%;top:22px;height:3px;background:var(--line);z-index:0}
+  .journey li{display:grid;justify-items:center;gap:8px;text-align:center;position:relative;z-index:1}
+  .journey i{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:#fff;border:2px solid var(--field);color:var(--muted);font-style:normal}
+  .journey li.done i{background:var(--green);border-color:var(--green);color:#fff}
+  .journey li.now i{background:radial-gradient(circle at 35% 30%,#f59e0b,#c2410c);border:3px solid #f2c46d;color:#fff;box-shadow:0 0 0 8px rgba(245,158,11,.18)}
+  .journey span{font:700 11px/1.25 Cinzel,Georgia,serif;letter-spacing:.04em;color:var(--muted);text-transform:uppercase}
+  .journey li.now span,.journey li.done span{color:var(--green)}
+  .journey-note{margin:0;font:400 16px/1.5 "Source Serif 4",Georgia,serif}
+  .journey-note b{color:var(--green)}
+  .budget{list-style:none;margin:0;padding:0;display:grid}
+  .budget li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line);font-size:15px}
+  .budget li b{white-space:nowrap}
+  .budget li.total{border-bottom:0;font-weight:700;font-size:16px;color:var(--green)}
+  .card h2{display:flex;align-items:center;gap:8px}
+  .preview-bar{position:sticky;top:0;z-index:5;background:#7c2d12;color:#fff;font:600 13px/1.4 Inter,sans-serif;padding:10px 16px;text-align:center}
+  @media (min-width:640px){.glance{grid-template-columns:repeat(4,minmax(0,1fr))}}
   [hidden]{display:none!important}
 </style>
 </head>
 <body>
 <header class="bar"><a href="/overview">RAAVANAA</a></header>
+<div class="preview-bar" data-preview-bar hidden>Preview for the Raavanaa team. This is how the page will look once you approve it.</div>
 <main id="app" aria-live="polite">
   <p class="note" data-loading>Loading the project…</p>
 
@@ -110,16 +148,32 @@
       <p class="note" style="font-size:15px">Our team reads every request first, and may call to ask a few questions. Once it is approved, this page shows the details and you can share it for people to vouch. Keep this link to follow it.</p>
     </section>
 
-    <header>
+    <header class="story-head">
       <p class="kicker" data-kicker></p>
       <h1 data-title></h1>
-      <p class="lede" data-desc></p>
-      <ul class="facts" data-facts></ul>
+      <p class="tagline" data-tagline hidden></p>
+      <p class="byline"><span class="stage-pill" data-stage>Initiated</span><span data-byline></span></p>
     </header>
 
+    <figure class="art"><img data-art src="/img/hero-initiated.svg" alt="" width="800" height="450"></figure>
+
+    <ul class="glance" data-glance aria-label="At a glance"></ul>
+
+    <section class="story" data-story-card hidden>
+      <div class="story" data-story></div>
+    </section>
+
     <section class="card" aria-labelledby="h-ladder">
-      <h2 id="h-ladder">How we know this is real</h2>
-      <ol class="ladder" data-ladder></ol>
+      <h2 id="h-ladder">Where this need stands</h2>
+      <ol class="journey" data-journey></ol>
+      <p class="journey-note" data-journey-note></p>
+      <details><summary class="note" style="cursor:pointer">How we know this is real</summary><ol class="ladder" data-ladder style="margin-top:12px"></ol></details>
+    </section>
+
+    <section class="card" aria-labelledby="h-budget" data-budget-card hidden>
+      <h2 id="h-budget">What it costs</h2>
+      <ul class="budget" data-budget></ul>
+      <p class="note">No money is taken until people have vouched and a Raavanaa volunteer has visited. We pay for the bus, food and tickets directly where we can.</p>
     </section>
 
     <section class="card" aria-labelledby="h-people" data-people-card>

@@ -39,6 +39,7 @@ const SCHEMA = {
   type: "OBJECT",
   properties: {
     title: { type: "STRING", description: "A short page title, under 70 characters" },
+    tagline: { type: "STRING", description: "One warm sentence under the title, under 160 characters, no child or school names" },
     summary: { type: "STRING" },
     activity: { type: "STRING", description: "What the day is" },
     place: { type: "STRING", description: "Village or town, district" },
