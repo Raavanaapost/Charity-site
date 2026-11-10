@@ -2017,3 +2017,6 @@ html.ev-cam-on{overflow:hidden}
 @media (prefers-reduced-motion:reduce){.ev-rec.on svg{animation:none}}
 .pt-ev-audio{display:grid;gap:4px}
 .pt-ev-audio audio{width:100%}
+/* Rotating messages (titles, lines and picture captions) fade out and back in */
+[data-rot],.moment-sub{transition:opacity .45s ease}
+.rot-out{opacity:0}

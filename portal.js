@@ -546,10 +546,10 @@
     app.innerHTML = `<section class="pt-login">
       <img src="/img/logo.webp?v=3" alt="Raavanaa" width="900" height="298">
       <span class="pt-ribbon">Team</span>
-      <h1>${mode === "invite" ? "Welcome to the <em>team</em>" : mode === "recovery" ? "Choose a new <em>password</em>" : "Team <em>sign in</em>"}</h1>
-      <p class="pt-sub">${mode === "invite" ? "Choose a password for your new portal account." : mode === "recovery" ? "Type your new password." : "For the Raavanaa team only."}</p>
+      <h1 data-rot="title">${mode === "invite" ? "Welcome to the <em>team</em>" : mode === "recovery" ? "Choose a new <em>password</em>" : "Team <em>sign in</em>"}</h1>
+      <p class="pt-sub" data-rot="sub">${mode === "invite" ? "Choose a password for your new portal account." : mode === "recovery" ? "Type your new password." : "For the Raavanaa team only."}</p>
       <figure class="pt-login-hero"><picture><source srcset="/img/members-bridge.webp" type="image/webp"><img src="/img/members-bridge.jpg" alt="" width="941" height="395"></picture>
-        <figcaption>A bridge between people who need a hand and people ready to give one.</figcaption></figure>
+        <figcaption data-rot="cap">A bridge between people who need a hand and people ready to give one.</figcaption></figure>
       ${mode === "login" ? `<div class="pt-tabs2" role="tablist"><button type="button" role="tab" aria-selected="true" data-tab="in">Sign in</button><button type="button" role="tab" aria-selected="false" data-tab="join">Join</button></div>` : ""}
       <form class="pt-card" id="pt-login">
         ${mode === "login" ? `<label class="pt-field">Email<input name="email" type="email" autocomplete="username" required></label>` : ""}
@@ -578,6 +578,12 @@
         location.replace("/portal#/dashboard"); location.reload();
       } catch (err) { out.textContent = err && err.message ? err.message : "That did not work. Check the email and password."; }
     };
+    // Three messages take turns at the top and under the picture (SURESH, 10 Nov 2026).
+    if (mode === "login" && window.raavRotate) window.raavRotate(app, [
+      { title: "Team <em>sign in</em>", sub: "For the Raavanaa team only.", cap: "A bridge between people who need a hand and people ready to give one." },
+      { title: "Thank you for <em>showing up</em>", sub: "Every request you check brings a child closer to a day of joy.", cap: "Behind every smile is someone who said yes." },
+      { title: "Welcome <em>back</em>", sub: "Calls, visits and approvals for the requests waiting today.", cap: "Small steps, done with care, make big days happen." },
+    ]);
     app.querySelectorAll("[data-tab]").forEach(t => t.onclick = () => {
       const join = t.dataset.tab === "join";
       app.querySelectorAll("[data-tab]").forEach(x => x.setAttribute("aria-selected", String(x === t)));

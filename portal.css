@@ -440,3 +440,4 @@ body.pt-signedout .pt-login .pt-sub{margin:0}
 .pt-join-note{margin:0 0 6px;font-size:15px;color:var(--m-ink)}
 .pt-login [hidden]{display:none!important}
 body.pt-signedout .pt-main,body.pt-signedout .pt-shell{padding-top:0}body.pt-signedout .pt-login{margin-top:0}body.pt-signedout .pt-login-msg:empty{display:none}
+[data-rot]{transition:opacity .45s ease}.rot-out{opacity:0}

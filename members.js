@@ -59,11 +59,22 @@ export async function render(app, site) {
 }
 
 const header = (eyebrow, title, sub) => `<div class="m-head"><span class="m-ribbon">${esc(eyebrow)}</span>
-  <h1 class="m-title">${title}</h1>${sub ? `<p class="lede">${esc(sub)}</p>` : ""}</div>`;
+  <h1 class="m-title" data-rot="title">${title}</h1>${sub ? `<p class="lede" data-rot="sub">${esc(sub)}</p>` : ""}</div>`;
+// Sign in: three messages take turns at the top and under the picture (SURESH, 10 Nov 2026).
+const JOIN_SETS = [
+  { title: 'Join <span class="org">Raavanaa</span> Community', sub: "Make an account now, and soon you will see your gifts and receipts in one place.", cap: "A bridge between people who need a hand <br>and people ready to give one." },
+  { title: 'Be part of a <span class="org">smile</span>', sub: "Members can start a moment for children they know, and follow it from the first call to the day itself.", cap: "One small idea can light up <br>a child's whole day." },
+  { title: 'Give a <span class="org">hand</span>', sub: "Join free. Vouch for projects you know, volunteer near you, or give to a day of joy.", cap: "Everyone here is a volunteer, <br>and every gift is shown in the open." },
+];
+const SIGNIN_SETS = [
+  { title: 'Welcome <span class="org">back</span>', sub: "Sign in to see your account. You do not need an account to read about our projects.", cap: "A bridge between people who need a hand <br>and people ready to give one." },
+  { title: 'Every <span class="org">smile</span> counts', sub: "Sign in to follow the moments you started and the ones you helped make happen.", cap: "One small idea can light up <br>a child's whole day." },
+  { title: 'Together we <span class="org">create</span>', sub: "Members can start a moment, vouch for one, and see where every rupee goes.", cap: "Everyone here is a volunteer, <br>and every gift is shown in the open." },
+];
 // The bridge picture from the Raavanaa Community poster, with its line underneath.
 const hero = (small = false) => `<figure class="m-hero${small ? " small" : ""}">
     <picture><source srcset="/img/members-bridge.webp" type="image/webp"><img src="/img/members-bridge.jpg" alt="Neighbours crossing a little bridge to help each other: carrying food, a box, a hand for an elder." width="941" height="395"></picture>
-    ${small ? "" : `<figcaption>A bridge between people who need a hand <br>and people ready to give one.</figcaption>`}
+    ${small ? "" : `<figcaption data-rot="cap">A bridge between people who need a hand <br>and people ready to give one.</figcaption>`}
   </figure>`;
 const ICONS = {
   join: '<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="16" r="8"/><path d="M8 42c2-9 8-14 16-14s14 5 16 14"/></svg>',
@@ -111,6 +122,7 @@ async function signedOut(app, site, mode = "login", msg = "") {
       </aside>
     </div>
   </section>`;
+  if (window.raavRotate) window.raavRotate(app, join ? JOIN_SETS : SIGNIN_SETS);
   const f = app.querySelector("#m-form"), out = f.querySelector(".member-msg");
   app.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => signedOut(app, site, b.dataset.mode));
   const g = app.querySelector("[data-google]");

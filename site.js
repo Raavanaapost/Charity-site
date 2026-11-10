@@ -2282,12 +2282,19 @@
           let i = 0; try { const n = +localStorage.getItem("raav-slogan"); if (n >= 0 && isFinite(n) && localStorage.getItem("raav-slogan") !== null) i = (n + 1) % SL.length; localStorage.setItem("raav-slogan", String(i)); } catch (e) {}
           // Each slogan shows with its own picture in the slideshow behind it.
           const slides = [...document.querySelectorAll("[data-moment-slides] img")];
+          // The line under the title takes turns too, three messages (SURESH, 10 Nov 2026); not on the Tamil page.
+          const sub = document.querySelector(".moment-sub"), SUBS = document.documentElement.lang === "ta" ? [] : [
+            "Know children who deserve a day of joy? Tell us your idea, and together we'll make it happen.",
+            "A trip, a meal, a game or a festival: one small idea can light up a child's whole day.",
+            "Tell us who the children are and what would make them smile. Our volunteers do the rest with you."];
           const put = k => { const x = SL[k]; mt.innerHTML = `<span class="mt-lead">${esc(x.lead || "")}</span><span class="mt-key">${esc(x.key)}</span>`;
+            if (sub && SUBS.length) sub.textContent = SUBS[k % SUBS.length];
             slides.forEach((im, j) => im.classList.toggle("on", slides.length && j === k % slides.length)); };
           put(i);
           if (SL.length > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) setInterval(() => {
             if (document.hidden) return;
-            mt.classList.add("out"); setTimeout(() => { i = (i + 1) % SL.length; put(i); mt.classList.remove("out"); }, 450);
+            mt.classList.add("out"); if (sub) sub.classList.add("rot-out");
+            setTimeout(() => { i = (i + 1) % SL.length; put(i); mt.classList.remove("out"); if (sub) sub.classList.remove("rot-out"); }, 450);
           }, 5200);
         }
         // Step 1 of 2: only members can send a request (SURESH, 9 Nov 2026). Not signed in: show the sign-in card instead.
