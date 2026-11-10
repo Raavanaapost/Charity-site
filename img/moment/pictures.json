@@ -1,0 +1,134 @@
+{
+ "memory": {
+  "prompt": "A lit brass kuthuvilakku (tall South Indian oil lamp) with a small steady flame, marigold flowers and mango leaves at its base.",
+  "model": "gemini-3.1-flash-image",
+  "tries": 1,
+  "check": {
+   "any_face": false,
+   "any_person_or_figure": false,
+   "any_text_or_logo": false,
+   "note": "The image depicts a traditional lit brass lamp decorated with marigold flowers and green leaves."
+  },
+  "made": "2026-11-10"
+ },
+ "remembrance": {
+  "prompt": "Three small lit clay agal oil lamps resting on a round green lotus leaf, strings of white jasmine flowers around them, calm and quiet.",
+  "model": "gemini-3.1-flash-image",
+  "tries": 1,
+  "check": {
+   "any_face": false,
+   "any_person_or_figure": false,
+   "any_text_or_logo": false,
+   "note": "Three lit clay oil lamps are displayed on a green leaf adorned with flowers."
+  },
+  "made": "2026-11-10"
+ },
+ "birthday": {
+  "prompt": "A small two-tier birthday cake in soft pink and cream with three lit candles, three balloons (pink, gold, green) floating beside it.",
+  "model": "gemini-3.1-flash-image",
+  "tries": 1,
+  "check": {
+   "any_face": false,
+   "any_person_or_figure": false,
+   "any_text_or_logo": false,
+   "note": "An illustration of a birthday cake with candles and balloons."
+  },
+  "made": "2026-11-10"
+ },
+ "wedding": {
+  "prompt": "Two interlinked gold wedding rings resting on red silk, under a garland of fresh mango leaves and marigolds (a Tamil thoranam), a few jasmine buds.",
+  "model": "gemini-3.1-flash-image",
+  "tries": 1,
+  "check": {
+   "any_face": false,
+   "any_person_or_figure": false,
+   "any_text_or_logo": false,
+   "note": "The image features an illustration of wedding rings on a red cloth beneath a decorative floral garland."
+  },
+  "made": "2026-11-10"
+ },
+ "newborn": {
+  "prompt": "An empty traditional wooden baby cradle (thottil) hanging from a beam, a soft cotton cloth inside, a crescent moon and small stars above, soft blue night glow.",
+  "model": "gemini-3.1-flash-image",
+  "tries": 1,
+  "check": {
+   "any_face": false,
+   "any_person_or_figure": false,
+   "any_text_or_logo": false,
+   "note": "An empty decorated wooden hanging baby cradle with a blue blanket and a painted crescent moon above it."
+  },
+  "made": "2026-11-10"
+ },
+ "success": {
+  "prompt": "A dark blue graduation cap with a gold tassel resting on a rolled certificate tied with a red ribbon, a few gold stars sparkling around.",
+  "model": "gemini-3.1-flash-image",
+  "tries": 1,
+  "check": {
+   "any_face": false,
+   "any_person_or_figure": false,
+   "any_text_or_logo": false,
+   "note": "The image shows a graduation cap and a tied diploma scroll surrounded by stars."
+  },
+  "made": "2026-11-10"
+ },
+ "recovery": {
+  "prompt": "A young green plant with two fresh leaves growing from rich soil towards a gentle morning sun, dew drops on the leaves, hopeful light.",
+  "model": "gemini-3.1-flash-image",
+  "tries": 1,
+  "check": {
+   "any_face": false,
+   "any_person_or_figure": false,
+   "any_text_or_logo": false,
+   "note": "The image shows an illustration of a young plant in a terracotta pot under a glowing sun."
+  },
+  "made": "2026-11-10"
+ },
+ "gratitude": {
+  "prompt": "Two open cupped hands (only the hands, no arms or bodies) gently holding a glowing red heart, marigold petals falling softly.",
+  "model": "gemini-3.1-flash-image",
+  "tries": 1,
+  "check": {
+   "any_face": false,
+   "any_person_or_figure": false,
+   "any_text_or_logo": false,
+   "note": "The illustration shows two cupped hands holding a glowing heart above falling flower petals."
+  },
+  "made": "2026-11-10"
+ },
+ "festival": {
+  "prompt": "A traditional clay Pongal pot boiling over with white milk rice, two sugarcane stalks on either side, turmeric leaves tied around the pot, a colourful kolam drawn in front, morning sun.",
+  "model": "gemini-3.1-flash-image",
+  "tries": 1,
+  "check": {
+   "any_face": false,
+   "any_person_or_figure": false,
+   "any_text_or_logo": false,
+   "note": "The image features an artistic illustration of a traditional Pongal pot, sugarcane stalks, and a kolam design."
+  },
+  "made": "2026-11-10"
+ },
+ "honour": {
+  "prompt": "A golden laurel wreath around a shining gold star, a red ribbon at the bottom of the wreath.",
+  "model": "gemini-3.1-flash-image",
+  "tries": 1,
+  "check": {
+   "any_face": false,
+   "any_person_or_figure": false,
+   "any_text_or_logo": false,
+   "note": "A golden laurel wreath tied with a red ribbon encircles a central glowing star."
+  },
+  "made": "2026-11-10"
+ },
+ "custom": {
+  "prompt": "A single pink lotus flower in full bloom floating on still water with two green lotus leaves.",
+  "model": "gemini-3.1-flash-image",
+  "tries": 1,
+  "check": {
+   "any_face": false,
+   "any_person_or_figure": false,
+   "any_text_or_logo": false,
+   "note": "The image features an illustration of a pink water lily with green lily pads floating on water."
+  },
+  "made": "2026-11-10"
+ }
+}
