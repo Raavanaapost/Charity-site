@@ -80,8 +80,9 @@ async function checkout(req: Request, context: Context) {
   if (provider === "payhere") {
     // Remember the order, so PayHere's confirmation can be matched to what the giver chose.
     const orderId = newOrderId();
-    await getDatabase().sql`INSERT INTO give_orders (order_id, kind, project_slug, amount_cents, fee_cents, currency, display_name, show_name, email, livemode, tribute)
-      VALUES (${orderId}, ${g.kind}, ${g.slug}, ${g.amountCents}, ${g.feeCents}, 'lkr', ${g.name}, ${g.showName}, ${g.email}, ${live}, ${g.tribute ? JSON.stringify(g.tribute) : null})`;
+    await getDatabase().sql`INSERT INTO give_orders (order_id, kind, project_slug, amount_cents, fee_cents, currency, display_name, show_name, email, livemode, tribute, moment_code, wish, remind)
+      VALUES (${orderId}, ${g.kind}, ${g.slug}, ${g.amountCents}, ${g.feeCents}, 'lkr', ${g.name}, ${g.showName}, ${g.email}, ${live}, ${g.tribute ? JSON.stringify(g.tribute) : null},
+        ${g.moment || ""}, ${g.wish || ""}, ${g.remind ? JSON.stringify({ ...g.remind, lang: g.ta ? "ta" : "en" }) : null})`;
     const fields = payhereFields(g, { origin, title, orderId, merchantId: env("PAYHERE_MERCHANT_ID"), secret: env("PAYHERE_MERCHANT_SECRET") });
     // Real money only on the live site with PAYHERE_LIVE=yes; the draft and previews always use PayHere's sandbox.
     return json({ ok: true, form: { action: payhereUrl(!live), fields } });
@@ -103,8 +104,8 @@ async function payhereNotify(req: Request) {
   const f = Object.fromEntries([...(await req.formData()).entries()].map(([k, v]) => [k, String(v)])) as Record<string, string>;
   if (!verifyPayhere(f, merchantId, secret)) return new Response("Bad signature", { status: 400 });
   const db = getDatabase();
-  const [o] = await db.sql<{ order_id: string; kind: string; project_slug: string; amount_cents: number; fee_cents: number; display_name: string; show_name: boolean; email: string; livemode: boolean; tribute: unknown }>`
-    SELECT order_id, kind, project_slug, amount_cents, fee_cents, display_name, show_name, email, livemode, tribute FROM give_orders WHERE order_id = ${String(f.order_id)}`;
+  const [o] = await db.sql<{ order_id: string; kind: string; project_slug: string; amount_cents: number; fee_cents: number; display_name: string; show_name: boolean; email: string; livemode: boolean; tribute: Tribute | null; moment_code: string; wish: string; remind: { day: string; phone: string; lang?: string } | null }>`
+    SELECT order_id, kind, project_slug, amount_cents, fee_cents, display_name, show_name, email, livemode, tribute, moment_code, wish, remind FROM give_orders WHERE order_id = ${String(f.order_id)}`;
   if (!o) return new Response("Unknown order", { status: 404 });
   const status = Number(f.status_code);
   const sub = String(f.subscription_id || "");
@@ -120,9 +121,18 @@ async function payhereNotify(req: Request) {
         ON CONFLICT (subscription_id) DO NOTHING`;
     }
     if (paid > 0 && f.payment_id) {
-      await db.sql`INSERT INTO gifts (stripe_id, kind, project_slug, amount_cents, paid_cents, currency, display_name, show_name, email, subscription_id, livemode, provider, tribute)
-        VALUES (${"ph_" + String(f.payment_id)}, ${o.kind}, ${o.project_slug}, ${amount}, ${paid}, 'lkr', ${o.display_name}, ${o.show_name}, ${o.email}, ${sub}, ${o.livemode}, 'payhere', ${o.tribute ? JSON.stringify(o.tribute) : null})
+      await db.sql`INSERT INTO gifts (stripe_id, kind, project_slug, amount_cents, paid_cents, currency, display_name, show_name, email, subscription_id, livemode, provider, tribute, moment_code, wish)
+        VALUES (${"ph_" + String(f.payment_id)}, ${o.kind}, ${o.project_slug}, ${amount}, ${paid}, 'lkr', ${o.display_name}, ${o.show_name}, ${o.email}, ${sub}, ${o.livemode}, 'payhere', ${o.tribute ? JSON.stringify(o.tribute) : null},
+          ${o.moment_code || ""}, ${o.wish || ""})
         ON CONFLICT (stripe_id) DO NOTHING`;
+    }
+    // "Make it a moment every year": keep the reminder once the gift has gone through.
+    if (o.remind && o.remind.day) {
+      const t = o.tribute;
+      await db.sql`INSERT INTO moment_reminders (order_id, moment_code, kind, words, name, day, email, phone, lang, project_slug, livemode)
+        VALUES (${o.order_id}, ${o.moment_code || ""}, ${t ? t.kind : ""}, ${t ? t.words || TRIBUTE_WORDS[t.kind] || "" : ""}, ${t ? t.name : ""}, ${o.remind.day},
+          ${o.email}, ${o.remind.phone || ""}, ${o.remind.lang === "ta" ? "ta" : "en"}, ${o.project_slug}, ${o.livemode})
+        ON CONFLICT (order_id) DO NOTHING`;
     }
   } else if (status === -3 && f.payment_id) {
     // A chargeback: the money went back, so the gift no longer counts.
@@ -208,13 +218,14 @@ async function session(req: Request) {
   if (order) {
     // PayHere: what the giver chose, and whether PayHere has confirmed it yet.
     if (!/^RV[A-Z0-9]{6,24}$/.test(order)) return json({ ok: false }, 400);
-    const [o] = await getDatabase().sql<{ kind: string; project_slug: string; amount_cents: number; fee_cents: number; status: string; livemode: boolean; tribute: Tribute | null }>`
-      SELECT kind, project_slug, amount_cents, fee_cents, status, livemode, tribute FROM give_orders WHERE order_id = ${order}`;
+    const [o] = await getDatabase().sql<{ kind: string; project_slug: string; amount_cents: number; fee_cents: number; status: string; livemode: boolean; tribute: Tribute | null; moment_code: string; remind: { day: string } | null }>`
+      SELECT kind, project_slug, amount_cents, fee_cents, status, livemode, tribute, moment_code, remind FROM give_orders WHERE order_id = ${order}`;
     if (!o) return json({ ok: false }, 404);
     const p = o.kind === "project" ? find(o.project_slug) : undefined;
     return json({ ok: true, provider: "payhere", currency: "LKR", kind: o.kind, amount: Number(o.amount_cents) / 100, paid: (Number(o.amount_cents) + Number(o.fee_cents)) / 100,
       project: p ? { title: p.title, slug: slugOf(p) } : null, status: o.status, test: !o.livemode,
-      tribute: o.tribute ? { kind: o.tribute.kind, name: o.tribute.name, words: o.tribute.words || TRIBUTE_WORDS[o.tribute.kind] || "" } : null });
+      tribute: o.tribute ? { kind: o.tribute.kind, name: o.tribute.name, words: o.tribute.words || TRIBUTE_WORDS[o.tribute.kind] || "" } : null,
+      moment: o.moment_code || "", remind: o.remind && o.remind.day ? o.remind.day : "" });
   }
   const id = q.get("id") || "";
   if (!/^cs_[A-Za-z0-9_]+$/.test(id)) return json({ ok: false }, 400);

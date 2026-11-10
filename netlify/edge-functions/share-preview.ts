@@ -41,9 +41,21 @@ export default async (request: Request, context: { next: () => Promise<Response>
   if (!share) return res;
 
   let card: Card, image: string;
-  if (path === "/moment" && share.moment) {
+  if ((path === "/moment" || path.startsWith("/m/")) && share.moment) {
     card = share.moment;
     image = "moment";
+    // A family page (/m/<code>): the preview carries the words and the name ("In loving memory of Amma").
+    const code = (path.match(/^\/m\/([a-z0-9]{6,16})\/?$/) || [])[1];
+    if (code) {
+      try {
+        const r = await fetch(new URL("/api/moments/" + code, url.origin));
+        const m = r.ok ? await r.json() : null;
+        if (m && m.ok && m.name) card = { ...card, title: `${m.words ? m.words + " " : ""}${m.name}`, title_ta: `${m.words ? m.words + " " : ""}${m.name}` };
+      } catch (_) { /* the page still gets the general moment preview */ }
+    }
+  } else if (path === "/fund") {
+    card = share.default;
+    image = "default";
   } else if (path.startsWith("/e/")) {
     card = share.vouch || share.default;
     image = "vouch";
@@ -73,4 +85,4 @@ export default async (request: Request, context: { next: () => Promise<Response>
   return new Response(html, { status: 200, headers });
 };
 
-export const config = { path: ["/projects/*", "/ta/projects/*", "/e/*", "/ta/e/*", "/moment", "/ta/moment"] };
+export const config = { path: ["/projects/*", "/ta/projects/*", "/e/*", "/ta/e/*", "/moment", "/ta/moment", "/m/*", "/ta/m/*", "/fund", "/ta/fund"] };

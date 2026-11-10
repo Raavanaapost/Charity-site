@@ -130,5 +130,17 @@
    "note": "The image features an illustration of a pink water lily with green lily pads floating on water."
   },
   "made": "2026-11-10"
+ },
+ "behalf": {
+  "prompt": "A big round woven palmyra basket overflowing with gifts brought together by many people: bananas, mangoes, a coconut, marigold garlands and jasmine, tied with several colourful ribbons.",
+  "model": "gemini-3.1-flash-image",
+  "tries": 1,
+  "check": {
+   "any_face": false,
+   "any_person_or_figure": false,
+   "any_text_or_logo": false,
+   "note": "The image features an illustrated woven gift basket containing bananas, mangoes, a coconut, and a festive flower garland."
+  },
+  "made": "2026-11-10"
  }
 }

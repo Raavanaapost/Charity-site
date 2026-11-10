@@ -1,5 +1,5 @@
 {
- "_about": "Words and pictures used when a project page is shared on WhatsApp, Facebook, Instagram or X. No children's names, no school or home names (SURESH, 9 Nov 2026). A project not listed here shares with the default words. Share pictures are made by: node tools/share-cards.mjs",
+ "_about": "Words and pictures used when a project page is shared on WhatsApp, Facebook, Instagram or X. No children's names, no school or home names (SURESH, 9 Nov 2026). \"reach\" (optional) is who the day is for, without the name of a school or home, for the project list on /moment. A project not listed here shares with the default words. Share pictures are made by: node tools/share-cards.mjs",
  "default": {
   "title": "Make a moment happen for children in Sri Lanka",
   "text": "A day of joy for children, made to happen from your phone. Every rupee is shown openly.",
@@ -28,6 +28,15 @@
    "title_ta": "யோகபுரத்தின் 17 சிறுவர்கள் கறுப்புப் பாலத்தைப் பார்த்த நாள்",
    "text_ta": "பேருந்தில் ஒரு முன்பள்ளிச் சுற்றுலா: பழைய கறுப்புப் பாலம், கோவில் தரிசனம், ஐஸ்கிரீம், ஆட்டம், ஆற்றில் விளையாட்டு.",
    "art": "/img/members-bridge.jpg"
+  },
+  "bowling-day": {
+   "title": "A bowling day out for special-needs children",
+   "text": "A first day at the bowling lanes for children with special needs: cheering, laughing and rolling the ball together.",
+   "title_ta": "விசேட தேவையுடைய குழந்தைகளுக்கு ஒரு பௌலிங் நாள்",
+   "text_ta": "விசேட தேவையுடைய குழந்தைகளுக்கு பௌலிங் அரங்கில் முதல் நாள்: ஒன்றாக ஆரவாரித்து, சிரித்து, பந்தை உருட்டி மகிழும் நாள்.",
+   "art": "/img/project-bowling.svg",
+   "reach": "Special-needs children",
+   "reach_ta": "விசேட தேவையுடைய குழந்தைகள்"
   }
  },
  "vouch": {

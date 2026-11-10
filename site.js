@@ -555,7 +555,7 @@
         <section class="logo-entry">
           <span class="le-glow" aria-hidden="true"></span>
           <h1 class="sr">Raavanaa Community: creating smiles, creating moments</h1>
-          <picture class="le-logo"><source srcset="/img/logo.webp?v=5" type="image/webp"><img src="/img/logo.jpg?v=5" alt="Raavanaa · Beyond the Lanes · Creating Smiles" width="900" height="298"></picture>
+          <picture class="le-logo"><source srcset="/img/logo.webp?v=6" type="image/webp"><img src="/img/logo.jpg?v=6" alt="Raavanaa · Beyond the Lanes · Creating Smiles" width="900" height="298"></picture>
           <div class="le-rule" aria-hidden="true"><i></i><b></b><i></i></div>
           <p class="le-slogan">Creating smiles, creating moments</p>
           <p class="le-sub">A day of joy, together</p>
@@ -1306,7 +1306,8 @@
           <div class="go-form go-make">
             <h3>Make this happen</h3>
             <div class="mk-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-mk="donate"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>Donate</button><button type="button" role="tab" aria-selected="false" data-mk="other">Help another way</button></div>
-            <div class="mk-pane" data-mkpane="donate"><p class="go-sub">${canGive(p) ? `Give towards this day by card. Secure payment by ${GIVE_BY}.` : "Want to give towards this day? Tap Donate and we'll tell you how it works during our pilot."}</p>${DONATE_BTN}</div>
+            <div class="mk-pane" data-mkpane="donate"><p class="go-sub">${canGive(p) ? `Give towards this day by card. Secure payment by ${GIVE_BY}.` : "Want to give towards this day? Tap Donate and we'll tell you how it works during our pilot."}</p>${DONATE_BTN}
+              <p class="go-name"><a href="/moment?project=${encodeURIComponent(slugOf(p))}">♡ Give in someone's name, or on behalf of a family or group →</a></p></div>
             <form class="mk-pane" data-mkpane="other" hidden name="make-it-happen" data-ajax data-done="Thank you! Your note is on its way. We'll be in touch soon, and you'll be part of a child's best day.">
               <p class="go-sub">Not able to give money? There are other ways to make this day happen. Tell us how you'd like to help and we'll reach out.</p>
               <input type="hidden" name="form-name" value="make-it-happen">
@@ -2130,9 +2131,13 @@
     const fee = c => LKR ? Math.max(0, Math.ceil((c / (1 - 0.033) - c) / 100) * 100) : Math.max(0, Math.ceil((c + 30) / (1 - 0.029)) - c);
     const dollars = n => cash(n);
     const MIN = LKR ? 500 : 5;
-    const p = q.get("project") ? projects.find(x => slugOf(x) === slugify(q.get("project"))) : null;
+    // /fund: the Raavanaa Fund on a page of its own (SURESH, 10 Nov 2026). The team chooses the next day of joy.
+    const FUND = document.body.dataset.page === "fund";
+    const p = !FUND && q.get("project") ? projects.find(x => slugOf(x) === slugify(q.get("project"))) : null;
     const open = projects.filter(canGive);
-    document.title = (p ? `Sponsor a smile: ${p.title}` : "Sponsor a smile") + ` · ${site.name}`;
+    document.title = (FUND ? "The Raavanaa Fund" : p ? `Sponsor a smile: ${p.title}` : "Sponsor a smile") + ` · ${site.name}`;
+    const REASONS = [["memory", "In loving memory of"], ["remembrance", "Remembering, on the anniversary of"], ["birthday", "Celebrating the birthday of"], ["wedding", "Celebrating the wedding anniversary of"],
+      ["newborn", "Welcoming"], ["success", "Celebrating the success of"], ["recovery", "Giving thanks for the recovery of"], ["gratitude", "With gratitude for"], ["festival", "A festival gift in the name of"], ["honour", "In honour of"]];
 
     const formHTML = (kind, amounts, opts = {}) => {
       const id = "g-" + kind;
@@ -2140,6 +2145,23 @@
         <input type="hidden" name="kind" value="${kind}">
         ${opts.slug ? `<input type="hidden" name="project" value="${esc(opts.slug)}">` : ""}
         <p hidden><label>Leave empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+        ${/^[a-z0-9]{6,16}$/.test(q.get("m") || "") ? `<input type="hidden" name="moment" value="${esc(q.get("m"))}">` : ""}
+        <fieldset class="give-for"><legend>Who is this gift for?</legend>
+          <label class="give-chip"><input type="radio" name="tribute_mode" value="none" checked><span>From me</span></label>
+          <label class="give-chip"><input type="radio" name="tribute_mode" value="name"><span>In someone's name</span></label>
+          <label class="give-chip"><input type="radio" name="tribute_mode" value="behalf"><span>On behalf of a family or group</span></label>
+        </fieldset>
+        <div class="give-tribute" hidden>
+          <p class="note give-tr-note">Remember a loved one, or mark a birthday or anniversary. Tamil families have always given on these days; now the day of joy carries their name.</p>
+          <label class="give-tr-kind"><span>This gift is</span><select name="tribute_kind">
+            ${REASONS.map(([v, t]) => `<option value="${v}">${t}</option>`).join("")}</select></label>
+          <label><span class="give-tr-who">Their name</span><input name="tribute_name" maxlength="60" placeholder="e.g. Amma, Kamala Rajan"></label>
+          <label><span>A few words <small>(optional)</small></span><input name="tribute_note" maxlength="140"></label>
+          ${kind === "project" ? `<label class="give-check"><input type="checkbox" name="tribute_show" value="yes" checked> <span>Show this name on the project page</span></label>` : ""}
+          ${kind === "member" ? "" : `<label class="give-check"><input type="checkbox" name="remind" value="yes"> <span>Remind me every year, a week before the day</span></label>
+          <label class="give-remind-day" hidden><span>The day <small>(a birthday, a remembrance day...)</small></span><input type="date" name="remind_day"></label>`}
+          <p class="note give-moment-link"><a href="/moment">More reasons, and a card to keep →</a></p>
+        </div>
         <fieldset class="give-amounts"><legend>${kind === "member" ? "Each month" : "Amount"} (${LKR ? "Sri Lankan rupees" : "CAD"})</legend>
           ${amounts.map((a, i) => `<label class="give-chip"><input type="radio" name="pick" value="${a.v}"${i === (opts.pick || 0) ? " checked" : ""}><span>${esc(a.label || dollars(a.v))}</span></label>`).join("")}
           <label class="give-chip give-other"><input type="radio" name="pick" value="other"><span>Other</span></label>
@@ -2149,19 +2171,7 @@
         ${kind === "general" ? "" : `<label><span>Your name <small>(optional)</small></span><input name="name" maxlength="60" autocomplete="name"></label>
         <label class="give-check"><input type="checkbox" name="show_name" value="yes"> <span>${kind === "member" ? "Show my name with the Smile members" : "Show my name on the project page"}</span></label>
         <p class="note give-hint">If you leave this unticked, you'll appear as “A friend of Raavanaa”.</p>`}
-        <label class="give-check give-tribute-on"><input type="checkbox" name="tribute_on" value="yes"> <span>Make it a moment in someone's name</span></label>
-        <p class="note give-moment-link"><a href="/moment">More reasons, and a card to keep →</a></p>
-        <div class="give-tribute" hidden>
-          <p class="note">Remember a loved one, or mark a birthday or anniversary. Tamil families have always given on these days; now the day of joy carries their name.</p>
-          <label><span>This gift is</span><select name="tribute_kind">
-            <option value="memory">In loving memory of</option>
-            <option value="birthday">Celebrating the birthday of</option>
-            <option value="anniversary">Celebrating the anniversary of</option>
-            <option value="honour">In honour of</option></select></label>
-          <label><span>Their name</span><input name="tribute_name" maxlength="60" placeholder="e.g. Amma, Kamala Rajan"></label>
-          <label><span>A few words <small>(optional)</small></span><input name="tribute_note" maxlength="140"></label>
-          ${kind === "project" ? `<label class="give-check"><input type="checkbox" name="tribute_show" value="yes" checked> <span>Show their name on the project page</span></label>` : ""}
-        </div>
+        ${kind === "general" ? `<label class="give-wish"><span>Your wish <small>(optional)</small></span><textarea name="wish" maxlength="300" rows="2" placeholder="Is there something you would love this gift to do?"></textarea></label>` : ""}
         ${LKR ? `<label><span>Email <small>(for your receipt)</small></span><input name="email" type="email" maxlength="120" autocomplete="email" required></label>
         <label><span>Phone</span><input name="phone" type="tel" maxlength="20" autocomplete="tel" required placeholder="07X XXX XXXX"></label>` : ""}
         <label class="give-check"><input type="checkbox" name="cover_fee" value="yes" checked> <span>Add <b class="give-fee">${dollars(0)}</b> so the card fee doesn't come out of the gift</span></label>
@@ -2185,7 +2195,9 @@
 
     let body;
     if (p) {
-      const left = Math.floor(leftCad(p) * 100) / 100, open1 = canGive(p);
+      // Until card payments are switched on, the form still shows (its button says "coming soon"), so a giver sees what is ahead.
+      const bp = budgetOf(p), needs = !!p.verified && stageNum(p) === 1 && bp.goal > 0 && bp.raised < bp.goal && takesCards(p);
+      const left = Math.floor(leftCad(p) * 100) / 100, open1 = canGive(p) || (!on && needs && left > 0);
       const picks = (LKR ? [2500, 5000, 10000] : [25, 50, 100]).filter(v => v < left).map(v => ({ v }));
       picks.push({ v: left, label: `All of it: ${dollars(left)}` });
       body = `<section class="give-one">
@@ -2194,6 +2206,23 @@
           <h2>${open1 ? "Sponsor a smile" : "This project is fully covered"}</h2>
           ${open1 ? formHTML("project", picks, { slug: slugOf(p), left, pick: Math.min(1, picks.length - 1) }) : `<p>Thank you to everyone who made it happen. <a href="/projects/${esc(slugOf(p))}">See the project</a>.</p>`}
           ${open1 && isRupees(p) && !LKR ? `<p class="note">This project's budget is in Sri Lankan rupees. Card gifts are in Canadian dollars and shown on the project at 1 CAD = Rs ${GIVE_RATE}.</p>` : ""}
+        </div>
+      </section>`;
+    } else if (FUND) {
+      body = `<section class="give-one give-fund">
+        <div class="panel give-box give-fund-how">
+          <p class="give-tag">How the fund works</p>
+          <ol class="give-fund-steps">
+            <li><b>You give once.</b> Your gift goes into the Raavanaa Fund, with every other gift made this way.</li>
+            <li><b>Volunteers choose.</b> The team picks the next day of joy from projects that have been visited and verified, where the need is greatest.</li>
+            <li><b>Everyone can see.</b> What comes into the fund and where it goes is shown openly, down to the rupee.</li>
+          </ol>
+          <p class="note">Have something specific in mind? Write your wish in the form, and a volunteer will contact you.</p>
+          <p class="note"><a href="/moment">Give in someone's name →</a> &nbsp; <a href="/moment#projects">Or choose a project yourself →</a></p>
+        </div>
+        <div class="panel give-box">
+          <h2>Give to the Raavanaa Fund</h2>
+          ${formHTML("general", (LKR ? [2500, 5000, 10000] : [25, 50, 100]).map(v => ({ v })), { pick: 1 })}
         </div>
       </section>`;
     } else {
@@ -2208,16 +2237,16 @@
           <div class="panel give-box">
             <p class="give-tag">Once</p>
             <h2>Give to Raavanaa</h2>
-            <p>A one-time gift the team uses where it is needed most.</p>
+            <p>A one-time gift the team uses where it is needed most. <a href="/fund">About the Raavanaa Fund →</a></p>
             ${formHTML("general", (LKR ? [2500, 5000, 10000] : [25, 50, 100]).map(v => ({ v })), { pick: 1 })}
           </div>
         </section>
         ${open.length ? `<section class="give-list"><h2>Or sponsor a project</h2><div class="give-grid">${open.map(card).join("")}</div></section>` : ""}`;
     }
     app.innerHTML = `<div class="give-page">
-      <header class="give-head"><p class="eyebrow">Sponsor a smile</p>
-        <h1>${p ? esc(p.title) : "Be part of the next moment"}</h1>
-        <p>${p ? "Your gift goes straight to this project. You'll see it on the project page, and after the day you'll see the photos and where every " + (LKR ? "rupee" : "dollar") + " went." : "Raavanaa is a bridge between people who need a hand and people ready to give one. Choose how you'd like to help."}</p>
+      <header class="give-head"><p class="eyebrow">${FUND ? "The Raavanaa Fund" : "Sponsor a smile"}</p>
+        <h1>${FUND ? "Give once. We find the smile." : p ? esc(p.title) : "Be part of the next moment"}</h1>
+        <p>${FUND ? "For when you want to help and are happy for us to choose where. Volunteers decide, and every rupee in and out is shown openly." : p ? "Your gift goes straight to this project. You'll see it on the project page, and after the day you'll see the photos and where every " + (LKR ? "rupee" : "dollar") + " went." : "Raavanaa is a bridge between people who need a hand and people ready to give one. Choose how you'd like to help."}</p>
       </header>
       ${banner}${body}${notes}</div>`;
 
@@ -2227,23 +2256,37 @@
       const amount = () => { const pick = (f.querySelector('[name="pick"]:checked') || {}).value; const v = pick === "other" ? parseFloat(String(ownIn.value).replace(/[^0-9.]/g, "")) : parseFloat(pick); return isFinite(v) ? Math.min(v, left || v) : 0; };
       const update = () => {
         own.hidden = (f.querySelector('[name="pick"]:checked') || {}).value !== "other";
-        const trOn = f.querySelector('[name="tribute_on"]'), trBox = f.querySelector(".give-tribute");
-        if (trOn && trBox) trBox.hidden = !trOn.checked;
+        const mode = (f.querySelector('[name="tribute_mode"]:checked') || {}).value || "none", trBox = f.querySelector(".give-tribute");
+        if (trBox && trBox.dataset.mode !== mode) {
+          // "In someone's name" asks for the reason and their name; "on behalf of" asks only who the gift is from.
+          trBox.dataset.mode = mode; trBox.hidden = mode === "none";
+          const group = mode === "behalf", nameIn = f.querySelector('[name="tribute_name"]');
+          f.querySelector(".give-tr-kind").hidden = group; f.querySelector(".give-tr-note").hidden = group;
+          f.querySelector(".give-tr-who").textContent = group ? "The family, group or person" : "Their name";
+          nameIn.placeholder = group ? "e.g. the Rajan family, Class of 1998" : "e.g. Amma, Kamala Rajan";
+        }
+        const rem = f.querySelector('[name="remind"]'), remDay = f.querySelector(".give-remind-day");
+        if (rem && remDay) remDay.hidden = !rem.checked;
         const a = amount(), c = Math.round(a * 100), add = fee(c) / 100, cover = f.querySelector('[name="cover_fee"]').checked;
         feeEl.textContent = dollars(add);
         if (msg.classList.contains("bad") && a >= MIN) msg.hidden = true;
         if (on) pay.textContent = a >= MIN ? `Pay ${dollars(a + (cover ? add : 0))}${f.dataset.kind === "member" ? " a month" : ""} securely` : "Continue to secure payment";
       };
       // Coming from /moment (or a remembrance post): ?tribute=<reason>&tw=<their words>&tn=<name>&tnote=<words>
+      //   &every=year&day=2026-11-27&remind=1  a reminder every year   &m=<code>  the family page   &wish=<their own wish>
       const trPick = q.get("tribute");
-      if (trPick && f.querySelector('[name="tribute_on"]')) {
-        f.querySelector('[name="tribute_on"]').checked = true;
+      if (trPick && f.querySelector('[name="tribute_mode"]')) {
+        f.querySelector(`[name="tribute_mode"][value="${trPick === "behalf" ? "behalf" : "name"}"]`).checked = true;
         const sel = f.querySelector('[name="tribute_kind"]'), tw = (q.get("tw") || "").slice(0, 60);
-        if (tw) { const o = document.createElement("option"); o.value = /^[a-z]{3,12}$/.test(trPick) ? trPick : "custom"; o.textContent = tw; o.dataset.own = "1"; sel.prepend(o); sel.value = o.value; o.selected = true; }
+        if (trPick === "behalf") { /* the box asks only for the family or group */ }
+        else if (tw) { const o = document.createElement("option"); o.value = /^[a-z]{3,12}$/.test(trPick) ? trPick : "custom"; o.textContent = tw; o.dataset.own = "1"; [...sel.options].filter(x => x.value === o.value).forEach(x => x.remove()); sel.prepend(o); sel.value = o.value; o.selected = true; }
         else if ([...sel.options].some(o => o.value === trPick)) sel.value = trPick;
         if (q.get("tn")) f.querySelector('[name="tribute_name"]').value = q.get("tn").slice(0, 60);
         if (q.get("tnote")) f.querySelector('[name="tribute_note"]').value = q.get("tnote").slice(0, 140);
+        const rem = f.querySelector('[name="remind"]'), day = q.get("day") || "";
+        if (rem && q.get("every") === "year" && /^\d{4}-\d{2}-\d{2}$/.test(day)) { f.querySelector('[name="remind_day"]').value = day; rem.checked = q.get("remind") === "1"; }
       }
+      if (q.get("wish") && f.querySelector('[name="wish"]')) f.querySelector('[name="wish"]').value = q.get("wish").slice(0, 300);
       f.addEventListener("change", update); f.addEventListener("input", update); update();
       f.addEventListener("submit", async e => {
         e.preventDefault();
@@ -2254,12 +2297,20 @@
         const em = f.querySelector('[name="email"]'), ph = f.querySelector('[name="phone"]');
         if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())) { say("Please add your email address for the receipt.", true); em.focus(); return; }
         if (ph && ph.value.replace(/\D/g, "").length < 7) { say("Please add your phone number.", true); ph.focus(); return; }
-        const trOn = f.querySelector('[name="tribute_on"]'), trName = f.querySelector('[name="tribute_name"]');
-        if (trOn && trOn.checked && !trName.value.trim()) { say("Please add the name of the person this gift is for.", true); trName.focus(); return; }
-        const fd = new FormData(f), body = { amount: a, lang: location.pathname.startsWith("/ta/") ? "ta" : "en" };
-        for (const [k, v] of fd.entries()) if (k !== "pick" && k !== "own") body[k] = v;
+        const mode = (f.querySelector('[name="tribute_mode"]:checked') || {}).value || "none", trName = f.querySelector('[name="tribute_name"]');
+        if (mode !== "none" && !trName.value.trim()) { say(mode === "behalf" ? "Please add the name of the family or group." : "Please add the name of the person this gift is for.", true); trName.focus(); return; }
+        const remOn = f.querySelector('[name="remind"]'), remDay = f.querySelector('[name="remind_day"]');
+        if (mode !== "none" && remOn && remOn.checked && !remDay.value) { say("Please choose the day you would like to be reminded of.", true); remDay.focus(); return; }
+        const taPage = location.pathname.startsWith("/ta/");
+        const fd = new FormData(f), body = { amount: a, lang: taPage ? "ta" : "en" };
+        for (const [k, v] of fd.entries()) if (k !== "pick" && k !== "own" && k !== "tribute_mode") body[k] = v;
         const trSel = f.querySelector('[name="tribute_kind"]');
-        if (trSel && trSel.selectedOptions[0]) body.tribute_words = trSel.selectedOptions[0].textContent.trim();
+        if (mode === "none") { delete body.remind; delete body.remind_day; }
+        else {
+          body.tribute_on = "yes";
+          if (mode === "behalf") { body.tribute_kind = "behalf"; body.tribute_words = taPage ? "சார்பில் வழங்கப்பட்டது:" : "Given on behalf of"; }
+          else if (trSel && trSel.selectedOptions[0]) body.tribute_words = trSel.selectedOptions[0].textContent.trim();
+        }
         pay.disabled = true; say("Opening the secure payment page…");
         try {
           const r = await fetch("/api/give/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -2309,6 +2360,8 @@
       <p class="give-heart" aria-hidden="true">♥</p>
       <h1>${h}</h1><p>${t}</p>
       ${trLine ? `<p class="give-tribute-line">${trLine}</p>` : ""}
+      ${s && s.remind ? `<p class="note">${TA ? "ஒவ்வோர் ஆண்டும் இந்த நாளுக்கு ஒரு வாரத்துக்கு முன் உங்களுக்கு நினைவூட்டுவோம்." : "We will remind you every year, a week before the day."}</p>` : ""}
+      ${s && s.moment ? `<p><a class="btn" href="${TA ? "/ta" : ""}/m/${esc(s.moment)}">${TA ? "குடும்பப் பக்கத்துக்குத் திரும்புங்கள்" : "Back to the family page"}</a></p>` : ""}
       <p class="give-share"><a class="btn ghost" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(shareText)}">Tell your family on WhatsApp</a>
         <a class="btn ghost" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}">Share on Facebook</a></p>
       ${s && s.test ? `<p class="give-banner test">This was a test payment. No real money was taken.</p>` : ""}
@@ -2329,11 +2382,12 @@
       // Card gifts (PayHere or Stripe) are added to each project's supporters, so the budget bars and stages stay right.
       const GIVE = await load("/api/give/totals").catch(() => null);
       GIVE_ON = !!(GIVE && GIVE.enabled);
-      if (GIVE && GIVE.provider === "payhere") { GIVE_BY = "PayHere"; GIVE_CUR = "LKR"; }
+      // PayHere (rupees) is the card service chosen for launch, so the forms show rupees even before it is switched on.
+      if ((GIVE && GIVE.provider === "payhere") || !GIVE || !GIVE.enabled) { GIVE_BY = "PayHere"; GIVE_CUR = "LKR"; }
       GIVE_RATE = (GIVE && +GIVE.rate) || +site.rate_lkr_per_cad || 0;
       if (GIVE && GIVE.projects) projects.forEach(p => { const t = GIVE.projects[slugOf(p)]; if (t && takesCards(p)) p.funders = [...(p.funders || []), ...t.gifts]; });
       projects.filter(canGive).forEach(p => GIVE_OPEN.add(slugOf(p)));
-      if (page === "give") renderGive(app, site, projects, GIVE);
+      if (page === "give" || page === "fund") renderGive(app, site, projects, GIVE);
       else if (page === "thanks") renderThanks(app, site);
       else if (page === "contact" || page === "volunteer") {
         // Rotating slides at the top of the Contact and Volunteer pages; a different one comes first on each visit.

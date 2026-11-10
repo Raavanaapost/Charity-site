@@ -2043,3 +2043,13 @@ html.ev-cam-on{overflow:hidden}
 .give-share{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
 .give-form input[name="tribute_name"],.give-form input[name="tribute_note"],.give-form select[name="tribute_kind"]{border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:inherit;font-family:var(--body);background:var(--surface);color:var(--ink);width:100%}
 .give-moment-link{margin:-4px 0 6px}.give-moment-link a{color:#8a5c12;font-weight:600}
+/* Give form: who the gift is for comes first (SURESH, 10 Nov 2026): from me, in someone's name, or on behalf of a family or group */
+.give-for{border:0;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.give-for legend{font-family:var(--display);font-weight:700;font-size:15px;padding:0;margin-bottom:8px}
+.give-tribute label[hidden],.give-tribute p[hidden],.give-remind-day[hidden]{display:none}
+.give-tribute .give-moment-link{margin:0}
+.give-form input[name="remind_day"],.give-form textarea[name="wish"]{border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:inherit;font-family:var(--body);background:var(--surface);color:var(--ink);width:100%;resize:vertical}
+.go-name{margin:10px 0 0;font-size:14px}.go-name a{color:#a8321e;font-weight:700}
+/* The Raavanaa Fund page */
+.give-fund-steps{margin:8px 0 12px;padding-left:20px;display:grid;gap:10px}
+.give-fund-how .note a{font-weight:700}

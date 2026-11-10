@@ -13,7 +13,6 @@ export type Project = {
   funders?: { name?: string; amount?: unknown }[];
 };
 
-// A gift made in someone's name: remembering a loved one, or marking a birthday or anniversary.
 // A gift made in someone's name: remembering a loved one, or marking a birthday, anniversary and so on.
 // `words` is what the giver chose or typed before the name ("In loving memory of"), in English or Tamil.
 export type Tribute = { kind: string; words: string; name: string; note: string; show: boolean };
@@ -21,7 +20,7 @@ export const TRIBUTE_WORDS: Record<string, string> = {
   memory: "In loving memory of", remembrance: "Remembering, on the anniversary of", birthday: "Celebrating the birthday of",
   anniversary: "Celebrating the anniversary of", wedding: "Celebrating the wedding anniversary of", newborn: "Welcoming",
   success: "Celebrating the success of", recovery: "Giving thanks for the recovery of", gratitude: "With gratitude for",
-  festival: "A festival gift in the name of", honour: "In honour of", custom: "",
+  festival: "A festival gift in the name of", honour: "In honour of", behalf: "Given on behalf of", custom: "",
 };
 export function readTribute(body: Record<string, unknown>): Tribute | null {
   if (!(body.tribute_on === true || body.tribute_on === "yes")) return null;
@@ -33,8 +32,13 @@ export function readTribute(body: Record<string, unknown>): Tribute | null {
   return { kind, words, name, note: clip(body.tribute_note, 140), show: body.tribute_show === true || body.tribute_show === "yes" };
 }
 
+// Yearly reminder before their day ("Make it a moment every year", SURESH 10 Nov 2026).
+export type Remind = { every: "year"; day: string; phone: string };
 export type GiveRequest = {
   tribute?: Tribute | null;
+  moment?: string;       // the family page (/m/<code>) this gift was given from
+  wish?: string;         // the giver's own wish for a Raavanaa Fund gift
+  remind?: Remind | null;
   ta?: boolean;          // the giver used the Tamil site, so PayHere sends them back to the Tamil pages
   kind: "project" | "general" | "member";
   slug: string;
@@ -121,7 +125,12 @@ export function readRequest(body: Record<string, unknown>, cur: Cur = "cad"): Gi
     if (!email) return "Please add your email address for the receipt.";
     if (phone.replace(/\D/g, "").length < 7) return "Please add your phone number.";
   }
-  return { kind: kind as GiveRequest["kind"], slug: kind === "project" ? slugify(body.project) : "", amountCents, feeCents, name, showName: showName && !!name, email, phone, tribute: readTribute(body), ta: body.lang === "ta" };
+  const moment = /^[a-z0-9]{6,16}$/.test(String(body.moment || "")) ? String(body.moment) : "";
+  const wish = kind === "general" ? clip(body.wish, 300).replace(/[<>]/g, "") : "";
+  const day = String(body.remind_day || "");
+  const remind: Remind | null = (body.remind === true || body.remind === "yes") && /^\d{4}-\d{2}-\d{2}$/.test(day) && !isNaN(Date.parse(day))
+    ? { every: "year", day, phone } : null;
+  return { kind: kind as GiveRequest["kind"], slug: kind === "project" ? slugify(body.project) : "", amountCents, feeCents, name, showName: showName && !!name, email, phone, tribute: readTribute(body), ta: body.lang === "ta", moment, wish, remind };
 }
 
 // Form fields for Stripe's "create a Checkout Session" call.
