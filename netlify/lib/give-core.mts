@@ -13,7 +13,22 @@ export type Project = {
   funders?: { name?: string; amount?: unknown }[];
 };
 
+// A gift made in someone's name: remembering a loved one, or marking a birthday or anniversary.
+export type Tribute = { kind: "memory" | "birthday" | "anniversary" | "honour"; name: string; note: string; show: boolean };
+export const TRIBUTE_WORDS: Record<Tribute["kind"], string> = {
+  memory: "In loving memory of", birthday: "Celebrating the birthday of", anniversary: "Celebrating the anniversary of", honour: "In honour of",
+};
+export function readTribute(body: Record<string, unknown>): Tribute | null {
+  if (!(body.tribute_on === true || body.tribute_on === "yes")) return null;
+  const kind = String(body.tribute_kind || "memory") as Tribute["kind"];
+  const name = clip(body.tribute_name, 60);
+  if (!name || !(kind in TRIBUTE_WORDS)) return null;
+  return { kind, name, note: clip(body.tribute_note, 140), show: body.tribute_show === true || body.tribute_show === "yes" };
+}
+
 export type GiveRequest = {
+  tribute?: Tribute | null;
+  ta?: boolean;          // the giver used the Tamil site, so PayHere sends them back to the Tamil pages
   kind: "project" | "general" | "member";
   slug: string;
   amountCents: number;   // what goes to the cause
@@ -99,7 +114,7 @@ export function readRequest(body: Record<string, unknown>, cur: Cur = "cad"): Gi
     if (!email) return "Please add your email address for the receipt.";
     if (phone.replace(/\D/g, "").length < 7) return "Please add your phone number.";
   }
-  return { kind: kind as GiveRequest["kind"], slug: kind === "project" ? slugify(body.project) : "", amountCents, feeCents, name, showName: showName && !!name, email, phone };
+  return { kind: kind as GiveRequest["kind"], slug: kind === "project" ? slugify(body.project) : "", amountCents, feeCents, name, showName: showName && !!name, email, phone, tribute: readTribute(body), ta: body.lang === "ta" };
 }
 
 // Form fields for Stripe's "create a Checkout Session" call.
@@ -168,8 +183,8 @@ export function payhereFields(g: GiveRequest, o: { origin: string; title: string
   const [first, ...rest] = (g.name || "").split(" ").filter(Boolean);
   const f: Record<string, string> = {
     merchant_id: o.merchantId,
-    return_url: `${o.origin}/thank-you?order=${o.orderId}`,
-    cancel_url: g.kind === "project" ? `${o.origin}/give?project=${encodeURIComponent(g.slug)}&cancelled=1` : `${o.origin}/give?cancelled=1`,
+    return_url: `${o.origin}${g.ta ? "/ta" : ""}/thank-you?order=${o.orderId}`,
+    cancel_url: g.kind === "project" ? `${o.origin}${g.ta ? "/ta" : ""}/give?project=${encodeURIComponent(g.slug)}&cancelled=1` : `${o.origin}${g.ta ? "/ta" : ""}/give?cancelled=1`,
     notify_url: `${o.origin}/api/give/payhere`,
     order_id: o.orderId,
     items: whatFor(g, o.title),

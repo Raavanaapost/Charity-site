@@ -1,6 +1,8 @@
 # Tamil version: the same pages, translated in the browser by /ta.js
 /ta  /ta/index.html  200
 /ta/home  /ta/home.html  200
+/ta/give  /ta/give.html  200
+/ta/thank-you  /ta/thank-you.html  200
 /ta/initiate-slides  /ta/initiate-slides.html  200
 /ta/overview  /ta/overview.html  200
 /ta/front  /ta/front.html  200

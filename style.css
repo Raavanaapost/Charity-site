@@ -2034,3 +2034,11 @@ html.ev-cam-on{overflow:hidden}
 .share-row .sh[hidden]{display:none}
 .share-tip{margin:10px 0 0;color:var(--ink);font-weight:600}
 .share-row .sh-more{grid-column:1/-1}
+/* Gifts in someone's name (memory, birthday, anniversary) */
+.give-tribute{border-left:3px solid #c9a24a;padding:4px 0 4px 14px;margin:4px 0 12px;display:grid;gap:10px}
+.give-tribute[hidden]{display:none}
+.give-tribute select{width:100%}
+.f-tribute{display:block;font-style:italic;color:var(--muted);font-weight:400}
+.give-tribute-line{font-style:italic}
+.give-share{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.give-form input[name="tribute_name"],.give-form input[name="tribute_note"],.give-form select[name="tribute_kind"]{border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:inherit;font-family:var(--body);background:var(--surface);color:var(--ink);width:100%}

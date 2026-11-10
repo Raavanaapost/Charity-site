@@ -1299,7 +1299,7 @@
         ${pct < 100 ? `<button class="go-open" type="button" aria-expanded="false" aria-controls="go-fold-${id}"><span>See what's left to reach 100%</span><i aria-hidden="true">⌄</i></button>
         <div class="go-fold" id="go-fold-${id}" hidden>
           <ol class="go-list">${b.funders.map(f => `<li class="done funder"><i aria-hidden="true">${b.goal ? Math.round(numOf(f.amount) / b.goal * 100) : 0}%</i>
-              <div><b>${esc(f.name)}</b><span>Pledged ${money(numOf(f.amount))} for this day.</span></div></li>`).join("")}
+              <div><b>${esc(f.name)}</b>${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}<span>Pledged ${money(numOf(f.amount))} for this day.</span></div></li>`).join("")}
             <li class="todo" data-add="${slice * (1 - Math.min(1, b.goal ? b.raised / b.goal : 0))}" tabindex="0">
               <i aria-hidden="true">${b.goal ? Math.max(0, 100 - b.pct) + "%" : "…"}</i>
               <div><b>${b.funders.length ? "Still to fund" : "Be the first sponsor"}</b><span>${b.goal ? `${money(need)} still to go. This is where you come in.` : "Opens as soon as the budget is ready. Send a note and we'll tell you first."}</span></div></li></ol>
@@ -1447,7 +1447,7 @@
     const listOf = (h, total) => b.lines.length ? `<h3 class="money-h">${h}</h3><ul class="bx-list">${b.lines.map(x => `<li><span>${esc(x.item)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>
         <p class="bx-total"><span>${total}</span><b>${money(sum)}</b></p>` : "";
     const funders = h => b.funders.length ? `<h3 class="money-h">${h}</h3>
-        <ul class="funders">${b.funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}</span>${numOf(f.amount) ? `<b>${money(numOf(f.amount))}</b>` : ""}</li>`).join("")}</ul>` : "";
+        <ul class="funders">${b.funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${numOf(f.amount) ? `<b>${money(numOf(f.amount))}</b>` : ""}</li>`).join("")}</ul>` : "";
     if (st === 1) {
       const need = Math.max(0, b.goal - b.raised), kids = String(p.reach || "").match(/\d+/);
       return `
@@ -1991,7 +1991,7 @@
       </section>` : ""}
       ${funders.length ? `<section class="money">
         <h2 class="section-title">Made possible by</h2>
-        <ul class="funders">${funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}</span>${num(f.amount) ? `<b>${money(num(f.amount))}</b>` : ""}</li>`).join("")}</ul>
+        <ul class="funders">${funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${num(f.amount) ? `<b>${money(num(f.amount))}</b>` : ""}</li>`).join("")}</ul>
       </section>` : ""}`;
     // Small line icons for the folder tabs: book, heart, camera, play.
     const ic = d => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -2149,6 +2149,18 @@
         ${kind === "general" ? "" : `<label><span>Your name <small>(optional)</small></span><input name="name" maxlength="60" autocomplete="name"></label>
         <label class="give-check"><input type="checkbox" name="show_name" value="yes"> <span>${kind === "member" ? "Show my name with the Smile members" : "Show my name on the project page"}</span></label>
         <p class="note give-hint">If you leave this unticked, you'll appear as “A friend of Raavanaa”.</p>`}
+        <label class="give-check give-tribute-on"><input type="checkbox" name="tribute_on" value="yes"> <span>Make it a moment in someone's name</span></label>
+        <div class="give-tribute" hidden>
+          <p class="note">Remember a loved one, or mark a birthday or anniversary. Tamil families have always given on these days; now the day of joy carries their name.</p>
+          <label><span>This gift is</span><select name="tribute_kind">
+            <option value="memory">In loving memory of</option>
+            <option value="birthday">Celebrating the birthday of</option>
+            <option value="anniversary">Celebrating the anniversary of</option>
+            <option value="honour">In honour of</option></select></label>
+          <label><span>Their name</span><input name="tribute_name" maxlength="60" placeholder="e.g. Amma, Kamala Rajan"></label>
+          <label><span>A few words <small>(optional)</small></span><input name="tribute_note" maxlength="140"></label>
+          ${kind === "project" ? `<label class="give-check"><input type="checkbox" name="tribute_show" value="yes" checked> <span>Show their name on the project page</span></label>` : ""}
+        </div>
         ${LKR ? `<label><span>Email <small>(for your receipt)</small></span><input name="email" type="email" maxlength="120" autocomplete="email" required></label>
         <label><span>Phone</span><input name="phone" type="tel" maxlength="20" autocomplete="tel" required placeholder="07X XXX XXXX"></label>` : ""}
         <label class="give-check"><input type="checkbox" name="cover_fee" value="yes" checked> <span>Add <b class="give-fee">${dollars(0)}</b> so the card fee doesn't come out of the gift</span></label>
@@ -2214,11 +2226,15 @@
       const amount = () => { const pick = (f.querySelector('[name="pick"]:checked') || {}).value; const v = pick === "other" ? parseFloat(String(ownIn.value).replace(/[^0-9.]/g, "")) : parseFloat(pick); return isFinite(v) ? Math.min(v, left || v) : 0; };
       const update = () => {
         own.hidden = (f.querySelector('[name="pick"]:checked') || {}).value !== "other";
+        const trOn = f.querySelector('[name="tribute_on"]'), trBox = f.querySelector(".give-tribute");
+        if (trOn && trBox) trBox.hidden = !trOn.checked;
         const a = amount(), c = Math.round(a * 100), add = fee(c) / 100, cover = f.querySelector('[name="cover_fee"]').checked;
         feeEl.textContent = dollars(add);
         if (msg.classList.contains("bad") && a >= MIN) msg.hidden = true;
         if (on) pay.textContent = a >= MIN ? `Pay ${dollars(a + (cover ? add : 0))}${f.dataset.kind === "member" ? " a month" : ""} securely` : "Continue to secure payment";
       };
+      const trPick = q.get("tribute");
+      if (trPick && f.querySelector('[name="tribute_on"]')) { f.querySelector('[name="tribute_on"]').checked = true; const sel = f.querySelector('[name="tribute_kind"]'); if ([...sel.options].some(o => o.value === trPick)) sel.value = trPick; }
       f.addEventListener("change", update); f.addEventListener("input", update); update();
       f.addEventListener("submit", async e => {
         e.preventDefault();
@@ -2229,7 +2245,9 @@
         const em = f.querySelector('[name="email"]'), ph = f.querySelector('[name="phone"]');
         if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())) { say("Please add your email address for the receipt.", true); em.focus(); return; }
         if (ph && ph.value.replace(/\D/g, "").length < 7) { say("Please add your phone number.", true); ph.focus(); return; }
-        const fd = new FormData(f), body = { amount: a };
+        const trOn = f.querySelector('[name="tribute_on"]'), trName = f.querySelector('[name="tribute_name"]');
+        if (trOn && trOn.checked && !trName.value.trim()) { say("Please add the name of the person this gift is for.", true); trName.focus(); return; }
+        const fd = new FormData(f), body = { amount: a, lang: location.pathname.startsWith("/ta/") ? "ta" : "en" };
         for (const [k, v] of fd.entries()) if (k !== "pick" && k !== "own") body[k] = v;
         pay.disabled = true; say("Opening the secure payment page…");
         try {
@@ -2258,15 +2276,29 @@
       : /^cs_/.test(id) ? await load("/api/give/session?id=" + encodeURIComponent(id)).catch(() => null) : null;
     const by = s && s.provider === "payhere" ? "PayHere" : GIVE_BY;
     const dollars = n => cash(Number(n), (s && s.currency) || GIVE_CUR);
+    const TAp = location.pathname.startsWith("/ta/");
     let h = "Thank you", t = `Your gift is on its way. ${by} will email you a receipt.`, link = `<a class="btn" href="/give">Back to Sponsor a smile</a>`;
     if (s && s.ok) {
-      if (s.kind === "project" && s.project) { h = "Thank you for sponsoring a smile"; t = `Your ${dollars(s.amount)} is helping make “${esc(s.project.title)}” happen. It will show on the project page within a minute${s.status === "pending" ? " once your bank confirms it" : ""}, and after the day you'll see the photos and where the money went.`; link = `<a class="btn" href="/projects/${esc(s.project.slug)}">See the project</a>`; }
+      if (s.kind === "project" && s.project) { h = "Thank you for sponsoring a smile"; t = TAp ? `உங்கள் ${dollars(s.amount)} “${esc(s.project.title)}” நடக்க உதவுகிறது. ${s.status === "pending" ? "உங்கள் வங்கி உறுதிப்படுத்தியதும், " : ""}ஒரு நிமிடத்துக்குள் இது திட்டப் பக்கத்தில் காட்டப்படும்; அந்த நாளுக்குப் பின் படங்களையும் பணம் எங்கே சென்றது என்பதையும் பார்ப்பீர்கள்.`
+        : `Your ${dollars(s.amount)} is helping make “${esc(s.project.title)}” happen. It will show on the project page within a minute${s.status === "pending" ? " once your bank confirms it" : ""}, and after the day you'll see the photos and where the money went.`; link = `<a class="btn" href="/projects/${esc(s.project.slug)}">See the project</a>`; }
       else if (s.kind === "member") { h = "Welcome, Smile member"; t = `Your ${dollars(s.amount)} a month keeps the bridge open for the next person who needs a hand. ${by} will email you a receipt each month.`; }
       else { h = "Thank you for your gift"; t = `Your ${dollars(s.amount)} goes where it's needed most. ${by} will email you a receipt.`; }
     }
+    const TA = TAp;
+    const TR = TA ? { memory: "அன்பு நினைவாக", birthday: "பிறந்தநாள் கொண்டாட்டமாக", anniversary: "நினைவு நாள் கொண்டாட்டமாக", honour: "கௌரவிக்கும் வகையில்" }
+      : { memory: "in loving memory of", birthday: "to celebrate the birthday of", anniversary: "to celebrate the anniversary of", honour: "in honour of" };
+    const tr = s && s.ok && s.tribute && TR[s.tribute.kind] ? s.tribute : null;
+    const shareUrl = `${location.origin}${TA ? "/ta" : ""}${s && s.project ? `/projects/${s.project.slug}` : "/give"}`;
+    const shareText = TA
+      ? (tr ? `${tr.name} ${TR[tr.kind]}, இலங்கைக் குழந்தைகளுக்கு ஒரு மகிழ்ச்சியான நாளை உருவாக்கினேன். நீங்களும் ஒரு தருணத்தை உருவாக்கலாம்: ${shareUrl}` : `இலங்கைக் குழந்தைகளுக்கு ஒரு மகிழ்ச்சியான நாளை உருவாக்க உதவினேன். நீங்களும் ஒரு தருணத்தை உருவாக்கலாம்: ${shareUrl}`)
+      : (tr ? `I made a day of joy happen for children in Sri Lanka ${TR[tr.kind]} ${tr.name}. You can make a moment too: ${shareUrl}` : `I just helped make a day of joy happen for children in Sri Lanka. You can make a moment too: ${shareUrl}`);
+    const trLine = !tr ? "" : TA ? `<b>${esc(tr.name)}</b> ${esc(TR[tr.kind])} உருவான தருணம்.` : `A moment made ${esc(TR[tr.kind])} <b>${esc(tr.name)}</b>.`;
     app.innerHTML = `<section class="give-thanks panel">
       <p class="give-heart" aria-hidden="true">♥</p>
       <h1>${h}</h1><p>${t}</p>
+      ${trLine ? `<p class="give-tribute-line">${trLine}</p>` : ""}
+      <p class="give-share"><a class="btn ghost" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(shareText)}">Tell your family on WhatsApp</a>
+        <a class="btn ghost" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}">Share on Facebook</a></p>
       ${s && s.test ? `<p class="give-banner test">This was a test payment. No real money was taken.</p>` : ""}
       ${link}</section>`;
   }
