@@ -429,3 +429,14 @@ body.pt-signedout .pt-login input{background:#fff;border:1.5px solid var(--m-lin
 body.pt-signedout .pt-login input:focus{outline:2px solid var(--m-gold);outline-offset:1px;border-color:var(--m-gold)}
 body.pt-signedout .pt-login .pt-btn{background:var(--m-brand);color:var(--m-surface);border-radius:999px;min-height:48px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.15)}
 body.pt-signedout .pt-login .pt-btn.ghost{background:transparent;color:var(--m-brand);border:1.5px solid var(--m-gold);box-shadow:none}
+body.pt-signedout .pt-login{margin-top:8px;gap:8px}
+body.pt-signedout .pt-login > img{width:200px;margin-bottom:0}
+body.pt-signedout .pt-login h1{margin:0}
+body.pt-signedout .pt-login .pt-sub{margin:0}
+.pt-login-hero{margin:4px 0}
+.pt-tabs2{display:grid;grid-template-columns:1fr 1fr;border:1.5px solid var(--m-line);border-radius:999px;padding:3px;background:var(--m-bg);margin-top:4px}
+.pt-tabs2 button{font:inherit;font-weight:700;font-size:15px;border:0;border-radius:999px;padding:10px;background:transparent;color:var(--m-muted);cursor:pointer}
+.pt-tabs2 button[aria-selected="true"]{background:var(--m-brand);color:var(--m-surface)}
+.pt-join-note{margin:0 0 6px;font-size:15px;color:var(--m-ink)}
+.pt-login [hidden]{display:none!important}
+body.pt-signedout .pt-main,body.pt-signedout .pt-shell{padding-top:0}body.pt-signedout .pt-login{margin-top:0}body.pt-signedout .pt-login-msg:empty{display:none}

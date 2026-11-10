@@ -550,14 +550,16 @@
       <p class="pt-sub">${mode === "invite" ? "Choose a password for your new portal account." : mode === "recovery" ? "Type your new password." : "For the Raavanaa team only."}</p>
       <figure class="pt-login-hero"><picture><source srcset="/img/members-bridge.webp" type="image/webp"><img src="/img/members-bridge.jpg" alt="" width="941" height="395"></picture>
         <figcaption>A bridge between people who need a hand and people ready to give one.</figcaption></figure>
+      ${mode === "login" ? `<div class="pt-tabs2" role="tablist"><button type="button" role="tab" aria-selected="true" data-tab="in">Sign in</button><button type="button" role="tab" aria-selected="false" data-tab="join">Join</button></div>` : ""}
       <form class="pt-card" id="pt-login">
         ${mode === "login" ? `<label class="pt-field">Email<input name="email" type="email" autocomplete="username" required></label>` : ""}
         <label class="pt-field">Password<input name="password" type="password" autocomplete="${mode === "login" ? "current-password" : "new-password"}" minlength="8" required></label>
         <button class="pt-btn" type="submit">${mode === "login" ? "Sign in" : "Save password"}</button>
         <p class="pt-login-msg" role="status">${esc(msg)}</p>
       </form>
-      ${mode === "login" ? `<form class="pt-card pt-paste" id="pt-paste">
-        <label class="pt-field">Got an invite or password email? Paste its link here<input name="link" placeholder="Long-press the button in the email, Copy link, paste" autocomplete="off"></label>
+      ${mode === "login" ? `<form class="pt-card pt-paste" id="pt-paste" hidden>
+        <p class="pt-join-note">Team places are by invitation. When an admin invites you, you get an email: tap its button, or paste its link here.</p>
+        <label class="pt-field">Invite or password email link<input name="link" placeholder="Long-press the button in the email, Copy link, paste" autocomplete="off"></label>
         <button class="pt-btn ghost" type="submit">Continue</button>
       </form>
       <p class="pt-sub"><button type="button" class="pt-link" data-forgot>Forgot your password?</button> · <a href="?demo=1">Look around the demo</a></p>` : ""}
@@ -576,6 +578,12 @@
         location.replace("/portal#/dashboard"); location.reload();
       } catch (err) { out.textContent = err && err.message ? err.message : "That did not work. Check the email and password."; }
     };
+    app.querySelectorAll("[data-tab]").forEach(t => t.onclick = () => {
+      const join = t.dataset.tab === "join";
+      app.querySelectorAll("[data-tab]").forEach(x => x.setAttribute("aria-selected", String(x === t)));
+      document.getElementById("pt-login").hidden = join; document.getElementById("pt-paste").hidden = !join;
+      const fp = app.querySelector("[data-forgot]"); if (fp) fp.closest("p").hidden = join;
+    });
     const pf = document.getElementById("pt-paste");
     if (pf) pf.onsubmit = e => {
       e.preventDefault(); const v = String(new FormData(pf).get("link") || "");
