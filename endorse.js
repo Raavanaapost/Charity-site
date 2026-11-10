@@ -104,8 +104,8 @@
     $("[data-journey-note]").innerHTML = r.pending
       ? "<b>Being checked.</b> The Raavanaa team reads every request first, and may call with a few questions."
       : !L.backed ? `<b>Waiting for people to vouch.</b> ${n} of ${r.needed} so far. It needs people who know about it, and at least one in a role, like a principal or teacher.`
-      : !L.verified ? "<b>Backed by the community.</b> Next, a Raavanaa volunteer near the children calls or visits."
-      : "<b>Visited and verified.</b> A Raavanaa volunteer has confirmed it. It can now take gifts.";
+      : !L.verified ? (r.visitor ? `<b>Backed by the community.</b> Next, ${esc(r.visitor.name)}, a Raavanaa Champion from ${esc(r.visitor.district)}, calls or visits.` : "<b>Backed by the community.</b> Next, a Raavanaa volunteer near the children calls or visits.")
+      : `<b>Visited and verified.</b> ${r.visitor ? esc(r.visitor.name) + ", a Raavanaa Champion from " + esc(r.visitor.district) + "," : "A Raavanaa volunteer"} has confirmed it. It can now take gifts.`;
 
     $("[data-count]").textContent = `${Math.min(n, r.needed)} of ${r.needed}`;
     $("[data-bars]").innerHTML = Array.from({ length: r.needed }, (_, i) => `<span class="${i < n ? "on" : ""}"></span>`).join("");

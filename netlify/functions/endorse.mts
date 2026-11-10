@@ -21,6 +21,12 @@ async function load(db: ReturnType<typeof getDatabase>, token: string) {
 }
 
 async function view(db: ReturnType<typeof getDatabase>, s: Row) {
+  // The Champion who visits: first name and district only.
+  let visitor: { name: string; district: string } | null = null;
+  if (s.champion_id) {
+    const [c] = await db.sql<Row>`SELECT name, district FROM champions WHERE id = ${s.champion_id}`;
+    if (c) visitor = { name: firstName(String(c.name).split(" ")[0]), district: c.district };
+  }
   const rows = await db.sql<Row>`
     SELECT name, relation, role, created_at FROM endorsements WHERE suggestion_id = ${s.id} AND NOT hidden ORDER BY created_at`;
   const endorsements = (rows as Row[]).map((e) => ({ name: e.name, relation: e.relation, role: e.role, at: e.created_at }));
@@ -52,6 +58,7 @@ async function view(db: ReturnType<typeof getDatabase>, s: Row) {
     needed: NEEDED,
     endorsements,
     ladder: { submitted: true, backed, hasRole, verified, project: s.status === "project" },
+    visitor,
   };
 }
 

@@ -441,3 +441,10 @@ body.pt-signedout .pt-login .pt-sub{margin:0}
 .pt-login [hidden]{display:none!important}
 body.pt-signedout .pt-main,body.pt-signedout .pt-shell{padding-top:0}body.pt-signedout .pt-login{margin-top:0}body.pt-signedout .pt-login-msg:empty{display:none}
 [data-rot]{transition:opacity .45s ease}.rot-out{opacity:0}
+/* Champions */
+.pt-champs{display:grid;gap:10px;margin:14px 0}
+.pt-champ{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.pt-champ h3{margin:0 0 2px;font-size:17px}
+.pt-champ.off{opacity:.6}
+.pt-champ-meta{margin:6px 0 0;font-size:14px}
+.pt-champ-form h2{margin:0 0 10px;font-size:18px}

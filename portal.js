@@ -44,6 +44,7 @@
     close: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
     people: '<circle cx="9" cy="8" r="3"/><path d="M3 20c.5-4 2.8-6 6-6s5.5 2 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M16 14c2.7 0 4.4 1.7 5 5"/>',
     team: '<rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
+    champions: '<path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.6L12 16.4l-5.1 2.7 1-5.6-4.1-4 5.7-.8z"/>',
     reports: '<path d="M12 3l8 3v6c0 4.6-3.3 8-8 9-4.7-1-8-4.4-8-9V6z"/><path d="M12 8v5M12 16h.01" stroke-width="2.2"/>',
     more: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'
   };
@@ -51,10 +52,10 @@
   const MENU = [
     ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true],
     ["sponsors", "Sponsors & pledges", true], ["day", "Day preparation", true], ["close", "Close the day", true],
-    ["people", "People", true], ["team", "Team & logins", true]
+    ["people", "People", true], ["champions", "Champions", true], ["team", "Team & logins", true]
   ];
 
-  let D = null, P = [];
+  let D = null, P = [], C = { list: [], districts: [] }, chDistrict = "All", chEdit = null;
   const toast = msg => { const t = document.getElementById("pt-toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("on"), 2600); };
   const route = () => (location.hash.replace(/^#\/?/, "") || "dashboard").split("/");
 
@@ -367,15 +368,15 @@
          <div class="pt-row2"><label class="pt-field">Called on<input type="date" data-called value="${esc((s.called || NOW.toISOString()).slice(0, 10))}"></label>
            <button type="button" class="pt-btn" data-save-call>${s.called ? "Save changes" : "Save the call"}</button></div>
          ${miss.length ? `<p class="pt-miss-line">Still missing: ${miss.join(" · ")}</p>` : ""}`),
-      box(2, "Visit and verify", after(s.status, "verified") ? `Verified by ${esc(s.verifiedBy || s.assigned || "the team")}${s.verifiedAt ? " · " + fmtDay(s.verifiedAt) : ""}` : s.status === "visit" && s.visit ? `Visit on ${fmtDay(s.visit)}` : "",
-        s.status === "new"
+      box(2, "Visit and verify", after(s.status, "verified") ? `Verified by ${esc(s.verifiedBy || s.assigned || "the team")}${s.verifiedAt ? " · " + fmtDay(s.verifiedAt) : ""}` : [s.status === "visit" && s.visit && `Visit on ${fmtDay(s.visit)}`, chById(s.champion) && `Champion: ${esc(chById(s.champion).name)}`].filter(Boolean).join(" · "),
+        `${champPick(s)}` + (s.status === "new"
           ? `<div class="pt-visit"><label class="pt-field">Visit date<input type="date" data-visit value="${esc(s.visit || "2026-10-20")}"></label><button type="button" class="pt-btn" data-act="visit">Plan the visit</button></div>
              ${!F[1].done ? `<p class="pt-sub">Best after the first call, so you know where you are going.</p>` : ""}`
           : after(s.status, "verified") ? `<p class="pt-sub">The visit checklist was completed${o.contact === "trusted" && t.name ? `, with ${esc(t.name)} as trusted contact` : ""}.</p>`
           : `${onboardHTML(s, true)}
              <label class="pt-check"><input type="checkbox" data-evseen ${evidenceOk(s) ? "checked" : ""} ${(s.files || []).length ? "disabled" : ""}><span>${(s.files || []).length ? "Evidence received with the request" : "Evidence seen at the visit (add a photo to Notes if you can)"}</span></label>
              <button type="button" class="pt-btn" data-act="verified" ${onboardDone(s) && evidenceOk(s) && F[1].done ? "" : "disabled"}>Visited · the need is real</button>
-             ${onboardDone(s) && evidenceOk(s) && F[1].done ? "" : `<p class="pt-sub">Needs: ${[!F[1].done && "the first call details", !onboardDone(s) && "the visit checklist", !evidenceOk(s) && "evidence"].filter(Boolean).join(", ")}.</p>`}`),
+             ${onboardDone(s) && evidenceOk(s) && F[1].done ? "" : `<p class="pt-sub">Needs: ${[!F[1].done && "the first call details", !onboardDone(s) && "the visit checklist", !evidenceOk(s) && "evidence"].filter(Boolean).join(", ")}.</p>`}`)),
       box(3, "Approve", after(s.status, "approved") ? `Approved by ${esc(s.approvedBy || "")}${s.approvedAt ? " · " + fmtDay(s.approvedAt) : ""}${s.approvedOverride ? " (also the visitor)" : ""}` : "",
         !after(s.status, "verified") ? `<p class="pt-sub">After the visit. Only an admin approves, and not the person who visited.</p>`
           : after(s.status, "approved") ? `<p class="pt-sub">Approved. Next: the budget and what the organisers hope for.</p>`
@@ -468,6 +469,66 @@
     </div>`;
   }
   // Live mode: every change is saved through the portal API; the saved suggestion comes back and replaces the local one.
+  // Champions: trusted local volunteers who call or visit a request (SURESH, 10 Nov 2026).
+  const chById = id => C.list.find(c => c.id === id);
+  function champPick(s) {
+    const cur = chById(s.champion), active = C.list.filter(c => c.active || c.id === s.champion);
+    if (!active.length) return `<p class="pt-sub">No Champions yet. <a href="#/champions">Add the volunteers who visit</a>, then pick one here.</p>`;
+    const where = [s.city, s.location, s.village].filter(Boolean).join(" ").toLowerCase(), near = c => where.includes(c.district.toLowerCase()) ? 0 : 1;
+    const opts = [...active].sort((a, b) => near(a) - near(b) || a.district.localeCompare(b.district) || a.name.localeCompare(b.name));
+    return `<label class="pt-field">Champion who visits<select data-champ><option value="">Not chosen yet</option>${opts.map(c => `<option value="${c.id}" ${c.id === s.champion ? "selected" : ""}>${esc(c.name)} · ${esc(c.district)}${c.active ? "" : " (paused)"}</option>`).join("")}</select></label>
+      ${cur ? `<p class="pt-sub">Call ${esc(cur.name.split(" ")[0])} on <a href="tel:${esc(cur.phone.replace(/\s/g, ""))}">${esc(cur.phone)}</a>. The vouching page shows their first name and district only.</p>` : ""}`;
+  }
+  function champions() {
+    const ds = ["All", ...new Set(C.list.map(c => c.district))];
+    const list = C.list.filter(c => chDistrict === "All" || c.district === chDistrict);
+    const form = (c = {}) => `<form class="pt-card pt-champ-form" data-chform="${c.id || ""}">
+        <h2>${c.id ? "Edit Champion" : "Add a Champion"}</h2>
+        <div class="pt-row2"><label class="pt-field">Name<input name="name" required maxlength="80" value="${esc(c.name || "")}"></label>
+          <label class="pt-field">Phone<input name="phone" required inputmode="tel" maxlength="40" value="${esc(c.phone || "")}"></label></div>
+        <div class="pt-row2"><label class="pt-field">District<select name="district" required><option value="">Choose</option>${C.districts.map(d => `<option ${c.district === d ? "selected" : ""}>${d}</option>`).join("")}</select></label>
+          <label class="pt-field">Email (optional)<input name="email" type="email" maxlength="120" value="${esc(c.email || "")}"></label></div>
+        <label class="pt-field">Villages or towns they can reach<input name="areas" maxlength="300" placeholder="Pussellawa, Choughleigh, Rothschild" value="${esc(c.areas || "")}"></label>
+        <label class="pt-field">Note for the team<textarea name="note" rows="2" maxlength="500">${esc(c.note || "")}</textarea></label>
+        <div class="pt-actions-row"><button class="pt-btn">${c.id ? "Save changes" : "Add Champion"}</button>${c.id ? `<button type="button" class="pt-btn ghost" data-chcancel>Cancel</button>` : ""}</div></form>`;
+    return `
+      <header class="pt-head"><div><p class="pt-kicker">Champions</p><h1>Volunteers who visit</h1>
+        <p class="pt-sub">Trusted local people who call or visit a request before it can take gifts. Their phone stays inside the team; the vouching page shows only a first name and district.</p></div></header>
+      <section class="pt-stats">
+        <div class="pt-stat st1"><b>${C.list.filter(c => c.active).length}</b><span>Active</span></div>
+        <div class="pt-stat st2"><b>${new Set(C.list.filter(c => c.active).map(c => c.district)).size}</b><span>Districts</span></div>
+        <div class="pt-stat st3"><b>${C.list.reduce((a, c) => a + (c.visits || 0), 0)}</b><span>Requests given</span></div>
+      </section>
+      ${ds.length > 2 ? `<div class="pt-chips">${ds.map(d => `<button type="button" aria-pressed="${d === chDistrict}" data-chd="${esc(d)}">${esc(d)}</button>`).join("")}</div>` : ""}
+      <section class="pt-champs">${list.length ? list.map(c => chEdit === c.id ? form(c) : `
+        <article class="pt-card pt-champ ${c.active ? "" : "off"}">
+          <div><h3>${esc(c.name)}</h3><p class="pt-sub">${esc(c.district)}${c.areas ? " · " + esc(c.areas) : ""}</p>
+            <p class="pt-champ-meta"><a href="tel:${esc(c.phone.replace(/\s/g, ""))}">${esc(c.phone)}</a>${c.email ? ` · ${esc(c.email)}` : ""} · ${c.visits || 0} request${c.visits === 1 ? "" : "s"}${c.active ? "" : " · paused"}</p>
+            ${c.note ? `<p class="pt-sub">${esc(c.note)}</p>` : ""}</div>
+          <div class="pt-actions-row"><button type="button" class="pt-btn ghost" data-chedit="${c.id}">Edit</button><button type="button" class="pt-btn ghost" data-chact="${c.id}">${c.active ? "Pause" : "Make active"}</button></div>
+        </article>`).join("") : `<p class="pt-sub">No Champions${chDistrict === "All" ? " yet" : " in " + esc(chDistrict)}.</p>`}</section>
+      ${chEdit ? "" : form()}`;
+  }
+  async function chSave(url, method, body, done) {
+    if (!LIVE) {
+      if (method === "POST") C.list.push({ id: Date.now(), active: true, visits: 0, ...body });
+      else { const c = chById(Number(url.split("/").pop())); if (c) Object.assign(c, body); }
+      chEdit = null; render(); toast(done + " (demo)"); return;
+    }
+    try { const r = await api(url, { method, body: JSON.stringify(body) }); C.list = r.champions; chEdit = null; render(); toast(done); }
+    catch (e) { toast(e.message || "Could not save."); }
+  }
+  function wireChampions() {
+    app.querySelectorAll("[data-chd]").forEach(b => b.onclick = () => { chDistrict = b.dataset.chd; render(); });
+    app.querySelectorAll("[data-chedit]").forEach(b => b.onclick = () => { chEdit = Number(b.dataset.chedit); render(); });
+    app.querySelectorAll("[data-chcancel]").forEach(b => b.onclick = () => { chEdit = null; render(); });
+    app.querySelectorAll("[data-chact]").forEach(b => b.onclick = () => { const c = chById(Number(b.dataset.chact)); chSave(`/api/portal/champions/${c.id}`, "PATCH", { active: !c.active }, c.active ? "Paused" : "Active again"); });
+    app.querySelectorAll("[data-chform]").forEach(f => f.onsubmit = e => {
+      e.preventDefault(); const b = Object.fromEntries(new FormData(f)); const id = f.dataset.chform;
+      chSave(id ? `/api/portal/champions/${id}` : "/api/portal/champions", id ? "PATCH" : "POST", b, id ? "Saved" : "Champion added");
+    });
+  }
+
   const PREVIEW_KEYS = ["details", "called", "takenAt", "verifiedBy", "verifiedAt", "approvedBy", "approvedAt", "approvedOverride", "plan"];
   async function save(s, patch, note, done) {
     if (!LIVE) { if (note) addNote(s, note); Object.assign(s, patch); render(); if (done) toast(done + " (demo)"); return true; }
@@ -489,6 +550,8 @@
   function wireDetail(id) {
     const s = D.suggestions.find(x => x.id === id); if (!s) return;
     wireOnboard(s); wireFlow(s); wireReview(s);
+    const cp = app.querySelector("[data-champ]");
+    if (cp) cp.onchange = () => { const c = chById(Number(cp.value)); save(s, { champion: c ? c.id : null }, c ? `${c.name} (${c.district}) will visit.` : "No Champion chosen now.", "Saved"); };
     const sel = app.querySelector("[data-assign]");
     if (sel) sel.onchange = () => { s.takenAt = sel.value ? NOW.toISOString() : ""; save(s, { assigned: sel.value }, sel.value ? `${sel.value} is looking after this.` : "Nobody is looking after this now.", "Saved"); };
     app.querySelectorAll("[data-act]").forEach(btn => btn.onclick = () => {
@@ -1194,11 +1257,12 @@
 
   function render() {
     const [page, id] = route();
-    const cur = ["suggestions", "reports", "projects", "sponsors", "day", "close", "people", "team"].includes(page) ? page : "dashboard";
+    const cur = ["suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "team"].includes(page) ? page : "dashboard";
     drawNav(cur);
     if (page === "suggestions" && id) { app.innerHTML = detail(id); wireDetail(id); }
     else if (page === "suggestions") { app.innerHTML = suggestions(); wireSuggestions(); }
     else if (page === "people") { app.innerHTML = people(); wirePeople(); }
+    else if (page === "champions") { app.innerHTML = champions(); wireChampions(); }
     else if (page === "team") { app.innerHTML = team(); wireTeam(); }
     else if (page === "close") { app.innerHTML = closeDay(id); wireClose(); }
     else if (page === "day") { app.innerHTML = dayPrep(id); wireDay(); }
@@ -1208,7 +1272,7 @@
     else if (page === "reports" && id) { app.innerHTML = reportDetail(id); wireReport(id); }
     else if (page === "reports") { app.innerHTML = reports(); wireReports(); }
     else app.innerHTML = dashboard();
-    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
+    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
   }
 
   Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] })).then(async d => { try { const m = await fetch("/api/projects").then(r => r.json()); const have = new Set((d.projects || []).map(p => p.slug)); d.projects = [...(d.projects || []), ...(m.projects || []).filter(p => !have.has(p.slug))]; } catch (e) { /* only projects.json */ } return d; })])
@@ -1221,7 +1285,7 @@
         try {
           ME = await api("/api/portal/me");
           const r = await api("/api/portal/suggestions");
-          D.suggestions = r.suggestions; D.user = { name: ME.name, role: ME.admin ? "Admin" : "Team" };
+          D.suggestions = r.suggestions; C = await api("/api/portal/champions").then(x => ({ list: x.champions, districts: x.districts })).catch(() => C); D.user = { name: ME.name, role: ME.admin ? "Admin" : "Team" };
           if (!D.team.includes(ME.name)) D.team = [ME.name, ...D.team];
           LIVE = true; NOW = new Date();
         } catch (e) {
@@ -1229,6 +1293,8 @@
           // No portal API here (for example a plain preview): fall back to the demo.
         }
       }
+      if (!LIVE) C = { list: [{ id: 1, name: "Kumar Selvam", phone: "077 123 4567", email: "", district: "Nuwara Eliya", areas: "Pussellawa, Choughleigh", note: "Knows the estate schools.", active: true, visits: 2 }, { id: 2, name: "Nadeesha Perera", phone: "071 555 0101", email: "", district: "Kandy", areas: "Gampola, Peradeniya", note: "", active: true, visits: 0 }],
+        districts: ["Ampara", "Anuradhapura", "Badulla", "Batticaloa", "Colombo", "Galle", "Gampaha", "Hambantota", "Jaffna", "Kalutara", "Kandy", "Kegalle", "Kilinochchi", "Kurunegala", "Mannar", "Matale", "Matara", "Monaragala", "Mullaitivu", "Nuwara Eliya", "Polonnaruwa", "Puttalam", "Ratnapura", "Trincomalee", "Vavuniya"] };
       const banner = document.querySelector(".pt-demo");
       if (LIVE) { banner.textContent = `Signed in as ${ME.email} · Suggestions are live · other screens are still a demo`; banner.classList.add("live"); }
       window.addEventListener("hashchange", () => { render(); window.scrollTo(0, 0); });

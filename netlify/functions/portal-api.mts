@@ -98,6 +98,7 @@ function shape(r: Record<string, any>, notes: unknown[], files: unknown[] = [], 
     children: r.children, contact: r.contact, reach: r.reach, trusted: r.trusted, additional: r.additional,
     onboard: r.onboard || {}, project: r.project_slug, notes, files, noEvidence: !!r.no_evidence,
     details: r.details || {}, called: day(r.called), takenAt: r.taken_at || "", verifiedBy: r.verified_by || "", verifiedAt: r.verified_at || "",
+    champion: r.champion_id || null,
     approvedBy: r.approved_by || "", approvedAt: r.approved_at || "", approvedOverride: !!r.approved_override, plan: { lines: [], expect: [], ...(r.plan || {}) },
     memberEmail: r.member_email || "",
     endorseLink: r.endorse_token ? `/e/${r.endorse_token}` : "", endorsements,
@@ -134,6 +135,42 @@ export default async (req: Request, context: Context) => {
     return new Response(stream, { headers: { "Content-Type": f.type, "Cache-Control": "private, max-age=3600", "Content-Disposition": `inline; filename="${f.name.replace(/"/g, "")}"`,
       // Never let the browser treat a file as something else, and never let it run scripts from it.
       "X-Content-Type-Options": "nosniff", "Content-Security-Policy": "sandbox; default-src 'none'; img-src 'self'; media-src 'self'; style-src 'unsafe-inline'" } });
+  }
+
+  // Champions: trusted local volunteers who visit requests (SURESH, 10 Nov 2026).
+  if (parts[0] === "champions") {
+    const DISTRICTS = ["Ampara", "Anuradhapura", "Badulla", "Batticaloa", "Colombo", "Galle", "Gampaha", "Hambantota", "Jaffna", "Kalutara",
+      "Kandy", "Kegalle", "Kilinochchi", "Kurunegala", "Mannar", "Matale", "Matara", "Monaragala", "Mullaitivu", "Nuwara Eliya",
+      "Polonnaruwa", "Puttalam", "Ratnapura", "Trincomalee", "Vavuniya"];
+    const read = (b: Record<string, any>) => ({
+      name: clip(b.name, 80), phone: clip(b.phone, 40), email: clip(b.email, 120).toLowerCase(),
+      district: DISTRICTS.includes(b.district) ? b.district : "", areas: clip(b.areas, 300), note: clip(b.note, 500),
+    });
+    const list = async () => db.sql`
+      SELECT c.*, (SELECT COUNT(*)::int FROM suggestions s WHERE s.champion_id = c.id) AS visits
+      FROM champions c ORDER BY c.active DESC, c.district, c.name`;
+    if (req.method === "GET" && !parts[1]) return json({ champions: await list(), districts: DISTRICTS });
+    let b: Record<string, any> = {};
+    try { b = await req.json(); } catch { /* empty */ }
+    if (req.method === "POST" && !parts[1]) {
+      const c = read(b);
+      if (!c.name || !c.phone || !c.district) return json({ error: "Add a name, a phone number and a district." }, 400);
+      await db.sql`INSERT INTO champions (name, phone, email, district, areas, note, added_by) VALUES (${c.name}, ${c.phone}, ${c.email}, ${c.district}, ${c.areas}, ${c.note}, ${me.email})`;
+      await db.sql`INSERT INTO audit_log (actor, action, target) VALUES (${me.email}, 'champion.add', ${c.name})`;
+      return json({ champions: await list() });
+    }
+    if (req.method === "PATCH" && parts[1]) {
+      const id = Number(parts[1]) || 0;
+      if (b.active !== undefined) await db.sql`UPDATE champions SET active = ${!!b.active} WHERE id = ${id}`;
+      if (b.name !== undefined) {
+        const c = read(b);
+        if (!c.name || !c.phone || !c.district) return json({ error: "Add a name, a phone number and a district." }, 400);
+        await db.sql`UPDATE champions SET name = ${c.name}, phone = ${c.phone}, email = ${c.email}, district = ${c.district}, areas = ${c.areas}, note = ${c.note} WHERE id = ${id}`;
+      }
+      await db.sql`INSERT INTO audit_log (actor, action, target) VALUES (${me.email}, 'champion.update', ${String(id)})`;
+      return json({ champions: await list() });
+    }
+    return json({ error: "Not allowed" }, 405);
   }
 
   if (parts[0] === "suggestions" && parts.length === 1 && req.method === "GET") {
@@ -235,6 +272,12 @@ export default async (req: Request, context: Context) => {
       }
       // Step 1: who takes it (and when).
       if (body.assigned !== undefined) await db.sql`UPDATE suggestions SET taken_at = ${changes.assigned ? new Date().toISOString() : null} WHERE id = ${row.id}`;
+      // Step 3: which Champion visits.
+      if (body.champion !== undefined) {
+        const cid = Number(body.champion) || null;
+        changes.champion = cid;
+        await db.sql`UPDATE suggestions SET champion_id = ${cid}, updated_at = NOW() WHERE id = ${row.id}`;
+      }
       // Step 2: the first call and the details it collects. The exact place stays private to the team.
       if (body.details !== undefined && typeof body.details === "object") {
         const d = body.details;
