@@ -180,7 +180,7 @@
       <h2>Request check <span class="pt-pill ${tone}">${lab}</span></h2>
       <div class="pt-kinds">${counts}</div>
       ${ai.status === "failed" ? `<p class="pt-flag red">${esc(ai.error || "The AI check did not finish.")}</p>` : ""}
-      ${ai.status === "running" ? `<p class="pt-sub">Gemini is reading the request and its files. This takes a minute or two.</p>` : ""}
+      ${ai.status === "running" ? `<p class="pt-sub">Gemini is reading the request and its files. This can take up to 5 minutes. Reload the page to see the result.</p>` : ""}
       <p><button type="button" class="pt-btn ${ai.status === "done" ? "ghost" : ""}" data-ai ${ai.status === "running" && ai.mine ? "disabled" : ""}>${ai.status === "done" ? "Run the AI check again" : "Run the AI check"}</button>
         ${ai.at && ai.status === "done" ? `<span class="pt-sub">Checked ${ago(ai.at)}${d._model ? ` · ${esc(d._model)}` : ""}</span>` : ""}</p>
       ${ai.status === "done" ? `
