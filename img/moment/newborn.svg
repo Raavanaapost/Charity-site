@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 420" role="img" aria-label="A baby's cradle under a crescent moon and stars">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#e3f0ff" stop-opacity=".9"/><stop offset=".5" stop-color="#a9c8f0" stop-opacity=".3"/><stop offset="1" stop-color="#a9c8f0" stop-opacity="0"/></radialGradient>
+    <linearGradient id="gold" x1="0" x2="1"><stop offset="0" stop-color="#9a6a17"/><stop offset=".4" stop-color="#e6b94f"/><stop offset=".6" stop-color="#f6d98a"/><stop offset="1" stop-color="#a8761a"/></linearGradient>
+    <linearGradient id="flame" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#d9480f"/><stop offset=".45" stop-color="#ff9d2e"/><stop offset="1" stop-color="#fff2b8"/></linearGradient>
+  </defs>
+  <style>
+    .flick{transform-box:fill-box;transform-origin:50% 100%;animation:flick 2.4s ease-in-out infinite}
+    .bob{transform-box:fill-box;transform-origin:50% 100%;animation:bob 4s ease-in-out infinite}
+    .twinkle{animation:tw 2.8s ease-in-out infinite}
+    .glow{transform-box:fill-box;transform-origin:center;animation:br 3.4s ease-in-out infinite}
+    @keyframes flick{0%,100%{transform:scale(1,1)}35%{transform:scale(.94,1.06) rotate(-2deg)}65%{transform:scale(1.04,.96) rotate(2deg)}}
+    @keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-8px) rotate(2deg)}}
+    @keyframes tw{0%,100%{opacity:1}50%{opacity:.35}}
+    @keyframes br{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+    @media (prefers-reduced-motion:reduce){.flick,.bob,.twinkle,.glow{animation:none}}
+  </style>
+  <circle class="glow" cx="160" cy="150" r="150" fill="url(#glow)"/>
+
+  <path d="M220 70a46 46 0 1 0 38 70 38 38 0 1 1-38-70z" fill="#f6d98a"/>
+  <path class="twinkle" d="M80 58l3.3600000000000003 8.64 8.64 3.3600000000000003-8.64 3.3600000000000003-3.3600000000000003 8.64-3.3600000000000003-8.64-8.64-3.3600000000000003 8.64-3.3600000000000003z" fill="#f6d98a"/><path class="twinkle" d="M130 113l1.9600000000000002 5.04 5.04 1.9600000000000002-5.04 1.9600000000000002-1.9600000000000002 5.04-1.9600000000000002-5.04-5.04-1.9600000000000002 5.04-1.9600000000000002z" fill="#ffffff"/><path class="twinkle" d="M270 181l2.5200000000000005 6.4799999999999995 6.4799999999999995 2.5200000000000005-6.4799999999999995 2.5200000000000005-2.5200000000000005 6.4799999999999995-2.5200000000000005-6.4799999999999995-6.4799999999999995-2.5200000000000005 6.4799999999999995-2.5200000000000005z" fill="#f6d98a"/><path class="twinkle" d="M48 164l1.6800000000000002 4.32 4.32 1.6800000000000002-4.32 1.6800000000000002-1.6800000000000002 4.32-1.6800000000000002-4.32-4.32-1.6800000000000002 4.32-1.6800000000000002z" fill="#ffffff"/>
+  <path d="M160 40v120" stroke="#8a5c12" stroke-width="3"/>
+  <path d="M160 160l-80 70M160 160l80 70" stroke="#8a5c12" stroke-width="3"/>
+  <g class="bob" style="animation-duration:5s">
+    <path d="M70 230h180c0 60-40 92-90 92s-90-32-90-92z" fill="#f7efe1" stroke="#c9a24a" stroke-width="3"/>
+    <path d="M70 230h180" stroke="url(#gold)" stroke-width="8" stroke-linecap="round"/>
+    <path d="M90 262q70 30 140 0" stroke="#a9c8f0" stroke-width="5" fill="none"/>
+    <path d="M100 286q60 26 120 0" stroke="#f2b8c6" stroke-width="5" fill="none"/>
+  </g>
+  <g><g fill="#f29a1f"><circle cx="100" cy="362" r="15"/><circle cx="220" cy="362" r="15"/><circle cx="160" cy="372" r="17"/></g><g fill="#e4761b"><circle cx="100" cy="362" r="9"/><circle cx="220" cy="362" r="9"/><circle cx="160" cy="372" r="10"/></g><g fill="#ffc94a"><circle cx="128" cy="374" r="11"/><circle cx="192" cy="374" r="11"/></g><ellipse cx="66" cy="356" rx="16" ry="7" fill="#4f8f45" transform="rotate(-25 66 356)"/><ellipse cx="254" cy="356" rx="16" ry="7" fill="#4f8f45" transform="rotate(25 254 356)"/></g>
+</svg>

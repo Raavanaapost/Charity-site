@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 420" role="img" aria-label="A young plant growing towards the morning sun">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff3c4" stop-opacity=".9"/><stop offset=".5" stop-color="#ffd27a" stop-opacity=".3"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient>
+    <linearGradient id="gold" x1="0" x2="1"><stop offset="0" stop-color="#9a6a17"/><stop offset=".4" stop-color="#e6b94f"/><stop offset=".6" stop-color="#f6d98a"/><stop offset="1" stop-color="#a8761a"/></linearGradient>
+    <linearGradient id="flame" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#d9480f"/><stop offset=".45" stop-color="#ff9d2e"/><stop offset="1" stop-color="#fff2b8"/></linearGradient>
+  </defs>
+  <style>
+    .flick{transform-box:fill-box;transform-origin:50% 100%;animation:flick 2.4s ease-in-out infinite}
+    .bob{transform-box:fill-box;transform-origin:50% 100%;animation:bob 4s ease-in-out infinite}
+    .twinkle{animation:tw 2.8s ease-in-out infinite}
+    .glow{transform-box:fill-box;transform-origin:center;animation:br 3.4s ease-in-out infinite}
+    @keyframes flick{0%,100%{transform:scale(1,1)}35%{transform:scale(.94,1.06) rotate(-2deg)}65%{transform:scale(1.04,.96) rotate(2deg)}}
+    @keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-8px) rotate(2deg)}}
+    @keyframes tw{0%,100%{opacity:1}50%{opacity:.35}}
+    @keyframes br{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+    @media (prefers-reduced-motion:reduce){.flick,.bob,.twinkle,.glow{animation:none}}
+  </style>
+  <circle class="glow" cx="160" cy="170" r="160" fill="url(#glow)"/>
+
+  <circle cx="160" cy="190" r="70" fill="#ffcf5a"/><circle cx="160" cy="190" r="52" fill="#ffe08a"/>
+  <g stroke="#f2b33d" stroke-width="5" stroke-linecap="round"><path d="M244 155L263 148"/><path d="M225 125L239 111"/><path d="M195 106L202 87"/><path d="M160 99L160 79"/><path d="M125 106L118 87"/><path d="M95 125L81 111"/><path d="M76 155L57 148"/></g>
+  <ellipse cx="160" cy="330" rx="150" ry="40" fill="#78b36f"/><ellipse cx="160" cy="342" rx="128" ry="26" fill="#5e9a5a"/>
+  <path d="M160 330c0-50 0-70 4-104" stroke="#3f7a3a" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <g class="bob" style="animation-duration:5s"><path d="M163 250c-40-4-62-30-60-58 34 2 58 24 60 58z" fill="#4f8f45"/><path d="M164 228c34-10 58-36 56-62-32 6-54 30-56 62z" fill="#6fae5f"/></g>
+  <path class="twinkle" d="M70 102l2.24 5.76 5.76 2.24-5.76 2.24-2.24 5.76-2.24-5.76-5.76-2.24 5.76-2.24z" fill="#ffffff"/><path class="twinkle" d="M250 93l1.9600000000000002 5.04 5.04 1.9600000000000002-5.04 1.9600000000000002-1.9600000000000002 5.04-1.9600000000000002-5.04-5.04-1.9600000000000002 5.04-1.9600000000000002z" fill="#ffffff"/>
+</svg>

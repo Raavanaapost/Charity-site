@@ -44,3 +44,4 @@
 - Current: softer logo, squeezed to about 78% height for a shorter header
 - Original stage pages (Initiated / Activated / Impact) with the taller 2:1 banner: commit 43c4d88.
   The original banner pictures are kept as img/hero-initiated-original.svg, hero-activated-original.svg, hero-impact-original.svg.
+- [ ] "A moment in their name" (/moment): replace the hand-drawn picture for each reason (img/moment/*.svg) with Gemini illustrations (SURESH, 10 Nov 2026). Prompts are in the project files (raavanaa-org/moment-page/gemini-prompts.md).

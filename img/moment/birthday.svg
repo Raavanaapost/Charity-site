@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 420" role="img" aria-label="A birthday cake with candles and balloons">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffe3ea" stop-opacity=".9"/><stop offset=".5" stop-color="#ffb3c1" stop-opacity=".3"/><stop offset="1" stop-color="#ffb3c1" stop-opacity="0"/></radialGradient>
+    <linearGradient id="gold" x1="0" x2="1"><stop offset="0" stop-color="#9a6a17"/><stop offset=".4" stop-color="#e6b94f"/><stop offset=".6" stop-color="#f6d98a"/><stop offset="1" stop-color="#a8761a"/></linearGradient>
+    <linearGradient id="flame" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#d9480f"/><stop offset=".45" stop-color="#ff9d2e"/><stop offset="1" stop-color="#fff2b8"/></linearGradient>
+  </defs>
+  <style>
+    .flick{transform-box:fill-box;transform-origin:50% 100%;animation:flick 2.4s ease-in-out infinite}
+    .bob{transform-box:fill-box;transform-origin:50% 100%;animation:bob 4s ease-in-out infinite}
+    .twinkle{animation:tw 2.8s ease-in-out infinite}
+    .glow{transform-box:fill-box;transform-origin:center;animation:br 3.4s ease-in-out infinite}
+    @keyframes flick{0%,100%{transform:scale(1,1)}35%{transform:scale(.94,1.06) rotate(-2deg)}65%{transform:scale(1.04,.96) rotate(2deg)}}
+    @keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-8px) rotate(2deg)}}
+    @keyframes tw{0%,100%{opacity:1}50%{opacity:.35}}
+    @keyframes br{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+    @media (prefers-reduced-motion:reduce){.flick,.bob,.twinkle,.glow{animation:none}}
+  </style>
+  <circle class="glow" cx="160" cy="170" r="150" fill="url(#glow)"/>
+
+  <g class="bob"><path d="M58 150c-22 0-30-50 0-58 30 8 22 58 0 58z" fill="#e8547a"/><path d="M58 150q-6 40 6 90" stroke="#c9a24a" stroke-width="2" fill="none"/></g>
+  <g class="bob" style="animation-delay:-1.4s"><path d="M262 130c-22 0-30-50 0-58 30 8 22 58 0 58z" fill="#f2b33d"/><path d="M262 130q8 40-4 100" stroke="#c9a24a" stroke-width="2" fill="none"/></g>
+  <g class="bob" style="animation-delay:-2.6s"><path d="M236 190c-16 0-22-36 0-42 22 6 16 42 0 42z" fill="#3f9a5f"/><path d="M236 190q4 30-6 60" stroke="#c9a24a" stroke-width="2" fill="none"/></g>
+  <ellipse cx="160" cy="352" rx="112" ry="14" fill="url(#gold)"/>
+  <rect x="70" y="270" width="180" height="78" rx="14" fill="#f7c6d0"/><path d="M70 290c20 14 40 14 60 0s40-14 60 0 40 14 60 0v-8c0-8-6-12-14-12H84c-8 0-14 4-14 12z" fill="#fff5f7"/>
+  <rect x="98" y="210" width="124" height="62" rx="12" fill="#f6dfb2"/><path d="M98 226c14 10 28 10 41 0s28-10 41 0 28 10 42 0v-4c0-6-5-12-12-12H110c-7 0-12 6-12 12z" fill="#fff5f7"/>
+  <g fill="#e8547a"><circle cx="90" cy="315" r="4"/><circle cx="114" cy="315" r="4"/><circle cx="138" cy="315" r="4"/><circle cx="162" cy="315" r="4"/><circle cx="186" cy="315" r="4"/><circle cx="210" cy="315" r="4"/><circle cx="234" cy="315" r="4"/></g>
+  <g><rect x="122" y="178" width="8" height="34" rx="3" fill="#4c8de0"/><rect x="156" y="178" width="8" height="34" rx="3" fill="#e8547a"/><rect x="190" y="178" width="8" height="34" rx="3" fill="#3f9a5f"/></g>
+  <g class="flick"><path d="M126 161.2c4.8999999999999995 7.699999999999999 7.699999999999999 12.6 7.699999999999999 17.5a7.699999999999999 7.699999999999999 0 0 1-15.399999999999999 0c0-4.8999999999999995 2.8-9.799999999999999 7.699999999999999-17.5z" fill="url(#flame)"/><path d="M126 172.4c2.0999999999999996 3.5 3.15 5.6 3.15 7.699999999999999a3.15 3.15 0 0 1-6.3 0c0-2.0999999999999996 1.0499999999999998-4.199999999999999 3.15-7.699999999999999z" fill="#fff7d6"/></g><g class="flick"><path d="M160 161.2c4.8999999999999995 7.699999999999999 7.699999999999999 12.6 7.699999999999999 17.5a7.699999999999999 7.699999999999999 0 0 1-15.399999999999999 0c0-4.8999999999999995 2.8-9.799999999999999 7.699999999999999-17.5z" fill="url(#flame)"/><path d="M160 172.4c2.0999999999999996 3.5 3.15 5.6 3.15 7.699999999999999a3.15 3.15 0 0 1-6.3 0c0-2.0999999999999996 1.0499999999999998-4.199999999999999 3.15-7.699999999999999z" fill="#fff7d6"/></g><g class="flick"><path d="M194 161.2c4.8999999999999995 7.699999999999999 7.699999999999999 12.6 7.699999999999999 17.5a7.699999999999999 7.699999999999999 0 0 1-15.399999999999999 0c0-4.8999999999999995 2.8-9.799999999999999 7.699999999999999-17.5z" fill="url(#flame)"/><path d="M194 172.4c2.0999999999999996 3.5 3.15 5.6 3.15 7.699999999999999a3.15 3.15 0 0 1-6.3 0c0-2.0999999999999996 1.0499999999999998-4.199999999999999 3.15-7.699999999999999z" fill="#fff7d6"/></g>
+  <path class="twinkle" d="M40 50l2.8000000000000003 7.199999999999999 7.199999999999999 2.8000000000000003-7.199999999999999 2.8000000000000003-2.8000000000000003 7.199999999999999-2.8000000000000003-7.199999999999999-7.199999999999999-2.8000000000000003 7.199999999999999-2.8000000000000003z" fill="#f2b33d"/><path class="twinkle" d="M290 242l2.24 5.76 5.76 2.24-5.76 2.24-2.24 5.76-2.24-5.76-5.76-2.24 5.76-2.24z" fill="#e8547a"/><path class="twinkle" d="M120 103l1.9600000000000002 5.04 5.04 1.9600000000000002-5.04 1.9600000000000002-1.9600000000000002 5.04-1.9600000000000002-5.04-5.04-1.9600000000000002 5.04-1.9600000000000002z" fill="#4c8de0"/>
+</svg>

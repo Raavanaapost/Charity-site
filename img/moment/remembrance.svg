@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 420" role="img" aria-label="Clay lamps on a lotus leaf with jasmine flowers">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff4d6" stop-opacity=".9"/><stop offset=".5" stop-color="#f4d27a" stop-opacity=".3"/><stop offset="1" stop-color="#f4d27a" stop-opacity="0"/></radialGradient>
+    <linearGradient id="gold" x1="0" x2="1"><stop offset="0" stop-color="#9a6a17"/><stop offset=".4" stop-color="#e6b94f"/><stop offset=".6" stop-color="#f6d98a"/><stop offset="1" stop-color="#a8761a"/></linearGradient>
+    <linearGradient id="flame" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#d9480f"/><stop offset=".45" stop-color="#ff9d2e"/><stop offset="1" stop-color="#fff2b8"/></linearGradient>
+  </defs>
+  <style>
+    .flick{transform-box:fill-box;transform-origin:50% 100%;animation:flick 2.4s ease-in-out infinite}
+    .bob{transform-box:fill-box;transform-origin:50% 100%;animation:bob 4s ease-in-out infinite}
+    .twinkle{animation:tw 2.8s ease-in-out infinite}
+    .glow{transform-box:fill-box;transform-origin:center;animation:br 3.4s ease-in-out infinite}
+    @keyframes flick{0%,100%{transform:scale(1,1)}35%{transform:scale(.94,1.06) rotate(-2deg)}65%{transform:scale(1.04,.96) rotate(2deg)}}
+    @keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-8px) rotate(2deg)}}
+    @keyframes tw{0%,100%{opacity:1}50%{opacity:.35}}
+    @keyframes br{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+    @media (prefers-reduced-motion:reduce){.flick,.bob,.twinkle,.glow{animation:none}}
+  </style>
+  <circle class="glow" cx="160" cy="250" r="150" fill="url(#glow)"/>
+<g transform="translate(-24 -84) scale(1.15)">
+  <ellipse cx="160" cy="330" rx="140" ry="34" fill="#5e9a5a"/><ellipse cx="160" cy="324" rx="128" ry="26" fill="#78b36f"/>
+  <path d="M160 300v28M110 306l50 22M210 306l-50 22" stroke="#5e9a5a" stroke-width="2"/>
+  <g><path d="M70 300c0-14 40-14 40 0 0 12-9 18-20 18s-20-6-20-18z" fill="#b5532a"/><ellipse cx="90" cy="300" rx="20" ry="5" fill="#7a3416"/><g class="flick"><path d="M90 276.8c5.6000000000000005 8.8 8.8 14.4 8.8 20.0a8.8 8.8 0 0 1-17.6 0c0-5.6000000000000005 3.2-11.200000000000001 8.8-20.0z" fill="url(#flame)"/><path d="M90 289.6c2.4000000000000004 4.0 3.6 6.4 3.6 8.8a3.6 3.6 0 0 1-7.2 0c0-2.4000000000000004 1.2000000000000002-4.800000000000001 3.6-8.8z" fill="#fff7d6"/></g></g>
+  <g><path d="M210 300c0-14 40-14 40 0 0 12-9 18-20 18s-20-6-20-18z" fill="#b5532a"/><ellipse cx="230" cy="300" rx="20" ry="5" fill="#7a3416"/><g class="flick"><path d="M230 276.8c5.6000000000000005 8.8 8.8 14.4 8.8 20.0a8.8 8.8 0 0 1-17.6 0c0-5.6000000000000005 3.2-11.200000000000001 8.8-20.0z" fill="url(#flame)"/><path d="M230 289.6c2.4000000000000004 4.0 3.6 6.4 3.6 8.8a3.6 3.6 0 0 1-7.2 0c0-2.4000000000000004 1.2000000000000002-4.800000000000001 3.6-8.8z" fill="#fff7d6"/></g></g>
+  <g><path d="M132 280c0-20 56-20 56 0 0 17-12 26-28 26s-28-9-28-26z" fill="#c4612f"/><ellipse cx="160" cy="280" rx="28" ry="7" fill="#7a3416"/><g class="flick"><path d="M160 247.2c8.4 13.2 13.2 21.599999999999998 13.2 30.0a13.2 13.2 0 0 1-26.4 0c0-8.4 4.8-16.8 13.2-30.0z" fill="url(#flame)"/><path d="M160 266.4c3.5999999999999996 6.0 5.3999999999999995 9.6 5.3999999999999995 13.2a5.3999999999999995 5.3999999999999995 0 0 1-10.799999999999999 0c0-3.5999999999999996 1.7999999999999998-7.199999999999999 5.3999999999999995-13.2z" fill="#fff7d6"/></g></g>
+  <g fill="#fffdf6" stroke="#e8dcc0" stroke-width="1"><circle cx="40" cy="350" r="5"/><circle cx="55" cy="358" r="5"/><circle cx="72" cy="364" r="5"/><circle cx="90" cy="368" r="5"/><circle cx="230" cy="368" r="5"/><circle cx="248" cy="364" r="5"/><circle cx="265" cy="358" r="5"/><circle cx="280" cy="350" r="5"/></g>
+  <g fill="#f3e6b5"><circle cx="40" cy="350" r="2"/><circle cx="72" cy="364" r="2"/><circle cx="248" cy="364" r="2"/><circle cx="280" cy="350" r="2"/></g></g>
+</svg>

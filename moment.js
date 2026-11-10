@@ -13,17 +13,17 @@
 
   // The reasons. `words` is what the card and the project page say before the name.
   var OCCASIONS = [
-    { k: "memory", icon: "lamp", en: "In loving memory", ta: "அன்பு நினைவாக", words: ["In loving memory of", "அன்பு நினைவாக:"] },
-    { k: "remembrance", icon: "lamp", en: "Remembrance day", ta: "நினைவு நாள்", words: ["Remembering, on the anniversary of", "நினைவு நாளில் நினைவுகூர்ந்து:"] },
-    { k: "birthday", icon: "cake", en: "A birthday", ta: "பிறந்தநாள்", words: ["Celebrating the birthday of", "பிறந்தநாள் வாழ்த்துடன்:"] },
-    { k: "wedding", icon: "rings", en: "Wedding anniversary", ta: "திருமண நாள்", words: ["Celebrating the wedding anniversary of", "திருமண நாள் வாழ்த்துடன்:"] },
-    { k: "newborn", icon: "cradle", en: "A new baby", ta: "புதிய குழந்தை", words: ["Welcoming", "அன்புடன் வரவேற்று:"] },
-    { k: "success", icon: "star", en: "Exams or graduation", ta: "தேர்வு / பட்டம்", words: ["Celebrating the success of", "வெற்றியைக் கொண்டாடி:"] },
-    { k: "recovery", icon: "leaf", en: "Getting well", ta: "நலம் பெற்றது", words: ["Giving thanks for the recovery of", "நலம் பெற்றதற்கு நன்றியுடன்:"] },
-    { k: "gratitude", icon: "hands", en: "With gratitude", ta: "நன்றியுடன்", words: ["With gratitude for", "நன்றியுடன்:"] },
-    { k: "festival", icon: "kolam", en: "A festival", ta: "பண்டிகை", words: ["A festival gift in the name of", "பண்டிகைப் பரிசாக, பெயரில்:"] },
-    { k: "honour", icon: "crown", en: "In honour of", ta: "கௌரவிக்க", words: ["In honour of", "கௌரவிக்கும் வகையில்:"] },
-    { k: "custom", icon: "pen", en: "My own words", ta: "என் சொந்த வார்த்தைகள்", words: ["", ""] }
+    { k: "memory", theme: ["#fff3cf", "#8a5c12", "#c9a24a", "#f29a1f"], icon: "lamp", en: "In loving memory", ta: "அன்பு நினைவாக", words: ["In loving memory of", "அன்பு நினைவாக:"] },
+    { k: "remembrance", theme: ["#f6f1e4", "#6b5a3a", "#b9a77a", "#fffdf6"], icon: "lamp", en: "Remembrance day", ta: "நினைவு நாள்", words: ["Remembering, on the anniversary of", "நினைவு நாளில் நினைவுகூர்ந்து:"] },
+    { k: "birthday", theme: ["#ffe3ea", "#b83b62", "#e8899f", "#e8547a"], icon: "cake", en: "A birthday", ta: "பிறந்தநாள்", words: ["Celebrating the birthday of", "பிறந்தநாள் வாழ்த்துடன்:"] },
+    { k: "wedding", theme: ["#ffe7d6", "#a8321e", "#c9a24a", "#c8381e"], icon: "rings", en: "Wedding anniversary", ta: "திருமண நாள்", words: ["Celebrating the wedding anniversary of", "திருமண நாள் வாழ்த்துடன்:"] },
+    { k: "newborn", theme: ["#e3f0ff", "#3b6aa8", "#9ec0e8", "#a9c8f0"], icon: "cradle", en: "A new baby", ta: "புதிய குழந்தை", words: ["Welcoming", "அன்புடன் வரவேற்று:"] },
+    { k: "success", theme: ["#fff0c7", "#1f3b63", "#c9a24a", "#f2b33d"], icon: "star", en: "Exams or graduation", ta: "தேர்வு / பட்டம்", words: ["Celebrating the success of", "வெற்றியைக் கொண்டாடி:"] },
+    { k: "recovery", theme: ["#eef7df", "#3f7a3a", "#8cc07a", "#78b36f"], icon: "leaf", en: "Getting well", ta: "நலம் பெற்றது", words: ["Giving thanks for the recovery of", "நலம் பெற்றதற்கு நன்றியுடன்:"] },
+    { k: "gratitude", theme: ["#ffe1dc", "#b0423a", "#e8a093", "#e2493a"], icon: "hands", en: "With gratitude", ta: "நன்றியுடன்", words: ["With gratitude for", "நன்றியுடன்:"] },
+    { k: "festival", theme: ["#fff0c2", "#b5532a", "#f2b33d", "#f29a1f"], icon: "kolam", en: "A festival", ta: "பண்டிகை", words: ["A festival gift in the name of", "பண்டிகைப் பரிசாக, பெயரில்:"] },
+    { k: "honour", theme: ["#f3efd8", "#1f4d3a", "#c9a24a", "#e6b94f"], icon: "crown", en: "In honour of", ta: "கௌரவிக்க", words: ["In honour of", "கௌரவிக்கும் வகையில்:"] },
+    { k: "custom", theme: ["#ffe3ee", "#b0457a", "#f2a3c0", "#f48fb1"], icon: "pen", en: "My own words", ta: "என் சொந்த வார்த்தைகள்", words: ["", ""] }
   ];
   var ICONS = {
     lamp: '<path d="M12 3c2 3 3 4.6 3 6a3 3 0 0 1-6 0c0-1.4 1-3 3-6z" fill="#f29a1f" stroke="none"/><path d="M5 13h14c-.6 3-3.4 4.5-7 4.5S5.6 16 5 13zM12 17.5V21M8 21h8"/>',
@@ -58,13 +58,14 @@
   var st = { k: q.get("for") || "memory", custom: "", name: "", note: "", from: "", project: "" };
   if (!OCCASIONS.some(function (o) { return o.k === st.k; })) st.k = "memory";
   var occ = function () { return OCCASIONS.filter(function (o) { return o.k === st.k; })[0]; };
+  var art = function () { return "/img/moment/" + st.k + ".svg"; };
   var words = function () { var o = occ(); return o.k === "custom" ? st.custom.trim() : o.words[TA ? 1 : 0]; };
 
   root.innerHTML =
     '<section class="mo-hero">' +
       '<div class="mo-petals" aria-hidden="true">' + Array.apply(null, Array(14)).map(function (_, i) { return '<i style="--i:' + i + '"></i>'; }).join("") + "</div>" +
       '<div class="wrap mo-hero-in">' +
-        '<img class="mo-lamp" src="/img/moment-lamp.svg" alt="" width="320" height="420">' +
+        '<img class="mo-lamp" data-hero-art src="/img/moment/memory.svg" alt="" width="320" height="420">' +
         '<div class="mo-hero-text">' +
           '<p class="mo-kicker">' + T("Raavanaa · A moment in their name", "ராவணா · அவர்கள் பெயரில் ஒரு தருணம்") + "</p>" +
           "<h1>" + T("Some days, we carry someone with us.", "சில நாட்களில், ஒருவரை நம்முடன் சுமந்து செல்கிறோம்.") + "</h1>" +
@@ -96,7 +97,7 @@
       '<aside class="mo-side"><div class="mo-sticky">' +
         '<p class="mo-side-label">' + T("Their card", "அவர்களுக்கான அட்டை") + "</p>" +
         '<figure class="mo-card" data-card>' +
-          '<img class="mo-card-lamp" src="/img/moment-lamp.svg" alt="" width="96" height="126">' +
+          '<img class="mo-card-lamp" data-card-art src="/img/moment/memory.svg" alt="" width="96" height="126">' +
           '<p class="mo-card-words" data-c-words></p>' +
           '<p class="mo-card-name" data-c-name></p>' +
           '<p class="mo-card-note" data-c-note></p>' +
@@ -139,6 +140,10 @@
     $("[data-c-what]").textContent = giftWhat();
     $("[data-c-from]").textContent = st.from ? T("With love, ", "அன்புடன், ") + st.from : "";
     $("[data-card]").dataset.k = st.k;
+    // Each reason has its own picture and colours (SURESH, 10 Nov 2026). Gemini pictures are on the to-do list.
+    var th = occ().theme;
+    root.style.setProperty("--tint", th[0]); root.style.setProperty("--accent", th[1]); root.style.setProperty("--frame", th[2]); root.style.setProperty("--petal", th[3]);
+    if ($("[data-hero-art]").getAttribute("src") !== art()) { $("[data-hero-art]").setAttribute("src", art()); $("[data-card-art]").setAttribute("src", art()); }
     $("[data-go]").href = giveUrl();
     var link = location.origin + (TA ? "/ta" : "") + "/moment";
     var msg = (w ? w + " " : "") + (st.name || "") + (st.note ? "\n“" + st.note + "”" : "") + "\n" +
@@ -197,9 +202,10 @@
   function saveCard() {
     var W = 1080, H = 1350, c = document.createElement("canvas"); c.width = W; c.height = H;
     var g = c.getContext("2d");
-    var bg = g.createRadialGradient(W / 2, 260, 40, W / 2, 400, 900); bg.addColorStop(0, "#fff3cf"); bg.addColorStop(1, "#fbf6ea");
+    var th = occ().theme;
+    var bg = g.createRadialGradient(W / 2, 260, 40, W / 2, 400, 900); bg.addColorStop(0, th[0]); bg.addColorStop(1, "#fbf6ea");
     g.fillStyle = bg; g.fillRect(0, 0, W, H);
-    g.strokeStyle = "#c9a24a"; g.lineWidth = 6; g.strokeRect(40, 40, W - 80, H - 80);
+    g.strokeStyle = th[2]; g.lineWidth = 6; g.strokeRect(40, 40, W - 80, H - 80);
     g.lineWidth = 2; g.strokeRect(58, 58, W - 116, H - 116);
     var serif = TA ? "'Noto Serif Tamil', serif" : "'Cormorant Garamond', Georgia, serif";
     var wrap = function (text, font, y, max, lh, color) {
@@ -213,10 +219,10 @@
     var img = new Image();
     img.onload = function () {
       g.drawImage(img, W / 2 - 120, 110, 240, 315);
-      var y = wrap(words() || "", "italic 500 " + (TA ? 40 : 50) + "px " + serif, 500, 860, TA ? 60 : 62, "#8a5c12");
+      var y = wrap(words() || "", "italic 500 " + (TA ? 40 : 50) + "px " + serif, 500, 860, TA ? 60 : 62, th[1]);
       y = wrap(st.name || "", "600 " + (TA ? 64 : 78) + "px " + (TA ? serif : "Cinzel, serif"), y + 70, 900, TA ? 88 : 92, "#1f4d3a");
       if (st.note) y = wrap("“" + st.note + "”", "italic 500 " + (TA ? 34 : 42) + "px " + serif, y + 40, 840, TA ? 54 : 56, "#2d5c48");
-      g.strokeStyle = "#c9a24a"; g.lineWidth = 2; g.beginPath(); g.moveTo(W / 2 - 220, y + 40); g.lineTo(W / 2 - 40, y + 40); g.moveTo(W / 2 + 40, y + 40); g.lineTo(W / 2 + 220, y + 40); g.stroke();
+      g.strokeStyle = th[2]; g.lineWidth = 2; g.beginPath(); g.moveTo(W / 2 - 220, y + 40); g.lineTo(W / 2 - 40, y + 40); g.moveTo(W / 2 + 40, y + 40); g.lineTo(W / 2 + 220, y + 40); g.stroke();
       g.font = "34px serif"; g.fillStyle = "#e4761b"; g.textAlign = "center"; g.fillText("❀", W / 2, y + 52);
       y = wrap(giftLine(), "600 " + (TA ? 30 : 36) + "px " + serif, y + 120, 860, 48, "#1f4d3a");
       y = wrap(giftWhat(), "italic 500 " + (TA ? 26 : 32) + "px " + serif, y + 4, 860, 44, "#5d6b64");
@@ -228,7 +234,7 @@
         var a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = file.name; document.body.appendChild(a); a.click(); a.remove();
       }, "image/jpeg", 0.92);
     };
-    img.src = "/img/moment-lamp.svg";
+    img.src = art();
   }
 
   draw();

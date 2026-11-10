@@ -7,10 +7,10 @@ body[data-page="moment"]{
   background:var(--bg); color:var(--ink); color-scheme:light;
 }
 body[data-page="moment"] .bar{background:var(--surface)}
-.moment{overflow:hidden}
+.moment{overflow:hidden;--tint:#fff3cf;--accent:#8a5c12;--frame:#c9a24a;--petal:#f29a1f}
 
 /* Hero */
-.mo-hero{position:relative;background:radial-gradient(900px 480px at 30% 30%,#ffefc4 0,rgba(255,239,196,0) 70%),linear-gradient(#fbf1d8,#fbf6ea);border-bottom:1px solid var(--line)}
+.mo-hero{position:relative;background:radial-gradient(900px 480px at 30% 30%,var(--tint) 0,rgba(255,255,255,0) 70%),linear-gradient(#fbf1d8,#fbf6ea);transition:background .6s;border-bottom:1px solid var(--line)}
 .mo-hero-in{position:relative;display:grid;grid-template-columns:minmax(150px,280px) 1fr;gap:clamp(18px,4vw,56px);align-items:center;padding-block:clamp(28px,6vw,72px)}
 .mo-lamp{width:100%;height:auto;filter:drop-shadow(0 18px 24px rgba(138,92,18,.25))}
 .mo-kicker{font-family:Cinzel,serif;font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:13px;color:var(--gold-deep);margin:0 0 12px}
@@ -24,7 +24,7 @@ html[lang="ta"] .mo-lede{font-size:clamp(16px,1.9vw,19px)}
 /* Falling marigold petals */
 .mo-petals{position:absolute;inset:0;pointer-events:none}
 .mo-petals i{position:absolute;top:-20px;left:calc(var(--i) * 7.3% + 2%);width:10px;height:14px;border-radius:60% 60% 50% 50%;
-  background:var(--marigold);opacity:.75;
+  background:var(--petal);opacity:.75;
   animation:petal calc(9s + var(--i) * .7s) linear calc(var(--i) * -1.3s) infinite}
 .mo-petals i:nth-child(3n){background:#ffc94a;width:8px;height:11px}
 .mo-petals i:nth-child(4n){background:#c8381e;opacity:.55}
@@ -69,18 +69,18 @@ html[lang="ta"] .mo-step h2{font-family:"Noto Serif Tamil",serif;font-size:22px}
 .mo-sticky{position:sticky;top:84px;display:grid;gap:12px}
 .mo-side-label{font-family:Cinzel,serif;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--gold-deep);margin:0;text-align:center}
 .mo-card{margin:0;position:relative;text-align:center;padding:26px 26px 22px;border-radius:20px;
-  background:radial-gradient(420px 260px at 50% 10%,#fff3cf 0,rgba(255,243,207,0) 70%),#fffbf1;
-  box-shadow:0 0 0 1px var(--line),inset 0 0 0 8px #fffbf1,inset 0 0 0 9px var(--gold),0 24px 40px -26px rgba(138,92,18,.55)}
+  background:radial-gradient(420px 260px at 50% 10%,var(--tint) 0,rgba(255,255,255,0) 75%),#fffbf1;
+  box-shadow:0 0 0 1px var(--line),inset 0 0 0 8px #fffbf1,inset 0 0 0 9px var(--frame),0 24px 40px -26px rgba(138,92,18,.55)}
 .mo-card-lamp{width:84px;height:auto;margin:0 auto 6px;display:block}
-.mo-card-words{font-family:var(--serif);font-style:italic;font-size:21px;color:var(--gold-deep);margin:0 0 6px;line-height:1.3}
+.mo-card-words{font-family:var(--serif);font-style:italic;font-size:21px;color:var(--accent);margin:0 0 6px;line-height:1.3}
 html[lang="ta"] .mo-card-words{font-style:normal;font-size:17px}
 .mo-card-name{font-family:Cinzel,"Noto Serif Tamil",serif;font-weight:600;font-size:30px;line-height:1.2;color:var(--green);margin:0 0 8px;word-wrap:break-word}
 .mo-card-name.ghost{opacity:.35}
 .mo-card-note{font-family:var(--serif);font-style:italic;font-size:19px;color:#2d5c48;margin:0 0 6px}
 .mo-card-note:empty,.mo-card-from:empty{display:none}
 .mo-card-rule{display:flex;align-items:center;gap:10px;margin:10px 0}
-.mo-card-rule i{flex:1;height:1px;background:var(--gold)}
-.mo-card-rule b{color:var(--flame);font-weight:400}
+.mo-card-rule i{flex:1;height:1px;background:var(--frame)}
+.mo-card-rule b{color:var(--accent);font-weight:400}
 .mo-card-gift{font-family:var(--serif);font-size:19px;color:var(--green);margin:0 0 2px;font-weight:600}
 .mo-card-from{font-family:var(--serif);font-style:italic;color:var(--muted);margin:0}
 .mo-card-brand{margin:10px 0 0;font-size:12px;letter-spacing:.12em;color:#b0812a;font-weight:600}
@@ -107,3 +107,5 @@ html[lang="ta"] .mo-card-words{font-style:normal;font-size:17px}
 }
 .mo-field[hidden]{display:none}
 .mo-card-what{font-family:var(--serif);font-style:italic;color:var(--muted);font-size:16px;margin:0 0 6px}
+.mo-lamp,.mo-card-lamp{transition:opacity .3s}
+.mo-card-lamp{width:110px}
