@@ -544,7 +544,7 @@
   function signIn(msg = "", mode = "login", token = "") {
     document.body.classList.add("pt-signedout");
     app.innerHTML = `<section class="pt-login">
-      <img src="/img/logo.webp?v=3" alt="Raavanaa" width="900" height="298">
+      <img src="/img/logo.webp?v=4" alt="Raavanaa" width="900" height="298">
       <span class="pt-ribbon">Team</span>
       <h1 data-rot="title">${mode === "invite" ? "Welcome to the <em>team</em>" : mode === "recovery" ? "Choose a new <em>password</em>" : "Team <em>sign in</em>"}</h1>
       <p class="pt-sub" data-rot="sub">${mode === "invite" ? "Choose a password for your new portal account." : mode === "recovery" ? "Type your new password." : "For the Raavanaa team only."}</p>

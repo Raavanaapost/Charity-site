@@ -555,7 +555,7 @@
         <section class="logo-entry">
           <span class="le-glow" aria-hidden="true"></span>
           <h1 class="sr">Raavanaa Community: creating smiles, creating moments</h1>
-          <picture class="le-logo"><source srcset="/img/logo.webp?v=3" type="image/webp"><img src="/img/logo.jpg?v=3" alt="Raavanaa · Beyond the Lanes · Creating Smiles" width="900" height="298"></picture>
+          <picture class="le-logo"><source srcset="/img/logo.webp?v=4" type="image/webp"><img src="/img/logo.jpg?v=4" alt="Raavanaa · Beyond the Lanes · Creating Smiles" width="900" height="298"></picture>
           <div class="le-rule" aria-hidden="true"><i></i><b></b><i></i></div>
           <p class="le-slogan">Creating smiles, creating moments</p>
           <p class="le-sub">A day of joy, together</p>
