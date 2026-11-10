@@ -11,7 +11,8 @@ import type { Context } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
 import { getStore } from "@netlify/blobs";
 
-const MODELS = ["gemini-flash-latest", "gemini-2.5-flash", "gemini-2.5-flash-lite"];
+// Google retires model names often; the "-latest" names follow the newest model. Busy models are tried again, then the next.
+const MODELS = ["gemini-flash-latest", "gemini-3.5-flash-lite", "gemini-flash-lite-latest", "gemini-2.5-flash"];
 const MAX_INLINE = 14 * 1024 * 1024; // Gemini takes about 20 MB per request, and files grow by a third when sent
 
 const PROMPT = `You help RAAVANAA, a small volunteer charity in Sri Lanka that gives children a day of joy (a school trip, a meal,
@@ -64,7 +65,7 @@ const toB64 = (buf: Uint8Array) => {
 async function callGemini(key: string, parts: unknown[]) {
   let last = "";
   for (const model of MODELS) {
-    for (let attempt = 0; attempt < 2; attempt++) {
+    for (let attempt = 0; attempt < 3; attempt++) {
       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-goog-api-key": key },
@@ -79,8 +80,11 @@ async function callGemini(key: string, parts: unknown[]) {
       // Say the two common problems in plain words.
       if (/API_KEY_INVALID|API key not valid/i.test(body)) throw new Error("Google says the GEMINI_API_KEY in Netlify is not valid. Copy it again from aistudio.google.com/apikey and save it in Netlify.");
       if (/limit: 0|free_tier/i.test(body)) throw new Error("Google's free tier does not allow this. Turn on billing for the key in AI Studio.");
-      last = `${model}: ${res.status} ${body.slice(0, 300)}`;
-      if (res.status === 503 || res.status === 429 || res.status === 500) { await new Promise((r) => setTimeout(r, 4000)); continue; }
+      const busy = res.status === 503 || res.status === 429 || res.status === 500;
+      // Keep the most useful reason: "busy" says more than a retired backup's 404.
+      if (busy || !last) last = busy ? "Gemini is busy right now. Try again in a few minutes." : `${model}: ${res.status} ${body.slice(0, 300)}`;
+      console.log(`analyse: ${model} answered ${res.status}`);
+      if (busy) { await new Promise((r) => setTimeout(r, 8000 * (attempt + 1))); continue; }
       break; // 404 (model not available) or 400: try the next model
     }
   }
