@@ -28,6 +28,7 @@ PICTURES = {
     "gratitude": "Two open cupped hands (only the hands, no arms or bodies) gently holding a glowing red heart, marigold petals falling softly.",
     "festival": "A traditional clay Pongal pot boiling over with white milk rice, two sugarcane stalks on either side, turmeric leaves tied around the pot, a colourful kolam drawn in front, morning sun.",
     "honour": "A golden laurel wreath around a shining gold star, a red ribbon at the bottom of the wreath.",
+    "behalf": "A big round woven palmyra basket overflowing with gifts brought together by many people: bananas, mangoes, a coconut, marigold garlands and jasmine, tied with several colourful ribbons.",
     "custom": "A single pink lotus flower in full bloom floating on still water with two green lotus leaves.",
 }
 CHECK = """Look at this picture and answer only with JSON:
