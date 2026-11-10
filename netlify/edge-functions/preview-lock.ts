@@ -16,6 +16,9 @@ export default async (request: Request, context: { next: () => Promise<Response>
   if (!password) return context.next();
   const path = new URL(request.url).pathname;
   if (PUBLIC.has(path)) return context.next();
+  // Share pictures (logo, drawings and share titles; never a photo of a child) are open so vouch links
+  // show their picture on WhatsApp before launch (SURESH, 10 Nov 2026).
+  if (/^\/img\/share\/[a-z0-9-]+\.jpg$/.test(path)) return context.next();
   // Endorse links (/e/<link>) are shared on WhatsApp before launch too, so people can vouch without the password.
   if (path.startsWith("/e/") || path.startsWith("/ta/e/") || path === "/endorse.html" || path === "/endorse.js" || path === "/endorse.css"
     || /^\/img\/(project-[a-z]+|hero-initiated)\.svg$/.test(path) || /^\/img\/(logo|members-bridge)\.(webp|jpg)$/.test(path)) return context.next();
