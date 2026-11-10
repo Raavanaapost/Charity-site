@@ -195,7 +195,8 @@ async function totals(context: Context) {
     if (!units) continue;
     const t = (out[r.project_slug] ||= { cents: 0, gifts: [] });
     t.cents += Number(r.amount_cents);
-    const tr = r.tribute && r.tribute.show && TRIBUTE_WORDS[r.tribute.kind] ? `${TRIBUTE_WORDS[r.tribute.kind]} ${r.tribute.name}` : "";
+    const trWords = r.tribute ? (r.tribute.words || TRIBUTE_WORDS[r.tribute.kind] || "") : "";
+    const tr = r.tribute && r.tribute.show && trWords ? `${trWords} ${r.tribute.name}` : "";
     t.gifts.push({ name: r.show_name && r.display_name ? r.display_name : FRIEND, amount: Math.round(units * 100) / 100, ...(tr ? { tribute: tr } : {}) });
   }
   return json({ enabled: true, provider, currency: currencyOf(provider).toUpperCase(), test: !live, rate: RATE, projects: out, members: m ? Number(m.n) : 0 }, 200, "public, max-age=30");
@@ -213,7 +214,7 @@ async function session(req: Request) {
     const p = o.kind === "project" ? find(o.project_slug) : undefined;
     return json({ ok: true, provider: "payhere", currency: "LKR", kind: o.kind, amount: Number(o.amount_cents) / 100, paid: (Number(o.amount_cents) + Number(o.fee_cents)) / 100,
       project: p ? { title: p.title, slug: slugOf(p) } : null, status: o.status, test: !o.livemode,
-      tribute: o.tribute ? { kind: o.tribute.kind, name: o.tribute.name } : null });
+      tribute: o.tribute ? { kind: o.tribute.kind, name: o.tribute.name, words: o.tribute.words || TRIBUTE_WORDS[o.tribute.kind] || "" } : null });
   }
   const id = q.get("id") || "";
   if (!/^cs_[A-Za-z0-9_]+$/.test(id)) return json({ ok: false }, 400);

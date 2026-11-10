@@ -2150,6 +2150,7 @@
         <label class="give-check"><input type="checkbox" name="show_name" value="yes"> <span>${kind === "member" ? "Show my name with the Smile members" : "Show my name on the project page"}</span></label>
         <p class="note give-hint">If you leave this unticked, you'll appear as “A friend of Raavanaa”.</p>`}
         <label class="give-check give-tribute-on"><input type="checkbox" name="tribute_on" value="yes"> <span>Make it a moment in someone's name</span></label>
+        <p class="note give-moment-link"><a href="/moment">More reasons, and a card to keep →</a></p>
         <div class="give-tribute" hidden>
           <p class="note">Remember a loved one, or mark a birthday or anniversary. Tamil families have always given on these days; now the day of joy carries their name.</p>
           <label><span>This gift is</span><select name="tribute_kind">
@@ -2233,8 +2234,16 @@
         if (msg.classList.contains("bad") && a >= MIN) msg.hidden = true;
         if (on) pay.textContent = a >= MIN ? `Pay ${dollars(a + (cover ? add : 0))}${f.dataset.kind === "member" ? " a month" : ""} securely` : "Continue to secure payment";
       };
+      // Coming from /moment (or a remembrance post): ?tribute=<reason>&tw=<their words>&tn=<name>&tnote=<words>
       const trPick = q.get("tribute");
-      if (trPick && f.querySelector('[name="tribute_on"]')) { f.querySelector('[name="tribute_on"]').checked = true; const sel = f.querySelector('[name="tribute_kind"]'); if ([...sel.options].some(o => o.value === trPick)) sel.value = trPick; }
+      if (trPick && f.querySelector('[name="tribute_on"]')) {
+        f.querySelector('[name="tribute_on"]').checked = true;
+        const sel = f.querySelector('[name="tribute_kind"]'), tw = (q.get("tw") || "").slice(0, 60);
+        if (tw) { const o = document.createElement("option"); o.value = /^[a-z]{3,12}$/.test(trPick) ? trPick : "custom"; o.textContent = tw; o.dataset.own = "1"; sel.prepend(o); sel.value = o.value; o.selected = true; }
+        else if ([...sel.options].some(o => o.value === trPick)) sel.value = trPick;
+        if (q.get("tn")) f.querySelector('[name="tribute_name"]').value = q.get("tn").slice(0, 60);
+        if (q.get("tnote")) f.querySelector('[name="tribute_note"]').value = q.get("tnote").slice(0, 140);
+      }
       f.addEventListener("change", update); f.addEventListener("input", update); update();
       f.addEventListener("submit", async e => {
         e.preventDefault();
@@ -2249,6 +2258,8 @@
         if (trOn && trOn.checked && !trName.value.trim()) { say("Please add the name of the person this gift is for.", true); trName.focus(); return; }
         const fd = new FormData(f), body = { amount: a, lang: location.pathname.startsWith("/ta/") ? "ta" : "en" };
         for (const [k, v] of fd.entries()) if (k !== "pick" && k !== "own") body[k] = v;
+        const trSel = f.querySelector('[name="tribute_kind"]');
+        if (trSel && trSel.selectedOptions[0]) body.tribute_words = trSel.selectedOptions[0].textContent.trim();
         pay.disabled = true; say("Opening the secure payment page…");
         try {
           const r = await fetch("/api/give/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -2287,12 +2298,13 @@
     const TA = TAp;
     const TR = TA ? { memory: "அன்பு நினைவாக", birthday: "பிறந்தநாள் கொண்டாட்டமாக", anniversary: "நினைவு நாள் கொண்டாட்டமாக", honour: "கௌரவிக்கும் வகையில்" }
       : { memory: "in loving memory of", birthday: "to celebrate the birthday of", anniversary: "to celebrate the anniversary of", honour: "in honour of" };
-    const tr = s && s.ok && s.tribute && TR[s.tribute.kind] ? s.tribute : null;
+    const tr = s && s.ok && s.tribute && s.tribute.name ? s.tribute : null;
+    if (tr && !TR[tr.kind]) TR[tr.kind] = "";
     const shareUrl = `${location.origin}${TA ? "/ta" : ""}${s && s.project ? `/projects/${s.project.slug}` : "/give"}`;
     const shareText = TA
-      ? (tr ? `${tr.name} ${TR[tr.kind]}, இலங்கைக் குழந்தைகளுக்கு ஒரு மகிழ்ச்சியான நாளை உருவாக்கினேன். நீங்களும் ஒரு தருணத்தை உருவாக்கலாம்: ${shareUrl}` : `இலங்கைக் குழந்தைகளுக்கு ஒரு மகிழ்ச்சியான நாளை உருவாக்க உதவினேன். நீங்களும் ஒரு தருணத்தை உருவாக்கலாம்: ${shareUrl}`)
-      : (tr ? `I made a day of joy happen for children in Sri Lanka ${TR[tr.kind]} ${tr.name}. You can make a moment too: ${shareUrl}` : `I just helped make a day of joy happen for children in Sri Lanka. You can make a moment too: ${shareUrl}`);
-    const trLine = !tr ? "" : TA ? `<b>${esc(tr.name)}</b> ${esc(TR[tr.kind])} உருவான தருணம்.` : `A moment made ${esc(TR[tr.kind])} <b>${esc(tr.name)}</b>.`;
+      ? (tr ? `${tr.words ? tr.words + " " + tr.name : tr.name + " " + TR[tr.kind]}. இலங்கைக் குழந்தைகளுக்கு ஒரு மகிழ்ச்சியான நாளை உருவாக்கினேன். நீங்களும் ஒரு தருணத்தை உருவாக்கலாம்: ${shareUrl}` : `இலங்கைக் குழந்தைகளுக்கு ஒரு மகிழ்ச்சியான நாளை உருவாக்க உதவினேன். நீங்களும் ஒரு தருணத்தை உருவாக்கலாம்: ${shareUrl}`)
+      : (tr ? `${tr.words ? tr.words + " " + tr.name + ": I" : "I"} made a day of joy happen for children in Sri Lanka${tr.words ? "" : " " + TR[tr.kind] + " " + tr.name}. You can make a moment too: ${shareUrl}` : `I just helped make a day of joy happen for children in Sri Lanka. You can make a moment too: ${shareUrl}`);
+    const trLine = !tr ? "" : tr.words ? `${esc(tr.words)} <b>${esc(tr.name)}</b>` : TA ? `<b>${esc(tr.name)}</b> ${esc(TR[tr.kind])} உருவான தருணம்.` : `A moment made ${esc(TR[tr.kind])} <b>${esc(tr.name)}</b>.`;
     app.innerHTML = `<section class="give-thanks panel">
       <p class="give-heart" aria-hidden="true">♥</p>
       <h1>${h}</h1><p>${t}</p>

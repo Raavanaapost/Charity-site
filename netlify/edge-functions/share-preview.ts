@@ -6,7 +6,7 @@
 // While SITE_PASSWORD is set, the apps can only reach the open pages (/e/ vouching links); project
 // previews start working for everyone once the password is removed at launch.
 type Card = { title: string; text: string; title_ta?: string; text_ta?: string };
-type Share = { default: Card; vouch?: Card; projects: Record<string, Card> };
+type Share = { default: Card; vouch?: Card; moment?: Card; projects: Record<string, Card> };
 
 let cache: { at: number; data: Share } | null = null;
 async function loadShare(origin: string): Promise<Share | null> {
@@ -41,7 +41,10 @@ export default async (request: Request, context: { next: () => Promise<Response>
   if (!share) return res;
 
   let card: Card, image: string;
-  if (path.startsWith("/e/")) {
+  if (path === "/moment" && share.moment) {
+    card = share.moment;
+    image = "moment";
+  } else if (path.startsWith("/e/")) {
     card = share.vouch || share.default;
     image = "vouch";
   } else {
@@ -70,4 +73,4 @@ export default async (request: Request, context: { next: () => Promise<Response>
   return new Response(html, { status: 200, headers });
 };
 
-export const config = { path: ["/projects/*", "/ta/projects/*", "/e/*", "/ta/e/*"] };
+export const config = { path: ["/projects/*", "/ta/projects/*", "/e/*", "/ta/e/*", "/moment", "/ta/moment"] };

@@ -41,7 +41,7 @@ function card(c, lang) {
   h1{font-size:${ta ? (long ? 34 : 40) : (long ? 42 : 50)}px}
   p.t{font-size:${ta ? 21 : 23}px;line-height:1.45;color:#2d5c48}
   .foot{margin-top:auto;display:flex;justify-content:space-between;align-items:center;font-size:20px}
-  .r{flex:1;position:relative;background:url('${c.artUrl}') center/cover}
+  .r{flex:1;position:relative;background:url('${c.artUrl}') center/${/lamp/.test(c.art) ? "contain no-repeat,radial-gradient(#fff1c9,#fbf6ea 70%)" : "cover"}}
   .r:before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#fbf6ea 0,rgba(251,246,234,0) 22%)}
   .kicker{font-size:16px}</style></head><body class="${lang}">
   <div class=l><img src="${logo}" alt=""><div class=bar></div><h1>${esc(title)}</h1><p class=t>${esc(text)}</p>
@@ -55,7 +55,7 @@ function story(c, lang) {
   return `<!doctype html><html><head><meta charset=utf-8>${FONTS}<style>${BASE}
   body{width:1080px;height:1920px;display:flex;flex-direction:column}
   .top{padding:90px 0 40px;text-align:center}.top img{width:520px}
-  .art{height:820px;margin:0 60px;border-radius:36px;background:url('${c.artUrl}') center/cover;box-shadow:0 10px 40px rgba(31,77,58,.18)}
+  .art{height:820px;margin:0 60px;border-radius:36px;background:url('${c.artUrl}') center/${/lamp/.test(c.art) ? "contain no-repeat,radial-gradient(#fff1c9,#fbf6ea 70%)" : "cover"};box-shadow:0 10px 40px rgba(31,77,58,.18)}
   .b{padding:64px 80px 0;display:flex;flex-direction:column;gap:30px;align-items:center;text-align:center;flex:1}
   h1{font-size:${ta ? 54 : 66}px}
   p.t{font-size:${ta ? 34 : 38}px;line-height:1.45;color:#2d5c48}
@@ -66,7 +66,7 @@ function story(c, lang) {
   <div class=pill>${ta ? "raavanaa.org · பயோவில் உள்ள இணைப்பு" : "raavanaa.org · link in bio"}</div></div></body></html>`;
 }
 
-const items = [["default", share.default], ...Object.entries(share.projects), ["vouch", share.vouch]].filter(([, c]) => c);
+const items = [["default", share.default], ...Object.entries(share.projects), ["vouch", share.vouch], ["moment", share.moment]].filter(([, c]) => c);
 const browser = await chromium.launch();
 const page = await browser.newPage();
 for (const [name, raw] of items) {

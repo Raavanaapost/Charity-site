@@ -14,16 +14,23 @@ export type Project = {
 };
 
 // A gift made in someone's name: remembering a loved one, or marking a birthday or anniversary.
-export type Tribute = { kind: "memory" | "birthday" | "anniversary" | "honour"; name: string; note: string; show: boolean };
-export const TRIBUTE_WORDS: Record<Tribute["kind"], string> = {
-  memory: "In loving memory of", birthday: "Celebrating the birthday of", anniversary: "Celebrating the anniversary of", honour: "In honour of",
+// A gift made in someone's name: remembering a loved one, or marking a birthday, anniversary and so on.
+// `words` is what the giver chose or typed before the name ("In loving memory of"), in English or Tamil.
+export type Tribute = { kind: string; words: string; name: string; note: string; show: boolean };
+export const TRIBUTE_WORDS: Record<string, string> = {
+  memory: "In loving memory of", remembrance: "Remembering, on the anniversary of", birthday: "Celebrating the birthday of",
+  anniversary: "Celebrating the anniversary of", wedding: "Celebrating the wedding anniversary of", newborn: "Welcoming",
+  success: "Celebrating the success of", recovery: "Giving thanks for the recovery of", gratitude: "With gratitude for",
+  festival: "A festival gift in the name of", honour: "In honour of", custom: "",
 };
 export function readTribute(body: Record<string, unknown>): Tribute | null {
   if (!(body.tribute_on === true || body.tribute_on === "yes")) return null;
-  const kind = String(body.tribute_kind || "memory") as Tribute["kind"];
+  const kind = String(body.tribute_kind || "memory");
   const name = clip(body.tribute_name, 60);
   if (!name || !(kind in TRIBUTE_WORDS)) return null;
-  return { kind, name, note: clip(body.tribute_note, 140), show: body.tribute_show === true || body.tribute_show === "yes" };
+  const words = clip(body.tribute_words, 60).replace(/[<>]/g, "") || TRIBUTE_WORDS[kind];
+  if (!words) return null;
+  return { kind, words, name, note: clip(body.tribute_note, 140), show: body.tribute_show === true || body.tribute_show === "yes" };
 }
 
 export type GiveRequest = {

@@ -1,0 +1,109 @@
+/* "A moment in their name" (/moment). The warm cream members look (SURESH's favourite), with a lit lamp,
+   falling marigold petals and a live tribute card. Always cream, even in phone dark mode. */
+body[data-page="moment"]{
+  --bg:#fbf6ea; --surface:#fffbf1; --ink:#2a3423; --muted:#6c6a52; --line:#ead7a4;
+  --green:#1f4d3a; --gold:#c9a24a; --gold-deep:#8a5c12; --marigold:#f29a1f; --flame:#e4761b;
+  --serif:"Cormorant Garamond",Georgia,"Noto Serif Tamil",serif;
+  background:var(--bg); color:var(--ink); color-scheme:light;
+}
+body[data-page="moment"] .bar{background:var(--surface)}
+.moment{overflow:hidden}
+
+/* Hero */
+.mo-hero{position:relative;background:radial-gradient(900px 480px at 30% 30%,#ffefc4 0,rgba(255,239,196,0) 70%),linear-gradient(#fbf1d8,#fbf6ea);border-bottom:1px solid var(--line)}
+.mo-hero-in{position:relative;display:grid;grid-template-columns:minmax(150px,280px) 1fr;gap:clamp(18px,4vw,56px);align-items:center;padding-block:clamp(28px,6vw,72px)}
+.mo-lamp{width:100%;height:auto;filter:drop-shadow(0 18px 24px rgba(138,92,18,.25))}
+.mo-kicker{font-family:Cinzel,serif;font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:13px;color:var(--gold-deep);margin:0 0 12px}
+.mo-hero h1{font-family:var(--serif);font-weight:600;font-style:italic;font-size:clamp(34px,5.6vw,60px);line-height:1.05;color:var(--green);margin:0 0 16px}
+:root[lang="ta"] .mo-hero h1,html[lang="ta"] .mo-hero h1{font-family:"Noto Serif Tamil",serif;font-style:normal;font-size:clamp(26px,4.2vw,44px);line-height:1.35}
+.mo-lede{font-family:var(--serif);font-size:clamp(19px,2.2vw,23px);line-height:1.5;color:#3d4a36;margin:0 0 22px;max-width:40ch}
+html[lang="ta"] .mo-lede{font-size:clamp(16px,1.9vw,19px)}
+.mo-start{display:inline-flex;gap:8px;align-items:center;background:var(--green);color:#fffbf1;text-decoration:none;border-radius:999px;padding:12px 26px;font-weight:600;box-shadow:inset 0 0 0 2px var(--gold)}
+.mo-start:hover{background:#173b2c}
+
+/* Falling marigold petals */
+.mo-petals{position:absolute;inset:0;pointer-events:none}
+.mo-petals i{position:absolute;top:-20px;left:calc(var(--i) * 7.3% + 2%);width:10px;height:14px;border-radius:60% 60% 50% 50%;
+  background:var(--marigold);opacity:.75;
+  animation:petal calc(9s + var(--i) * .7s) linear calc(var(--i) * -1.3s) infinite}
+.mo-petals i:nth-child(3n){background:#ffc94a;width:8px;height:11px}
+.mo-petals i:nth-child(4n){background:#c8381e;opacity:.55}
+@keyframes petal{0%{transform:translate(0,-20px) rotate(0)}50%{transform:translate(28px,260px) rotate(200deg)}100%{transform:translate(-10px,560px) rotate(400deg);opacity:0}}
+@media (prefers-reduced-motion:reduce){.mo-petals{display:none}}
+
+/* Body: steps on the left, the card on the right */
+.mo-body{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:40px;padding-block:36px 56px;align-items:start}
+.mo-step{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:24px 24px 22px 70px;margin-bottom:18px;scroll-margin-top:90px}
+.mo-num{position:absolute;left:20px;top:20px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;margin:0;background:var(--green);color:#fffbf1;font-family:Cinzel,serif;font-weight:700;box-shadow:inset 0 0 0 2px var(--gold)}
+.mo-step h2{font-family:var(--serif);font-weight:600;font-size:28px;color:var(--green);margin:2px 0 16px}
+html[lang="ta"] .mo-step h2{font-family:"Noto Serif Tamil",serif;font-size:22px}
+.mo-note{color:var(--muted);font-size:15px;margin:0 0 14px}
+
+.mo-occ{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.mo-chip{display:flex;align-items:center;gap:10px;text-align:left;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#fff;color:var(--green);font:inherit;font-weight:600;font-size:15px;cursor:pointer;min-height:56px;transition:transform .15s,box-shadow .15s,background .15s}
+.mo-chip svg{flex:none;color:var(--gold-deep)}
+.mo-chip:hover{transform:translateY(-1px);box-shadow:0 6px 16px -10px rgba(138,92,18,.5)}
+.mo-chip.on{background:var(--green);color:#fffbf1;border-color:var(--green);box-shadow:inset 0 0 0 2px var(--gold)}
+.mo-chip.on svg{color:#ffd27a}
+
+.mo-field{display:grid;gap:6px;margin-top:14px;font-weight:600;color:var(--green)}
+.mo-field small{font-weight:400;color:var(--muted)}
+.mo-field input,.mo-field textarea{border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit;font-weight:400;background:#fff;color:var(--ink);width:100%;resize:vertical}
+.mo-field input:focus,.mo-field textarea:focus{outline:2px solid var(--gold);outline-offset:1px}
+.mo-quick{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.mo-quick button{border:1px dashed var(--gold);background:#fffaf0;color:var(--gold-deep);border-radius:999px;padding:6px 12px;font:inherit;font-size:14px;cursor:pointer}
+.mo-quick button:hover{background:#fbedc9}
+
+.mo-projects{display:grid;gap:10px}
+.mo-proj{display:flex;gap:14px;align-items:center;text-align:left;padding:10px;border-radius:16px;border:1px solid var(--line);background:#fff;font:inherit;color:var(--ink);cursor:pointer}
+.mo-proj.on{border-color:var(--green);box-shadow:inset 0 0 0 2px var(--green)}
+.mo-proj-art{flex:none;width:88px;height:66px;border-radius:12px;background:#f3e7c7 center/cover no-repeat}
+.mo-proj-art.any{display:grid;place-items:center;font-size:30px;color:var(--flame)}
+.mo-proj-text{display:grid;gap:4px;min-width:0}
+.mo-proj-text b{color:var(--green);line-height:1.25}
+.mo-proj-text small{color:var(--muted)}
+.mo-bar{height:6px;border-radius:3px;background:#efe3c4;overflow:hidden}
+.mo-bar i{display:block;height:100%;background:linear-gradient(90deg,#1f7a47,#3f9a5f)}
+
+/* The tribute card */
+.mo-sticky{position:sticky;top:84px;display:grid;gap:12px}
+.mo-side-label{font-family:Cinzel,serif;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--gold-deep);margin:0;text-align:center}
+.mo-card{margin:0;position:relative;text-align:center;padding:26px 26px 22px;border-radius:20px;
+  background:radial-gradient(420px 260px at 50% 10%,#fff3cf 0,rgba(255,243,207,0) 70%),#fffbf1;
+  box-shadow:0 0 0 1px var(--line),inset 0 0 0 8px #fffbf1,inset 0 0 0 9px var(--gold),0 24px 40px -26px rgba(138,92,18,.55)}
+.mo-card-lamp{width:84px;height:auto;margin:0 auto 6px;display:block}
+.mo-card-words{font-family:var(--serif);font-style:italic;font-size:21px;color:var(--gold-deep);margin:0 0 6px;line-height:1.3}
+html[lang="ta"] .mo-card-words{font-style:normal;font-size:17px}
+.mo-card-name{font-family:Cinzel,"Noto Serif Tamil",serif;font-weight:600;font-size:30px;line-height:1.2;color:var(--green);margin:0 0 8px;word-wrap:break-word}
+.mo-card-name.ghost{opacity:.35}
+.mo-card-note{font-family:var(--serif);font-style:italic;font-size:19px;color:#2d5c48;margin:0 0 6px}
+.mo-card-note:empty,.mo-card-from:empty{display:none}
+.mo-card-rule{display:flex;align-items:center;gap:10px;margin:10px 0}
+.mo-card-rule i{flex:1;height:1px;background:var(--gold)}
+.mo-card-rule b{color:var(--flame);font-weight:400}
+.mo-card-gift{font-family:var(--serif);font-size:19px;color:var(--green);margin:0 0 2px;font-weight:600}
+.mo-card-from{font-family:var(--serif);font-style:italic;color:var(--muted);margin:0}
+.mo-card-brand{margin:10px 0 0;font-size:12px;letter-spacing:.12em;color:#b0812a;font-weight:600}
+.mo-go{display:block;text-align:center;background:#c8381e;color:#fff;text-decoration:none;border-radius:14px;padding:15px;font-weight:700;font-size:17px;box-shadow:0 10px 20px -12px rgba(200,56,30,.7)}
+.mo-go:hover{background:#a82c16}
+.mo-card-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mo-card-actions>*{display:block;text-align:center;border:1px solid var(--gold);background:#fffaf0;color:var(--green);border-radius:12px;padding:11px 8px;font:inherit;font-weight:600;font-size:14px;text-decoration:none;cursor:pointer}
+.mo-privacy{font-size:13px;text-align:center;margin:0}
+
+@media (max-width:900px){
+  .mo-body{grid-template-columns:1fr;gap:0}
+  .mo-steps{display:contents}
+  .mo-step:nth-child(1){order:1}.mo-step:nth-child(2){order:2}.mo-side{order:3;margin-bottom:18px}.mo-step:nth-child(3){order:4}
+  .mo-sticky{position:static}
+}
+@media (max-width:600px){
+  .mo-hero-in{grid-template-columns:1fr;justify-items:center;text-align:center}
+  .mo-lamp{width:150px}
+  .mo-lede{margin-inline:auto}
+  .mo-step{padding:20px 16px 18px}
+  .mo-num{position:static;margin-bottom:8px}
+  .mo-occ{grid-template-columns:1fr 1fr}
+  .mo-chip{font-size:14px;padding:10px}
+}
+.mo-field[hidden]{display:none}
+.mo-card-what{font-family:var(--serif);font-style:italic;color:var(--muted);font-size:16px;margin:0 0 6px}

@@ -5,6 +5,7 @@
 (function () {
   "use strict";
   var D = {
+"More reasons, and a card to keep →": "மேலும் காரணங்கள், வைத்திருக்க ஒரு அட்டை →",
 "Sponsor a smile": "ஒரு புன்னகைக்கு அனுசரணை வழங்குங்கள்",
 "Be part of the next moment": "அடுத்த தருணத்தின் ஒரு பகுதியாகுங்கள்",
 "Raavanaa is a bridge between people who need a hand and people ready to give one. Choose how you'd like to help.": "உதவி தேவைப்படுபவர்களுக்கும் உதவத் தயாராக இருப்பவர்களுக்கும் இடையிலான பாலம் ராவணா. நீங்கள் எப்படி உதவ விரும்புகிறீர்கள் என்று தேர்ந்தெடுங்கள்.",
