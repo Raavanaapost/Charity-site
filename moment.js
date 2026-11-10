@@ -58,14 +58,15 @@
   var st = { k: q.get("for") || "memory", custom: "", name: "", note: "", from: "", project: "" };
   if (!OCCASIONS.some(function (o) { return o.k === st.k; })) st.k = "memory";
   var occ = function () { return OCCASIONS.filter(function (o) { return o.k === st.k; })[0]; };
-  var art = function () { return "/img/moment/" + st.k + ".svg"; };
+  // Gemini paintings, one per reason (10 Nov 2026); the hand-drawn .svg versions stay as a fallback.
+  var art = function () { return "/img/moment/" + st.k + ".jpg"; };
   var words = function () { var o = occ(); return o.k === "custom" ? st.custom.trim() : o.words[TA ? 1 : 0]; };
 
   root.innerHTML =
     '<section class="mo-hero">' +
       '<div class="mo-petals" aria-hidden="true">' + Array.apply(null, Array(14)).map(function (_, i) { return '<i style="--i:' + i + '"></i>'; }).join("") + "</div>" +
       '<div class="wrap mo-hero-in">' +
-        '<img class="mo-lamp" data-hero-art src="/img/moment/memory.svg" alt="" width="320" height="420">' +
+        '<img class="mo-lamp" data-hero-art src="/img/moment/memory.jpg" alt="" width="300" height="400">' +
         '<div class="mo-hero-text">' +
           '<p class="mo-kicker">' + T("Raavanaa · A moment in their name", "ராவணா · அவர்கள் பெயரில் ஒரு தருணம்") + "</p>" +
           "<h1>" + T("Some days, we carry someone with us.", "சில நாட்களில், ஒருவரை நம்முடன் சுமந்து செல்கிறோம்.") + "</h1>" +
@@ -97,7 +98,7 @@
       '<aside class="mo-side"><div class="mo-sticky">' +
         '<p class="mo-side-label">' + T("Their card", "அவர்களுக்கான அட்டை") + "</p>" +
         '<figure class="mo-card" data-card>' +
-          '<img class="mo-card-lamp" data-card-art src="/img/moment/memory.svg" alt="" width="96" height="126">' +
+          '<img class="mo-card-lamp" data-card-art src="/img/moment/memory.jpg" alt="" width="150" height="200">' +
           '<p class="mo-card-words" data-c-words></p>' +
           '<p class="mo-card-name" data-c-name></p>' +
           '<p class="mo-card-note" data-c-note></p>' +
@@ -218,8 +219,16 @@
     };
     var img = new Image();
     img.onload = function () {
-      g.drawImage(img, W / 2 - 120, 110, 240, 315);
-      var y = wrap(words() || "", "italic 500 " + (TA ? 40 : 50) + "px " + serif, 500, 860, TA ? 60 : 62, th[1]);
+      // the painting, faded softly into the card at its edges
+      var pw = 300, ph = 400, off = document.createElement("canvas"); off.width = pw; off.height = ph;
+      var o = off.getContext("2d"); o.drawImage(img, 0, 0, pw, ph);
+      o.globalCompositeOperation = "destination-in";
+      o.translate(pw / 2, ph / 2); o.scale(1, ph / pw);
+      var fade = o.createRadialGradient(0, 0, 0, 0, 0, pw / 2);
+      fade.addColorStop(0, "rgba(0,0,0,1)"); fade.addColorStop(.6, "rgba(0,0,0,1)"); fade.addColorStop(1, "rgba(0,0,0,0)");
+      o.fillStyle = fade; o.fillRect(-pw / 2, -pw / 2, pw, pw);
+      g.drawImage(off, W / 2 - 135, 80, 270, 360);
+      var y = wrap(words() || "", "italic 500 " + (TA ? 40 : 50) + "px " + serif, 520, 860, TA ? 60 : 62, th[1]);
       y = wrap(st.name || "", "600 " + (TA ? 64 : 78) + "px " + (TA ? serif : "Cinzel, serif"), y + 70, 900, TA ? 88 : 92, "#1f4d3a");
       if (st.note) y = wrap("“" + st.note + "”", "italic 500 " + (TA ? 34 : 42) + "px " + serif, y + 40, 840, TA ? 54 : 56, "#2d5c48");
       g.strokeStyle = th[2]; g.lineWidth = 2; g.beginPath(); g.moveTo(W / 2 - 220, y + 40); g.lineTo(W / 2 - 40, y + 40); g.moveTo(W / 2 + 40, y + 40); g.lineTo(W / 2 + 220, y + 40); g.stroke();

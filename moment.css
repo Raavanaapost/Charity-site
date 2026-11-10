@@ -109,3 +109,7 @@ html[lang="ta"] .mo-card-words{font-style:normal;font-size:17px}
 .mo-card-what{font-family:var(--serif);font-style:italic;color:var(--muted);font-size:16px;margin:0 0 6px}
 .mo-lamp,.mo-card-lamp{transition:opacity .3s}
 .mo-card-lamp{width:110px}
+/* Gemini paintings: cream background, faded softly at the edges so they sit in the page and the card */
+.mo-lamp,.mo-card-lamp{-webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 70%,transparent 100%);mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 70%,transparent 100%);filter:none;aspect-ratio:3/4;object-fit:cover}
+.mo-card-lamp{width:150px;margin-bottom:0}
+.mo-lamp{max-width:300px}
