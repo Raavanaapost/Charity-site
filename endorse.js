@@ -68,7 +68,6 @@
     $("[data-byline]").innerHTML = [r.by ? `Asked by <b>${esc(r.by)}</b>` : "", received ? esc(received) : ""].filter(Boolean).join(" · ");
     $("[data-stage]").textContent = r.pending ? "Being checked" : r.ladder.verified ? "Verified" : "Initiated";
     $("[data-stage]").classList.toggle("check", !!r.pending);
-    $("[data-art]").src = artFor([r.title, r.kind, r.place, r.description].join(" "));
 
     const glance = [["day", "The day", r.kind], ["place", "Where", r.place], ["kids", "Children", r.children ? (/child|kid|pupil|student/i.test(r.children) ? r.children : r.children + " children") : ""], ["when", "When", r.when]].filter((g) => g[2]);
     $("[data-glance]").innerHTML = glance.map(([i, l, v]) => `<li><small>${ICON[i]}${esc(l)}</small><b>${esc(v)}</b></li>`).join("");

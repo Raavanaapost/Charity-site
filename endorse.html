@@ -15,30 +15,34 @@
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,800;0,900;1,800;1,900&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;1,7..72,400&display=swap">
 <style>
   /* Always the warm cream look, like the members pages (owner's choice, 6 Nov 2026). */
-  :root{--bg:#fbf6ea;--card:#fff;--line:#e3d9bf;--field:#c9bfa6;--ink:#1e2a24;--muted:#4a5650;--green:#1f4d3a;--green-dark:#163a2b;--green-soft:#e1ede4;
-    --gold:#c8962e;--gold-ink:#8a5a12;--gold-soft:#f1e7cc;--warn:#8a2a12;color-scheme:light}
+  /* The sign-up (members) page look: SURESH, 10 Nov 2026. Same palette, fonts, logo bar and bridge picture. */
+  :root{--bg:#fbf4e2;--card:#fffbf1;--line:#ead7a4;--field:#dcc58f;--ink:#2a3423;--muted:#6c6a52;--green:#1f5a2e;--green-dark:#163f20;--green-soft:#e6efd9;
+    --gold:#d4a23c;--gold-ink:#b07f1f;--gold-soft:#fbe7c4;--leaf:#5f8f3a;--sun:#d26a14;--warn:#8a2a12;color-scheme:light;
+    --serif:"Playfair Display",Georgia,serif;--read:Literata,Georgia,serif;--ui:"Familjen Grotesk",system-ui,sans-serif}
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--ui)}
+  body{background:var(--bg) radial-gradient(1200px 520px at 50% -120px,#fff3cf 0,transparent 70%) no-repeat}
   a{color:var(--green)}a:hover{color:var(--green-dark)}
-  .bar{background:var(--green);color:var(--bg);padding:14px 16px}
-  .bar a{color:var(--bg);text-decoration:none;font:700 20px/1 Cinzel,Georgia,serif;letter-spacing:1px}
+  .bar{background:var(--card);padding:10px 16px;position:relative}
+  .bar::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,var(--leaf),var(--gold) 50%,var(--sun))}
+  .bar a{display:inline-block}.bar img{display:block;height:44px;width:auto}
   main{max-width:560px;margin:0 auto;padding:22px 16px 48px;display:grid;gap:16px}
-  h1,h2{font-family:Cinzel,Georgia,serif;color:var(--green);margin:0}
+  h1,h2{font-family:var(--serif);color:var(--green);margin:0}
   h1{font-size:clamp(24px,6.4vw,30px);line-height:1.2}
   h2{font-size:19px}
   .kicker{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-ink);margin:0 0 6px}
   .lede{margin:8px 0 0;color:var(--muted)}
   .facts{display:flex;flex-wrap:wrap;gap:6px 14px;margin:10px 0 0;padding:0;list-style:none;font-size:14px;color:var(--muted)}
   .facts b{color:var(--ink);font-weight:600}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;gap:12px}
+  .card{background:var(--card);border:1.5px solid var(--line);border-radius:20px;padding:20px;display:grid;gap:12px;box-shadow:0 10px 24px -20px rgba(90,60,10,.5)}
   .note{font-size:13px;color:var(--muted);margin:0}
   /* trust ladder */
   .ladder{list-style:none;margin:0;padding:0;display:grid;gap:12px}
   .ladder li{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start}
-  .ladder i{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:700 13px/1 Inter,sans-serif;font-style:normal;border:2px dashed var(--gold);background:#fff7e3;color:var(--gold-ink)}
+  .ladder i{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:700 13px/1 var(--ui);font-style:normal;border:2px dashed var(--gold);background:#fff7e3;color:var(--gold-ink)}
   .ladder li.done i{border:0;background:var(--green);color:#fff}
   .ladder b{display:block;font-size:15px}
   .ladder span{font-size:13px;color:var(--muted)}
@@ -56,15 +60,15 @@
   .people .who small{font-size:12px;color:var(--muted)}
   .tag{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--green);background:var(--green-soft);padding:4px 8px;border-radius:10px}
   /* buttons and fields */
-  .btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;border-radius:26px;border:0;background:var(--green);color:#fff;font:600 16px/1 Inter,sans-serif;text-decoration:none;cursor:pointer;padding:0 20px}
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;border-radius:26px;border:0;background:var(--green);color:#fff;font:600 16px/1 var(--ui);text-decoration:none;cursor:pointer;padding:0 20px}
   .btn:hover{background:var(--green-dark);color:#fff}
-  .btn.ghost{background:#fff;color:var(--green);border:1px solid var(--green)}
+  .btn.ghost{background:transparent;color:var(--green);border:1.5px solid var(--gold)}
   .btn.ghost:hover{background:var(--green-soft);color:var(--green)}
   .btn[disabled]{opacity:.6;cursor:default}
   .link-text{font-size:13px;text-align:center;color:var(--muted);word-break:break-all;margin:0}
   label.f{display:grid;gap:6px;font-size:14px;font-weight:600}
   label.f small{font-weight:400;color:var(--muted)}
-  input[type=text],input[type=tel]{height:48px;border:1px solid var(--field);border-radius:10px;padding:0 12px;background:#fff;font:400 16px Inter,sans-serif;color:var(--ink);width:100%}
+  input[type=text],input[type=tel]{height:48px;border:1px solid var(--field);border-radius:10px;padding:0 12px;background:#fff;font:400 16px var(--ui);color:var(--ink);width:100%}
   input:focus-visible,.choice:focus-within,.btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
   fieldset{border:0;margin:0;padding:0;display:grid;gap:8px}
   legend{font-size:15px;font-weight:700;margin-bottom:8px;padding:0}
@@ -88,24 +92,23 @@
   .thanks .tick{width:64px;height:64px;border-radius:50%;background:var(--green);display:grid;place-items:center}
 
   /* Story template (SURESH, 10 Nov 2026): the shared page looks like a Raavanaa project story. */
-  .serif{font-family:"Source Serif 4",Georgia,serif}
+  .serif{font-family:var(--read)}
   .story-head{display:grid;gap:10px}
-  .story-head h1{font:800 clamp(28px,7.6vw,38px)/1.12 Cinzel,Georgia,serif;letter-spacing:.01em}
-  .story-head h1::first-letter{color:var(--gold-ink)}
-  .tagline{margin:0;font:italic 400 19px/1.45 "Source Serif 4",Georgia,serif;color:var(--muted);border-left:4px solid var(--gold);padding-left:12px}
+  .story-head h1{font:900 clamp(30px,7.6vw,44px)/1.1 var(--serif)}
+  .tagline{margin:0;font:italic 800 19px/1.4 var(--serif);color:var(--ink);color:var(--muted);border-left:4px solid var(--gold);padding-left:12px}
   .byline{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:13px;color:var(--muted);margin:0}
   .byline b{color:var(--ink)}
   /* Stage colours (same on every Raavanaa page): Initiated green, Activated amber, Impact flame red. */
-  .stage-pill{display:inline-flex;align-items:center;gap:6px;font:700 11px/1 Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:#1f7a47;border-radius:12px;padding:6px 10px}
+  .stage-pill{display:inline-flex;align-items:center;gap:6px;font:700 11px/1 var(--ui);letter-spacing:.08em;text-transform:uppercase;color:#fff;background:#1f7a47;border-radius:12px;padding:6px 10px}
   .stage-pill.check{background:#6b7280}.stage-pill.s2{background:#b97a06}.stage-pill.s3{background:#c8381e}
-  .art{margin:0;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#fdf3dc;aspect-ratio:16/9}
-  .art img{display:block;width:100%;height:100%;object-fit:cover}
+  .art{margin:0;border-radius:22px;overflow:hidden;box-shadow:0 0 0 2px var(--line),0 14px 30px -18px rgba(90,60,10,.45)}
+  .art img{display:block;width:100%;height:auto;aspect-ratio:941/395;object-fit:cover}
   .art figcaption{position:absolute;left:-9999px}
   .glance{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none}
   .glance li{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:4px;min-width:0;align-content:start}
-  .glance small{font:700 11px/1 Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-ink);display:flex;gap:6px;align-items:center}
-  .glance b{font:600 15px/1.35 Inter,sans-serif;overflow-wrap:anywhere}
-  .story p{margin:0;font:400 18px/1.6 "Source Serif 4",Georgia,serif;color:var(--ink)}
+  .glance small{font:700 11px/1 var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--gold-ink);display:flex;gap:6px;align-items:center}
+  .glance b{font:600 15px/1.35 var(--ui);overflow-wrap:anywhere}
+  .story p{margin:0;font:400 18px/1.6 var(--read);color:var(--ink)}
   .story{display:grid;gap:12px}
   .journey{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:4px 0 0;padding:0;list-style:none;position:relative}
   .journey::before{content:"";position:absolute;left:12.5%;right:12.5%;top:22px;height:3px;background:var(--line);z-index:0}
@@ -113,22 +116,22 @@
   .journey i{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:#fff;border:2px solid var(--field);color:var(--muted);font-style:normal}
   .journey li.done i{background:var(--green);border-color:var(--green);color:#fff}
   .journey li.now i{background:radial-gradient(circle at 35% 30%,#f59e0b,#c2410c);border:3px solid #f2c46d;color:#fff;box-shadow:0 0 0 8px rgba(245,158,11,.18)}
-  .journey span{font:700 11px/1.25 Cinzel,Georgia,serif;letter-spacing:.04em;color:var(--muted);text-transform:uppercase}
+  .journey span{font:700 11px/1.25 var(--serif);letter-spacing:.04em;color:var(--muted);text-transform:uppercase}
   .journey li.now span,.journey li.done span{color:var(--green)}
-  .journey-note{margin:0;font:400 16px/1.5 "Source Serif 4",Georgia,serif}
+  .journey-note{margin:0;font:400 16px/1.5 var(--read)}
   .journey-note b{color:var(--green)}
   .budget{list-style:none;margin:0;padding:0;display:grid}
   .budget li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line);font-size:15px}
   .budget li b{white-space:nowrap}
   .budget li.total{border-bottom:0;font-weight:700;font-size:16px;color:var(--green)}
   .card h2{display:flex;align-items:center;gap:8px}
-  .preview-bar{position:sticky;top:0;z-index:5;background:#7c2d12;color:#fff;font:600 13px/1.4 Inter,sans-serif;padding:10px 16px;text-align:center}
+  .preview-bar{position:sticky;top:0;z-index:5;background:#7c2d12;color:#fff;font:600 13px/1.4 var(--ui);padding:10px 16px;text-align:center}
   @media (min-width:640px){.glance{grid-template-columns:repeat(4,minmax(0,1fr))}}
   [hidden]{display:none!important}
 </style>
 </head>
 <body>
-<header class="bar"><a href="/overview">RAAVANAA</a></header>
+<header class="bar"><a href="/overview"><picture><source srcset="/img/logo.webp?v=3" type="image/webp"><img src="/img/logo.jpg?v=3" alt="Raavanaa · Beyond the Lanes · Creating Smiles" width="900" height="298"></picture></a></header>
 <div class="preview-bar" data-preview-bar hidden>Preview for the Raavanaa team. This is how the page will look once you approve it.</div>
 <main id="app" aria-live="polite">
   <p class="note" data-loading>Loading the project…</p>
@@ -156,7 +159,7 @@
       <p class="byline"><span class="stage-pill" data-stage>Initiated</span><span data-byline></span></p>
     </header>
 
-    <figure class="art"><img data-art src="/img/hero-initiated.svg" alt="" width="800" height="450"></figure>
+    <figure class="art"><picture><source srcset="/img/members-bridge.webp" type="image/webp"><img src="/img/members-bridge.jpg" alt="" width="941" height="395"></picture></figure>
 
     <ul class="glance" data-glance aria-label="At a glance"></ul>
 
