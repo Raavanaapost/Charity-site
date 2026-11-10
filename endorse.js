@@ -45,7 +45,7 @@
   };
   const t = (en, ta) => (TA ? ta : en);
   if (TA) document.querySelectorAll("[data-t]").forEach((el) => { const v = STATIC_TA[el.dataset.t]; if (v) el.textContent = v; });
-  if (TA) { const h = document.querySelector("[data-home]"); if (h) h.href = "/ta/moment"; }
+  if (TA) { const h = document.querySelector("[data-home]"); if (h) h.href = "/ta/overview"; }
   const sw = document.querySelector("[data-lang]");
   if (sw) {
     sw.textContent = TA ? "English" : "தமிழ்"; sw.lang = TA ? "en" : "ta";

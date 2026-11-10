@@ -2053,3 +2053,32 @@ html.ev-cam-on{overflow:hidden}
 /* The Raavanaa Fund page */
 .give-fund-steps{margin:8px 0 12px;padding-left:20px;display:grid;gap:10px}
 .give-fund-how .note a{font-weight:700}
+
+/* The way to the moment page (SURESH, 10 Nov 2026): a red "In their name" button in every menu, and on the Home
+   page a main round icon beside Create a Smile, with a painting for each reason taking its turn. */
+.nav .nav-moment{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;background:#c8381e;color:#fff;font-weight:700;box-shadow:0 8px 16px -10px #c8381e}
+.nav .nav-moment:hover{color:#fff;filter:brightness(1.08)}
+.nav .nav-moment i{font-style:normal;color:#ffd27a}
+@media (min-width:881px) and (max-width:1040px){.nav{gap:12px;font-size:14px}.nav .nav-moment{padding:7px 11px}}
+@media (max-width:640px){
+  .nav .nav-moment{order:-1;justify-content:center;margin:8px 0 6px;padding:13px 14px;border-bottom:0;color:#fff}
+}
+/* Tablets (641 to 880px): the menu no longer fits beside the logo, so it folds behind the menu button, as on a phone */
+@media (min-width:641px) and (max-width:880px){
+  .bar .wrap{gap:10px}
+  .logo{order:0;margin-right:auto}
+  .lang-switch{order:1}
+  .menu-btn{display:grid;order:2}
+  .nav{display:none;position:absolute;left:0;right:0;top:100%;flex-direction:column;align-items:stretch;gap:0;margin-left:0;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 14px 24px -14px rgba(0,0,0,.35);padding:6px 16px 12px;font-size:17px;z-index:60}
+  .nav.open{display:flex}
+  .nav a{padding:13px 4px;border-bottom:1px solid var(--line);color:var(--ink)}
+  .nav a:last-child{border-bottom:0}
+  .nav .nav-moment{order:-1;justify-content:center;margin:8px 0 6px;padding:13px 14px;border-bottom:0;color:#fff}
+}
+.cta-pair{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;max-width:960px;margin-inline:auto}
+.cta-pair .create-cta{margin:22px 0 40px;max-width:none;width:100%}
+.moment-cta{background:radial-gradient(120% 90% at 50% 0%,#fff0c9,transparent 70%)}
+.mc-kicker{font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#8a5c12;margin-bottom:-14px}
+.moment-cta .cc-icon img{background:#fbf6ea;object-position:50% 45%}
+.moment-cta .cc-plus{font-size:22px;background:#c8381e}
+@media (max-width:760px){.cta-pair{grid-template-columns:1fr;gap:0}.cta-pair .create-cta{margin:16px auto 10px;max-width:520px}.cta-pair .create-cta:last-child{margin-bottom:34px}}

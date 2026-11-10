@@ -77,6 +77,15 @@
       if (document.body.dataset.page === "members") m.setAttribute("aria-current", "page");
       navEl.appendChild(m);
     }
+    // "In their name": a button in every menu that opens the moment page (/moment). SURESH, 10 Nov 2026: that page
+    // is very important and needs a clear way in from everywhere; the Home page itself stays as it was (/overview).
+    if (navEl && !navEl.querySelector(".nav-moment")) {
+      const g = document.createElement("a");
+      g.className = "nav-moment"; g.href = (/^\/ta(\/|$)/.test(location.pathname) ? "/ta" : "") + "/moment";
+      g.innerHTML = '<i aria-hidden="true">♥</i><span>In their name</span>';
+      if (/^(moment|together)$/.test(document.body.dataset.page || "")) g.setAttribute("aria-current", "page");
+      navEl.insertBefore(g, navEl.querySelector(".nav-member"));
+    }
     // Projects menu: a small drop-down with the three stages (on phones they show indented under Projects).
     const proj = document.querySelector('#site-nav a[href="/initiated"], #site-nav a[href="/ta/initiated"]');
     if (proj && !proj.closest(".nav-drop")) {
@@ -100,9 +109,9 @@
       <svg class="foot-wave" viewBox="0 0 400 30" preserveAspectRatio="none" aria-hidden="true"><path class="w1" d="M0 16C70 2 140 4 200 12 260 20 330 4 400 10V30H0Z"/><path class="w2" d="M0 24C80 10 150 12 210 18 270 24 336 12 400 16V30H0Z"/></svg>
       <div class="foot-main"><div class="wrap">
         <nav class="foot-cols" aria-label="Footer">
-          ${col("Explore", [["Home", "/moment"], ["Raavanaa Post", "/post"], ["Smile Map", "/smile-map"], ["About us", "/about"], ["Contact", "/contact"]])}
+          ${col("Explore", [["Home", "/overview"], ["Raavanaa Post", "/post"], ["Smile Map", "/smile-map"], ["About us", "/about"], ["Contact", "/contact"]])}
           ${col("Our stages", [["Initiated", "/initiated"], ["Activated", "/activated"], ["Impact", "/impact"]])}
-          ${col("Get involved", [["Volunteer with us", "/volunteer"], ["Suggest a project", "/contact?topic=suggest"], ["Partner with us", "/contact?topic=partner"]])}
+          ${col("Get involved", [["Give in someone's name", "/moment"], ["Volunteer with us", "/volunteer"], ["Suggest a project", "/contact?topic=suggest"], ["Partner with us", "/contact?topic=partner"]])}
           ${follow.length ? col("Follow us", follow) : ""}
         </nav>
       </div></div>
@@ -355,7 +364,6 @@
     const pick = startStageShow(app, n => { st.tab = n; draw(); pick(n); const r = tabsBox.getBoundingClientRect(); if (r.top > innerHeight * .6 || r.top < 0) tabsBox.scrollIntoView({ behavior: "smooth", block: "start" }); });
   }
 
-  // Home is the moment page, /moment (SURESH, 10 Nov 2026: the logo and every "Home" link open it).
   // The earlier home page, kept at /overview: stage circles with numbers, latest projects and the sign-up box.
   // Home: one row per stage, each with its own title.
   const HOME_ROWS = [
@@ -407,6 +415,21 @@
     { img: "/img/create-moment.svg", title: "Create a Moment", say: "Tell us where joy is needed. We'll help make it happen." },
     { img: "/img/create-day.svg", title: "Spark a Day of Joy", say: "A trip, a game, a good meal. Start it here." }
   ];
+  // Home: the main icon. "A moment in their name" opens the moment page (/moment): a painting for each reason takes
+  // its turn in the circle (SURESH, 10 Nov 2026: this is what should catch the eye on the front page).
+  const MOMENT_CTA = [
+    { img: "/img/moment/memory.jpg", title: "In Loving Memory", say: "Remember someone you love with a day of joy for children." },
+    { img: "/img/moment/birthday.jpg", title: "A Birthday", say: "Share the joy with children who have never had a day out." },
+    { img: "/img/moment/wedding.jpg", title: "An Anniversary", say: "Years of love, shared with children who need it." },
+    { img: "/img/moment/festival.jpg", title: "A Festival", say: "Deepavali, Pongal, New Year: bring children into the celebration." }
+  ];
+  const momentCtaHTML = () => `<a class="create-cta moment-cta" href="/moment">
+      <span class="mc-kicker">A moment in their name</span>
+      <span class="cc-titles">${MOMENT_CTA.map((c, i) => `<b class="${i ? "" : "on"}">${c.title}</b>`).join("")}</span>
+      <span class="cc-icon" aria-hidden="true"><i class="cc-ring"></i><i class="cc-orbit"><b>✦</b><b>♥</b><b>✦</b><b>♥</b></i>${MOMENT_CTA.map((c, i) => `<img class="${i ? "" : "on"}" src="${c.img}" alt="" width="200" height="200"${i ? ' loading="lazy"' : ""}>`).join("")}<i class="cc-plus">♥</i></span>
+      <span class="cc-says">${MOMENT_CTA.map((c, i) => `<span class="${i ? "" : "on"}">${c.say}</span>`).join("")}</span>
+      <span class="cc-go">Give in their name →</span>
+    </a>`;
   const createHTML = () => `<a class="create-cta" href="/initiate">
       <span class="cc-titles">${CREATE.map((c, i) => `<b class="${i ? "" : "on"}">${c.title}</b>`).join("")}</span>
       <span class="cc-icon" aria-hidden="true"><i class="cc-ring"></i><i class="cc-orbit"><b>✦</b><b>♥</b><b>✦</b><b>♥</b></i>${CREATE.map((c, i) => `<img class="${i ? "" : "on"}" src="${c.img}" alt="" width="200" height="200">`).join("")}<i class="cc-plus">+</i></span>
@@ -441,14 +464,18 @@
       rotTimers.push(setInterval(() => { if (!locked && !document.hidden) go((k + 1) % circles.length); }, 3600));
   }
   function startCreate(app) {
-    const box = app.querySelector(".create-cta"); if (!box) return;
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    let k = 0;
-    rotTimers.push(setInterval(() => {
-      if (document.hidden) return;
-      k = (k + 1) % CREATE.length;
-      box.querySelectorAll(".cc-titles b, .cc-icon img, .cc-says span").forEach(el => el.classList.toggle("on", [...el.parentNode.children].filter(x => x.tagName === el.tagName).indexOf(el) === k));
-    }, 3200));
+    // each round icon (the moment one and Create a Smile) turns through its own pictures, a beat apart
+    app.querySelectorAll(".create-cta").forEach((box, n) => {
+      const count = box.querySelectorAll(".cc-icon img").length; if (count < 2) return;
+      let k = 0;
+      const turn = () => {
+        if (document.hidden) return;
+        k = (k + 1) % count;
+        box.querySelectorAll(".cc-titles b, .cc-icon img, .cc-says span").forEach(el => el.classList.toggle("on", [...el.parentNode.children].filter(x => x.tagName === el.tagName).indexOf(el) === k));
+      };
+      setTimeout(() => rotTimers.push(setInterval(turn, 3200)), n * 1600);
+    });
   }
   function mosaicTiles(list, projects, max = 3) {
     const pick = list.slice(0, max);
@@ -520,7 +547,7 @@
         <p class="rail-say">${STAGE_SAY.map((t, i) => `<span class="s${i + 1}${i ? "" : " on"}">${t}</span>`).join("")}</p>
       </div>
       ${glanceHTML(projects)}
-      ${createHTML()}
+      <div class="cta-pair">${momentCtaHTML()}${createHTML()}</div>
       ${HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
       <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
