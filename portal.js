@@ -545,8 +545,11 @@
     document.body.classList.add("pt-signedout");
     app.innerHTML = `<section class="pt-login">
       <img src="/img/logo.webp?v=3" alt="Raavanaa" width="900" height="298">
-      <h1>${mode === "invite" ? "Welcome to the team" : mode === "recovery" ? "Choose a new password" : "Team sign in"}</h1>
+      <span class="pt-ribbon">Team</span>
+      <h1>${mode === "invite" ? "Welcome to the <em>team</em>" : mode === "recovery" ? "Choose a new <em>password</em>" : "Team <em>sign in</em>"}</h1>
       <p class="pt-sub">${mode === "invite" ? "Choose a password for your new portal account." : mode === "recovery" ? "Type your new password." : "For the Raavanaa team only."}</p>
+      <figure class="pt-login-hero"><picture><source srcset="/img/members-bridge.webp" type="image/webp"><img src="/img/members-bridge.jpg" alt="" width="941" height="395"></picture>
+        <figcaption>A bridge between people who need a hand and people ready to give one.</figcaption></figure>
       <form class="pt-card" id="pt-login">
         ${mode === "login" ? `<label class="pt-field">Email<input name="email" type="email" autocomplete="username" required></label>` : ""}
         <label class="pt-field">Password<input name="password" type="password" autocomplete="${mode === "login" ? "current-password" : "new-password"}" minlength="8" required></label>
