@@ -77,12 +77,13 @@
       if (document.body.dataset.page === "members") m.setAttribute("aria-current", "page");
       navEl.appendChild(m);
     }
-    // "In their name": a button in every menu that opens the moment page (/moment). SURESH, 10 Nov 2026: that page
+    // "Gift a Moment": a button in every menu that opens the moment page (/moment). SURESH, 10 Nov 2026: that page
     // is very important and needs a clear way in from everywhere; the Home page itself stays as it was (/overview).
+    // The title "Gift a Moment, in their name" and its heart-and-lamp mark (img/moment-mark.svg) are the same everywhere.
     if (navEl && !navEl.querySelector(".nav-moment")) {
       const g = document.createElement("a");
       g.className = "nav-moment"; g.href = (/^\/ta(\/|$)/.test(location.pathname) ? "/ta" : "") + "/moment";
-      g.innerHTML = '<i aria-hidden="true">♥</i><span>In their name</span>';
+      g.innerHTML = '<img src="/img/moment-mark.svg" alt="" width="26" height="26"><span>Gift a Moment</span>';
       if (/^(moment|together)$/.test(document.body.dataset.page || "")) g.setAttribute("aria-current", "page");
       navEl.insertBefore(g, navEl.querySelector(".nav-member"));
     }
@@ -111,7 +112,7 @@
         <nav class="foot-cols" aria-label="Footer">
           ${col("Explore", [["Home", "/overview"], ["Raavanaa Post", "/post"], ["Smile Map", "/smile-map"], ["About us", "/about"], ["Contact", "/contact"]])}
           ${col("Our stages", [["Initiated", "/initiated"], ["Activated", "/activated"], ["Impact", "/impact"]])}
-          ${col("Get involved", [["Give in someone's name", "/moment"], ["Volunteer with us", "/volunteer"], ["Suggest a project", "/contact?topic=suggest"], ["Partner with us", "/contact?topic=partner"]])}
+          ${col("Get involved", [["Gift a Moment in their name", "/moment"], ["Volunteer with us", "/volunteer"], ["Suggest a project", "/contact?topic=suggest"], ["Partner with us", "/contact?topic=partner"]])}
           ${follow.length ? col("Follow us", follow) : ""}
         </nav>
       </div></div>
@@ -415,21 +416,34 @@
     { img: "/img/create-moment.svg", title: "Create a Moment", say: "Tell us where joy is needed. We'll help make it happen." },
     { img: "/img/create-day.svg", title: "Spark a Day of Joy", say: "A trip, a game, a good meal. Start it here." }
   ];
-  // Home: the main icon. "A moment in their name" opens the moment page (/moment): a painting for each reason takes
-  // its turn in the circle (SURESH, 10 Nov 2026: this is what should catch the eye on the front page).
-  const MOMENT_CTA = [
-    { img: "/img/moment/memory.jpg", title: "In Loving Memory", say: "Remember someone you love with a day of joy for children." },
-    { img: "/img/moment/birthday.jpg", title: "A Birthday", say: "Share the joy with children who have never had a day out." },
-    { img: "/img/moment/wedding.jpg", title: "An Anniversary", say: "Years of love, shared with children who need it." },
-    { img: "/img/moment/festival.jpg", title: "A Festival", say: "Deepavali, Pongal, New Year: bring children into the celebration." }
+  // Home: "Gift a Moment, in their name" (title and design, SURESH 10 Nov 2026). A cream banner with the
+  // heart-and-lamp mark, the title, and four reasons to tap: each opens the moment page with that reason chosen.
+  const TA_PATH = /^\/ta(\/|$)/.test(location.pathname);
+  const MOMENT_TITLE = TA_PATH ? ["பரிசளியுங்கள்", "ஒரு தருணம்", "அவர்கள் பெயரில்"] : ["Gift a", "Moment", "in their name"];
+  const MOMENT_REASONS = [
+    { k: "memory", en: "In loving memory", ta: "அன்பு நினைவாக" },
+    { k: "birthday", en: "A birthday", ta: "பிறந்தநாள்" },
+    { k: "wedding", en: "A wedding day", ta: "திருமண நாள்" },
+    { k: "festival", en: "A festival", ta: "பண்டிகை" }
   ];
-  const momentCtaHTML = () => `<a class="create-cta moment-cta" href="/moment">
-      <span class="mc-kicker">A moment in their name</span>
-      <span class="cc-titles">${MOMENT_CTA.map((c, i) => `<b class="${i ? "" : "on"}">${c.title}</b>`).join("")}</span>
-      <span class="cc-icon" aria-hidden="true"><i class="cc-ring"></i><i class="cc-orbit"><b>✦</b><b>♥</b><b>✦</b><b>♥</b></i>${MOMENT_CTA.map((c, i) => `<img class="${i ? "" : "on"}" src="${c.img}" alt="" width="200" height="200"${i ? ' loading="lazy"' : ""}>`).join("")}<i class="cc-plus">♥</i></span>
-      <span class="cc-says">${MOMENT_CTA.map((c, i) => `<span class="${i ? "" : "on"}">${c.say}</span>`).join("")}</span>
-      <span class="cc-go">Give in their name →</span>
-    </a>`;
+  const momentTitleHTML = () => `<span class="mt-title${TA_PATH ? " ta" : ""}"><span>${MOMENT_TITLE[0]}</span> <b>${MOMENT_TITLE[1]}</b></span><span class="mt-ribbon">${MOMENT_TITLE[2]}</span>`;
+  const momentBandHTML = () => `<section class="moment-band" aria-label="Gift a Moment, in their name">
+      <i class="mb-sparks" aria-hidden="true"></i>
+      <div class="mb-main">
+        <a class="mb-head" href="/moment">
+          <img class="mb-mark" src="/img/moment-mark.svg" alt="" width="96" height="96">
+          ${momentTitleHTML()}
+        </a>
+        <p class="mb-say">Turn a day that matters to you into a child's happiest day.</p>
+        <a class="mb-go" href="/moment">Gift a moment →</a>
+      </div>
+      <div class="mb-reasons">
+        <p class="mb-tap">Tap your moment</p>
+        ${MOMENT_REASONS.map(r => `<a href="/moment?for=${r.k}"><span class="mb-pic"><img src="/img/moment/${r.k}.jpg" alt="" width="200" height="200" loading="lazy"></span><span>${TA_PATH ? r.ta : r.en}</span></a>`).join("")}
+      </div>
+    </section>`;
+  // On phones the menu is folded away, so the Home page also carries a slim strip at the very top.
+  const momentRibbonHTML = () => `<a class="moment-ribbon" href="/moment"><img src="/img/moment-mark.svg" alt="" width="34" height="34"><span><b>Gift a Moment</b> <em>in their name</em></span><i aria-hidden="true">→</i></a>`;
   const createHTML = () => `<a class="create-cta" href="/initiate">
       <span class="cc-titles">${CREATE.map((c, i) => `<b class="${i ? "" : "on"}">${c.title}</b>`).join("")}</span>
       <span class="cc-icon" aria-hidden="true"><i class="cc-ring"></i><i class="cc-orbit"><b>✦</b><b>♥</b><b>✦</b><b>♥</b></i>${CREATE.map((c, i) => `<img class="${i ? "" : "on"}" src="${c.img}" alt="" width="200" height="200">`).join("")}<i class="cc-plus">+</i></span>
@@ -465,7 +479,7 @@
   }
   function startCreate(app) {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    // each round icon (the moment one and Create a Smile) turns through its own pictures, a beat apart
+    // each round icon turns through its own pictures, a beat apart
     app.querySelectorAll(".create-cta").forEach((box, n) => {
       const count = box.querySelectorAll(".cc-icon img").length; if (count < 2) return;
       let k = 0;
@@ -532,6 +546,7 @@
     const follow = (site.follow || []).filter(x => x && x.title && x.text);
     const fstart = follow.length ? Math.floor(Math.random() * follow.length) : 0;
     app.innerHTML = `
+      ${momentRibbonHTML()}
       <section class="intro">
         <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
       </section>
@@ -547,7 +562,8 @@
         <p class="rail-say">${STAGE_SAY.map((t, i) => `<span class="s${i + 1}${i ? "" : " on"}">${t}</span>`).join("")}</p>
       </div>
       ${glanceHTML(projects)}
-      <div class="cta-pair">${momentCtaHTML()}${createHTML()}</div>
+      ${momentBandHTML()}
+      ${createHTML()}
       ${HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
       <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;

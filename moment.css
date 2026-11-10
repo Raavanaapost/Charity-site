@@ -5,7 +5,7 @@ body[data-page="moment"],body[data-page="together"]{
   --bg:#fbf6ea; --surface:#fffbf1; --ink:#2a3423; --muted:#6c6a52; --line:#ead7a4;
   --green:#1f4d3a; --gold:#c9a24a; --gold-deep:#8a5c12; --marigold:#f29a1f; --flame:#e4761b;
   --serif:"Cormorant Garamond",Georgia,"Noto Serif Tamil",serif;
-  background:var(--bg); color:var(--ink); color-scheme:light;
+  background:var(--bg); color:var(--ink); color-scheme:light; --logo-img:normal;
 }
 body[data-page="moment"] .bar,body[data-page="together"] .bar{background:var(--surface)}
 .moment{overflow:hidden;--tint:#fff3cf;--accent:#8a5c12;--frame:#c9a24a;--petal:#f29a1f}
@@ -20,6 +20,17 @@ body[data-page="moment"] .bar,body[data-page="together"] .bar{background:var(--s
 .mo-pick-q .mo-num{position:static;flex:none}
 .mo-hero h1 em{font-style:inherit;color:var(--accent);transition:color .4s}
 .mo-kicker{font-family:Cinzel,serif;font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:13px;color:var(--gold-deep);margin:0 0 12px}
+/* the page's own title: the heart-and-lamp mark, "Gift a Moment", and "in their name" on its ribbon (styles in style.css) */
+.mo-brand{display:flex;align-items:center;gap:12px;margin:0 0 16px}
+.mo-brand img{width:66px;height:66px;flex:none;display:block;filter:drop-shadow(0 8px 10px rgba(200,56,30,.3))}
+.mo-brand-words{display:grid;justify-items:start;gap:4px}
+.mo-brand .mt-title{justify-content:flex-start}
+.mo-brand .mt-title span{font-size:clamp(20px,3vw,28px)}
+.mo-brand .mt-title b{font-size:clamp(34px,5.2vw,50px)}
+.mo-brand .mt-title.ta span{font-size:clamp(16px,2.6vw,22px)}
+.mo-brand .mt-title.ta b{font-size:clamp(26px,4.4vw,38px)}
+.mo-brand .mt-ribbon{font-size:clamp(14px,2.2vw,17px);padding:3px 22px 5px}
+@media (max-width:640px){.mo-brand{gap:10px;margin-bottom:12px}.mo-brand img{width:54px;height:54px}.mo-brand .mt-title.ta span{font-size:15px}.mo-brand .mt-title.ta b{font-size:23px}.mo-brand .mt-ribbon{padding-inline:18px}html[lang="ta"] .mo-brand .mt-ribbon{font-size:13px}}
 .mo-hero h1{font-family:var(--serif);font-weight:600;font-style:italic;font-size:clamp(34px,5.2vw,58px);line-height:1.05;color:var(--green);margin:0 0 12px}
 :root[lang="ta"] .mo-hero h1,html[lang="ta"] .mo-hero h1{font-family:"Noto Serif Tamil",serif;font-style:normal;font-size:clamp(26px,4.2vw,44px);line-height:1.35}
 .mo-lede{font-family:var(--serif);font-size:clamp(18px,2.1vw,22px);line-height:1.45;color:#3d4a36;margin:0;max-width:46ch;min-height:2.9em}

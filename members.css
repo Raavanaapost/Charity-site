@@ -8,6 +8,7 @@ body[data-page="members"]{
   --serif:"Playfair Display",Georgia,"Times New Roman",serif;
   background:var(--bg) radial-gradient(1200px 520px at 50% -120px,#fff3cf 0,transparent 70%) no-repeat;
   color-scheme:light; /* always the warm cream look, even when the phone is in dark mode (owner's choice, 6 Nov 2026) */
+  --logo-img:normal; /* so the header keeps the logo with dark green letters */
 }
 
 body[data-page="members"] .bar{background:var(--surface)}

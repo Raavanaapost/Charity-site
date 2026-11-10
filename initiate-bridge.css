@@ -8,6 +8,7 @@ body[data-look="bridge"]{
   --serif:"Playfair Display",Georgia,"Times New Roman",serif;
   background:var(--bg) radial-gradient(1200px 520px at 50% -120px,#fff3cf 0,transparent 70%) no-repeat;
   color-scheme:light; /* always cream, even in phone dark mode */
+  --logo-img:normal;
 }
 body[data-look="bridge"] .bar{background:var(--surface)}
 body[data-look="bridge"] .bar::after{background:linear-gradient(90deg,var(--leaf),var(--gold) 50%,var(--sun))}

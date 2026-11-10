@@ -4,7 +4,7 @@ body.portal{margin:0;font-family:var(--display);font-size:15px;line-height:1.5;b
 .pt-shell{display:block}
 .pt-side{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--line)}
 .pt-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
-.pt-brand img{width:118px;height:auto;display:block;background:#fff;border-radius:6px}
+.pt-brand img{width:118px;height:auto;display:block;content:var(--logo-img)} /* no white plate; cream letters on dark screens */
 .pt-brand span{font-weight:700;font-size:14px;color:var(--muted);border-left:1px solid var(--line);padding-left:10px}
 .pt-nav,.pt-site{display:none}
 .pt-main{padding:18px 16px 96px;max-width:1180px}
@@ -411,7 +411,7 @@ body.pt-signedout .pt-demo{display:none}
 
 /* Team sign in: the same look as the Members sign-in and Create a Moment pages (SURESH, 10 Nov 2026) */
 body.pt-signedout{--m-bg:#fbf4e2;--m-surface:#fffbf1;--m-line:#ead7a4;--m-brand:#1f5a2e;--m-gold:#d4a23c;--m-gold-deep:#b07f1f;--m-ink:#2a3423;--m-muted:#6c6a52;
-  background:var(--m-bg) radial-gradient(1200px 520px at 50% -120px,#fff3cf 0,transparent 70%) no-repeat;color-scheme:light}
+  background:var(--m-bg) radial-gradient(1200px 520px at 50% -120px,#fff3cf 0,transparent 70%) no-repeat;color-scheme:light;--logo-img:normal}
 body.pt-signedout .pt-shell,body.pt-signedout .pt-main{background:transparent}
 body.pt-signedout .pt-login{max-width:560px;gap:14px}
 body.pt-signedout .pt-login > img{width:220px}

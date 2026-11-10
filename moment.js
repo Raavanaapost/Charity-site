@@ -1,4 +1,4 @@
-/* "A moment in their name" (/moment, /ta/moment), SURESH 10 Nov 2026.
+/* "Gift a Moment, in their name" (/moment, /ta/moment), SURESH 10 Nov 2026.
    The reasons sit right at the top: a giver taps one (in loving memory, a birthday, a wedding anniversary, on
    behalf of a family... or their own words), types the name and a few words, sees the card come alive, and picks
    where the joy goes: a project, the Raavanaa Fund, or a wish of their own. Under "Continue to give" they can make
@@ -92,7 +92,9 @@
       '<div class="wrap mo-hero-in">' +
         '<img class="mo-lamp" data-hero-art src="/img/moment/memory.jpg" alt="" width="300" height="400">' +
         '<div class="mo-hero-text">' +
-          '<p class="mo-kicker">' + T("Raavanaa · A moment in their name", "ராவணா · அவர்கள் பெயரில் ஒரு தருணம்") + "</p>" +
+          '<p class="mo-brand"><img src="/img/moment-mark.svg" alt="" width="96" height="96">' +
+            '<span class="mo-brand-words"><span class="mt-title' + (TA ? " ta" : "") + '"><span>' + T("Gift a", "பரிசளியுங்கள்") + "</span> <b>" + T("Moment", "ஒரு தருணம்") + "</b></span>" +
+            '<span class="mt-ribbon">' + T("in their name", "அவர்கள் பெயரில்") + "</span></span></p>" +
           "<h1>" + T("Your moment. <em>Their smile.</em>", "உங்கள் தருணம். <em>அவர்களின் புன்னகை.</em>") + "</h1>" +
           '<p class="mo-lede" data-lede></p>' +
         "</div>" +
