@@ -15,14 +15,14 @@ const district = (v: unknown) => {
   return DISTRICTS.find((d) => d.toLowerCase() === t) || "";
 };
 // new: just arrived; visit: a visit is planned; verified: visited and checked, the day is being planned.
-const STEPS: Record<string, string> = { new: "received", visit: "visit", verified: "planning" };
+const STEPS: Record<string, string> = { new: "received", visit: "visit", verified: "planning", approved: "planning" };
 
 export default async () => {
   try {
     const db = getDatabase();
     const rows = (await db.sql`
       SELECT status, received_at, focus, city, children FROM suggestions
-      WHERE status IN ('new', 'visit', 'verified') ORDER BY received_at DESC LIMIT 200`) as {
+      WHERE status IN ('new', 'visit', 'verified', 'approved') ORDER BY received_at DESC LIMIT 200`) as {
       status: string; received_at: string; focus: string[]; city: string; children: string;
     }[];
     const [all] = (await db.sql`SELECT COUNT(*)::int AS n FROM suggestions`) as { n: number }[];

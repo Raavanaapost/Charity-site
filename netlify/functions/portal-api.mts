@@ -9,7 +9,7 @@ import { getDatabase } from "@netlify/database";
 import { getUser } from "@netlify/identity";
 import { getStore } from "@netlify/blobs";
 
-const STATUSES = ["new", "visit", "verified", "declined", "project"];
+const STATUSES = ["new", "visit", "verified", "approved", "declined", "project"];
 const clip = (v: unknown, max: number) => String(v ?? "").trim().slice(0, max);
 const json = (data: unknown, status = 200) => Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
 
@@ -33,6 +33,15 @@ const evidenceStore = (context: Context) =>
 
 // Like clip, but keeps line breaks (paragraphs of the story, one budget item per line).
 const lines = (v: unknown, max: number) => String(v ?? "").split(/\r?\n/).map((l) => l.replace(/[ \t]+/g, " ").trim()).filter(Boolean).join("\n").slice(0, max);
+
+const day = (v: unknown) => (v ? new Date(v as string).toISOString().slice(0, 10) : "");
+const amount = (v: unknown) => Math.max(0, Math.round(Number(String(v ?? "").replace(/[^\d.]/g, "")) || 0));
+const slugify = (v: string) => v.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "project";
+
+// The drawing for a new project, picked from what the day is (never a photo of the children). Same list as endorse.js.
+const ART: [RegExp, string][] = [[/kandy|temple of the tooth|perahera|dalada/i, "kandy"], [/beach|sea|ocean|casuarina/i, "beach"], [/bowl/i, "bowling"], [/zoo|animal|dehiwala/i, "zoo"],
+  [/arcade|games|play ?zone|fun ?zone/i, "arcade"], [/mum|mother|women/i, "mums"], [/hill|mountain|waterfall|kovil|picnic|park|garden|trip|bus|excursion/i, "hills"]];
+const artFor = (t: string) => { for (const [re, n] of ART) if (re.test(t)) return `/img/project-${n}.svg`; return "/img/hero-initiated.svg"; };
 
 // A check still "running" after 16 minutes has died (background functions stop at 15), so it can be run again.
 const stuck = (r: Record<string, any>) => r.ai_status === "running" && r.ai_at && Date.now() - new Date(r.ai_at).getTime() > 16 * 60e3;
@@ -88,6 +97,8 @@ function shape(r: Record<string, any>, notes: unknown[], files: unknown[] = [], 
     title: r.title, category: r.category, focus: r.focus || [], description: r.description, location: r.location, city: r.city || "", village: r.village || "",
     children: r.children, contact: r.contact, reach: r.reach, trusted: r.trusted, additional: r.additional,
     onboard: r.onboard || {}, project: r.project_slug, notes, files, noEvidence: !!r.no_evidence,
+    details: r.details || {}, called: day(r.called), takenAt: r.taken_at || "", verifiedBy: r.verified_by || "", verifiedAt: r.verified_at || "",
+    approvedBy: r.approved_by || "", approvedAt: r.approved_at || "", approvedOverride: !!r.approved_override, plan: { lines: [], expect: [], ...(r.plan || {}) },
     memberEmail: r.member_email || "",
     endorseLink: r.endorse_token ? `/e/${r.endorse_token}` : "", endorsements,
     ai: stuck(r)
@@ -156,6 +167,45 @@ export default async (req: Request, context: Context) => {
       return json({ ok: true, started: true }, 202);
     }
 
+    // Step 6: create the Initiated project from the request. It shows on the website straight away (next to projects.json).
+    if (parts[2] === "project" && req.method === "POST") {
+      const [r] = await db.sql<Record<string, any>>`SELECT * FROM suggestions WHERE id = ${row.id}`;
+      if (r.status === "project" && r.project_slug) return json({ ok: true, slug: r.project_slug });
+      if (r.status !== "approved") return json({ error: "It needs to be approved first." }, 400);
+      const d = r.details || {}, q = r.plan || {}, pf = r.profile || {};
+      const budget = (q.lines || []).filter((x: any) => x.item && x.amount > 0);
+      if (!budget.length || !(q.expect || []).length) return json({ error: "Add the budget and what the organisers hope for first." }, 400);
+      const title = pf.title || d.title || r.title;
+      const story = String(d.story || pf.summary || r.description || "").trim();
+      let slug = slugify(title);
+      const taken = await db.sql<{ slug: string }>`SELECT slug FROM site_projects WHERE slug LIKE ${slug + "%"}`;
+      if ((taken as any[]).some((x) => x.slug === slug)) slug = `${slug}-${r.ref.toLowerCase()}`;
+      const vouched = await db.sql<Record<string, any>>`SELECT name, relation, role FROM endorsements WHERE suggestion_id = ${row.id} AND NOT hidden ORDER BY created_at`;
+      const place = pf.place || [r.village, r.city].filter(Boolean).join(", ") || r.location;
+      const data = {
+        title, slug, hidden: false, featured: false, theme: "Trips & Events", status: "Planning",
+        location: place, city: r.city || String(place).split(",").pop()!.trim(), organization: d.org || "Raavanaa",
+        started: new Date().toLocaleDateString("en-GB", { month: "long", year: "numeric" }),
+        reach: pf.children || r.children, verified: true, currency: "Rs ",
+        budget, goal: budget.reduce((a: number, x: any) => a + x.amount, 0), funders: [],
+        date_set: false, booked: false, volunteers: false, steps: [],
+        tagline: pf.tagline || "", summary: pf.summary ? String(pf.summary).split("\n")[0] : story.split("\n")[0],
+        story: `## The need and the plan\n\n${story}`, cover: artFor([title, pf.activity, story].join(" ")),
+        expectations: q.expect.map((text: string) => ({ text, result: "", note: "" })), impact: [], updates: [], photos: [], media: [],
+        vouched: (vouched as any[]).map((v) => ({ name: v.name, role: v.role || (v.relation === "know" ? "Knows the person who asked" : "Has seen the need") })),
+        people: {
+          requested_by: String(r.contact || "").split(/[,(]/)[0].trim(), requested_on: day(r.received_at),
+          verified_by: r.verified_by, verified_on: day(r.verified_at), approved_by: r.approved_by, approved_on: day(r.approved_at),
+        },
+        from_request: r.ref,
+      };
+      await db.sql`INSERT INTO site_projects (slug, suggestion_id, data, created_by) VALUES (${slug}, ${row.id}, ${JSON.stringify(data)}::jsonb, ${me.email})`;
+      await db.sql`UPDATE suggestions SET status = 'project', project_slug = ${slug}, updated_at = NOW() WHERE id = ${row.id}`;
+      await db.sql`INSERT INTO suggestion_notes (suggestion_id, by_email, by_name, body) VALUES (${row.id}, ${me.email}, ${me.name}, ${"Turned into an Initiated project: /projects/" + slug})`;
+      await db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES (${me.email}, 'suggestion.project', ${ref}, ${JSON.stringify({ slug })}::jsonb)`;
+      return json({ ok: true, slug });
+    }
+
     if (parts[2] === "notes" && req.method === "POST") {
       const text = clip(body.text, 2000);
       if (!text) return json({ error: "Write a note first." }, 400);
@@ -183,6 +233,42 @@ export default async (req: Request, context: Context) => {
         changes.onboard = clean;
         await db.sql`UPDATE suggestions SET onboard = ${JSON.stringify(clean)}::jsonb, updated_at = NOW() WHERE id = ${row.id}`;
       }
+      // Step 1: who takes it (and when).
+      if (body.assigned !== undefined) await db.sql`UPDATE suggestions SET taken_at = ${changes.assigned ? new Date().toISOString() : null} WHERE id = ${row.id}`;
+      // Step 2: the first call and the details it collects. The exact place stays private to the team.
+      if (body.details !== undefined && typeof body.details === "object") {
+        const d = body.details;
+        const clean = { title: clip(d.title, 120), story: lines(d.story, 4000), org: clip(d.org, 120), place: clip(d.place, 200), evidenceSeen: !!d.evidenceSeen };
+        changes.details = { title: clean.title };
+        await db.sql`UPDATE suggestions SET details = ${JSON.stringify(clean)}::jsonb, updated_at = NOW() WHERE id = ${row.id}`;
+      }
+      if (body.called !== undefined) {
+        const c = /^\d{4}-\d{2}-\d{2}$/.test(String(body.called)) ? String(body.called) : null;
+        changes.called = c;
+        await db.sql`UPDATE suggestions SET called = ${c}, updated_at = NOW() WHERE id = ${row.id}`;
+      }
+      // Step 5: the budget, line by line, and what the organisers hope for.
+      if (body.plan !== undefined && typeof body.plan === "object") {
+        const q = body.plan;
+        const clean = {
+          lines: (Array.isArray(q.lines) ? q.lines : []).slice(0, 30).map((x: any) => ({ item: clip(x?.item, 160), amount: amount(x?.amount) })).filter((x: any) => x.item || x.amount),
+          expect: (Array.isArray(q.expect) ? q.expect : []).slice(0, 6).map((x: unknown) => clip(x, 200)).filter(Boolean),
+        };
+        changes.plan = { lines: clean.lines.length, total: clean.lines.reduce((a: number, x: any) => a + x.amount, 0) };
+        await db.sql`UPDATE suggestions SET plan = ${JSON.stringify(clean)}::jsonb, updated_at = NOW() WHERE id = ${row.id}`;
+      }
+      if (body.status !== undefined) {
+        const [cur0] = await db.sql<Record<string, any>>`SELECT status, verified_by FROM suggestions WHERE id = ${row.id}`;
+        // Step 4: only an admin approves, and not the person who visited (unless they say they did both).
+        if (body.status === "approved") {
+          if (!me.admin) return json({ error: "Only an admin can approve." }, 403);
+          if (cur0.status !== "verified") return json({ error: "It needs the visit first." }, 400);
+          const own = !!cur0.verified_by && cur0.verified_by === me.name;
+          if (own && body.override !== true) return json({ error: "You verified this visit, so another admin should approve it." }, 403);
+          await db.sql`UPDATE suggestions SET approved_by = ${me.name}, approved_at = NOW(), approved_override = ${own} WHERE id = ${row.id}`;
+        }
+        if (body.status === "project") return json({ error: "Use Create the Initiated project." }, 400);
+      }
       if (body.status !== undefined) {
         // Verifying needs the full visit checklist (the same rule as the portal screen).
         if (body.status === "verified") {
@@ -190,6 +276,7 @@ export default async (req: Request, context: Context) => {
           const o = cur.onboard || {};
           const ok = o.explained && o.showed && o.safety && o.test && (o.contact !== "trusted" || (o.trusted?.name && o.trusted?.phone));
           if (!ok) return json({ error: "Finish the visit checklist first." }, 400);
+          await db.sql`UPDATE suggestions SET verified_by = ${me.name}, verified_at = NOW() WHERE id = ${row.id}`;
         }
         changes.status = body.status;
         await db.sql`UPDATE suggestions SET status = ${body.status}, updated_at = NOW() WHERE id = ${row.id}`;

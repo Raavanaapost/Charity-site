@@ -5,7 +5,7 @@ import { getDatabase } from "@netlify/database";
 import { getUser } from "@netlify/identity";
 
 const STEP: Record<string, string> = {
-  new: "Raavanaa is checking it", visit: "A visit is planned", verified: "Visited and verified",
+  new: "Raavanaa is checking it", visit: "A visit is planned", verified: "Visited and verified", approved: "Approved by Raavanaa",
   declined: "Not taken forward", project: "Now a project",
 };
 

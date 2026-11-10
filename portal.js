@@ -282,7 +282,6 @@
       <header class="pt-head"><div><p class="pt-kicker">Suggestion ${esc(s.id)} · received ${ago(s.received)}</p><h1>${esc(det(s).title || s.title)}</h1>
         <p><span class="pt-pill ${STATUS[s.status].c}">${STATUS[s.status].label}</span>${s.status === "visit" && s.visit ? ` <span class="pt-sub">Visit on ${fmtDay(s.visit)}</span>` : ""}</p></div></header>
       ${s.status === "declined" ? "" : `<ol class="pt-steps six">${step("take", "Taken")}${step("call", "Called")}${step("visit", "Visited")}${step("approve", "Approved")}${step("budget", "Budget")}${step("create", "Initiated")}</ol>`}
-      ${LIVE ? `<p class="pt-preview-tag">Design preview: the new steps (first call, approval, budget) are not saved yet. Taking it, the visit and verifying are saved.</p>` : ""}
       <div class="pt-detail">
         <section class="pt-card">
           <h2>What they sent</h2>
@@ -317,6 +316,7 @@
   // 1 Take it · 2 First call (collect the details the short form doesn't ask) · 3 Visit and verify
   // 4 Approve (an admin; not the person who visited) · 5 Budget and expectations · 6 Create the Initiated project
   const CALL_DAYS = 2;
+  const rs = n => "Rs " + Math.round(n).toLocaleString("en-US"); // projects are in Sri Lankan rupees
   const det = s => { if (!s.details) s.details = {}; return s.details; };
   const plan = s => { if (!s.plan) s.plan = { lines: [], expect: [] }; return s.plan; };
   const callMissing = s => { const d = det(s), o = ob(s), m = [];
@@ -384,17 +384,17 @@
                    <label class="pt-check"><input type="checkbox" data-override><span>I did both (early weeks). Approve anyway; this is noted.</span></label>
                    <button type="button" class="pt-btn" data-approve disabled>Approve</button>`
           : `<p class="pt-sub">Verified by ${esc(s.verifiedBy || s.assigned || "the team")}. Read the notes and the visit feedback, then approve.</p><button type="button" class="pt-btn" data-approve>Approve</button>`),
-      box(4, "Budget and expectations", F[4].done ? `${money(total)} · ${q.expect.filter(Boolean).length} expectation${q.expect.filter(Boolean).length === 1 ? "" : "s"}` : "",
+      box(4, "Budget and expectations", F[4].done ? `${rs(total)} · ${q.expect.filter(Boolean).length} expectation${q.expect.filter(Boolean).length === 1 ? "" : "s"}` : "",
         `<p class="pt-sub">Estimated costs, line by line. They show on the website as estimates until the day.</p>
-         <ul class="pt-lines">${q.lines.map((x, k) => `<li><input data-li="${k}" data-f="item" value="${esc(x.item)}" placeholder="e.g. Van hire" aria-label="Item"><span class="pt-cur">$</span><input data-li="${k}" data-f="amount" value="${esc(x.amount)}" inputmode="decimal" placeholder="0" aria-label="Amount"><button type="button" data-rm="${k}" aria-label="Remove">✕</button></li>`).join("")}</ul>
-         <div class="pt-row2"><button type="button" class="pt-btn ghost" data-addline>+ Add a line</button><p class="pt-total">Total <b>${money(total)}</b></p></div>
+         <ul class="pt-lines">${q.lines.map((x, k) => `<li><input data-li="${k}" data-f="item" value="${esc(x.item)}" placeholder="e.g. Van hire" aria-label="Item"><span class="pt-cur">Rs</span><input data-li="${k}" data-f="amount" value="${esc(x.amount)}" inputmode="decimal" placeholder="0" aria-label="Amount"><button type="button" data-rm="${k}" aria-label="Remove">✕</button></li>`).join("")}</ul>
+         <div class="pt-row2"><button type="button" class="pt-btn ghost" data-addline>+ Add a line</button><p class="pt-total">Total <b>${rs(total)}</b></p></div>
          <p class="pt-field-h">What the organisers hope for <small>(ticked off after the day)</small></p>
          ${[0, 1, 2].map(k => `<input class="pt-exp" data-ex="${k}" value="${esc(q.expect[k] || "")}" placeholder="${["e.g. Every child plays at least one game", "e.g. A hot lunch for everyone", "e.g. Each family takes home a photo"][k]}">`).join("")}
          <button type="button" class="pt-btn" data-save-plan>Save budget and expectations</button>`),
-      box(5, "Create the Initiated project", s.status === "project" ? "On the website as Smiles in the Making" : "",
-        s.status === "project" ? `<p class="pt-sub">Done. <a href="#/projects/${esc(s.project || "")}">Open the project →</a></p>`
+      box(5, "Create the Initiated project", s.status === "project" ? "On the website as an Initiated project" : "",
+        s.status === "project" ? `<p class="pt-sub">Done. <a href="/projects/${esc(s.project || "")}" target="_blank" rel="noopener">Open the project page →</a></p>`
           : `<div class="pt-preview"><p class="pt-preview-h">On the website it will show</p>
-              <b>${esc(d.title || s.title)}</b><small>Smiles in the Making · ${esc([s.village, s.city].filter(Boolean).join(", ") || s.location)} · Budget ${money(total)}</small>
+              <b>${esc((s.profile && s.profile.title) || d.title || s.title)}</b><small>Initiated · ${esc([s.village, s.city].filter(Boolean).join(", ") || s.location)} · Budget ${rs(total)}</small>
               <ol><li>Requested by ${esc(s.contact || "")}${d.org ? ", " + esc(d.org) : ""}</li><li>Verified by ${esc(s.verifiedBy || "…")}</li><li>Approved by ${esc(s.approvedBy || "…")}</li></ol></div>
              <button type="button" class="pt-btn" data-act="project" ${after(s.status, "approved") && F[4].done ? "" : "disabled"}>Create the Initiated project</button>
              ${after(s.status, "approved") && F[4].done ? "" : `<p class="pt-sub">Needs approval and a budget with expectations first.</p>`}`)
@@ -403,8 +403,6 @@
       <button type="button" class="pt-btn ghost danger pt-decline" data-act="declined">Not suitable</button></section>`;
   }
   let openStep = "";
-  // Changes to the new steps: saved in the demo; in the live portal they are a preview until saving is built.
-  const keep = (s, patch, note, done) => { Object.assign(s, patch); if (note) addNote(s, note); render(); if (done) toast(done + (LIVE ? " (preview, not saved yet)" : " (demo)")); };
   function wireFlow(s) {
     app.querySelectorAll(".pt-step").forEach(dd => dd.addEventListener("toggle", () => { if (dd.open) openStep = dd.dataset.step; }));
     const callBtn = app.querySelector("[data-save-call]");
@@ -413,14 +411,14 @@
       const o = { ...ob(s), trusted: { ...(ob(s).trusted || {}) } };
       app.querySelectorAll("[data-tr]").forEach(i => o.trusted[i.dataset.tr] = i.value.trim());
       const was = !!s.called; openStep = "call";
-      keep(s, { details: d, onboard: o, called: app.querySelector("[data-called]").value }, was ? "" : `First call done. ${callMissing({ ...s, details: d, onboard: o }).length ? "Some details still missing." : "All details in."}`, "Call saved");
+      save(s, { details: d, onboard: o, called: app.querySelector("[data-called]").value }, was ? "" : `First call done. ${callMissing({ ...s, details: d, onboard: o }).length ? "Some details still missing." : "All details in."}`, "Call saved");
     };
     app.querySelectorAll('input[name="ob-contact"]').forEach(r => r.onchange = () => { ob(s).contact = r.value; openStep = "call"; render(); });
     const ev = app.querySelector("[data-evseen]");
-    if (ev) ev.onchange = () => keep(s, { details: { ...det(s), evidenceSeen: ev.checked } });
+    if (ev) ev.onchange = () => save(s, { details: { ...det(s), evidenceSeen: ev.checked } });
     const ov = app.querySelector("[data-override]"), ap = app.querySelector("[data-approve]");
     if (ov) ov.onchange = () => { ap.disabled = !ov.checked; };
-    if (ap) ap.onclick = () => keep(s, { status: "approved", approvedBy: D.user.name, approvedAt: NOW.toISOString(), approvedOverride: !!(ov && ov.checked) },
+    if (ap) ap.onclick = () => save(s, LIVE ? { status: "approved", override: !!(ov && ov.checked) } : { status: "approved", approvedBy: D.user.name, approvedAt: NOW.toISOString(), approvedOverride: !!(ov && ov.checked) },
       `Approved${ov && ov.checked ? " (also did the visit; early-weeks override)" : ""}.`, "Approved");
     const q = plan(s), readPlan = () => {
       app.querySelectorAll("[data-li]").forEach(i => { q.lines[+i.dataset.li][i.dataset.f] = i.value.trim(); });
@@ -428,8 +426,8 @@
     };
     const add = app.querySelector("[data-addline]"); if (add) add.onclick = () => { readPlan(); q.lines.push({ item: "", amount: "" }); openStep = "budget"; render(); const ins = app.querySelectorAll("[data-li][data-f=item]"); if (ins.length) ins[ins.length - 1].focus(); };
     app.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => { readPlan(); q.lines.splice(+b.dataset.rm, 1); openStep = "budget"; render(); });
-    app.querySelectorAll("[data-li][data-f=amount]").forEach(i => i.oninput = () => { readPlan(); const t = app.querySelector(".pt-total b"); if (t) t.textContent = money(q.lines.reduce((a, x) => a + num(x.amount), 0)); });
-    const sp = app.querySelector("[data-save-plan]"); if (sp) sp.onclick = () => { readPlan(); q.lines = q.lines.filter(x => x.item || x.amount); openStep = "budget"; keep(s, { plan: q }, "Budget and expectations saved.", "Saved"); };
+    app.querySelectorAll("[data-li][data-f=amount]").forEach(i => i.oninput = () => { readPlan(); const t = app.querySelector(".pt-total b"); if (t) t.textContent = rs(q.lines.reduce((a, x) => a + num(x.amount), 0)); });
+    const sp = app.querySelector("[data-save-plan]"); if (sp) sp.onclick = () => { readPlan(); q.lines = q.lines.filter(x => x.item || x.amount); openStep = "budget"; save(s, { plan: q }, "Budget and expectations saved.", "Saved"); };
   }
 
   function actionsHTML(s) {
@@ -502,7 +500,13 @@
       if (act === "new") return save(s, { status: "new" }, "Reopened.", "Reopened");
       if (act === "project") {
         const d0 = det(s), q0 = plan(s);
-        if (LIVE) { keep(s, { status: "project" }, "Turned into an Initiated project.", "Project created"); return; }
+        if (LIVE) {
+          btn.disabled = true;
+          api(`/api/portal/suggestions/${encodeURIComponent(s.id)}/project`, { method: "POST", body: "{}" })
+            .then(r => { s.status = "project"; s.project = r.slug; addNote(s, "Turned into an Initiated project."); render(); toast("Project created. It is on the website now."); })
+            .catch(e => { btn.disabled = false; toast(e.message || "Could not create the project"); });
+          return;
+        }
         const slug = (d0.title || s.title).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48);
         save(s, { status: "project" }, "Turned into an Initiated project.", LIVE ? "Marked as a project. The project editor goes live in the next step." : "").then(ok => {
           if (!ok || LIVE) return;
@@ -1190,7 +1194,7 @@
     document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
   }
 
-  Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] }))])
+  Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] })).then(async d => { try { const m = await fetch("/api/projects").then(r => r.json()); const have = new Set((d.projects || []).map(p => p.slug)); d.projects = [...(d.projects || []), ...(m.projects || []).filter(p => !have.has(p.slug))]; } catch (e) { /* only projects.json */ } return d; })])
     .then(async ([d, p]) => {
       D = d; P = (p.projects || []).filter(x => !x.hidden);
       P.filter(x => stageNum(x) === 2 && D.days[x.slug]).forEach(syncDay);

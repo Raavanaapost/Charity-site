@@ -2197,7 +2197,9 @@
     const app = document.getElementById("app");
     const page = document.body.dataset.page;
     try {
-      const [site, data, cm] = await Promise.all([load("/site.json"), load("/projects.json"), load("/comments.json").catch(() => ({}))]);
+      const [site, data, cm, made] = await Promise.all([load("/site.json"), load("/projects.json"), load("/comments.json").catch(() => ({})), load("/api/projects").catch(() => null)]);
+      // Projects created from requests in the team portal come from the database; projects.json wins if a slug is in both.
+      if (made && made.projects) { const have = new Set((data.projects || []).map(p => p.slug)); data.projects = [...(data.projects || []), ...made.projects.filter(p => p && !have.has(p.slug))]; }
       COMMENTS = (cm && cm.comments) || [];
       frame(site);
       // Only projects that have been visited and verified are public (Decisions log, 10 Oct 2026).
