@@ -23,6 +23,20 @@ export async function getMember() {
   try { const id = await identity(); return await id.getUser(); } catch (e) { return null; }
 }
 
+// "?next=/initiate": after signing in or confirming the email, go back there. Kept for a day in localStorage,
+// because the confirmation email may open in a new tab. Only paths on this site are accepted.
+const NEXT_KEY = "raav-next";
+const nextFromUrl = new URLSearchParams(location.search).get("next") || "";
+if (/^\/[a-z0-9\/-]*$/i.test(nextFromUrl) && !nextFromUrl.startsWith("//")) { try { localStorage.setItem(NEXT_KEY, JSON.stringify({ to: nextFromUrl, at: Date.now() })); } catch (e) {} }
+function goNext() {
+  try {
+    const n = JSON.parse(localStorage.getItem(NEXT_KEY) || "null");
+    localStorage.removeItem(NEXT_KEY);
+    if (n && n.to && Date.now() - n.at < 864e5) { location.replace(n.to); return true; }
+  } catch (e) {}
+  return false;
+}
+
 export async function render(app, site) {
   // Links from Identity emails arrive with a token in the address.
   const h = location.hash;
@@ -45,11 +59,22 @@ export async function render(app, site) {
 }
 
 const header = (eyebrow, title, sub) => `<div class="m-head"><span class="m-ribbon">${esc(eyebrow)}</span>
-  <h1 class="m-title">${title}</h1>${sub ? `<p class="lede">${esc(sub)}</p>` : ""}</div>`;
+  <h1 class="m-title" data-rot="title">${title}</h1>${sub ? `<p class="lede" data-rot="sub">${esc(sub)}</p>` : ""}</div>`;
+// Sign in: three messages take turns at the top and under the picture (SURESH, 10 Nov 2026).
+const JOIN_SETS = [
+  { title: 'Join <span class="org">Raavanaa</span> Community', sub: "Make an account now, and soon you will see your gifts and receipts in one place.", cap: "A bridge between people who need a hand <br>and people ready to give one." },
+  { title: 'Be part of a <span class="org">smile</span>', sub: "Members can start a moment for children they know, and follow it from the first call to the day itself.", cap: "One small idea can light up <br>a child's whole day." },
+  { title: 'Give a <span class="org">hand</span>', sub: "Join free. Vouch for projects you know, volunteer near you, or give to a day of joy.", cap: "Everyone here is a volunteer, <br>and every gift is shown in the open." },
+];
+const SIGNIN_SETS = [
+  { title: 'Welcome <span class="org">back</span>', sub: "Sign in to see your account. You do not need an account to read about our projects.", cap: "A bridge between people who need a hand <br>and people ready to give one." },
+  { title: 'Every <span class="org">smile</span> counts', sub: "Sign in to follow the moments you started and the ones you helped make happen.", cap: "One small idea can light up <br>a child's whole day." },
+  { title: 'Together we <span class="org">create</span>', sub: "Members can start a moment, vouch for one, and see where every rupee goes.", cap: "Everyone here is a volunteer, <br>and every gift is shown in the open." },
+];
 // The bridge picture from the Raavanaa Community poster, with its line underneath.
 const hero = (small = false) => `<figure class="m-hero${small ? " small" : ""}">
     <picture><source srcset="/img/members-bridge.webp" type="image/webp"><img src="/img/members-bridge.jpg" alt="Neighbours crossing a little bridge to help each other: carrying food, a box, a hand for an elder." width="941" height="395"></picture>
-    ${small ? "" : `<figcaption>A bridge between people who need a hand <br>and people ready to give one.</figcaption>`}
+    ${small ? "" : `<figcaption data-rot="cap">A bridge between people who need a hand <br>and people ready to give one.</figcaption>`}
   </figure>`;
 const ICONS = {
   join: '<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="16" r="8"/><path d="M8 42c2-9 8-14 16-14s14 5 16 14"/></svg>',
@@ -97,6 +122,7 @@ async function signedOut(app, site, mode = "login", msg = "") {
       </aside>
     </div>
   </section>`;
+  if (window.raavRotate) window.raavRotate(app, join ? JOIN_SETS : SIGNIN_SETS);
   const f = app.querySelector("#m-form"), out = f.querySelector(".member-msg");
   app.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => signedOut(app, site, b.dataset.mode));
   const g = app.querySelector("[data-google]");
@@ -159,6 +185,7 @@ function newPassword(app, token) {
 async function account(app, site, msg = "") {
   const me = await getMember();
   if (!me) return signedOut(app, site, "login", msg);
+  if (goNext()) return;
   const name = me.name || (me.email || "").split("@")[0];
   const roles = [].concat(me.roles || [], me.role ? [me.role] : []);
   const team = roles.some(r => r === "admin" || r === "team");
@@ -167,6 +194,10 @@ async function account(app, site, msg = "") {
     ${header("My account", `Welcome, <span class="org">${esc(name)}</span>`, since ? `Member since ${since}.` : "")}
     ${hero(true)}
     ${msg ? `<p class="member-flash" role="status">${esc(msg)}</p>` : ""}
+    <section class="panel member-card m-requests" data-my-requests hidden>
+      <h2>My requests</h2>
+      <ul class="m-req-list" data-req-list></ul>
+    </section>
     <div class="member-grid">
       <section class="panel member-card">
         <h2>My donations</h2>
@@ -184,6 +215,16 @@ async function account(app, site, msg = "") {
     </div>
     <p class="member-foot">${team ? `<a href="/portal">Open the team portal</a> · ` : ""}<button type="button" class="member-link" data-signout>Sign out</button></p>
   </section>`;
+  // The requests this member sent, with where each one is and its page link.
+  fetch("/api/my-requests", { credentials: "same-origin" }).then(r => r.ok ? r.json() : null).then(d => {
+    const box = app.querySelector("[data-my-requests]"), list = d && d.requests;
+    if (!box || !list || !list.length) return;
+    box.hidden = false;
+    box.querySelector("[data-req-list]").innerHTML = list.map(r => `<li>
+      <a href="${esc(r.project || r.link)}"><b>${esc(r.title)}</b></a>
+      <span>${esc(r.step)}${r.shareOk ? ` · vouched ${r.vouched} of 3` : ""}</span>
+      <small>${esc(r.ref)} · sent ${esc(new Date(r.received).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }))}</small></li>`).join("");
+  }).catch(() => {});
   const f = app.querySelector("#m-me"), out = f.querySelector(".member-msg");
   f.onsubmit = async e => {
     e.preventDefault(); out.textContent = "Saving...";

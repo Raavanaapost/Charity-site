@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 420" role="img" aria-label="A pink lotus on the water">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffe3ee" stop-opacity=".9"/><stop offset=".5" stop-color="#f2a3c0" stop-opacity=".3"/><stop offset="1" stop-color="#f2a3c0" stop-opacity="0"/></radialGradient>
+    <linearGradient id="gold" x1="0" x2="1"><stop offset="0" stop-color="#9a6a17"/><stop offset=".4" stop-color="#e6b94f"/><stop offset=".6" stop-color="#f6d98a"/><stop offset="1" stop-color="#a8761a"/></linearGradient>
+    <linearGradient id="flame" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#d9480f"/><stop offset=".45" stop-color="#ff9d2e"/><stop offset="1" stop-color="#fff2b8"/></linearGradient>
+  </defs>
+  <style>
+    .flick{transform-box:fill-box;transform-origin:50% 100%;animation:flick 2.4s ease-in-out infinite}
+    .bob{transform-box:fill-box;transform-origin:50% 100%;animation:bob 4s ease-in-out infinite}
+    .twinkle{animation:tw 2.8s ease-in-out infinite}
+    .glow{transform-box:fill-box;transform-origin:center;animation:br 3.4s ease-in-out infinite}
+    @keyframes flick{0%,100%{transform:scale(1,1)}35%{transform:scale(.94,1.06) rotate(-2deg)}65%{transform:scale(1.04,.96) rotate(2deg)}}
+    @keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-8px) rotate(2deg)}}
+    @keyframes tw{0%,100%{opacity:1}50%{opacity:.35}}
+    @keyframes br{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+    @media (prefers-reduced-motion:reduce){.flick,.bob,.twinkle,.glow{animation:none}}
+  </style>
+  <circle class="glow" cx="160" cy="200" r="150" fill="url(#glow)"/>
+
+  <ellipse cx="160" cy="330" rx="140" ry="30" fill="#bfe0e8"/><ellipse cx="160" cy="330" rx="110" ry="18" fill="#a5d3de"/>
+  <ellipse cx="70" cy="326" rx="44" ry="12" fill="#5e9a5a"/><ellipse cx="252" cy="330" rx="40" ry="11" fill="#5e9a5a"/>
+  <g class="glow">
+  <path d="M160 150c26 40 26 110 0 160-26-50-26-120 0-160z" fill="#f48fb1"/>
+  <path d="M160 310c-50-14-82-60-80-120 40 10 70 60 80 120z" fill="#f06292"/>
+  <path d="M160 310c50-14 82-60 80-120-40 10-70 60-80 120z" fill="#f06292"/>
+  <path d="M160 312c-70 0-108-30-118-70 48-4 92 24 118 70z" fill="#f8bbd0"/>
+  <path d="M160 312c70 0 108-30 118-70-48-4-92 24-118 70z" fill="#f8bbd0"/>
+  </g>
+  <path class="twinkle" d="M70 112l2.24 5.76 5.76 2.24-5.76 2.24-2.24 5.76-2.24-5.76-5.76-2.24 5.76-2.24z" fill="#f2b33d"/><path class="twinkle" d="M250 100l2.8000000000000003 7.199999999999999 7.199999999999999 2.8000000000000003-7.199999999999999 2.8000000000000003-2.8000000000000003 7.199999999999999-2.8000000000000003-7.199999999999999-7.199999999999999-2.8000000000000003 7.199999999999999-2.8000000000000003z" fill="#f2b33d"/>
+</svg>

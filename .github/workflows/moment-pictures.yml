@@ -1,0 +1,32 @@
+# Gemini pictures for "A moment in their name" (/moment). Runs when the moment-pictures branch is pushed
+# (so it doesn't need to be on main), makes the pictures and saves them back on that branch for a look.
+# Commits carry [skip netlify] so nothing is published. Needs the GEMINI_API_KEY repository secret.
+name: Moment pictures
+on:
+  push:
+    branches: [moment-pictures]
+    paths: [".github/workflows/moment-pictures.yml", "tools/pictures/make_moment_pictures.py", "tools/pictures/moment-run.txt"]
+permissions:
+  contents: write
+jobs:
+  pictures:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pillow
+      - name: Make the pictures
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python3 tools/pictures/make_moment_pictures.py $(cat tools/pictures/moment-run.txt 2>/dev/null)
+      - name: Save them on this branch
+        if: always()
+        run: |
+          git config user.name "raavanaa-picture-robot"
+          git config user.email "actions@users.noreply.github.com"
+          git add img/moment
+          if git diff --cached --quiet; then echo "No new pictures."; exit 0; fi
+          git commit -m "Gemini pictures for the moment page [skip netlify]"
+          git push origin HEAD:moment-pictures

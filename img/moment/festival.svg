@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 420" role="img" aria-label="A Pongal pot boiling over, with sugarcane and a kolam">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff0c2" stop-opacity=".9"/><stop offset=".5" stop-color="#f7b24a" stop-opacity=".3"/><stop offset="1" stop-color="#f7b24a" stop-opacity="0"/></radialGradient>
+    <linearGradient id="gold" x1="0" x2="1"><stop offset="0" stop-color="#9a6a17"/><stop offset=".4" stop-color="#e6b94f"/><stop offset=".6" stop-color="#f6d98a"/><stop offset="1" stop-color="#a8761a"/></linearGradient>
+    <linearGradient id="flame" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#d9480f"/><stop offset=".45" stop-color="#ff9d2e"/><stop offset="1" stop-color="#fff2b8"/></linearGradient>
+  </defs>
+  <style>
+    .flick{transform-box:fill-box;transform-origin:50% 100%;animation:flick 2.4s ease-in-out infinite}
+    .bob{transform-box:fill-box;transform-origin:50% 100%;animation:bob 4s ease-in-out infinite}
+    .twinkle{animation:tw 2.8s ease-in-out infinite}
+    .glow{transform-box:fill-box;transform-origin:center;animation:br 3.4s ease-in-out infinite}
+    @keyframes flick{0%,100%{transform:scale(1,1)}35%{transform:scale(.94,1.06) rotate(-2deg)}65%{transform:scale(1.04,.96) rotate(2deg)}}
+    @keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-8px) rotate(2deg)}}
+    @keyframes tw{0%,100%{opacity:1}50%{opacity:.35}}
+    @keyframes br{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+    @media (prefers-reduced-motion:reduce){.flick,.bob,.twinkle,.glow{animation:none}}
+  </style>
+  <circle class="glow" cx="160" cy="150" r="150" fill="url(#glow)"/>
+
+  <circle cx="160" cy="90" r="40" fill="#ffcf5a"/><g stroke="#f2b33d" stroke-width="4" stroke-linecap="round"><path d="M210 90L224 90"/><path d="M203 66L215 59"/><path d="M185 47L192 35"/><path d="M160 41L160 27"/><path d="M136 47L129 35"/><path d="M117 65L105 58"/><path d="M111 90L97 90"/><path d="M117 114L105 121"/><path d="M135 133L128 145"/><path d="M160 139L160 153"/><path d="M184 133L191 145"/><path d="M203 115L215 122"/></g>
+  <g><path d="M46 380L80 140" stroke="#6b8f2f" stroke-width="10"/><path d="M48 360l4-30M58 290l4-30M66 230l4-30M74 170l4-30" stroke="#4f6f20" stroke-width="12"/><path d="M80 140c-20-20-40-24-56-20 18 6 34 14 56 20zM80 140c10-26 26-40 44-42-14 12-26 26-44 42z" fill="#4f8f45"/></g>
+  <g><path d="M274 380L240 140" stroke="#6b8f2f" stroke-width="10"/><path d="M272 360l-4-30M262 290l-4-30M254 230l-4-30M246 170l-4-30" stroke="#4f6f20" stroke-width="12"/><path d="M240 140c20-20 40-24 56-20-18 6-34 14-56 20zM240 140c-10-26-26-40-44-42 14 12 26 26 44 42z" fill="#4f8f45"/></g>
+  <path d="M104 220h112c18 20 26 44 26 66 0 40-36 64-82 64s-82-24-82-64c0-22 8-46 26-66z" fill="#b5532a"/>
+  <path d="M100 212h120v14H100z" fill="#8a3c1c"/>
+  <path d="M104 214c4-22 20-30 30-22 6-16 28-18 34-4 10-12 30-8 32 8 12-6 22 2 18 18z" fill="#fff8e8"/>
+  <path d="M112 262h96M108 290h104" stroke="#f2b33d" stroke-width="6"/><path d="M100 248q60 22 120 0" stroke="#4f8f45" stroke-width="5" fill="none"/>
+  <g fill="none" stroke="#e4761b" stroke-width="3"><path d="M160 352c18 0 18 24 36 24-18 0-18 24-36 24-18 0-18-24-36-24 18 0 18-24 36-24z"/></g>
+  <g fill="#c8381e"><circle cx="130" cy="376" r="3"/><circle cx="160" cy="376" r="3"/><circle cx="190" cy="376" r="3"/></g>
+</svg>

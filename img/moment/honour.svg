@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 420" role="img" aria-label="A golden laurel wreath around a star">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff0c7" stop-opacity=".9"/><stop offset=".5" stop-color="#e6b94f" stop-opacity=".3"/><stop offset="1" stop-color="#e6b94f" stop-opacity="0"/></radialGradient>
+    <linearGradient id="gold" x1="0" x2="1"><stop offset="0" stop-color="#9a6a17"/><stop offset=".4" stop-color="#e6b94f"/><stop offset=".6" stop-color="#f6d98a"/><stop offset="1" stop-color="#a8761a"/></linearGradient>
+    <linearGradient id="flame" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#d9480f"/><stop offset=".45" stop-color="#ff9d2e"/><stop offset="1" stop-color="#fff2b8"/></linearGradient>
+  </defs>
+  <style>
+    .flick{transform-box:fill-box;transform-origin:50% 100%;animation:flick 2.4s ease-in-out infinite}
+    .bob{transform-box:fill-box;transform-origin:50% 100%;animation:bob 4s ease-in-out infinite}
+    .twinkle{animation:tw 2.8s ease-in-out infinite}
+    .glow{transform-box:fill-box;transform-origin:center;animation:br 3.4s ease-in-out infinite}
+    @keyframes flick{0%,100%{transform:scale(1,1)}35%{transform:scale(.94,1.06) rotate(-2deg)}65%{transform:scale(1.04,.96) rotate(2deg)}}
+    @keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-8px) rotate(2deg)}}
+    @keyframes tw{0%,100%{opacity:1}50%{opacity:.35}}
+    @keyframes br{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+    @media (prefers-reduced-motion:reduce){.flick,.bob,.twinkle,.glow{animation:none}}
+  </style>
+  <circle class="glow" cx="160" cy="200" r="150" fill="url(#glow)"/>
+
+  <g fill="#4f8f45"><ellipse cx="125" cy="299" rx="18" ry="8" transform="rotate(171 125 299)"/><ellipse cx="97" cy="282" rx="18" ry="8" transform="rotate(191 97 282)"/><ellipse cx="76" cy="256" rx="18" ry="8" transform="rotate(211 76 256)"/><ellipse cx="66" cy="225" rx="18" ry="8" transform="rotate(231 66 225)"/><ellipse cx="66" cy="193" rx="18" ry="8" transform="rotate(250 66 193)"/><ellipse cx="78" cy="162" rx="18" ry="8" transform="rotate(270 78 162)"/><ellipse cx="99" cy="137" rx="18" ry="8" transform="rotate(290 99 137)"/><ellipse cx="128" cy="120" rx="18" ry="8" transform="rotate(310 128 120)"/><ellipse cx="195" cy="299" rx="18" ry="8" transform="rotate(128 195 299)"/><ellipse cx="223" cy="282" rx="18" ry="8" transform="rotate(108 223 282)"/><ellipse cx="244" cy="256" rx="18" ry="8" transform="rotate(88 244 256)"/><ellipse cx="254" cy="225" rx="18" ry="8" transform="rotate(69 254 225)"/><ellipse cx="254" cy="193" rx="18" ry="8" transform="rotate(50 254 193)"/><ellipse cx="242" cy="162" rx="18" ry="8" transform="rotate(30 242 162)"/><ellipse cx="221" cy="137" rx="18" ry="8" transform="rotate(10 221 137)"/><ellipse cx="192" cy="120" rx="18" ry="8" transform="rotate(-10 192 120)"/></g>
+  <path d="M160 316c-60 0-104-44-104-104M160 316c60 0 104-44 104-104" stroke="#3f7a3a" stroke-width="4" fill="none"/>
+  <path d="M140 316l-20 40 22-10 10 22 8-52zM180 316l20 40-22-10-10 22-8-52z" fill="#c8381e"/>
+  <path class="glow" d="M160 140l20 42 46 6-34 32 9 46-41-22-41 22 9-46-34-32 46-6z" fill="url(#gold)"/>
+</svg>

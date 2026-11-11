@@ -44,6 +44,7 @@
     close: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
     people: '<circle cx="9" cy="8" r="3"/><path d="M3 20c.5-4 2.8-6 6-6s5.5 2 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M16 14c2.7 0 4.4 1.7 5 5"/>',
     team: '<rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
+    champions: '<path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.6L12 16.4l-5.1 2.7 1-5.6-4.1-4 5.7-.8z"/>',
     reports: '<path d="M12 3l8 3v6c0 4.6-3.3 8-8 9-4.7-1-8-4.4-8-9V6z"/><path d="M12 8v5M12 16h.01" stroke-width="2.2"/>',
     more: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'
   };
@@ -51,10 +52,10 @@
   const MENU = [
     ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true],
     ["sponsors", "Sponsors & pledges", true], ["day", "Day preparation", true], ["close", "Close the day", true],
-    ["people", "People", true], ["team", "Team & logins", true]
+    ["people", "People", true], ["champions", "Champions", true], ["team", "Team & logins", true]
   ];
 
-  let D = null, P = [];
+  let D = null, P = [], C = { list: [], districts: [] }, chDistrict = "All", chEdit = null;
   const toast = msg => { const t = document.getElementById("pt-toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("on"), 2600); };
   const route = () => (location.hash.replace(/^#\/?/, "") || "dashboard").split("/");
 
@@ -139,7 +140,7 @@
   const rowHTML = s => { const d = callDue(s), m = s.status === "new" && s.called ? callMissing(s) : [];
     return `<li><a class="pt-row" href="#/suggestions/${s.id}">
       <span class="pt-row-main"><b>${esc(det(s).title || s.title)}</b><small>${esc(s.category || s.kind || "")} · ${esc(s.village || s.location.split(",")[0])} · ${esc(howMany(s.children))}</small>
-        ${d ? `<em class="pt-due ${d.late ? "late" : ""}">${d.text}</em>` : ""}${m.length ? `<em class="pt-miss">Missing ${m.length}</em>` : ""}</span>
+        ${d ? `<em class="pt-due ${d.late ? "late" : ""}">${d.text}</em>` : ""}${m.length ? `<em class="pt-miss">Missing ${m.length}</em>` : ""}${(s.endorsements || []).length ? `<em class="pt-due">${vouch(s).backed ? "Community-backed" : `Vouched ${s.endorsements.length} of 3`}</em>` : ""}</span>
       <span class="pt-row-side"><span class="pt-pill ${STATUS[s.status].c}">${STATUS[s.status].label}</span><time>${ago(s.received)}</time></span></a></li>`; };
   let filter = "new", query = "";
   function suggestions() {
@@ -161,6 +162,102 @@
     q.oninput = () => { query = q.value.trim().toLowerCase(); const pos = q.selectionStart; render(); const n = app.querySelector(".pt-search"); n.focus(); n.setSelectionRange(pos, pos); };
   }
 
+  // ---------- Request check: files by kind, the AI draft, what's missing, and approval for sharing ----------
+  const KINDS = [["document", "Documents"], ["image", "Images"], ["video", "Video"], ["audio", "Voice notes"]];
+  const AI_LABEL = { "": ["Not checked yet", "gray"], running: ["AI check running…", "amber"], done: ["AI draft ready", "blue"], failed: ["AI check failed", "red"] };
+  const profileOf = s => {
+    const p = s.profile || {}, d = (s.ai && s.ai.draft) || {};
+    const lines = (d.budget_items || []).map(x => `${x.item}: ${x.amount}`).join("\n");
+    return { title: p.title || d.title || s.title || "", tagline: p.tagline || d.tagline || "", summary: p.summary || d.summary || "", activity: p.activity || d.activity || s.kind || "",
+      place: p.place || d.place || [s.village, s.city].filter(Boolean).join(", "), children: p.children || d.children || howMany(s.children), when: p.when || d.when || "",
+      budget: p.budget || lines, budget_total: p.budget_total || d.budget_total || "" };
+  };
+  const reviewHTML = s => {
+    const ai = s.ai || { status: "", draft: {} }, d = ai.draft || {}, files = s.files || [];
+    const [lab, tone] = s.shareOk ? ["Approved for sharing", "green"] : AI_LABEL[ai.status] || AI_LABEL[""];
+    const counts = KINDS.map(([k, l]) => { const n = files.filter(f => (f.kind || "document") === k).length; return `<span class="pt-kind ${n ? "" : "none"}">${l} <b>${n}</b></span>`; }).join("");
+    const miss = d.missing || [], conc = d.concerns || [], pf = profileOf(s);
+    const inp = (k, l, area) => `<label class="pt-pf"><span>${l}</span>${area ? `<textarea rows="4" data-pf="${k}">${esc(pf[k])}</textarea>` : `<input data-pf="${k}" value="${esc(pf[k])}">`}</label>`;
+    return `<section class="pt-card pt-review">
+      <h2>Request check <span class="pt-pill ${tone}">${lab}</span></h2>
+      <div class="pt-kinds">${counts}</div>
+      ${ai.status === "failed" ? `<p class="pt-flag red">${esc(ai.error || "The AI check did not finish.")}</p>` : ""}
+      ${ai.status === "running" ? `<p class="pt-sub">Gemini is reading the request and its files. This can take up to 5 minutes. Reload the page to see the result.</p>` : ""}
+      <p><button type="button" class="pt-btn ${ai.status === "done" ? "ghost" : ""}" data-ai ${ai.status === "running" && ai.mine ? "disabled" : ""}>${ai.status === "done" ? "Run the AI check again" : "Run the AI check"}</button>
+        ${ai.at && ai.status === "done" ? `<span class="pt-sub">Checked ${ago(ai.at)}${d._model ? ` · ${esc(d._model)}` : ""}</span>` : ""}</p>
+      ${ai.status === "done" ? `
+        <h3>Missing <span class="pt-count">${miss.length}</span></h3>
+        ${miss.length ? `<ul class="pt-flags">${miss.map(m => `<li class="pt-flag red"><b>${esc(m.field)}</b> ${esc(m.why)}</li>`).join("")}</ul>` : `<p class="pt-sub">Nothing missing.</p>`}
+        ${conc.length ? `<h3>Concerns</h3><ul class="pt-flags">${conc.map(c => `<li class="pt-flag amber">${esc(c)}</li>`).join("")}</ul>` : ""}
+        ${(d.files || []).length ? `<h3>What the files show</h3><ul class="pt-what">${d.files.map(f => `<li><b>${esc(f.name)}</b> <small>${esc(f.kind)}</small><br>${esc(f.what)}</li>`).join("")}</ul>` : ""}
+        ${(d._skipped || []).length ? `<p class="pt-flag amber">Too big for the AI check, please look yourself: ${esc(d._skipped.join(", "))}</p>` : ""}
+        ${(d.transcripts || []).map(t => `<details class="pt-tr"><summary>Voice note: ${esc(t.file)} (${esc(t.language)})</summary><p>${esc(t.english)}</p>${t.original && t.original !== t.english ? `<p class="pt-sub">${esc(t.original)}</p>` : ""}</details>`).join("")}
+        ${(d.people || []).length ? `<h3>People named</h3><p class="pt-sub">${d.people.map(x => `${esc(x.name)} (${esc(x.role)})`).join(" · ")}</p>` : ""}` : ""}
+      <h3>The page people will see</h3>
+      <p class="pt-sub">Check every line. No children's names. A school is named only if you have agreed it.</p>
+      <div class="pt-pfs">${inp("title", "Title")}${inp("tagline", "One line under the title")}${inp("summary", "The story (a blank line starts a new paragraph)", true)}${inp("activity", "The day")}${inp("place", "Place")}${inp("children", "Children")}${inp("when", "When")}${inp("budget", "Budget, one item per line, e.g. Bus: Rs 30,000", true)}${inp("budget_total", "Total, e.g. Rs 61,000")}</div>
+      ${s.shareOk
+        ? `<p class="pt-sub">Approved by ${esc(s.shareOkBy || "the team")}${s.shareOkAt ? ` ${ago(s.shareOkAt)}` : ""}. The requester can share it now.</p>
+           <p><button type="button" class="pt-btn" data-share="save">Save changes</button> <button type="button" class="pt-btn ghost" data-share="stop">Stop sharing</button></p>`
+        : `<p><button type="button" class="pt-btn" data-share="yes">Approve page for sharing</button></p>`}
+      ${s.endorseLink ? `<p><button type="button" class="pt-btn ghost" data-preview>Preview the page</button></p>
+        <p class="pt-sub">Page: <a href="${esc(s.endorseLink)}" target="_blank" rel="noopener">raavanaa.org${esc(s.endorseLink)}</a></p>` : ""}
+    </section>`;
+  };
+  function wireReview(s) {
+    const aiBtn = app.querySelector("[data-ai]");
+    if (aiBtn) aiBtn.onclick = async () => {
+      if (!LIVE) { toast("The AI check works on the real portal only"); return; }
+      aiBtn.disabled = true; s.ai = { ...(s.ai || {}), status: "running", mine: true }; render();
+      try { await api(`/api/portal/suggestions/${encodeURIComponent(s.id)}/analyse`, { method: "POST", body: "{}" }); }
+      catch (e) { s.ai = { ...s.ai, status: "failed", error: e.message }; render(); toast("AI check failed"); return; }
+      const t0 = Date.now();
+      const poll = async () => {
+        try {
+          const r = await api("/api/portal/suggestions"), n = (r.suggestions || []).find(x => x.id === s.id);
+          if (n) Object.assign(s, n);
+        } catch (e) { /* try again */ }
+        if (s.ai && s.ai.status === "running" && Date.now() - t0 < 6 * 60e3) { setTimeout(poll, 6000); return; }
+        if (s.ai && s.ai.status === "running") s.ai = { ...s.ai, status: "failed", error: "No answer yet. Try again in a few minutes." };
+        render(); toast(s.ai.status === "done" ? "AI draft ready" : "AI check failed");
+      };
+      setTimeout(poll, 8000);
+    };
+    // Preview: the page as people will see it, with what is in the boxes now (nothing is saved or shared).
+    const pv = app.querySelector("[data-preview]");
+    if (pv) pv.onclick = () => {
+      const profile = {}; app.querySelectorAll("[data-pf]").forEach(i => profile[i.dataset.pf] = i.value.trim());
+      const token = (s.endorseLink || "").split("/").pop().toLowerCase();
+      try { localStorage.setItem("raav-preview-" + token, JSON.stringify(profile)); } catch (e) { /* private mode */ }
+      window.open(s.endorseLink + "?preview=1", "_blank", "noopener");
+    };
+    app.querySelectorAll("[data-share]").forEach(b => b.onclick = async () => {
+      const profile = {}; app.querySelectorAll("[data-pf]").forEach(i => profile[i.dataset.pf] = i.value.trim());
+      const share = b.dataset.share !== "stop";
+      if (share && !profile.title) { toast("Give the page a title first"); return; }
+      if (!LIVE) { Object.assign(s, { shareOk: share, profile, shareOkBy: D.user.name, shareOkAt: NOW.toISOString() }); render(); toast((share ? "Approved" : "Stopped") + " (demo)"); return; }
+      b.disabled = true;
+      try {
+        const r = await api(`/api/portal/suggestions/${encodeURIComponent(s.id)}`, { method: "PATCH", body: JSON.stringify({ share, profile, note: share ? (b.dataset.share === "yes" ? "Page approved for sharing and vouching." : "") : "Sharing stopped." }) });
+        Object.assign(s, r.suggestion); render(); toast(share ? "Saved. The requester can share the page." : "Sharing stopped");
+      } catch (e) { b.disabled = false; toast(e.message || "Could not save"); }
+    });
+  }
+
+  // Community endorsement: people who vouched through the request's share link. 3, one of them in a role = backed.
+  const vouch = s => { const e = s.endorsements || []; return { n: e.length, role: e.some(x => x.relation === "role"), backed: e.length >= 3 && e.some(x => x.relation === "role") }; };
+  const REL = { role: "Role", know: "Knows them", seen: "Seen the need" };
+  const vouchHTML = s => {
+    const e = s.endorsements || [], v = vouch(s);
+    if (!e.length && !s.endorseLink) return "";
+    return `<section class="pt-card">
+      <h2>Vouched for by <span class="pt-count">${e.length} of 3</span></h2>
+      <p class="pt-sub">${v.backed ? "Backed by the community. Call one of them before the visit." : e.length >= 3 ? "Still needs someone in a role (principal, teacher, Grama Niladhari…)." : "Waiting for people to vouch through the share link."}</p>
+      <ul class="pt-notes">${e.map(x => `<li><span class="pt-av">${esc(initials(x.name))}</span><div><b>${esc(x.name)}</b> <time>${ago(x.at)}</time><p>${esc(x.role || REL[x.relation] || "")} · <a href="tel:${esc(String(x.phone).replace(/\s/g, ""))}">${esc(x.phone)}</a> <small>(private)</small></p></div></li>`).join("") || `<li class="pt-empty">Nobody yet.</li>`}</ul>
+      ${s.endorseLink ? `<p class="pt-sub">Share link: <a href="${esc(s.endorseLink)}" target="_blank" rel="noopener">raavanaa.org${esc(s.endorseLink)}</a></p>` : ""}
+    </section>`;
+  };
+
   function detail(id) {
     const s = D.suggestions.find(x => x.id === id);
     if (!s) return `<p>Not found. <a href="#/suggestions">Back to suggestions</a></p>`;
@@ -169,10 +266,13 @@
     const evidenceHTML = s => {
       const files = s.files || [];
       if (!files.length) return s.noEvidence || LIVE ? `<div class="pt-ev"><h3>Evidence</h3><p class="pt-sub">${s.noEvidence ? "No evidence yet – they will show it at the visit." : "No files."}</p></div>` : "";
+      const order = { document: 0, image: 1, video: 2, audio: 3 };
+      files.sort((a, b) => (order[a.kind] ?? 0) - (order[b.kind] ?? 0));
       return `<div class="pt-ev"><h3>Evidence <small>private · team only</small></h3><ul>${files.map(f => {
         const u = `/api/portal/files/${f.id}`;
         if (/^image\//.test(f.type)) return `<li><a href="${u}" target="_blank" rel="noopener"><img src="${u}" alt="${esc(f.name)}" loading="lazy"></a></li>`;
         if (/^video\//.test(f.type)) return `<li><video src="${u}" controls preload="metadata" playsinline></video></li>`;
+        if (/^audio\//.test(f.type)) return `<li class="pt-ev-audio"><audio src="${u}" controls preload="metadata"></audio><small>${esc(f.name)} · voice note, to turn into text</small></li>`;
         return `<li><a class="pt-ev-doc" href="${u}" target="_blank" rel="noopener">📄 ${esc(f.name)}</a></li>`;
       }).join("")}</ul></div>`;
     };
@@ -183,7 +283,6 @@
       <header class="pt-head"><div><p class="pt-kicker">Suggestion ${esc(s.id)} · received ${ago(s.received)}</p><h1>${esc(det(s).title || s.title)}</h1>
         <p><span class="pt-pill ${STATUS[s.status].c}">${STATUS[s.status].label}</span>${s.status === "visit" && s.visit ? ` <span class="pt-sub">Visit on ${fmtDay(s.visit)}</span>` : ""}</p></div></header>
       ${s.status === "declined" ? "" : `<ol class="pt-steps six">${step("take", "Taken")}${step("call", "Called")}${step("visit", "Visited")}${step("approve", "Approved")}${step("budget", "Budget")}${step("create", "Initiated")}</ol>`}
-      ${LIVE ? `<p class="pt-preview-tag">Design preview: the new steps (first call, approval, budget) are not saved yet. Taking it, the visit and verifying are saved.</p>` : ""}
       <div class="pt-detail">
         <section class="pt-card">
           <h2>What they sent</h2>
@@ -195,12 +294,15 @@
             ${s.village || s.city ? `${field("Village", esc(s.village || ""))}${field("City or district", esc(s.city || ""))}` : field("Location", esc(s.location))}
             ${field("How many", esc(howMany(s.children)))}
             ${field("Contact", esc(s.contact))}
+            ${field("Member account", esc(s.memberEmail || ""))}
             ${field("Email or phone", `<a href="${/@/.test(s.reach) ? "mailto:" : "tel:"}${esc(s.reach.replace(/\s/g, ""))}">${esc(s.reach)}</a>`)}
             ${field("More", esc(s.additional))}
           </dl>
           ${evidenceHTML(s)}
         </section>
         <div class="pt-col">
+          ${reviewHTML(s)}
+          ${vouchHTML(s)}
           ${flowHTML(s, F, cur)}
           ${visitFeedbackHTML(s)}
           <section class="pt-card">
@@ -215,6 +317,7 @@
   // 1 Take it · 2 First call (collect the details the short form doesn't ask) · 3 Visit and verify
   // 4 Approve (an admin; not the person who visited) · 5 Budget and expectations · 6 Create the Initiated project
   const CALL_DAYS = 2;
+  const rs = n => "Rs " + Math.round(n).toLocaleString("en-US"); // projects are in Sri Lankan rupees
   const det = s => { if (!s.details) s.details = {}; return s.details; };
   const plan = s => { if (!s.plan) s.plan = { lines: [], expect: [] }; return s.plan; };
   const callMissing = s => { const d = det(s), o = ob(s), m = [];
@@ -265,15 +368,15 @@
          <div class="pt-row2"><label class="pt-field">Called on<input type="date" data-called value="${esc((s.called || NOW.toISOString()).slice(0, 10))}"></label>
            <button type="button" class="pt-btn" data-save-call>${s.called ? "Save changes" : "Save the call"}</button></div>
          ${miss.length ? `<p class="pt-miss-line">Still missing: ${miss.join(" · ")}</p>` : ""}`),
-      box(2, "Visit and verify", after(s.status, "verified") ? `Verified by ${esc(s.verifiedBy || s.assigned || "the team")}${s.verifiedAt ? " · " + fmtDay(s.verifiedAt) : ""}` : s.status === "visit" && s.visit ? `Visit on ${fmtDay(s.visit)}` : "",
-        s.status === "new"
+      box(2, "Visit and verify", after(s.status, "verified") ? `Verified by ${esc(s.verifiedBy || s.assigned || "the team")}${s.verifiedAt ? " · " + fmtDay(s.verifiedAt) : ""}` : [s.status === "visit" && s.visit && `Visit on ${fmtDay(s.visit)}`, chById(s.champion) && `Champion: ${esc(chById(s.champion).name)}`].filter(Boolean).join(" · "),
+        `${champPick(s)}` + (s.status === "new"
           ? `<div class="pt-visit"><label class="pt-field">Visit date<input type="date" data-visit value="${esc(s.visit || "2026-10-20")}"></label><button type="button" class="pt-btn" data-act="visit">Plan the visit</button></div>
              ${!F[1].done ? `<p class="pt-sub">Best after the first call, so you know where you are going.</p>` : ""}`
           : after(s.status, "verified") ? `<p class="pt-sub">The visit checklist was completed${o.contact === "trusted" && t.name ? `, with ${esc(t.name)} as trusted contact` : ""}.</p>`
           : `${onboardHTML(s, true)}
              <label class="pt-check"><input type="checkbox" data-evseen ${evidenceOk(s) ? "checked" : ""} ${(s.files || []).length ? "disabled" : ""}><span>${(s.files || []).length ? "Evidence received with the request" : "Evidence seen at the visit (add a photo to Notes if you can)"}</span></label>
              <button type="button" class="pt-btn" data-act="verified" ${onboardDone(s) && evidenceOk(s) && F[1].done ? "" : "disabled"}>Visited · the need is real</button>
-             ${onboardDone(s) && evidenceOk(s) && F[1].done ? "" : `<p class="pt-sub">Needs: ${[!F[1].done && "the first call details", !onboardDone(s) && "the visit checklist", !evidenceOk(s) && "evidence"].filter(Boolean).join(", ")}.</p>`}`),
+             ${onboardDone(s) && evidenceOk(s) && F[1].done ? "" : `<p class="pt-sub">Needs: ${[!F[1].done && "the first call details", !onboardDone(s) && "the visit checklist", !evidenceOk(s) && "evidence"].filter(Boolean).join(", ")}.</p>`}`)),
       box(3, "Approve", after(s.status, "approved") ? `Approved by ${esc(s.approvedBy || "")}${s.approvedAt ? " · " + fmtDay(s.approvedAt) : ""}${s.approvedOverride ? " (also the visitor)" : ""}` : "",
         !after(s.status, "verified") ? `<p class="pt-sub">After the visit. Only an admin approves, and not the person who visited.</p>`
           : after(s.status, "approved") ? `<p class="pt-sub">Approved. Next: the budget and what the organisers hope for.</p>`
@@ -282,17 +385,17 @@
                    <label class="pt-check"><input type="checkbox" data-override><span>I did both (early weeks). Approve anyway; this is noted.</span></label>
                    <button type="button" class="pt-btn" data-approve disabled>Approve</button>`
           : `<p class="pt-sub">Verified by ${esc(s.verifiedBy || s.assigned || "the team")}. Read the notes and the visit feedback, then approve.</p><button type="button" class="pt-btn" data-approve>Approve</button>`),
-      box(4, "Budget and expectations", F[4].done ? `${money(total)} · ${q.expect.filter(Boolean).length} expectation${q.expect.filter(Boolean).length === 1 ? "" : "s"}` : "",
+      box(4, "Budget and expectations", F[4].done ? `${rs(total)} · ${q.expect.filter(Boolean).length} expectation${q.expect.filter(Boolean).length === 1 ? "" : "s"}` : "",
         `<p class="pt-sub">Estimated costs, line by line. They show on the website as estimates until the day.</p>
-         <ul class="pt-lines">${q.lines.map((x, k) => `<li><input data-li="${k}" data-f="item" value="${esc(x.item)}" placeholder="e.g. Van hire" aria-label="Item"><span class="pt-cur">$</span><input data-li="${k}" data-f="amount" value="${esc(x.amount)}" inputmode="decimal" placeholder="0" aria-label="Amount"><button type="button" data-rm="${k}" aria-label="Remove">✕</button></li>`).join("")}</ul>
-         <div class="pt-row2"><button type="button" class="pt-btn ghost" data-addline>+ Add a line</button><p class="pt-total">Total <b>${money(total)}</b></p></div>
+         <ul class="pt-lines">${q.lines.map((x, k) => `<li><input data-li="${k}" data-f="item" value="${esc(x.item)}" placeholder="e.g. Van hire" aria-label="Item"><span class="pt-cur">Rs</span><input data-li="${k}" data-f="amount" value="${esc(x.amount)}" inputmode="decimal" placeholder="0" aria-label="Amount"><button type="button" data-rm="${k}" aria-label="Remove">✕</button></li>`).join("")}</ul>
+         <div class="pt-row2"><button type="button" class="pt-btn ghost" data-addline>+ Add a line</button><p class="pt-total">Total <b>${rs(total)}</b></p></div>
          <p class="pt-field-h">What the organisers hope for <small>(ticked off after the day)</small></p>
          ${[0, 1, 2].map(k => `<input class="pt-exp" data-ex="${k}" value="${esc(q.expect[k] || "")}" placeholder="${["e.g. Every child plays at least one game", "e.g. A hot lunch for everyone", "e.g. Each family takes home a photo"][k]}">`).join("")}
          <button type="button" class="pt-btn" data-save-plan>Save budget and expectations</button>`),
-      box(5, "Create the Initiated project", s.status === "project" ? "On the website as Smiles in the Making" : "",
-        s.status === "project" ? `<p class="pt-sub">Done. <a href="#/projects/${esc(s.project || "")}">Open the project →</a></p>`
+      box(5, "Create the Initiated project", s.status === "project" ? "On the website as an Initiated project" : "",
+        s.status === "project" ? `<p class="pt-sub">Done. <a href="/projects/${esc(s.project || "")}" target="_blank" rel="noopener">Open the project page →</a></p>`
           : `<div class="pt-preview"><p class="pt-preview-h">On the website it will show</p>
-              <b>${esc(d.title || s.title)}</b><small>Smiles in the Making · ${esc([s.village, s.city].filter(Boolean).join(", ") || s.location)} · Budget ${money(total)}</small>
+              <b>${esc((s.profile && s.profile.title) || d.title || s.title)}</b><small>Initiated · ${esc([s.village, s.city].filter(Boolean).join(", ") || s.location)} · Budget ${rs(total)}</small>
               <ol><li>Requested by ${esc(s.contact || "")}${d.org ? ", " + esc(d.org) : ""}</li><li>Verified by ${esc(s.verifiedBy || "…")}</li><li>Approved by ${esc(s.approvedBy || "…")}</li></ol></div>
              <button type="button" class="pt-btn" data-act="project" ${after(s.status, "approved") && F[4].done ? "" : "disabled"}>Create the Initiated project</button>
              ${after(s.status, "approved") && F[4].done ? "" : `<p class="pt-sub">Needs approval and a budget with expectations first.</p>`}`)
@@ -301,8 +404,6 @@
       <button type="button" class="pt-btn ghost danger pt-decline" data-act="declined">Not suitable</button></section>`;
   }
   let openStep = "";
-  // Changes to the new steps: saved in the demo; in the live portal they are a preview until saving is built.
-  const keep = (s, patch, note, done) => { Object.assign(s, patch); if (note) addNote(s, note); render(); if (done) toast(done + (LIVE ? " (preview, not saved yet)" : " (demo)")); };
   function wireFlow(s) {
     app.querySelectorAll(".pt-step").forEach(dd => dd.addEventListener("toggle", () => { if (dd.open) openStep = dd.dataset.step; }));
     const callBtn = app.querySelector("[data-save-call]");
@@ -311,14 +412,14 @@
       const o = { ...ob(s), trusted: { ...(ob(s).trusted || {}) } };
       app.querySelectorAll("[data-tr]").forEach(i => o.trusted[i.dataset.tr] = i.value.trim());
       const was = !!s.called; openStep = "call";
-      keep(s, { details: d, onboard: o, called: app.querySelector("[data-called]").value }, was ? "" : `First call done. ${callMissing({ ...s, details: d, onboard: o }).length ? "Some details still missing." : "All details in."}`, "Call saved");
+      save(s, { details: d, onboard: o, called: app.querySelector("[data-called]").value }, was ? "" : `First call done. ${callMissing({ ...s, details: d, onboard: o }).length ? "Some details still missing." : "All details in."}`, "Call saved");
     };
     app.querySelectorAll('input[name="ob-contact"]').forEach(r => r.onchange = () => { ob(s).contact = r.value; openStep = "call"; render(); });
     const ev = app.querySelector("[data-evseen]");
-    if (ev) ev.onchange = () => keep(s, { details: { ...det(s), evidenceSeen: ev.checked } });
+    if (ev) ev.onchange = () => save(s, { details: { ...det(s), evidenceSeen: ev.checked } });
     const ov = app.querySelector("[data-override]"), ap = app.querySelector("[data-approve]");
     if (ov) ov.onchange = () => { ap.disabled = !ov.checked; };
-    if (ap) ap.onclick = () => keep(s, { status: "approved", approvedBy: D.user.name, approvedAt: NOW.toISOString(), approvedOverride: !!(ov && ov.checked) },
+    if (ap) ap.onclick = () => save(s, LIVE ? { status: "approved", override: !!(ov && ov.checked) } : { status: "approved", approvedBy: D.user.name, approvedAt: NOW.toISOString(), approvedOverride: !!(ov && ov.checked) },
       `Approved${ov && ov.checked ? " (also did the visit; early-weeks override)" : ""}.`, "Approved");
     const q = plan(s), readPlan = () => {
       app.querySelectorAll("[data-li]").forEach(i => { q.lines[+i.dataset.li][i.dataset.f] = i.value.trim(); });
@@ -326,8 +427,8 @@
     };
     const add = app.querySelector("[data-addline]"); if (add) add.onclick = () => { readPlan(); q.lines.push({ item: "", amount: "" }); openStep = "budget"; render(); const ins = app.querySelectorAll("[data-li][data-f=item]"); if (ins.length) ins[ins.length - 1].focus(); };
     app.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => { readPlan(); q.lines.splice(+b.dataset.rm, 1); openStep = "budget"; render(); });
-    app.querySelectorAll("[data-li][data-f=amount]").forEach(i => i.oninput = () => { readPlan(); const t = app.querySelector(".pt-total b"); if (t) t.textContent = money(q.lines.reduce((a, x) => a + num(x.amount), 0)); });
-    const sp = app.querySelector("[data-save-plan]"); if (sp) sp.onclick = () => { readPlan(); q.lines = q.lines.filter(x => x.item || x.amount); openStep = "budget"; keep(s, { plan: q }, "Budget and expectations saved.", "Saved"); };
+    app.querySelectorAll("[data-li][data-f=amount]").forEach(i => i.oninput = () => { readPlan(); const t = app.querySelector(".pt-total b"); if (t) t.textContent = rs(q.lines.reduce((a, x) => a + num(x.amount), 0)); });
+    const sp = app.querySelector("[data-save-plan]"); if (sp) sp.onclick = () => { readPlan(); q.lines = q.lines.filter(x => x.item || x.amount); openStep = "budget"; save(s, { plan: q }, "Budget and expectations saved.", "Saved"); };
   }
 
   function actionsHTML(s) {
@@ -368,6 +469,66 @@
     </div>`;
   }
   // Live mode: every change is saved through the portal API; the saved suggestion comes back and replaces the local one.
+  // Champions: trusted local volunteers who call or visit a request (SURESH, 10 Nov 2026).
+  const chById = id => C.list.find(c => c.id === id);
+  function champPick(s) {
+    const cur = chById(s.champion), active = C.list.filter(c => c.active || c.id === s.champion);
+    if (!active.length) return `<p class="pt-sub">No Champions yet. <a href="#/champions">Add the volunteers who visit</a>, then pick one here.</p>`;
+    const where = [s.city, s.location, s.village].filter(Boolean).join(" ").toLowerCase(), near = c => where.includes(c.district.toLowerCase()) ? 0 : 1;
+    const opts = [...active].sort((a, b) => near(a) - near(b) || a.district.localeCompare(b.district) || a.name.localeCompare(b.name));
+    return `<label class="pt-field">Champion who visits<select data-champ><option value="">Not chosen yet</option>${opts.map(c => `<option value="${c.id}" ${c.id === s.champion ? "selected" : ""}>${esc(c.name)} · ${esc(c.district)}${c.active ? "" : " (paused)"}</option>`).join("")}</select></label>
+      ${cur ? `<p class="pt-sub">Call ${esc(cur.name.split(" ")[0])} on <a href="tel:${esc(cur.phone.replace(/\s/g, ""))}">${esc(cur.phone)}</a>. The vouching page shows their first name and district only.</p>` : ""}`;
+  }
+  function champions() {
+    const ds = ["All", ...new Set(C.list.map(c => c.district))];
+    const list = C.list.filter(c => chDistrict === "All" || c.district === chDistrict);
+    const form = (c = {}) => `<form class="pt-card pt-champ-form" data-chform="${c.id || ""}">
+        <h2>${c.id ? "Edit Champion" : "Add a Champion"}</h2>
+        <div class="pt-row2"><label class="pt-field">Name<input name="name" required maxlength="80" value="${esc(c.name || "")}"></label>
+          <label class="pt-field">Phone<input name="phone" required inputmode="tel" maxlength="40" value="${esc(c.phone || "")}"></label></div>
+        <div class="pt-row2"><label class="pt-field">District<select name="district" required><option value="">Choose</option>${C.districts.map(d => `<option ${c.district === d ? "selected" : ""}>${d}</option>`).join("")}</select></label>
+          <label class="pt-field">Email (optional)<input name="email" type="email" maxlength="120" value="${esc(c.email || "")}"></label></div>
+        <label class="pt-field">Villages or towns they can reach<input name="areas" maxlength="300" placeholder="Pussellawa, Choughleigh, Rothschild" value="${esc(c.areas || "")}"></label>
+        <label class="pt-field">Note for the team<textarea name="note" rows="2" maxlength="500">${esc(c.note || "")}</textarea></label>
+        <div class="pt-actions-row"><button class="pt-btn">${c.id ? "Save changes" : "Add Champion"}</button>${c.id ? `<button type="button" class="pt-btn ghost" data-chcancel>Cancel</button>` : ""}</div></form>`;
+    return `
+      <header class="pt-head"><div><p class="pt-kicker">Champions</p><h1>Volunteers who visit</h1>
+        <p class="pt-sub">Trusted local people who call or visit a request before it can take gifts. Their phone stays inside the team; the vouching page shows only a first name and district.</p></div></header>
+      <section class="pt-stats">
+        <div class="pt-stat st1"><b>${C.list.filter(c => c.active).length}</b><span>Active</span></div>
+        <div class="pt-stat st2"><b>${new Set(C.list.filter(c => c.active).map(c => c.district)).size}</b><span>Districts</span></div>
+        <div class="pt-stat st3"><b>${C.list.reduce((a, c) => a + (c.visits || 0), 0)}</b><span>Requests given</span></div>
+      </section>
+      ${ds.length > 2 ? `<div class="pt-chips">${ds.map(d => `<button type="button" aria-pressed="${d === chDistrict}" data-chd="${esc(d)}">${esc(d)}</button>`).join("")}</div>` : ""}
+      <section class="pt-champs">${list.length ? list.map(c => chEdit === c.id ? form(c) : `
+        <article class="pt-card pt-champ ${c.active ? "" : "off"}">
+          <div><h3>${esc(c.name)}</h3><p class="pt-sub">${esc(c.district)}${c.areas ? " · " + esc(c.areas) : ""}</p>
+            <p class="pt-champ-meta"><a href="tel:${esc(c.phone.replace(/\s/g, ""))}">${esc(c.phone)}</a>${c.email ? ` · ${esc(c.email)}` : ""} · ${c.visits || 0} request${c.visits === 1 ? "" : "s"}${c.active ? "" : " · paused"}</p>
+            ${c.note ? `<p class="pt-sub">${esc(c.note)}</p>` : ""}</div>
+          <div class="pt-actions-row"><button type="button" class="pt-btn ghost" data-chedit="${c.id}">Edit</button><button type="button" class="pt-btn ghost" data-chact="${c.id}">${c.active ? "Pause" : "Make active"}</button></div>
+        </article>`).join("") : `<p class="pt-sub">No Champions${chDistrict === "All" ? " yet" : " in " + esc(chDistrict)}.</p>`}</section>
+      ${chEdit ? "" : form()}`;
+  }
+  async function chSave(url, method, body, done) {
+    if (!LIVE) {
+      if (method === "POST") C.list.push({ id: Date.now(), active: true, visits: 0, ...body });
+      else { const c = chById(Number(url.split("/").pop())); if (c) Object.assign(c, body); }
+      chEdit = null; render(); toast(done + " (demo)"); return;
+    }
+    try { const r = await api(url, { method, body: JSON.stringify(body) }); C.list = r.champions; chEdit = null; render(); toast(done); }
+    catch (e) { toast(e.message || "Could not save."); }
+  }
+  function wireChampions() {
+    app.querySelectorAll("[data-chd]").forEach(b => b.onclick = () => { chDistrict = b.dataset.chd; render(); });
+    app.querySelectorAll("[data-chedit]").forEach(b => b.onclick = () => { chEdit = Number(b.dataset.chedit); render(); });
+    app.querySelectorAll("[data-chcancel]").forEach(b => b.onclick = () => { chEdit = null; render(); });
+    app.querySelectorAll("[data-chact]").forEach(b => b.onclick = () => { const c = chById(Number(b.dataset.chact)); chSave(`/api/portal/champions/${c.id}`, "PATCH", { active: !c.active }, c.active ? "Paused" : "Active again"); });
+    app.querySelectorAll("[data-chform]").forEach(f => f.onsubmit = e => {
+      e.preventDefault(); const b = Object.fromEntries(new FormData(f)); const id = f.dataset.chform;
+      chSave(id ? `/api/portal/champions/${id}` : "/api/portal/champions", id ? "PATCH" : "POST", b, id ? "Saved" : "Champion added");
+    });
+  }
+
   const PREVIEW_KEYS = ["details", "called", "takenAt", "verifiedBy", "verifiedAt", "approvedBy", "approvedAt", "approvedOverride", "plan"];
   async function save(s, patch, note, done) {
     if (!LIVE) { if (note) addNote(s, note); Object.assign(s, patch); render(); if (done) toast(done + " (demo)"); return true; }
@@ -388,7 +549,9 @@
   }
   function wireDetail(id) {
     const s = D.suggestions.find(x => x.id === id); if (!s) return;
-    wireOnboard(s); wireFlow(s);
+    wireOnboard(s); wireFlow(s); wireReview(s);
+    const cp = app.querySelector("[data-champ]");
+    if (cp) cp.onchange = () => { const c = chById(Number(cp.value)); save(s, { champion: c ? c.id : null }, c ? `${c.name} (${c.district}) will visit.` : "No Champion chosen now.", "Saved"); };
     const sel = app.querySelector("[data-assign]");
     if (sel) sel.onchange = () => { s.takenAt = sel.value ? NOW.toISOString() : ""; save(s, { assigned: sel.value }, sel.value ? `${sel.value} is looking after this.` : "Nobody is looking after this now.", "Saved"); };
     app.querySelectorAll("[data-act]").forEach(btn => btn.onclick = () => {
@@ -400,7 +563,13 @@
       if (act === "new") return save(s, { status: "new" }, "Reopened.", "Reopened");
       if (act === "project") {
         const d0 = det(s), q0 = plan(s);
-        if (LIVE) { keep(s, { status: "project" }, "Turned into an Initiated project.", "Project created"); return; }
+        if (LIVE) {
+          btn.disabled = true;
+          api(`/api/portal/suggestions/${encodeURIComponent(s.id)}/project`, { method: "POST", body: "{}" })
+            .then(r => { s.status = "project"; s.project = r.slug; addNote(s, "Turned into an Initiated project."); render(); toast("Project created. It is on the website now."); })
+            .catch(e => { btn.disabled = false; toast(e.message || "Could not create the project"); });
+          return;
+        }
         const slug = (d0.title || s.title).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48);
         save(s, { status: "project" }, "Turned into an Initiated project.", LIVE ? "Marked as a project. The project editor goes live in the next step." : "").then(ok => {
           if (!ok || LIVE) return;
@@ -438,17 +607,22 @@
   function signIn(msg = "", mode = "login", token = "") {
     document.body.classList.add("pt-signedout");
     app.innerHTML = `<section class="pt-login">
-      <img src="/img/logo.webp?v=3" alt="Raavanaa" width="900" height="298">
-      <h1>${mode === "invite" ? "Welcome to the team" : mode === "recovery" ? "Choose a new password" : "Team sign in"}</h1>
-      <p class="pt-sub">${mode === "invite" ? "Choose a password for your new portal account." : mode === "recovery" ? "Type your new password." : "For the Raavanaa team only."}</p>
+      <img src="/img/logo.webp?v=6" alt="Raavanaa" width="900" height="298">
+      <span class="pt-ribbon">Team</span>
+      <h1 data-rot="title">${mode === "invite" ? "Welcome to the <em>team</em>" : mode === "recovery" ? "Choose a new <em>password</em>" : "Team <em>sign in</em>"}</h1>
+      <p class="pt-sub" data-rot="sub">${mode === "invite" ? "Choose a password for your new portal account." : mode === "recovery" ? "Type your new password." : "For the Raavanaa team only."}</p>
+      <figure class="pt-login-hero"><picture><source srcset="/img/members-bridge.webp" type="image/webp"><img src="/img/members-bridge.jpg" alt="" width="941" height="395"></picture>
+        <figcaption data-rot="cap">A bridge between people who need a hand and people ready to give one.</figcaption></figure>
+      ${mode === "login" ? `<div class="pt-tabs2" role="tablist"><button type="button" role="tab" aria-selected="true" data-tab="in">Sign in</button><button type="button" role="tab" aria-selected="false" data-tab="join">Join</button></div>` : ""}
       <form class="pt-card" id="pt-login">
         ${mode === "login" ? `<label class="pt-field">Email<input name="email" type="email" autocomplete="username" required></label>` : ""}
         <label class="pt-field">Password<input name="password" type="password" autocomplete="${mode === "login" ? "current-password" : "new-password"}" minlength="8" required></label>
         <button class="pt-btn" type="submit">${mode === "login" ? "Sign in" : "Save password"}</button>
         <p class="pt-login-msg" role="status">${esc(msg)}</p>
       </form>
-      ${mode === "login" ? `<form class="pt-card pt-paste" id="pt-paste">
-        <label class="pt-field">Got an invite or password email? Paste its link here<input name="link" placeholder="Long-press the button in the email, Copy link, paste" autocomplete="off"></label>
+      ${mode === "login" ? `<form class="pt-card pt-paste" id="pt-paste" hidden>
+        <p class="pt-join-note">Team places are by invitation. When an admin invites you, you get an email: tap its button, or paste its link here.</p>
+        <label class="pt-field">Invite or password email link<input name="link" placeholder="Long-press the button in the email, Copy link, paste" autocomplete="off"></label>
         <button class="pt-btn ghost" type="submit">Continue</button>
       </form>
       <p class="pt-sub"><button type="button" class="pt-link" data-forgot>Forgot your password?</button> · <a href="?demo=1">Look around the demo</a></p>` : ""}
@@ -467,6 +641,18 @@
         location.replace("/portal#/dashboard"); location.reload();
       } catch (err) { out.textContent = err && err.message ? err.message : "That did not work. Check the email and password."; }
     };
+    // Three messages take turns at the top and under the picture (SURESH, 10 Nov 2026).
+    if (mode === "login" && window.raavRotate) window.raavRotate(app, [
+      { title: "Team <em>sign in</em>", sub: "For the Raavanaa team only.", cap: "A bridge between people who need a hand and people ready to give one." },
+      { title: "Thank you for <em>showing up</em>", sub: "Every request you check brings a child closer to a day of joy.", cap: "Behind every smile is someone who said yes." },
+      { title: "Welcome <em>back</em>", sub: "Calls, visits and approvals for the requests waiting today.", cap: "Small steps, done with care, make big days happen." },
+    ]);
+    app.querySelectorAll("[data-tab]").forEach(t => t.onclick = () => {
+      const join = t.dataset.tab === "join";
+      app.querySelectorAll("[data-tab]").forEach(x => x.setAttribute("aria-selected", String(x === t)));
+      document.getElementById("pt-login").hidden = join; document.getElementById("pt-paste").hidden = !join;
+      const fp = app.querySelector("[data-forgot]"); if (fp) fp.closest("p").hidden = join;
+    });
     const pf = document.getElementById("pt-paste");
     if (pf) pf.onsubmit = e => {
       e.preventDefault(); const v = String(new FormData(pf).get("link") || "");
@@ -1071,11 +1257,12 @@
 
   function render() {
     const [page, id] = route();
-    const cur = ["suggestions", "reports", "projects", "sponsors", "day", "close", "people", "team"].includes(page) ? page : "dashboard";
+    const cur = ["suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "team"].includes(page) ? page : "dashboard";
     drawNav(cur);
     if (page === "suggestions" && id) { app.innerHTML = detail(id); wireDetail(id); }
     else if (page === "suggestions") { app.innerHTML = suggestions(); wireSuggestions(); }
     else if (page === "people") { app.innerHTML = people(); wirePeople(); }
+    else if (page === "champions") { app.innerHTML = champions(); wireChampions(); }
     else if (page === "team") { app.innerHTML = team(); wireTeam(); }
     else if (page === "close") { app.innerHTML = closeDay(id); wireClose(); }
     else if (page === "day") { app.innerHTML = dayPrep(id); wireDay(); }
@@ -1085,10 +1272,10 @@
     else if (page === "reports" && id) { app.innerHTML = reportDetail(id); wireReport(id); }
     else if (page === "reports") { app.innerHTML = reports(); wireReports(); }
     else app.innerHTML = dashboard();
-    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
+    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
   }
 
-  Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] }))])
+  Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] })).then(async d => { try { const m = await fetch("/api/projects").then(r => r.json()); const have = new Set((d.projects || []).map(p => p.slug)); d.projects = [...(d.projects || []), ...(m.projects || []).filter(p => !have.has(p.slug))]; } catch (e) { /* only projects.json */ } return d; })])
     .then(async ([d, p]) => {
       D = d; P = (p.projects || []).filter(x => !x.hidden);
       P.filter(x => stageNum(x) === 2 && D.days[x.slug]).forEach(syncDay);
@@ -1098,7 +1285,7 @@
         try {
           ME = await api("/api/portal/me");
           const r = await api("/api/portal/suggestions");
-          D.suggestions = r.suggestions; D.user = { name: ME.name, role: ME.admin ? "Admin" : "Team" };
+          D.suggestions = r.suggestions; C = await api("/api/portal/champions").then(x => ({ list: x.champions, districts: x.districts })).catch(() => C); D.user = { name: ME.name, role: ME.admin ? "Admin" : "Team" };
           if (!D.team.includes(ME.name)) D.team = [ME.name, ...D.team];
           LIVE = true; NOW = new Date();
         } catch (e) {
@@ -1106,6 +1293,8 @@
           // No portal API here (for example a plain preview): fall back to the demo.
         }
       }
+      if (!LIVE) C = { list: [{ id: 1, name: "Kumar Selvam", phone: "077 123 4567", email: "", district: "Nuwara Eliya", areas: "Pussellawa, Choughleigh", note: "Knows the estate schools.", active: true, visits: 2 }, { id: 2, name: "Nadeesha Perera", phone: "071 555 0101", email: "", district: "Kandy", areas: "Gampola, Peradeniya", note: "", active: true, visits: 0 }],
+        districts: ["Ampara", "Anuradhapura", "Badulla", "Batticaloa", "Colombo", "Galle", "Gampaha", "Hambantota", "Jaffna", "Kalutara", "Kandy", "Kegalle", "Kilinochchi", "Kurunegala", "Mannar", "Matale", "Matara", "Monaragala", "Mullaitivu", "Nuwara Eliya", "Polonnaruwa", "Puttalam", "Ratnapura", "Trincomalee", "Vavuniya"] };
       const banner = document.querySelector(".pt-demo");
       if (LIVE) { banner.textContent = `Signed in as ${ME.email} · Suggestions are live · other screens are still a demo`; banner.classList.add("live"); }
       window.addEventListener("hashchange", () => { render(); window.scrollTo(0, 0); });

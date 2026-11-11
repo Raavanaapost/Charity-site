@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 420" role="img" aria-label="A graduation cap and a rolled certificate with stars">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff0c7" stop-opacity=".9"/><stop offset=".5" stop-color="#f2c14e" stop-opacity=".3"/><stop offset="1" stop-color="#f2c14e" stop-opacity="0"/></radialGradient>
+    <linearGradient id="gold" x1="0" x2="1"><stop offset="0" stop-color="#9a6a17"/><stop offset=".4" stop-color="#e6b94f"/><stop offset=".6" stop-color="#f6d98a"/><stop offset="1" stop-color="#a8761a"/></linearGradient>
+    <linearGradient id="flame" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#d9480f"/><stop offset=".45" stop-color="#ff9d2e"/><stop offset="1" stop-color="#fff2b8"/></linearGradient>
+  </defs>
+  <style>
+    .flick{transform-box:fill-box;transform-origin:50% 100%;animation:flick 2.4s ease-in-out infinite}
+    .bob{transform-box:fill-box;transform-origin:50% 100%;animation:bob 4s ease-in-out infinite}
+    .twinkle{animation:tw 2.8s ease-in-out infinite}
+    .glow{transform-box:fill-box;transform-origin:center;animation:br 3.4s ease-in-out infinite}
+    @keyframes flick{0%,100%{transform:scale(1,1)}35%{transform:scale(.94,1.06) rotate(-2deg)}65%{transform:scale(1.04,.96) rotate(2deg)}}
+    @keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-8px) rotate(2deg)}}
+    @keyframes tw{0%,100%{opacity:1}50%{opacity:.35}}
+    @keyframes br{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+    @media (prefers-reduced-motion:reduce){.flick,.bob,.twinkle,.glow{animation:none}}
+  </style>
+  <circle class="glow" cx="160" cy="190" r="150" fill="url(#glow)"/>
+
+  <path class="twinkle" d="M60 66l3.9200000000000004 10.08 10.08 3.9200000000000004-10.08 3.9200000000000004-3.9200000000000004 10.08-3.9200000000000004-10.08-10.08-3.9200000000000004 10.08-3.9200000000000004z" fill="#f2b33d"/><path class="twinkle" d="M262 60l2.8000000000000003 7.199999999999999 7.199999999999999 2.8000000000000003-7.199999999999999 2.8000000000000003-2.8000000000000003 7.199999999999999-2.8000000000000003-7.199999999999999-7.199999999999999-2.8000000000000003 7.199999999999999-2.8000000000000003z" fill="#f2b33d"/><path class="twinkle" d="M280 172l2.24 5.76 5.76 2.24-5.76 2.24-2.24 5.76-2.24-5.76-5.76-2.24 5.76-2.24z" fill="#4c8de0"/><path class="twinkle" d="M40 203l1.9600000000000002 5.04 5.04 1.9600000000000002-5.04 1.9600000000000002-1.9600000000000002 5.04-1.9600000000000002-5.04-5.04-1.9600000000000002 5.04-1.9600000000000002z" fill="#4c8de0"/>
+  <path d="M160 110l120 46-120 46-120-46z" fill="#1f3b63"/>
+  <path d="M96 180v44c0 18 128 18 128 0v-44l-64 24z" fill="#274b7c"/>
+  <path d="M272 158v58" stroke="#e6b94f" stroke-width="4"/><circle cx="272" cy="222" r="9" fill="#e6b94f"/>
+  <g transform="rotate(-12 160 320)">
+    <rect x="70" y="296" width="180" height="40" rx="20" fill="#fff8e6" stroke="#c9a24a" stroke-width="2"/>
+    <ellipse cx="250" cy="316" rx="10" ry="20" fill="#f3e6c4" stroke="#c9a24a" stroke-width="2"/>
+    <path d="M150 296v40M170 296v40" stroke="#c8381e" stroke-width="7"/>
+    <path d="M160 336l-12 26 12-8 12 8z" fill="#c8381e"/>
+  </g>
+</svg>

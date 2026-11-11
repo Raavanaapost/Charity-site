@@ -1,6 +1,11 @@
 # Tamil version: the same pages, translated in the browser by /ta.js
 /ta  /ta/index.html  200
 /ta/home  /ta/home.html  200
+/ta/give  /ta/give.html  200
+/ta/moment  /ta/moment.html  200
+/ta/m/*  /ta/together.html  200
+/ta/fund  /ta/fund.html  200
+/ta/thank-you  /ta/thank-you.html  200
 /ta/initiate-slides  /ta/initiate-slides.html  200
 /ta/overview  /ta/overview.html  200
 /ta/front  /ta/front.html  200
@@ -38,6 +43,11 @@
 /activated  /stage.html  200
 /impact  /stage.html  200
 /give  /give.html  200
+/moment  /moment.html  200
+# The family page of a moment: people give together, in the same name
+/m/*  /together.html  200
+# The Raavanaa Fund: the team chooses the next day of joy
+/fund  /fund.html  200
 /thank-you  /thank-you.html  200
 /projects/*  /project.html  200
 /post  /post.html  200
@@ -48,6 +58,11 @@
 /contact  /contact.html  200
 /volunteer  /volunteer.html  200
 /initiate  /initiate.html  200
+# The first Initiate design (kids picture, orange), kept as a template
+/initiate-kids  /initiate-kids.html  200
+# Community endorsement: the link a person shares so others can vouch for their request
+/e/*  /endorse.html  200
+/ta/e/*  /endorse.html  200
 /initiate-slides  /initiate-slides.html  200
 /sample  /project.html  200
 /report  /report.html  200

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 420" role="img" aria-label="Two gold rings under a mango-leaf garland">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffe7d6" stop-opacity=".9"/><stop offset=".5" stop-color="#f2a07a" stop-opacity=".3"/><stop offset="1" stop-color="#f2a07a" stop-opacity="0"/></radialGradient>
+    <linearGradient id="gold" x1="0" x2="1"><stop offset="0" stop-color="#9a6a17"/><stop offset=".4" stop-color="#e6b94f"/><stop offset=".6" stop-color="#f6d98a"/><stop offset="1" stop-color="#a8761a"/></linearGradient>
+    <linearGradient id="flame" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#d9480f"/><stop offset=".45" stop-color="#ff9d2e"/><stop offset="1" stop-color="#fff2b8"/></linearGradient>
+  </defs>
+  <style>
+    .flick{transform-box:fill-box;transform-origin:50% 100%;animation:flick 2.4s ease-in-out infinite}
+    .bob{transform-box:fill-box;transform-origin:50% 100%;animation:bob 4s ease-in-out infinite}
+    .twinkle{animation:tw 2.8s ease-in-out infinite}
+    .glow{transform-box:fill-box;transform-origin:center;animation:br 3.4s ease-in-out infinite}
+    @keyframes flick{0%,100%{transform:scale(1,1)}35%{transform:scale(.94,1.06) rotate(-2deg)}65%{transform:scale(1.04,.96) rotate(2deg)}}
+    @keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-8px) rotate(2deg)}}
+    @keyframes tw{0%,100%{opacity:1}50%{opacity:.35}}
+    @keyframes br{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+    @media (prefers-reduced-motion:reduce){.flick,.bob,.twinkle,.glow{animation:none}}
+  </style>
+  <circle class="glow" cx="160" cy="230" r="150" fill="url(#glow)"/>
+
+  <path d="M20 60q140 70 280 0" stroke="#8a5c12" stroke-width="3" fill="none"/>
+  <g fill="#4f8f45"><path d="M36 67q-8 26 0 44q8-18 0-44z"/><path d="M60 77q-8 26 0 44q8-18 0-44z"/><path d="M84 84q-8 26 0 44q8-18 0-44z"/><path d="M108 90q-8 26 0 44q8-18 0-44z"/><path d="M132 93q-8 26 0 44q8-18 0-44z"/><path d="M156 94q-8 26 0 44q8-18 0-44z"/><path d="M180 94q-8 26 0 44q8-18 0-44z"/><path d="M204 91q-8 26 0 44q8-18 0-44z"/><path d="M228 86q-8 26 0 44q8-18 0-44z"/><path d="M252 79q-8 26 0 44q8-18 0-44z"/><path d="M276 70q-8 26 0 44q8-18 0-44z"/></g>
+  <g fill="#f29a1f"><circle cx="48" cy="72" r="7"/><circle cx="72" cy="81" r="7"/><circle cx="96" cy="87" r="7"/><circle cx="120" cy="92" r="7"/><circle cx="144" cy="94" r="7"/><circle cx="168" cy="94" r="7"/><circle cx="192" cy="93" r="7"/><circle cx="216" cy="89" r="7"/><circle cx="240" cy="83" r="7"/><circle cx="264" cy="75" r="7"/><circle cx="288" cy="65" r="7"/></g>
+  <g transform="translate(0 20)">
+    <circle cx="128" cy="250" r="56" fill="none" stroke="url(#gold)" stroke-width="16"/>
+    <circle cx="192" cy="250" r="56" fill="none" stroke="url(#gold)" stroke-width="16"/>
+    <path d="M176 200a56 56 0 0 1 0 0" />
+    <path d="M128 194l10-22h-20z" fill="#d9f1ff" stroke="#9ec9e6"/>
+    <path class="twinkle" d="M206 160l2.8000000000000003 7.199999999999999 7.199999999999999 2.8000000000000003-7.199999999999999 2.8000000000000003-2.8000000000000003 7.199999999999999-2.8000000000000003-7.199999999999999-7.199999999999999-2.8000000000000003 7.199999999999999-2.8000000000000003z" fill="#fff2b8"/>
+  </g>
+  <g fill="#c8381e"><circle cx="70" cy="378" r="6"/><circle cx="250" cy="378" r="6"/></g>
+  <g><g fill="#f29a1f"><circle cx="100" cy="370" r="15"/><circle cx="220" cy="370" r="15"/><circle cx="160" cy="380" r="17"/></g><g fill="#e4761b"><circle cx="100" cy="370" r="9"/><circle cx="220" cy="370" r="9"/><circle cx="160" cy="380" r="10"/></g><g fill="#ffc94a"><circle cx="128" cy="382" r="11"/><circle cx="192" cy="382" r="11"/></g><ellipse cx="66" cy="364" rx="16" ry="7" fill="#4f8f45" transform="rotate(-25 66 364)"/><ellipse cx="254" cy="364" rx="16" ry="7" fill="#4f8f45" transform="rotate(25 254 364)"/></g>
+</svg>

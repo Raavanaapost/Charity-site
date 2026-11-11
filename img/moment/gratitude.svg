@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 420" role="img" aria-label="Two hands holding a glowing heart">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffe1dc" stop-opacity=".9"/><stop offset=".5" stop-color="#f5a39a" stop-opacity=".3"/><stop offset="1" stop-color="#f5a39a" stop-opacity="0"/></radialGradient>
+    <linearGradient id="gold" x1="0" x2="1"><stop offset="0" stop-color="#9a6a17"/><stop offset=".4" stop-color="#e6b94f"/><stop offset=".6" stop-color="#f6d98a"/><stop offset="1" stop-color="#a8761a"/></linearGradient>
+    <linearGradient id="flame" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#d9480f"/><stop offset=".45" stop-color="#ff9d2e"/><stop offset="1" stop-color="#fff2b8"/></linearGradient>
+  </defs>
+  <style>
+    .flick{transform-box:fill-box;transform-origin:50% 100%;animation:flick 2.4s ease-in-out infinite}
+    .bob{transform-box:fill-box;transform-origin:50% 100%;animation:bob 4s ease-in-out infinite}
+    .twinkle{animation:tw 2.8s ease-in-out infinite}
+    .glow{transform-box:fill-box;transform-origin:center;animation:br 3.4s ease-in-out infinite}
+    @keyframes flick{0%,100%{transform:scale(1,1)}35%{transform:scale(.94,1.06) rotate(-2deg)}65%{transform:scale(1.04,.96) rotate(2deg)}}
+    @keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-8px) rotate(2deg)}}
+    @keyframes tw{0%,100%{opacity:1}50%{opacity:.35}}
+    @keyframes br{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+    @media (prefers-reduced-motion:reduce){.flick,.bob,.twinkle,.glow{animation:none}}
+  </style>
+  <circle class="glow" cx="160" cy="170" r="150" fill="url(#glow)"/>
+
+  <path class="glow" d="M160 210s-58-36-58-78a32 32 0 0 1 58-18 32 32 0 0 1 58 18c0 42-58 78-58 78z" fill="#e2493a"/>
+  <path d="M146 140a16 16 0 0 1 12-8" stroke="#ffb3a6" stroke-width="5" stroke-linecap="round" fill="none"/>
+  <path d="M40 220c20 0 42 18 60 40l40 44c8 10 6 24-6 28-26 8-62-4-86-32-12-14-20-36-20-54 0-14 4-26 12-26z" fill="#c98a5c"/>
+  <path d="M280 220c-20 0-42 18-60 40l-40 44c-8 10-6 24 6 28 26 8 62-4 86-32 12-14 20-36 20-54 0-14-4-26-12-26z" fill="#b97a4c"/>
+  <path d="M60 300c18 20 42 30 66 32M260 300c-18 20-42 30-66 32" stroke="#8e5a33" stroke-width="2" fill="none"/>
+  <path class="twinkle" d="M70 82l2.24 5.76 5.76 2.24-5.76 2.24-2.24 5.76-2.24-5.76-5.76-2.24 5.76-2.24z" fill="#f2b33d"/><path class="twinkle" d="M250 70l2.8000000000000003 7.199999999999999 7.199999999999999 2.8000000000000003-7.199999999999999 2.8000000000000003-2.8000000000000003 7.199999999999999-2.8000000000000003-7.199999999999999-7.199999999999999-2.8000000000000003 7.199999999999999-2.8000000000000003z" fill="#f2b33d"/><path class="twinkle" d="M280 154l1.6800000000000002 4.32 4.32 1.6800000000000002-4.32 1.6800000000000002-1.6800000000000002 4.32-1.6800000000000002-4.32-4.32-1.6800000000000002 4.32-1.6800000000000002z" fill="#f2b33d"/>
+  <g><g fill="#f29a1f"><circle cx="100" cy="370" r="15"/><circle cx="220" cy="370" r="15"/><circle cx="160" cy="380" r="17"/></g><g fill="#e4761b"><circle cx="100" cy="370" r="9"/><circle cx="220" cy="370" r="9"/><circle cx="160" cy="380" r="10"/></g><g fill="#ffc94a"><circle cx="128" cy="382" r="11"/><circle cx="192" cy="382" r="11"/></g><ellipse cx="66" cy="364" rx="16" ry="7" fill="#4f8f45" transform="rotate(-25 66 364)"/><ellipse cx="254" cy="364" rx="16" ry="7" fill="#4f8f45" transform="rotate(25 254 364)"/></g>
+</svg>

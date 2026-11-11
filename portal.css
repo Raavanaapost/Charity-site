@@ -4,7 +4,7 @@ body.portal{margin:0;font-family:var(--display);font-size:15px;line-height:1.5;b
 .pt-shell{display:block}
 .pt-side{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--line)}
 .pt-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
-.pt-brand img{width:118px;height:auto;display:block;background:#fff;border-radius:6px}
+.pt-brand img{width:118px;height:auto;display:block;content:var(--logo-img)} /* no white plate; cream letters on dark screens */
 .pt-brand span{font-weight:700;font-size:14px;color:var(--muted);border-left:1px solid var(--line);padding-left:10px}
 .pt-nav,.pt-site{display:none}
 .pt-main{padding:18px 16px 96px;max-width:1180px}
@@ -388,3 +388,63 @@ body.pt-signedout .pt-demo{display:none}
 .pt-decline{justify-self:start;margin-top:4px}
 .pt-total b{margin-left:6px}
 @media (max-width:899px){.pt-detail{display:flex;flex-direction:column}.pt-detail>.pt-col{order:-1}}
+
+/* Request check (AI draft, missing details, approval for sharing) — 9 Nov 2026 */
+.pt-review h2{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.pt-review h3{margin:16px 0 6px;font-size:14px}
+.pt-pill.gray{background:#eceae4;color:#4d4a42}.pt-pill.amber{background:#fdecc8;color:#7a4b00}
+.pt-pill.blue{background:#dfe9fb;color:#1d4290}.pt-pill.red{background:#fbe0db;color:#8a1c12}.pt-pill.green{background:#dcefdf;color:#185b2c}
+.pt-kinds{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.pt-kind{padding:4px 10px;border-radius:999px;background:#f1ede3;font-size:13px}
+.pt-kind.none{opacity:.55}
+.pt-flags,.pt-what{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.pt-flag{margin:0;padding:8px 10px;border-radius:10px;font-size:13.5px;line-height:1.4}
+.pt-flag.red{background:#fdeceb;border:1px solid #f3c4bd;color:#7b1f13}
+.pt-flag.amber{background:#fff6e0;border:1px solid #f0d79a;color:#6b4300}
+.pt-what li{font-size:13.5px;line-height:1.4}.pt-what small{color:var(--muted)}
+.pt-tr{margin:8px 0;padding:8px 10px;border:1px solid var(--line);border-radius:10px}
+.pt-tr summary{cursor:pointer;font-weight:700;font-size:13.5px}
+.pt-tr p{margin:8px 0 0;font-size:13.5px;line-height:1.45;white-space:pre-wrap}
+.pt-pfs{display:grid;gap:10px;margin:8px 0 12px}
+.pt-pf{display:grid;gap:4px;font-size:13px;font-weight:700}
+.pt-pf input,.pt-pf textarea{font:inherit;font-weight:400;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;width:100%;box-sizing:border-box}
+
+/* Team sign in: the same look as the Members sign-in and Create a Moment pages (SURESH, 10 Nov 2026) */
+body.pt-signedout{--m-bg:#fbf4e2;--m-surface:#fffbf1;--m-line:#ead7a4;--m-brand:#1f5a2e;--m-gold:#d4a23c;--m-gold-deep:#b07f1f;--m-ink:#2a3423;--m-muted:#6c6a52;
+  background:var(--m-bg) radial-gradient(1200px 520px at 50% -120px,#fff3cf 0,transparent 70%) no-repeat;color-scheme:light;--logo-img:normal}
+body.pt-signedout .pt-shell,body.pt-signedout .pt-main{background:transparent}
+body.pt-signedout .pt-login{max-width:560px;gap:14px}
+body.pt-signedout .pt-login > img{width:220px}
+.pt-ribbon{justify-self:center;background:var(--m-brand);color:var(--m-surface);font:800 15px/1 "Playfair Display",Georgia,serif;letter-spacing:.04em;padding:8px 24px;border-radius:999px;box-shadow:inset 0 0 0 2px var(--m-gold)}
+body.pt-signedout .pt-login h1{font:900 clamp(30px,7vw,44px)/1.1 "Playfair Display",Georgia,serif;color:var(--m-brand);margin:0}
+body.pt-signedout .pt-login h1 em{color:var(--m-gold-deep);font-style:italic}
+body.pt-signedout .pt-login .pt-sub{color:var(--m-muted);font-size:16px}
+.pt-login-hero{margin:4px 0 6px;display:grid;gap:10px}
+.pt-login-hero picture{display:block;border-radius:22px;overflow:hidden;box-shadow:0 0 0 2px var(--m-line),0 14px 30px -18px rgba(90,60,10,.45)}
+.pt-login-hero img{display:block;width:100%;height:auto;aspect-ratio:941/395;object-fit:cover}
+.pt-login-hero figcaption{font:italic 900 clamp(17px,4.4vw,21px)/1.35 "Playfair Display",Georgia,serif;color:var(--m-ink)}
+.pt-login-hero figcaption::after{content:"\2661";display:block;color:var(--m-gold);font-style:normal;font-size:20px;margin-top:2px}
+body.pt-signedout .pt-login .pt-card{background:var(--m-surface);border:1.5px solid var(--m-line);border-radius:20px;padding:22px;box-shadow:0 10px 24px -20px rgba(90,60,10,.5)}
+body.pt-signedout .pt-login input{background:#fff;border:1.5px solid var(--m-line);border-radius:12px;min-height:46px}
+body.pt-signedout .pt-login input:focus{outline:2px solid var(--m-gold);outline-offset:1px;border-color:var(--m-gold)}
+body.pt-signedout .pt-login .pt-btn{background:var(--m-brand);color:var(--m-surface);border-radius:999px;min-height:48px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.15)}
+body.pt-signedout .pt-login .pt-btn.ghost{background:transparent;color:var(--m-brand);border:1.5px solid var(--m-gold);box-shadow:none}
+body.pt-signedout .pt-login{margin-top:8px;gap:8px}
+body.pt-signedout .pt-login > img{width:200px;margin-bottom:0}
+body.pt-signedout .pt-login h1{margin:0}
+body.pt-signedout .pt-login .pt-sub{margin:0}
+.pt-login-hero{margin:4px 0}
+.pt-tabs2{display:grid;grid-template-columns:1fr 1fr;border:1.5px solid var(--m-line);border-radius:999px;padding:3px;background:var(--m-bg);margin-top:4px}
+.pt-tabs2 button{font:inherit;font-weight:700;font-size:15px;border:0;border-radius:999px;padding:10px;background:transparent;color:var(--m-muted);cursor:pointer}
+.pt-tabs2 button[aria-selected="true"]{background:var(--m-brand);color:var(--m-surface)}
+.pt-join-note{margin:0 0 6px;font-size:15px;color:var(--m-ink)}
+.pt-login [hidden]{display:none!important}
+body.pt-signedout .pt-main,body.pt-signedout .pt-shell{padding-top:0}body.pt-signedout .pt-login{margin-top:0}body.pt-signedout .pt-login-msg:empty{display:none}
+[data-rot]{transition:opacity .45s ease}.rot-out{opacity:0}
+/* Champions */
+.pt-champs{display:grid;gap:10px;margin:14px 0}
+.pt-champ{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.pt-champ h3{margin:0 0 2px;font-size:17px}
+.pt-champ.off{opacity:.6}
+.pt-champ-meta{margin:6px 0 0;font-size:14px}
+.pt-champ-form h2{margin:0 0 10px;font-size:18px}
