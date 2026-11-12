@@ -54,6 +54,133 @@
     return r.json();
   }
 
+  /* ---------- Raavanaa as a web app (SURESH, 12 Nov 2026: "I want to build this as a web app") ----------
+     The site can be put on a phone's home screen and then opens like any other app: its own icon, no address bar,
+     a bar of five buttons along the bottom, and pages that still open when the connection is weak or gone.
+     The parts: /app.webmanifest (name, icon, colours, where it opens), /sw.js (the saved copies), /offline.html (no connection),
+     img/app/ (icons, made by tools/logo/make_app_icons.py), and this block (install button, bottom bar).
+     To see the app look in an ordinary browser, add ?app=1 to any address (?app=0 turns it off again). */
+  const APP = (() => {
+    const TA = /^\/ta(\/|$)/.test(location.pathname);
+    const qs = new URLSearchParams(location.search);
+    const keep = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { /* storage blocked */ } return null; };
+    // Opened from the home-screen icon: carry on in the language used last time.
+    if (qs.get("from") === "app") {
+      if (!TA && keep("raav-lang") === "ta") { location.replace("/ta" + location.pathname + location.search); return { inApp: true, install() {} }; }
+      qs.delete("from");
+      try { history.replaceState(null, "", location.pathname + (qs.toString() ? "?" + qs : "") + location.hash); } catch (e) { /* keep the address as it is */ }
+    }
+    keep("raav-lang", TA ? "ta" : "en");
+
+    const head = document.head;
+    const add = (tag, attrs) => { const el = document.createElement(tag); Object.keys(attrs).forEach(k => el.setAttribute(k, attrs[k])); head.appendChild(el); return el; };
+    if (!head.querySelector('link[rel="manifest"]')) add("link", { rel: "manifest", href: "/app.webmanifest" });
+    [["mobile-web-app-capable", "yes"], ["apple-mobile-web-app-capable", "yes"], ["apple-mobile-web-app-title", "Raavanaa"]]
+      .forEach(([name, content]) => { if (!head.querySelector(`meta[name="${name}"]`)) add("meta", { name, content }); });
+    const touch = head.querySelector('link[rel="apple-touch-icon"]');
+    if (touch) touch.setAttribute("href", "/img/app/apple-touch-icon.png?v=1"); else add("link", { rel: "apple-touch-icon", href: "/img/app/apple-touch-icon.png?v=1" });
+
+    // Saved copies for a weak or lost connection. Each page opened is kept for later.
+    if ("serviceWorker" in navigator && (location.protocol === "https:" || /^(localhost|127\.0\.0\.1)$/.test(location.hostname))) {
+      const start = () => navigator.serviceWorker.register("/sw.js").then(() => navigator.serviceWorker.ready)
+        .then(reg => { if (reg.active) reg.active.postMessage({ keep: location.pathname }); }).catch(() => { /* the site works without it */ });
+      if (document.readyState === "complete") start(); else window.addEventListener("load", start);
+    }
+
+    const mq = q => !!(window.matchMedia && window.matchMedia(q).matches);
+    const installed = mq("(display-mode: standalone)") || mq("(display-mode: fullscreen)") || mq("(display-mode: minimal-ui)") || navigator.standalone === true;
+    let preview = false;
+    try {
+      if (qs.get("app") === "1") sessionStorage.setItem("raav-app", "1");
+      if (qs.get("app") === "0") sessionStorage.removeItem("raav-app");
+      preview = sessionStorage.getItem("raav-app") === "1";
+    } catch (e) { /* storage blocked */ }
+    const inApp = installed || preview;
+    const page = document.body.dataset.page || "";
+
+    // The bar along the bottom of the phone, as in any app. Shown only inside the app.
+    if (inApp && page !== "welcome") {
+      document.documentElement.classList.add("in-app");
+      let signedIn = false; try { signedIn = !!localStorage.getItem("gotrue.user"); } catch (e) { /* storage blocked */ }
+      const ico = d => `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+      const TABS = [
+        ["Home", "/overview", /^overview$/, ico('<path d="M3.5 11.2 12 4l8.5 7.2"/><path d="M5.8 9.8V20h4.4v-5.4h3.6V20h4.4V9.8"/>')],
+        ["Projects", "/initiated", /^(stage|project|home|create|initiate)$/, ico('<rect x="3.5" y="4.5" width="17" height="4.6" rx="1.6"/><rect x="3.5" y="11" width="17" height="4.6" rx="1.6"/><path d="M4.5 19.5h15"/>')],
+        ["Gift", "/moment", /^(moment|together|give|fund|thanks)$/, '<span class="appbar-gift"><img src="/img/moment-mark.svg" alt="" width="34" height="34"></span>'],
+        ["Map", "/smile-map", /^map2?$/, ico('<path d="M12 21s6.5-5.6 6.5-10.6A6.5 6.5 0 0 0 5.5 10.4C5.5 15.4 12 21 12 21Z"/><circle cx="12" cy="10.2" r="2.4"/>')],
+        [signedIn ? "Account" : "Sign in", "/members", /^members$/, ico('<circle cx="12" cy="8.4" r="3.7"/><path d="M4.6 20c.9-3.6 3.8-5.4 7.4-5.4s6.5 1.8 7.4 5.4"/>')]
+      ];
+      const nav = document.createElement("nav");
+      nav.className = "appbar"; nav.setAttribute("aria-label", "App");
+      nav.innerHTML = TABS.map(([t, h, on, pic], i) => `<a class="appbar-tab${i === 2 ? " gift" : ""}" href="${h}"${on.test(page) ? ' aria-current="page"' : ""}>${pic}<span>${t}</span></a>`).join("");
+      document.body.appendChild(nav);
+    }
+
+    // "Install": Android and computers can ask the phone directly; iPhones need three taps, which we show.
+    const ua = navigator.userAgent || "";
+    const ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const android = /Android/i.test(ua);
+    // Facebook's and Instagram's own browsers cannot add anything to a home screen, so the offer stays out of the way there.
+    const boxed = /FBAN|FBAV|FB_IAB|Instagram|Line\//i.test(ua);
+    if (installed) keep("raav-app-have", "1");
+    let ask = null, strip = null;
+    const STEPS = {
+      ios: ["On an iPhone or iPad", ["Tap the Share button (the square with an arrow) in your browser.", "Scroll down and tap “Add to Home Screen”.", "Tap “Add”. Raavanaa is now on your home screen."]],
+      android: ["On an Android phone", ["Tap the three dots at the top of your browser.", "Tap “Install app” or “Add to Home screen”.", "Tap “Install”. Raavanaa is now on your home screen."]],
+      computer: ["On a computer", ["In Chrome or Edge, click the install icon at the end of the address bar.", "Click “Install”. Raavanaa opens in its own window."]]
+    };
+    function help() {
+      if (document.querySelector(".app-sheet")) return;
+      const order = ios ? ["ios", "android", "computer"] : android ? ["android", "ios", "computer"] : ["computer", "android", "ios"];
+      const part = k => `<h3>${STEPS[k][0]}</h3><ol>${STEPS[k][1].map(t => `<li>${t}</li>`).join("")}</ol>`;
+      const box = document.createElement("div");
+      box.className = "app-sheet"; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "app-sheet-t");
+      box.innerHTML = `<div class="app-sheet-box">
+        <button type="button" class="app-sheet-x" aria-label="Close">×</button>
+        <img src="/img/app/icon-192.png" alt="" width="72" height="72">
+        <h2 id="app-sheet-t">Put Raavanaa on your home screen</h2>
+        <p>It opens like any other app, and it still opens when the connection is weak.</p>
+        <div class="app-sheet-mine">${part(order[0])}</div>
+        <details><summary>On another device</summary>${order.slice(1).map(part).join("")}</details>
+      </div>`;
+      const shut = () => { box.remove(); document.removeEventListener("keydown", onKey); };
+      const onKey = e => { if (e.key === "Escape") shut(); };
+      box.addEventListener("click", e => { if (e.target === box || e.target.closest(".app-sheet-x")) shut(); });
+      document.addEventListener("keydown", onKey);
+      document.body.appendChild(box);
+      box.querySelector(".app-sheet-x").focus();
+    }
+    function install() {
+      if (!ask) { help(); return; }
+      const e = ask; ask = null;
+      e.prompt();
+      Promise.resolve(e.userChoice).then(c => { if (c && c.outcome === "accepted" && strip) strip.remove(); }).catch(() => {});
+    }
+    // A slim strip at the top of Home that offers the app. "×" hides it for a month.
+    function offer() {
+      if (strip || inApp || page !== "overview" || keep("raav-app-have")) return;
+      if (!(ask || ((ios || android) && !boxed))) return;
+      const hidden = +keep("raav-app-later") || 0;
+      if (hidden && Date.now() - hidden < 30 * 24 * 3600 * 1000) return;
+      const main = document.getElementById("app"); if (!main) return;
+      const phone = ios || android;
+      strip = document.createElement("aside");
+      strip.className = "app-strip wrap"; strip.setAttribute("aria-label", "Get the app");
+      strip.innerHTML = `<div class="app-strip-in"><img src="/img/app/icon-192.png" alt="" width="46" height="46">
+        <span class="app-strip-t"><b>${phone ? "Raavanaa on your phone" : "Raavanaa as an app"}</b><small>${phone ? "Add it to your home screen. It is free." : "Install it on this computer. It is free."}</small></span>
+        <button type="button" class="app-strip-go">Install</button>
+        <button type="button" class="app-strip-x" aria-label="Close">×</button></div>`;
+      strip.querySelector(".app-strip-go").addEventListener("click", install);
+      strip.querySelector(".app-strip-x").addEventListener("click", () => { keep("raav-app-later", String(Date.now())); strip.remove(); });
+      main.before(strip);
+    }
+    window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); ask = e; offer(); });
+    window.addEventListener("appinstalled", () => { ask = null; keep("raav-app-have", "1"); if (strip) strip.remove(); });
+    document.addEventListener("click", e => { const a = e.target.closest && e.target.closest("[data-get-app]"); if (a) { e.preventDefault(); install(); } });
+    offer();
+    return { inApp, install };
+  })();
+
   // Footer shown on every page. Social links and email appear only when filled in under Site settings.
   function frame(site) {
     // English / Tamil switch in the header: the same page in the other language.
@@ -112,7 +239,8 @@
         <nav class="foot-cols" aria-label="Footer">
           ${col("Explore", [["Home", "/overview"], ["Raavanaa Post", "/post"], ["Smile Map", "/smile-map"], ["About us", "/about"], ["Contact", "/contact"]])}
           ${col("Our stages", [["Initiated", "/initiated"], ["Activated", "/activated"], ["Impact", "/impact"]])}
-          ${col("Get involved", [["Gift a Moment in their name", "/moment"], ["Volunteer with us", "/volunteer"], ["Suggest a project", "/contact?topic=suggest"], ["Partner with us", "/contact?topic=partner"]])}
+          ${col("Get involved", [["Gift a Moment in their name", "/moment"], ["Volunteer with us", "/volunteer"], ["Suggest a project", "/contact?topic=suggest"], ["Partner with us", "/contact?topic=partner"]])
+            .replace("</ul>", APP.inApp ? "</ul>" : `<li><a href="#app" data-get-app>Get the app</a></li></ul>`)}
           ${follow.length ? col("Follow us", follow) : ""}
         </nav>
       </div></div>

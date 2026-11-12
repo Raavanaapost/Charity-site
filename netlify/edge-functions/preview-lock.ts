@@ -9,6 +9,9 @@ const PUBLIC = new Set([
   "/img/og-coming-soon.jpg",
   "/img/favicon-32.png", "/img/icon-192.png", "/img/apple-touch-icon.png",
   "/robots.txt", "/favicon.ico",
+  // The web app's own files: its name and icon, the "no connection" page and the script that keeps saved copies.
+  // A phone fetches these in the background, where it cannot ask for the password. They hold nothing private.
+  "/app.webmanifest", "/sw.js", "/offline.html",
 ]);
 
 export default async (request: Request, context: { next: () => Promise<Response> }) => {
@@ -19,6 +22,8 @@ export default async (request: Request, context: { next: () => Promise<Response>
   // Share pictures (logo, drawings and share titles; never a photo of a child) are open so vouch links
   // show their picture on WhatsApp before launch (SURESH, 10 Nov 2026).
   if (/^\/img\/share\/[a-z0-9-]+\.jpg$/.test(path)) return context.next();
+  // The web app's icons (the heart from the logo on cream).
+  if (/^\/img\/app\/[a-z0-9-]+\.png$/.test(path)) return context.next();
   // Endorse links (/e/<link>) are shared on WhatsApp before launch too, so people can vouch without the password.
   if (path.startsWith("/e/") || path.startsWith("/ta/e/") || path === "/endorse.html" || path === "/endorse.js" || path === "/endorse.css"
     || /^\/img\/(project-[a-z]+|hero-initiated)\.svg$/.test(path) || /^\/img\/(logo|members-bridge)\.(webp|jpg)$/.test(path)) return context.next();
