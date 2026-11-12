@@ -64,19 +64,9 @@ function n_photo( $file, $caption ) {
 	return $id;
 }
 
+/* No real photos of children on RaavanaaPost (SURESH, 12 Nov 2026): stories show drawings ('art') or AI illustrations only. */
 $ph = array(
-	'maha_cover'  => n_photo( 'yogapuram-preschool/cover.jpg', 'Children, parents and teachers together at the Black Bridge' ),
-	'maha_grass'  => n_photo( 'yogapuram-preschool/snacks-on-the-grass.jpg', 'Ice cream on the grass by the river' ),
-	'maha_hall'   => n_photo( 'yogapuram-preschool/temple-hall.jpg', 'Inside Banalingeswaram temple' ),
 	'maha_drawn'  => n_photo( 'yogapuram-preschool/bridge-illustration.jpg', 'Children, parents and teachers at the Black Bridge (AI illustration)' ),
-	'maha_temple' => n_photo( 'yogapuram-preschool/at-the-temple.jpg', 'Children, parents and teachers at the temple' ),
-	'maha_treats' => n_photo( 'yogapuram-preschool/sharing-treats.jpg', 'Snacks for every child' ),
-	'pus_cover'   => n_photo( 'pussellawa/cover.jpg', 'Looking out over the hills at Hanuman Kovil' ),
-	'pus_games'   => n_photo( 'pussellawa/games-on-the-lawn.jpg', 'Games on the lawn' ),
-	'pus_dance'   => n_photo( 'pussellawa/dancing.jpg', 'Dancing in their best clothes' ),
-	'pus_run'     => n_photo( 'pussellawa/running-together.jpg', 'Running together' ),
-	'pus_hills'   => n_photo( 'pussellawa/hills-view.jpg', 'The view from Hanuman Kovil' ),
-	'pus_look'    => n_photo( 'pussellawa/looking-out.jpg', 'A quiet moment with the view' ),
 );
 
 /* Fixed to when the stories were first published, so a rebuild keeps their dates. */
@@ -97,12 +87,10 @@ $stories = array(
 		'thumb'   => 'maha_drawn', // SURESH's Gemini illustration in place of the group photo (7 Nov 2026)
 		'body'    => n_p( 'On 12 October 2026, 17 children from a pre-school in Yogapuram set off for an afternoon out with 20 parents, two teachers and members of the pre-school\'s management. The bus left at 3.30 and reached the Black Bridge (Karutha Palam) over the Pali Aru at 3.45.' )
 			. n_p( 'The children had ice cream, danced together and watched the river flow quietly under the old bridge, said to have been built by the Dutch. Then they went down into the water to play. For many of them it was the first day like this in a long time.' )
-			. '%IMG_GRASS%'
 			. n_p( 'Next came Banalingeswaram Narmatha Natheeswarar temple, where the children looked at the carved sculptures of the Nayanmars and walked through the flower garden. Outside the temple they danced again and shared snacks. Everyone left at 5.45 and was back at the pre-school by 6.00.' )
 			. n_q( 'It was a wonderful day! The happiness on the children\'s faces is the greatest gift we received.', 'Sarvika, the pre-school\'s manager, the day after' )
 			. n_h( 'Where the money went' )
 			. n_p( 'The full cost of the trip, Rs 20,000, was covered by Friends of Raavanaa: the bus, food and snacks, and what the children needed for the day.' )
-			. '%IMG_HALL%'
 			. n_p( 'This was a Raavanaa – Beyond the Lanes day of joy. See every project at <a href="https://raavanaa.org">raavanaa.org</a>.' ),
 	),
 	array(
@@ -224,10 +212,9 @@ $stories = array(
 		'update'  => 'The day happened on 12 October. Rs 19,250 covered the vehicle and the food.',
 		'hours'   => 6,
 		'views'   => 120,
-		'thumb'   => 'pus_cover',
+		'art'     => 'hills-day', // drawing in place of the photo (SURESH, 12 Nov 2026)
 		'body'    => n_p( 'Pussellawa is a tea-country town, and many of its children grow up among the estates. Families work hard, and a day away together is rare. Transport and food are what stand between these children and a day out.' )
 			. n_p( 'On 12 October 2026 a hired vehicle took the children to Hanuman Kovil, in the hills on the road between Gampola and Nuwara Eliya. On the big lawn they played running games, held hands in circles and danced, while the grown-ups watched over them. Some of the little ones simply stood and looked out at the mountains.' )
-			. '%IMG_GAMES%'
 			. n_q( 'The children truly enjoyed the experience and were very happy.', 'The organisers in Pussellawa, on the day' )
 			. n_h( 'Where the money went' )
 			. n_p( 'Every rupee went to the day itself: Rs 10,500 for the vehicle and Rs 8,750 for food, Rs 19,250 in total, covered by Friends of Raavanaa. It was the first Raavanaa day in the hill country.' ),
@@ -250,17 +237,6 @@ $stories = array(
 			. n_p( 'Sasi, Shanker and Bala gave $150 each, $450 in all: the bus ($150), lunch for mums and children ($180), games and activities ($70) and a printed family photo for each mum ($50).' ),
 	),
 	array(
-		'key'     => 'L',
-		'title'   => 'In pictures: a day at Hanuman Kovil',
-		'cats'    => array( 'real-impact', 'sri-lanka' ),
-		'place'   => 'Pussellawa',
-		'excerpt' => 'Running, dancing and a quiet look at the mountains: the children of Pussellawa on 12 October.',
-		'hours'   => 8,
-		'views'   => 85,
-		'thumb'   => 'pus_games',
-		'body'    => n_p( 'Photos shared with permission by the organisers in Pussellawa.' ) . '%IMG_PUS_ALL%',
-	),
-	array(
 		'key'     => 'I',
 		'title'   => 'The Black Bridge over the Pali Aru',
 		'cats'    => array( 'culture', 'sri-lanka' ),
@@ -268,7 +244,7 @@ $stories = array(
 		'excerpt' => 'The old bridge at Oddankulam, said to have been built by the Dutch, gave Yogapuram\'s pre-schoolers an afternoon by the river.',
 		'hours'   => 9,
 		'views'   => 60,
-		'thumb'   => 'maha_grass',
+		'art'     => 'yogapuram-day', // drawing in place of the photo (SURESH, 12 Nov 2026)
 		'body'    => n_p( 'The Black Bridge, Karutha Palam, crosses the Pali Aru at Oddankulam. People there count it among the oldest bridges in the area, and say it was built by the Dutch.' )
 			. n_p( 'On 12 October it was the first stop for 17 pre-school children from Yogapuram. They had ice cream on the grass, danced, and then went down into the quiet river to play.' ),
 	),
@@ -280,7 +256,7 @@ $stories = array(
 		'excerpt' => 'A big lawn and wide views over the mountains, on the road between Gampola and Nuwara Eliya.',
 		'hours'   => 10,
 		'views'   => 45,
-		'thumb'   => 'pus_hills',
+		'art'     => 'hills-view', // drawing in place of the photo (SURESH, 12 Nov 2026)
 		'body'    => n_p( 'In the hills on the road between Gampola and Nuwara Eliya, Hanuman Kovil has a big lawn and wide views over the mountains.' )
 			. n_p( 'On 12 October it was where the children of Pussellawa ran, played and danced, in the first Raavanaa day in the hill country.' ),
 	),
@@ -292,7 +268,7 @@ $stories = array(
 		'excerpt' => 'Carved sculptures of the Nayanmars and a flower garden at Banalingeswaram Narmatha Natheeswarar temple.',
 		'hours'   => 11,
 		'views'   => 50,
-		'thumb'   => 'maha_hall',
+		'art'     => 'temple-garden', // drawing in place of the photo (SURESH, 12 Nov 2026)
 		'body'    => n_p( 'Banalingeswaram Narmatha Natheeswarar temple at Oddankulam is known for its carved sculptures of the Nayanmars, the Saiva saints, and for its flower garden.' )
 			. n_p( 'When Yogapuram\'s pre-schoolers visited on 12 October, they walked among the sculptures and through the garden, then danced outside the temple and shared snacks before heading home.' ),
 	),
@@ -382,18 +358,7 @@ foreach ( $stories as $s ) {
 		$body = false === $cut ? $body . $inside : substr_replace( $body, "<!-- /wp:paragraph -->\n\n" . $inside, $cut, strlen( '<!-- /wp:paragraph -->' ) );
 		unset( $s['thumb'] );
 	}
-	$body = str_replace( '%IMG_GRASS%', n_img( $ph['maha_grass'], 'Ice cream on the grass by the river' ), $body );
-	$body = str_replace( '%IMG_HALL%', n_img( $ph['maha_hall'], 'Inside Banalingeswaram temple' ), $body );
-	$body = str_replace( '%IMG_GAMES%', n_img( $ph['pus_games'], 'Games on the lawn' ), $body );
-	$body = str_replace(
-		'%IMG_PUS_ALL%',
-		n_img( $ph['pus_cover'], 'Looking out over the hills at Hanuman Kovil' )
-		. n_img( $ph['pus_games'], 'Games on the lawn' )
-		. n_img( $ph['pus_run'], 'Running together' )
-		. n_img( $ph['pus_dance'], 'Dancing in their best clothes' )
-		. n_img( $ph['pus_look'], 'A quiet moment with the view' ),
-		$body
-	);
+	$body = preg_replace( '/%IMG_[A-Z_]+%/', '', $body ); // old photo places, no longer used
 	$id = wp_insert_post(
 		array(
 			'post_type'     => 'post',

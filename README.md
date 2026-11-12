@@ -24,8 +24,8 @@ raavanaa.org: the `draft` and `main` branches are not touched by it.
 ## Rules for every story and photo
 
 - First names only. No full names or addresses.
-- Schools are not named unless SURESH approves it for that project (approved for Choughleigh Tamil Vidyalayam, Pussellawa, 5 Nov 2026).
+- Schools, pre-schools and homes are not named (SURESH, 9 Nov 2026).
 - Places are towns, never a home or school.
-- Children's faces only with a parent's or guardian's permission (photos already approved for raavanaa.org).
+- No real photos of children (SURESH, 12 Nov 2026). A story shows a drawing (`'art'`, the SVG files in `source/theme/raavanaapost/assets/img/art/`) or an AI illustration, never a photo of a child.
 - Evidence files are private and never go here.
 - "Report a need" sends people to the Request a smile form on raavanaa.org, so there is one inbox.

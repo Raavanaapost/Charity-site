@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="A temple tower with red and white walls, palm trees and a flower garden in front">
+<defs>
+<linearGradient id="tsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6e3"/><stop offset=".75" stop-color="#fde3b0"/><stop offset="1" stop-color="#f9d58e"/></linearGradient>
+<radialGradient id="tsun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd85a"/><stop offset="1" stop-color="#ef9a22"/></radialGradient>
+<g id="tflower"><circle r="5" fill="#f7c63a"/><g fill="#e24a3b"><circle cx="0" cy="-9" r="5"/><circle cx="9" cy="0" r="5"/><circle cx="0" cy="9" r="5"/><circle cx="-9" cy="0" r="5"/></g></g>
+<g id="tflowery"><circle r="5" fill="#b8440a"/><g fill="#f2b21c"><circle cx="0" cy="-9" r="5"/><circle cx="9" cy="0" r="5"/><circle cx="0" cy="9" r="5"/><circle cx="-9" cy="0" r="5"/></g></g>
+<g id="tpalm"><path d="M0 0 q-8 -70 4 -150" fill="none" stroke="#7a4b2a" stroke-width="8" stroke-linecap="round"/><g fill="none" stroke="#2f7a45" stroke-width="7" stroke-linecap="round"><path d="M4 -150 q-34 -18 -62 4"/><path d="M4 -150 q-26 -34 -56 -30"/><path d="M4 -150 q4 -36 -14 -56"/><path d="M4 -150 q30 -30 58 -22"/><path d="M4 -150 q36 -12 60 12"/></g></g>
+</defs>
+<rect width="800" height="600" fill="url(#tsky)"/>
+<circle cx="160" cy="110" r="48" fill="url(#tsun)"/>
+<g fill="#fff" opacity=".85"><path d="M520 90 q16 -24 40 -8 q20 -18 40 3 q24 -2 21 18 h-109 q-10 -10 8 -13z"/><path d="M300 60 q13 -18 32 -6 q18 -13 32 3 q19 0 16 14 h-88 q-6 -8 8 -11z"/></g>
+<path d="M0 400 Q200 372 400 388 T800 380 V600 H0Z" fill="#8fc27f"/>
+<use href="#tpalm" x="110" y="420"/><use href="#tpalm" x="700" y="410" transform="translate(1400 0) scale(-1 1)"/>
+<g>
+<path d="M180 420 h440 v-84 h-440z" fill="#fffaf0" stroke="#d9b98a" stroke-width="3"/>
+<g fill="#c0392b"><rect x="196" y="336" width="18" height="84"/><rect x="232" y="336" width="18" height="84"/><rect x="268" y="336" width="18" height="84"/><rect x="304" y="336" width="18" height="84"/><rect x="478" y="336" width="18" height="84"/><rect x="514" y="336" width="18" height="84"/><rect x="550" y="336" width="18" height="84"/><rect x="586" y="336" width="18" height="84"/></g>
+<path d="M170 336 h460 v-14 h-460z" fill="#f2b21c"/>
+</g>
+<g transform="translate(400 336)">
+<path d="M-84 84 L-70 16 H70 L84 84Z" fill="#f2b21c"/>
+<path d="M-70 16 L-56 -40 H56 L70 16Z" fill="#e5851a"/>
+<path d="M-56 -40 L-42 -90 H42 L56 -40Z" fill="#c0392b"/>
+<path d="M-42 -90 L-28 -134 H28 L42 -90Z" fill="#2f7a45"/>
+<path d="M-28 -134 L-16 -168 H16 L28 -134Z" fill="#e5851a"/>
+<path d="M-16 -168 q16 -34 32 0Z" fill="#f7c63a"/>
+<path d="M0 -186 v-18" stroke="#b8894a" stroke-width="4" stroke-linecap="round"/>
+<g fill="#fffaf0"><rect x="-50" y="-22" width="12" height="26" rx="6"/><rect x="-18" y="-22" width="12" height="26" rx="6"/><rect x="6" y="-22" width="12" height="26" rx="6"/><rect x="38" y="-22" width="12" height="26" rx="6"/><rect x="-36" y="-76" width="10" height="22" rx="5"/><rect x="-5" y="-76" width="10" height="22" rx="5"/><rect x="26" y="-76" width="10" height="22" rx="5"/><rect x="-22" y="-122" width="9" height="18" rx="4.5"/><rect x="13" y="-122" width="9" height="18" rx="4.5"/></g>
+<path d="M-30 84 v-40 q30 -30 60 0 v40z" fill="#7a2d0a"/>
+<path d="M-18 84 v-34 q18 -18 36 0 v34z" fill="#f7c63a" opacity=".55"/>
+</g>
+<path d="M330 600 Q360 470 370 420 h60 Q440 470 470 600Z" fill="#f5e3bd"/>
+<path d="M0 470 Q160 440 330 462 L330 600 H0Z" fill="#5fa46a"/><path d="M800 462 Q640 440 470 462 L470 600 H800Z" fill="#5fa46a"/>
+<use href="#tflower" x="60" y="520"/><use href="#tflowery" x="130" y="560"/><use href="#tflower" x="200" y="505"/><use href="#tflowery" x="262" y="548"/><use href="#tflower" x="296" y="500"/>
+<use href="#tflowery" x="520" y="505"/><use href="#tflower" x="566" y="552"/><use href="#tflowery" x="636" y="510"/><use href="#tflower" x="700" y="556"/><use href="#tflowery" x="756" y="512"/>
+<g fill="#f7c63a"><circle cx="100" cy="486" r="5"/><circle cx="240" cy="580" r="4"/><circle cx="600" cy="486" r="4"/><circle cx="730" cy="590" r="5"/></g>
+</svg>
