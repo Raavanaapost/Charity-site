@@ -10,7 +10,7 @@
    (see checkGate), so nothing here needs changing on launch day.
 
    To make every phone drop its saved copies (after a big redesign, say), raise the number in VERSION. */
-const VERSION = "v1";
+const VERSION = "v2";
 const SHELL = "raav-app-" + VERSION;      // pages, styles, scripts, data
 const PICS = "raav-pics-" + VERSION;      // pictures
 const PICS_MAX = 220;                     // oldest pictures are dropped beyond this

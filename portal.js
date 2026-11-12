@@ -359,7 +359,7 @@
         `<p class="pt-sub">Call ${esc(s.contact || "them")} on <a href="${/@/.test(s.reach || "") ? "mailto:" : "tel:"}${esc(String(s.reach || "").replace(/\s/g, ""))}">${esc(s.reach || "")}</a>. Ask for what the short form didn't.</p>
          <label class="pt-field">Title for the project <input data-d="title" value="${esc(d.title || "")}" placeholder="e.g. Sports day at the Paranthan girls' home"></label>
          <label class="pt-field">The story: the need and the plan <textarea data-d="story" rows="4" placeholder="Who the children are, what they need, what the day will be">${esc(d.story || "")}</textarea></label>
-         <label class="pt-field">Organisation <small>(optional)</small><input data-d="org" value="${esc(d.org || "")}" placeholder="e.g. Sivapoomi Children's Home"></label>
+         <label class="pt-field">Organisation <small>(optional)</small><input data-d="org" value="${esc(d.org || "")}" placeholder="e.g. a children's home"></label>
          <label class="pt-field">Exact place of the day <small>(private, team only)</small><input data-d="place" value="${esc(d.place || "")}" placeholder="Home, school or hall, and the address"></label>
          <div class="pt-ob-who"><span>Who sends feedback for them?</span>
            <label><input type="radio" name="ob-contact" value="self" ${o.contact === "self" ? "checked" : ""}> They use a phone themselves</label>
@@ -492,7 +492,7 @@
           <label class="pt-field">Phone<input name="phone" required inputmode="tel" maxlength="40" value="${esc(c.phone || "")}"></label></div>
         <div class="pt-row2"><label class="pt-field">District<select name="district" required><option value="">Choose</option>${C.districts.map(d => `<option ${c.district === d ? "selected" : ""}>${d}</option>`).join("")}</select></label>
           <label class="pt-field">Email (optional)<input name="email" type="email" maxlength="120" value="${esc(c.email || "")}"></label></div>
-        <label class="pt-field">Villages or towns they can reach<input name="areas" maxlength="300" placeholder="Pussellawa, Choughleigh, Rothschild" value="${esc(c.areas || "")}"></label>
+        <label class="pt-field">Villages or towns they can reach<input name="areas" maxlength="300" placeholder="Pussellawa, Gampola, Nawalapitiya" value="${esc(c.areas || "")}"></label>
         <label class="pt-field">Note for the team<textarea name="note" rows="2" maxlength="500">${esc(c.note || "")}</textarea></label>
         <div class="pt-actions-row"><button class="pt-btn">${c.id ? "Save changes" : "Add Champion"}</button>${c.id ? `<button type="button" class="pt-btn ghost" data-chcancel>Cancel</button>` : ""}</div></form>`;
     return `
@@ -1325,7 +1325,7 @@
           // No portal API here (for example a plain preview): fall back to the demo.
         }
       }
-      if (!LIVE) C = { list: [{ id: 1, name: "Kumar Selvam", phone: "077 123 4567", email: "", district: "Nuwara Eliya", areas: "Pussellawa, Choughleigh", note: "Knows the estate schools.", active: true, visits: 2 }, { id: 2, name: "Nadeesha Perera", phone: "071 555 0101", email: "", district: "Kandy", areas: "Gampola, Peradeniya", note: "", active: true, visits: 0 }],
+      if (!LIVE) C = { list: [{ id: 1, name: "Kumar Selvam", phone: "077 123 4567", email: "", district: "Nuwara Eliya", areas: "Pussellawa, Gampola", note: "Knows the estate schools.", active: true, visits: 2 }, { id: 2, name: "Nadeesha Perera", phone: "071 555 0101", email: "", district: "Kandy", areas: "Gampola, Peradeniya", note: "", active: true, visits: 0 }],
         districts: ["Ampara", "Anuradhapura", "Badulla", "Batticaloa", "Colombo", "Galle", "Gampaha", "Hambantota", "Jaffna", "Kalutara", "Kandy", "Kegalle", "Kilinochchi", "Kurunegala", "Mannar", "Matale", "Matara", "Monaragala", "Mullaitivu", "Nuwara Eliya", "Polonnaruwa", "Puttalam", "Ratnapura", "Trincomalee", "Vavuniya"] };
       const banner = document.querySelector(".pt-demo");
       if (LIVE) { banner.textContent = `Signed in as ${ME.email} · Suggestions and “I'd like to give” requests are live · other screens are still a demo`; banner.classList.add("live"); }

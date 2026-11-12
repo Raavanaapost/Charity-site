@@ -2364,3 +2364,52 @@ html[lang="ta"] .app-sheet-box h3{letter-spacing:0;text-transform:none;font-size
 .give-done .give-safe{text-align:left}
 .give-done-next{margin-top:4px!important}
 @media (prefers-reduced-motion:reduce){.give-done-heart{animation:none}}
+
+/* The money page of a project (/projects/<slug>/money): money in, money out, receipts */
+.mny{max-width:860px;margin-inline:auto;padding-block:8px 48px}
+.mny-head{padding-block:18px 6px}
+.mny-head h1{margin:6px 0 4px;font-family:var(--display);font-size:clamp(30px,5vw,44px);line-height:1.1;letter-spacing:-.01em}
+.mny-for{margin:0;font-size:17px}
+.mny-for a{color:var(--brand);font-weight:600;text-decoration-thickness:1px;text-underline-offset:3px}
+.mny-date{margin:6px 0 0;font-family:var(--mono);font-size:12.5px;letter-spacing:.03em;color:var(--muted)}
+.mny-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-block:18px 22px}
+.mny-tile{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--line);border-radius:var(--r);padding:14px 16px;display:grid;gap:2px;align-content:start}
+.mny-tile span{font-family:var(--mono);font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.mny-tile b{font-family:var(--display);font-weight:800;font-size:clamp(21px,3.2vw,28px);line-height:1.15;font-variant-numeric:tabular-nums;color:var(--ink)}
+.mny-tile small{font-size:12.5px;color:var(--muted)}
+.mny-tile.in{border-top-color:var(--brand)}.mny-tile.in b{color:var(--brand)}
+.mny-tile.out{border-top-color:var(--sun)}
+.mny-tile.need{border-top-color:var(--flame)}
+.mny-tile.bal{border-top-color:var(--gold)}
+.mny-box{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;margin-bottom:16px}
+.mny-box h2{margin:0 0 12px;font-family:var(--display);font-size:21px}
+.mny-box .note{margin-top:10px}
+.mny-table{width:100%;border-collapse:collapse;font-size:15.5px}
+.mny-table th,.mny-table td{padding:10px 8px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.mny-table thead th{font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding-top:0}
+.mny-table .num{text-align:right;white-space:nowrap;font-family:var(--display);font-weight:700;font-variant-numeric:tabular-nums}
+.mny-table thead .num{font-family:var(--mono);font-weight:500}
+.mny-table tfoot th,.mny-table tfoot td{border-bottom:0;border-top:2px solid var(--line);font-family:var(--display);font-weight:800}
+.mny-table td small{display:block;font-size:13px;color:var(--muted)}
+.mny-table .f-name{font-weight:600}
+.mny-st{display:inline-flex;gap:6px;align-items:baseline;flex-wrap:wrap;font-size:13.5px;color:var(--muted)}
+.mny-st b{font-family:var(--display);font-weight:700;font-size:12.5px;padding:2px 9px;border-radius:999px;background:var(--sun-soft);color:var(--ink)}
+.mny-st.got b{background:var(--brand-soft);color:var(--brand)}
+.mny-rc{font-size:13.5px;white-space:nowrap}
+.mny-need{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0 0;padding:12px 14px;border-radius:10px;background:var(--sun-soft);color:var(--ink)}
+.mny-need b{font-family:var(--display);font-weight:800;font-size:19px;font-variant-numeric:tabular-nums}
+.mny-wait{margin:0;color:var(--muted)}
+.mny-wait b{color:var(--ink)}
+.mny-day{margin:8px 0 0;font-family:var(--display);font-weight:600}
+.mny-day span{color:var(--muted);font-weight:500}
+.mny-receipts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.mny-receipts a{display:grid;gap:6px;text-decoration:none;color:var(--ink);font-size:13.5px}
+.mny-receipts img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;border:1px solid var(--line);background:var(--bg)}
+.mny-back{margin:22px 0 0}
+.mny-link{margin:16px 0 0}
+@media (max-width:720px){
+  .mny-tiles{grid-template-columns:1fr 1fr}
+  .mny-box{padding:16px 14px}
+  .mny-table{font-size:14.5px}
+  .mny-table th,.mny-table td{padding:9px 4px}
+}

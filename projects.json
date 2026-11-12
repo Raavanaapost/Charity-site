@@ -10,7 +10,7 @@
    "location": "Pussellawa, Kandy District",
    "organization": "Raavanaa",
    "started": "October 2026",
-   "reach": "Children of Pussellawa (number TBD)",
+   "reach": "Children of Pussellawa",
    "verified": true,
    "currency": "Rs ",
    "budget": [
@@ -35,7 +35,7 @@
    "volunteers": true,
    "steps": [],
    "summary": "The children of Pussellawa spent a day at Hanuman Kovil: running and playing on the lawn, dancing together and looking out over the hills, with transport and food fully covered.",
-   "cover": "/img/projects/pussellawa/cover.jpg",
+   "cover": "/img/project-hills.svg",
    "quote": "The children truly enjoyed the experience and were very happy.",
    "story": "## Summary\n\nThe children of Pussellawa spent a day at Hanuman Kovil, in the hills on the road between Gampola and Nuwara Eliya. They ran and played on the lawn, danced together in their best clothes, shared a meal and looked out over the mountains.\n\n## The need\n\nPussellawa is a tea-country town, and many of its children grow up among the estates. Families work hard and a day away together is rare. Transport and food are what stand between these children and a day out.\n\n## The day\n\nOn 12 October 2026 a hired vehicle took the children to Hanuman Kovil. On the big lawn they played running games, held hands in circles and danced, while the grown-ups watched over them. Some of the little ones simply stood and looked out at the mountains.\n\nThe local organisers wrote to us the same day: *\"The children truly enjoyed the experience and were very happy.\"*\n\n## Where the money went\n\nEvery rupee went to the day itself: Rs 10,500 for the vehicle and Rs 8,750 for food, Rs 19,250 in total.\n\n## What it leaves behind\n\nA day of joy the children will remember, and the first Raavanaa day in the hill country. Thank you to everyone who made it possible.",
    "impact": [
@@ -64,28 +64,7 @@
      "body": "The full cost of Rs 19,250 is covered: Rs 10,500 for the vehicle and Rs 8,750 for food. Thank you to everyone who gave."
     }
    ],
-   "photos": [
-    {
-     "image": "/img/projects/pussellawa/hills-view.jpg",
-     "caption": "Looking out over the hills at Hanuman Kovil"
-    },
-    {
-     "image": "/img/projects/pussellawa/games-on-the-lawn.jpg",
-     "caption": "Games on the lawn"
-    },
-    {
-     "image": "/img/projects/pussellawa/running-together.jpg",
-     "caption": "Running together"
-    },
-    {
-     "image": "/img/projects/pussellawa/dancing.jpg",
-     "caption": "Dancing in their best clothes"
-    },
-    {
-     "image": "/img/projects/pussellawa/looking-out.jpg",
-     "caption": "A quiet moment with the view"
-    }
-   ],
+   "photos": [],
    "media": [],
    "city": "Kandy",
    "expectations": [
@@ -104,11 +83,12 @@
      "result": "met",
      "note": "Photos and videos of the day were sent by the organisers."
     }
-   ]
+   ],
+   "photos_private": true
   },
   {
-   "title": "Maha Arivagam pre-school trip to the Black Bridge",
-   "slug": "maha-arivagam-preschool-day",
+   "title": "Yogapuram pre-school trip to the Black Bridge",
+   "slug": "yogapuram-preschool-day",
    "hidden": false,
    "featured": false,
    "theme": "Trips & Events",
@@ -136,10 +116,10 @@
    "booked": true,
    "volunteers": true,
    "steps": [],
-   "summary": "Seventeen little ones from Maha Arivagam Yogapuram Trilingual Pre-School went by bus to the old Black Bridge over the Pali Aru and to Banalingeswaram temple at Oddankulam: ice cream, dancing, playing in the river and a day to remember.",
-   "cover": "/img/projects/maha-arivagam/cover.jpg",
+   "summary": "Seventeen little ones from a pre-school in Yogapuram went by bus to the old Black Bridge over the Pali Aru and to Banalingeswaram temple at Oddankulam: ice cream, dancing, playing in the river and a day to remember.",
+   "cover": "/img/members-bridge.webp",
    "quote": "The happiness on the children's faces is the greatest gift we received.",
-   "story": "## Summary\n\nOn 12 October 2026, 17 children from Maha Arivagam Yogapuram Trilingual Pre-School, with 20 parents, two teachers and members of the management, went on a trip to the Black Bridge (Karutha Palam) over the Pali Aru and to the Banalingeswaram Narmatha Natheeswarar temple, both at Oddankulam.\n\n## The need\n\nThe pre-school is run by the Technical, Arts, Culture and Women's Development Centre, and 25 children study there. Before the trip, the manager, Sarvika Vijayathasan, wrote to us: *\"For many of these children a day like this comes rarely. It will be a day to remember, to play, to laugh and to eat together.\"* The trip was arranged by the pre-school's contact, Mr Karthigesu Yoganathan.\n\n## The day\n\nThe bus left the pre-school at 3.30 in the afternoon and reached the Black Bridge at 3.45. The old bridge, said to have been built by the Dutch, crosses the Pali Aru. The children had ice cream, danced together, watched the river flowing quietly under the bridge and then went down into the water to play. For many of them it was the first day like this in a long time.\n\nNext they visited Banalingeswaram temple, where they looked at the carved sculptures of the 64 Nayanmars and walked through the flower garden. Outside the temple they danced again and shared snacks. Everyone left at 5.45 and was back at the pre-school by 6.00.\n\nThe day after, the manager wrote: *\"It was a wonderful day! The happiness on the children's faces is the greatest gift we received. Our heartfelt thanks to Raavanaa and to everyone who helped make this day possible.\"*\n\n## Where the money went\n\nThe full cost of the trip, Rs 20,000.00, was covered: the bus, food and snacks, and what the children needed for the day.\n\n## What it leaves behind\n\nA happy afternoon by the river for the whole pre-school, and photos and videos for the families to keep. Thank you to everyone who made it possible.",
+   "story": "## Summary\n\nOn 12 October 2026, 17 children from a pre-school in Yogapuram, with 20 parents, two teachers and members of the management, went on a trip to the Black Bridge (Karutha Palam) over the Pali Aru and to the Banalingeswaram Narmatha Natheeswarar temple, both at Oddankulam.\n\n## The need\n\nThe pre-school is run by a local community centre, and 25 children study there. Before the trip, the manager wrote to us: *\"For many of these children a day like this comes rarely. It will be a day to remember, to play, to laugh and to eat together.\"*\n\n## The day\n\nThe bus left the pre-school at 3.30 in the afternoon and reached the Black Bridge at 3.45. The old bridge, said to have been built by the Dutch, crosses the Pali Aru. The children had ice cream, danced together, watched the river flowing quietly under the bridge and then went down into the water to play. For many of them it was the first day like this in a long time.\n\nNext they visited Banalingeswaram temple, where they looked at the carved sculptures of the 64 Nayanmars and walked through the flower garden. Outside the temple they danced again and shared snacks. Everyone left at 5.45 and was back at the pre-school by 6.00.\n\nThe day after, the manager wrote: *\"It was a wonderful day! The happiness on the children's faces is the greatest gift we received. Our heartfelt thanks to Raavanaa and to everyone who helped make this day possible.\"*\n\n## Where the money went\n\nThe full cost of the trip, Rs 20,000.00, was covered: the bus, food and snacks, and what the children needed for the day.\n\n## What it leaves behind\n\nA happy afternoon by the river for the whole pre-school, and photos and videos for the families to keep. Thank you to everyone who made it possible.",
    "impact": [
     {
      "value": "17",
@@ -166,36 +146,7 @@
      "body": "The full cost of Rs 20,000.00 is covered. The pre-school thanked Raavanaa and everyone who helped."
     }
    ],
-   "photos": [
-    {
-     "image": "/img/projects/maha-arivagam/at-the-bridge.jpg",
-     "caption": "Everyone together at the Black Bridge"
-    },
-    {
-     "image": "/img/projects/maha-arivagam/snacks-on-the-grass.jpg",
-     "caption": "Ice cream on the grass by the river"
-    },
-    {
-     "image": "/img/projects/maha-arivagam/temple-hall.jpg",
-     "caption": "Inside Banalingeswaram temple"
-    },
-    {
-     "image": "/img/projects/maha-arivagam/at-the-temple.jpg",
-     "caption": "Children, parents and teachers at the temple"
-    },
-    {
-     "image": "/img/projects/maha-arivagam/sitting-together.jpg",
-     "caption": "Sitting together at the temple"
-    },
-    {
-     "image": "/img/projects/maha-arivagam/sharing-treats.jpg",
-     "caption": "Snacks for every child"
-    },
-    {
-     "image": "/img/projects/maha-arivagam/back-at-the-preschool.jpg",
-     "caption": "Back at the pre-school"
-    }
-   ],
+   "photos": [],
    "media": [
     {
      "url": "https://drive.google.com/file/d/1S6wsjfT3qBl2tXkxmaxocMLNDE77GlVQ/view",
@@ -219,7 +170,8 @@
      "note": "Photos, videos and a before and after note were sent by the pre-school."
     }
    ],
-   "city": "Mullaitivu"
+   "city": "Mullaitivu",
+   "photos_private": true
   },
   {
    "title": "Kids' day out at Casuarina Beach",
@@ -429,7 +381,7 @@
    "media": []
   },
   {
-   "title": "A bowling day out for the Sivapoomi kids",
+   "title": "A bowling day out for children with special needs",
    "slug": "bowling-day",
    "hidden": false,
    "featured": false,
@@ -438,7 +390,7 @@
    "location": "",
    "organization": "Raavanaa",
    "started": "October 2026",
-   "reach": "Special-needs children of Sivapoomi",
+   "reach": "Children with special needs",
    "verified": true,
    "budget": [],
    "goal": null,
@@ -447,10 +399,10 @@
    "booked": false,
    "volunteers": true,
    "steps": [],
-   "summary": "We are arranging a day at the bowling lanes for the special-needs children of Sivapoomi: a day out to play, laugh and be cheered on.",
+   "summary": "We are arranging a day at the bowling lanes for a group of children with special needs: a day out to play, laugh and be cheered on.",
    "cover": "/img/project-bowling.svg",
    "quote": "",
-   "story": "## Summary\n\nWe are arranging a bowling day for the special-needs children of Sivapoomi: a day out to play, laugh and be cheered on.\n\n## The need\n\nA day out for a whole group of children with special needs takes transport, extra helpers and a budget, so it does not happen often. These are exactly the days a child remembers.\n\n## The plan\n\nA full day at the bowling lanes, where every child gets a turn and every roll gets a cheer, with transport, food and helpers arranged for the group.\n\nThe project has been **initiated**. We have requested the budget for the day and are waiting for a response. As soon as it is ready, it will be shown on this page.\n\n## What it leaves behind\n\nA happy memory for every child. After the day we will share the story and the pictures here, so that everyone who gave can see the smiles they created.",
+   "story": "## Summary\n\nWe are arranging a bowling day for a group of children with special needs: a day out to play, laugh and be cheered on.\n\n## The need\n\nA day out for a whole group of children with special needs takes transport, extra helpers and a budget, so it does not happen often. These are exactly the days a child remembers.\n\n## The plan\n\nA full day at the bowling lanes, where every child gets a turn and every roll gets a cheer, with transport, food and helpers arranged for the group.\n\nThe project has been **initiated**. We have requested the budget for the day and are waiting for a response. As soon as it is ready, it will be shown on this page.\n\n## What it leaves behind\n\nA happy memory for every child. After the day we will share the story and the pictures here, so that everyone who gave can see the smiles they created.",
    "impact": [],
    "updates": [],
    "photos": [],
@@ -479,17 +431,29 @@
     }
    ],
    "goal": 61000,
-   "funders": [{ "name": "Kiri Family", "amount": 15250 }, { "name": "Sathees Family", "amount": 15250 }],
+   "funders": [
+    {
+     "name": "Kiri Family",
+     "amount": 15250
+    },
+    {
+     "name": "Sathees Family",
+     "amount": 15250
+    }
+   ],
    "date_set": true,
    "booked": false,
    "volunteers": false,
    "steps": [],
-   "summary": "The pupils of Choughleigh Tamil Vidyalayam, a small Tamil primary school in Pussellawa, have never been on a school trip. On 27 November 2026 they hope to spend a day in Kandy, at the Temple of the Tooth and the Peradeniya Botanical Gardens.",
+   "summary": "The pupils of a small Tamil primary school in Pussellawa have never been on a school trip. On 27 November 2026 they hope to spend a day in Kandy, at the Temple of the Tooth and the Peradeniya Botanical Gardens.",
    "cover": "/img/projects/pussellawa-kandy/cover.svg",
    "quote": "These students have never been anywhere on an excursion.",
-   "people": {"approved_by": "Raavanaa", "approved_on": "2026-11-06"},
-   "tagline": "The 52 children of Choughleigh Tamil Vidyalayam in Pussellawa have never been on a school trip, and on Friday 27 November they hope to see Kandy.",
-   "story": "## Summary\n\nThe pupils of Choughleigh Tamil Vidyalayam, a small Tamil primary school in Pussellawa, have never been on a school trip. On 27 November 2026 they hope to spend a day in Kandy, at the Temple of the Tooth and the Peradeniya Botanical Gardens.\n\n## The need\n\nChoughleigh Tamil Vidyalayam has 52 children and 6 teachers in a hard-working tea-country community. The principal calls it a fully disadvantaged school, and says these children have never been anywhere on an excursion. She and her teachers decided together to give them a new experience, and asked Raavanaa for help after our first day in Pussellawa in October.\n\nThe school's sign sets out what it is for. Its vision is to give society primary pupils with sound skills and good character. Its mission is to give every pupil all the core skills and the chance to go on to secondary education.\n\n## The plan\n\nOn Friday 27 November 2026, about 55 children and teachers travel by bus from the school to Kandy, about 50 km away. They visit the Sri Dalada Maligawa, the Temple of the Tooth, and stop at the Peradeniya gardens on the way back. The school has permission for the trip from the Department of Education.\n\nThe whole day costs Rs 61,000: about Rs 30,000 for the bus and the rest for food for the whole group.\n\n## What it leaves behind\n\nA first school trip the children will remember. After the day, the organiser will send photos and videos, and we will share the story and the pictures here, so that everyone who gave can see the smiles they created.",
+   "people": {
+    "approved_by": "Raavanaa",
+    "approved_on": "2026-11-06"
+   },
+   "tagline": "The 52 children of a small Tamil school in Pussellawa have never been on a school trip, and on Friday 27 November they hope to see Kandy.",
+   "story": "## Summary\n\nThe pupils of a small Tamil primary school in Pussellawa have never been on a school trip. On 27 November 2026 they hope to spend a day in Kandy, at the Temple of the Tooth and the Peradeniya Botanical Gardens.\n\n## The need\n\nThe school has 52 children and 6 teachers in a hard-working tea-country community. The principal calls it a fully disadvantaged school, and says these children have never been anywhere on an excursion. She and her teachers decided together to give them a new experience, and asked Raavanaa for help after our first day in Pussellawa in October.\n\nThe school's sign sets out what it is for. Its vision is to give society primary pupils with sound skills and good character. Its mission is to give every pupil all the core skills and the chance to go on to secondary education.\n\n## The plan\n\nOn Friday 27 November 2026, about 55 children and teachers travel by bus from the school to Kandy, about 50 km away. They visit the Sri Dalada Maligawa, the Temple of the Tooth, and stop at the Peradeniya gardens on the way back. The school has permission for the trip from the Department of Education.\n\nThe whole day costs Rs 61,000: about Rs 30,000 for the bus and the rest for food for the whole group.\n\n## What it leaves behind\n\nA first school trip the children will remember. After the day, the organiser will send photos and videos, and we will share the story and the pictures here, so that everyone who gave can see the smiles they created.",
    "impact": [],
    "updates": [
     {
@@ -523,7 +487,13 @@
      "result": "",
      "note": ""
     }
-   ]
+   ],
+   "money": {
+    "as_of": "2026-11-12",
+    "day": "2026-11-27",
+    "spent": [],
+    "receipts": []
+   }
   }
  ]
 }

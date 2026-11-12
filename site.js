@@ -237,7 +237,7 @@
       <svg class="foot-wave" viewBox="0 0 400 30" preserveAspectRatio="none" aria-hidden="true"><path class="w1" d="M0 16C70 2 140 4 200 12 260 20 330 4 400 10V30H0Z"/><path class="w2" d="M0 24C80 10 150 12 210 18 270 24 336 12 400 16V30H0Z"/></svg>
       <div class="foot-main"><div class="wrap">
         <nav class="foot-cols" aria-label="Footer">
-          ${col("Explore", [["Home", "/overview"], ["Raavanaa Post", "/post"], ["Smile Map", "/smile-map"], ["About us", "/about"], ["Contact", "/contact"]])}
+          ${col("Explore", [["Home", "/overview"], ["Raavanaa Post", "https://raavanaapost.raavanaa.org/"], ["Smile Map", "/smile-map"], ["About us", "/about"], ["Contact", "/contact"]])}
           ${col("Our stages", [["Initiated", "/initiated"], ["Activated", "/activated"], ["Impact", "/impact"]])}
           ${col("Get involved", [["Gift a Moment in their name", "/moment"], ["Volunteer with us", "/volunteer"], ["Suggest a project", "/contact?topic=suggest"], ["Partner with us", "/contact?topic=partner"]])
             .replace("</ul>", APP.inApp ? "</ul>" : `<li><a href="#app" data-get-app>Get the app</a></li></ul>`)}
@@ -2325,8 +2325,8 @@
       // The story tab: the opening paragraph in full, the rest behind "See how this smile begins".
       story: taleHTML || `<p class="empty">The story is on its way.</p>`,
       updates: expectHTML(p) + (updates.length ? updates.map(u => `<article class="update"><div class="meta">${fmtDate(u.date)}</div><h3>${esc(u.title)}</h3><div>${md(u.body)}</div></article>`).join("") : `<p class="empty">No impact updates yet.</p>`) + (p.sample ? "" : commentsHTML(slugOf(p))),
-      budget: `<div class="budget-tab">${budgetDetailHTML(p, site, true)}${stageNum(p) === 1 && budgetOf(p).lines.length ? `<p class="note">These are estimates. Once the day has happened, the real costs are shown here.</p>` : stageNum(p) === 2 ? `<p class="note">Once the day has happened, a breakdown of where the money went is shown here.</p>` : ""}</div>`,
-      media: (photos.length || media.length) ? `${media.length ? `<div class="media">${media.map(m => { const e = embedFor(m.url); return e ? `<figure style="margin:0"><div class="embed"><iframe src="${esc(e)}" title="${esc(m.title)}" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy"></iframe></div>${m.title ? `<figcaption class="note" style="padding-top:6px">${esc(m.title)}</figcaption>` : ""}</figure>` : `<a class="media-link" href="${esc(m.url)}" target="_blank" rel="noopener">▶ ${esc(m.title || m.url)}</a>`; }).join("")}</div>` : ""}${photos.length ? `<div class="photos">${photos.map((ph, k) => `<figure><button data-src="${esc(imgUrl(ph.image, 1600))}" aria-label="Open picture"><div class="cover"><img src="${esc(imgUrl(ph.image, 600))}" alt="${esc(ph.caption)}" loading="lazy"></div></button>${ph.caption ? `<figcaption>${esc(ph.caption)}</figcaption>` : ""}</figure>`).join("")}</div>` : ""}` : `<p class="empty">No videos or pictures yet.</p>`
+      budget: `<div class="budget-tab">${budgetDetailHTML(p, site, true)}${p.money ? `<p class="mny-link"><a class="btn ghost" href="/projects/${slugOf(p)}/money">See every rupee in and out</a></p>` : ""}${stageNum(p) === 1 && budgetOf(p).lines.length ? `<p class="note">These are estimates. Once the day has happened, the real costs are shown here.</p>` : stageNum(p) === 2 ? `<p class="note">Once the day has happened, a breakdown of where the money went is shown here.</p>` : ""}</div>`,
+      media: (photos.length || media.length) ? `${media.length ? `<div class="media">${media.map(m => { const e = embedFor(m.url); return e ? `<figure style="margin:0"><div class="embed"><iframe src="${esc(e)}" title="${esc(m.title)}" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy"></iframe></div>${m.title ? `<figcaption class="note" style="padding-top:6px">${esc(m.title)}</figcaption>` : ""}</figure>` : `<a class="media-link" href="${esc(m.url)}" target="_blank" rel="noopener">▶ ${esc(m.title || m.url)}</a>`; }).join("")}</div>` : ""}${photos.length ? `<div class="photos">${photos.map((ph, k) => `<figure><button data-src="${esc(imgUrl(ph.image, 1600))}" aria-label="Open picture"><div class="cover"><img src="${esc(imgUrl(ph.image, 600))}" alt="${esc(ph.caption)}" loading="lazy"></div></button>${ph.caption ? `<figcaption>${esc(ph.caption)}</figcaption>` : ""}</figure>`).join("")}</div>` : ""}` : `<p class="empty">${p.photos_private ? "To protect the children, we do not put their photos on this website. The day is told here in words, and the organisers and families keep the photos." : "No videos or pictures yet."}</p>`
     };
 
     let taleOpen = false;
@@ -2397,6 +2397,84 @@
     };
     const start = location.hash.slice(1);
     draw(tabs.some(([k]) => k === start) ? start : tabs[0][0]);
+  }
+
+  // The money page of a project (/projects/<slug>/money): every rupee in, every rupee out, and the receipts.
+  // It is shown for projects that carry a "money" block in projects.json:
+  //   "money": { "as_of": "2026-11-12", "day": "2026-11-27",
+  //              "spent": [{ "date": "2026-11-27", "item": "Bus to Kandy and back", "amount": 30000, "receipt": "/img/projects/<folder>/receipts/bus.jpg" }],
+  //              "receipts": [{ "image": "/img/…", "caption": "…" }] }
+  // Money in comes from the project's "funders"; add "received": "2026-11-20" to a funder once the money has arrived
+  // (until then it shows as Pledged). Receipts: cover names, phone numbers and the school's name before a photo goes up.
+  function renderMoney(app, site, projects, slug) {
+    const p = projects.find(x => slugOf(x) === slug);
+    if (!p || !p.money) {
+      app.innerHTML = `<section class="intro"><h1>${p ? "No money page yet" : "Project not found"}</h1><p>${p ? "This project does not have a money page yet." : "It may have been renamed or removed."}</p><p><a href="${p ? "/projects/" + slugOf(p) : "/initiated"}">${p ? "Back to the project" : "See all projects"}</a></p></section>`;
+      return;
+    }
+    document.title = `${p.title} · ${site.name}`;
+    const m = p.money, b = budgetOf(p), money = n => moneyOf(site, n, p);
+    const day = d => { if (!d) return ""; const dt = new Date(String(d).length === 10 ? d + "T12:00:00" : d);
+      return isNaN(dt) ? esc(d) : dt.toLocaleDateString(TA_PATH ? "ta-LK" : "en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" }); };
+    const short = d => { if (!d || d === true) return ""; const dt = new Date(String(d).length === 10 ? d + "T12:00:00" : d);
+      return isNaN(dt) ? "" : dt.toLocaleDateString(TA_PATH ? "ta-LK" : "en-GB", { day: "numeric", month: "short", year: "numeric" }); };
+    const spent = (m.spent || []).filter(x => x && x.item), out = spent.reduce((t, x) => t + numOf(x.amount), 0);
+    const got = b.funders.filter(f => f.received).reduce((t, f) => t + numOf(f.amount), 0);
+    const need = Math.max(0, b.goal - b.raised), planned = b.lines.reduce((t, x) => t + numOf(x.amount), 0);
+    const receipts = [...spent.filter(x => x.receipt).map(x => ({ image: x.receipt, caption: x.item })), ...(m.receipts || []).filter(x => x && x.image)];
+    const open = GIVE_OPEN.has(slugOf(p));
+    const tile = (cls, label, value, small) => `<div class="mny-tile ${cls}"><span>${label}</span><b>${value}</b>${small ? `<small>${small}</small>` : ""}</div>`;
+    app.innerHTML = `
+      <nav class="crumbs"><a href="/initiated">Projects</a> / <a href="/projects/${slugOf(p)}">${esc(p.title)}</a></nav>
+      <section class="mny">
+        <header class="mny-head">
+          <span class="eyebrow">Every rupee, in the open</span>
+          <h1>Money in, money out</h1>
+          <p class="mny-for"><a href="/projects/${slugOf(p)}">${esc(p.title)}</a></p>
+          ${m.as_of ? `<p class="mny-date"><span>Last updated</span> <time datetime="${esc(m.as_of)}">${day(m.as_of)}</time></p>` : ""}
+        </header>
+        <div class="mny-tiles">
+          ${tile("goal", "Budget", money(b.goal))}
+          ${tile("in", "Money in", money(b.raised), !b.raised ? "" : got >= b.raised ? "received" : got ? "pledged and received" : "pledged so far")}
+          ${tile("out", "Money out", money(out), out ? "spent so far" : "nothing spent yet")}
+          ${need > 0 ? tile("need", "Still needed", money(need)) : tile("bal", "Balance", money(Math.max(0, b.raised - out)), "money in, less money out")}
+        </div>
+
+        <section class="mny-box">
+          <h2>Money in</h2>
+          ${b.funders.length ? `<table class="mny-table">
+            <thead><tr><th scope="col">From</th><th scope="col">Status</th><th scope="col" class="num">Amount</th></tr></thead>
+            <tbody>${b.funders.map(f => `<tr><td><span class="f-name">${esc(f.name)}</span>${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</td>
+              <td>${f.received ? `<span class="mny-st got"><b>Received</b>${short(f.received) ? ` <time>${short(f.received)}</time>` : ""}</span>` : `<span class="mny-st"><b>Pledged</b></span>`}</td>
+              <td class="num">${money(numOf(f.amount))}</td></tr>`).join("")}</tbody>
+            <tfoot><tr><th scope="row" colspan="2">Total</th><td class="num">${money(b.raised)}</td></tr></tfoot>
+          </table>
+          <p class="note">Pledged means the giver has told us the amount. We mark it Received when the money reaches Raavanaa.</p>` : `<p class="empty">No gifts yet.</p>`}
+          ${need > 0 ? `<p class="mny-need"><span><b>${money(need)}</b> <span>still to go</span></span>${open ? DONATE_BTN : ""}</p>` : ""}
+        </section>
+
+        <section class="mny-box">
+          <h2>Money out</h2>
+          ${spent.length ? `<table class="mny-table">
+            <thead><tr><th scope="col">Date</th><th scope="col">What for</th><th scope="col" class="num">Amount</th></tr></thead>
+            <tbody>${spent.map(x => `<tr><td><time>${short(x.date)}</time></td><td>${esc(x.item)}${x.note ? `<small>${esc(x.note)}</small>` : ""}${x.receipt ? ` <a class="mny-rc" href="${esc(x.receipt)}" target="_blank" rel="noopener">See receipt</a>` : ""}</td><td class="num">${money(numOf(x.amount))}</td></tr>`).join("")}</tbody>
+            <tfoot><tr><th scope="row" colspan="2">Total spent</th><td class="num">${money(out)}</td></tr></tfoot>
+          </table>` : `<p class="mny-wait"><b>Nothing has been spent yet.</b> <span>Each cost is written here when it is paid, with its receipt.</span></p>
+          ${m.day ? `<p class="mny-day"><span>The day:</span> <time datetime="${esc(m.day)}">${day(m.day)}</time></p>` : ""}`}
+          ${!spent.length && b.lines.length ? `<h3 class="money-h">Planned costs</h3>
+          <ul class="bx-list">${b.lines.map(x => `<li><span>${esc(x.item)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>
+          <p class="bx-total"><span>Planned total</span><b>${money(planned)}</b></p>` : ""}
+        </section>
+
+        <section class="mny-box">
+          <h2>Receipts</h2>
+          ${receipts.length ? `<div class="mny-receipts">${receipts.map(r => `<a href="${esc(r.image)}" target="_blank" rel="noopener"><img src="${esc(imgUrl(r.image, 480))}" alt="" loading="lazy"><span>${esc(r.caption || "")}</span></a>`).join("")}</div>`
+            : `<p class="mny-wait"><span>A photo of each receipt is put here after the cost is paid.</span></p>`}
+        </section>
+
+        <p class="mny-back"><a class="btn ghost" href="/projects/${slugOf(p)}">Back to the project</a></p>
+      </section>`;
+    wireDonate(app, slugOf(p));
   }
 
   function renderPrivacy(app, site) {
@@ -2798,8 +2876,13 @@
         }
         wireForms(document);
       } else if (page === "project") {
-        const slug = decodeURIComponent(location.pathname.replace(/\/+$/, "").split("/").pop());
-        if (slug === "sample") {
+        const parts = location.pathname.replace(/\/+$/, "").split("/");
+        // /projects/<slug>/money is the project's money page: money in, money out, receipts.
+        const moneyPage = parts.length > 3 && parts[parts.length - 1] === "money";
+        if (moneyPage) parts.pop();
+        const slug = decodeURIComponent(parts.pop());
+        if (moneyPage) renderMoney(app, site, projects, slugify(slug));
+        else if (slug === "sample") {
           // A filled-in example of the project page. It is not a real project and is not listed anywhere.
           const sample = await load("/sample-project.json");
           sample.sample = true;

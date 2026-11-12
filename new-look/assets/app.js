@@ -309,7 +309,7 @@
   }
 
   function renderInitiatives(projects) {
-    hero({ a: "Our", b: "Initiatives", img: "/img/projects/pussellawa/games-on-the-lawn.jpg", pos: "50% 40%",
+    hero({ a: "Our", b: "Initiatives", img: "/img/moment-hero.webp", pos: "50% 40%",
       sub: "Every smile travels the same three steps, so you always know where it stands and where the money goes.",
       side: cycleHTML("ic") });
     const count = n => projects.filter(p => stageNum(p) === n).length;
@@ -330,7 +330,7 @@
   }
 
   function renderProjects(projects) {
-    hero({ a: "Our", b: "Projects", img: "/img/projects/maha-arivagam/at-the-temple.jpg", pos: "50% 55%",
+    hero({ a: "Our", b: "Projects", img: "/img/members-bridge.webp", pos: "50% 55%",
       sub: "Real days of joy, each one checked in person. Choose one and help it happen.", small: true });
     const app = document.getElementById("app");
     const q = +(new URLSearchParams(location.search).get("stage") || 0);
@@ -388,7 +388,7 @@
   }
 
   function renderImpact(projects) {
-    hero({ a: "Our", b: "Impact", img: "/img/projects/maha-arivagam/cover.jpg", pos: "50% 55%",
+    hero({ a: "Our", b: "Impact", img: "/img/members-bridge.webp", pos: "50% 55%",
       sub: "Every day of joy comes back to you as a story, the pictures and what was spent.", btns: false,
       extra: `<a class="btn orange" href="/sponsor">${ico("handHeart")} Sponsor the next smile</a>`, small: true });
     const done = projects.filter(p => stageNum(p) === 3);
@@ -406,11 +406,11 @@
   }
 
   function renderInvolved() {
-    hero({ a: "Get", b: "Involved", img: "/img/projects/maha-arivagam/sharing-treats.jpg", pos: "60% 55%",
+    hero({ a: "Get", b: "Involved", img: "/img/home-3.webp", pos: "60% 55%",
       sub: "There's a place for everyone in a child's day of joy.", small: true });
   }
   function renderSponsor(projects) {
-    hero({ a: "Sponsor a", b: "Smile", img: "/img/projects/maha-arivagam/snacks-on-the-grass.jpg", pos: "50% 60%", btns: false, small: true,
+    hero({ a: "Sponsor a", b: "Smile", img: "/img/home-2.webp", pos: "50% 60%", btns: false, small: true,
       sub: "Choose a day of joy that's waiting, and make it happen. Every penny goes to the day." });
     const box = document.getElementById("waiting"), sel = document.getElementById("s-project");
     const waiting = projects.filter(p => stageNum(p) === 1);
@@ -422,11 +422,11 @@
     }
   }
   function renderRequest() {
-    hero({ a: "Request a", b: "Smile", img: "/img/projects/pussellawa/cover.jpg", pos: "62% 60%", btns: false, small: true,
+    hero({ a: "Request a", b: "Smile", img: "/img/moment-hero.webp", pos: "62% 60%", btns: false, small: true,
       sub: "Know children who deserve a day of joy? Tell us about them. We'll visit, listen and plan it together." });
   }
   function renderAbout(projects) {
-    hero({ a: "About", b: "Raavanaa", img: "/img/projects/pussellawa/hills-view.jpg", pos: "50% 55%", small: true,
+    hero({ a: "About", b: "Raavanaa", img: "/img/home-4.webp", pos: "50% 55%", small: true,
       sub: "We exist for one thing: giving children a day of joy they will remember." });
     const c = document.getElementById("about-cycle");
     if (c) c.innerHTML = cycleHTML("ac");

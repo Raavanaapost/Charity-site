@@ -1,6 +1,6 @@
 // Keeps the site private until launch.
 // While the SITE_PASSWORD environment variable is set in Netlify, visitors must enter it.
-// To go live, delete SITE_PASSWORD in Netlify (Project configuration → Environment variables) and redeploy.
+// To go live, delete SITE_PASSWORD in Netlify (Project configuration → Environment variables) and redeploy (see "Launch day" below).
 // The "Coming soon" home page and its pictures are open to everyone; the rest stays private.
 const PUBLIC = new Set([
   "/", "/index.html",
@@ -14,10 +14,31 @@ const PUBLIC = new Set([
   "/manifest.json", "/sw.js", "/offline.html",
 ]);
 
+// Launch day. Once SITE_PASSWORD is deleted (and the site is published once more), this file opens the site by itself:
+// - the front address shows the real Home page instead of "Coming soon" (English and Tamil);
+// - the sample magazine at /post (invented titles and numbers, made for the design preview) goes to the real RaavanaaPost;
+// - the try-out pages kept for comparing designs stay reachable, but search engines are told to leave them out.
+// Nothing here needs changing on the day. To close the site again, set SITE_PASSWORD again and publish.
+const HOME: Record<string, string> = { "/": "/overview", "/index.html": "/overview", "/ta": "/ta/overview", "/ta/": "/ta/overview", "/ta/index.html": "/ta/overview" };
+const NEWS_SITE = "https://raavanaapost.raavanaa.org/";
+const SAMPLE_MAGAZINE = /^\/(ta\/)?(post|post-royal)(\.html)?\/?$/;
+const TRY_OUTS = /^\/(ta\/)?(front|front-2|front-3|front-4|home|welcome-picture|welcome-logo|welcome-1|welcome-2|smile-map-v2|sample|temp|new-look)(\.html|\/.*)?$/;
+
 export default async (request: Request, context: { next: () => Promise<Response> }) => {
   const password = Netlify.env.get("SITE_PASSWORD");
-  if (!password) return context.next();
-  const path = new URL(request.url).pathname;
+  const url = new URL(request.url);
+  const path = url.pathname;
+  if (!password) {
+    if (HOME[path]) return Response.redirect(new URL(HOME[path] + url.search, url).toString(), 302);
+    if (SAMPLE_MAGAZINE.test(path)) return Response.redirect(NEWS_SITE, 302);
+    if (TRY_OUTS.test(path)) {
+      const res = await context.next();
+      const headers = new Headers(res.headers);
+      headers.set("X-Robots-Tag", "noindex");
+      return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
+    }
+    return context.next();
+  }
   if (PUBLIC.has(path)) return context.next();
   // Share pictures (logo, drawings and share titles; never a photo of a child) are open so vouch links
   // show their picture on WhatsApp before launch (SURESH, 10 Nov 2026).
