@@ -13,7 +13,8 @@ body[data-page="moment"] .bar,body[data-page="together"] .bar{background:var(--s
 /* Hero */
 .mo-hero{position:relative;background:radial-gradient(900px 480px at 30% 30%,var(--tint) 0,rgba(255,255,255,0) 70%),linear-gradient(#fbf1d8,#fbf6ea);transition:background .6s;border-bottom:1px solid var(--line)}
 .mo-hero-in{position:relative;display:grid;grid-template-columns:minmax(170px,300px) 1fr;grid-template-areas:"art text" "art pick";column-gap:clamp(18px,4vw,56px);row-gap:18px;align-items:center;padding-block:clamp(22px,4vw,44px)}
-.mo-lamp{grid-area:art;width:100%;height:auto}
+.mo-art{grid-area:art;display:grid;justify-items:center;gap:14px;min-width:0}
+.mo-lamp{width:100%;height:auto}
 .mo-hero-text{grid-area:text;align-self:end}
 .mo-pick{grid-area:pick;align-self:start}
 .mo-pick-q{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-weight:700;color:var(--green);font-size:17px}
@@ -22,7 +23,10 @@ body[data-page="moment"] .bar,body[data-page="together"] .bar{background:var(--s
 .mo-kicker{font-family:Cinzel,serif;font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:13px;color:var(--gold-deep);margin:0 0 12px}
 /* the page's own title: the heart-and-lamp mark, "Gift a Moment", and "in their name" on its ribbon (styles in style.css) */
 .mo-brand{display:flex;align-items:center;gap:12px;margin:0 0 16px}
-.mo-brand img{width:66px;height:66px;flex:none;display:block;filter:drop-shadow(0 8px 10px rgba(200,56,30,.3))}
+.mo-brand img,.mo-mark{width:66px;height:66px;flex:none;display:block;filter:drop-shadow(0 8px 10px rgba(200,56,30,.3))}
+.mo-mark svg{display:block;width:100%;height:100%}
+.mo-mark.pop{animation:mo-pop .55s cubic-bezier(.3,1.5,.5,1)}
+@keyframes mo-pop{0%{transform:scale(.6) rotate(-10deg);opacity:0}100%{transform:none;opacity:1}}
 .mo-brand-words{display:grid;justify-items:start;gap:4px}
 .mo-brand .mt-title{justify-content:flex-start}
 .mo-brand .mt-title span{font-size:clamp(20px,3vw,28px)}
@@ -30,8 +34,26 @@ body[data-page="moment"] .bar,body[data-page="together"] .bar{background:var(--s
 .mo-brand .mt-title.ta span{font-size:clamp(16px,2.6vw,22px)}
 .mo-brand .mt-title.ta b{font-size:clamp(26px,4.4vw,38px)}
 .mo-brand .mt-ribbon{font-size:clamp(14px,2.2vw,17px);padding:3px 22px 5px}
-@media (max-width:640px){.mo-brand{gap:10px;margin-bottom:12px}.mo-brand img{width:54px;height:54px}.mo-brand .mt-title.ta span{font-size:15px}.mo-brand .mt-title.ta b{font-size:23px}.mo-brand .mt-ribbon{padding-inline:18px}html[lang="ta"] .mo-brand .mt-ribbon{font-size:13px}}
+@media (max-width:640px){.mo-brand{gap:10px;margin-bottom:12px}.mo-brand img,.mo-mark{width:54px;height:54px}.mo-brand .mt-title.ta span{font-size:15px}.mo-brand .mt-title.ta b{font-size:23px}.mo-brand .mt-ribbon{padding-inline:18px}html[lang="ta"] .mo-brand .mt-ribbon{font-size:13px}}
 .mo-hero h1{font-family:var(--serif);font-weight:600;font-style:italic;font-size:clamp(34px,5.2vw,58px);line-height:1.05;color:var(--green);margin:0 0 12px}
+/* a reason's headlines sit on top of each other and take turns; the tallest sets the height, so nothing below jumps */
+.mo-titles{display:grid;align-items:start}
+.mo-titles>span{grid-area:1/1;opacity:0;transform:translateY(8px);transition:opacity .7s,transform .7s;pointer-events:none}
+.mo-titles>span.on{opacity:1;transform:none;pointer-events:auto}
+.mo-titles em{display:block}
+@media (prefers-reduced-motion:reduce){.mo-titles>span{transition:none}.mo-mark.pop{animation:none}}
+/* the button under the picture: a round sign in the reason's colour, with its own words */
+.mo-act{display:inline-flex;align-items:center;gap:12px;padding:7px 20px 7px 7px;border-radius:999px;background:#fffdf6;border:2px solid var(--frame);color:var(--accent);text-decoration:none;font-family:var(--serif);font-weight:700;font-size:21px;line-height:1.1;box-shadow:0 14px 22px -14px var(--accent);transition:transform .15s,border-color .4s,color .4s;max-width:100%;box-sizing:border-box}
+.mo-act:hover{transform:translateY(-2px)}
+.mo-act-ic{position:relative;flex:none;width:50px;height:50px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 32% 26%,rgba(255,255,255,.38),rgba(255,255,255,0) 55%),var(--accent);color:#fff;box-shadow:0 0 0 3px #fff,0 0 0 5px var(--frame),0 12px 16px -8px var(--accent);transition:background .4s,box-shadow .4s}
+.mo-act-ic::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--accent);opacity:0;animation:mo-ring 2.4s ease-out infinite}
+@keyframes mo-ring{0%{transform:scale(.85);opacity:.7}70%,100%{transform:scale(1.35);opacity:0}}
+.mo-act-l{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.mo-act-l i{font-style:normal;font-family:var(--display,sans-serif);font-size:18px}
+html[lang="ta"] .mo-act{font-family:"Noto Sans Tamil",var(--display,sans-serif);font-size:16px;font-weight:600;line-height:1.3}
+/* long Tamil words fold inside the button instead of running into the words beside it */
+html[lang="ta"] .mo-act-l{white-space:normal}
+@media (prefers-reduced-motion:reduce){.mo-act-ic::after{animation:none}.mo-act{transition:none}}
 :root[lang="ta"] .mo-hero h1,html[lang="ta"] .mo-hero h1{font-family:"Noto Serif Tamil",serif;font-style:normal;font-size:clamp(26px,4.2vw,44px);line-height:1.35}
 .mo-lede{font-family:var(--serif);font-size:clamp(18px,2.1vw,22px);line-height:1.45;color:#3d4a36;margin:0;max-width:46ch;min-height:2.9em}
 html[lang="ta"] .mo-lede{font-size:clamp(16px,1.9vw,19px)}
@@ -112,9 +134,22 @@ html[lang="ta"] .mo-card-words{font-style:normal;font-size:17px}
   .mo-sticky{position:static}
   .mo-side{margin-bottom:18px}
 }
+/* tablets: the reasons run the full width under the picture and title, so their words are not cut */
+@media (min-width:601px) and (max-width:900px){.mo-hero-in{grid-template-areas:"art text" "pick pick";align-items:start}}
 @media (max-width:600px){
   /* phone: the title with a small painting beside it, then the reasons straight away */
-  .mo-hero-in{grid-template-columns:1fr 92px;grid-template-areas:"text art" "pick pick";column-gap:12px;row-gap:14px;align-items:start}
+  .mo-hero-in{grid-template-columns:minmax(0,1fr) 100px;grid-template-areas:"text art" "pick pick";column-gap:12px;row-gap:14px;align-items:start}
+  html[lang="ta"] .mo-hero-in{grid-template-columns:minmax(0,1fr) 108px;column-gap:10px}
+  .mo-hero-text{min-width:0}
+  .mo-hero h1{font-size:31px;overflow-wrap:break-word}
+  :root[lang="ta"] .mo-hero h1{font-size:20px;line-height:1.4}
+  .mo-art{gap:10px}
+  /* under the small picture: the round sign with its words below it */
+  .mo-act{flex-direction:column;gap:10px;padding:0;border:0;background:none;box-shadow:none;font-family:var(--display,sans-serif);font-size:13.5px;line-height:1.2;text-align:center}
+  .mo-act-ic{width:62px;height:62px}
+  .mo-act-l{flex-direction:column;gap:0;white-space:normal}
+  .mo-act-l i{display:none}
+  html[lang="ta"] .mo-act{font-family:"Noto Sans Tamil",var(--display,sans-serif);font-size:11.5px;line-height:1.35;overflow-wrap:anywhere}
   .mo-hero-text{align-self:start}
   .mo-lede{min-height:0}
   .mo-step{padding:20px 16px 18px}
