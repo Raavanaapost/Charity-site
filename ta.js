@@ -533,6 +533,15 @@
 "Still needed": "இன்னும் தேவை",
 "Help us close the gap and give 25 children their day.": "மீதமுள்ள தொகையை நிறைவுசெய்து 25 குழந்தைகளுக்கு அவர்களின் நாளைக் கொடுக்க உதவுங்கள்.",
 "Pledged so far": "இதுவரை உறுதியளிக்கப்பட்டது",
+// Giving form: amounts tied to real things (12 Nov 2026; needs a Tamil speaker's check)
+"about one child's food for the day": "ஒரு குழந்தையின் ஒரு நாள் உணவுக்குச் சுமார்",
+"about one child's whole day in Kandy: bus and food": "ஒரு குழந்தையின் கண்டி நாள் முழுவதற்கும் சுமார்: பேருந்தும் உணவும்",
+"about five children's day in Kandy": "ஐந்து குழந்தைகளின் கண்டி நாளுக்குச் சுமார்",
+"about ten children's day in Kandy": "பத்துக் குழந்தைகளின் கண்டி நாளுக்குச் சுமார்",
+"about one child's day out: transport and food": "ஒரு குழந்தையின் சுற்றுலா நாளுக்குச் சுமார்: போக்குவரத்தும் உணவும்",
+"about five children's day out": "ஐந்து குழந்தைகளின் சுற்றுலா நாளுக்குச் சுமார்",
+"about a whole day out for a small pre-school (our October trip cost Rs 20,000)": "ஒரு சிறிய முன்பள்ளியின் முழுச் சுற்றுலா நாளுக்குச் சுமார் (எங்கள் ஒக்டோபர் சுற்றுலாவுக்கு ரூ 20,000 செலவானது)",
+"Your gift completes this project: 100% of its goal.": "உங்கள் அன்பளிப்பு இந்தத் திட்டத்தை நிறைவு செய்கிறது: இலக்கின் 100%.",
 // The money page of a project (12 Nov 2026; needs a Tamil speaker's check)
 "See every rupee in and out": "ஒவ்வொரு ரூபாயின் வரவையும் செலவையும் பாருங்கள்",
 "Every rupee, in the open": "ஒவ்வொரு ரூபாயும் வெளிப்படையாக",
@@ -1003,6 +1012,7 @@
 "Your Idea Matters": "உங்கள் எண்ணம் முக்கியமானது"
 };
   var P = [
+    [/^Your gift brings this project to (\d+)% of its goal\.$/, "உங்கள் அன்பளிப்பால் இந்தத் திட்டம் அதன் இலக்கின் $1% ஐ எட்டும்."],
     [/^Pay (.+) a month securely$/, "மாதம் $1 பாதுகாப்பாகச் செலுத்துங்கள்"],
     [/^Pay (.+) securely$/, "$1 பாதுகாப்பாகச் செலுத்துங்கள்"],
     [/^All of it: (.+)$/, "முழுத் தொகையும்: $1"],

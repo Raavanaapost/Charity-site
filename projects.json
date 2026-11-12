@@ -493,7 +493,25 @@
     "day": "2026-11-27",
     "spent": [],
     "receipts": []
-   }
+   },
+   "give_amounts": [
+    {
+     "amount": 550,
+     "label": "about one child's food for the day"
+    },
+    {
+     "amount": 1100,
+     "label": "about one child's whole day in Kandy: bus and food"
+    },
+    {
+     "amount": 5500,
+     "label": "about five children's day in Kandy"
+    },
+    {
+     "amount": 11000,
+     "label": "about ten children's day in Kandy"
+    }
+   ]
   }
  ]
 }

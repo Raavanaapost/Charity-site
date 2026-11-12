@@ -2542,7 +2542,7 @@
         ${SAFE}
         <p class="note give-msg" role="status" hidden></p>
       </form>` : "";
-      return `<form class="give-form${ASK ? " give-ask" : ""}" data-kind="${kind}" ${opts.left ? `data-left="${opts.left}"` : ""}${ASK ? " data-ask" : ""} novalidate>
+      return `<form class="give-form${ASK ? " give-ask" : ""}" data-kind="${kind}" ${opts.left ? `data-left="${opts.left}"` : ""}${ASK ? " data-ask" : ""}${ASK && opts.goal ? ` data-goal="${opts.goal}" data-raised="${opts.raised || 0}" data-cur="${esc(opts.cur || "")}"` : ""} novalidate>
         <input type="hidden" name="kind" value="${kind}">
         ${opts.slug ? `<input type="hidden" name="project" value="${esc(opts.slug)}">` : ""}
         <p hidden><label>Leave empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
@@ -2564,11 +2564,11 @@
           <p class="note give-moment-link"><a href="/moment">More reasons, and a card to keep →</a></p>
         </div>
         <fieldset class="give-amounts"><legend>${ASK ? (kind === "member" ? "Roughly how much each month?" : "Roughly how much?") : `${kind === "member" ? "Each month" : "Amount"} (${LKR ? "Sri Lankan rupees" : "CAD"})`}</legend>
-          ${amounts.map((a, i) => `<label class="give-chip"><input type="radio" name="pick" value="${a.v}" data-label="${esc(a.label || dollars(a.v))}"${i === (opts.pick || 0) ? " checked" : ""}><span>${esc(a.label || dollars(a.v))}</span></label>`).join("")}
+          ${amounts.map((a, i) => `<label class="give-chip${a.what ? " give-real" : ""}"><input type="radio" name="pick" value="${a.v}" data-label="${esc(a.label || dollars(a.v))}"${i === (opts.pick || 0) ? " checked" : ""}><span>${a.what ? `<b>${esc(a.label || dollars(a.v))}</b><small>${esc(a.what)}</small>` : esc(a.label || dollars(a.v))}</span></label>`).join("")}
           <label class="give-chip give-other"><input type="radio" name="pick" value="other"><span>Other</span></label>
           ${ASK ? `<label class="give-chip"><input type="radio" name="pick" value="unsure"><span>Not sure yet</span></label>` : ""}
         </fieldset>
-        ${ASK ? `<label class="give-own" hidden><span>Your amount <small>(any currency)</small></span><input name="own" maxlength="40" autocomplete="off" placeholder="Rs 7,500 or $40"></label>${tail}` : `<label class="give-own" hidden>Your amount
+        ${ASK ? `<label class="give-own" hidden><span>Your amount <small>(any currency)</small></span><input name="own" maxlength="40" autocomplete="off" placeholder="Rs 7,500 or $40"></label>${opts.goal ? `<p class="give-reach" role="status" hidden></p>` : ""}${tail}` : `<label class="give-own" hidden>Your amount
           <span class="give-dollar"><b aria-hidden="true">${LKR ? "Rs" : "$"}</b><input name="own" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Your amount in ${LKR ? "Sri Lankan rupees" : "Canadian dollars"}"></span></label>
         ${kind === "general" ? "" : `<label><span>Your name <small>(optional)</small></span><input name="name" maxlength="60" autocomplete="name"></label>
         <label class="give-check"><input type="checkbox" name="show_name" value="yes"> <span>${kind === "member" ? "Show my name with the Smile members" : "Show my name on the project page"}</span></label>
@@ -2599,19 +2599,25 @@
     const banner = `${q.get("cancelled") ? `<p class="give-banner">Payment cancelled. Nothing was charged.</p>` : ""}
       ${on ? (GIVE.test ? `<p class="give-banner test">Test mode: ${LKR ? "this opens PayHere's sandbox; use one of PayHere's test cards" : "use Stripe's test card 4242 4242 4242 4242"}. No real money is taken.</p>` : "") : `<p class="give-banner ask">Tell us what you would like to give, and a Raavanaa volunteer will reply to you personally.</p>`}`;
 
+    // The fund's ready-made amounts: "give_amounts" in site.json (what each amount pays for) while asking, else the usual three.
+    const fundPicks = ASK && LKR && (site.give_amounts || []).some(x => x && numOf(x.amount) > 0 && x.label)
+      ? site.give_amounts.filter(x => x && numOf(x.amount) > 0 && x.label).map(x => ({ v: numOf(x.amount), label: dollars(numOf(x.amount)), what: x.label }))
+      : (LKR ? [2500, 5000, 10000] : [25, 50, 100]).map(v => ({ v }));
     let body;
     if (p) {
       // Until card payments are switched on, the form still shows (its button says "coming soon"), so a giver sees what is ahead.
       const bp = budgetOf(p), needs = !!p.verified && stageNum(p) === 1 && bp.goal > 0 && bp.raised < bp.goal && takesCards(p);
       // When asking, amounts are in the project's own money (rupees or dollars); with cards, in the card currency.
       const left = ASK ? Math.max(0, bp.goal - bp.raised) : Math.floor(leftCad(p) * 100) / 100, open1 = ASK ? needsMoney(p) : canGive(p);
-      const picks = ((ASK ? isRupees(p) : LKR) ? [2500, 5000, 10000] : [25, 50, 100]).filter(v => v < left).map(v => (ASK ? { v, label: moneyOf(site, v, p) } : { v }));
+      // Ready-made amounts tied to real things (SURESH, 12 Nov 2026): "give_amounts" in projects.json, e.g. { "amount": 1100, "label": "about one child's whole day in Kandy" }.
+      const real = ASK ? (p.give_amounts || []).filter(x => x && numOf(x.amount) > 0 && numOf(x.amount) < left && x.label).map(x => ({ v: numOf(x.amount), label: moneyOf(site, numOf(x.amount), p), what: x.label })) : [];
+      const picks = real.length ? real : ((ASK ? isRupees(p) : LKR) ? [2500, 5000, 10000] : [25, 50, 100]).filter(v => v < left).map(v => (ASK ? { v, label: moneyOf(site, v, p) } : { v }));
       picks.push({ v: left, label: `All of it: ${ASK ? moneyOf(site, left, p) : dollars(left)}` });
       body = `<section class="give-one">
         <div class="give-proj big">${card(p).replace(/^<a [^>]*>/, "").replace(/<\/a>$/, "")}</div>
         <div class="panel give-box">
           <h2>${open1 ? "Sponsor a smile" : "This project is fully covered"}</h2>
-          ${open1 ? formHTML("project", picks, { slug: slugOf(p), left, pick: Math.min(1, picks.length - 1) }) : `<p>Thank you to everyone who made it happen. <a href="/projects/${esc(slugOf(p))}">See the project</a>.</p>`}
+          ${open1 ? formHTML("project", picks, { slug: slugOf(p), left, pick: Math.min(1, picks.length - 1), goal: bp.goal, raised: bp.raised, cur: String(p.currency || site.currency || "$").trim() }) : `<p>Thank you to everyone who made it happen. <a href="/projects/${esc(slugOf(p))}">See the project</a>.</p>`}
           ${open1 && isRupees(p) && !LKR ? `<p class="note">This project's budget is in Sri Lankan rupees. Card gifts are in Canadian dollars and shown on the project at 1 CAD = Rs ${GIVE_RATE}.</p>` : ""}
         </div>
       </section>`;
@@ -2629,7 +2635,7 @@
         </div>
         <div class="panel give-box">
           <h2>Give to the Raavanaa Fund</h2>
-          ${formHTML("general", (LKR ? [2500, 5000, 10000] : [25, 50, 100]).map(v => ({ v })), { pick: 1 })}
+          ${formHTML("general", fundPicks, { pick: 1 })}
         </div>
       </section>`;
     } else {
@@ -2645,7 +2651,7 @@
             <p class="give-tag">Once</p>
             <h2>Give to Raavanaa</h2>
             <p>A one-time gift the team uses where it is needed most. <a href="/fund">About the Raavanaa Fund →</a></p>
-            ${formHTML("general", (LKR ? [2500, 5000, 10000] : [25, 50, 100]).map(v => ({ v })), { pick: 1 })}
+            ${formHTML("general", fundPicks, { pick: 1 })}
           </div>
         </section>
         ${(ASK ? projects.filter(needsMoney) : open).length ? `<section class="give-list"><h2>Or sponsor a project</h2><div class="give-grid">${(ASK ? projects.filter(needsMoney) : open).map(card).join("")}</div></section>` : ""}`;
@@ -2674,6 +2680,17 @@
         }
         const rem = f.querySelector('[name="remind"]'), remDay = f.querySelector(".give-remind-day");
         if (rem && remDay) remDay.hidden = !rem.checked;
+        // "Your gift brings this project to N% of its goal": shown when the amount is in the project's own money.
+        const reach = f.querySelector(".give-reach");
+        if (reach) {
+          const pk = (f.querySelector('[name="pick"]:checked') || {}).value, goal = +f.dataset.goal || 0, cur = (f.dataset.cur || "").toLowerCase();
+          let v = parseFloat(pk);
+          if (pk === "other") { const t = ownIn.value.trim().toLowerCase().replace(cur, "").replace(/^(rs\.?|lkr)/, "").trim(); v = /^[\d,]+(\.\d+)?$/.test(t) ? parseFloat(t.replace(/,/g, "")) : NaN; }
+          const pct = goal && v > 0 ? Math.min(100, Math.round(((+f.dataset.raised || 0) + v) / goal * 100)) : 0;
+          const text = !pct ? "" : pct >= 100 ? "Your gift completes this project: 100% of its goal." : `Your gift brings this project to ${pct}% of its goal.`;
+          if (reach.textContent !== text) reach.textContent = text;
+          reach.hidden = !text;
+        }
         if (ASK) return;
         const a = amount(), c = Math.round(a * 100), add = fee(c) / 100, cover = f.querySelector('[name="cover_fee"]').checked;
         feeEl.textContent = dollars(add);

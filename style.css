@@ -2413,3 +2413,11 @@ html[lang="ta"] .app-sheet-box h3{letter-spacing:0;text-transform:none;font-size
   .mny-table{font-size:14.5px}
   .mny-table th,.mny-table td{padding:9px 4px}
 }
+
+/* Giving form: ready-made amounts that say what they pay for, and the line "Your gift brings this project to N%" */
+.give-chip.give-real{flex:1 1 100%}
+.give-chip.give-real span{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;width:100%;border-radius:14px;padding:10px 14px}
+.give-chip.give-real b{font-weight:800;white-space:nowrap}
+.give-chip.give-real small{font-family:var(--body);font-weight:400;font-size:14px;line-height:1.35;color:var(--muted)}
+.give-chip.give-real input:checked+span small{color:var(--brand-ink);opacity:.92}
+.give-reach{margin:0;padding:9px 12px;border-radius:10px;background:var(--brand-soft);color:var(--brand);font-family:var(--display);font-weight:700;font-size:15px}
