@@ -57,7 +57,7 @@
   /* ---------- Raavanaa as a web app (SURESH, 12 Nov 2026: "I want to build this as a web app") ----------
      The site can be put on a phone's home screen and then opens like any other app: its own icon, no address bar,
      a bar of five buttons along the bottom, and pages that still open when the connection is weak or gone.
-     The parts: /app.webmanifest (name, icon, colours, where it opens), /sw.js (the saved copies), /offline.html (no connection),
+     The parts: /manifest.json (name, icon, colours, where it opens), /sw.js (the saved copies), /offline.html (no connection),
      img/app/ (icons, made by tools/logo/make_app_icons.py), and this block (install button, bottom bar).
      To see the app look in an ordinary browser, add ?app=1 to any address (?app=0 turns it off again). */
   const APP = (() => {
@@ -74,7 +74,7 @@
 
     const head = document.head;
     const add = (tag, attrs) => { const el = document.createElement(tag); Object.keys(attrs).forEach(k => el.setAttribute(k, attrs[k])); head.appendChild(el); return el; };
-    if (!head.querySelector('link[rel="manifest"]')) add("link", { rel: "manifest", href: "/app.webmanifest" });
+    if (!head.querySelector('link[rel="manifest"]')) add("link", { rel: "manifest", href: "/manifest.json" });
     [["mobile-web-app-capable", "yes"], ["apple-mobile-web-app-capable", "yes"], ["apple-mobile-web-app-title", "Raavanaa"]]
       .forEach(([name, content]) => { if (!head.querySelector(`meta[name="${name}"]`)) add("meta", { name, content }); });
     const touch = head.querySelector('link[rel="apple-touch-icon"]');

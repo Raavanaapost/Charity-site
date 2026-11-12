@@ -11,7 +11,7 @@ const PUBLIC = new Set([
   "/robots.txt", "/favicon.ico",
   // The web app's own files: its name and icon, the "no connection" page and the script that keeps saved copies.
   // A phone fetches these in the background, where it cannot ask for the password. They hold nothing private.
-  "/app.webmanifest", "/sw.js", "/offline.html",
+  "/manifest.json", "/sw.js", "/offline.html",
 ]);
 
 export default async (request: Request, context: { next: () => Promise<Response> }) => {

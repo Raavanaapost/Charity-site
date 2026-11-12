@@ -133,7 +133,7 @@ self.addEventListener("fetch", event => {
     return;
   }
   if (isPicture(url)) { event.respondWith(savedFirst(event)); return; }
-  if (/\.(css|js|json|webmanifest)$/i.test(url.pathname)) { event.respondWith(freshFirst(event, SHELL)); return; }
+  if (/\.(css|js|json)$/i.test(url.pathname)) { event.respondWith(freshFirst(event, SHELL)); return; }
 });
 
 // Each page tells us it was opened, so we can keep a copy for a day with no connection.
