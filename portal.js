@@ -913,11 +913,12 @@
         <span class="pt-row-main"><b>${esc(x.name)} <span class="pt-pill ${st[1]}">${st[0]}</span></b>
           <small>${esc(x.id)} · ${fmtDay(String(x.at))} · ${reach(String(x.contact || ""))}${x.lang === "ta" ? " · wrote in Tamil" : ""}</small>
           <small><b>${esc(x.amount || "Amount not said")}</b> for ${esc(what(x))}${t ? ` · ${esc(t.words)} ${esc(t.name)}${t.note ? ` (“${esc(t.note)}”)` : ""}${t.day ? ` · remind every year before ${esc(t.day)}` : ""}` : ""}${x.moment ? ` · family page /m/${esc(x.moment)}` : ""}</small>
+          <small>List the gift as: <b>${x.listing === "own" && x.listAs ? "“" + esc(x.listAs) + "”" : x.listing === "anonymous" ? "A friend of Raavanaa (anonymous)" : x.listing === "name" ? esc(x.name) + ", without the amount" : esc(x.name) + ", with the amount"}</b></small>
           ${x.message ? `<small class="pt-ask-msg">“${esc(x.message)}”</small>` : ""}
           ${x.by && x.status !== "new" ? `<small>${st[0]} · ${esc(x.by)}${x.handledAt ? " · " + fmtDay(String(x.handledAt)) : ""}</small>` : ""}</span>
         <span class="pt-row-side">${x.status === "new" ? `<button type="button" class="pt-btn sm" data-ask="${esc(x.id)}" data-to="replied">I have replied</button>` : ""}${x.status === "replied" ? `<button type="button" class="pt-btn sm" data-ask="${esc(x.id)}" data-to="received">Gift received</button>` : ""}${x.status === "new" || x.status === "replied" ? `<button type="button" class="pt-btn ghost sm" data-ask="${esc(x.id)}" data-to="closed">Close</button>` : `<button type="button" class="pt-btn ghost sm" data-ask="${esc(x.id)}" data-to="new">Reopen</button>`}</span></li>`; };
     return `<section class="pt-card pt-asks"><h2>People who want to give <span class="pt-count">${open.length}</span></h2>
-      <p class="pt-sub">From the “I'd like to give” form on the website. Reply to each person yourself, from the official email or by WhatsApp, and send bank details only in that reply. When the gift arrives, mark it here and add it to the project's sponsors.</p>
+      <p class="pt-sub">From the “I'd like to give” form on the website. Reply to each person yourself, from the official email or by WhatsApp, and send bank details only in that reply. When the gift arrives, mark it here and add it to the project's sponsors, listed the way the giver asked.</p>
       ${open.length ? `<ul class="pt-list big">${open.map(row).join("")}</ul>` : `<p class="pt-sub"><b>Nobody is waiting for a reply.</b></p>`}
       ${done.length ? `<details class="pt-asks-done"><summary>Finished (${done.length})</summary><ul class="pt-list big">${done.map(row).join("")}</ul></details>` : ""}</section>`;
   }

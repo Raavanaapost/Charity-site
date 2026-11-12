@@ -1,5 +1,5 @@
 // Public: "I'd like to give" (SURESH, 12 Nov 2026).
-//   POST /api/pledge   { kind, project, name, contact, amount, message, tribute..., lang } -> { ok, ref }
+//   POST /api/pledge   { kind, project, name, contact, amount, message, tribute..., listing, listing_words, lang } -> { ok, ref }
 // No money is taken here and no bank details are ever shown on the site. The request is saved for the team
 // (portal: Sponsors & pledges), and a volunteer replies to the person themselves. The same form is also sent
 // to Netlify Forms ("give-request"), which keeps a copy and can email the team.
@@ -31,17 +31,21 @@ export default async (req: Request) => {
     const day = /^\d{4}-\d{2}-\d{2}$/.test(String(f.remind_day || "")) && f.remind === "yes" ? String(f.remind_day) : "";
     tribute = { kind: tk in TRIBUTE_WORDS ? tk : "custom", words: clip(f.tribute_words, 60) || TRIBUTE_WORDS[tk] || "", name: clip(f.tribute_name, 60), note: clip(f.tribute_note, 140), day };
   }
+  // How the gift is listed in public: name and amount, name only, anonymous, or the giver's own wording.
+  const words = clip(f.listing_words, 80);
+  const listing = ["both", "name", "anonymous", "own"].includes(String(f.listing)) ? String(f.listing) : "both";
   const row = {
     amount: clip(f.amount, 60), message: clip(f.message ?? f.wish, 500), lang: f.lang === "ta" ? "ta" : "en",
     kind: kind === "project" && !slug ? "general" : kind,
+    listing: listing === "own" && !words ? "both" : listing, words: listing === "own" ? words : "",
   };
 
   try {
     const db = getDatabase();
     const [saved] = await db.sql<{ ref: string }>`
-      INSERT INTO give_requests (ref, name, contact, amount, kind, project_slug, moment_code, tribute, message, lang)
+      INSERT INTO give_requests (ref, name, contact, amount, kind, project_slug, moment_code, tribute, message, lang, listing, listing_words)
       VALUES ('G-' || nextval('give_request_ref_seq'), ${name}, ${contact}, ${row.amount}, ${row.kind}, ${slug}, ${moment},
-              ${tribute ? JSON.stringify(tribute) : null}::jsonb, ${row.message}, ${row.lang})
+              ${tribute ? JSON.stringify(tribute) : null}::jsonb, ${row.message}, ${row.lang}, ${row.listing}, ${row.words})
       RETURNING ref`;
     await db.sql`INSERT INTO audit_log (actor, action, target) VALUES ('website', 'give_request.received', ${saved.ref})`;
     return json({ ok: true, ref: saved.ref });

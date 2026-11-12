@@ -2421,3 +2421,12 @@ html[lang="ta"] .app-sheet-box h3{letter-spacing:0;text-transform:none;font-size
 .give-chip.give-real small{font-family:var(--body);font-weight:400;font-size:14px;line-height:1.35;color:var(--muted)}
 .give-chip.give-real input:checked+span small{color:var(--brand-ink);opacity:.92}
 .give-reach{margin:0;padding:9px 12px;border-radius:10px;background:var(--brand-soft);color:var(--brand);font-family:var(--display);font-weight:700;font-size:15px}
+
+/* Giving form: "How should we list your gift?" */
+.give-list{margin-top:2px}
+.give-list .give-chip span{font-size:15px;padding:8px 14px}
+.give-list-own[hidden]{display:none!important}
+.give-ask input[name="listing_words"]{border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:inherit;font-family:var(--body);background:var(--surface);color:var(--ink);width:100%}
+.give-list-note{margin-top:-4px}
+.give-done-at span+b+span{color:var(--muted)}
+.mny-table .num small{font-family:var(--body);font-weight:400;font-size:13px;color:var(--muted)}

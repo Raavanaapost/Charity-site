@@ -1577,7 +1577,7 @@
 
   // Sponsors' names and their share of the budget, shown under "Funded" (SURESH, 6 Nov 2026).
   const whoFunded = p => { const b = budgetOf(p); if (!b.goal || !b.funders.length) return "";
-    return `<small class="who">${b.funders.map(f => `${esc(f.name)} <b>${Math.round(numOf(f.amount) / b.goal * 100)}%</b>`).join(" · ")}</small>`; };
+    return `<small class="who">${b.funders.map(f => `${esc(f.name)}${f.hide_amount ? "" : ` <b>${Math.round(numOf(f.amount) / b.goal * 100)}%</b>`}`).join(" · ")}</small>`; };
   // The Donate button (wireDonate): it opens the giving form.
   const DONATE_BTN = `<button class="donate-btn" type="button" data-donate><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg><span>Donate</span></button>`;
   // The "Activating" circle with its list of steps, as on a project page.
@@ -1627,7 +1627,7 @@
         </div>
         ${pct < 100 ? `<button class="go-open" type="button" aria-expanded="false" aria-controls="go-fold-${id}"><span>See what's left to reach 100%</span><i aria-hidden="true">⌄</i></button>
         <div class="go-fold" id="go-fold-${id}" hidden>
-          <ol class="go-list">${b.funders.map(f => `<li class="done funder"><i aria-hidden="true">${b.goal ? Math.round(numOf(f.amount) / b.goal * 100) : 0}%</i>
+          <ol class="go-list">${b.funders.map(f => `<li class="done funder"><i aria-hidden="true">${f.hide_amount ? "♥" : (b.goal ? Math.round(numOf(f.amount) / b.goal * 100) : 0) + "%"}</i>
               <div><b>${esc(f.name)}</b>${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}<span>Pledged ${money(numOf(f.amount))} for this day.</span></div></li>`).join("")}
             <li class="todo" data-add="${slice * (1 - Math.min(1, b.goal ? b.raised / b.goal : 0))}" tabindex="0">
               <i aria-hidden="true">${b.goal ? Math.max(0, 100 - b.pct) + "%" : "…"}</i>
@@ -1754,7 +1754,7 @@
     const listOf = (h, total) => b.lines.length ? `<h3 class="money-h">${h}</h3><ul class="bx-list">${b.lines.map(x => `<li><span>${esc(x.item)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>
         <p class="bx-total"><span>${total}</span><b>${money(sum)}</b></p>` : "";
     const funders = h => b.funders.length ? `<h3 class="money-h">${h}</h3>
-        <ul class="funders">${b.funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${numOf(f.amount) ? `<b>${money(numOf(f.amount))}</b>` : ""}</li>`).join("")}</ul>` : "";
+        <ul class="funders">${b.funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${numOf(f.amount) && !f.hide_amount ? `<b>${money(numOf(f.amount))}</b>` : ""}</li>`).join("")}</ul>` : "";
     if (st === 1) {
       const need = Math.max(0, b.goal - b.raised), kids = String(p.reach || "").match(/\d+/);
       return `
@@ -2298,7 +2298,7 @@
       </section>` : ""}
       ${funders.length ? `<section class="money">
         <h2 class="section-title">Made possible by</h2>
-        <ul class="funders">${funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${num(f.amount) ? `<b>${money(num(f.amount))}</b>` : ""}</li>`).join("")}</ul>
+        <ul class="funders">${funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${num(f.amount) && !f.hide_amount ? `<b>${money(num(f.amount))}</b>` : ""}</li>`).join("")}</ul>
       </section>` : ""}`;
     // Small line icons for the folder tabs: book, heart, camera, play.
     const ic = d => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -2405,7 +2405,8 @@
   //              "spent": [{ "date": "2026-11-27", "item": "Bus to Kandy and back", "amount": 30000, "receipt": "/img/projects/<folder>/receipts/bus.jpg" }],
   //              "receipts": [{ "image": "/img/…", "caption": "…" }] }
   // Money in comes from the project's "funders"; add "received": "2026-11-20" to a funder once the money has arrived
-  // (until then it shows as Pledged). Receipts: cover names, phone numbers and the school's name before a photo goes up.
+  // (until then it shows as Pledged). A giver who asked for "my name only" gets "hide_amount": true: the name shows,
+  // the amount is counted in the totals but not shown beside the name. Receipts: cover names, phone numbers and the school's name before a photo goes up.
   function renderMoney(app, site, projects, slug) {
     const p = projects.find(x => slugOf(x) === slug);
     if (!p || !p.money) {
@@ -2446,7 +2447,7 @@
             <thead><tr><th scope="col">From</th><th scope="col">Status</th><th scope="col" class="num">Amount</th></tr></thead>
             <tbody>${b.funders.map(f => `<tr><td><span class="f-name">${esc(f.name)}</span>${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</td>
               <td>${f.received ? `<span class="mny-st got"><b>Received</b>${short(f.received) ? ` <time>${short(f.received)}</time>` : ""}</span>` : `<span class="mny-st"><b>Pledged</b></span>`}</td>
-              <td class="num">${money(numOf(f.amount))}</td></tr>`).join("")}</tbody>
+              <td class="num">${f.hide_amount ? `<small>in the total</small>` : money(numOf(f.amount))}</td></tr>`).join("")}</tbody>
             <tfoot><tr><th scope="row" colspan="2">Total</th><td class="num">${money(b.raised)}</td></tr></tfoot>
           </table>
           <p class="note">Pledged means the giver has told us the amount. We mark it Received when the money reaches Raavanaa.</p>` : `<p class="empty">No gifts yet.</p>`}
@@ -2537,6 +2538,14 @@
       const tail = ASK ? `
         <label><span>Your name</span><input name="name" maxlength="80" autocomplete="name" required></label>
         <label><span>WhatsApp number or email</span><input name="contact" maxlength="120" required placeholder="077 123 4567 or you@example.com"></label>
+        <fieldset class="give-for give-list"><legend>How should we list your gift?</legend>
+          <label class="give-chip"><input type="radio" name="listing" value="both" checked><span>My name and the amount</span></label>
+          <label class="give-chip"><input type="radio" name="listing" value="name"><span>My name only</span></label>
+          <label class="give-chip"><input type="radio" name="listing" value="anonymous"><span>Anonymous</span></label>
+          <label class="give-chip"><input type="radio" name="listing" value="own"><span>In my own words</span></label>
+        </fieldset>
+        <label class="give-list-own" hidden><span>List my gift as</span><input name="listing_words" maxlength="80" placeholder="e.g. The Rajan family, Toronto"></label>
+        <p class="note give-list-note">Every gift is shown openly. You choose how yours appears.</p>
         <label class="give-wish"><span>${kind === "general" ? "Your wish" : "A few words for us"} <small>(optional)</small></span><textarea name="wish" maxlength="300" rows="2"${kind === "general" ? ` placeholder="Is there something you would love this gift to do?"` : ""}></textarea></label>
         <button class="btn give-pay" type="submit">I'd like to give</button>
         ${SAFE}
@@ -2680,6 +2689,8 @@
         }
         const rem = f.querySelector('[name="remind"]'), remDay = f.querySelector(".give-remind-day");
         if (rem && remDay) remDay.hidden = !rem.checked;
+        const listOwn = f.querySelector(".give-list-own");
+        if (listOwn) listOwn.hidden = (f.querySelector('[name="listing"]:checked') || {}).value !== "own";
         // "Your gift brings this project to N% of its goal": shown when the amount is in the project's own money.
         const reach = f.querySelector(".give-reach");
         if (reach) {
@@ -2691,7 +2702,7 @@
           if (reach.textContent !== text) reach.textContent = text;
           reach.hidden = !text;
         }
-        if (ASK) return;
+        if (ASK) { if (msg.classList.contains("bad")) msg.hidden = true; return; }
         const a = amount(), c = Math.round(a * 100), add = fee(c) / 100, cover = f.querySelector('[name="cover_fee"]').checked;
         feeEl.textContent = dollars(add);
         if (msg.classList.contains("bad") && a >= MIN) msg.hidden = true;
@@ -2726,11 +2737,14 @@
         if (mode !== "none" && !trName.value.trim()) { say(mode === "behalf" ? "Please add the name of the family or group." : "Please add the name of the person this gift is for.", true); trName.focus(); return; }
         const remOn = f.querySelector('[name="remind"]'), remDay = f.querySelector('[name="remind_day"]');
         if (mode !== "none" && remOn && remOn.checked && !remDay.value) { say("Please choose the day you would like to be reminded of.", true); remDay.focus(); return; }
+        const listing = (f.querySelector('[name="listing"]:checked') || {}).value || "both", listIn = f.querySelector('[name="listing_words"]'), listWords = listIn ? listIn.value.trim() : "";
+        if (listing === "own" && !listWords) { say("Please write how you would like your gift to be listed.", true); listIn.focus(); return; }
         const taPage = location.pathname.startsWith("/ta/");
         const fd = new FormData(f), body = { lang: taPage ? "ta" : "en" };
         for (const [k, v] of fd.entries()) if (k !== "pick" && k !== "own" && k !== "tribute_mode" && k !== "wish") body[k] = v;
         body.amount = (pick === "other" ? ownIn.value.trim() : pick === "unsure" ? "Not sure yet" : chip.dataset.label || chip.value) + (f.dataset.kind === "member" && pick !== "unsure" ? " a month" : "");
         body.message = String(fd.get("wish") || "").trim();
+        body.listing = listing; if (listing === "own") body.listing_words = listWords; else delete body.listing_words;
         const trSel = f.querySelector('[name="tribute_kind"]');
         if (mode === "none") { delete body.remind; delete body.remind_day; ["tribute_kind", "tribute_name", "tribute_note", "tribute_show"].forEach(k => delete body[k]); }
         else {
@@ -2740,7 +2754,8 @@
         }
         pay.disabled = true; say("Sending…");
         const copy = new URLSearchParams({ "form-name": "give-request", name: body.name, contact, amount: body.amount, kind: body.kind || "", project: body.project || "", moment: body.moment || "",
-          tribute: mode === "none" ? "" : [body.tribute_words, body.tribute_name, body.tribute_note ? "(" + body.tribute_note + ")" : ""].filter(Boolean).join(" "), message: body.message, lang: body.lang, "bot-field": body["bot-field"] || "" });
+          tribute: mode === "none" ? "" : [body.tribute_words, body.tribute_name, body.tribute_note ? "(" + body.tribute_note + ")" : ""].filter(Boolean).join(" "), message: body.message, lang: body.lang, "bot-field": body["bot-field"] || "",
+          listing: listing === "own" ? "In their own words: " + listWords : { both: "Name and amount", name: "Name only", anonymous: "Anonymous" }[listing] || "" });
         try {
           const [r, n] = await Promise.all([
             fetch("/api/pledge", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).catch(() => null),
@@ -2754,6 +2769,7 @@
             <h3><span>Thank you,</span> <b>${esc(body.name)}</b></h3>
             <p>A Raavanaa volunteer will write to you personally and tell you how to send your gift.</p>
             <p class="give-done-at"><span>We will reply to:</span> <b>${esc(contact)}</b></p>
+            <p class="give-done-at"><span>Your gift will be listed as:</span> <b>${listing === "own" ? esc(listWords) : listing === "anonymous" ? "A friend of Raavanaa" : esc(body.name)}</b>${listing === "both" ? ` <span>with the amount</span>` : listing === "name" ? ` <span>without the amount</span>` : ""}</p>
             ${SAFE}
             <p class="give-done-next">${slug ? `<a class="btn ghost" href="/projects/${esc(slug)}">Back to the project</a>` : `<a class="btn ghost" href="/overview">See the projects</a>`}</p>`;
           f.replaceWith(box); box.focus({ preventScroll: true }); box.scrollIntoView({ block: "center", behavior: "smooth" });
