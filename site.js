@@ -1578,7 +1578,7 @@
   // Sponsors' names and their share of the budget, shown under "Funded" (SURESH, 6 Nov 2026).
   const whoFunded = p => { const b = budgetOf(p); if (!b.goal || !b.funders.length) return "";
     return `<small class="who">${b.funders.map(f => `${esc(f.name)} <b>${Math.round(numOf(f.amount) / b.goal * 100)}%</b>`).join(" · ")}</small>`; };
-  // The Donate button. While Raavanaa is a pilot it opens a note instead of a payment page (wireGo).
+  // The Donate button (wireDonate): it opens the giving form.
   const DONATE_BTN = `<button class="donate-btn" type="button" data-donate><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg><span>Donate</span></button>`;
   // The "Activating" circle with its list of steps, as on a project page.
   function activatingPanelHTML(p, cls = "") {
@@ -1635,7 +1635,7 @@
           <div class="go-form go-make">
             <h3>Make this happen</h3>
             <div class="mk-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-mk="donate"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>Donate</button><button type="button" role="tab" aria-selected="false" data-mk="other">Help another way</button></div>
-            <div class="mk-pane" data-mkpane="donate"><p class="go-sub">${canGive(p) ? `Give towards this day by card. Secure payment by ${GIVE_BY}.` : "Want to give towards this day? Tap Donate and we'll tell you how it works during our pilot."}</p>${DONATE_BTN}
+            <div class="mk-pane" data-mkpane="donate"><p class="go-sub">${canGive(p) ? `Give towards this day by card. Secure payment by ${GIVE_BY}.` : "Want to give towards this day? Tap Donate and tell us what you would like to give. A volunteer will reply to you personally."}</p>${DONATE_BTN}
               <p class="go-name"><a href="/moment?project=${encodeURIComponent(slugOf(p))}">♡ Give in someone's name, or on behalf of a family or group →</a></p></div>
             <form class="mk-pane" data-mkpane="other" hidden name="make-it-happen" data-ajax data-done="Thank you! Your note is on its way. We'll be in touch soon, and you'll be part of a child's best day.">
               <p class="go-sub">Not able to give money? There are other ways to make this day happen. Tell us how you'd like to help and we'll reach out.</p>
@@ -1683,8 +1683,6 @@
       });
     });
   }
-  // Donate: during the pilot there are no online donations. The pop-up says so and asks people
-  // to join the community: sign up and follow the project (SURESH, 6 Nov 2026).
   /* "At a glance": tap or click the small icon to open; tap it again, tap anywhere else or press Esc to close. */
   function wireGlance(root) {
     root.querySelectorAll(".glance").forEach(g => {
@@ -1701,32 +1699,11 @@
     }
   }
 
+  // Donate on a project page. While the project still needs money it opens that project's giving form; otherwise the
+  // Raavanaa Fund. With card payments off (launch, SURESH 12 Nov 2026) the form is "I'd like to give": a volunteer replies.
   function wireDonate(root, slug) {
     root.querySelectorAll("[data-donate]").forEach(b => b.addEventListener("click", () => {
-      if (GIVE_OPEN.has(slug)) { location.href = "/give?project=" + encodeURIComponent(slug); return; }
-      const pop = document.createElement("div");
-      pop.className = "donate-pop";
-      pop.innerHTML = `<div class="donate-card" role="dialog" aria-modal="true" aria-labelledby="donate-h">
-          <button class="donate-x" type="button" data-close aria-label="Close">×</button>
-          <p class="donate-heart" aria-hidden="true"><svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg></p>
-          <h2 id="donate-h">Thank you for wanting to give!</h2>
-          <p>We are in our <b>pilot phase</b>, so we are not taking donations online yet. Every day so far has been made possible by our community.</p>
-          <p>Join the Raavanaa community: sign up and follow this project. We'll tell you the moment you can give, and share every smile you help create.</p>
-          ${signupHTML(slug + "-donate", "Sign up and follow")}
-          <p class="donate-other"><button type="button" data-other>Or help another way →</button></p>
-        </div>`;
-      const close = () => { pop.remove(); document.removeEventListener("keydown", esc_); b.focus(); };
-      const esc_ = e => { if (e.key === "Escape") close(); };
-      pop.addEventListener("click", e => { if (e.target === pop || e.target.closest("[data-close]")) close(); });
-      document.addEventListener("keydown", esc_);
-      pop.querySelector("[data-other]").addEventListener("click", () => {
-        close();
-        const g = [...root.querySelectorAll(".go100")].find(x => x.offsetParent !== null); if (!g) return;
-        const open = g.querySelector(".go-open"); if (open && open.getAttribute("aria-expanded") !== "true") open.click();
-        const t = g.querySelector("[data-mk=other]"); if (t) { t.click(); t.scrollIntoView({ block: "center", behavior: "smooth" }); }
-      });
-      document.body.appendChild(pop); wireForms(pop);
-      const f = pop.querySelector("input[name=email]"); if (f) f.focus();
+      location.href = (TA_PATH ? "/ta" : "") + (GIVE_OPEN.has(slug) ? "/give?project=" + encodeURIComponent(slug) : "/fund");
     }));
   }
   function wireTale(root, open, remember) {
@@ -2455,6 +2432,12 @@
   function renderGive(app, site, projects, GIVE) {
     const q = new URLSearchParams(location.search);
     const on = !!(GIVE && GIVE.enabled);
+    // No card payments at launch (SURESH, 12 Nov 2026): the form asks what the person would like to give, and a volunteer
+    // replies to them personally. No money is taken on the site and no bank details are shown anywhere on it.
+    // The card forms below stay built; they come back by themselves when PayHere is switched on in Netlify.
+    const ASK = !on;
+    const SAFE = `<p class="note give-safe"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3l7 2.6v5.6c0 4.3-2.9 7.6-7 9.3-4.1-1.7-7-5-7-9.3V5.6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12l2.2 2.2L15.2 10" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Raavanaa will only ever share bank details in a personal reply from our official email. Never pay into an account sent to you any other way.</span></p>`;
+    const needsMoney = x => { if (!x || !x.verified || stageNum(x) !== 1) return false; const b = budgetOf(x); return b.goal > 0 && b.raised < b.goal; };
     const LKR = GIVE_CUR === "LKR";
     // An estimate of the card fee, so a giver can choose to cover it (PayHere about 3.3%, Stripe about 2.9% + 30¢).
     const fee = c => LKR ? Math.max(0, Math.ceil((c / (1 - 0.033) - c) / 100) * 100) : Math.max(0, Math.ceil((c + 30) / (1 - 0.029)) - c);
@@ -2465,12 +2448,23 @@
     const p = !FUND && q.get("project") ? projects.find(x => slugOf(x) === slugify(q.get("project"))) : null;
     const open = projects.filter(canGive);
     document.title = (FUND ? "The Raavanaa Fund" : p ? `Sponsor a smile: ${p.title}` : "Sponsor a smile") + ` · ${site.name}`;
+    const TR_EN = { memory: "In loving memory of", remembrance: "Remembering, on the anniversary of", birthday: "Celebrating the birthday of", wedding: "Celebrating the wedding anniversary of",
+      newborn: "Welcoming", success: "Celebrating the success of", recovery: "Giving thanks for the recovery of", gratitude: "With gratitude for", festival: "A festival gift in the name of", honour: "In honour of" };
     const REASONS = [["memory", "In loving memory of"], ["remembrance", "Remembering, on the anniversary of"], ["birthday", "Celebrating the birthday of"], ["wedding", "Celebrating the wedding anniversary of"],
       ["newborn", "Welcoming"], ["success", "Celebrating the success of"], ["recovery", "Giving thanks for the recovery of"], ["gratitude", "With gratitude for"], ["festival", "A festival gift in the name of"], ["honour", "In honour of"]];
 
     const formHTML = (kind, amounts, opts = {}) => {
       const id = "g-" + kind;
-      return `<form class="give-form" data-kind="${kind}" ${opts.left ? `data-left="${opts.left}"` : ""} novalidate>
+      // "I'd like to give": the same choices, then a name and a way to reply. Nothing is paid here.
+      const tail = ASK ? `
+        <label><span>Your name</span><input name="name" maxlength="80" autocomplete="name" required></label>
+        <label><span>WhatsApp number or email</span><input name="contact" maxlength="120" required placeholder="077 123 4567 or you@example.com"></label>
+        <label class="give-wish"><span>${kind === "general" ? "Your wish" : "A few words for us"} <small>(optional)</small></span><textarea name="wish" maxlength="300" rows="2"${kind === "general" ? ` placeholder="Is there something you would love this gift to do?"` : ""}></textarea></label>
+        <button class="btn give-pay" type="submit">I'd like to give</button>
+        ${SAFE}
+        <p class="note give-msg" role="status" hidden></p>
+      </form>` : "";
+      return `<form class="give-form${ASK ? " give-ask" : ""}" data-kind="${kind}" ${opts.left ? `data-left="${opts.left}"` : ""}${ASK ? " data-ask" : ""} novalidate>
         <input type="hidden" name="kind" value="${kind}">
         ${opts.slug ? `<input type="hidden" name="project" value="${esc(opts.slug)}">` : ""}
         <p hidden><label>Leave empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
@@ -2491,11 +2485,12 @@
           <label class="give-remind-day" hidden><span>The day <small>(a birthday, a remembrance day...)</small></span><input type="date" name="remind_day"></label>`}
           <p class="note give-moment-link"><a href="/moment">More reasons, and a card to keep →</a></p>
         </div>
-        <fieldset class="give-amounts"><legend>${kind === "member" ? "Each month" : "Amount"} (${LKR ? "Sri Lankan rupees" : "CAD"})</legend>
-          ${amounts.map((a, i) => `<label class="give-chip"><input type="radio" name="pick" value="${a.v}"${i === (opts.pick || 0) ? " checked" : ""}><span>${esc(a.label || dollars(a.v))}</span></label>`).join("")}
+        <fieldset class="give-amounts"><legend>${ASK ? (kind === "member" ? "Roughly how much each month?" : "Roughly how much?") : `${kind === "member" ? "Each month" : "Amount"} (${LKR ? "Sri Lankan rupees" : "CAD"})`}</legend>
+          ${amounts.map((a, i) => `<label class="give-chip"><input type="radio" name="pick" value="${a.v}" data-label="${esc(a.label || dollars(a.v))}"${i === (opts.pick || 0) ? " checked" : ""}><span>${esc(a.label || dollars(a.v))}</span></label>`).join("")}
           <label class="give-chip give-other"><input type="radio" name="pick" value="other"><span>Other</span></label>
+          ${ASK ? `<label class="give-chip"><input type="radio" name="pick" value="unsure"><span>Not sure yet</span></label>` : ""}
         </fieldset>
-        <label class="give-own" hidden>Your amount
+        ${ASK ? `<label class="give-own" hidden><span>Your amount <small>(any currency)</small></span><input name="own" maxlength="40" autocomplete="off" placeholder="Rs 7,500 or $40"></label>${tail}` : `<label class="give-own" hidden>Your amount
           <span class="give-dollar"><b aria-hidden="true">${LKR ? "Rs" : "$"}</b><input name="own" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Your amount in ${LKR ? "Sri Lankan rupees" : "Canadian dollars"}"></span></label>
         ${kind === "general" ? "" : `<label><span>Your name <small>(optional)</small></span><input name="name" maxlength="60" autocomplete="name"></label>
         <label class="give-check"><input type="checkbox" name="show_name" value="yes"> <span>${kind === "member" ? "Show my name with the Smile members" : "Show my name on the project page"}</span></label>
@@ -2506,29 +2501,34 @@
         <label class="give-check"><input type="checkbox" name="cover_fee" value="yes" checked> <span>Add <b class="give-fee">${dollars(0)}</b> so the card fee doesn't come out of the gift</span></label>
         <button class="btn give-pay" type="submit"${on ? "" : " disabled"}>${on ? "Continue to secure payment" : "Card payments coming soon"}</button>
         <p class="note give-msg" role="status" hidden></p>
-      </form>`;
+      </form>`}`;
     };
     const card = x => { const b = budgetOf(x), left = Math.max(0, b.goal - b.raised), cad = leftCad(x);
-      const need = isRupees(x) && !LKR ? `${moneyOf(site, left, x)} still needed (about ${dollars(Math.round(cad))} CAD)` : `${isRupees(x) ? moneyOf(site, left, x) : dollars(left)} still needed`;
+      const need = ASK ? `${moneyOf(site, left, x)} still needed` : isRupees(x) && !LKR ? `${moneyOf(site, left, x)} still needed (about ${dollars(Math.round(cad))} CAD)` : `${isRupees(x) ? moneyOf(site, left, x) : dollars(left)} still needed`;
       return `<a class="give-proj" href="/give?project=${encodeURIComponent(slugOf(x))}">
         <span class="give-proj-pic" style="${coverStyle(x, 0)}">${x.cover ? `<img src="${esc(imgUrl(x.cover, 400))}" alt="" loading="lazy">` : ""}</span>
         <span class="give-proj-text"><b>${esc(x.title)}</b><span>${esc(need)} · ${b.pct}% covered</span>
         <span class="b-bar" aria-hidden="true"><i style="width:${b.pct}%"></i></span></span></a>`; };
-    const notes = `<ul class="give-notes">
+    const notes = ASK ? `<ul class="give-notes">
+        <li>No money is taken on this site, and no bank details are shown on it. A volunteer replies to you personally and tells you how to send your gift.</li>
+        <li>Raavanaa Community is a nonprofit, not a registered charity, so gifts don't come with a tax receipt.</li>
+        <li>Every gift shows on the project page, and after the day you'll see how it went and where the money went.</li>
+      </ul>` : `<ul class="give-notes">
         <li>Payments are handled securely by ${GIVE_BY}. Raavanaa never sees your card details.${LKR ? " Cards from any country are welcome; your bank converts from rupees." : ""}</li>
         <li>Raavanaa Community is a nonprofit, not a registered charity, so gifts don't come with a tax receipt. ${GIVE_BY} emails you a payment receipt.</li>
         <li>Every gift shows on the project page, and after the day you'll see the photos and where the money went.</li>
       </ul>`;
     const banner = `${q.get("cancelled") ? `<p class="give-banner">Payment cancelled. Nothing was charged.</p>` : ""}
-      ${on ? (GIVE.test ? `<p class="give-banner test">Test mode: ${LKR ? "this opens PayHere's sandbox; use one of PayHere's test cards" : "use Stripe's test card 4242 4242 4242 4242"}. No real money is taken.</p>` : "") : `<p class="give-banner">Card payments are coming soon. Until then, send us a note from any project page and we'll reach out.</p>`}`;
+      ${on ? (GIVE.test ? `<p class="give-banner test">Test mode: ${LKR ? "this opens PayHere's sandbox; use one of PayHere's test cards" : "use Stripe's test card 4242 4242 4242 4242"}. No real money is taken.</p>` : "") : `<p class="give-banner ask">Tell us what you would like to give, and a Raavanaa volunteer will reply to you personally.</p>`}`;
 
     let body;
     if (p) {
       // Until card payments are switched on, the form still shows (its button says "coming soon"), so a giver sees what is ahead.
       const bp = budgetOf(p), needs = !!p.verified && stageNum(p) === 1 && bp.goal > 0 && bp.raised < bp.goal && takesCards(p);
-      const left = Math.floor(leftCad(p) * 100) / 100, open1 = canGive(p) || (!on && needs && left > 0);
-      const picks = (LKR ? [2500, 5000, 10000] : [25, 50, 100]).filter(v => v < left).map(v => ({ v }));
-      picks.push({ v: left, label: `All of it: ${dollars(left)}` });
+      // When asking, amounts are in the project's own money (rupees or dollars); with cards, in the card currency.
+      const left = ASK ? Math.max(0, bp.goal - bp.raised) : Math.floor(leftCad(p) * 100) / 100, open1 = ASK ? needsMoney(p) : canGive(p);
+      const picks = ((ASK ? isRupees(p) : LKR) ? [2500, 5000, 10000] : [25, 50, 100]).filter(v => v < left).map(v => (ASK ? { v, label: moneyOf(site, v, p) } : { v }));
+      picks.push({ v: left, label: `All of it: ${ASK ? moneyOf(site, left, p) : dollars(left)}` });
       body = `<section class="give-one">
         <div class="give-proj big">${card(p).replace(/^<a [^>]*>/, "").replace(/<\/a>$/, "")}</div>
         <div class="panel give-box">
@@ -2561,7 +2561,7 @@
             <h2>Become a Smile member</h2>
             <p>A small gift every month keeps the bridge open, so the next need can be met quickly.${GIVE && GIVE.members ? ` <b>${GIVE.members} Smile member${GIVE.members === 1 ? "" : "s"}</b> already.` : ""}</p>
             ${formHTML("member", (LKR ? [1000, 2500, 5000] : [15, 25, 50]).map(v => ({ v })))}
-            <p class="note">You can stop your monthly gift at any time: reply to your receipt email or <a href="/contact">contact us</a>.</p>
+            <p class="note">${ASK ? `You can stop your monthly gift at any time: just tell us.` : `You can stop your monthly gift at any time: reply to your receipt email or <a href="/contact">contact us</a>.`}</p>
           </div>
           <div class="panel give-box">
             <p class="give-tag">Once</p>
@@ -2570,12 +2570,12 @@
             ${formHTML("general", (LKR ? [2500, 5000, 10000] : [25, 50, 100]).map(v => ({ v })), { pick: 1 })}
           </div>
         </section>
-        ${open.length ? `<section class="give-list"><h2>Or sponsor a project</h2><div class="give-grid">${open.map(card).join("")}</div></section>` : ""}`;
+        ${(ASK ? projects.filter(needsMoney) : open).length ? `<section class="give-list"><h2>Or sponsor a project</h2><div class="give-grid">${(ASK ? projects.filter(needsMoney) : open).map(card).join("")}</div></section>` : ""}`;
     }
     app.innerHTML = `<div class="give-page">
       <header class="give-head"><p class="eyebrow">${FUND ? "The Raavanaa Fund" : "Sponsor a smile"}</p>
         <h1>${FUND ? "Give once. We find the smile." : p ? esc(p.title) : "Be part of the next moment"}</h1>
-        <p>${FUND ? "For when you want to help and are happy for us to choose where. Volunteers decide, and every rupee in and out is shown openly." : p ? "Your gift goes straight to this project. You'll see it on the project page, and after the day you'll see the photos and where every " + (LKR ? "rupee" : "dollar") + " went." : "Raavanaa is a bridge between people who need a hand and people ready to give one. Choose how you'd like to help."}</p>
+        <p>${FUND ? "For when you want to help and are happy for us to choose where. Volunteers decide, and every rupee in and out is shown openly." : p ? (ASK ? "Your gift goes straight to this project. You'll see it on the project page, and after the day you'll see how it went and where the money went." : "Your gift goes straight to this project. You'll see it on the project page, and after the day you'll see the photos and where every " + (LKR ? "rupee" : "dollar") + " went.") : "Raavanaa is a bridge between people who need a hand and people ready to give one. Choose how you'd like to help."}</p>
       </header>
       ${banner}${body}${notes}</div>`;
 
@@ -2596,6 +2596,7 @@
         }
         const rem = f.querySelector('[name="remind"]'), remDay = f.querySelector(".give-remind-day");
         if (rem && remDay) remDay.hidden = !rem.checked;
+        if (ASK) return;
         const a = amount(), c = Math.round(a * 100), add = fee(c) / 100, cover = f.querySelector('[name="cover_fee"]').checked;
         feeEl.textContent = dollars(add);
         if (msg.classList.contains("bad") && a >= MIN) msg.hidden = true;
@@ -2617,9 +2618,55 @@
       }
       if (q.get("wish") && f.querySelector('[name="wish"]')) f.querySelector('[name="wish"]').value = q.get("wish").slice(0, 300);
       f.addEventListener("change", update); f.addEventListener("input", update); update();
+      // "I'd like to give": save the request for the team (and a copy in Netlify Forms), then say what happens next.
+      const ask = async () => {
+        const say = (t, bad) => { msg.hidden = false; msg.textContent = t; msg.classList.toggle("bad", !!bad); };
+        const nameIn = f.querySelector('[name="name"]'), ct = f.querySelector('[name="contact"]'), chip = f.querySelector('[name="pick"]:checked');
+        const pick = chip ? chip.value : "unsure";
+        if (pick === "other" && !ownIn.value.trim()) { say("Please tell us roughly how much, or choose “Not sure yet”.", true); ownIn.focus(); return; }
+        if (!nameIn.value.trim()) { say("Please add your name.", true); nameIn.focus(); return; }
+        const contact = ct.value.trim();
+        if (!(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) || contact.replace(/\D/g, "").length >= 7)) { say("Please add a WhatsApp number or an email address, so we can reply.", true); ct.focus(); return; }
+        const mode = (f.querySelector('[name="tribute_mode"]:checked') || {}).value || "none", trName = f.querySelector('[name="tribute_name"]');
+        if (mode !== "none" && !trName.value.trim()) { say(mode === "behalf" ? "Please add the name of the family or group." : "Please add the name of the person this gift is for.", true); trName.focus(); return; }
+        const remOn = f.querySelector('[name="remind"]'), remDay = f.querySelector('[name="remind_day"]');
+        if (mode !== "none" && remOn && remOn.checked && !remDay.value) { say("Please choose the day you would like to be reminded of.", true); remDay.focus(); return; }
+        const taPage = location.pathname.startsWith("/ta/");
+        const fd = new FormData(f), body = { lang: taPage ? "ta" : "en" };
+        for (const [k, v] of fd.entries()) if (k !== "pick" && k !== "own" && k !== "tribute_mode" && k !== "wish") body[k] = v;
+        body.amount = (pick === "other" ? ownIn.value.trim() : pick === "unsure" ? "Not sure yet" : chip.dataset.label || chip.value) + (f.dataset.kind === "member" && pick !== "unsure" ? " a month" : "");
+        body.message = String(fd.get("wish") || "").trim();
+        const trSel = f.querySelector('[name="tribute_kind"]');
+        if (mode === "none") { delete body.remind; delete body.remind_day; ["tribute_kind", "tribute_name", "tribute_note", "tribute_show"].forEach(k => delete body[k]); }
+        else {
+          body.tribute_on = "yes";
+          if (mode === "behalf") { body.tribute_kind = "behalf"; body.tribute_words = "Given on behalf of"; }
+          else if (trSel && trSel.selectedOptions[0]) body.tribute_words = (TA_PATH && TR_EN[trSel.value]) || trSel.selectedOptions[0].textContent.trim();
+        }
+        pay.disabled = true; say("Sending…");
+        const copy = new URLSearchParams({ "form-name": "give-request", name: body.name, contact, amount: body.amount, kind: body.kind || "", project: body.project || "", moment: body.moment || "",
+          tribute: mode === "none" ? "" : [body.tribute_words, body.tribute_name, body.tribute_note ? "(" + body.tribute_note + ")" : ""].filter(Boolean).join(" "), message: body.message, lang: body.lang, "bot-field": body["bot-field"] || "" });
+        try {
+          const [r, n] = await Promise.all([
+            fetch("/api/pledge", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).catch(() => null),
+            fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: copy.toString() }).catch(() => null)]);
+          const out = r ? await r.json().catch(() => ({})) : {};
+          if (r && r.status === 400 && out.error) { say(out.error, true); pay.disabled = false; return; }
+          if (!(r && r.ok && out.ok) && !(n && n.ok)) throw new Error("not saved");
+          const slug = body.project || "", box = document.createElement("div");
+          box.className = "give-done"; box.tabIndex = -1; box.setAttribute("role", "status");
+          box.innerHTML = `<p class="give-done-heart" aria-hidden="true"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg></p>
+            <h3><span>Thank you,</span> <b>${esc(body.name)}</b></h3>
+            <p>A Raavanaa volunteer will write to you personally and tell you how to send your gift.</p>
+            <p class="give-done-at"><span>We will reply to:</span> <b>${esc(contact)}</b></p>
+            ${SAFE}
+            <p class="give-done-next">${slug ? `<a class="btn ghost" href="/projects/${esc(slug)}">Back to the project</a>` : `<a class="btn ghost" href="/overview">See the projects</a>`}</p>`;
+          f.replaceWith(box); box.focus({ preventScroll: true }); box.scrollIntoView({ block: "center", behavior: "smooth" });
+        } catch (_) { say("We couldn't send that. Please check your connection and try again.", true); pay.disabled = false; }
+      };
       f.addEventListener("submit", async e => {
         e.preventDefault();
-        if (!on) return;
+        if (ASK) { ask(); return; }
         const a = amount();
         const say = (t, bad) => { msg.hidden = false; msg.textContent = t; msg.classList.toggle("bad", !!bad); };
         if (!(a >= MIN)) { say(`The smallest gift by card is ${dollars(MIN)}.`, true); (ownIn.offsetParent ? ownIn : pay).focus(); return; }
@@ -2716,6 +2763,8 @@
       GIVE_RATE = (GIVE && +GIVE.rate) || +site.rate_lkr_per_cad || 0;
       if (GIVE && GIVE.projects) projects.forEach(p => { const t = GIVE.projects[slugOf(p)]; if (t && takesCards(p)) p.funders = [...(p.funders || []), ...t.gifts]; });
       projects.filter(canGive).forEach(p => GIVE_OPEN.add(slugOf(p)));
+      // With card payments off, Donate still opens the project's form ("I'd like to give") while the project needs money.
+      if (!GIVE_ON) projects.forEach(p => { if (p.verified && stageNum(p) === 1) { const b = budgetOf(p); if (b.goal > 0 && b.raised < b.goal) GIVE_OPEN.add(slugOf(p)); } });
       if (page === "give" || page === "fund") renderGive(app, site, projects, GIVE);
       else if (page === "thanks") renderThanks(app, site);
       else if (page === "contact" || page === "volunteer") {

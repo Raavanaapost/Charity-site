@@ -56,19 +56,22 @@
   ];
 
   let D = null, P = [], C = { list: [], districts: [] }, chDistrict = "All", chEdit = null;
+  // People who filled in "I'd like to give" on the website (live only; null in the demo).
+  let ASKS = null;
   const toast = msg => { const t = document.getElementById("pt-toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("on"), 2600); };
   const route = () => (location.hash.replace(/^#\/?/, "") || "dashboard").split("/");
 
   function drawNav(cur) {
     const newCount = D.suggestions.filter(s => s.status === "new").length, openRep = D.reports.filter(r => r.status !== "closed").length;
+    const newAsk = ASKS ? ASKS.filter(x => x.status === "new").length : 0;
     const so = document.querySelector(".pt-site");
     if (so && LIVE && !document.getElementById("pt-signout")) { const b = document.createElement("button"); b.id = "pt-signout"; b.type = "button"; b.className = "pt-site pt-signout"; b.textContent = "Sign out"; b.onclick = signOut; so.after(b); }
     document.getElementById("pt-nav").innerHTML = MENU.map(([k, l, ready]) => ready
-      ? `<a href="#/${k}" class="${cur === k ? "on" : ""}" ${cur === k ? 'aria-current="page"' : ""}>${svg(ICON[k])}<span>${l}</span>${k === "suggestions" && newCount ? `<b class="pt-badge">${newCount}</b>` : k === "reports" && openRep ? `<b class="pt-badge">${openRep}</b>` : ""}</a>`
+      ? `<a href="#/${k}" class="${cur === k ? "on" : ""}" ${cur === k ? 'aria-current="page"' : ""}>${svg(ICON[k])}<span>${l}</span>${k === "sponsors" && newAsk ? `<b class="pt-badge">${newAsk}</b>` : k === "suggestions" && newCount ? `<b class="pt-badge">${newCount}</b>` : k === "reports" && openRep ? `<b class="pt-badge">${openRep}</b>` : ""}</a>`
       : `<span class="soon" title="Designed next">${svg(ICON[k])}<span>${l}</span><small>Next</small></span>`).join("");
     document.getElementById("pt-tabbar").innerHTML = [["dashboard", "Home"], ["suggestions", "Suggestions"], ["projects", "Projects"], ["reports", "Reports"], ["more", "More"]].map(([k, l]) => {
       const ready = k !== "more";
-      return ready ? `<a href="#/${k}" class="${cur === k ? "on" : ""}">${svg(ICON[k], 22)}<span>${l}</span>${k === "suggestions" && newCount ? `<b class="pt-badge">${newCount}</b>` : k === "reports" && openRep ? `<b class="pt-badge">${openRep}</b>` : ""}</a>`
+      return ready ? `<a href="#/${k}" class="${cur === k ? "on" : ""}">${svg(ICON[k], 22)}<span>${l}</span>${k === "sponsors" && newAsk ? `<b class="pt-badge">${newAsk}</b>` : k === "suggestions" && newCount ? `<b class="pt-badge">${newCount}</b>` : k === "reports" && openRep ? `<b class="pt-badge">${openRep}</b>` : ""}</a>`
         : `<button type="button" class="${["sponsors", "day", "close", "people", "team"].includes(cur) ? "on" : ""}" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
     }).join("");
     document.querySelectorAll("[data-soon]").forEach(b => b.onclick = () => {
@@ -87,6 +90,7 @@
     const sNew = D.suggestions.filter(s => s.status === "new"), sVisit = D.suggestions.filter(s => s.status === "visit");
     const attention = [];
     D.reports.filter(r => r.status !== "closed").forEach(r => attention.push({ c: "a-report", t: `${r.type === "concern" ? LEVEL[r.level].label : "Feedback needs a look"} · ${r.status === "open" ? "not yet picked up" : "being looked into"}`, s: r.type === "concern" ? `Report: ${r.about}` : "Visit feedback", href: `#/reports/${r.id}` }));
+    if (ASKS) ASKS.filter(x => x.status === "new").forEach(x => attention.push({ c: "a-fund", t: `${esc(x.name)} would like to give · waiting for a personal reply`, s: `${x.amount || "Amount not said"} → ${x.kind === "member" ? "every month" : x.project ? projOf(x.project).title : "the Raavanaa Fund"}`, href: "#/sponsors" }));
     D.pledges.filter(x => x.status === "pledged").forEach(x => attention.push({ c: "a-fund", t: `Pledge of ${money(x.amount)} · waiting to receive`, s: x.name + " → " + projOf(x.project).title, href: "#/sponsors" }));
     sNew.filter(s => !s.assigned).forEach(s => attention.push({ c: "a-new", t: `New · waiting for someone to take it`, s: s.title, href: `#/suggestions/${s.id}` }));
     sVisit.forEach(s => attention.push({ c: "a-visit", t: `Visit on ${fmtDay(s.visit)} · ${esc(s.assigned)}`, s: s.title, href: `#/suggestions/${s.id}` }));
@@ -896,6 +900,27 @@
     const p = P.find(x => x.slug === slug); if (!p) return;
     p.funders = D.pledges.filter(x => x.project === slug && x.status === "received").map(x => ({ name: x.public ? x.name : "A friend of Raavanaa", amount: x.amount }));
   }
+  // "I'd like to give" (SURESH, 12 Nov 2026): no money is taken on the website. Each person here asked to give;
+  // a volunteer replies to them personally (bank details only in that reply) and marks what happened.
+  const ASK_ST = { new: ["New", "amber"], replied: ["Replied", "blue"], received: ["Gift received", "green"], closed: ["Closed", "gray"] };
+  function asksHTML() {
+    if (!ASKS) return "";
+    const open = ASKS.filter(x => x.status === "new" || x.status === "replied"), done = ASKS.filter(x => x.status === "received" || x.status === "closed");
+    const what = x => x.kind === "member" ? "a gift every month" : x.project ? projOf(x.project).title : "the Raavanaa Fund";
+    const reach = c => /@/.test(c) ? `<a href="mailto:${esc(c)}">${esc(c)}</a>` : `<a href="tel:${esc(c.replace(/[^\d+]/g, ""))}">${esc(c)}</a>`;
+    const row = x => { const st = ASK_ST[x.status] || ASK_ST.new, t = x.tribute; return `<li class="pt-pl pt-ask ${esc(x.status)}">
+        <span class="pt-av">${esc(initials(x.name))}</span>
+        <span class="pt-row-main"><b>${esc(x.name)} <span class="pt-pill ${st[1]}">${st[0]}</span></b>
+          <small>${esc(x.id)} · ${fmtDay(String(x.at))} · ${reach(String(x.contact || ""))}${x.lang === "ta" ? " · wrote in Tamil" : ""}</small>
+          <small><b>${esc(x.amount || "Amount not said")}</b> for ${esc(what(x))}${t ? ` · ${esc(t.words)} ${esc(t.name)}${t.note ? ` (“${esc(t.note)}”)` : ""}${t.day ? ` · remind every year before ${esc(t.day)}` : ""}` : ""}${x.moment ? ` · family page /m/${esc(x.moment)}` : ""}</small>
+          ${x.message ? `<small class="pt-ask-msg">“${esc(x.message)}”</small>` : ""}
+          ${x.by && x.status !== "new" ? `<small>${st[0]} · ${esc(x.by)}${x.handledAt ? " · " + fmtDay(String(x.handledAt)) : ""}</small>` : ""}</span>
+        <span class="pt-row-side">${x.status === "new" ? `<button type="button" class="pt-btn sm" data-ask="${esc(x.id)}" data-to="replied">I have replied</button>` : ""}${x.status === "replied" ? `<button type="button" class="pt-btn sm" data-ask="${esc(x.id)}" data-to="received">Gift received</button>` : ""}${x.status === "new" || x.status === "replied" ? `<button type="button" class="pt-btn ghost sm" data-ask="${esc(x.id)}" data-to="closed">Close</button>` : `<button type="button" class="pt-btn ghost sm" data-ask="${esc(x.id)}" data-to="new">Reopen</button>`}</span></li>`; };
+    return `<section class="pt-card pt-asks"><h2>People who want to give <span class="pt-count">${open.length}</span></h2>
+      <p class="pt-sub">From the “I'd like to give” form on the website. Reply to each person yourself, from the official email or by WhatsApp, and send bank details only in that reply. When the gift arrives, mark it here and add it to the project's sponsors.</p>
+      ${open.length ? `<ul class="pt-list big">${open.map(row).join("")}</ul>` : `<p class="pt-sub"><b>Nobody is waiting for a reply.</b></p>`}
+      ${done.length ? `<details class="pt-asks-done"><summary>Finished (${done.length})</summary><ul class="pt-list big">${done.map(row).join("")}</ul></details>` : ""}</section>`;
+  }
   let sview = "pledges";
   function sponsors() {
     const recv = D.pledges.filter(x => x.status === "received"), wait = D.pledges.filter(x => x.status === "pledged");
@@ -912,6 +937,7 @@
       <header class="pt-head"><div><p class="pt-kicker">Sponsors &amp; pledges</p><h1>Sponsors &amp; pledges</h1>
         <p class="pt-sub">A pledge counts toward a project only when the money is marked received.</p></div>
         <button type="button" class="pt-btn" data-newpl>+ Record a pledge</button></header>
+      ${asksHTML()}
       <section class="pt-stats">
         <div class="pt-stat st1"><b>${money(tot(recv))}</b><span>Received</span></div>
         <div class="pt-stat st2"><b>${money(tot(wait))}</b><span>Waiting to receive</span></div>
@@ -945,6 +971,11 @@
           <p class="pt-sub">${q}% received${pend ? ` · ${money(pend)} waiting` : ""}${b.raised >= b.goal ? " · fully funded" : ""}</p></section>`; }).join("")}</div>`}`;
   }
   function wireSponsors() {
+    app.querySelectorAll("[data-ask]").forEach(b => b.onclick = async () => {
+      b.disabled = true;
+      try { const r = await api(`/api/portal/pledges/${encodeURIComponent(b.dataset.ask)}`, { method: "PATCH", body: JSON.stringify({ status: b.dataset.to }) }); ASKS = r.pledges; render(); toast("Saved"); }
+      catch (e) { toast(e.message || "Could not save"); b.disabled = false; }
+    });
     app.querySelectorAll("[data-sv]").forEach(b => b.onclick = () => { sview = b.dataset.sv; render(); });
     const form = app.querySelector("#pt-plform");
     app.querySelector("[data-newpl]").onclick = () => { form.hidden = false; form.querySelector("[name=name]").focus(); };
@@ -1285,7 +1316,8 @@
         try {
           ME = await api("/api/portal/me");
           const r = await api("/api/portal/suggestions");
-          D.suggestions = r.suggestions; C = await api("/api/portal/champions").then(x => ({ list: x.champions, districts: x.districts })).catch(() => C); D.user = { name: ME.name, role: ME.admin ? "Admin" : "Team" };
+          D.suggestions = r.suggestions; C = await api("/api/portal/champions").then(x => ({ list: x.champions, districts: x.districts })).catch(() => C);
+          ASKS = await api("/api/portal/pledges").then(x => x.pledges || []).catch(() => []); D.user = { name: ME.name, role: ME.admin ? "Admin" : "Team" };
           if (!D.team.includes(ME.name)) D.team = [ME.name, ...D.team];
           LIVE = true; NOW = new Date();
         } catch (e) {
@@ -1296,7 +1328,7 @@
       if (!LIVE) C = { list: [{ id: 1, name: "Kumar Selvam", phone: "077 123 4567", email: "", district: "Nuwara Eliya", areas: "Pussellawa, Choughleigh", note: "Knows the estate schools.", active: true, visits: 2 }, { id: 2, name: "Nadeesha Perera", phone: "071 555 0101", email: "", district: "Kandy", areas: "Gampola, Peradeniya", note: "", active: true, visits: 0 }],
         districts: ["Ampara", "Anuradhapura", "Badulla", "Batticaloa", "Colombo", "Galle", "Gampaha", "Hambantota", "Jaffna", "Kalutara", "Kandy", "Kegalle", "Kilinochchi", "Kurunegala", "Mannar", "Matale", "Matara", "Monaragala", "Mullaitivu", "Nuwara Eliya", "Polonnaruwa", "Puttalam", "Ratnapura", "Trincomalee", "Vavuniya"] };
       const banner = document.querySelector(".pt-demo");
-      if (LIVE) { banner.textContent = `Signed in as ${ME.email} · Suggestions are live · other screens are still a demo`; banner.classList.add("live"); }
+      if (LIVE) { banner.textContent = `Signed in as ${ME.email} · Suggestions and “I'd like to give” requests are live · other screens are still a demo`; banner.classList.add("live"); }
       window.addEventListener("hashchange", () => { render(); window.scrollTo(0, 0); });
       render();
     })

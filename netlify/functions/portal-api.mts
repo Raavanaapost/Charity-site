@@ -3,6 +3,8 @@
 //   GET   /api/portal/suggestions                 all suggestions with their notes
 //   PATCH /api/portal/suggestions/:ref            change status, who looks after it, visit date, visit checklist (+ optional note)
 //   POST  /api/portal/suggestions/:ref/notes      add a team note
+//   GET   /api/portal/pledges                     people who asked to give ("I'd like to give")
+//   PATCH /api/portal/pledges/:ref                mark one replied, received or closed (+ a team note)
 // Access: a user with the Identity role "admin" or "team", or whose email is listed in the PORTAL_ADMINS environment variable.
 import type { Config, Context } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
@@ -169,6 +171,34 @@ export default async (req: Request, context: Context) => {
       }
       await db.sql`INSERT INTO audit_log (actor, action, target) VALUES (${me.email}, 'champion.update', ${String(id)})`;
       return json({ champions: await list() });
+    }
+    return json({ error: "Not allowed" }, 405);
+  }
+
+  // "I'd like to give" (SURESH, 12 Nov 2026): people who asked to give. A volunteer replies to each one personally.
+  //   GET   /api/portal/pledges        the list, newest first, the unanswered ones on top
+  //   PATCH /api/portal/pledges/:ref   { status: new | replied | received | closed, note }
+  if (parts[0] === "pledges") {
+    const PSTATUS = ["new", "replied", "received", "closed"];
+    const list = async () => ((await db.sql`
+      SELECT * FROM give_requests ORDER BY (status = 'new') DESC, (status = 'replied') DESC, received_at DESC LIMIT 500`) as Record<string, any>[]).map((r) => ({
+      id: r.ref, at: r.received_at, name: r.name, contact: r.contact, amount: r.amount, kind: r.kind, project: r.project_slug, moment: r.moment_code,
+      tribute: r.tribute || null, message: r.message, lang: r.lang, status: r.status, note: r.team_note, by: r.handled_by, handledAt: r.handled_at,
+    }));
+    if (req.method === "GET" && !parts[1]) return json({ pledges: await list() });
+    if (req.method === "PATCH" && parts[1]) {
+      let b: Record<string, any> = {};
+      try { b = await req.json(); } catch { /* empty */ }
+      const ref = clip(parts[1], 20);
+      const [row] = await db.sql<{ id: number }>`SELECT id FROM give_requests WHERE ref = ${ref}`;
+      if (!row) return json({ error: "Not found" }, 404);
+      if (b.status !== undefined) {
+        if (!PSTATUS.includes(b.status)) return json({ error: "Unknown status" }, 400);
+        await db.sql`UPDATE give_requests SET status = ${b.status}, handled_by = ${me.name}, handled_at = NOW() WHERE id = ${row.id}`;
+      }
+      if (b.note !== undefined) await db.sql`UPDATE give_requests SET team_note = ${clip(b.note, 1000)} WHERE id = ${row.id}`;
+      await db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES (${me.email}, 'give_request.update', ${ref}, ${JSON.stringify({ status: b.status, note: b.note !== undefined })}::jsonb)`;
+      return json({ pledges: await list() });
     }
     return json({ error: "Not allowed" }, 405);
   }

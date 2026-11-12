@@ -33,6 +33,10 @@
   </div>
 </header>
 <main id="app" class="wrap"></main>
+<!-- Lets Netlify keep a copy of each "I'd like to give" request (the page builds the real form with JavaScript) -->
+<form name="give-request" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input name="name"><input name="contact"><input name="amount"><input name="kind"><input name="project"><input name="moment"><input name="tribute"><textarea name="message"></textarea><input name="lang"><input name="bot-field">
+</form>
 <footer><div class="wrap"><span>© <span data-year></span> <span data-site-name></span></span><span data-site-footer></span></div></footer>
 <script src="/site.js"></script>
 </body>

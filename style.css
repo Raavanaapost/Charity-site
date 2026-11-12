@@ -2347,3 +2347,20 @@ html[lang="ta"] .app-sheet-box h3{letter-spacing:0;text-transform:none;font-size
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .app-strip-in{background:var(--surface);border-color:var(--line)}:root:not([data-theme="light"]) .app-strip-t b{color:var(--brand)}:root:not([data-theme="light"]) .app-strip-t small,:root:not([data-theme="light"]) .app-strip-x{color:var(--muted)}:root:not([data-theme="light"]) .app-strip-go{background:var(--brand);color:var(--brand-ink)}}
 :root[data-theme="dark"] .app-strip-in{background:var(--surface);border-color:var(--line)}:root[data-theme="dark"] .app-strip-t b{color:var(--brand)}:root[data-theme="dark"] .app-strip-t small,:root[data-theme="dark"] .app-strip-x{color:var(--muted)}:root[data-theme="dark"] .app-strip-go{background:var(--brand);color:var(--brand-ink)}
 @media (prefers-reduced-motion:reduce){.app-sheet{animation:none}}
+
+/* ---------- "I'd like to give" (launch, 12 Nov 2026): no card payment; a volunteer replies personally ---------- */
+.give-banner.ask{background:var(--brand-soft);border-color:color-mix(in srgb,var(--brand) 35%,transparent)}
+.give-form input[name="contact"],.give-ask input[name="own"]{border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:inherit;font-family:var(--body);background:var(--surface);color:var(--ink);width:100%}
+.give-ask .give-pay{font-size:17px;padding:13px 18px}
+.give-safe{display:flex;gap:9px;align-items:flex-start;margin:0;padding:10px 12px;border-radius:10px;background:var(--sun-soft);border:1px solid color-mix(in srgb,var(--sun) 35%,transparent);color:var(--ink);font-size:13.5px;line-height:1.45}
+.give-safe svg{flex:none;margin-top:1px;color:var(--brand)}
+.give-done{display:grid;gap:10px;justify-items:center;text-align:center;padding:10px 4px 4px;outline:0}
+.give-done-heart{margin:0;color:var(--flame);animation:go-in .4s ease-out}
+.give-done h3{margin:0;font-size:24px;line-height:1.2;color:var(--brand)}
+.give-done h3 b{font-weight:700}
+.give-done p{margin:0;max-width:420px}
+.give-done-at{font-family:var(--display);font-size:15px;color:var(--muted)}
+.give-done-at b{color:var(--ink);overflow-wrap:anywhere}
+.give-done .give-safe{text-align:left}
+.give-done-next{margin-top:4px!important}
+@media (prefers-reduced-motion:reduce){.give-done-heart{animation:none}}
