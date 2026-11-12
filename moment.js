@@ -54,6 +54,103 @@
     people: '<circle cx="8" cy="8.5" r="2.6"/><circle cx="16.5" cy="9.5" r="2.2"/><path d="M3 19c0-3.2 2.200-5.200 5-5.200s5 2 5 5.200M14 14.300c.8-.4 1.600-.6 2.500-.6 2.500 0 4.500 1.800 4.500 4.800"/>',
     pen: '<path d="M4 20l4-1L19 8l-3-3L5 16zM14 7l3 3"/>'
   };
+  // A headline for each reason (SURESH, 12 Nov 2026): three for each, taking turns. The first half is in the page's
+  // green, the second half (<em>) in the reason's own colour.
+  var TITLES = {
+    memory: [["Gone from sight. <em>Never from the heart.</em>", "கண்ணில் மறைந்தாலும், <em>நெஞ்சில் என்றும்.</em>"],
+      ["Their light. <em>Still shining.</em>", "அவர்களின் ஒளி. <em>இன்னும் ஒளிர்கிறது.</em>"],
+      ["Love remembered. <em>Joy passed on.</em>", "நினைவில் அன்பு. <em>பகிர்வில் மகிழ்ச்சி.</em>"]],
+    remembrance: [["One day each year. <em>A lifetime of love.</em>", "ஆண்டுக்கு ஒரு நாள். <em>வாழ்நாள் முழுவதும் அன்பு.</em>"],
+      ["The day returns. <em>So does their kindness.</em>", "அந்த நாள் மீண்டும் வருகிறது. <em>அவர்களின் கருணையும்.</em>"],
+      ["Light a lamp. <em>Light up a childhood.</em>", "ஒரு விளக்கேற்றுங்கள். <em>ஒரு குழந்தையின் நாள் ஒளிரட்டும்.</em>"]],
+    birthday: [["Another year of you. <em>A day of joy for them.</em>", "இன்னோர் ஆண்டு. <em>இன்னொரு புன்னகை.</em>"],
+      ["Make a wish. <em>Make a child's day.</em>", "ஒரு வேண்டுதல். <em>ஒரு குழந்தைக்கு இனிய நாள்.</em>"],
+      ["Your birthday. <em>Their best day.</em>", "உங்கள் பிறந்தநாள். <em>அவர்களின் சிறந்த நாள்.</em>"]],
+    wedding: [["Two hearts, one promise. <em>Many little smiles.</em>", "இரு இதயங்கள், ஓர் உறுதி. <em>பல சின்னப் புன்னகைகள்.</em>"],
+      ["Years of love. <em>Shared with children.</em>", "பல ஆண்டு அன்பு. <em>குழந்தைகளுடன் பகிர்ந்து.</em>"],
+      ["Love that grows <em>is love that gives.</em>", "வளரும் அன்பு <em>கொடுக்கும் அன்பு.</em>"]],
+    newborn: [["A new life begins. <em>Let a blessing begin too.</em>", "ஒரு புதிய உயிர் பிறந்தது. <em>ஓர் ஆசியும் பிறக்கட்டும்.</em>"],
+      ["Tiny hands. <em>A big welcome.</em>", "சின்னஞ்சிறு கைகள். <em>பெரிய வரவேற்பு.</em>"],
+      ["One child arrives. <em>Many children smile.</em>", "ஒரு குழந்தை வந்தது. <em>பல குழந்தைகள் சிரிக்கின்றன.</em>"]],
+    success: [["You made it. <em>Now lift another child.</em>", "நீங்கள் சாதித்தீர்கள். <em>இன்னொரு குழந்தையை உயர்த்துங்கள்.</em>"],
+      ["A dream achieved. <em>A dream begun.</em>", "ஒரு கனவு நிறைவேறியது. <em>ஒரு கனவு தொடங்குகிறது.</em>"],
+      ["Success is sweeter <em>when it is shared.</em>", "பகிர்ந்தால் <em>வெற்றி இன்னும் இனிக்கும்.</em>"]],
+    recovery: [["Health returned. <em>Gratitude given.</em>", "நலம் திரும்பியது. <em>நன்றி செலுத்துவோம்.</em>"],
+      ["Stronger every day. <em>Kinder every day.</em>", "நாளும் வலிமை. <em>நாளும் கருணை.</em>"],
+      ["A prayer answered. <em>A joy passed on.</em>", "வேண்டுதல் நிறைவேறியது. <em>மகிழ்ச்சியைப் பகிர்வோம்.</em>"]],
+    gratitude: [["Thank you, <em>said with a smile.</em>", "நன்றி, <em>ஒரு புன்னகையால்.</em>"],
+      ["A grateful heart <em>gives the best gifts.</em>", "நன்றியுள்ள இதயம் <em>சிறந்த பரிசைத் தரும்.</em>"],
+      ["For all you gave me. <em>This is for them.</em>", "நீங்கள் எனக்குத் தந்ததற்காக. <em>இது அவர்களுக்காக.</em>"]],
+    festival: [["Light the lamps. <em>Share the feast.</em>", "விளக்கேற்றுங்கள். <em>விருந்தைப் பகிருங்கள்.</em>"],
+      ["A festival is brighter <em>with every child in it.</em>", "ஒவ்வொரு குழந்தையும் சேரும்போது <em>பண்டிகை இன்னும் ஒளிரும்.</em>"],
+      ["Celebrate at home. <em>Celebrate with them.</em>", "வீட்டில் கொண்டாடுங்கள். <em>அவர்களுடனும் கொண்டாடுங்கள்.</em>"]],
+    honour: [["Some people lift us. <em>Lift a child in their name.</em>", "உயர்த்தியவர் பெயரில், <em>ஒரு குழந்தை உயரட்டும்.</em>"],
+      ["Honour them <em>with a child's happiest day.</em>", "அவர்களைப் போற்ற, <em>ஒரு குழந்தைக்கு இனிய நாள்.</em>"],
+      ["A name worth honouring. <em>A day worth giving.</em>", "போற்றத்தக்க பெயர். <em>கொடுக்கத்தக்க நாள்.</em>"]],
+    behalf: [["Together we give. <em>Together they smile.</em>", "ஒன்றாகக் கொடுப்போம். <em>ஒன்றாகச் சிரிப்பார்கள்.</em>"],
+      ["One family. One gift. <em>Many smiles.</em>", "ஒரு குடும்பம். ஒரு பரிசு. <em>பல புன்னகைகள்.</em>"],
+      ["From all of us, <em>with love.</em>", "எம் அனைவரிடமிருந்தும், <em>அன்புடன்.</em>"]],
+    custom: [["Your moment. <em>Their smile.</em>", "உங்கள் தருணம். <em>அவர்களின் புன்னகை.</em>"],
+      ["Your reason. <em>Their joy.</em>", "உங்கள் காரணம். <em>அவர்களின் மகிழ்ச்சி.</em>"],
+      ["Every reason to give <em>is a good one.</em>", "கொடுக்க எந்தக் காரணமும் <em>நல்ல காரணமே.</em>"]]
+  };
+  // The round button under the picture: its own words and its own little picture for each reason. It takes the giver
+  // on to the next step.
+  var ACTS = {
+    memory: ["flame", "Light a lamp", "விளக்கு ஏற்றுங்கள்"],
+    remembrance: ["day", "Mark the day", "நினைவு கூருங்கள்"],
+    birthday: ["gift", "Sponsor a smile", "புன்னகை தாருங்கள்"],
+    wedding: ["heart", "Share the love", "அன்பைப் பகிருங்கள்"],
+    newborn: ["spark", "Bless a child", "ஆசி வழங்குங்கள்"],
+    success: ["rise", "Lift a dream", "கனவை உயர்த்துங்கள்"],
+    recovery: ["sun", "Give thanks", "நன்றி செலுத்துங்கள்"],
+    gratitude: ["flower", "Say thank you", "நன்றி சொல்லுங்கள்"],
+    festival: ["feast", "Share the feast", "விருந்தைப் பகிருங்கள்"],
+    honour: ["medal", "Honour them", "அவர்களைப் போற்றுங்கள்"],
+    behalf: ["people", "Give together", "சேர்ந்து கொடுங்கள்"],
+    custom: ["wand", "Make it happen", "நனவாக்குங்கள்"]
+  };
+  var ACT_ICONS = {
+    flame: '<path d="M12 3c3 4 5 6.5 5 10a5 5 0 0 1-10 0c0-3.5 2-6 5-10z"/><path d="M12 12.5c1.2 1.6 2 2.6 2 3.9a2 2 0 0 1-4 0c0-1.3.8-2.3 2-3.9z" fill="currentColor" stroke="none"/>',
+    day: '<rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M8 3v4M16 3v4"/><path d="M12 17.6s-2.8-1.7-2.8-3.6a1.6 1.6 0 0 1 2.8-1 1.6 1.6 0 0 1 2.8 1c0 1.900-2.8 3.6-2.8 3.6z" fill="currentColor" stroke="none"/>',
+    gift: '<rect x="4.5" y="11" width="15" height="9" rx="1.5"/><rect x="3" y="7.5" width="18" height="3.5" rx="1"/><path d="M12 7.5V20M12 7.5c-1.500-3.500-5.500-3.500-5-1 .3 1.300 2.800 1.300 5 1zM12 7.5c1.500-3.500 5.500-3.500 5-1-.3 1.300-2.800 1.300-5 1z"/>',
+    heart: '<path d="M12 20s-7-4.400-7-9.600A4.200 4.200 0 0 1 12 7.700a4.200 4.200 0 0 1 7 2.700C19 15.600 12 20 12 20z" fill="currentColor"/>',
+    spark: '<path d="M11 4l1.900 5.600L18.500 11.500l-5.600 1.900L11 19l-1.900-5.600L3.500 11.500l5.600-1.900z" fill="currentColor"/><path d="M18.500 3v3M17 4.500h3M19 16v3M17.500 17.500h3"/>',
+    rise: '<path d="M4 19l6-6 3.500 3.500L20 9M15 8.500h5.500V14"/><path d="M6 5l.8 1.700L8.500 7.500l-1.700.8L6 10l-.8-1.700L3.500 7.500l1.700-.8z" fill="currentColor" stroke="none"/>',
+    sun: '<circle cx="12" cy="12" r="4" fill="currentColor"/><path d="M12 3v2.500M12 18.500V21M3 12h2.500M18.500 12H21M5.600 5.600l1.800 1.800M16.600 16.600l1.800 1.800M5.600 18.400l1.800-1.800M16.600 7.400l1.800-1.800"/>',
+    flower: '<circle cx="12" cy="6.800" r="2.700"/><circle cx="16.900" cy="10.400" r="2.700"/><circle cx="15" cy="16.200" r="2.700"/><circle cx="9" cy="16.200" r="2.700"/><circle cx="7.100" cy="10.400" r="2.700"/><circle cx="12" cy="12" r="2.200" fill="currentColor" stroke="none"/>',
+    feast: '<path d="M4 12h16a8 8 0 0 1-16 0zM9 20.500h6M9 8.500c0-1.500 1.500-1.500 1.500-3M13.500 8.500c0-1.500 1.500-1.500 1.500-3"/>',
+    medal: '<circle cx="12" cy="15" r="5"/><path d="M9.300 10.800L7 3.500h10l-2.300 7.300"/><circle cx="12" cy="15" r="1.700" fill="currentColor" stroke="none"/>',
+    people: '<circle cx="8" cy="8.500" r="2.600"/><circle cx="16.500" cy="9.500" r="2.200"/><path d="M3 19c0-3.200 2.200-5.200 5-5.200s5 2 5 5.200M14 14.300c.8-.4 1.600-.6 2.500-.6 2.500 0 4.500 1.800 4.500 4.800"/>',
+    wand: '<path d="M5 19L14.500 9.500M14.500 9.500l2-2"/><path d="M18.500 3v3M17 4.500h3M8 4v2.400M6.800 5.200h2.400M19 12.500v2.400M17.800 13.700h2.400"/>'
+  };
+  var actIcon = function (k) { return '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ACT_ICONS[k] + "</svg>"; };
+  // The emblem beside the title: always a heart, with a different sign inside for each reason, and a rim that runs
+  // from gold into the reason's own colour.
+  var MARKS = {
+    memory: '<path d="M48 20c7.500 9 11.500 14.800 11.500 21.500C59.500 48.400 54.400 53 48 53s-11.500-4.600-11.500-11.500C36.500 34.800 40.500 29 48 20z" fill="url(#mm-flame)"/><path d="M48 33c3.600 4.400 5.500 7.200 5.500 10.400 0 3.300-2.500 5.600-5.500 5.600s-5.500-2.300-5.500-5.600c0-3.200 1.900-6 5.500-10.400z" fill="#ffe27a"/><path d="M31 55h34c-1.600 8.200-8.400 13-17 13s-15.400-4.800-17-13z" fill="url(#mm-brass)"/><path d="M29 55h38" stroke="#8a5c12" stroke-width="2.400" stroke-linecap="round"/><path d="M43.500 68h9l2.500 6h-14z" fill="url(#mm-brass)"/>',
+    remembrance: '<path d="M48 16c4.700 5.600 7.200 9.300 7.200 13.500 0 4.300-3.200 7.200-7.200 7.200s-7.200-2.900-7.200-7.200c0-4.200 2.500-7.900 7.200-13.500z" fill="url(#mm-flame)"/><path d="M48 24.500c2.200 2.700 3.400 4.400 3.400 6.400a3.400 3.400 0 0 1-6.800 0c0-2 1.200-3.700 3.400-6.400z" fill="#ffe27a"/><rect x="42" y="39" width="12" height="22" rx="2.500" fill="#fff6e0" stroke="#b9831a" stroke-width="2"/><path d="M33 61h30c-1.300 5.500-6.700 8.500-15 8.500s-13.700-3-15-8.500z" fill="url(#mm-brass)"/><circle cx="33.500" cy="56" r="4.600" fill="#f29a1f"/><circle cx="62.500" cy="56" r="4.600" fill="#e4561b"/><circle cx="33.500" cy="56" r="1.600" fill="#ffe27a"/><circle cx="62.500" cy="56" r="1.600" fill="#ffe27a"/>',
+    birthday: '<path d="M48 16c2.800 3.400 4.300 5.600 4.300 8.100a4.300 4.300 0 0 1-8.600 0c0-2.500 1.500-4.700 4.300-8.100z" fill="url(#mm-flame)"/><rect x="45.800" y="30" width="4.400" height="10" rx="1.200" fill="#fff6e0" stroke="#b9831a" stroke-width="1.200"/><rect x="37" y="40" width="22" height="12" rx="3.500" style="fill:var(--accent)"/><path d="M37 45.500c3.700 3 7.300 3 11 0s7.300-3 11 0" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><rect x="30" y="51" width="36" height="13.500" rx="3.500" fill="url(#mm-brass)"/><path d="M34 57h28" stroke="#fff3d6" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 5"/><path d="M27 65.500h42" stroke="#8a5c12" stroke-width="2.400" stroke-linecap="round"/>',
+    wedding: '<path d="M48 32s-6.500-4.100-6.500-8.900a3.900 3.900 0 0 1 6.500-2.500 3.900 3.900 0 0 1 6.500 2.500c0 4.800-6.500 8.900-6.500 8.900z" style="fill:var(--accent)"/><circle cx="40" cy="50" r="11" fill="none" stroke="url(#mm-brass)" stroke-width="5"/><circle cx="56" cy="50" r="11" fill="none" stroke="#e9a013" stroke-width="5"/><path d="M47.300 41.800a11 11 0 0 1 3.200 5.200" fill="none" stroke="url(#mm-brass)" stroke-width="5" stroke-linecap="round"/>',
+    newborn: '<g style="fill:var(--accent)"><ellipse cx="39.500" cy="51" rx="6.500" ry="10.500" transform="rotate(-9 39.500 51)"/><circle cx="32" cy="38" r="2.200"/><circle cx="36" cy="35" r="2.400"/><circle cx="40.500" cy="34.200" r="2.300"/><circle cx="44.500" cy="36.200" r="2"/></g><g fill="#e9a013"><ellipse cx="56.500" cy="51" rx="6.500" ry="10.500" transform="rotate(9 56.500 51)"/><circle cx="51.500" cy="36.200" r="2"/><circle cx="55.500" cy="34.200" r="2.300"/><circle cx="60" cy="35" r="2.400"/><circle cx="64" cy="38" r="2.200"/></g>',
+    success: '<path d="M35 44v10c0 4.400 5.800 7.500 13 7.500s13-3.100 13-7.500V44l-13 6.500z" fill="url(#mm-brass)"/><path d="M48 25l25 12.500L48 50 23 37.500z" style="fill:var(--accent)" stroke="#fff3d6" stroke-width="1.500" stroke-linejoin="round"/><path d="M70.500 38.500V52" stroke="#e4561b" stroke-width="2.600" stroke-linecap="round"/><circle cx="70.500" cy="54.500" r="3" fill="#e4561b"/>',
+    recovery: '<path d="M48 68V44" stroke="#2f7a3a" stroke-width="3.600" stroke-linecap="round"/><path d="M48 55c-12 0-18.500-7.500-19.500-18.500C40 36.500 48 43 48 55z" fill="#6ab868"/><path d="M48 46c0-12.500 7.500-20.500 20-21.500C68 37 60.500 46 48 46z" style="fill:var(--accent)"/><path d="M36 68.500h24" stroke="#b9831a" stroke-width="3" stroke-linecap="round"/>',
+    gratitude: '<path d="M48 58c-10 2.500-18.500-1-23.500-9.500 8.500-3.500 18-.5 23.500 9.500z" fill="#f7c63a"/><path d="M48 58c10 2.500 18.500-1 23.500-9.500-8.500-3.500-18-.5-23.500 9.500z" fill="#f7c63a"/><path d="M48 57c-9.500-3-16.500-10.500-18.500-22 9.500 1 17 8.500 18.500 22z" fill="#f29a1f"/><path d="M48 57c9.500-3 16.500-10.500 18.500-22-9.500 1-17 8.500-18.500 22z" fill="#f29a1f"/><path d="M48 23c6.500 9 7.500 22 0 33.500-7.500-11.500-6.500-24.500 0-33.500z" fill="url(#mm-flame)"/><path d="M39 61c3 4.500 15 4.500 18 0z" fill="#2f8a4a"/>',
+    festival: '<g stroke-width="3.800" stroke-linecap="round"><path d="M48 31V21M48 53v10M59 42h10M37 42H27" stroke="#e4561b"/><path d="M55.800 34.200l7-7M55.800 49.800l7 7M40.200 34.200l-7-7M40.200 49.800l-7 7" stroke="#e9a013"/></g><circle cx="48" cy="42" r="6.500" fill="#ffe27a" stroke="#e4561b" stroke-width="2.200"/><g style="fill:var(--accent)"><circle cx="66" cy="24" r="2.300"/><circle cx="30" cy="24" r="2.300"/><circle cx="66" cy="60" r="2.300"/><circle cx="30" cy="60" r="2.300"/></g>',
+    honour: '<path d="M29 58l-3.500-22.500L38 46l10-17.500L58 46l12.500-10.500L67 58z" fill="url(#mm-brass)" stroke="#8a5c12" stroke-width="1.500" stroke-linejoin="round"/><rect x="28.500" y="57.500" width="39" height="7.500" rx="2.500" style="fill:var(--accent)"/><circle cx="25.500" cy="34.500" r="3.200" fill="#e4561b"/><circle cx="48" cy="27" r="3.500" fill="#e4561b"/><circle cx="70.500" cy="34.500" r="3.200" fill="#e4561b"/><circle cx="48" cy="61.200" r="1.900" fill="#ffe27a"/><circle cx="38" cy="61.200" r="1.500" fill="#ffe27a"/><circle cx="58" cy="61.200" r="1.500" fill="#ffe27a"/>',
+    behalf: '<circle cx="32.500" cy="40" r="4.800" fill="#e4761b"/><path d="M23.500 63c0-8.500 3.700-13.500 9-13.500s9 5 9 13.500z" fill="#e4761b"/><circle cx="63.500" cy="40" r="4.800" fill="#e9a013"/><path d="M54.500 63c0-8.500 3.700-13.500 9-13.500s9 5 9 13.500z" fill="#e9a013"/><circle cx="48" cy="31" r="5.800" style="fill:var(--accent)" stroke="#fff6e0" stroke-width="1.500"/><path d="M36.500 65c0-11.500 4.800-18.500 11.500-18.500S59.500 53.500 59.500 65z" style="fill:var(--accent)" stroke="#fff6e0" stroke-width="1.500"/>',
+    custom: '<g transform="rotate(38 48 44)"><rect x="43" y="17" width="10" height="7" rx="2.500" style="fill:var(--accent)"/><rect x="43" y="23" width="10" height="31" fill="url(#mm-brass)"/><path d="M43 26.500h10" stroke="#8a5c12" stroke-width="1.500"/><path d="M43 54h10l-5 10.500z" fill="#fff3d6" stroke="#b9831a" stroke-width="1.200" stroke-linejoin="round"/><path d="M46.300 61l1.700 3.500 1.700-3.500z" fill="#3d2a10"/></g><path d="M64 26l1.300 3.200 3.200 1.300-3.200 1.300L64 35l-1.300-3.200-3.200-1.300 3.200-1.300z" fill="#e4561b"/>'
+  };
+  var markSVG = function (k) {
+    return '<svg viewBox="0 0 96 96" aria-hidden="true"><defs>' +
+      '<linearGradient id="mm-rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7c63a"/><stop offset=".45" stop-color="#e9a013"/><stop offset="1" style="stop-color:var(--accent)"/></linearGradient>' +
+      '<radialGradient id="mm-glow" cx=".5" cy=".46" r=".6"><stop offset="0" stop-color="#fffdf2"/><stop offset=".55" stop-color="#fff3d0"/><stop offset="1" stop-color="#fbdf9c"/></radialGradient>' +
+      '<linearGradient id="mm-flame" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#f29a1f"/><stop offset=".6" stop-color="#e4561b"/><stop offset="1" stop-color="#c8381e"/></linearGradient>' +
+      '<linearGradient id="mm-brass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7cf5a"/><stop offset="1" stop-color="#b9831a"/></linearGradient></defs>' +
+      '<path d="M48 86C22 67 7 49 7 31 7 17 17.500 7 30 7c7.600 0 14 3.600 18 9.800C52 10.600 58.400 7 66 7c12.500 0 23 10 23 24 0 18-15 36-41 55z" fill="url(#mm-glow)" stroke="url(#mm-rim)" stroke-width="6" stroke-linejoin="round"/>' +
+      (MARKS[k] || MARKS.memory) +
+      '<path d="M17 28l1.100 2.800 2.800 1.100-2.800 1.100L17 35.800l-1.100-2.800-2.800-1.100 2.800-1.100zM79 22l.9 2.200 2.200.9-2.200.9-.9 2.200-.9-2.200-2.200-.9 2.200-.9z" fill="#fff" opacity=".95"/></svg>';
+  };
   var icon = function (k) { return '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[k] + "</svg>"; };
   var WHO = TA ? ["அம்மா", "அப்பா", "அம்மம்மா", "அப்பம்மா", "அப்பப்பா", "அம்மப்பா", "ஆச்சி", "தாத்தா", "பாட்டி", "அக்கா", "அண்ணா", "தம்பி", "தங்கை", "என் மனைவி", "என் கணவர்", "என் மகன்", "என் மகள்", "என் நண்பர்", "என் ஆசிரியர்"]
     : ["Amma", "Appa", "Ammamma", "Appamma", "Appappa", "Ammappa", "Aachchi", "Thatha", "Paati", "Akka", "Anna", "Thambi", "Thangachchi", "my wife", "my husband", "my son", "my daughter", "my friend", "my teacher"];
@@ -90,12 +187,15 @@
     '<section class="mo-hero">' +
       '<div class="mo-petals" aria-hidden="true">' + Array.apply(null, Array(14)).map(function (_, i) { return '<i style="--i:' + i + '"></i>'; }).join("") + "</div>" +
       '<div class="wrap mo-hero-in">' +
-        '<img class="mo-lamp" data-hero-art src="/img/moment/memory.jpg" alt="" width="300" height="400">' +
+        '<div class="mo-art">' +
+          '<img class="mo-lamp" data-hero-art src="/img/moment/memory.jpg" alt="" width="300" height="400">' +
+          '<a class="mo-act" data-act href="#mo-step-2"><span class="mo-act-ic" data-act-ic></span><span class="mo-act-l"><span data-act-l></span><i aria-hidden="true">→</i></span></a>' +
+        "</div>" +
         '<div class="mo-hero-text">' +
-          '<p class="mo-brand"><img src="/img/moment-mark.svg" alt="" width="96" height="96">' +
+          '<p class="mo-brand"><span class="mo-mark" data-mark></span>' +
             '<span class="mo-brand-words"><span class="mt-title' + (TA ? " ta" : "") + '"><span>' + T("Gift a", "பரிசளியுங்கள்") + "</span> <b>" + T("Moment", "ஒரு தருணம்") + "</b></span>" +
             '<span class="mt-ribbon">' + T("in their name", "அவர்கள் பெயரில்") + "</span></span></p>" +
-          "<h1>" + T("Your moment. <em>Their smile.</em>", "உங்கள் தருணம். <em>அவர்களின் புன்னகை.</em>") + "</h1>" +
+          '<h1 class="mo-titles" data-titles></h1>' +
           '<p class="mo-lede" data-lede></p>' +
         "</div>" +
         '<div class="mo-pick" id="mo-step-1">' +
@@ -198,6 +298,18 @@
     return p ? p.short : T("The Raavanaa Fund, for the next day of joy", "ராவணா நிதியம், அடுத்த மகிழ்ச்சியான நாளுக்கு");
   }
   var lastK = "";
+  // The headlines of the chosen reason take turns, one every few seconds (not when the visitor asked for less motion).
+  var titleI = 0, titleTimer = 0;
+  function turnTitles() {
+    clearInterval(titleTimer);
+    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    titleTimer = setInterval(function () {
+      if (document.hidden) return;
+      var all = root.querySelectorAll("[data-titles] > span"); if (all.length < 2) return;
+      titleI = (titleI + 1) % all.length;
+      all.forEach(function (el, i) { el.classList.toggle("on", i === titleI); if (i === titleI) el.removeAttribute("aria-hidden"); else el.setAttribute("aria-hidden", "true"); });
+    }, 4200);
+  }
   function draw() {
     root.querySelectorAll(".mo-chip").forEach(function (b) { var on = b.dataset.k === st.k; b.classList.toggle("on", on); b.setAttribute("aria-checked", on ? "true" : "false"); });
     $(".mo-custom").hidden = st.k !== "custom";
@@ -212,6 +324,13 @@
       $("[data-from-field]").hidden = group;
       var says = SAYINGS[st.k] || [];
       $("[data-sayings]").innerHTML = says.map(function (s) { var t = s[TA ? 1 : 0]; return '<button type="button" data-say="' + esc(t) + '">' + esc(t) + "</button>"; }).join("");
+      // its own headlines, emblem and button (SURESH, 12 Nov 2026)
+      var tl = TITLES[st.k] || TITLES.custom, act = ACTS[st.k] || ACTS.custom;
+      $("[data-titles]").innerHTML = tl.map(function (x, i) { return "<span" + (i ? ' aria-hidden="true"' : ' class="on"') + ">" + x[TA ? 1 : 0] + "</span>"; }).join("");
+      titleI = 0; turnTitles();
+      var mk = $("[data-mark]"); mk.innerHTML = markSVG(st.k); mk.classList.remove("pop"); void mk.offsetWidth; mk.classList.add("pop");
+      $("[data-act-ic]").innerHTML = actIcon(act[0]);
+      $("[data-act-l]").textContent = act[TA ? 2 : 1];
       lastK = st.k;
     }
     $("[data-c-words]").textContent = w || T("Your words", "உங்கள் வார்த்தைகள்");
@@ -289,6 +408,12 @@
       // "In someone's name" on a project in the list: choose it, and go up to the name.
       st.project = t.dataset.pick; stale(); draw();
       document.getElementById("mo-step-2").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    else if (t.hasAttribute("data-act")) {
+      // the button under the picture: on to "Who is it for?", ready to type
+      e.preventDefault();
+      document.getElementById("mo-step-2").scrollIntoView({ behavior: "smooth", block: "start" });
+      setTimeout(function () { try { input("name").focus({ preventScroll: true }); } catch (_) { input("name").focus(); } }, 500);
     }
     else if (t.hasAttribute("data-save")) saveCard();
   });
