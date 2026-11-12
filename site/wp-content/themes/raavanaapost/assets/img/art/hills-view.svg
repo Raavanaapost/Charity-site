@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="A wide lawn beside a small hill temple, with layers of mountains opening up behind it">
+<defs>
+<linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6e3"/><stop offset=".75" stop-color="#fde3b0"/><stop offset="1" stop-color="#f9d58e"/></linearGradient>
+<radialGradient id="hsun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd85a"/><stop offset="1" stop-color="#ef9a22"/></radialGradient>
+<g id="hflower"><circle r="4" fill="#f7c63a"/><g fill="#e24a3b"><circle cx="0" cy="-7" r="4"/><circle cx="7" cy="0" r="4"/><circle cx="0" cy="7" r="4"/><circle cx="-7" cy="0" r="4"/></g></g>
+</defs>
+<rect width="800" height="600" fill="url(#hsky)"/>
+<circle cx="610" cy="120" r="50" fill="url(#hsun)"/>
+<g fill="#fff" opacity=".85"><path d="M120 110 q16 -24 40 -8 q20 -18 40 3 q24 -2 21 18 h-109 q-10 -10 8 -13z"/><path d="M360 64 q13 -18 32 -6 q18 -13 32 3 q19 0 16 14 h-88 q-6 -8 8 -11z"/></g>
+<g stroke="#b8894a" stroke-width="3" stroke-linecap="round" fill="none" opacity=".7"><path d="M250 150 q8 -8 16 0 q8 -8 16 0"/><path d="M300 180 q6 -6 12 0 q6 -6 12 0"/></g>
+<path d="M0 300 L90 230 L170 280 L290 190 L400 270 L520 210 L640 280 L720 240 L800 290 V600 H0Z" fill="#b9d6c2"/>
+<path d="M0 340 L110 280 L230 330 L350 260 L480 330 L600 285 L700 325 L800 300 V600 H0Z" fill="#8fbf9a"/>
+<path d="M0 390 Q150 330 320 370 T620 360 T800 380 V600 H0Z" fill="#5fa46a"/>
+<path d="M0 440 Q200 400 420 425 T800 415 V600 H0Z" fill="#8fc27f"/>
+<g transform="translate(150 348)">
+<path d="M-70 92 h220 v-52 h-220z" fill="#fffaf0" stroke="#d9b98a" stroke-width="3"/>
+<g fill="#c0392b"><rect x="-58" y="40" width="14" height="52"/><rect x="-30" y="40" width="14" height="52"/><rect x="-2" y="40" width="14" height="52"/><rect x="26" y="40" width="14" height="52"/><rect x="54" y="40" width="14" height="52"/><rect x="82" y="40" width="14" height="52"/><rect x="110" y="40" width="14" height="52"/></g>
+<path d="M-84 42 L40 -6 L164 42Z" fill="#b8440a"/>
+<path d="M12 92 v-30 q28 -24 56 0 v30z" fill="#7a2d0a"/>
+<g transform="translate(40 -6)"><path d="M-26 0 L-20 -24 H20 L26 0Z" fill="#f2b21c"/><path d="M-20 -24 L-14 -44 H14 L20 -24Z" fill="#e5851a"/><path d="M-14 -44 L-8 -60 H8 L14 -44Z" fill="#c0392b"/><path d="M-8 -60 q8 -16 16 0Z" fill="#f7c63a"/><path d="M0 -68 v-12" stroke="#b8894a" stroke-width="3" stroke-linecap="round"/></g>
+</g>
+<g><path d="M560 470 v-70" stroke="#7a4b2a" stroke-width="9" stroke-linecap="round"/><circle cx="560" cy="372" r="46" fill="#2f7a45"/><circle cx="528" cy="394" r="30" fill="#3d8b4f"/><circle cx="594" cy="396" r="32" fill="#3d8b4f"/></g>
+<g stroke="#4f9a5c" stroke-width="5" stroke-linecap="round" opacity=".6" fill="none"><path d="M60 520 q10 -14 20 0"/><path d="M300 500 q10 -14 20 0"/><path d="M450 540 q10 -14 20 0"/><path d="M660 510 q10 -14 20 0"/><path d="M720 560 q10 -14 20 0"/></g>
+<use href="#hflower" x="100" y="560"/><use href="#hflower" x="240" y="545"/><use href="#hflower" x="390" y="570"/><use href="#hflower" x="520" y="520"/><use href="#hflower" x="640" y="565"/><use href="#hflower" x="750" y="525"/>
+<g fill="#f7c63a"><circle cx="180" cy="520" r="5"/><circle cx="470" cy="492" r="4"/><circle cx="700" cy="480" r="5"/></g>
+</svg>
