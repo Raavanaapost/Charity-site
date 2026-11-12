@@ -411,10 +411,13 @@
   const STAGE_SAY = ["Smiles in the Making", "Moments on the Way", "Days of Joy, Created"];
   // "Create a Smile": a round, tappable icon with three little pictures taking turns,
   // a title above and a line below. It opens the form to start a new project.
+  // Five slogans take turns on the Home page (SURESH, 12 Nov 2026); the kept home page (/front-4) stays on the first three.
   const CREATE = [
     { img: "/img/create-smile.svg", title: "Create a Smile", say: "One small idea can light up a child's whole day." },
     { img: "/img/create-moment.svg", title: "Create a Moment", say: "Tell us where joy is needed. We'll help make it happen." },
-    { img: "/img/create-day.svg", title: "Spark a Day of Joy", say: "A trip, a game, a good meal. Start it here." }
+    { img: "/img/create-day.svg", title: "Spark a Day of Joy", say: "A trip, a game, a good meal. Start it here." },
+    { img: "/img/create-smile.svg", title: "Start a Smile", say: "Know children who are waiting for a day out? Tell us." },
+    { img: "/img/create-moment.svg", title: "Dream a Day for the Children", say: "You dream it. Together we make it real." }
   ];
   // Home: "Gift a Moment, in their name" (title and design, SURESH 10 Nov 2026). A cream banner with the
   // heart-and-lamp mark, the title, and four reasons to tap: each opens the moment page with that reason chosen.
@@ -444,10 +447,10 @@
     </section>`;
   // On phones the menu is folded away, so the Home page also carries a slim strip at the very top.
   const momentRibbonHTML = () => `<a class="moment-ribbon" href="/moment"><img src="/img/moment-mark.svg" alt="" width="34" height="34"><span><b>Gift a Moment</b> <em>in their name</em></span><i aria-hidden="true">→</i></a>`;
-  const createHTML = () => `<a class="create-cta" href="/initiate">
-      <span class="cc-titles">${CREATE.map((c, i) => `<b class="${i ? "" : "on"}">${c.title}</b>`).join("")}</span>
-      <span class="cc-icon" aria-hidden="true"><i class="cc-ring"></i><i class="cc-orbit"><b>✦</b><b>♥</b><b>✦</b><b>♥</b></i>${CREATE.map((c, i) => `<img class="${i ? "" : "on"}" src="${c.img}" alt="" width="200" height="200">`).join("")}<i class="cc-plus">+</i></span>
-      <span class="cc-says">${CREATE.map((c, i) => `<span class="${i ? "" : "on"}">${c.say}</span>`).join("")}</span>
+  const createHTML = (list = CREATE) => `<a class="create-cta" href="/initiate">
+      <span class="cc-titles">${list.map((c, i) => `<b class="${i ? "" : "on"}">${c.title}</b>`).join("")}</span>
+      <span class="cc-icon" aria-hidden="true"><i class="cc-ring"></i><i class="cc-orbit"><b>✦</b><b>♥</b><b>✦</b><b>♥</b></i>${list.map((c, i) => `<img class="${i ? "" : "on"}" src="${c.img}" alt="" width="200" height="200">`).join("")}<i class="cc-plus">+</i></span>
+      <span class="cc-says">${list.map((c, i) => `<span class="${i ? "" : "on"}">${c.say}</span>`).join("")}</span>
       <span class="cc-go">Start here →</span>
     </a>`;
   // Under the stage circles: one slogan in the middle, and a fine curved line from it up to
@@ -476,6 +479,8 @@
     nav.addEventListener("click", e => { const c = e.target.closest(".stage"); if (!c) return; locked = true; go(circles.indexOf(c)); });
     if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
       rotTimers.push(setInterval(() => { if (!locked && !document.hidden) go((k + 1) % circles.length); }, 3600));
+    // For the Home page's folder tabs: light this stage and stay on it.
+    return i => { locked = true; go(i); };
   }
   function startCreate(app) {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -533,7 +538,8 @@
     if (circles) circles.addEventListener("click", e => { const c = e.target.closest(".stage"); if (!c) return; e.preventDefault(); show(c.dataset.ex); });
   }
 
-  function renderOverview(app, site, projects) {
+  // The home page as it was until 12 Nov 2026, kept at /front-4 (SURESH: "keep the current page as another main backup").
+  function renderOverviewClassic(app, site, projects) {
     const counts = {
       initiated: projects.filter(p => stageNum(p) === 1).length,
       activated: projects.filter(p => stageNum(p) === 2).length,
@@ -563,7 +569,7 @@
       </div>
       ${glanceHTML(projects)}
       ${momentBandHTML()}
-      ${createHTML()}
+      ${createHTML(CREATE.slice(0, 3))}
       ${HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
       <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
@@ -587,6 +593,157 @@
     startCreate(app);
     startRail(app);
     // arriving from the footer's "Keep me posted" button on another page
+    if (location.hash === "#keep-posted") { const t = document.getElementById("keep-posted"); if (t) t.scrollIntoView(); }
+  }
+
+  // Home (/overview), the design of 12 Nov 2026 (SURESH). Three round icons whose words take turns
+  // (Gift a Moment, Sponsor a Smile, Donate), the three stage circles, then every project in folder tabs:
+  // Initiated first, then Activated, Impact and All. Each project is one line in the format of the team
+  // portal's list (picture, title, category · place · next step, its stage, its progress ring), shaded in
+  // the colour of its stage. Pointing at a line opens "Project at a glance"; on a phone the small "i" on
+  // the picture does the same. This page shows drawings only and the titles from share.json: never a
+  // child's photo, never the name of a school or a home. The home page as it was is kept at /front-4.
+  const HOME_ACTS = [
+    { k: "moment", href: "/moment", says: ["Gift a Moment", "In their name", "For a birthday", "In loving memory", "For a festival"] },
+    { k: "sponsor", href: "/give", says: ["Sponsor a Smile", "Fund a Smile", "Give a Day of Joy", "Be the Reason for a Smile", "Sponsor a Moment"] },
+    { k: "donate", href: "/fund", says: ["Donate", "Any amount helps", "Every rupee is shown", "To the Raavanaa Fund", "Give what you can"] }
+  ];
+  const HOME_ACT_ICONS = {
+    moment: `<img src="/img/moment-mark.svg" alt="" width="64" height="64">`,
+    sponsor: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="13" r="7.2"/><path d="M8 14.4c.8 1.4 1.8 2.1 3 2.1s2.2-.7 3-2.1"/><path class="dot" d="M8.6 11.1h.01M13.4 11.1h.01"/><path class="spark" d="M19.2 2.6l.8 1.9 1.9.8-1.9.8-.8 1.9-.8-1.9-1.9-.8 1.9-.8z"/></svg>`,
+    donate: `<svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 10.6S8.2 8.3 8.2 5.5A2.2 2.2 0 0 1 12 4.1a2.2 2.2 0 0 1 3.8 1.4c0 2.8-3.8 5.1-3.8 5.1z"/><path d="M2.8 14.4h3.4l3.5 1.5h3.7a1.4 1.4 0 0 1 0 2.8h-3"/><path d="M13.9 17.3l4.9-2.3a1.5 1.5 0 0 1 1.4 2.6l-5.6 3.3a3 3 0 0 1-2.3.3l-5.9-1.6H2.8"/></svg>`
+  };
+  const HOME_STAGE = ["Initiated", "Activated", "Impact"];
+  const nextStepOf = p => { const st = ringSteps(p).find(x => x.done < 1); return st ? st.name : stageNum(p) === 2 ? "Ready for the day" : "All done"; };
+  // Each round icon turns through its own words, a beat apart from its neighbours.
+  function startActs(app) {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    app.querySelectorAll(".hm-act").forEach((box, n) => {
+      const says = [...box.querySelectorAll(".hm-act-says b")]; if (says.length < 2) return;
+      let k = 0;
+      const turn = () => { if (document.hidden) return; k = (k + 1) % says.length; says.forEach((el, i) => { el.classList.toggle("on", i === k); el.setAttribute("aria-hidden", String(i !== k)); }); };
+      setTimeout(() => rotTimers.push(setInterval(turn, 3000)), n * 1000);
+    });
+  }
+  async function renderOverview(app, site, projects) {
+    const share = await load("/share.json").catch(() => null);
+    const safe = p => { const sh = (share && share.projects && share.projects[slugOf(p)]) || {};
+      return { title: (TA_PATH && sh.title_ta) || sh.title || p.title,
+        art: sh.art || (/\.svg$/i.test(p.cover || "") ? p.cover : "/img/project-hills.svg"),
+        reach: (TA_PATH && sh.reach_ta) || sh.reach || (/TBD/i.test(p.reach || "") ? "" : p.reach || "") }; };
+    const TABS = [[1, "Initiated"], [2, "Activated"], [3, "Impact"], [0, "All"]];
+    const count = n => n ? projects.filter(p => stageNum(p) === n).length : projects.length;
+    const slides = (site.sayings || []).map(x => typeof x === "string" ? { text: x } : x).filter(x => x && x.text);
+    const start = slides.length ? Math.floor(Math.random() * slides.length) : 0;
+    const follow = (site.follow || []).filter(x => x && x.title && x.text);
+    const fstart = follow.length ? Math.floor(Math.random() * follow.length) : 0;
+    let tab = 1;
+    app.innerHTML = `
+      <section class="intro">
+        <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
+      </section>
+      <nav class="hm-acts" aria-label="Ways to give">
+        ${HOME_ACTS.map(a => `<a class="hm-act a-${a.k}" href="${a.href}" aria-label="${a.says[0]}">
+          <span class="hm-act-ic" aria-hidden="true">${HOME_ACT_ICONS[a.k]}</span>
+          <span class="hm-act-says">${a.says.map((t, i) => `<b${i ? ' aria-hidden="true"' : ' class="on"'}>${t}</b>`).join("")}</span>
+        </a>`).join("")}
+      </nav>
+      <nav class="stages hm-stages" aria-label="Show projects by stage">
+        ${Object.entries(STAGES).map(([slug, st], k) => `${k ? `<span class="stage-path p${k}" aria-hidden="true"><svg viewBox="0 0 60 34"><path class="sp-base" d="M6 17H50"/><path class="sp-chev c1" d="M12 9l8 8-8 8"/><path class="sp-chev c2" d="M26 9l8 8-8 8"/><path class="sp-chev c3" d="M40 9l8 8-8 8"/><circle class="sp-spark" r="3.6" cx="0" cy="0"><animateMotion dur="0.75s" begin="indefinite" fill="freeze" path="M6 17H54" calcMode="spline" keyTimes="0;1" keySplines="0.45 0 0.55 1"/></circle></svg></span>` : ""}
+          <a class="stage art stat-${st.key}" href="/${slug}" data-n="${k + 1}">
+            <i>${ICONS[st.key]}</i>
+            <b${count(k + 1) ? "" : ' class="zero"'}>${count(k + 1) || "Soon"}</b>
+            <span>${st.label}</span>
+          </a>`).join("")}
+      </nav>
+      <div class="stage-rail" aria-live="polite">
+        <p class="rail-say">${STAGE_SAY.map((t, i) => `<span class="s${i + 1}${i ? "" : " on"}">${t}</span>`).join("")}</p>
+      </div>
+      <section class="hm-book" aria-label="Projects">
+        <div class="hm-tabs" role="tablist" aria-label="Projects by stage">
+          ${TABS.map(([n, name]) => `<button type="button" role="tab" class="hm-tab s${n}" data-n="${n}" aria-selected="${tab === n}" aria-controls="hm-folder"><span>${name}</span><b>${count(n)}</b></button>`).join("")}
+        </div>
+        <div class="hm-folder s${tab}" id="hm-folder" role="tabpanel"></div>
+        <div class="hm-pop" id="hm-pop" role="tooltip" hidden></div>
+      </section>
+      ${createHTML()}
+      <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
+
+    const book = app.querySelector(".hm-book"), tabsBox = app.querySelector(".hm-tabs"), folder = app.querySelector(".hm-folder"), pop = app.querySelector(".hm-pop");
+    const circles = [...app.querySelectorAll(".hm-stages .stage")];
+    const ring = pct => `<svg class="hm-ring" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" pathLength="100" class="tr"/><circle cx="20" cy="20" r="15" pathLength="100" class="fl" stroke-dasharray="${pct} 100" transform="rotate(-90 20 20)"/></svg>`;
+    const rowHTML = p => { const n = stageNum(p), s = safe(p), pct = ringPercent(p), slug = slugOf(p);
+      const place = cityOf(p) || (p.location || "").split(",")[0].trim();
+      const meta = [p.theme, place].filter(Boolean).map(t => `<span>${esc(t)}</span>`).concat(`<span class="hm-next"><span>Next:</span> <span>${esc(nextStepOf(p))}</span></span>`).join('<i aria-hidden="true"> · </i>');
+      return `<div class="hm-row s${n}" role="listitem" data-slug="${esc(slug)}">
+          <a class="hm-row-link" href="/projects/${slug}">
+            <span class="hm-thumb"><img src="${esc(s.art)}" alt="" loading="lazy" width="58" height="58"></span>
+            <span class="hm-main"><b>${esc(s.title)}</b><small>${meta}</small></span>
+            <span class="hm-side"><span class="hm-pill">${HOME_STAGE[n - 1]}</span><span class="hm-pct">${ring(pct)}<b>${pct}%</b></span></span>
+          </a>
+          <button type="button" class="hm-i" aria-label="Project at a glance" aria-expanded="false" aria-controls="hm-pop"><span aria-hidden="true">i</span></button>
+        </div>`; };
+    const EMPTY = { 0: "No projects yet." };
+    const draw = () => {
+      const list = tab ? projects.filter(p => stageNum(p) === tab) : projects;
+      folder.className = `hm-folder s${tab}`;
+      folder.innerHTML = list.length ? `<div class="hm-list" role="list">${list.map(rowHTML).join("")}</div>`
+        : `<p class="hm-empty">${tab ? HOME_ROWS[tab - 1].empty : EMPTY[0]}</p>${tab > 1 ? "" : `<p class="hm-empty-go"><a class="btn" href="/initiate">Suggest one</a></p>`}`;
+      tabsBox.querySelectorAll(".hm-tab").forEach(b => b.setAttribute("aria-selected", String(+b.dataset.n === tab)));
+      circles.forEach((c, k) => c.classList.toggle("on", k + 1 === tab));
+    };
+
+    // "Project at a glance": the same facts as on the project's own page, in a small window.
+    const RING_WORD = { 1: "Funded so far", 2: "Preparations done", 3: "Results reported" };
+    const popHTML = p => { const n = stageNum(p), s = safe(p), b = budgetOf(p), pct = ringPercent(p);
+      const facts = [["Where", esc(p.location || cityOf(p))], ["Who it is for", esc(s.reach)], ["Started", esc(p.started || "")], ["Cost of the day", b.goal ? moneyOf(site, b.goal, p) : ""],
+        [RING_WORD[n], pct + "%"], ["Next step", esc(nextStepOf(p))]].filter(x => x[1]);
+      return `<p class="hm-pop-k"><span>Project at a glance</span><b class="hm-pill">${HOME_STAGE[n - 1]}</b></p>
+        <b class="hm-pop-t">${esc(s.title)}</b>
+        <dl class="hm-facts">${facts.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
+        ${n === 3 && (p.impact || []).length ? `<p class="hm-pop-stats">${p.impact.slice(0, 3).map(x => `<span><b>${esc(x.value)}</b> ${esc(x.label)}</span>`).join("")}</p>` : ""}
+        <a class="hm-pop-go" href="/projects/${slugOf(p)}">Open the project →</a>`; };
+    let popRow = null, tIn = 0, tOut = 0;
+    const closePop = () => { clearTimeout(tIn); if (!popRow) return; popRow.classList.remove("peek"); const b = popRow.querySelector(".hm-i"); if (b) b.setAttribute("aria-expanded", "false"); popRow = null; pop.hidden = true; };
+    // by: "hover" (a pointer over the line; the window follows it and never gets in the way) or "tap" (the small i).
+    const openPop = (row, by, x) => {
+      const p = projects.find(q => slugOf(q) === row.dataset.slug); if (!p) return;
+      if (popRow && popRow !== row) closePop();
+      popRow = row; row.classList.add("peek");
+      pop.className = `hm-pop s${stageNum(p)} by-${by}`; pop.innerHTML = popHTML(p); pop.hidden = false;
+      if (by === "tap") row.querySelector(".hm-i").setAttribute("aria-expanded", "true");
+      const br = book.getBoundingClientRect(), rr = row.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+      const below = rr.bottom + ph + 12 < innerHeight || rr.top - ph - 8 < 70;
+      pop.style.top = Math.round((below ? rr.bottom + 6 : rr.top - ph - 6) - br.top) + "px";
+      const want = by === "hover" && x != null ? x - br.left + 14 : rr.left - br.left + 12;
+      pop.style.left = Math.round(Math.max(8, Math.min(want, br.width - pw - 8))) + "px";
+    };
+    const canHover = matchMedia("(hover: hover) and (pointer: fine)").matches;
+    folder.addEventListener("mouseover", e => { if (!canHover) return; const row = e.target.closest(".hm-row"); if (!row) return; clearTimeout(tOut);
+      if (row === popRow) return; clearTimeout(tIn); const x = e.clientX; tIn = setTimeout(() => openPop(row, "hover", x), popRow ? 60 : 220); });
+    folder.addEventListener("mouseout", e => { if (!canHover) return; const row = e.target.closest(".hm-row"); if (!row || row.contains(e.relatedTarget)) return; clearTimeout(tIn); tOut = setTimeout(closePop, 160); });
+    folder.addEventListener("focusin", e => { if (e.target.matches(".hm-row-link:focus-visible")) openPop(e.target.closest(".hm-row"), "hover"); });
+    folder.addEventListener("focusout", e => { if (e.target.matches(".hm-row-link")) closePop(); });
+    folder.addEventListener("click", e => { const b = e.target.closest(".hm-i"); if (!b) return; e.preventDefault(); const row = b.closest(".hm-row"); if (row === popRow) closePop(); else openPop(row, "tap"); });
+    document.addEventListener("click", e => { if (popRow && !e.target.closest(".hm-pop, .hm-i")) closePop(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closePop(); });
+    addEventListener("scroll", () => { if (popRow && pop.classList.contains("by-hover")) closePop(); }, { passive: true });
+
+    wireForms(app);
+    fitHeadline();
+    rotTimers.forEach(clearInterval); rotTimers = [];
+    startFollow(app);
+    startCreate(app);
+    startActs(app);
+    const light = startRail(app);
+    const setTab = n => { closePop(); tab = n; draw(); if (n && light) light(n - 1); };
+    tabsBox.addEventListener("click", e => { const b = e.target.closest(".hm-tab"); if (b) setTab(+b.dataset.n); });
+    tabsBox.addEventListener("keydown", e => { if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return; const all = [...tabsBox.querySelectorAll(".hm-tab")], i = all.indexOf(document.activeElement); if (i < 0) return;
+      e.preventDefault(); const nx = all[(i + (e.key === "ArrowRight" ? 1 : all.length - 1)) % all.length]; nx.focus(); setTab(+nx.dataset.n); });
+    // A stage circle opens its tab (instead of leaving the page) and brings the list into view.
+    app.querySelector(".hm-stages").addEventListener("click", e => { const c = e.target.closest(".stage"); if (!c) return; e.preventDefault(); closePop(); tab = +c.dataset.n; draw();
+      const r = tabsBox.getBoundingClientRect(); if (r.top > innerHeight * .7 || r.top < 0) tabsBox.scrollIntoView({ behavior: "smooth", block: "start" }); });
+    draw();
     if (location.hash === "#keep-posted") { const t = document.getElementById("keep-posted"); if (t) t.scrollIntoView(); }
   }
 
@@ -2766,7 +2923,8 @@
         renderStage(app, site, projects, stage, example);
       } else if (page === "overview") {
         document.title = site.name;
-        renderOverview(app, site, projects);
+        if (document.body.dataset.variant === "classic") renderOverviewClassic(app, site, projects);
+        else await renderOverview(app, site, projects);
       } else if (page === "welcome") {
         document.title = site.name;
         renderWelcome(app, site);
