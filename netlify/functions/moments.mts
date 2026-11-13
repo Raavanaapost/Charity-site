@@ -1,5 +1,6 @@
 // "A moment in their name", given together (SURESH, 10 Nov 2026).
-//   POST /api/moments         make a family page: { kind, words, name, note, from, project, wish, day, lang } -> { code }
+//   POST /api/moments         make a family page: { kind, words, name, note, from, others, project, also, wish, day, lang, circle } -> { code }
+//                             circle: "family" or "friends" (13 Nov 2026); also: more projects chosen with the heart
 //   GET  /api/moments/:code   the page (/m/<code>): the words and name, the day of joy it is for, who has given, and the circle
 // Family circle, stage 1 (SURESH, 13 Nov 2026): the organiser invites people and they join the page.
 // Those routes live in moment-circle.mts, so making a new page keeps its own stricter limit (20 a minute).
@@ -46,6 +47,8 @@ async function create(req: Request) {
   if (!name) return json({ ok: false, error: "Please add their name first." }, 400);
   const words = clip(b.words, 60) || TRIBUTE_WORDS[kind];
   const project = /^[a-z0-9-]{1,80}$/.test(String(b.project || "")) ? String(b.project) : "";
+  const also = String(b.also || "").split(",").map((x) => x.trim()).filter((x) => /^[a-z0-9-]{1,80}$/.test(x) && x !== project).slice(0, 6).join(",");
+  const circle = b.circle === "friends" ? "friends" : "family";
   const day = /^\d{4}-\d{2}-\d{2}$/.test(String(b.day || "")) && !isNaN(Date.parse(String(b.day))) ? String(b.day) : null;
   const db = getDatabase();
   const me = await member();
@@ -53,8 +56,8 @@ async function create(req: Request) {
   for (let i = 0; i < 4; i++) {
     const code = newCode();
     try {
-      await db.sql`INSERT INTO moments (code, kind, words, name, note, from_name, project_slug, wish, day, lang, owner_key, owner_email)
-        VALUES (${code}, ${kind}, ${words}, ${name}, ${clip(b.note, 140)}, ${clip(b.from, 60)}, ${project}, ${clip(b.wish, 300)}, ${day}, ${b.lang === "ta" ? "ta" : "en"}, ${ownerKey}, ${me ? me.email : ""})`;
+      await db.sql`INSERT INTO moments (code, kind, words, name, note, from_name, others, project_slug, also_slugs, wish, day, lang, owner_key, owner_email, circle_type)
+        VALUES (${code}, ${kind}, ${words}, ${name}, ${clip(b.note, 140)}, ${clip(b.from, 60)}, ${clip(b.others, 120)}, ${project}, ${also}, ${clip(b.wish, 300)}, ${day}, ${b.lang === "ta" ? "ta" : "en"}, ${ownerKey}, ${me ? me.email : ""}, ${circle})`;
       return json({ ok: true, code, ownerKey });
     } catch (e) {
       if (!/duplicate|unique/i.test(String((e as Error).message))) throw e;
@@ -76,8 +79,8 @@ async function view(code: string, context: Context) {
   const totals: Record<string, number> = {};
   for (const r of rows as Row[]) totals[String(r.currency).toUpperCase()] = (totals[String(r.currency).toUpperCase()] || 0) + Number(r.amount_cents) / 100;
   return json({
-    ok: true, code, kind: m.kind, words: m.words, name: m.name, note: m.note, from: m.from_name,
-    project: m.project_slug, held: m.held_slug || "", heldOk: !!m.held_ok, wish: m.wish, day: m.day ? new Date(m.day).toISOString().slice(0, 10) : "", lang: m.lang, created: m.created_at,
+    ok: true, code, kind: m.kind, words: m.words, name: m.name, note: m.note, from: m.from_name, others: m.others || "", circle: m.circle_type === "friends" ? "friends" : "family",
+    project: m.project_slug, also: String(m.also_slugs || "").split(",").filter(Boolean), held: m.held_slug || "", heldOk: !!m.held_ok, wish: m.wish, day: m.day ? new Date(m.day).toISOString().slice(0, 10) : "", lang: m.lang, created: m.created_at,
     givers: (rows as Row[]).map((r) => (r.show_name && r.display_name ? r.display_name : FRIEND)),
     count: rows.length, totals, test: !live,
     circle: (circle as Row[]).map((r) => ({ name: r.display_name, country: r.country })),
