@@ -2430,3 +2430,14 @@ html[lang="ta"] .app-sheet-box h3{letter-spacing:0;text-transform:none;font-size
 .give-list-note{margin-top:-4px}
 .give-done-at span+b+span{color:var(--muted)}
 .mny-table .num small{font-family:var(--body);font-weight:400;font-size:13px;color:var(--muted)}
+
+/* Family circles on the projects list and project pages (circle-pick.js, 13 Nov 2026) */
+.cp-held{display:inline-block;width:max-content;max-width:100%;font-size:12.5px;font-weight:700;color:#1f7a47;background:#e3f1e8;border-radius:999px;padding:2px 10px;margin-bottom:6px}
+.cp-bar{background:#1f4d3a;color:#fffbf1;position:sticky;top:env(safe-area-inset-top,0px);z-index:20}
+.cp-bar-in{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding-block:10px;font-size:15px}
+.cp-bar a{color:#f6d98b;font-weight:700}
+.cp-choose{display:inline-block;margin-top:10px;background:#1f4d3a;color:#fffbf1;border:0;border-radius:999px;padding:8px 16px;font:inherit;font-weight:700;cursor:pointer}
+.cp-choose[disabled]{opacity:.6}
+.cp-note{display:block;margin-top:6px;color:#a8321e;font-size:14px}
+.cp-note[hidden]{display:none}
+.cp-page{padding-block:12px 0}
