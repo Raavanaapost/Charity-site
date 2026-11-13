@@ -47,10 +47,11 @@
 
     // The projects list: a badge on held projects, and (while choosing) a button on the open ones.
     var mark = function () {
-      Array.prototype.forEach.call(app.querySelectorAll('a.card[href*="/projects/"]'), function (a) {
+      Array.prototype.forEach.call(app.querySelectorAll('a.card[href*="/projects/"], a.plist-row[href*="/projects/"], a.mosaic-tile[href*="/projects/"]'), function (a) {
         if (a.dataset.cp) return;
         a.dataset.cp = "1";
-        var slug = slugOf(a.getAttribute("href")), body = a.querySelector(".body") || a, held = claims[slug];
+        var slug = slugOf(a.getAttribute("href")), body = a.querySelector(".body, .plist-main") || a, held = claims[slug];
+        if (a.classList.contains("mosaic-tile")) { if (held) a.insertAdjacentHTML("beforeend", '<span class="cp-held cp-on-tile">♥ ' + T("Being funded by " + esc(circleWord(held.name)), esc(circleWord(held.name)) + " நிதியளிக்கிறது") + "</span>"); return; }
         if (held && !(mine && held.name === mine.name && mine.held === slug)) {
           body.insertAdjacentHTML("afterbegin", '<span class="cp-held">♥ ' + T("Being funded by " + esc(circleWord(held.name)), esc(circleWord(held.name)) + " நிதியளிக்கிறது") + "</span>");
           return;
