@@ -1,10 +1,11 @@
 /* "Gift a Moment, in their name" (/moment, /ta/moment), SURESH 10 Nov 2026.
-   The reasons sit right at the top: a giver taps one (in loving memory, a birthday, a wedding anniversary, on
-   behalf of a family... or their own words), types the name and a few words, sees the card come alive, and picks
-   where the joy goes: a project, the Raavanaa Fund, or a wish of their own. Under "Continue to give" they can make
-   it a moment every year (with a reminder) and make a family page so others give to the same moment (/m/<code>).
-   Below, every project at a glance, in category tabs. The name is the person being remembered or celebrated
-   (or the family or group giving), never a child's. */
+   Simpler before launch (SURESH, 13 Nov 2026), so it can be followed on a phone in a few screens:
+   1 the reason (four in view, the rest under "More reasons"), 2 who it is for (a few names, the rest under "More";
+   a few words; From, with other names folded away), 3 the Moment Card, with their name at the top, 4 where the joy
+   goes (the projects at a glance: tap the heart on one or more, or let Raavanaa choose, or a wish of my own), then
+   one button to give. Two small extras fold out at the end: every year, and a family page (family or friends circle,
+   made with Copy and Share, no long link). The name is the person remembered or celebrated (or the family or group
+   giving), never a child's. */
 (function () {
   "use strict";
   var TA = /^\/ta(\/|$)/.test(location.pathname);
@@ -172,16 +173,35 @@
     custom: [["With all our love", "எம் முழு அன்புடன்"]]
   };
 
+  // Simpler page before launch (SURESH, 13 Nov 2026): four reasons in view and the rest under "More"; a few choices in
+  // each step with the rest under "More"; the Moment Card after the steps, with the name at the top; the projects
+  // list is where the joy goes (tap the heart, one or more); one button to give at the very end.
+  var MAIN = ["memory", "remembrance", "birthday", "wedding"];
+  // "Who is it for?" in the words of each reason
+  var WHO_H = {
+    memory: ["Whose memory do you carry?", "யாருடைய நினைவைச் சுமக்கிறீர்கள்?"], remembrance: ["Who are we remembering?", "யாரை நினைவுகூர்கிறோம்?"],
+    birthday: ["Whose birthday is it?", "யாருடைய பிறந்தநாள்?"], wedding: ["Whose anniversary is it?", "யாருடைய திருமண நாள்?"],
+    newborn: ["Who are we welcoming?", "யாரை வரவேற்கிறோம்?"], success: ["Who are we proud of?", "யாரை நினைத்துப் பெருமைப்படுகிறோம்?"],
+    recovery: ["Who is well again?", "யார் நலம் பெற்றார்?"], gratitude: ["Who are we thanking?", "யாருக்கு நன்றி சொல்கிறோம்?"],
+    festival: ["In whose name?", "யாருடைய பெயரில்?"], honour: ["Who are we honouring?", "யாரைக் கௌரவிக்கிறோம்?"],
+    behalf: ["Who is giving together?", "யார் சேர்ந்து கொடுக்கிறார்கள்?"], custom: ["Whose moment is it?", "யாருடைய தருணம்?"]
+  };
+  var WHO_MAIN = TA ? ["அம்மா", "அப்பா", "தாத்தா", "பாட்டி"] : ["Amma", "Appa", "Thatha", "Paati"];
+  var chevron = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+  var moreBtn = function (key, n) { return '<button type="button" class="mo-more" data-more="' + key + '" aria-expanded="false"><span>' + T("More", "மேலும்") + (n ? " (" + n + ")" : "") + "</span>" + chevron + "</button>"; };
+  var heartSVG = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 20.5s-7.5-4.700-7.5-10.300A4.500 4.500 0 0 1 12 7.300a4.500 4.500 0 0 1 7.500 2.900C19.500 15.800 12 20.500 12 20.500z"/></svg>';
+  var homeSVG = '<svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><path d="M6 22L24 7l18 15" fill="none" stroke="#c9a24a" stroke-width="3.400" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 19.500V40h26V19.500" fill="#fffaf0" stroke="#1f4d3a" stroke-width="3" stroke-linejoin="round"/><path d="M24 35s-6-3.700-6-8a3.500 3.500 0 0 1 6-2.300 3.500 3.500 0 0 1 6 2.300c0 4.300-6 8-6 8z" fill="#c8381e"/></svg>';
 
   var q = new URLSearchParams(location.search);
   var today = function () { var d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
-  // project: a slug, "" (the Raavanaa Fund) or "wish" (their own wish)
-  var st = { k: q.get("for") || "memory", custom: "", name: "", note: "", from: "", project: "", wish: "", every: "once", day: today(), remind: true, code: "", cat: "All" };
+  // picks: the projects chosen with the heart (one or more); goes: "pick" (those projects), "fund" or "wish"
+  var st = { k: q.get("for") || "memory", custom: "", name: "", note: "", from: "", others: "", picks: [], goes: "pick", wish: "", every: "once", day: today(), remind: true, code: "", cat: "All", circle: "family", open: {} };
   if (!OCCASIONS.some(function (o) { return o.k === st.k; })) st.k = "memory";
   var occ = function () { return OCCASIONS.filter(function (o) { return o.k === st.k; })[0]; };
   // Gemini paintings, one per reason (10 Nov 2026); the hand-drawn .svg versions stay as a fallback.
   var art = function () { return "/img/moment/" + st.k + ".jpg"; };
   var words = function () { var o = occ(); return o.k === "custom" ? st.custom.trim() : o.words[TA ? 1 : 0]; };
+  var chip = function (o) { return '<button type="button" role="radio" class="mo-chip" data-k="' + o.k + '">' + icon(o.icon) + "<span>" + esc(TA ? o.ta : o.en) + "</span></button>"; };
 
   root.innerHTML =
     '<section class="mo-hero">' +
@@ -189,7 +209,7 @@
       '<div class="wrap mo-hero-in">' +
         '<div class="mo-art">' +
           '<img class="mo-lamp" data-hero-art src="/img/moment/memory.jpg" alt="" width="300" height="400">' +
-          '<a class="mo-act" data-act href="#mo-step-2"><span class="mo-act-ic" data-act-ic></span><span class="mo-act-l"><span data-act-l></span><i aria-hidden="true">→</i></span></a>' +
+          '<a class="mo-act" data-act href="#mo-step-2"><span class="mo-act-ic" data-act-ic></span><span class="mo-act-l"><span data-act-l></span> <i aria-hidden="true">→</i></span></a>' +
         "</div>" +
         '<div class="mo-hero-text">' +
           '<p class="mo-brand"><span class="mo-mark" data-mark></span>' +
@@ -201,81 +221,106 @@
         '<div class="mo-pick" id="mo-step-1">' +
           '<p class="mo-pick-q"><span class="mo-num">1</span>' + T("Tap the one that is close to your heart", "உங்கள் இதயத்துக்கு நெருக்கமானதைத் தொடுங்கள்") + "</p>" +
           '<div class="mo-occ" role="radiogroup" aria-label="' + T("The reason", "காரணம்") + '">' +
-          OCCASIONS.map(function (o) { return '<button type="button" role="radio" class="mo-chip" data-k="' + o.k + '">' + icon(o.icon) + "<span>" + esc(TA ? o.ta : o.en) + "</span></button>"; }).join("") +
+            OCCASIONS.filter(function (o) { return MAIN.indexOf(o.k) > -1; }).map(chip).join("") +
           "</div>" +
+          '<div class="mo-occ mo-occ-more" data-fold="reasons" hidden>' + OCCASIONS.filter(function (o) { return MAIN.indexOf(o.k) < 0; }).map(chip).join("") + "</div>" +
+          '<div class="mo-more-row">' + moreBtn("reasons", OCCASIONS.length - MAIN.length).replace(T("More", "மேலும்"), T("More reasons", "மேலும் காரணங்கள்")) + "</div>" +
           '<label class="mo-field mo-custom" hidden><span>' + T("Your own words, before their name", "அவர்கள் பெயருக்கு முன் வர வேண்டிய உங்கள் வார்த்தைகள்") + '</span><input name="custom" maxlength="60" placeholder="' + T("e.g. With love from the whole family, for", "எ.கா. முழுக் குடும்பத்தின் அன்புடன்,") + '"></label>' +
         "</div>" +
       "</div></section>" +
     '<div class="wrap mo-body">' +
-      '<div class="mo-steps">' +
-        '<section class="mo-step" id="mo-step-2"><p class="mo-num">2</p><h2 data-who-h></h2>' +
-          '<label class="mo-field"><span data-name-l></span><input name="name" maxlength="60" list="mo-who" autocomplete="off"></label>' +
-          '<datalist id="mo-who">' + WHO.map(function (w) { return '<option value="' + esc(w) + '">'; }).join("") + "</datalist>" +
-          '<div class="mo-quick" data-who-quick></div>' +
-          '<label class="mo-field"><span>' + T("A few words", "சில வார்த்தைகள்") + ' <small>' + T("(optional)", "(விருப்பமானால்)") + '</small></span><textarea name="note" maxlength="140" rows="2"></textarea></label>' +
-          '<div class="mo-quick" data-sayings></div>' +
-          '<label class="mo-field" data-from-field><span>' + T("From", "அனுப்புபவர்") + ' <small>' + T("(optional)", "(விருப்பமானால்)") + '</small></span><input name="from" maxlength="60" placeholder="' + T("e.g. the Rajan family, Toronto", "எ.கா. ராஜன் குடும்பம், ரொறன்ரோ") + '"></label>' +
-        "</section>" +
-        '<section class="mo-step" id="mo-step-3"><p class="mo-num">3</p><h2>' + T("Where should the joy go?", "மகிழ்ச்சி எங்கே செல்ல வேண்டும்?") + "</h2>" +
-          '<p class="mo-note">' + T("Your gift pays for a real day for real children. Every rupee is shown openly.", "உங்கள் அன்பளிப்பு உண்மையான குழந்தைகளுக்கான உண்மையான ஒரு நாளுக்குச் செல்கிறது. ஒவ்வொரு ரூபாயும் வெளிப்படையாகக் காட்டப்படும்.") + "</p>" +
-          '<div class="mo-projects" data-projects><p class="mo-note">' + T("Loading the days that need you…", "உங்களுக்காகக் காத்திருக்கும் நாட்கள் ஏற்றப்படுகின்றன…") + "</p></div>" +
-          '<label class="mo-field mo-wish" data-wish-field hidden><span>' + T("Tell us your wish", "உங்கள் விருப்பத்தைச் சொல்லுங்கள்") + '</span><textarea name="wish" maxlength="300" rows="3" placeholder="' + T("e.g. school shoes for a class, a meal at an elders' home, books for a village library", "எ.கா. ஒரு வகுப்புக்குப் பாடசாலைக் காலணிகள், முதியோர் இல்லத்தில் ஒரு உணவு, கிராம நூலகத்துக்குப் புத்தகங்கள்") + '"></textarea>' +
-            '<small>' + T("Your gift waits safely in the Raavanaa Fund. A volunteer will write to you, and we will show you the day it made happen.", "உங்கள் அன்பளிப்பு ராவணா நிதியத்தில் பாதுகாப்பாகக் காத்திருக்கும். ஒரு தன்னார்வலர் உங்களுக்கு எழுதுவார்; அது உருவாக்கிய நாளை நாம் உங்களுக்குக் காட்டுவோம்.") + "</small></label>" +
-        "</section>" +
-      "</div>" +
-      '<aside class="mo-side"><div class="mo-sticky">' +
-        '<p class="mo-side-label">' + T("Their card", "அவர்களுக்கான அட்டை") + "</p>" +
+      // 2. who it is for: a shaded section with a title in the words of the reason
+      '<section class="mo-step mo-who" id="mo-step-2"><p class="mo-num">2</p><h2 data-who-h></h2>' +
+        '<label class="mo-field"><span data-name-l></span><input name="name" maxlength="60" autocomplete="off"></label>' +
+        '<div class="mo-quick" data-who-quick></div>' +
+        '<div class="mo-quick" data-fold="who" hidden data-who-more></div>' +
+        '<label class="mo-field"><span>' + T("A few words", "சில வார்த்தைகள்") + ' <small>' + T("(optional)", "(விருப்பமானால்)") + '</small></span><textarea name="note" maxlength="140" rows="2"></textarea></label>' +
+        '<div class="mo-quick" data-sayings></div>' +
+        '<div class="mo-quick" data-fold="say" hidden data-say-more></div>' +
+        '<div data-from-field>' +
+          '<label class="mo-field"><span>' + T("From", "அனுப்புபவர்") + ' <small>' + T("(optional)", "(விருப்பமானால்)") + '</small></span><input name="from" maxlength="60" placeholder="' + T("Your name, e.g. Ravi", "உங்கள் பெயர், எ.கா. ரவி") + '"></label>' +
+          '<button type="button" class="mo-more mo-add" data-more="from" aria-expanded="false"><span data-from-more-l>' + T("+ Add family and friends' names", "+ குடும்பத்தினர், நண்பர்களின் பெயர்கள்") + "</span>" + chevron + "</button>" +
+          '<div class="mo-fold-box" data-fold="from" hidden>' +
+            '<label class="mo-field"><span>' + T("Other names on the card", "அட்டையில் வேறு பெயர்கள்") + '</span><input name="others" maxlength="120" placeholder="' + T("e.g. Malar, Kumar and the kids", "எ.கா. மலர், குமார், பிள்ளைகள்") + '"></label>' +
+            '<button type="button" class="mo-done" data-more="from">' + T("Done", "சரி") + "</button>" +
+          "</div>" +
+        "</div>" +
+      "</section>" +
+      // 3. the Moment Card
+      '<section class="mo-cardsec" id="mo-card">' +
+        '<p class="mo-kicker"><span class="mo-num">3</span>' + T("Your Moment Card", "உங்கள் தருண அட்டை") + "</p>" +
+        '<h2 class="mo-card-h">' + T("A moment, created in their name", "அவர்கள் பெயரில் உருவான ஒரு தருணம்") + "</h2>" +
         '<figure class="mo-card" data-card>' +
-          '<img class="mo-card-lamp" data-card-art src="/img/moment/memory.jpg" alt="" width="150" height="200">' +
+          '<span class="mo-card-c tl" aria-hidden="true"></span><span class="mo-card-c tr" aria-hidden="true"></span><span class="mo-card-c bl" aria-hidden="true"></span><span class="mo-card-c br" aria-hidden="true"></span>' +
           '<p class="mo-card-words" data-c-words></p>' +
           '<p class="mo-card-name" data-c-name></p>' +
-          '<p class="mo-card-note" data-c-note></p>' +
           '<div class="mo-card-rule" aria-hidden="true"><i></i><b>❀</b><i></i></div>' +
+          '<img class="mo-card-lamp" data-card-art src="/img/moment/memory.jpg" alt="" width="150" height="200">' +
+          '<p class="mo-card-note" data-c-note></p>' +
           '<p class="mo-card-gift" data-c-gift></p>' +
           '<p class="mo-card-what" data-c-what></p>' +
           '<p class="mo-card-from" data-c-from></p>' +
           '<img class="mo-card-logo" src="/img/logo-450.webp?v=6" alt="Raavanaa" width="450" height="149">' +
         "</figure>" +
-        '<a class="mo-go" data-go href="/give">' + T("Continue to give", "கொடுக்கத் தொடருங்கள்") + "</a>" +
-        '<details class="mo-fold" data-every-fold><summary><span aria-hidden="true">↻</span> ' + T("Make it a moment every year?", "ஒவ்வோர் ஆண்டும் இந்தத் தருணத்தை உருவாக்கவா?") + "</summary>" +
-          '<div class="mo-fold-in">' +
-            '<div class="mo-seg" role="radiogroup" aria-label="' + T("How often", "எத்தனை முறை") + '">' +
-              '<button type="button" role="radio" data-every="once">' + T("Just this once", "இம்முறை மட்டும்") + "</button>" +
-              '<button type="button" role="radio" data-every="year">' + T("Every year", "ஒவ்வோர் ஆண்டும்") + "</button></div>" +
-            '<div data-every-year hidden>' +
-              '<label class="mo-field"><span>' + T("Their day", "அவர்களின் நாள்") + ' <small>' + T("(the date to remember)", "(நினைவில் கொள்ள வேண்டிய திகதி)") + '</small></span><input type="date" name="day"></label>' +
-              '<label class="mo-check"><input type="checkbox" name="remind" checked> <span>' + T("Remind me a week before, every year", "ஒவ்வோர் ஆண்டும் ஒரு வாரத்துக்கு முன் எனக்கு நினைவூட்டுங்கள்") + "</span></label>" +
-              '<p class="mo-note">' + T("We will send a gentle reminder by email or WhatsApp, to the details you give on the next step. Nothing is charged by itself, and you can stop it at any time.", "அடுத்த படியில் நீங்கள் தரும் மின்னஞ்சலுக்கு அல்லது வட்ஸ்அப் இலக்கத்துக்கு ஓர் இனிய நினைவூட்டலை அனுப்புவோம். தானாக எந்தப் பணமும் அறவிடப்படாது; எப்போது வேண்டுமானாலும் நிறுத்தலாம்.") + "</p>" +
-            "</div>" +
-          "</div></details>" +
-        '<div class="mo-together">' +
-          '<p class="mo-together-h">' + T("Giving with family and friends?", "குடும்பத்துடனும் நண்பர்களுடனும் சேர்ந்து கொடுக்கிறீர்களா?") + "</p>" +
+        '<div class="mo-card-actions"><button type="button" data-save>' + T("Save the card", "அட்டையைச் சேமி") + '</button><button type="button" data-share>' + T("Share the card", "அட்டையைப் பகிர்") + "</button></div>" +
+      "</section>" +
+      // 4. where the joy goes: the projects at a glance, tap the heart to choose (one or more)
+      '<section class="mo-step mo-where" id="projects"><p class="mo-num">4</p><h2>' + T("Where should the joy go?", "மகிழ்ச்சி எங்கே செல்ல வேண்டும்?") + "</h2>" +
+        '<p class="mo-note">' + T("Tap the heart on one or more projects. Every rupee is shown openly.", "ஒன்று அல்லது பல திட்டங்களில் இதயத்தைத் தொடுங்கள். ஒவ்வொரு ரூபாயும் வெளிப்படையாகக் காட்டப்படும்.") + "</p>" +
+        '<div class="mo-tabs" role="tablist" data-tabs></div>' +
+        '<ul class="mo-list" data-list><li class="mo-note">' + T("Loading the days that need you…", "உங்களுக்காகக் காத்திருக்கும் நாட்கள் ஏற்றப்படுகின்றன…") + "</li></ul>" +
+        '<div class="mo-other">' +
+          '<button type="button" class="mo-alt" data-goes="fund" aria-pressed="false"><span class="mo-alt-ic" aria-hidden="true">❀</span><span><b>' + T("Let Raavanaa choose", "ராவணா தேர்ந்தெடுக்கட்டும்") + "</b><small>" + T("The Raavanaa Fund: the next day of joy that needs it", "ராவணா நிதியம்: தேவையுள்ள அடுத்த மகிழ்ச்சியான நாள்") + "</small></span></button>" +
+          '<button type="button" class="mo-alt" data-goes="wish" aria-pressed="false"><span class="mo-alt-ic" aria-hidden="true">✎</span><span><b>' + T("A wish of my own", "என் சொந்த விருப்பம்") + "</b><small>" + T("Something specific you would love your gift to do", "உங்கள் அன்பளிப்பு செய்ய வேண்டுமென நீங்கள் விரும்புவது") + "</small></span></button>" +
+        "</div>" +
+        '<label class="mo-field mo-wish" data-wish-field hidden><span>' + T("Tell us your wish", "உங்கள் விருப்பத்தைச் சொல்லுங்கள்") + '</span><textarea name="wish" maxlength="300" rows="3" placeholder="' + T("e.g. school shoes for a class, a meal at an elders' home, books for a village library", "எ.கா. ஒரு வகுப்புக்குப் பாடசாலைக் காலணிகள், முதியோர் இல்லத்தில் ஒரு உணவு, கிராம நூலகத்துக்குப் புத்தகங்கள்") + '"></textarea>' +
+          '<small>' + T("Your gift waits safely in the Raavanaa Fund. A volunteer will write to you, and we will show you the day it made happen.", "உங்கள் அன்பளிப்பு ராவணா நிதியத்தில் பாதுகாப்பாகக் காத்திருக்கும். ஒரு தன்னார்வலர் உங்களுக்கு எழுதுவார்; அது உருவாக்கிய நாளை நாம் உங்களுக்குக் காட்டுவோம்.") + "</small></label>" +
+      "</section>" +
+      // 5. give, with two small extras folded away: every year, and a family page
+      '<section class="mo-final">' +
+        '<p class="mo-final-sum" data-final-sum></p>' +
+        '<a class="mo-go" data-go href="/give"></a>' +
+        '<div class="mo-extras">' +
+          '<button type="button" class="mo-extra" data-more="every" aria-expanded="false"><span class="mo-extra-ic" aria-hidden="true">↻</span><span><b>' + T("Every year", "ஒவ்வோர் ஆண்டும்") + "</b><small>" + T("A reminder before their day", "அவர்களின் நாளுக்கு முன் நினைவூட்டல்") + "</small></span></button>" +
+          '<button type="button" class="mo-extra" data-more="family" aria-expanded="false"><span class="mo-extra-ic home" aria-hidden="true">' + homeSVG + "</span><span><b>" + T("Family page", "குடும்பப் பக்கம்") + "</b><small>" + T("Their card on a page of their own", "அவர்களின் அட்டை, தனிப் பக்கத்தில்") + "</small></span></button>" +
+        "</div>" +
+        '<div class="mo-fold-box" data-fold="every" hidden>' +
+          '<div class="mo-seg" role="radiogroup" aria-label="' + T("How often", "எத்தனை முறை") + '">' +
+            '<button type="button" role="radio" data-every="once">' + T("Just this once", "இம்முறை மட்டும்") + "</button>" +
+            '<button type="button" role="radio" data-every="year">' + T("Every year", "ஒவ்வோர் ஆண்டும்") + "</button></div>" +
+          '<div data-every-year hidden>' +
+            '<label class="mo-field"><span>' + T("Their day", "அவர்களின் நாள்") + ' <small>' + T("(the date to remember)", "(நினைவில் கொள்ள வேண்டிய திகதி)") + '</small></span><input type="date" name="day"></label>' +
+            '<label class="mo-check"><input type="checkbox" name="remind" checked> <span>' + T("Remind me a week before, every year", "ஒவ்வோர் ஆண்டும் ஒரு வாரத்துக்கு முன் எனக்கு நினைவூட்டுங்கள்") + "</span></label>" +
+          "</div>" +
+          '<button type="button" class="mo-done" data-more="every">' + T("Done", "சரி") + "</button>" +
+        "</div>" +
+        '<div class="mo-fold-box mo-together" data-fold="family" hidden>' +
           '<p class="mo-note" data-together-text></p>' +
-          '<button type="button" class="mo-together-btn" data-together>' + T("Make a family page", "குடும்பப் பக்கத்தை உருவாக்கு") + "</button>" +
+          '<div data-together-make>' +
+            '<p class="mo-together-q">' + T("Who will share this page?", "இந்தப் பக்கத்தை யார் பகிர்வார்கள்?") + "</p>" +
+            '<div class="mo-seg" role="radiogroup" aria-label="' + T("Circle", "வட்டம்") + '">' +
+              '<button type="button" role="radio" data-circle="family">' + T("Family circle", "குடும்ப வட்டம்") + "</button>" +
+              '<button type="button" role="radio" data-circle="friends">' + T("Friends circle", "நண்பர்கள் வட்டம்") + "</button></div>" +
+            '<button type="button" class="mo-together-btn" data-together>' + T("Make the page", "பக்கத்தை உருவாக்கு") + "</button>" +
+          "</div>" +
           '<p class="mo-note mo-together-msg" data-together-msg role="status" hidden></p>' +
           '<div class="mo-together-out" data-together-out hidden>' +
-            '<p class="mo-note">' + T("Your family page is ready. Share it:", "உங்கள் குடும்பப் பக்கம் தயார். இதைப் பகிருங்கள்:") + "</p>" +
-            '<input readonly data-together-link aria-label="' + T("The link to your family page", "உங்கள் குடும்பப் பக்கத்தின் இணைப்பு") + '">' +
-            '<div class="mo-card-actions three"><button type="button" data-together-copy>' + T("Copy link", "இணைப்பை நகலெடு") + '</button><a data-together-wa target="_blank" rel="noopener">WhatsApp</a><a data-together-open>' + T("Invite people", "அழைக்கவும்") + "</a></div>" +
+            '<a class="mo-page-icon" data-together-open href="#"><span aria-hidden="true">' + homeSVG + "</span><b data-together-title></b><small data-together-sub></small></a>" +
+            '<div class="mo-card-actions"><button type="button" data-together-copy>' + T("Copy", "நகலெடு") + '</button><button type="button" data-together-share>' + T("Share", "பகிர்") + "</button></div>" +
           "</div>" +
         "</div>" +
-        '<div class="mo-card-actions"><button type="button" data-save>' + T("Save the card", "அட்டையைச் சேமி") + '</button><a data-wa target="_blank" rel="noopener">' + T("Send on WhatsApp", "வட்ஸ்அப்பில் அனுப்பு") + "</a></div>" +
         '<p class="mo-note mo-privacy">' + T("Their name shows on the project page only if you choose, on the next step. We never show children's names or faces.", "அடுத்த படியில் நீங்கள் தேர்ந்தெடுத்தால் மட்டுமே அவர்களின் பெயர் திட்டப் பக்கத்தில் காட்டப்படும். குழந்தைகளின் பெயர்களையோ முகங்களையோ நாம் ஒருபோதும் காட்டுவதில்லை.") + "</p>" +
-      "</div></aside>" +
-    "</div>" +
-    '<section class="mo-all" id="projects"><div class="wrap">' +
-      '<p class="mo-kicker">' + T("Every day of joy", "ஒவ்வொரு மகிழ்ச்சியான நாளும்") + "</p>" +
-      "<h2>" + T("All projects, at a glance", "அனைத்துத் திட்டங்களும், ஒரே பார்வையில்") + "</h2>" +
-      '<div class="mo-tabs" role="tablist" data-tabs></div>' +
-      '<ul class="mo-list" data-list><li class="mo-note">' + T("Loading…", "ஏற்றப்படுகிறது…") + "</li></ul>" +
-      '<p class="mo-all-foot"><a href="' + L + '/fund">' + T("Not sure which? Give to the Raavanaa Fund", "எது என்று தெரியவில்லையா? ராவணா நிதியத்துக்குக் கொடுங்கள்") + ' →</a><a href="' + L + '/initiate">' + T("Know children who need a day of joy? Start a project", "மகிழ்ச்சியான ஒரு நாள் தேவைப்படும் குழந்தைகளைத் தெரியுமா? ஒரு திட்டத்தைத் தொடங்குங்கள்") + " →</a></p>" +
-    "</div></section>";
+        '<p class="mo-all-foot"><a href="' + L + '/initiate">' + T("Know children who need a day of joy? Start a project", "மகிழ்ச்சியான ஒரு நாள் தேவைப்படும் குழந்தைகளைத் தெரியுமா? ஒரு திட்டத்தைத் தொடங்குங்கள்") + " →</a></p>" +
+      "</section>" +
+    "</div>";
 
   var $ = function (s) { return root.querySelector(s); };
   var input = function (n) { return root.querySelector('[name="' + n + '"]'); };
-  var projects = [];   // the days that still need sponsors (step 3)
-  var all = [];        // every public project (the list at the bottom)
+  var projects = [];   // the days that still need sponsors
+  var all = [];        // every public project (the explorer)
   input("day").value = st.day;
+  var chosen = function () { return st.goes === "pick" ? st.picks.filter(function (s) { return projects.some(function (p) { return p.slug === s; }); }) : []; };
+  var fromLine = function () { return [st.from, st.others].filter(Boolean).join(", "); };
 
   function tributeParams(u) {
     u.set("tribute", st.k); u.set("tw", words()); if (st.name) u.set("tn", st.name); if (st.note) u.set("tnote", st.note);
@@ -284,18 +329,20 @@
     return u;
   }
   function giveUrl() {
-    var u = new URLSearchParams();
-    // The Raavanaa Fund and "a wish of my own" go to the fund page; a project goes to its own Give form.
-    if (st.project === "wish") { if (st.wish) u.set("wish", st.wish); return L + "/fund?" + tributeParams(u).toString() + "#give"; }
-    if (!st.project) return L + "/fund?" + tributeParams(u).toString() + "#give";
-    u.set("project", st.project);
+    var u = new URLSearchParams(), c = chosen();
+    // The Raavanaa Fund and "a wish of my own" go to the fund page; projects go to the first one's Give form,
+    // with the others named (they share the gift).
+    if (st.goes === "wish") { if (st.wish) u.set("wish", st.wish); return L + "/fund?" + tributeParams(u).toString() + "#give"; }
+    if (!c.length) return L + "/fund?" + tributeParams(u).toString() + "#give";
+    u.set("project", c[0]); if (c.length > 1) u.set("also", c.slice(1).join(","));
     return L + "/give?" + tributeParams(u).toString() + "#give";
   }
   function giftLine() { return st.k === "behalf" ? T("A day of joy for children, given together", "குழந்தைகளுக்கு ஒரு மகிழ்ச்சியான நாள், ஒன்றாக வழங்கப்பட்டது") : T("A day of joy for children, given in their name", "அவர்கள் பெயரில், குழந்தைகளுக்கு ஒரு மகிழ்ச்சியான நாள்"); }
   function giftWhat() {
-    if (st.project === "wish") return st.wish ? T("A wish: ", "விருப்பம்: ") + st.wish : T("A wish of their own", "அவர்களின் சொந்த விருப்பம்");
-    var p = projects.filter(function (x) { return x.slug === st.project; })[0];
-    return p ? p.short : T("The Raavanaa Fund, for the next day of joy", "ராவணா நிதியம், அடுத்த மகிழ்ச்சியான நாளுக்கு");
+    if (st.goes === "wish") return st.wish ? T("A wish: ", "விருப்பம்: ") + st.wish : T("A wish of their own", "அவர்களின் சொந்த விருப்பம்");
+    var c = chosen().map(function (s) { return projects.filter(function (x) { return x.slug === s; })[0]; });
+    if (!c.length) return T("The Raavanaa Fund, for the next day of joy", "ராவணா நிதியம், அடுத்த மகிழ்ச்சியான நாளுக்கு");
+    return c.length === 1 ? c[0].short : c.length + T(" days of joy, shared", " மகிழ்ச்சியான நாட்கள், பகிர்ந்து");
   }
   var lastK = "";
   // The headlines of the chosen reason take turns, one every few seconds (not when the visitor asked for less motion).
@@ -310,6 +357,16 @@
       all.forEach(function (el, i) { el.classList.toggle("on", i === titleI); if (i === titleI) el.removeAttribute("aria-hidden"); else el.setAttribute("aria-hidden", "true"); });
     }, 4200);
   }
+  // A "More" part opens, and closes again with "Done" or another tap.
+  function fold(key, open) {
+    var box = root.querySelector('[data-fold="' + key + '"]'); if (!box) return;
+    if (open == null) open = box.hidden;
+    box.hidden = !open; st.open[key] = open;
+    root.querySelectorAll('[data-more="' + key + '"]').forEach(function (b) { if (b.hasAttribute("aria-expanded")) { b.setAttribute("aria-expanded", String(open)); b.classList.toggle("open", open); } });
+    if (key === "done") return;
+    if (key === "reasons") $(".mo-more-row .mo-more span").textContent = open ? T("Fewer reasons", "குறைவான காரணங்கள்") : T("More reasons", "மேலும் காரணங்கள்") + " (" + (OCCASIONS.length - MAIN.length) + ")";
+  }
+  var quick = function (list, attr) { return list.map(function (x) { return '<button type="button" ' + attr + '="' + esc(x) + '">' + esc(x) + "</button>"; }).join(""); };
   function draw() {
     root.querySelectorAll(".mo-chip").forEach(function (b) { var on = b.dataset.k === st.k; b.classList.toggle("on", on); b.setAttribute("aria-checked", on ? "true" : "false"); });
     $(".mo-custom").hidden = st.k !== "custom";
@@ -317,14 +374,19 @@
     $("[data-lede]").textContent = occ().lede[TA ? 1 : 0];
     if (lastK !== st.k) {
       // step 2 asks for a person, or for a family or group when it is "on behalf of"
-      $("[data-who-h]").textContent = group ? T("On behalf of whom?", "யார் சார்பாக?") : T("Who is it for?", "யாருக்காக?");
+      $("[data-who-h]").textContent = (WHO_H[st.k] || WHO_H.custom)[TA ? 1 : 0];
       $("[data-name-l]").textContent = group ? T("The family, group or person", "குடும்பம், குழு அல்லது நபர்") : T("Their name", "அவர்களின் பெயர்");
       input("name").placeholder = group ? T("e.g. the Rajan family, Class of 1998", "எ.கா. ராஜன் குடும்பம், 1998 வகுப்பு") : T("e.g. Amma, Kamala Rajan", "எ.கா. அம்மா, கமலா ராஜன்");
-      $("[data-who-quick]").innerHTML = (group ? GROUPS : WHO.slice(0, 8)).map(function (x) { return '<button type="button" data-who="' + esc(x) + '">' + esc(x) + "</button>"; }).join("");
+      var whoAll = group ? GROUPS : WHO_MAIN.concat(WHO.filter(function (x) { return WHO_MAIN.indexOf(x) < 0; }));
+      var nShow = group ? 3 : 4;
+      $("[data-who-quick]").innerHTML = quick(whoAll.slice(0, nShow), "data-who") + moreBtn("who", whoAll.length - nShow);
+      $("[data-who-more]").innerHTML = quick(whoAll.slice(nShow), "data-who");
+      var says = (SAYINGS[st.k] || []).map(function (s) { return s[TA ? 1 : 0]; });
+      $("[data-sayings]").innerHTML = quick(says.slice(0, 2), "data-say") + (says.length > 2 ? moreBtn("say", says.length - 2) : "");
+      $("[data-say-more]").innerHTML = quick(says.slice(2), "data-say");
+      fold("who", false); fold("say", false);
       $("[data-from-field]").hidden = group;
-      var says = SAYINGS[st.k] || [];
-      $("[data-sayings]").innerHTML = says.map(function (s) { var t = s[TA ? 1 : 0]; return '<button type="button" data-say="' + esc(t) + '">' + esc(t) + "</button>"; }).join("");
-      // its own headlines, emblem and button (SURESH, 12 Nov 2026)
+      // its own headlines, emblem and link (SURESH, 12 Nov 2026)
       var tl = TITLES[st.k] || TITLES.custom, act = ACTS[st.k] || ACTS.custom;
       $("[data-titles]").innerHTML = tl.map(function (x, i) { return "<span" + (i ? ' aria-hidden="true"' : ' class="on"') + ">" + x[TA ? 1 : 0] + "</span>"; }).join("");
       titleI = 0; turnTitles();
@@ -339,38 +401,46 @@
     $("[data-c-note]").textContent = st.note ? "“" + st.note + "”" : "";
     $("[data-c-gift]").textContent = giftLine();
     $("[data-c-what]").textContent = giftWhat();
-    $("[data-c-from]").textContent = st.from && !group ? T("With love, ", "அன்புடன், ") + st.from : "";
+    $("[data-c-from]").textContent = fromLine() && !group ? T("With love, ", "அன்புடன், ") + fromLine() : "";
+    $("[data-from-more-l]").textContent = st.others ? "+ " + st.others : T("+ Add family and friends' names", "+ குடும்பத்தினர், நண்பர்களின் பெயர்கள்");
     $("[data-card]").dataset.k = st.k;
     // Each reason has its own picture and colours (SURESH, 10 Nov 2026).
     var th = occ().theme;
     root.style.setProperty("--tint", th[0]); root.style.setProperty("--accent", th[1]); root.style.setProperty("--frame", th[2]); root.style.setProperty("--petal", th[3]);
     if ($("[data-hero-art]").getAttribute("src") !== art()) { $("[data-hero-art]").setAttribute("src", art()); $("[data-card-art]").setAttribute("src", art()); }
+    // where the joy goes
+    var c = chosen();
+    root.querySelectorAll("[data-heart]").forEach(function (b) { var on = c.indexOf(b.dataset.heart) > -1; b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); b.closest(".mo-row").classList.toggle("picked", on); b.querySelector("span").textContent = on ? T("Chosen", "தேர்ந்தது") : T("Choose", "தேர்ந்தெடு"); });
+    root.querySelectorAll("[data-goes]").forEach(function (b) { var on = b.dataset.goes === st.goes || (b.dataset.goes === "fund" && st.goes === "pick" && !c.length && projects.length === 0); b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); });
+    $("[data-wish-field]").hidden = st.goes !== "wish";
     $("[data-go]").href = giveUrl();
-    var link = location.origin + L + "/moment";
-    var msg = (w ? w + " " : "") + (st.name || "") + (st.note ? "\n“" + st.note + "”" : "") + "\n" +
-      T("I am giving children in Sri Lanka a day of joy in their name. You can make a moment too: ", "அவர்கள் பெயரில் இலங்கைக் குழந்தைகளுக்கு ஒரு மகிழ்ச்சியான நாளை வழங்குகிறேன். நீங்களும் ஒரு தருணத்தை உருவாக்கலாம்: ") + link;
-    $("[data-wa]").href = "https://wa.me/?text=" + encodeURIComponent(msg);
-    root.querySelectorAll(".mo-proj").forEach(function (b) { b.classList.toggle("on", b.dataset.slug === st.project); b.setAttribute("aria-checked", b.dataset.slug === st.project ? "true" : "false"); });
-    $("[data-wish-field]").hidden = st.project !== "wish";
+    $("[data-go]").textContent = st.name ? T("Give in " + st.name + "'s name", st.name + " பெயரில் கொடுங்கள்") : T("Give in their name", "அவர்கள் பெயரில் கொடுங்கள்");
+    $("[data-final-sum]").textContent = st.name ? (w ? w + " " : "") + st.name : "";
+    $("[data-final-sum]").hidden = !st.name;
     // every year?
     root.querySelectorAll("[data-every]").forEach(function (b) { var on = b.dataset.every === st.every; b.classList.toggle("on", on); b.setAttribute("aria-checked", on ? "true" : "false"); });
     $("[data-every-year]").hidden = st.every !== "year";
     // the family page
-    $("[data-together-text]").textContent = st.name
-      ? T("Make a page for " + st.name + ". Share it, and everyone can give to the same moment.", st.name + " அவர்களுக்காக ஒரு பக்கத்தை உருவாக்குங்கள். அதைப் பகிருங்கள்; அனைவரும் இதே தருணத்துக்குக் கொடுக்கலாம்.")
-      : T("Make a page for them. Share it, and everyone can give to the same moment.", "அவர்களுக்காக ஒரு பக்கத்தை உருவாக்குங்கள். அதைப் பகிருங்கள்; அனைவரும் இதே தருணத்துக்குக் கொடுக்கலாம்.");
+    root.querySelectorAll("[data-circle]").forEach(function (b) { var on = b.dataset.circle === st.circle; b.classList.toggle("on", on); b.setAttribute("aria-checked", on ? "true" : "false"); });
+    var nm = st.name || T("them", "அவர்கள்");
+    $("[data-together-text]").textContent = T("A page for " + nm + ", with their Moment Card. Share it with the people who love them.", nm + " அவர்களுக்கான பக்கம், அவர்களின் தருண அட்டையுடன். அவர்களை நேசிப்பவர்களுடன் பகிருங்கள்.");
     $("[data-together-out]").hidden = !st.code;
-    $("[data-together]").hidden = !!st.code;
+    $("[data-together-make]").hidden = !!st.code;
     if (st.code) {
-      var page = location.origin + L + "/m/" + st.code;
-      $("[data-together-link]").value = page;
       $("[data-together-open]").href = L + "/m/" + st.code + "#invite";
-      $("[data-together-wa]").href = "https://wa.me/?text=" + encodeURIComponent((w ? w + " " : "") + st.name + (st.note ? "\n“" + st.note + "”" : "") + "\n" +
-        T("We are giving children in Sri Lanka a day of joy in their name. Join us here: ", "அவர்கள் பெயரில் இலங்கைக் குழந்தைகளுக்கு ஒரு மகிழ்ச்சியான நாளை வழங்குகிறோம். எம்முடன் இணையுங்கள்: ") + page);
+      $("[data-together-sub]").textContent = st.circle === "friends" ? T("Open the page, and invite your friends", "பக்கத்தைத் திறந்து, நண்பர்களை அழையுங்கள்") : T("Open the page, and invite your family", "பக்கத்தைத் திறந்து, குடும்பத்தை அழையுங்கள்");
+      $("[data-together-title]").textContent = st.circle === "friends" ? T(nm + "'s friends page", nm + " நண்பர்கள் பக்கம்") : T(nm + "'s family page", nm + " குடும்பப் பக்கம்");
     }
   }
   // Anything on the card changed: the family page made earlier no longer matches, so a new one is offered.
   function stale() { if (st.code) { st.code = ""; $("[data-together-msg]").hidden = true; } }
+  var pageUrl = function () { return location.origin + L + "/m/" + st.code; };
+  var shareText = function (url) { var w = words(); return (w ? w + " " : "") + st.name + (st.note ? "\n“" + st.note + "”" : "") + "\n" + T("We are giving children in Sri Lanka a day of joy in their name. ", "அவர்கள் பெயரில் இலங்கைக் குழந்தைகளுக்கு ஒரு மகிழ்ச்சியான நாளை வழங்குகிறோம். ") + url; };
+  var copy = function (t) { return navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject(); };
+  var shareOut = function (text, url) {
+    if (navigator.share) { navigator.share({ text: text }).catch(function () {}); return; }
+    window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener");
+  };
 
   function makeTogether() {
     var msg = $("[data-together-msg]"), btn = $("[data-together]");
@@ -378,14 +448,16 @@
     if (!st.name) { say(T("Add their name first, in step 2.", "முதலில் படி 2 இல் அவர்களின் பெயரைச் சேருங்கள்.")); input("name").focus(); return; }
     if (!words()) { say(T("Add your own words first, at the top.", "முதலில் மேலே உங்கள் சொந்த வார்த்தைகளைச் சேருங்கள்.")); input("custom").focus(); return; }
     btn.disabled = true; say(T("Making the page…", "பக்கம் உருவாக்கப்படுகிறது…"));
+    var c = chosen();
     fetch("/api/moments", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ kind: st.k, words: words(), name: st.name, note: st.note, from: st.k === "behalf" ? "" : st.from, project: st.project && st.project !== "wish" ? st.project : "", wish: st.project === "wish" ? st.wish : "", day: st.every === "year" ? st.day : "", lang: TA ? "ta" : "en" }) })
+      body: JSON.stringify({ kind: st.k, words: words(), name: st.name, note: st.note, from: st.k === "behalf" ? "" : st.from, others: st.k === "behalf" ? "" : st.others,
+        project: c[0] || "", also: c.slice(1).join(","), wish: st.goes === "wish" ? st.wish : "", day: st.every === "year" ? st.day : "", lang: TA ? "ta" : "en", circle: st.circle }) })
       .then(function (r) { return r.json().then(function (o) { return { ok: r.ok, o: o }; }); })
       .then(function (r) {
         btn.disabled = false;
         if (r.ok && r.o.code) {
           st.code = r.o.code; msg.hidden = true;
-          // The organiser's key stays on this phone, so the family page shows them the invite buttons and list.
+          // The organiser's key stays on this phone, so the family page shows them the invite form and the Give button.
           if (r.o.ownerKey) { try { localStorage.setItem("raav-own-" + r.o.code, r.o.ownerKey); } catch (_) {} }
           draw();
         }
@@ -397,34 +469,54 @@
   root.addEventListener("click", function (e) {
     var t = e.target.closest("button, a");
     if (!t || !root.contains(t)) return;
-    if (t.classList.contains("mo-chip")) { st.k = t.dataset.k; stale(); draw(); if (st.k === "custom") input("custom").focus(); }
-    else if (t.dataset.who) { input("name").value = st.name = t.dataset.who; stale(); draw(); input("name").focus(); }
-    else if (t.dataset.say) { input("note").value = st.note = t.dataset.say; stale(); draw(); }
-    else if (t.classList.contains("mo-proj")) { st.project = t.dataset.slug; stale(); draw(); if (st.project === "wish") input("wish").focus(); }
+    if (t.classList.contains("mo-chip")) {
+      st.k = t.dataset.k; stale();
+      // a reason picked from "More" moves up beside the main four, and "More" closes again
+      if (MAIN.indexOf(st.k) < 0 && st.open.reasons) { fold("reasons", false); }
+      draw(); if (st.k === "custom") input("custom").focus();
+      showPicked();
+    }
+    else if (t.dataset.more) { fold(t.dataset.more); }
+    else if (t.dataset.who) { input("name").value = st.name = t.dataset.who; stale(); fold("who", false); draw(); input("name").focus(); }
+    else if (t.dataset.say) { input("note").value = st.note = t.dataset.say; stale(); fold("say", false); draw(); }
+    else if (t.dataset.heart) {
+      var s = t.dataset.heart, i = st.picks.indexOf(s);
+      if (st.goes !== "pick") { st.goes = "pick"; st.picks = []; i = -1; }
+      if (i > -1) st.picks.splice(i, 1); else st.picks.push(s);
+      if (!st.picks.length) st.goes = "fund";
+      stale(); draw();
+    }
+    else if (t.dataset.goes) { st.goes = t.dataset.goes; st.picks = []; stale(); draw(); if (st.goes === "wish") input("wish").focus(); }
     else if (t.dataset.every) { st.every = t.dataset.every; draw(); }
+    else if (t.dataset.circle) { st.circle = t.dataset.circle; draw(); }
     else if (t.hasAttribute("data-together")) makeTogether();
     else if (t.hasAttribute("data-together-copy")) {
-      var link = $("[data-together-link]"); link.select();
-      (navigator.clipboard ? navigator.clipboard.writeText(link.value) : Promise.reject()).catch(function () { try { document.execCommand("copy"); } catch (_) {} });
-      t.textContent = T("Copied", "நகலெடுக்கப்பட்டது");
+      copy(pageUrl()).then(function () { t.textContent = T("Copied", "நகலெடுக்கப்பட்டது"); }).catch(function () { window.prompt(T("Copy this", "இதை நகலெடுங்கள்"), pageUrl()); });
     }
-    else if (t.dataset.cat) { st.cat = t.dataset.cat; drawList(); }
-    else if (t.dataset.pick) {
-      // "In someone's name" on a project in the list: choose it, and go up to the name.
-      st.project = t.dataset.pick; stale(); draw();
-      document.getElementById("mo-step-2").scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    else if (t.hasAttribute("data-together-share")) shareOut(shareText(pageUrl()));
+    else if (t.hasAttribute("data-share")) shareOut(shareText(location.origin + L + "/moment"));
+    else if (t.dataset.cat) { st.cat = t.dataset.cat; drawList(); draw(); }
     else if (t.hasAttribute("data-act")) {
-      // the button under the picture: on to "Who is it for?", ready to type
+      // the link under the picture: on to "Who is it for?", ready to type
       e.preventDefault();
       document.getElementById("mo-step-2").scrollIntoView({ behavior: "smooth", block: "start" });
       setTimeout(function () { try { input("name").focus({ preventScroll: true }); } catch (_) { input("name").focus(); } }, 500);
     }
     else if (t.hasAttribute("data-save")) saveCard();
   });
+  // A reason from "More" shows beside the main four while it is the chosen one.
+  function showPicked() {
+    var extra = $(".mo-occ:not(.mo-occ-more)");
+    extra.querySelectorAll(".mo-chip.mo-extra-k").forEach(function (b) { b.remove(); });
+    root.querySelectorAll(".mo-occ-more .mo-chip").forEach(function (b) { b.hidden = false; });
+    if (MAIN.indexOf(st.k) > -1) return;
+    var src = root.querySelector('.mo-occ-more .mo-chip[data-k="' + st.k + '"]'); if (!src) return;
+    var cl = src.cloneNode(true); cl.classList.add("mo-extra-k"); extra.appendChild(cl); src.hidden = true;
+    draw();
+  }
   root.addEventListener("input", function (e) {
     var n = e.target.name;
-    if (n === "custom" || n === "name" || n === "note" || n === "from" || n === "wish") { st[n] = e.target.value.replace(/\s+/g, " ").replace(/^\s/, ""); stale(); draw(); }
+    if (n === "custom" || n === "name" || n === "note" || n === "from" || n === "others" || n === "wish") { st[n] = e.target.value.replace(/\s+/g, " ").replace(/^\s/, ""); stale(); draw(); }
     else if (n === "day") { st.day = /^\d{4}-\d{2}-\d{2}$/.test(e.target.value) ? e.target.value : ""; draw(); }
     else if (n === "remind") { st.remind = e.target.checked; draw(); }
   });
@@ -434,31 +526,38 @@
   var getJSON = function (u, d) { return fetch(u).then(function (r) { return r.ok ? r.json() : d; }).catch(function () { return d; }); };
   var STAGE = [T("Initiated", "தொடங்கியவை"), T("Activated", "செயல்படுபவை"), T("Impact", "தாக்கம்")];
   var CATS = ["Trips & Events", "Education", "Livelihood"];
-  var CAT_TA = { "All": "அனைத்தும்", "Trips & Events": "பயணங்களும் நிகழ்வுகளும்", "Education": "கல்வி", "Livelihood": "வாழ்வாதாரம்" };
+  var CAT_TA = { "All": "அனைத்தும்", "Needs you": "உங்களுக்காக", "Trips & Events": "பயணங்களும் நிகழ்வுகளும்", "Education": "கல்வி", "Livelihood": "வாழ்வாதாரம்" };
   var catName = function (c) { return TA && CAT_TA[c] ? CAT_TA[c] : c; };
 
   function drawList() {
-    var cats = ["All"].concat(CATS, all.map(function (p) { return p.cat; })).filter(function (c, i, a) { return c && a.indexOf(c) === i; });
-    $("[data-tabs]").innerHTML = cats.map(function (c) {
+    var cats = ["All"].concat(CATS, all.map(function (p) { return p.cat; })).filter(function (c, i, a) { return c && a.indexOf(c) === i; })
+      .filter(function (c) { return c === "All" || all.some(function (p) { return p.cat === c; }); });
+    $("[data-tabs]").innerHTML = cats.length < 3 ? "" : cats.map(function (c) {
       var n = c === "All" ? all.length : all.filter(function (p) { return p.cat === c; }).length;
       return '<button type="button" role="tab" data-cat="' + esc(c) + '" aria-selected="' + (c === st.cat) + '"' + (c === st.cat ? ' class="on"' : "") + ">" + esc(catName(c)) + " <i>" + n + "</i></button>";
     }).join("");
     var rows = all.filter(function (p) { return st.cat === "All" || p.cat === st.cat; });
-    $("[data-list]").innerHTML = rows.length ? rows.map(function (p) {
+    // the days that still need sponsors first; the funded and finished ones under "More"
+    var openN = rows.filter(function (p) { return p.open; }).length, restN = rows.length - openN;
+    var row = function (p) {
       var need = p.stage === 1 && p.goal > 0
         ? esc(p.cur) + " " + Math.round(p.left).toLocaleString("en-US") + T(" still needed", " இன்னும் தேவை")
         : p.stage === 2 ? T("Fully funded, getting ready", "முழு நிதியும் கிடைத்தது, தயாராகிறது") : p.stage === 3 ? T("Done: see the day", "நிறைவு: அந்த நாளைப் பாருங்கள்") : T("Budget being prepared", "வரவுசெலவு தயாராகிறது");
-      return '<li class="mo-row s' + p.stage + '">' +
-        '<a class="mo-row-main" href="' + L + "/projects/" + esc(p.slug) + '">' +
+      return '<li class="mo-row s' + p.stage + (p.open ? " can" : "") + '">' +
+        '<a class="mo-row-main" href="' + L + "/projects/" + esc(p.slug) + '" target="_blank" rel="noopener">' +
           '<span class="mo-row-pic" style="background-image:url(\'' + esc(p.art) + '\')"></span>' +
           '<span class="mo-row-text"><b>' + esc(p.title) + "</b>" +
             "<small>" + esc([p.place, p.reach].filter(Boolean).join(" · ")) + "</small>" +
             '<span class="mo-row-meta"><span class="mo-pill">' + esc(STAGE[p.stage - 1]) + "</span><span>" + need + "</span></span>" +
             (p.stage === 1 && p.goal > 0 ? '<span class="mo-bar"><i style="width:' + p.pct + '%"></i></span>' : "") +
-          '</span><span class="mo-row-go" aria-hidden="true">›</span></a>' +
-        (p.open ? '<button type="button" class="mo-row-give" data-pick="' + esc(p.slug) + '">♡ ' + T("Give in someone's name", "ஒருவர் பெயரில் கொடுங்கள்") + "</button>" : "") +
+          "</span></a>" +
+        (p.open ? '<button type="button" class="mo-heart" data-heart="' + esc(p.slug) + '" aria-pressed="false" aria-label="' + esc(p.title) + '">' + heartSVG + "<span>" + T("Choose", "தேர்ந்தெடு") + "</span></button>" : "") +
         "</li>";
-    }).join("") : '<li class="mo-empty">' + T("No " + st.cat + " projects yet. ", "இன்னும் " + catName(st.cat) + " திட்டங்கள் இல்லை. ") + '<a href="' + L + '/initiate">' + T("Know of one? Start it here", "ஒன்றைத் தெரியுமா? இங்கே தொடங்குங்கள்") + " →</a></li>";
+    };
+    $("[data-list]").innerHTML = rows.length ? rows.filter(function (p) { return p.open; }).map(row).join("") +
+      (restN ? '<li class="mo-list-more">' + moreBtn("done", 0).replace(T("More", "மேலும்"), openN ? T("More projects, funded or done", "மேலும் திட்டங்கள், நிதி பெற்றவை அல்லது நிறைவானவை") + " (" + restN + ")" : T("See the projects", "திட்டங்களைப் பாருங்கள்") + " (" + restN + ")") + "</li>" +
+        '<li class="mo-list-rest" data-fold="done"' + (st.open.done ? "" : " hidden") + '><ul class="mo-list">' + rows.filter(function (p) { return !p.open; }).map(row).join("") + "</ul></li>" : "")
+      : '<li class="mo-empty">' + T("No " + st.cat + " projects yet. ", "இன்னும் " + catName(st.cat) + " திட்டங்கள் இல்லை. ") + '<a href="' + L + '/initiate">' + T("Know of one? Start it here", "ஒன்றைத் தெரியுமா? இங்கே தொடங்குங்கள்") + " →</a></li>";
   }
 
   Promise.all([
@@ -480,23 +579,16 @@
         art: sh.art || (/\.svg$/.test(p.cover || "") ? p.cover : "/img/project-hills.svg"),
         cur: String(p.currency || "$").trim(), place: p.city || String(p.location || "").split(",")[0], reach: (TA && sh.reach_ta) || sh.reach || (/TBD/i.test(p.reach || "") ? "" : (p.reach || "")),
         open: stage === 1 && goal > 0 && raised < goal && rupees };
-    }).sort(function (a, b) { return a.stage - b.stage || b.pct - a.pct; });
+    }).sort(function (a, b) { return (b.open - a.open) || a.stage - b.stage || b.pct - a.pct; });
     // The days that still need sponsors: Initiated projects, visited and verified, not fully funded.
     projects = all.filter(function (p) { return p.open; });
-    var box = $("[data-projects]");
-    box.setAttribute("role", "radiogroup");
-    box.innerHTML = projects.map(function (p) {
-      return '<button type="button" role="radio" class="mo-proj" data-slug="' + esc(p.slug) + '"><span class="mo-proj-art" style="background-image:url(\'' + esc(p.art) + '\')"></span>' +
-        '<span class="mo-proj-text"><b>' + esc(p.title) + "</b><small>" + esc(p.cur) + " " + Math.round(p.left).toLocaleString("en-US") + T(" still needed", " இன்னும் தேவை") + " · " + p.pct + "%</small>" +
-        '<span class="mo-bar"><i style="width:' + p.pct + '%"></i></span></span></button>';
-    }).join("") +
-      '<button type="button" role="radio" class="mo-proj mo-proj-any" data-slug=""><span class="mo-proj-art any" aria-hidden="true">❀</span><span class="mo-proj-text"><b>' + T("The Raavanaa Fund", "ராவணா நிதியம்") + "</b><small>" + T("We choose the next day of joy, and show you openly where it went.", "அடுத்த மகிழ்ச்சியான நாளை நாம் தேர்ந்தெடுப்போம்; அது எங்கே சென்றது என்பதை வெளிப்படையாகக் காட்டுவோம்.") + "</small></span></button>" +
-      '<button type="button" role="radio" class="mo-proj mo-proj-any" data-slug="wish"><span class="mo-proj-art any wish" aria-hidden="true">✎</span><span class="mo-proj-text"><b>' + T("A wish of my own", "என் சொந்த விருப்பம்") + "</b><small>" + T("Something specific you would love your gift to do.", "உங்கள் அன்பளிப்பு செய்ய வேண்டுமென நீங்கள் விரும்பும் ஒரு குறிப்பிட்ட விடயம்.") + "</small></span></button>";
-    if (projects.length && !q.get("any")) st.project = projects[0].slug;
-    var want = q.get("project"); if (want && projects.some(function (p) { return p.slug === want; })) st.project = want;
-    if (q.get("wish") != null) st.project = "wish";
-    draw(); drawList();
+    if (projects.length && !q.get("any")) st.picks = [projects[0].slug];
+    var want = q.get("project"); if (want && projects.some(function (p) { return p.slug === want; })) st.picks = [want];
+    if (!st.picks.length) st.goes = "fund";
+    if (q.get("wish") != null) st.goes = "wish";
+    drawList(); draw();
   });
+
 
   // Save the card as a picture (1080 x 1350, the size Instagram and WhatsApp show best).
   function saveCard() {
@@ -507,6 +599,7 @@
     g.fillStyle = bg; g.fillRect(0, 0, W, H);
     g.strokeStyle = th[2]; g.lineWidth = 6; g.strokeRect(40, 40, W - 80, H - 80);
     g.lineWidth = 2; g.strokeRect(58, 58, W - 116, H - 116);
+    g.fillStyle = th[2]; [[58, 58], [W - 58, 58], [58, H - 58], [W - 58, H - 58]].forEach(function (pt) { g.beginPath(); g.arc(pt[0], pt[1], 12, 0, Math.PI * 2); g.fill(); });
     var serif = TA ? "'Noto Serif Tamil', serif" : "'Cormorant Garamond', Georgia, serif";
     var wrap = function (text, font, y, max, lh, color) {
       g.font = font; g.fillStyle = color; g.textAlign = "center";
@@ -526,15 +619,18 @@
       var fade = o.createRadialGradient(0, 0, 0, 0, 0, pw / 2);
       fade.addColorStop(0, "rgba(0,0,0,1)"); fade.addColorStop(.6, "rgba(0,0,0,1)"); fade.addColorStop(1, "rgba(0,0,0,0)");
       o.fillStyle = fade; o.fillRect(-pw / 2, -pw / 2, pw, pw);
-      g.drawImage(off, W / 2 - 135, 80, 270, 360);
-      var y = wrap(words() || "", "italic 500 " + (TA ? 40 : 50) + "px " + serif, 520, 860, TA ? 60 : 62, th[1]);
-      y = wrap(st.name || "", "600 " + (TA ? 64 : 78) + "px " + (TA ? serif : "Cinzel, serif"), y + 70, 900, TA ? 88 : 92, "#1f4d3a");
-      if (st.note) y = wrap("“" + st.note + "”", "italic 500 " + (TA ? 34 : 42) + "px " + serif, y + 40, 840, TA ? 54 : 56, "#2d5c48");
-      g.strokeStyle = th[2]; g.lineWidth = 2; g.beginPath(); g.moveTo(W / 2 - 220, y + 40); g.lineTo(W / 2 - 40, y + 40); g.moveTo(W / 2 + 40, y + 40); g.lineTo(W / 2 + 220, y + 40); g.stroke();
-      g.font = "34px serif"; g.fillStyle = "#e4761b"; g.textAlign = "center"; g.fillText("❀", W / 2, y + 52);
-      y = wrap(giftLine(), "600 " + (TA ? 30 : 36) + "px " + serif, y + 120, 860, 48, "#1f4d3a");
+      // their name at the top (SURESH, 13 Nov 2026), the painting under it
+      g.font = "600 24px Inter, sans-serif"; g.fillStyle = th[2]; g.textAlign = "center"; g.fillText((TA ? "தருண அட்டை" : "MOMENT CARD"), W / 2, 128);
+      var y = wrap(words() || "", "italic 500 " + (TA ? 38 : 46) + "px " + serif, 200, 860, TA ? 56 : 58, th[1]);
+      y = wrap(st.name || "", "600 " + (TA ? 66 : 84) + "px " + (TA ? serif : "Cinzel, serif"), y + 60, 900, TA ? 88 : 96, "#1f4d3a");
+      g.strokeStyle = th[2]; g.lineWidth = 2; g.beginPath(); g.moveTo(W / 2 - 220, y + 10); g.lineTo(W / 2 - 40, y + 10); g.moveTo(W / 2 + 40, y + 10); g.lineTo(W / 2 + 220, y + 10); g.stroke();
+      g.font = "34px serif"; g.fillStyle = "#e4761b"; g.fillText("❀", W / 2, y + 22);
+      g.drawImage(off, W / 2 - 120, y + 50, 240, 320);
+      y += 400;
+      if (st.note) y = wrap("“" + st.note + "”", "italic 500 " + (TA ? 34 : 40) + "px " + serif, y + 10, 840, TA ? 52 : 54, "#2d5c48");
+      y = wrap(giftLine(), "600 " + (TA ? 30 : 34) + "px " + serif, y + 40, 860, 46, "#1f4d3a");
       y = wrap(giftWhat(), "italic 500 " + (TA ? 26 : 32) + "px " + serif, y + 4, 860, 44, "#5d6b64");
-      if (st.from && st.k !== "behalf") wrap(T("With love, ", "அன்புடன், ") + st.from, "italic 500 " + (TA ? 30 : 36) + "px " + serif, y + 20, 860, 48, "#5d6b64");
+      if (fromLine() && st.k !== "behalf") wrap(T("With love, ", "அன்புடன், ") + fromLine(), "italic 500 " + (TA ? 30 : 36) + "px " + serif, y + 20, 860, 48, "#5d6b64");
       g.font = "600 26px Inter, sans-serif"; g.fillStyle = "#b0812a"; g.fillText("raavanaa.org", W / 2, H - 84);
       finish();
     };
