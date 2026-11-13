@@ -256,7 +256,7 @@
           '<div class="mo-together-out" data-together-out hidden>' +
             '<p class="mo-note">' + T("Your family page is ready. Share it:", "உங்கள் குடும்பப் பக்கம் தயார். இதைப் பகிருங்கள்:") + "</p>" +
             '<input readonly data-together-link aria-label="' + T("The link to your family page", "உங்கள் குடும்பப் பக்கத்தின் இணைப்பு") + '">' +
-            '<div class="mo-card-actions three"><button type="button" data-together-copy>' + T("Copy link", "இணைப்பை நகலெடு") + '</button><a data-together-wa target="_blank" rel="noopener">WhatsApp</a><a data-together-open>' + T("Open", "திற") + "</a></div>" +
+            '<div class="mo-card-actions three"><button type="button" data-together-copy>' + T("Copy link", "இணைப்பை நகலெடு") + '</button><a data-together-wa target="_blank" rel="noopener">WhatsApp</a><a data-together-open>' + T("Invite people", "அழைக்கவும்") + "</a></div>" +
           "</div>" +
         "</div>" +
         '<div class="mo-card-actions"><button type="button" data-save>' + T("Save the card", "அட்டையைச் சேமி") + '</button><a data-wa target="_blank" rel="noopener">' + T("Send on WhatsApp", "வட்ஸ்அப்பில் அனுப்பு") + "</a></div>" +
@@ -364,7 +364,7 @@
     if (st.code) {
       var page = location.origin + L + "/m/" + st.code;
       $("[data-together-link]").value = page;
-      $("[data-together-open]").href = L + "/m/" + st.code;
+      $("[data-together-open]").href = L + "/m/" + st.code + "#invite";
       $("[data-together-wa]").href = "https://wa.me/?text=" + encodeURIComponent((w ? w + " " : "") + st.name + (st.note ? "\n“" + st.note + "”" : "") + "\n" +
         T("We are giving children in Sri Lanka a day of joy in their name. Join us here: ", "அவர்கள் பெயரில் இலங்கைக் குழந்தைகளுக்கு ஒரு மகிழ்ச்சியான நாளை வழங்குகிறோம். எம்முடன் இணையுங்கள்: ") + page);
     }
@@ -383,7 +383,12 @@
       .then(function (r) { return r.json().then(function (o) { return { ok: r.ok, o: o }; }); })
       .then(function (r) {
         btn.disabled = false;
-        if (r.ok && r.o.code) { st.code = r.o.code; msg.hidden = true; draw(); }
+        if (r.ok && r.o.code) {
+          st.code = r.o.code; msg.hidden = true;
+          // The organiser's key stays on this phone, so the family page shows them the invite buttons and list.
+          if (r.o.ownerKey) { try { localStorage.setItem("raav-own-" + r.o.code, r.o.ownerKey); } catch (_) {} }
+          draw();
+        }
         else say(r.o.error || T("We could not make the page. Please try again.", "பக்கத்தை உருவாக்க முடியவில்லை. மீண்டும் முயலுங்கள்."));
       })
       .catch(function () { btn.disabled = false; say(T("We could not reach the site. Please check your connection and try again.", "தளத்தை அணுக முடியவில்லை. உங்கள் இணைப்பைச் சரிபார்த்து மீண்டும் முயலுங்கள்.")); });
