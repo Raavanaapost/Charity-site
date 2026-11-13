@@ -100,8 +100,9 @@ async function circleAction(code: string, action: string, req: Request) {
     if (!(await openProject(slug))) return json({ ok: false, error: "This project cannot be chosen. Please choose an open project from the list." }, 400);
     // A hold the team never approved lapses after 7 days, so a project is not locked away for long.
     await db.sql`UPDATE moments SET held_slug = '', held_at = NULL WHERE held_slug = ${slug} AND code <> ${code} AND NOT held_ok AND held_at < NOW() - INTERVAL '7 days'`;
-    const [other] = await db.sql<Row>`SELECT name FROM moments WHERE held_slug = ${slug} AND code <> ${code} AND NOT hidden`;
-    if (other) return json({ ok: false, taken: true, error: `${other.name}'s circle is already funding this project. Please choose another one.` }, 409);
+    const [other] = await db.sql<Row>`SELECT name, held_ok FROM moments WHERE held_slug = ${slug} AND code <> ${code} AND NOT hidden`;
+    // Another circle's name is shown only once the team has approved its hold.
+    if (other) return json({ ok: false, taken: true, error: other.held_ok ? `${other.name}'s circle is already funding this project. Please choose another one.` : "Another circle has asked for this project. Please choose another one." }, 409);
     try {
       await db.sql`UPDATE moments SET held_slug = ${slug}, held_at = NOW(), held_ok = FALSE, held_ok_by = '', project_slug = ${slug} WHERE code = ${code}`;
     } catch (e) {
