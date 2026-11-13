@@ -32,6 +32,127 @@
   }
   if (!code) { missing(); return; }
 
+  // ---- Family circle, stage 1 (SURESH, 13 Nov 2026): the organiser invites people, and they join the page. ----
+  // Invites go from the organiser's own phone and accounts; Raavanaa never messages anyone. Each invite link carries
+  // its own short code (?i=), so the organiser sees who opened it and who joined. Only they see the invite list.
+  var store = { get: function (k) { try { return localStorage.getItem(k) || ""; } catch (_) { return ""; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (_) {} } };
+  var ownerKey = store.get("raav-own-" + code);
+  var invited = (new URLSearchParams(location.search).get("i") || "").toLowerCase();
+  if (/^[a-z0-9]{6,16}$/.test(invited) && code) {
+    store.set("raav-invite-" + code, invited);
+    fetch("/api/moments/" + code + "/open", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ref: invited }), keepalive: true }).catch(function () {});
+    try { history.replaceState(null, "", location.pathname + location.hash); } catch (_) {}
+  }
+  var api = function (path, opts) {
+    opts = opts || {}; opts.headers = opts.headers || {};
+    if (ownerKey) opts.headers["x-owner-key"] = ownerKey;
+    if (opts.body) opts.headers["Content-Type"] = "application/json";
+    return fetch("/api/moments/" + code + path, opts).then(function (r) { return r.json().catch(function () { return {}; }).then(function (o) { o.status = r.status; return o; }); });
+  };
+  var newRef = function () { var abc = "abcdefghjkmnpqrstuvwxyz23456789", b = crypto.getRandomValues(new Uint8Array(8)); return Array.prototype.map.call(b, function (x) { return abc[x % abc.length]; }).join(""); };
+  var COUNTRIES = ["Sri Lanka", "India", "United Kingdom", "Canada", "Australia", "United States", "Switzerland", "Germany", "France", "Norway", "Denmark", "Netherlands", "Italy", "New Zealand", "Singapore", "Malaysia", "United Arab Emirates", "Qatar"];
+  function circleList(c) {
+    if (!c.length) return '<p class="mo-note tg-circle-count">' + T("No one has joined yet. Join, and invite the people you want with you.", "இன்னும் யாரும் இணையவில்லை. நீங்கள் இணைந்து, உங்களுடன் இருக்க விரும்புபவர்களை அழையுங்கள்.") + "</p>";
+    var places = {}; c.forEach(function (x) { if (x.country) places[x.country] = 1; });
+    var n = Object.keys(places).length;
+    return '<p class="tg-circle-count"><b>' + c.length + "</b> " + (c.length === 1 ? T("person so far", "நபர் இதுவரை") : T("of us", "பேர்")) +
+      (n > 1 ? T(", in ", ", ") + "<b>" + n + "</b> " + T("countries", "நாடுகளில்") : n === 1 ? T(", in ", ", ") + esc(Object.keys(places)[0]) : "") + "</p>" +
+      '<ul class="tg-givers tg-members">' + c.map(function (x) { return "<li>" + esc(x.name) + (x.country ? " <small>· " + esc(x.country) + "</small>" : "") + "</li>"; }).join("") + "</ul>";
+  }
+  function circle(m, page, wa) {
+    var join = root.querySelector("[data-join]"), inv = root.querySelector("[data-invite]");
+    var link = function (ref) { return page + "?i=" + ref; };
+    var waText = function (ref) { return wa.replace(page, link(ref)); };
+    api("/me").then(function (me) {
+      if (!me || !me.ok) return;
+      // Join, or say they are in.
+      if (me.joined) {
+        join.innerHTML = '<p class="tg-in-circle">' + T("You are in this circle as ", "நீங்கள் இந்த வட்டத்தில் இருக்கிறீர்கள்: ") + "<b>" + esc(me.name) + "</b>" + (me.country ? " · " + esc(me.country) : "") + "</p>";
+      } else if (!me.signedIn) {
+        join.innerHTML = '<a class="mo-go tg-join-btn" href="' + L + "/members?next=" + encodeURIComponent(L + "/m/" + code) + '">' + T("Join this circle", "இந்த வட்டத்தில் இணையுங்கள்") + "</a>" +
+          '<p class="mo-note">' + T("Sign in or make a free account with Google or email. You come straight back here.", "Google அல்லது மின்னஞ்சல் மூலம் உள்நுழையுங்கள் அல்லது இலவசக் கணக்கை உருவாக்குங்கள். நேராக இங்கே திரும்புவீர்கள்.") + "</p>";
+      } else {
+        var first = String(me.suggest || "").split(/\s+/)[0] || "";
+        join.innerHTML = '<form class="tg-join-form" data-join-form novalidate>' +
+          '<label>' + T("Your name, as the family will see it", "குடும்பத்தினர் பார்க்கும் உங்கள் பெயர்") + '<input id="tg-join-name" name="name" maxlength="40" required value="' + esc(first) + '" autocomplete="given-name"></label>' +
+          '<label>' + T("Where you live", "நீங்கள் வசிக்கும் நாடு") + '<select id="tg-join-country" name="country"><option value="">' + T("Choose", "தேர்ந்தெடுங்கள்") + "</option>" +
+            COUNTRIES.map(function (c) { return "<option>" + c + "</option>"; }).join("") + '<option value="other">' + T("Another country", "வேறு நாடு") + "</option></select></label>" +
+          '<label data-other hidden>' + T("Country", "நாடு") + '<input id="tg-join-other" name="other" maxlength="40"></label>' +
+          '<button class="mo-go tg-join-btn" type="submit">' + T("Join this circle", "இந்த வட்டத்தில் இணையுங்கள்") + "</button>" +
+          '<p class="mo-note" data-join-msg hidden></p>' +
+          '<p class="mo-note">' + T("Only your name and country show here. Your email stays private.", "உங்கள் பெயரும் நாடும் மட்டுமே இங்கே காட்டப்படும். உங்கள் மின்னஞ்சல் தனிப்பட்டதாக இருக்கும்.") + "</p></form>";
+        var f = join.querySelector("[data-join-form]");
+        f.country.addEventListener("change", function () { f.querySelector("[data-other]").hidden = f.country.value !== "other"; });
+        f.addEventListener("submit", function (e) {
+          e.preventDefault();
+          var say = function (t) { var p = f.querySelector("[data-join-msg]"); p.hidden = false; p.textContent = t; };
+          var name = f.name.value.trim(), country = f.country.value === "other" ? f.other.value.trim() : f.country.value;
+          if (!name) { say(T("Please add the name the family will see.", "குடும்பத்தினர் பார்க்கும் பெயரைச் சேருங்கள்.")); f.name.focus(); return; }
+          f.querySelector("button").disabled = true;
+          api("/join", { method: "POST", body: JSON.stringify({ name: name, country: country, ref: store.get("raav-invite-" + code) }) }).then(function (o) {
+            if (!o.ok) { f.querySelector("button").disabled = false; say(o.error || T("Please try again.", "மீண்டும் முயலுங்கள்.")); return; }
+            m.circle = (m.circle || []).concat([{ name: name, country: country }]);
+            root.querySelector(".tg-circle").innerHTML = "<h2>" + T("Our circle", "எங்கள் வட்டம்") + "</h2>" + circleList(m.circle) +
+              '<div class="tg-join" data-join><p class="tg-in-circle">' + T("Welcome. You are in this circle as ", "வரவேற்கிறோம். நீங்கள் இந்த வட்டத்தில் இருக்கிறீர்கள்: ") + "<b>" + esc(name) + "</b>" + (country ? " · " + esc(country) : "") + "</p></div>";
+          }).catch(function () { f.querySelector("button").disabled = false; say(T("We could not reach the site. Please try again.", "தளத்தை அணுக முடியவில்லை. மீண்டும் முயலுங்கள்.")); });
+        });
+      }
+      if (me.owner) invitePanel(inv, link, waText);
+    });
+  }
+  function invitePanel(inv, link, waText) {
+    var CH = {
+      whatsapp: ["W", T("WhatsApp", "வட்ஸ்அப்"), T("A person or the family group", "ஒருவர் அல்லது குடும்பக் குழு")],
+      sms: ["#", T("Text message", "குறுஞ்செய்தி"), T("From your own phone", "உங்கள் சொந்தத் தொலைபேசியிலிருந்து")],
+      facebook: ["f", T("Facebook", "Facebook"), T("A post or Messenger", "பதிவு அல்லது Messenger")],
+      instagram: ["◎", T("Instagram", "Instagram"), T("Copies the link for a message or your story", "செய்திக்கு அல்லது ஸ்டோரிக்கு இணைப்பை நகலெடுக்கும்")],
+      link: ["⧉", T("Copy the link", "இணைப்பை நகலெடு"), T("For email, Viber or anything else", "மின்னஞ்சல், Viber அல்லது வேறு எதற்கும்")]
+    };
+    var STATUS = { sent: T("Sent", "அனுப்பப்பட்டது"), opened: T("Opened", "திறக்கப்பட்டது"), joined: T("Joined", "இணைந்தார்") };
+    inv.hidden = false;
+    inv.innerHTML = "<h2>" + T("Invite people", "அழையுங்கள்") + "</h2>" +
+      '<p class="mo-note">' + T("Invite the people you want with you. Each invite goes from your own phone or account, with its own link, so you can see who opened it and who joined.", "உங்களுடன் இருக்க விரும்புபவர்களை அழையுங்கள். ஒவ்வொரு அழைப்பும் உங்கள் சொந்தத் தொலைபேசி அல்லது கணக்கிலிருந்து, தனி இணைப்புடன் செல்லும்; யார் திறந்தார்கள், யார் இணைந்தார்கள் என்று பார்க்கலாம்.") + "</p>" +
+      '<label class="tg-inv-label">' + T("Who is it for? (only you see this)", "யாருக்கு? (நீங்கள் மட்டுமே பார்ப்பீர்கள்)") + '<input id="tg-inv-who" maxlength="60" placeholder="' + T("e.g. Malar, Toronto", "எ.கா. மலர், டொராண்டோ") + '"></label>' +
+      '<div class="tg-inv-btns">' + Object.keys(CH).map(function (k) {
+        var c = CH[k], tag = k === "instagram" || k === "link" ? "button" : "a";
+        return "<" + tag + (tag === "a" ? ' target="_blank" rel="noopener" href="#"' : ' type="button"') + ' class="tg-inv" data-ch="' + k + '"><span class="tg-ic tg-ic-' + k + '" aria-hidden="true">' + c[0] + "</span><span><b>" + c[1] + "</b><small>" + c[2] + "</small></span></" + tag + ">";
+      }).join("") + "</div>" +
+      '<p class="mo-note tg-inv-msg" data-inv-msg hidden></p>' +
+      '<div class="tg-inv-list" data-inv-list></div>' +
+      '<p class="mo-note mo-privacy">' + T("Only you see this list. Raavanaa never sends messages to the people you invite.", "இந்தப் பட்டியலை நீங்கள் மட்டுமே பார்ப்பீர்கள். நீங்கள் அழைப்பவர்களுக்கு ராவணா ஒருபோதும் செய்தி அனுப்பாது.") + "</p>";
+    var list = inv.querySelector("[data-inv-list]"), msg = inv.querySelector("[data-inv-msg]");
+    function draw() {
+      api("/invites").then(function (o) {
+        if (!o.ok) return;
+        if (!o.invites.length) { list.innerHTML = ""; return; }
+        list.innerHTML = "<h3>" + T("Your invites", "உங்கள் அழைப்புகள்") + "</h3><ul>" + o.invites.map(function (x) {
+          return "<li><span>" + esc(x.label || (x.joinedAs ? x.joinedAs : T("No name", "பெயர் இல்லை"))) + " <small>" + esc((CH[x.channel] || CH.link)[1]) + "</small></span>" +
+            '<span class="tg-pill tg-' + x.status + '">' + STATUS[x.status] + "</span></li>";
+        }).join("") + "</ul>";
+      });
+    }
+    draw();
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) draw(); });
+    var copy = function (text) { return navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject(); };
+    inv.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-ch]");
+      if (!b) return;
+      var ch = b.dataset.ch, ref = newRef(), url = link(ref), who = inv.querySelector("#tg-inv-who");
+      // The link is ready before the invite is saved, so WhatsApp or Messages opens at once.
+      if (ch === "whatsapp") b.href = "https://wa.me/?text=" + encodeURIComponent(waText(ref));
+      else if (ch === "sms") b.href = "sms:?&body=" + encodeURIComponent(waText(ref));
+      else if (ch === "facebook") b.href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(url);
+      else {
+        copy(url).then(function () {
+          msg.hidden = false;
+          msg.textContent = ch === "instagram" ? T("Link copied. Paste it in an Instagram message, or add it to your story with a link sticker.", "இணைப்பு நகலெடுக்கப்பட்டது. Instagram செய்தியில் ஒட்டுங்கள், அல்லது link sticker மூலம் உங்கள் ஸ்டோரியில் சேருங்கள்.") : T("Link copied. Paste it wherever you like.", "இணைப்பு நகலெடுக்கப்பட்டது. விரும்பிய இடத்தில் ஒட்டுங்கள்.");
+        }).catch(function () { window.prompt(T("Copy this link", "இந்த இணைப்பை நகலெடுங்கள்"), url); });
+      }
+      api("/invites", { method: "POST", body: JSON.stringify({ ref: ref, label: who.value.trim(), channel: ch }), keepalive: true }).then(function () { who.value = ""; draw(); }).catch(function () {});
+    });
+    if (location.hash === "#invite") setTimeout(function () { inv.scrollIntoView({ behavior: "smooth", block: "start" }); }, 300);
+  }
+
   Promise.all([getJSON("/api/moments/" + code, null), getJSON("/projects.json", { projects: [] }), getJSON("/share.json", null), getJSON("/api/projects", null), getJSON("/api/give/totals", null)]).then(function (res) {
     var m = res[0];
     if (!m || !m.ok) { missing(); return; }
@@ -88,10 +209,14 @@
         "</div>" +
       "</div></section>" +
       '<div class="wrap tg-body">' +
+        '<section class="mo-step tg-step tg-wide tg-circle" id="circle"><h2>' + T("Our circle", "எங்கள் வட்டம்") + "</h2>" + circleList(m.circle || []) +
+          '<div class="tg-join" data-join></div></section>' +
+        '<section class="mo-step tg-step tg-wide tg-invite" id="invite" data-invite hidden></section>' +
         '<section class="mo-step tg-step"><h2>' + T("Where the joy goes", "மகிழ்ச்சி எங்கே செல்கிறது") + "</h2>" + where + "</section>" +
         '<section class="mo-step tg-step"><h2>' + T("Giving together", "ஒன்றாகக் கொடுப்பவர்கள்") + "</h2>" + givers +
           '<p class="mo-note mo-privacy">' + T("A name shows here only when the giver chose to show it. We never show children's names or faces.", "கொடுப்பவர் தேர்ந்தெடுத்தால் மட்டுமே பெயர் இங்கே காட்டப்படும். குழந்தைகளின் பெயர்களையோ முகங்களையோ நாம் ஒருபோதும் காட்டுவதில்லை.") + "</p></section>" +
       "</div>";
+    circle(m, page, wa);
     root.querySelector("[data-copy]").addEventListener("click", function (e) {
       var b = e.currentTarget;
       (navigator.clipboard ? navigator.clipboard.writeText(page) : Promise.reject()).then(function () { b.textContent = T("Copied", "நகலெடுக்கப்பட்டது"); }).catch(function () { window.prompt(T("Copy this link", "இந்த இணைப்பை நகலெடுங்கள்"), page); });
