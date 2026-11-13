@@ -1,6 +1,6 @@
 /* Raavanaa web app: keeps the site usable on a weak or lost connection.
    What it does, in plain words:
-   - Styles, scripts and site data: the fresh copy from the network when it comes within a few seconds; the saved copy when it does not.
+   - Styles and scripts: the fresh copy when it comes within 1.5 seconds, else the saved copy. Site data (.json): the same, but it waits 4.5 seconds.
    - Pictures: the saved copy at once, and a fresh copy fetched quietly for next time.
    - Pages: every page someone opens is saved. With no connection the saved page opens; a page never opened shows /offline.html.
    - Never saved: sign-in, the team portal, the admin, vouching links and anything under /api (people's own details and live money figures).
@@ -10,11 +10,12 @@
    (see checkGate), so nothing here needs changing on launch day.
 
    To make every phone drop its saved copies (after a big redesign, say), raise the number in VERSION. */
-const VERSION = "v2";
+const VERSION = "v3";
 const SHELL = "raav-app-" + VERSION;      // pages, styles, scripts, data
 const PICS = "raav-pics-" + VERSION;      // pictures
 const PICS_MAX = 220;                     // oldest pictures are dropped beyond this
-const WAIT = 4500;                        // ms to wait for the network before using a saved copy
+const WAIT = 1500;                        // ms to wait for the network before using a saved style, script or page (was 4.5 s; 13 Nov 2026, speed)
+const WAIT_DATA = 4500;                   // ms to wait for fresh site data (.json): data stays fresh whenever the network allows
 
 // Open to everyone (no password), so they can always be fetched when the app is installed.
 const FIRST = ["/offline.html", "/img/app/icon-192.png"];
@@ -64,20 +65,20 @@ async function trimPictures() {
 }
 
 // Fresh copy first; the saved copy if the network is slow or gone.
-function freshFirst(event, cacheName, key) {
+function freshFirst(event, cacheName, wait = WAIT) {
   const req = event.request;
   return (async () => {
     const cache = await caches.open(cacheName);
-    const saved = await cache.match(key || req);
+    const saved = await cache.match(req);
     const fresh = fetch(req).then(res => {
-      if (fits(res)) event.waitUntil(cache.put(key || req, res.clone()).catch(() => {}));
+      if (fits(res)) event.waitUntil(cache.put(req, res.clone()).catch(() => {}));
       return res;
     });
     if (!saved) return fresh;
     event.waitUntil(fresh.catch(() => {}));
     return Promise.race([
       fresh.then(res => (res.ok || res.status === 304 ? res : saved)).catch(() => saved),
-      new Promise(done => setTimeout(() => done(saved), WAIT))
+      new Promise(done => setTimeout(() => done(saved), wait))
     ]);
   })();
 }
@@ -133,7 +134,8 @@ self.addEventListener("fetch", event => {
     return;
   }
   if (isPicture(url)) { event.respondWith(savedFirst(event)); return; }
-  if (/\.(css|js|json)$/i.test(url.pathname)) { event.respondWith(freshFirst(event, SHELL)); return; }
+  if (/\.(css|js)$/i.test(url.pathname)) { event.respondWith(freshFirst(event, SHELL)); return; }
+  if (/\.json$/i.test(url.pathname)) { event.respondWith(freshFirst(event, SHELL, WAIT_DATA)); return; }
 });
 
 // Each page tells us it was opened, so we can keep a copy for a day with no connection.
