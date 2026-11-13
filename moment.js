@@ -234,7 +234,7 @@
           '<p class="mo-card-gift" data-c-gift></p>' +
           '<p class="mo-card-what" data-c-what></p>' +
           '<p class="mo-card-from" data-c-from></p>' +
-          '<img class="mo-card-logo" src="/img/logo.webp?v=6" alt="Raavanaa" width="900" height="298">' +
+          '<img class="mo-card-logo" src="/img/logo-450.webp?v=6" alt="Raavanaa" width="450" height="149">' +
         "</figure>" +
         '<a class="mo-go" data-go href="/give">' + T("Continue to give", "கொடுக்கத் தொடருங்கள்") + "</a>" +
         '<details class="mo-fold" data-every-fold><summary><span aria-hidden="true">↻</span> ' + T("Make it a moment every year?", "ஒவ்வோர் ஆண்டும் இந்தத் தருணத்தை உருவாக்கவா?") + "</summary>" +
