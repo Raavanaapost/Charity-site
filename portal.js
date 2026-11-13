@@ -44,6 +44,7 @@
     close: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
     people: '<circle cx="9" cy="8" r="3"/><path d="M3 20c.5-4 2.8-6 6-6s5.5 2 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M16 14c2.7 0 4.4 1.7 5 5"/>',
     team: '<rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
+    circles: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="5" r="2"/><circle cx="5.5" cy="15" r="2"/><circle cx="18.5" cy="15" r="2"/>',
     champions: '<path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.6L12 16.4l-5.1 2.7 1-5.6-4.1-4 5.7-.8z"/>',
     reports: '<path d="M12 3l8 3v6c0 4.6-3.3 8-8 9-4.7-1-8-4.4-8-9V6z"/><path d="M12 8v5M12 16h.01" stroke-width="2.2"/>',
     more: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'
@@ -52,7 +53,7 @@
   const MENU = [
     ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true],
     ["sponsors", "Sponsors & pledges", true], ["day", "Day preparation", true], ["close", "Close the day", true],
-    ["people", "People", true], ["champions", "Champions", true], ["team", "Team & logins", true]
+    ["people", "People", true], ["champions", "Champions", true], ["circles", "Family circles", true], ["team", "Team & logins", true]
   ];
 
   let D = null, P = [], C = { list: [], districts: [] }, chDistrict = "All", chEdit = null;
@@ -512,6 +513,43 @@
           <div class="pt-actions-row"><button type="button" class="pt-btn ghost" data-chedit="${c.id}">Edit</button><button type="button" class="pt-btn ghost" data-chact="${c.id}">${c.active ? "Pause" : "Make active"}</button></div>
         </article>`).join("") : `<p class="pt-sub">No Champions${chDistrict === "All" ? " yet" : " in " + esc(chDistrict)}.</p>`}</section>
       ${chEdit ? "" : form()}`;
+  }
+  // Family circles that chose a project (13 Nov 2026). "Being funded by <name>'s circle" shows on the website only
+  // after the team approves the hold here; a hold not approved lapses after 7 days. Approve once the first gift is in.
+  let HOLDS = null;
+  function circles() {
+    if (HOLDS === null) { loadHolds(); return `<header class="pt-head"><div><p class="pt-kicker">Family circles</p><h1>Projects chosen by families</h1></div></header><p class="pt-sub">Loading…</p>`; }
+    const when = d => d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "";
+    const waiting = HOLDS.filter(h => !h.approved);
+    return `
+      <header class="pt-head"><div><p class="pt-kicker">Family circles</p><h1>Projects chosen by families</h1>
+        <p class="pt-sub">When a family circle chooses a project, it waits here. Approve it once you know the family (ideally after their first gift). Only then does the website say “Being funded by … circle”, and no other circle can take it. A hold you do not approve lapses after 7 days.</p></div></header>
+      <section class="pt-stats">
+        <div class="pt-stat st1"><b>${waiting.length}</b><span>Waiting</span></div>
+        <div class="pt-stat st2"><b>${HOLDS.length - waiting.length}</b><span>Approved</span></div>
+      </section>
+      <section class="pt-champs">${HOLDS.length ? HOLDS.map(h => `
+        <article class="pt-card pt-champ">
+          <div><h3>${esc(h.name)}’s circle <small>${h.approved ? "· approved" + (h.approvedBy ? " by " + esc(h.approvedBy) : "") : "· waiting"}</small></h3>
+            <p class="pt-sub">${esc((h.words ? h.words + " " : "") + h.name)} · project <a href="/projects/${esc(h.project)}" target="_blank" rel="noopener">${esc(h.project)}</a></p>
+            <p class="pt-champ-meta">Chosen ${when(h.since)}${h.lapses ? ` · lapses ${when(h.lapses)}` : ""} · ${h.gifts} gift${h.gifts === 1 ? "" : "s"} · ${h.members} in the circle · organiser ${esc(h.from || "")} ${h.owner ? `&lt;${esc(h.owner)}&gt;` : ""} · <a href="/m/${esc(h.code)}" target="_blank" rel="noopener">family page</a></p></div>
+          <div class="pt-actions-row">${h.approved ? "" : `<button type="button" class="pt-btn" data-hold="approve" data-code="${esc(h.code)}">Approve</button>`}<button type="button" class="pt-btn ghost" data-hold="release" data-code="${esc(h.code)}">Release</button></div>
+        </article>`).join("") : `<p class="pt-sub">No family circle has chosen a project yet.</p>`}</section>`;
+  }
+  async function loadHolds() {
+    await null; // let render() finish drawing "Loading" first
+    if (!LIVE) { HOLDS = [{ code: "abc234", name: "Amma", words: "In loving memory of", project: "pussellawa-kandy-trip", since: new Date().toISOString(), approved: false, gifts: 1, members: 4, from: "Ravi", owner: "ravi@example.com", lapses: new Date(Date.now() + 7 * 864e5).toISOString() }]; render(); return; }
+    try { HOLDS = (await api("/api/circle-team")).holds || []; } catch (e) { HOLDS = []; toast(e.message || "Could not load."); }
+    render();
+  }
+  function wireCircles() {
+    app.querySelectorAll("[data-hold]").forEach(b => b.onclick = async () => {
+      const action = b.dataset.hold, code = b.dataset.code;
+      if (!LIVE) { HOLDS = action === "release" ? HOLDS.filter(h => h.code !== code) : HOLDS.map(h => h.code === code ? { ...h, approved: true } : h); render(); toast((action === "approve" ? "Approved" : "Released") + " (demo)"); return; }
+      b.disabled = true;
+      try { HOLDS = (await api("/api/circle-team", { method: "POST", body: JSON.stringify({ code, action }) })).holds || []; render(); toast(action === "approve" ? "Approved: the website now shows it" : "Released: other circles can choose it"); }
+      catch (e) { b.disabled = false; toast(e.message || "Could not save."); }
+    });
   }
   async function chSave(url, method, body, done) {
     if (!LIVE) {
@@ -1289,12 +1327,13 @@
 
   function render() {
     const [page, id] = route();
-    const cur = ["suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "team"].includes(page) ? page : "dashboard";
+    const cur = ["suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "circles", "team"].includes(page) ? page : "dashboard";
     drawNav(cur);
     if (page === "suggestions" && id) { app.innerHTML = detail(id); wireDetail(id); }
     else if (page === "suggestions") { app.innerHTML = suggestions(); wireSuggestions(); }
     else if (page === "people") { app.innerHTML = people(); wirePeople(); }
     else if (page === "champions") { app.innerHTML = champions(); wireChampions(); }
+    else if (page === "circles") { app.innerHTML = circles(); wireCircles(); }
     else if (page === "team") { app.innerHTML = team(); wireTeam(); }
     else if (page === "close") { app.innerHTML = closeDay(id); wireClose(); }
     else if (page === "day") { app.innerHTML = dayPrep(id); wireDay(); }
@@ -1304,7 +1343,7 @@
     else if (page === "reports" && id) { app.innerHTML = reportDetail(id); wireReport(id); }
     else if (page === "reports") { app.innerHTML = reports(); wireReports(); }
     else app.innerHTML = dashboard();
-    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
+    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", circles: "Family circles", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
   }
 
   Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] })).then(async d => { try { const m = await fetch("/api/projects").then(r => r.json()); const have = new Set((d.projects || []).map(p => p.slug)); d.projects = [...(d.projects || []), ...(m.projects || []).filter(p => !have.has(p.slug))]; } catch (e) { /* only projects.json */ } return d; })])
