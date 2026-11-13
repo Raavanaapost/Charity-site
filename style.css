@@ -2444,3 +2444,10 @@ html[lang="ta"] .app-sheet-box h3{letter-spacing:0;text-transform:none;font-size
 .plist-main .cp-held{margin:0 0 2px;font-size:11.5px;width:auto;justify-self:start;white-space:normal}
 .plist-main .cp-choose{margin-top:6px;padding:6px 14px;font-size:14px;justify-self:start}
 .cp-on-tile{position:absolute;top:10px;right:10px;z-index:2}
+/* Coming from Gift a Moment: the form does not ask again who the gift is for (SURESH, 13 Nov 2026) */
+.give-form.from-moment>.give-for:not(.give-list),.give-form.from-moment .give-tribute{display:none!important}
+.give-moment-sum{display:flex;align-items:center;gap:10px;margin:0;padding:10px 14px;border-radius:12px;background:#fff6e0;border:1px solid #ead7a4;color:#1f4d3a;font-size:15px}
+.give-moment-sum>span:first-child{color:#c8381e;font-size:20px}
+.give-moment-sum>span:nth-child(2){flex:1}
+.give-moment-sum button{border:0;background:none;color:#1f4d3a;font:inherit;font-weight:700;text-decoration:underline;cursor:pointer}
+.give-also{margin:0}

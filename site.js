@@ -2731,6 +2731,24 @@
         if (rem && q.get("every") === "year" && /^\d{4}-\d{2}-\d{2}$/.test(day)) { f.querySelector('[name="remind_day"]').value = day; rem.checked = q.get("remind") === "1"; }
       }
       if (q.get("wish") && f.querySelector('[name="wish"]')) f.querySelector('[name="wish"]').value = q.get("wish").slice(0, 300);
+      // Coming from Gift a Moment with a name (SURESH, 13 Nov 2026): the moment already says who the gift is for, so the
+      // form does not ask again. It shows one line instead, with "Change" to open the questions.
+      if (trPick && q.get("tn") && f.querySelector(".give-tribute")) {
+        const ta = location.pathname.startsWith("/ta/");
+        f.classList.add("from-moment");
+        const line = document.createElement("p"); line.className = "give-moment-sum";
+        line.innerHTML = `<span aria-hidden="true">♡</span><span>${esc(trPick === "behalf" ? (ta ? "சார்பில்:" : "On behalf of") : (q.get("tw") || "").slice(0, 60))} <b>${esc(q.get("tn").slice(0, 60))}</b></span><button type="button">${ta ? "மாற்று" : "Change"}</button>`;
+        line.querySelector("button").addEventListener("click", () => { f.classList.remove("from-moment"); line.remove(); });
+        f.querySelector(".give-for").before(line);
+      }
+      // More than one project chosen with the heart: the gift is shared, and the team sees which ones.
+      const also = (q.get("also") || "").split(",").map(x => projects.find(y => slugOf(y) === slugify(x))).filter(Boolean).slice(0, 6);
+      if (also.length && f.dataset.kind === "project") {
+        f.dataset.also = also.map(x => x.title).join("; ");
+        const line = document.createElement("p"); line.className = "note give-also";
+        line.textContent = (location.pathname.startsWith("/ta/") ? "இவற்றுடனும் பகிரப்படும்: " : "Shared with: ") + also.map(x => x.title).join(" · ");
+        (f.querySelector(".give-moment-sum") || f.querySelector(".give-for")).after(line);
+      }
       f.addEventListener("change", update); f.addEventListener("input", update); update();
       // "I'd like to give": save the request for the team (and a copy in Netlify Forms), then say what happens next.
       const ask = async () => {
@@ -2752,6 +2770,7 @@
         for (const [k, v] of fd.entries()) if (k !== "pick" && k !== "own" && k !== "tribute_mode" && k !== "wish") body[k] = v;
         body.amount = (pick === "other" ? ownIn.value.trim() : pick === "unsure" ? "Not sure yet" : chip.dataset.label || chip.value) + (f.dataset.kind === "member" && pick !== "unsure" ? " a month" : "");
         body.message = String(fd.get("wish") || "").trim();
+        if (f.dataset.also) body.message = ("Also for: " + f.dataset.also + (body.message ? "\n" + body.message : "")).slice(0, 500);
         body.listing = listing; if (listing === "own") body.listing_words = listWords; else delete body.listing_words;
         const trSel = f.querySelector('[name="tribute_kind"]');
         if (mode === "none") { delete body.remind; delete body.remind_day; ["tribute_kind", "tribute_name", "tribute_note", "tribute_show"].forEach(k => delete body[k]); }
