@@ -2859,6 +2859,8 @@
     const app = document.getElementById("app");
     const page = document.body.dataset.page;
     try {
+      // All five data calls start together (13 Nov 2026, speed): the gift totals used to wait for the other four.
+      const giveP = load("/api/give/totals").catch(() => null);
       const [site, data, cm, made] = await Promise.all([load("/site.json"), load("/projects.json"), load("/comments.json").catch(() => ({})), load("/api/projects").catch(() => null)]);
       // Projects created from requests in the team portal come from the database; projects.json wins if a slug is in both.
       if (made && made.projects) { const have = new Set((data.projects || []).map(p => p.slug)); data.projects = [...(data.projects || []), ...made.projects.filter(p => p && !have.has(p.slug))]; }
@@ -2867,7 +2869,7 @@
       // Only projects that have been visited and verified are public (Decisions log, 10 Oct 2026).
       const projects = (data.projects || []).filter(p => p && p.title && !p.hidden && p.verified);
       // Card gifts (PayHere or Stripe) are added to each project's supporters, so the budget bars and stages stay right.
-      const GIVE = await load("/api/give/totals").catch(() => null);
+      const GIVE = await giveP;
       GIVE_ON = !!(GIVE && GIVE.enabled);
       // PayHere (rupees) is the card service chosen for launch, so the forms show rupees even before it is switched on.
       if ((GIVE && GIVE.provider === "payhere") || !GIVE || !GIVE.enabled) { GIVE_BY = "PayHere"; GIVE_CUR = "LKR"; }
