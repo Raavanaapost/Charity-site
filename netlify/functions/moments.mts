@@ -77,7 +77,7 @@ async function view(code: string, context: Context) {
   for (const r of rows as Row[]) totals[String(r.currency).toUpperCase()] = (totals[String(r.currency).toUpperCase()] || 0) + Number(r.amount_cents) / 100;
   return json({
     ok: true, code, kind: m.kind, words: m.words, name: m.name, note: m.note, from: m.from_name,
-    project: m.project_slug, held: m.held_slug || "", wish: m.wish, day: m.day ? new Date(m.day).toISOString().slice(0, 10) : "", lang: m.lang, created: m.created_at,
+    project: m.project_slug, held: m.held_slug || "", heldOk: !!m.held_ok, wish: m.wish, day: m.day ? new Date(m.day).toISOString().slice(0, 10) : "", lang: m.lang, created: m.created_at,
     givers: (rows as Row[]).map((r) => (r.show_name && r.display_name ? r.display_name : FRIEND)),
     count: rows.length, totals, test: !live,
     circle: (circle as Row[]).map((r) => ({ name: r.display_name, country: r.country })),

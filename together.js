@@ -112,7 +112,8 @@
       "</div></div></section>" : "";
 
     // 2. Their giving: what the circle has given, where it goes, and (organiser) choose or change the project.
-    var held = proj && proj.held ? '<span class="tg-held">' + T("Being funded by " + esc(circleName), esc(circleName) + " நிதியளிக்கிறது") + "</span>" : "";
+    var held = !proj || !proj.held ? "" : m.heldOk ? '<span class="tg-held">' + T("Being funded by " + esc(circleName), esc(circleName) + " நிதியளிக்கிறது") + "</span>"
+      : '<span class="tg-held wait">' + T("Chosen by our circle · the team will confirm it soon", "எங்கள் வட்டம் தேர்ந்தெடுத்தது · குழு விரைவில் உறுதிசெய்யும்") + "</span>";
     var where = proj
       ? '<a class="mo-proj tg-proj" href="' + L + "/projects/" + esc(proj.slug) + '"><span class="mo-proj-art" style="background-image:url(\'' + esc(proj.art) + '\')"></span>' +
           '<span class="mo-proj-text">' + held + "<b>" + esc(proj.title) + "</b><small>" + (proj.open ? esc(proj.cur) + " " + Math.round(proj.raised).toLocaleString("en-US") + T(" of ", " / ") + esc(proj.cur) + " " + Math.round(proj.goal).toLocaleString("en-US") + " · " + T("still needs ", "இன்னும் தேவை ") + esc(proj.cur) + " " + Math.round(proj.left).toLocaleString("en-US") : T("Fully funded. New gifts go to the Raavanaa Fund, for the next day of joy.", "முழு நிதியும் கிடைத்தது. புதிய அன்பளிப்புகள் அடுத்த மகிழ்ச்சியான நாளுக்காக ராவணா நிதியத்துக்குச் செல்லும்.")) + "</small>" +
@@ -121,10 +122,12 @@
           (m.wish ? T("Their wish: ", "அவர்களின் விருப்பம்: ") + esc(m.wish) : T("The Raavanaa Fund", "ராவணா நிதியம்")) + "</b><small>" +
           (m.wish ? T("Gifts wait in the Raavanaa Fund until the right day is found for this wish.", "இந்த விருப்பத்துக்கான சரியான நாள் கிடைக்கும் வரை அன்பளிப்புகள் ராவணா நிதியத்தில் காத்திருக்கும்.") : T("Until the family chooses a project, gifts go to the Raavanaa Fund.", "குடும்பம் ஒரு திட்டத்தைத் தேர்ந்தெடுக்கும் வரை அன்பளிப்புகள் ராவணா நிதியத்துக்குச் செல்லும்.")) + "</small></span></a>";
     var pick = L + "/initiated?circle=" + code;
-    var ownerPick = me.owner ? '<div class="tg-pick">' + (m.held
+    var ownerPick = me.owner && !me.signedIn ? '<div class="tg-pick"><a class="mo-go tg-pick-btn" href="' + L + "/members?next=" + encodeURIComponent(L + "/m/" + code) + '">' + T("Sign in to choose a project", "திட்டத்தைத் தேர்ந்தெடுக்க உள்நுழையுங்கள்") + "</a>" +
+        '<p class="mo-note">' + T("A project is held in your name, so please sign in first.", "திட்டம் உங்கள் பெயரில் வைக்கப்படும்; முதலில் உள்நுழையுங்கள்.") + "</p></div>"
+      : me.owner ? '<div class="tg-pick">' + (m.held
         ? '<a class="tg-link" href="' + pick + '">' + T("Change the project", "திட்டத்தை மாற்று") + '</a><button type="button" class="tg-link" data-letgo>' + T("Let it go for another circle", "வேறு வட்டத்துக்கு விட்டுக்கொடு") + "</button>"
         : '<a class="mo-go tg-pick-btn" href="' + pick + '">' + T("Choose a project for our circle", "எங்கள் வட்டத்துக்கு ஒரு திட்டத்தைத் தேர்ந்தெடு") + "</a>" +
-          '<p class="mo-note">' + T("Pick one from the projects list. It is held for your circle, so no other circle takes the same one.", "திட்டப் பட்டியலில் ஒன்றைத் தேர்ந்தெடுங்கள். அது உங்கள் வட்டத்துக்காக வைக்கப்படும்; வேறு வட்டம் அதையே எடுக்காது.") + "</p>") + "</div>" : "";
+          '<p class="mo-note">' + T("Pick one from the projects list. Once the team confirms it, it is held for your circle and no other circle can take it.", "திட்டப் பட்டியலில் ஒன்றைத் தேர்ந்தெடுங்கள். குழு உறுதிசெய்தவுடன் அது உங்கள் வட்டத்துக்காக வைக்கப்படும்; வேறு வட்டம் அதை எடுக்க முடியாது.") + "</p>") + "</div>" : "";
     var givers = (m.givers || []).length ? '<p class="mo-note tg-gave">' + T("Given by ", "கொடுத்தவர்கள்: ") + m.givers.map(function (g) { return esc(TA && g === "A friend of Raavanaa" ? "ராவணாவின் நண்பர்" : g); }).join(", ") + "</p>" : "";
 
     root.innerHTML = welcome +

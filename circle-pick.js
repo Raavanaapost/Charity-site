@@ -1,5 +1,6 @@
 /* Family circles on the projects list and project pages (SURESH, 13 Nov 2026).
-   - A project held by a family circle shows "Being funded by <name>'s circle", so two circles never take the same one.
+   - A project held by a family circle shows "Being funded by <name>'s circle" once the team has approved the hold
+     (the server only lists approved holds), so two circles never take the same one.
    - The organiser of a family page comes here from "Choose a project for our circle" (/initiated?circle=<code>): each
      open project gets a "Choose this one" button; choosing holds it for their circle and takes them back to their page. */
 (function () {
@@ -41,6 +42,7 @@
           if (o.ok) { ss.del("raav-picking"); location.href = L + "/m/" + picking + "#giving"; return; }
           btn.disabled = false; note.hidden = false;
           note.textContent = o.error || T("We could not choose this one. Please try again.", "இதைத் தேர்ந்தெடுக்க முடியவில்லை. மீண்டும் முயலுங்கள்.");
+          if (o.signIn) note.insertAdjacentHTML("beforeend", ' <a href="' + L + "/members?next=" + encodeURIComponent(L + "/m/" + picking) + '">' + T("Sign in", "உள்நுழை") + "</a>");
         }).catch(function () { btn.disabled = false; });
     };
     var slugOf = function (href) { var m = String(href || "").match(/\/projects\/([a-z0-9-]+)/); return m ? m[1] : ""; };
