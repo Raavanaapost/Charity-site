@@ -2213,7 +2213,15 @@
     const text = (ta && c.text_ta) || c.text || "";
     const pic = `/img/share/${own ? slug : "default"}-story${ta ? "-ta" : ""}.jpg`;
     const enc = encodeURIComponent;
-    const picBlob = fetch(pic).then(r => r.ok ? r.blob() : Promise.reject()).catch(() => null);
+    // The story picture (100-200 KB) is fetched only when the share box comes near the screen, not with every page (speed, 13 Nov 2026).
+    // It is still fetched before a tap, because a phone only opens its share sheet straight after the tap.
+    let picP = null;
+    const getPic = () => picP || (picP = fetch(pic).then(r => r.ok ? r.blob() : Promise.reject()).catch(() => { picP = null; return null; }));
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); getPic(); } }, { rootMargin: "400px" });
+      io.observe(box);
+    } else getPic();
+    box.querySelector('[data-sh="ig"]').addEventListener("pointerdown", getPic);
     box.querySelector('[data-sh="wa"]').href = `https://wa.me/?text=${enc(`${title}\n${text}\n${url}`)}`;
     box.querySelector('[data-sh="fb"]').href = `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`;
     box.querySelector('[data-sh="x"]').href = `https://twitter.com/intent/tweet?text=${enc(title)}&url=${enc(url)}`;
@@ -2232,7 +2240,7 @@
     // (pick Instagram); computers download it. The tip says to add the link sticker.
     box.querySelector('[data-sh="ig"]').onclick = async () => {
       try {
-        const blob = await picBlob;
+        const blob = await getPic();
         if (!blob) throw new Error("no picture");
         const file = new File([blob], `raavanaa-${slug}.jpg`, { type: "image/jpeg" });
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
