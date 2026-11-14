@@ -22,7 +22,7 @@ const PUBLIC = new Set([
 const HOME: Record<string, string> = { "/": "/overview", "/index.html": "/overview", "/ta": "/ta/overview", "/ta/": "/ta/overview", "/ta/index.html": "/ta/overview" };
 const NEWS_SITE = "https://raavanaapost.raavanaa.org/";
 const SAMPLE_MAGAZINE = /^\/(ta\/)?(post|post-royal)(\.html)?\/?$/;
-const TRY_OUTS = /^\/(ta\/)?(front|front-2|front-3|front-4|home|welcome-picture|welcome-logo|welcome-1|welcome-2|smile-map-v2|sample|temp|new-look)(\.html|\/.*)?$/;
+const TRY_OUTS = /^\/(ta\/)?(front|front-2|front-3|front-4|front-5|home|welcome-picture|welcome-logo|welcome-1|welcome-2|smile-map-v2|sample|temp|new-look)(\.html|\/.*)?$/;
 
 export default async (request: Request, context: { next: () => Promise<Response> }) => {
   const password = Netlify.env.get("SITE_PASSWORD");

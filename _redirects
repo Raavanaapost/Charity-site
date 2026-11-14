@@ -14,6 +14,7 @@
 /ta/front  /ta/front.html  200
 /ta/front-2  /ta/front-2.html  200
 /ta/front-4  /ta/front-4.html  200
+/ta/front-5  /ta/front-5.html  200
 /ta/create  /ta/create.html  200
 /ta/initiated  /ta/stage.html  200
 /ta/activated  /ta/stage.html  200
@@ -37,6 +38,7 @@
 /front-2  /front-2.html  200
 /front-3  /front-3.html  200
 /front-4  /front-4.html  200
+/front-5  /front-5.html  200
 /create  /create.html  200
 # New look (its own folder, still a preview)
 /new-look/projects/*  /new-look/project.html  200
