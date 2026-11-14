@@ -1,5 +1,6 @@
 
 ## To do
+- [x] Memory-only launch (SURESH, 14 Nov 2026, on the draft): one feature goes live first, giving in loving memory of someone with one simple page for that person (/m/<code>). Sponsor a Smile and Donate, family circles and vetting (Initiate, vouching) stay built but hidden by the switches in `window.RAAV_FEATURES` at the top of site.js (plus `VETTING` in endorse.js). Turn one back on by setting it to true and publishing. On the draft, `?features=all` shows everything for that browser tab.
 - [ ] Comments: paste the GitHub key into the `COMMENTS_GITHUB_TOKEN` setting in Netlify (it exists but is empty), then test a comment.
 - [ ] Form emails: in Netlify, Project configuration → Notifications → Form submission notifications, add an email notification to the owner's address for "Any form". Until then messages are only saved under Forms in Netlify.
 - [ ] Impact in numbers: Volunteers and Local visits are hidden until real figures are typed in (admin → Site settings).
