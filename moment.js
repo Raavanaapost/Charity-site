@@ -177,6 +177,13 @@
   // each step with the rest under "More"; the Moment Card after the steps, with the name at the top; the projects
   // list is where the joy goes (tap the heart, one or more); one button to give at the very end.
   var MAIN = ["memory", "remembrance", "birthday", "wedding"];
+  // Memory launch (SURESH, 14 Nov 2026): only the reasons switched on at the top of site.js are offered
+  // (now "In loving memory" and "Remembrance day"); the others come back by adding them there.
+  var FEAT = window.RAAV_FEATURES || { reasons: [], circle: true };
+  if (FEAT.reasons && FEAT.reasons.length) {
+    OCCASIONS = OCCASIONS.filter(function (o) { return FEAT.reasons.indexOf(o.k) > -1; });
+    MAIN = OCCASIONS.map(function (o) { return o.k; });
+  }
   // "Who is it for?" in the words of each reason
   var WHO_H = {
     memory: ["Whose memory do you carry?", "யாருடைய நினைவைச் சுமக்கிறீர்கள்?"], remembrance: ["Who are we remembering?", "யாரை நினைவுகூர்கிறோம்?"],
@@ -224,7 +231,7 @@
             OCCASIONS.filter(function (o) { return MAIN.indexOf(o.k) > -1; }).map(chip).join("") +
           "</div>" +
           '<div class="mo-occ mo-occ-more" data-fold="reasons" hidden>' + OCCASIONS.filter(function (o) { return MAIN.indexOf(o.k) < 0; }).map(chip).join("") + "</div>" +
-          '<div class="mo-more-row">' + moreBtn("reasons", OCCASIONS.length - MAIN.length).replace(T("More", "மேலும்"), T("More reasons", "மேலும் காரணங்கள்")) + "</div>" +
+          (OCCASIONS.length > MAIN.length ? '<div class="mo-more-row">' : '<div class="mo-more-row" hidden>') + moreBtn("reasons", OCCASIONS.length - MAIN.length).replace(T("More", "மேலும்"), T("More reasons", "மேலும் காரணங்கள்")) + "</div>" +
           '<label class="mo-field mo-custom" hidden><span>' + T("Your own words, before their name", "அவர்கள் பெயருக்கு முன் வர வேண்டிய உங்கள் வார்த்தைகள்") + '</span><input name="custom" maxlength="60" placeholder="' + T("e.g. With love from the whole family, for", "எ.கா. முழுக் குடும்பத்தின் அன்புடன்,") + '"></label>' +
         "</div>" +
       "</div></section>" +

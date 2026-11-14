@@ -585,8 +585,9 @@ window.RAAV_FEATURES = (function () {
     { k: "memory", en: "In loving memory", ta: "அன்பு நினைவாக" },
     { k: "birthday", en: "A birthday", ta: "பிறந்தநாள்" },
     { k: "wedding", en: "A wedding day", ta: "திருமண நாள்" },
-    { k: "festival", en: "A festival", ta: "பண்டிகை" }
-  ];
+    { k: "festival", en: "A festival", ta: "பண்டிகை" },
+    { k: "remembrance", en: "Remembrance day", ta: "நினைவு நாள்" }
+  ].filter((r, i) => FEAT.reasons.length ? FEAT.reasons.includes(r.k) : i < 4);
   const momentTitleHTML = () => `<span class="mt-title${TA_PATH ? " ta" : ""}"><span>${MOMENT_TITLE[0]}</span> <b>${MOMENT_TITLE[1]}</b></span><span class="mt-ribbon">${MOMENT_TITLE[2]}</span>`;
   const momentBandHTML = () => `<section class="moment-band" aria-label="Gift a Moment, in their name">
       <i class="mb-sparks" aria-hidden="true"></i>
