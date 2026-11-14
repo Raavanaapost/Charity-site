@@ -2451,3 +2451,30 @@ html[lang="ta"] .app-sheet-box h3{letter-spacing:0;text-transform:none;font-size
 .give-moment-sum>span:nth-child(2){flex:1}
 .give-moment-sum button{border:0;background:none;color:#1f4d3a;font:inherit;font-weight:700;text-decoration:underline;cursor:pointer}
 .give-also{margin:0}
+
+/* Home, 14 Nov 2026 (SURESH): only on /overview (body[data-light]); /front-4 and /front-5 keep their old look.
+   Softer stage circles with the stage name and number in a light band across the middle, a bolder turning headline,
+   Gift a Moment as a small icon under the story pictures, and very light stage sections. */
+body[data-light] .stage.art{background:linear-gradient(rgba(255,251,242,.42),rgba(255,251,242,.42)) padding-box,var(--art) center/cover padding-box,conic-gradient(from 210deg,color-mix(in srgb,var(--c) 55%,#fff),color-mix(in srgb,var(--c2) 55%,#fff),color-mix(in srgb,var(--c) 55%,#fff)) border-box;justify-content:center;padding:0;gap:0}
+body[data-light] .stage::before{opacity:.35}
+body[data-light] .stage.art span,body[data-light] .stage.art b{text-shadow:0 0 6px #fff,0 0 12px #fff;width:100%;text-align:center}
+body[data-light] .stage.art::after{content:"";position:absolute;left:0;right:0;top:30%;bottom:30%;background:linear-gradient(transparent,rgba(255,253,247,.72) 22%,rgba(255,253,247,.72) 78%,transparent);pointer-events:none}
+body[data-light] .stage.art span,body[data-light] .stage.art b{position:relative;z-index:1}
+body[data-light] .stage.art span{order:1;color:color-mix(in srgb,var(--c) 80%,#000);font-size:clamp(10.5px,2.9vw,17px);padding:5px 4px 0}
+body[data-light] .stage.art b{order:2;color:color-mix(in srgb,var(--c) 80%,#000);font-size:clamp(18px,4.8vw,30px);padding:0 0 5px}
+body[data-light] .stage.art.stat-active span,body[data-light] .stage.art.stat-active b{color:#7a4f00}
+body[data-light] .stages{margin-bottom:30px}
+body[data-light] .intro .headline{font-family:"Playfair Display",Georgia,serif;font-weight:900;color:#1f4d3a;letter-spacing:.005em}
+body[data-light] .intro .headline .hl2{background:linear-gradient(100deg,#c8381e 10%,#e5851a 90%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding-right:.04em}
+body[data-light] .intro .headline .dash{color:#e9b440}
+body[data-light] .intro::after{content:"";display:block;width:64px;height:4px;border-radius:4px;margin-top:8px;background:linear-gradient(90deg,#e9b440,#c8381e)}
+.moment-chip{display:flex;align-items:center;gap:10px;width:max-content;max-width:100%;margin:12px 0 30px auto;padding:6px 8px 6px 6px;border-radius:999px;text-decoration:none;color:#2a3423;background:#fff8e6;border:1.5px solid #ecc76a;box-shadow:0 8px 14px -12px rgba(138,92,18,.8)}
+.moment-chip img{width:40px;height:40px;flex:none;display:block}
+.moment-chip span{line-height:1.2;font-size:14px}
+.moment-chip b{font-family:"Playfair Display",Georgia,serif;font-weight:900;font-size:15.5px;color:#c8381e}
+.moment-chip em{font-family:"Playfair Display",Georgia,serif;font-weight:900;font-style:italic;color:#1f4d3a;white-space:nowrap}
+.moment-chip i{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:#c8381e;color:#fff;font-style:normal;font-family:var(--display);font-weight:700;font-size:14px}
+.moment-chip:hover{box-shadow:0 10px 18px -10px rgba(138,92,18,.9)}
+html[lang="ta"] .moment-chip b,html[lang="ta"] .moment-chip em{font-family:"Noto Sans Tamil",var(--display),sans-serif;font-style:normal;font-weight:700;font-size:14px}
+body[data-light] .home-latest{background:color-mix(in srgb,var(--hc) 5%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--hc) 14%,transparent)}
+body[data-light] .mosaic-eyebrow i{opacity:.92}
