@@ -1,7 +1,30 @@
 /* Shared site script: loads content/*.json and renders the current page.
    Content is edited from /admin — no code changes needed for new projects. */
+/* ---------- Feature switches (SURESH, 14 Nov 2026: "go feature by feature") ----------
+   The launch carries ONE feature: giving in loving memory of someone, with one simple page for that person (/m/<code>).
+   Everything else stays built and comes back one at a time: set its switch to true and publish.
+     sponsor  Sponsor a Smile and Donate (Home icons, /give and /fund opened directly, Donate on project pages).
+              While false, every way to give goes through /moment, in someone's memory.
+     circle   family and friends circles on the moment page and the family page (invites, joining, circle choice).
+     vetting  people asking for a project and vouching for it (/initiate, /create, /e/<link>, "Start a project",
+              "Vouched for by").
+     reasons  the reasons shown on /moment; [] shows all twelve.
+   On a draft or local preview, ?features=all shows everything for this browser tab (?features=launch goes back). */
+window.RAAV_FEATURES = (function () {
+  const F = { sponsor: false, circle: false, vetting: false, reasons: ["memory", "remembrance"] };
+  try {
+    const q = new URLSearchParams(location.search).get("features");
+    const test = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) || /--charity-projects-draft\./.test(location.hostname);
+    if (test && q === "all") sessionStorage.setItem("raav-features", "all");
+    if (q === "launch") sessionStorage.removeItem("raav-features");
+    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = true; F.reasons = []; }
+  } catch (e) { /* storage blocked: the launch switches stay */ }
+  ["sponsor", "circle", "vetting"].forEach(k => { if (!F[k]) document.documentElement.classList.add("no-" + k); });
+  return F;
+})();
 (function () {
   let COMMENTS = [];
+  const FEAT = window.RAAV_FEATURES;
   const PALETTES = [
     ["#2f7f8f", "#163a45", "#f2c14e"], ["#c0583a", "#5a2a2a", "#f6d79a"],
     ["#3d7a4f", "#1b3a2a", "#9fd3c7"], ["#b07d2b", "#4a3418", "#f1e3b5"],
