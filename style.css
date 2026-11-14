@@ -2483,6 +2483,7 @@ body[data-light] .mosaic-eyebrow i{opacity:.92}
 .no-vetting a[href="/initiate"], .no-vetting a[href="/ta/initiate"], .no-vetting a[href^="/initiate?"],
 .no-vetting a[href="/create"], .no-vetting a[href="/ta/create"],
 .no-vetting a[href^="/contact?topic=suggest"], .no-vetting a[href^="/ta/contact?topic=suggest"], .no-vetting .panel.idea,
+.no-vetting li:has(> a[href^="/contact?topic=suggest"]), .no-vetting li:has(> a[href^="/ta/contact?topic=suggest"]),
 .no-vetting .create-cta, .no-vetting .ask-band, .no-vetting .vouched, .no-vetting .hm-empty-go { display: none !important; }
 .soon-note { max-width: 520px; margin: 48px auto; text-align: center; padding: 32px 22px; }
 .soon-note h1 { font-family: "Cinzel", serif; color: #1f4d3a; font-size: 1.5rem; margin: 12px 0 8px; }
