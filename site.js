@@ -205,6 +205,13 @@ window.RAAV_FEATURES = (function () {
   })();
 
   // Footer shown on every page. Social links and email appear only when filled in under Site settings.
+  // Shown where a switched-off feature used to be (see the feature switches at the top).
+  const soonHTML = () => `<section class="soon-note panel">
+      <img src="/img/moment-mark.svg" alt="" width="72" height="72">
+      <h1>Starting a project opens soon</h1>
+      <p>For now, you can give children a day of joy in loving memory of someone dear to you.</p>
+      <a class="btn" href="/moment?for=memory">Give in loving memory</a>
+    </section>`;
   function frame(site) {
     // English / Tamil switch in the header: the same page in the other language.
     const bar = document.querySelector(".bar .wrap");
@@ -2930,6 +2937,9 @@ window.RAAV_FEATURES = (function () {
       if (made && made.projects) { const have = new Set((data.projects || []).map(p => p.slug)); data.projects = [...(data.projects || []), ...made.projects.filter(p => p && !have.has(p.slug))]; }
       COMMENTS = (cm && cm.comments) || [];
       frame(site);
+      // Asking for a project and vouching for it are switched off for the memory launch (FEAT.vetting): the form pages
+      // show a short note instead. The form itself stays in the HTML and comes back when the switch is true.
+      if (!FEAT.vetting && (page === "initiate" || page === "create")) { app.innerHTML = soonHTML(); document.title = `Opening soon · ${site.name}`; return; }
       // Only projects that have been visited and verified are public (Decisions log, 10 Oct 2026).
       const projects = (data.projects || []).filter(p => p && p.title && !p.hidden && p.verified);
       // Card gifts (PayHere or Stripe) are added to each project's supporters, so the budget bars and stages stay right.

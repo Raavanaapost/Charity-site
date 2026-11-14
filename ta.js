@@ -5,6 +5,10 @@
 (function () {
   "use strict";
   var D = {
+"Starting a project opens soon": "திட்டம் தொடங்குவது விரைவில் திறக்கும்",
+"For now, you can give children a day of joy in loving memory of someone dear to you.": "இப்போதைக்கு, உங்களுக்கு அன்பான ஒருவரின் நினைவாகக் குழந்தைகளுக்கு ஒரு மகிழ்ச்சியான நாளை வழங்கலாம்.",
+"Give in loving memory": "அன்பு நினைவாகக் கொடுங்கள்",
+"Opening soon": "விரைவில் திறக்கும்",
 "Gift a Moment": "தருணப் பரிசு",
 "Gift": "பரிசு",
 "Map": "வரைபடம்",

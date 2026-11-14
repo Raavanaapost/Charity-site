@@ -11,6 +11,21 @@
   const TA = /^\/ta\//.test(location.pathname);
   if (TA) document.documentElement.lang = "ta";
   const pageUrl = location.origin + (TA ? "/ta/e/" : "/e/") + token;
+  // Memory launch (SURESH, 14 Nov 2026): vouching is switched off for now. This page does not load site.js, so its
+  // switch is here; set VETTING to true together with "vetting" at the top of site.js. The team's preview still works.
+  const VETTING = false;
+  if (!VETTING && params.get("preview") !== "1") {
+    document.addEventListener("DOMContentLoaded", () => {
+      const m = document.querySelector("main") || document.body;
+      m.innerHTML = `<section style="max-width:520px;margin:48px auto;text-align:center;padding:32px 22px;font-family:Inter,system-ui,sans-serif">
+        <img src="/img/moment-mark.svg" alt="" width="72" height="72">
+        <h1 style="font-family:Cinzel,serif;color:#1f4d3a;font-size:1.5rem">${TA ? "விரைவில் திறக்கும்" : "Opening soon"}</h1>
+        <p>${TA ? "இப்போதைக்கு, உங்களுக்கு அன்பான ஒருவரின் நினைவாகக் குழந்தைகளுக்கு ஒரு மகிழ்ச்சியான நாளை வழங்கலாம்." : "For now, you can give children a day of joy in loving memory of someone dear to you."}</p>
+        <p><a href="${TA ? "/ta" : ""}/moment?for=memory" style="display:inline-block;background:#1f4d3a;color:#fff;padding:12px 20px;border-radius:999px;text-decoration:none;font-weight:600">${TA ? "அன்பு நினைவாகக் கொடுங்கள்" : "Give in loving memory"}</a></p>
+      </section>`;
+    });
+    return;
+  }
   const STATIC_TA = {
     loading: "திட்டத்தை ஏற்றுகிறது…",
     missing: "இந்தத் திட்டத்தைக் கண்டுபிடிக்க முடியவில்லை",

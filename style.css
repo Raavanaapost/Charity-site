@@ -2478,3 +2478,12 @@ body[data-light] .intro::after{content:"";display:block;width:64px;height:4px;bo
 html[lang="ta"] .moment-chip b,html[lang="ta"] .moment-chip em{font-family:"Noto Sans Tamil",var(--display),sans-serif;font-style:normal;font-weight:700;font-size:14px}
 body[data-light] .home-latest{background:color-mix(in srgb,var(--hc) 5%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--hc) 14%,transparent)}
 body[data-light] .mosaic-eyebrow i{opacity:.92}
+
+/* Memory launch (14 Nov 2026): parts of switched-off features are hidden here; the switches are at the top of site.js. */
+.no-vetting a[href="/initiate"], .no-vetting a[href="/ta/initiate"], .no-vetting a[href^="/initiate?"],
+.no-vetting a[href="/create"], .no-vetting a[href="/ta/create"],
+.no-vetting a[href^="/contact?topic=suggest"], .no-vetting a[href^="/ta/contact?topic=suggest"], .no-vetting .panel.idea,
+.no-vetting .create-cta, .no-vetting .ask-band, .no-vetting .vouched, .no-vetting .hm-empty-go { display: none !important; }
+.soon-note { max-width: 520px; margin: 48px auto; text-align: center; padding: 32px 22px; }
+.soon-note h1 { font-family: "Cinzel", serif; color: #1f4d3a; font-size: 1.5rem; margin: 12px 0 8px; }
+.soon-note p { margin: 0 0 20px; }
