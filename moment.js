@@ -289,7 +289,7 @@
         '<a class="mo-go" data-go href="/give"></a>' +
         '<div class="mo-extras">' +
           '<button type="button" class="mo-extra" data-more="every" aria-expanded="false"><span class="mo-extra-ic" aria-hidden="true">↻</span><span><b>' + T("Every year", "ஒவ்வோர் ஆண்டும்") + "</b><small>" + T("A reminder before their day", "அவர்களின் நாளுக்கு முன் நினைவூட்டல்") + "</small></span></button>" +
-          '<button type="button" class="mo-extra" data-more="family" aria-expanded="false"><span class="mo-extra-ic home" aria-hidden="true">' + homeSVG + "</span><span><b>" + T("Family page", "குடும்பப் பக்கம்") + "</b><small>" + T("Their card on a page of their own", "அவர்களின் அட்டை, தனிப் பக்கத்தில்") + "</small></span></button>" +
+          '<button type="button" class="mo-extra" data-more="family" aria-expanded="false"><span class="mo-extra-ic home" aria-hidden="true">' + homeSVG + "</span><span><b>" + (FEAT.circle ? T("Family page", "குடும்பப் பக்கம்") : T("A page in their memory", "அவர்கள் நினைவாக ஒரு பக்கம்")) + "</b><small>" + T("Their card on a page of their own", "அவர்களின் அட்டை, தனிப் பக்கத்தில்") + "</small></span></button>" +
         "</div>" +
         '<div class="mo-fold-box" data-fold="every" hidden>' +
           '<div class="mo-seg" role="radiogroup" aria-label="' + T("How often", "எத்தனை முறை") + '">' +
@@ -304,8 +304,8 @@
         '<div class="mo-fold-box mo-together" data-fold="family" hidden>' +
           '<p class="mo-note" data-together-text></p>' +
           '<div data-together-make>' +
-            '<p class="mo-together-q">' + T("Who will share this page?", "இந்தப் பக்கத்தை யார் பகிர்வார்கள்?") + "</p>" +
-            '<div class="mo-seg" role="radiogroup" aria-label="' + T("Circle", "வட்டம்") + '">' +
+            '<p class="mo-together-q"' + (FEAT.circle ? "" : " hidden") + ">" + T("Who will share this page?", "இந்தப் பக்கத்தை யார் பகிர்வார்கள்?") + "</p>" +
+            '<div class="mo-seg" role="radiogroup" aria-label="' + T("Circle", "வட்டம்") + '"' + (FEAT.circle ? "" : " hidden") + ">" +
               '<button type="button" role="radio" data-circle="family">' + T("Family circle", "குடும்ப வட்டம்") + "</button>" +
               '<button type="button" role="radio" data-circle="friends">' + T("Friends circle", "நண்பர்கள் வட்டம்") + "</button></div>" +
             '<button type="button" class="mo-together-btn" data-together>' + T("Make the page", "பக்கத்தை உருவாக்கு") + "</button>" +
@@ -434,7 +434,9 @@
     $("[data-together-out]").hidden = !st.code;
     $("[data-together-make]").hidden = !!st.code;
     if (st.code) {
-      $("[data-together-open]").href = L + "/m/" + st.code + "#invite";
+      $("[data-together-open]").href = L + "/m/" + st.code + (FEAT.circle ? "#invite" : "");
+      // Memory launch (FEAT.circle off): one simple page for the person, with no circle and no invites.
+      if (!FEAT.circle) { $("[data-together-sub]").textContent = T("Open it, then copy or share it", "திறந்து, நகலெடுங்கள் அல்லது பகிருங்கள்"); $("[data-together-title]").textContent = T(nm + "'s page", nm + " அவர்களின் பக்கம்"); return; }
       $("[data-together-sub]").textContent = st.circle === "friends" ? T("Open the page, and invite your friends", "பக்கத்தைத் திறந்து, நண்பர்களை அழையுங்கள்") : T("Open the page, and invite your family", "பக்கத்தைத் திறந்து, குடும்பத்தை அழையுங்கள்");
       $("[data-together-title]").textContent = st.circle === "friends" ? T(nm + "'s friends page", nm + " நண்பர்கள் பக்கம்") : T(nm + "'s family page", nm + " குடும்பப் பக்கம்");
     }

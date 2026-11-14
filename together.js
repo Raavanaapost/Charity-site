@@ -75,6 +75,10 @@
   // First launch (SURESH, 13 Nov 2026): keep it simple. Only the person who made the page gives from it; everyone can
   // see the Moment Card and share it. Joining the circle and holding a project stay built, switched off until later.
   var JOIN = false, HOLD = false;
+  // Memory launch (SURESH, 14 Nov 2026): with "circle" switched off at the top of site.js this is one simple page for
+  // the person: their card, where the joy goes, Copy and Share. No circle words, no invites, no invite welcome.
+  var CIRCLE = !!(window.RAAV_FEATURES ? window.RAAV_FEATURES.circle : true);
+  if (!CIRCLE) JOIN = HOLD = false;
   var homeSVG = '<svg viewBox="0 0 48 48" width="40" height="40" aria-hidden="true"><path d="M6 22L24 7l18 15" fill="none" stroke="#c9a24a" stroke-width="3.400" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 19.500V40h26V19.500" fill="#fffaf0" stroke="#1f4d3a" stroke-width="3" stroke-linejoin="round"/><path d="M24 35s-6-3.700-6-8a3.500 3.500 0 0 1 6-2.300 3.500 3.500 0 0 1 6 2.300c0 4.300-6 8-6 8z" fill="#c8381e"/></svg>';
 
   Promise.all([getJSON("/api/moments/" + code, null), getJSON("/projects.json", { projects: [] }), getJSON("/share.json", null), getJSON("/api/projects", null), getJSON("/api/give/totals", null), api("/me").catch(function () { return {}; }), openInvite]).then(function (res) {
@@ -108,13 +112,13 @@
     document.title = (m.words ? m.words + " " : "") + m.name + " · Raavanaa";
     var from = inv && inv.from || m.from || "";
     var fromAll = [m.from, m.others].filter(Boolean).join(", ");
-    var pageName = friends ? T(m.name + "'s friends page", m.name + " நண்பர்கள் பக்கம்") : T(m.name + "'s family page", m.name + " குடும்பப் பக்கம்");
+    var pageName = !CIRCLE ? T(m.name + "'s page", m.name + " அவர்களின் பக்கம்") : friends ? T(m.name + "'s friends page", m.name + " நண்பர்கள் பக்கம்") : T(m.name + "'s family page", m.name + " குடும்பப் பக்கம்");
     var shareText = (m.words ? m.words + " " : "") + m.name + (m.note ? "\n“" + m.note + "”" : "") + "\n" +
-      (friends ? T("As friends, we are giving children in Sri Lanka a day of joy in this name: ", "நண்பர்களாக, இந்தப் பெயரில் இலங்கைக் குழந்தைகளுக்கு ஒரு மகிழ்ச்சியான நாளை வழங்குகிறோம்: ")
+      (!CIRCLE ? T("We are giving children in Sri Lanka a day of joy in their name: ", "அவர்கள் பெயரில் இலங்கைக் குழந்தைகளுக்கு ஒரு மகிழ்ச்சியான நாளை வழங்குகிறோம்: ") : friends ? T("As friends, we are giving children in Sri Lanka a day of joy in this name: ", "நண்பர்களாக, இந்தப் பெயரில் இலங்கைக் குழந்தைகளுக்கு ஒரு மகிழ்ச்சியான நாளை வழங்குகிறோம்: ")
         : T("Our family is giving children in Sri Lanka a day of joy in this name: ", "இந்தப் பெயரில் எங்கள் குடும்பம் இலங்கைக் குழந்தைகளுக்கு ஒரு மகிழ்ச்சியான நாளை வழங்குகிறது: ")) + page;
 
     // 1. Someone opened an invite: greet them the way the family talks, and tell them it is safe.
-    var welcome = inv && (inv.to || inv.from) && !me.joined ?
+    var welcome = CIRCLE && inv && (inv.to || inv.from) && !me.joined ?
       '<section class="tg-welcome"><div class="wrap"><div class="tg-welcome-card">' +
         '<p class="tg-hi">' + esc(greetName(inv.to, inv.relation) || T("Hello", "வணக்கம்")) + ",</p>" +
         (inv.from ? '<p class="tg-hi-from">' + T("this is from <b>" + esc(inv.from) + "</b>.", "இது <b>" + esc(inv.from) + "</b> அனுப்பியது.") + "</p>" : "") +
@@ -199,7 +203,7 @@
       window.open("https://wa.me/?text=" + encodeURIComponent(shareText), "_blank", "noopener");
     });
     if (JOIN) joinArea(m, me, inv);
-    if (me.owner) invitePanel(m, page, me, friends);
+    if (me.owner && CIRCLE) invitePanel(m, page, me, friends);
     if (location.hash === "#invite" || location.hash === "#giving") setTimeout(function () { var t = document.getElementById(location.hash.slice(1)); if (t && !t.hidden) t.scrollIntoView({ behavior: "smooth", block: "start" }); }, 300);
   });
 

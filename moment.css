@@ -440,3 +440,4 @@ html[lang="ta"] .mo-card-h{font-family:"Noto Serif Tamil",serif;font-style:norma
 .tg-own a{color:var(--green);font-weight:700}
 .tg-fund .tg-proj+.tg-proj{margin-top:8px}
 html[lang="ta"] .mo-cardsec .mo-kicker{letter-spacing:0;text-transform:none;font-family:"Noto Serif Tamil",serif;font-size:15px}
+.mo-seg[hidden],.mo-together-q[hidden]{display:none}

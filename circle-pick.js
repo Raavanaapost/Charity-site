@@ -5,6 +5,8 @@
      open project gets a "Choose this one" button; choosing holds it for their circle and takes them back to their page. */
 (function () {
   "use strict";
+  // Memory launch (SURESH, 14 Nov 2026): off while "circle" is false at the top of site.js.
+  if (window.RAAV_FEATURES && !window.RAAV_FEATURES.circle) return;
   var TA = /^\/ta(\/|$)/.test(location.pathname), L = TA ? "/ta" : "";
   var T = function (en, ta) { return TA ? ta : en; };
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
