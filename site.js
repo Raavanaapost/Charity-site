@@ -1237,7 +1237,7 @@
     const head = root.querySelector(".headline");
     if (!head || titles.length < 2 || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let k = start;
-    rotTimers.push(setInterval(() => { if (document.hidden) return; k = (k + 1) % titles.length; fadeText(head, headline(titles[k]), fitHeadline); }, 4200));
+    rotTimers.push(setInterval(() => { if (document.hidden) return; k = (k + 1) % titles.length; fadeText(head, headline(titles[k]), () => { fitHeadline(); setTimeout(fitHeadline, 80); }); }, 4200)); // fit again once the Tamil words are in
   }
   function startSayings(root) {
     const box = root.querySelector(".sayings");
