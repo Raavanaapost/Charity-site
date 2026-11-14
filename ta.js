@@ -9,6 +9,8 @@
 "For now, you can give children a day of joy in loving memory of someone dear to you.": "இப்போதைக்கு, உங்களுக்கு அன்பான ஒருவரின் நினைவாகக் குழந்தைகளுக்கு ஒரு மகிழ்ச்சியான நாளை வழங்கலாம்.",
 "Give in loving memory": "அன்பு நினைவாகக் கொடுங்கள்",
 "Opening soon": "விரைவில் திறக்கும்",
+"Give towards this day in loving memory of someone dear to you. Their name goes with the gift, and a volunteer will reply to you personally.": "உங்களுக்கு அன்பான ஒருவரின் நினைவாக இந்த நாளுக்குக் கொடுங்கள். அவர்களின் பெயர் அன்பளிப்புடன் செல்லும்; ஒரு தன்னார்வலர் உங்களுக்கு நேரில் பதில் எழுதுவார்.",
+"Back to Gift a Moment": "தருணப் பரிசுக்குத் திரும்பு",
 "Gift a Moment": "தருணப் பரிசு",
 "Gift": "பரிசு",
 "Map": "வரைபடம்",

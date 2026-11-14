@@ -770,9 +770,9 @@ window.RAAV_FEATURES = (function () {
   // child's photo, never the name of a school or a home. The home page as it was is kept at /front-4.
   const HOME_ACTS = [
     { k: "moment", href: "/moment", says: ["Gift a Moment", "In their name", "For a birthday", "In loving memory", "For a festival"] },
-    { k: "sponsor", href: "/give", says: ["Sponsor a Smile", "Fund a Smile", "Give a Day of Joy", "Be the Reason for a Smile", "Sponsor a Moment"] },
-    { k: "donate", href: "/fund", says: ["Donate", "Any amount helps", "Every rupee is shown", "To the Raavanaa Fund", "Give what you can"] }
-  ];
+    FEAT.sponsor && { k: "sponsor", href: "/give", says: ["Sponsor a Smile", "Fund a Smile", "Give a Day of Joy", "Be the Reason for a Smile", "Sponsor a Moment"] },
+    FEAT.sponsor && { k: "donate", href: "/fund", says: ["Donate", "Any amount helps", "Every rupee is shown", "To the Raavanaa Fund", "Give what you can"] }
+  ].filter(Boolean);
   const HOME_ACT_ICONS = {
     moment: `<img src="/img/moment-mark.svg" alt="" width="64" height="64">`,
     sponsor: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="13" r="7.2"/><path d="M8 14.4c.8 1.4 1.8 2.1 3 2.1s2.2-.7 3-2.1"/><path class="dot" d="M8.6 11.1h.01M13.4 11.1h.01"/><path class="spark" d="M19.2 2.6l.8 1.9 1.9.8-1.9.8-.8 1.9-.8-1.9-1.9-.8 1.9-.8z"/></svg>`,
@@ -1623,7 +1623,7 @@ window.RAAV_FEATURES = (function () {
   const whoFunded = p => { const b = budgetOf(p); if (!b.goal || !b.funders.length) return "";
     return `<small class="who">${b.funders.map(f => `${esc(f.name)}${f.hide_amount ? "" : ` <b>${Math.round(numOf(f.amount) / b.goal * 100)}%</b>`}`).join(" · ")}</small>`; };
   // The Donate button (wireDonate): it opens the giving form.
-  const DONATE_BTN = `<button class="donate-btn" type="button" data-donate><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg><span>Donate</span></button>`;
+  const DONATE_BTN = `<button class="donate-btn" type="button" data-donate><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg><span>${FEAT.sponsor ? "Donate" : "Give in loving memory"}</span></button>`;
   // The "Activating" circle with its list of steps, as on a project page.
   function activatingPanelHTML(p, cls = "") {
     const steps = ringSteps(p), T = RING_TEXT[stageNum(p)];
@@ -1678,9 +1678,9 @@ window.RAAV_FEATURES = (function () {
               <div><b>${b.funders.length ? "Still to fund" : "Be the first sponsor"}</b><span>${b.goal ? `${money(need)} still to go. This is where you come in.` : "Opens as soon as the budget is ready. Send a note and we'll tell you first."}</span></div></li></ol>
           <div class="go-form go-make">
             <h3>Make this happen</h3>
-            <div class="mk-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-mk="donate"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>Donate</button><button type="button" role="tab" aria-selected="false" data-mk="other">Help another way</button></div>
-            <div class="mk-pane" data-mkpane="donate"><p class="go-sub">${canGive(p) ? `Give towards this day by card. Secure payment by ${GIVE_BY}.` : "Want to give towards this day? Tap Donate and tell us what you would like to give. A volunteer will reply to you personally."}</p>${DONATE_BTN}
-              <p class="go-name"><a href="/moment?project=${encodeURIComponent(slugOf(p))}">♡ Give in someone's name, or on behalf of a family or group →</a></p></div>
+            <div class="mk-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-mk="donate"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>${FEAT.sponsor ? "Donate" : "Give"}</button><button type="button" role="tab" aria-selected="false" data-mk="other">Help another way</button></div>
+            <div class="mk-pane" data-mkpane="donate"><p class="go-sub">${!FEAT.sponsor ? "Give towards this day in loving memory of someone dear to you. Their name goes with the gift, and a volunteer will reply to you personally." : canGive(p) ? `Give towards this day by card. Secure payment by ${GIVE_BY}.` : "Want to give towards this day? Tap Donate and tell us what you would like to give. A volunteer will reply to you personally."}</p>${DONATE_BTN}
+              <p class="go-name"${FEAT.sponsor ? "" : " hidden"}><a href="/moment?project=${encodeURIComponent(slugOf(p))}">♡ Give in someone's name, or on behalf of a family or group →</a></p></div>
             <form class="mk-pane" data-mkpane="other" hidden name="make-it-happen" data-ajax data-done="Thank you! Your note is on its way. We'll be in touch soon, and you'll be part of a child's best day.">
               <p class="go-sub">Not able to give money? There are other ways to make this day happen. Tell us how you'd like to help and we'll reach out.</p>
               <input type="hidden" name="form-name" value="make-it-happen">
@@ -1747,6 +1747,8 @@ window.RAAV_FEATURES = (function () {
   // Raavanaa Fund. With card payments off (launch, SURESH 12 Nov 2026) the form is "I'd like to give": a volunteer replies.
   function wireDonate(root, slug) {
     root.querySelectorAll("[data-donate]").forEach(b => b.addEventListener("click", () => {
+      // Memory launch (FEAT.sponsor off): every gift goes through the moment page, in someone's memory.
+      if (!FEAT.sponsor) { location.href = (TA_PATH ? "/ta" : "") + "/moment?for=memory" + (GIVE_OPEN.has(slug) ? "&project=" + encodeURIComponent(slug) : "") + "#mo-step-2"; return; }
       location.href = (TA_PATH ? "/ta" : "") + (GIVE_OPEN.has(slug) ? "/give?project=" + encodeURIComponent(slug) : "/fund");
     }));
   }
@@ -2562,6 +2564,13 @@ window.RAAV_FEATURES = (function () {
   //   /give?project=<slug>   sponsor that project (never more than what it still needs)
   function renderGive(app, site, projects, GIVE) {
     const q = new URLSearchParams(location.search);
+    // Memory launch (FEAT.sponsor off): /give and /fund open only from the moment page (which sends ?tribute=).
+    // Opened directly, they go to the moment page instead, keeping the project chosen.
+    if (!FEAT.sponsor && !q.get("tribute")) {
+      const pj = q.get("project");
+      location.replace((TA_PATH ? "/ta" : "") + "/moment?for=memory" + (pj ? "&project=" + encodeURIComponent(pj) : ""));
+      return;
+    }
     const on = !!(GIVE && GIVE.enabled);
     // No card payments at launch (SURESH, 12 Nov 2026): the form asks what the person would like to give, and a volunteer
     // replies to them personally. No money is taken on the site and no bank details are shown anywhere on it.
@@ -2897,7 +2906,7 @@ window.RAAV_FEATURES = (function () {
     const by = s && s.provider === "payhere" ? "PayHere" : GIVE_BY;
     const dollars = n => cash(Number(n), (s && s.currency) || GIVE_CUR);
     const TAp = location.pathname.startsWith("/ta/");
-    let h = "Thank you", t = `Your gift is on its way. ${by} will email you a receipt.`, link = `<a class="btn" href="/give">Back to Sponsor a smile</a>`;
+    let h = "Thank you", t = `Your gift is on its way. ${by} will email you a receipt.`, link = FEAT.sponsor ? `<a class="btn" href="/give">Back to Sponsor a smile</a>` : `<a class="btn" href="/moment">Back to Gift a Moment</a>`;
     if (s && s.ok) {
       if (s.kind === "project" && s.project) { h = "Thank you for sponsoring a smile"; t = TAp ? `உங்கள் ${dollars(s.amount)} “${esc(s.project.title)}” நடக்க உதவுகிறது. ${s.status === "pending" ? "உங்கள் வங்கி உறுதிப்படுத்தியதும், " : ""}ஒரு நிமிடத்துக்குள் இது திட்டப் பக்கத்தில் காட்டப்படும்; அந்த நாளுக்குப் பின் படங்களையும் பணம் எங்கே சென்றது என்பதையும் பார்ப்பீர்கள்.`
         : `Your ${dollars(s.amount)} is helping make “${esc(s.project.title)}” happen. It will show on the project page within a minute${s.status === "pending" ? " once your bank confirms it" : ""}, and after the day you'll see the photos and where the money went.`; link = `<a class="btn" href="/projects/${esc(s.project.slug)}">See the project</a>`; }
