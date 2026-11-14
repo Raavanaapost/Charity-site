@@ -332,7 +332,7 @@
     const str = String(t || "").trim();
     if (!str) return "";
     const first = [...str][0];
-    const rest = esc(str.slice(first.length)).replace(/\s+[-–—]\s+/, ' <span class="dash">–</span> ');
+    const rest = esc(str.slice(first.length)).replace(/\s+[-–—]\s+(.*)$/, ' <span class="dash">–</span> <span class="hl2">$1</span>');
     return `<span class="initial">${esc(first.toUpperCase())}</span>${rest}`;
   };
 
@@ -575,6 +575,8 @@
     </section>`;
   // On phones the menu is folded away, so the Home page also carries a slim strip at the very top.
   const momentRibbonHTML = () => `<a class="moment-ribbon" href="/moment"><img src="/img/moment-mark.svg" alt="" width="34" height="34"><span><b>Gift a Moment</b> <em>in their name</em></span><i aria-hidden="true">→</i></a>`;
+  // Gift a Moment as a small round icon that sits with the story pictures (Home, 14 Nov 2026).
+  const momentChipHTML = () => `<a class="moment-chip" href="/moment"><img src="/img/moment-mark.svg" alt="" width="40" height="40"><span><b>Gift a Moment</b> <em>in their name</em></span><i aria-hidden="true">→</i></a>`;
   const createHTML = (list = CREATE) => `<a class="create-cta" href="/initiate">
       <span class="cc-titles">${list.map((c, i) => `<b class="${i ? "" : "on"}">${c.title}</b>`).join("")}</span>
       <span class="cc-icon" aria-hidden="true"><i class="cc-ring"></i><i class="cc-orbit"><b>✦</b><b>♥</b><b>✦</b><b>♥</b></i>${list.map((c, i) => `<img class="${i ? "" : "on"}" src="${c.img}" alt="" width="200" height="200">`).join("")}<i class="cc-plus">+</i></span>
@@ -586,8 +588,8 @@
   const STAGE_COLOR = ["#1f7a47", "#d08e0c", "#c8381e"];
   function startRail(app) {
     const rail = app.querySelector(".stage-rail"), nav = app.querySelector(".stages");
-    if (!rail || !nav) return;
-    const circles = [...nav.querySelectorAll(".stage")], says = [...rail.querySelectorAll(".rail-say span")];
+    if (!nav) return; // the 14 Nov Home has no slogan line, but its circles still light up in turn
+    const circles = [...nav.querySelectorAll(".stage")], says = rail ? [...rail.querySelectorAll(".rail-say span")] : [];
     const paths = [...nav.querySelectorAll(".stage-path")];
     let k = 0, locked = false;
     // Moving forward a stage, a glowing spark runs along the little arrow, then the next stage lights up.
@@ -679,8 +681,12 @@
     const start = slides.length ? Math.floor(Math.random() * slides.length) : 0; // a different slide comes first on each visit
     const follow = (site.follow || []).filter(x => x && x.title && x.text);
     const fstart = follow.length ? Math.floor(Math.random() * follow.length) : 0;
+    // The 14 Nov 2026 Home (SURESH): no Gift a Moment strip on top, a bolder headline that turns through
+    // the sayings, softer stage circles, no slogan under them, and Gift a Moment as a small icon beside the stories.
+    // /front-4 (no data-light) keeps the page exactly as it was.
+    const light = document.body.hasAttribute("data-light");
     app.innerHTML = `
-      ${momentRibbonHTML()}
+      ${light ? "" : momentRibbonHTML()}
       <section class="intro">
         <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
       </section>
@@ -692,11 +698,11 @@
             <span>${st.label}</span>
           </a>`).join("")}
       </nav>
-      <div class="stage-rail" aria-live="polite">
+      ${light ? "" : `<div class="stage-rail" aria-live="polite">
         <p class="rail-say">${STAGE_SAY.map((t, i) => `<span class="s${i + 1}${i ? "" : " on"}">${t}</span>`).join("")}</p>
-      </div>
+      </div>`}
       ${glanceHTML(projects)}
-      ${momentBandHTML()}
+      ${light ? momentChipHTML() : momentBandHTML()}
       ${createHTML(CREATE.slice(0, 3))}
       ${HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
@@ -720,6 +726,7 @@
     startFollow(app);
     startCreate(app);
     startRail(app);
+    if (light) startHeadlines(app, slides.map(x => x.title).filter(Boolean), start);
     // arriving from the footer's "Keep me posted" button on another page
     if (location.hash === "#keep-posted") { const t = document.getElementById("keep-posted"); if (t) t.scrollIntoView(); }
   }
@@ -1225,6 +1232,13 @@
     el._t = setTimeout(() => { el.innerHTML = html; if (after) after(); el.style.opacity = "1"; }, 320);
   }
 
+  // Home headline turns through the sayings' titles ("Together – Real Change", "Small Steps – Big Smiles"...).
+  function startHeadlines(root, titles, start) {
+    const head = root.querySelector(".headline");
+    if (!head || titles.length < 2 || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let k = start;
+    rotTimers.push(setInterval(() => { if (document.hidden) return; k = (k + 1) % titles.length; fadeText(head, headline(titles[k]), fitHeadline); }, 4200));
+  }
   function startSayings(root) {
     const box = root.querySelector(".sayings");
     if (!box) return;
