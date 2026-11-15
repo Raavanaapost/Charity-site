@@ -62,7 +62,9 @@
   if (TA) document.querySelectorAll("[data-t]").forEach((el) => { const v = STATIC_TA[el.dataset.t]; if (v) el.textContent = v; });
   if (TA) { const h = document.querySelector("[data-home]"); if (h) h.href = "/ta/overview"; }
   const sw = document.querySelector("[data-lang]");
-  if (sw) {
+  // Tamil hidden for now (SURESH 15 Nov 2026): no switch to Tamil unless the tamil feature is on.
+  if (sw && !TA && !(window.RAAV_FEATURES && window.RAAV_FEATURES.tamil)) sw.hidden = true;
+  else if (sw) {
     sw.textContent = TA ? "English" : "தமிழ்"; sw.lang = TA ? "en" : "ta";
     sw.href = (TA ? "/e/" : "/ta/e/") + token + location.search;
   }
