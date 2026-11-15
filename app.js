@@ -875,17 +875,16 @@ async function viewTeacher(sub = "", id = ""){
       <div class="dash-title"><span class="eyebrow">Dashboard</span><h1 class="page-h">${first ? `Welcome, ${esc(first)}` : esc(g.name)}</h1>
         <p class="muted m0">${esc(g.name)} · ${today0().toLocaleDateString(undefined, { weekday:"long", day:"numeric", month:"long" })}</p></div>
       <div class="row dash-tools">${groups.length > 1 ? `<label class="sr" for="grp">Choose group</label><select id="grp" class="grp">${groups.map(x => `<option value="${x.id}" ${x.id === g.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select>` : ""}
-      <button class="btn ghost small" type="button" id="add-group">Add a group</button>${link("/account", "Account", "btn ghost small")}</div></section>
+      ${link("/teacher/classes?add=1", "+ Add a class", "btn small")}${link("/account", "Account", "btn ghost small")}</div></section>
     ${user.user_metadata?.has_password ? "" : `<div class="pw-tip"><span>Set a password so you can sign in any time without waiting for an email.</span>${link("/account", "Set password", "btn small ghost")}</div>`}
     ${D.waitingTeachers && sub !== "approve" ? `<div class="ap-banner">${ICO.bell}<span><strong>${D.waitingTeachers} new teacher${D.waitingTeachers === 1 ? " is" : "s are"} waiting for your approval</strong></span>${link("/teacher/approve", "Review", "btn small")}</div>` : ""}
-    ${g.approved ? "" : `<p class="notice m0">Your page is waiting for approval. You can set up classes and students now. Invitations start working once Gurushishya approves your page.</p>`}
+    ${g.approved ? "" : `<p class="notice m0">Gurushishya is checking your page. You can add classes and students now. The registration links you send start working once it's approved.</p>`}
     ${tabsNav(tabs.map(([h, t]) => [h, t, h === "/teacher/chat" ? D.unread : h === "/teacher/approve" ? D.waitingTeachers : 0]), active, "Dashboard menu")}
     <div id="pane" class="stack"></div>`;
   const cur = $app.querySelector('.tab[aria-current="page"]');
   if (cur && cur.parentElement) cur.parentElement.scrollLeft = Math.max(0, cur.offsetLeft - 16);
   const sel = document.getElementById("grp");
   if (sel) sel.onchange = () => { store.set("riyaz.group", sel.value); go("/teacher"); };
-  document.getElementById("add-group").onclick = () => viewNewGroup(true);
   const pane = document.getElementById("pane"), again = () => viewTeacher(sub, id);
   if (sub === "students" && id) return tReport(pane, g, D, id, again);
   if (sub === "students") return tStudents(pane, g, D, again);
@@ -1303,16 +1302,18 @@ async function tClasses(pane, g, D, again){
         <div class="row" style="margin-top:10px"><button class="btn small ghost danger" type="button" data-del>Remove class</button><span class="hint" data-msg role="status"></span></div>
       </details></li>`;
   };
+  const wantAdd = /[?&]add=1/.test(location.search) || !D.classes.length;
   pane.innerHTML = `<section class="card"><h2>Classes</h2>
-    ${D.classes.length ? `<ul class="list">${D.classes.map(card).join("")}</ul>` : `<div class="empty">No classes yet. Add your first one below.</div>`}
-    <details ${D.classes.length ? "" : "open"}><summary>Add a class</summary>
+    <details id="add-class" class="add-class" ${wantAdd ? "open" : ""}><summary>+ Add a class</summary>
       <form id="nc" style="margin-top:12px">
         <label for="nc-name">Class name<input id="nc-name" required minlength="2" maxlength="80" placeholder="Beginners"></label>
         <div class="two"><label for="nc-day">Day<select id="nc-day">${DAYS.map((d, i) => `<option value="${i}" ${i === 6 ? "selected" : ""}>${d}</option>`).join("")}</select></label>
           <label for="nc-time">Start time<input id="nc-time" type="time" required value="10:00"></label>
           <label for="nc-len">Length (minutes)<input id="nc-len" type="number" min="10" max="300" value="60" required></label></div>
         <label for="nc-url">Zoom or Meet link (optional)<input id="nc-url" type="url" pattern="https://.*" placeholder="https://zoom.us/j/…"></label>
-        <div class="row"><button class="btn" type="submit">Add class</button><span class="hint" data-out role="status"></span></div></form></details></section>`;
+        <div class="row"><button class="btn" type="submit">Add class</button><span class="hint" data-out role="status"></span></div></form></details>
+    ${D.classes.length ? `<ul class="list">${D.classes.map(card).join("")}</ul>` : `<div class="empty">No classes yet. Add your first one above.</div>`}</section>`;
+  if (wantAdd) { const n = document.getElementById("nc-name"); if (n) { n.scrollIntoView({ block: "center" }); n.focus({ preventScroll: true }); } }
   document.getElementById("nc").onsubmit = async e => {
     e.preventDefault(); const out = e.target.querySelector("[data-out]"), b = e.target.querySelector("button"); b.disabled = true;
     const { data: k, error } = await sb.from("classes").insert({ group_id: g.id, name: val("nc-name"), day_of_week: +val("nc-day"), start_time: val("nc-time"), duration_min: +val("nc-len") }).select().single();
@@ -1389,7 +1390,9 @@ function tPage(pane, g, again){
     <div class="code">${esc(bare(page))}</div>
     <div class="row"><a class="btn small ghost" href="${page}" ${C.rootDomain ? "" : "data-link"}>View page</a><button class="btn small ghost" type="button" data-copy="${esc(page)}">Copy link</button>
       ${g.approved ? `<a class="btn small wa" target="_blank" rel="noopener" href="${wa(g.name + "\n" + page)}">Share on WhatsApp</a>` : ""}</div>
-    <form id="pg" style="margin-top:8px">${groupForm(g)}<div class="row"><button class="btn" type="submit">Save</button><span class="hint" data-out role="status"></span></div></form></section>`;
+    <form id="pg" style="margin-top:8px">${groupForm(g)}<div class="row"><button class="btn" type="submit">Save</button><span class="hint" data-out role="status"></span></div></form></section>
+    <p class="hint m0">Run a completely separate school or group? <button class="link-btn" type="button" id="add-group">Add another group</button></p>`;
+  document.getElementById("add-group").onclick = () => viewNewGroup(true);
   pane.querySelector("[data-copy]").onclick = e => copy(page, e.currentTarget);
   document.getElementById("pg").onsubmit = async e => {
     e.preventDefault(); const out = e.target.querySelector("[data-out]");

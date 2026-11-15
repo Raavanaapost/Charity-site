@@ -538,3 +538,5 @@ body.home::before{opacity:.6;filter:sepia(.2) saturate(.9)}
 .si-alt .link-btn{padding:0;color:var(--maroon);font-weight:700}
 .pw-tip{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;border-radius:14px;background:var(--accent-soft);border:1px solid var(--line)}
 .pw-tip span{flex:1 1 200px;min-width:0;font-weight:600}
+.add-class{border:1px solid var(--line);border-radius:14px;padding:10px 14px;background:var(--accent-soft)}
+.add-class summary{cursor:pointer;font-weight:800;color:var(--maroon)}
