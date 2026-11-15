@@ -15,7 +15,7 @@ Site **abhyasa-portal** deploys the `abhyasa` branch. Every saved change goes li
 ## 3. Approve a teacher
 
 New teachers can set up classes and students straight away, but their page and invitations only work once approved.
-Sign in as the admin (sure.ganes@gmail.com) → **Dashboard → Approvals** → **Approve**. A red alert on the Dashboard shows when someone is waiting.
+Open the private admin link **https://kalaikoodam.raavanaa.org/admin**, sign in with the admin email (sure.ganes@gmail.com), and tap **Approve**. The same list is also under **Dashboard → Approvals**. A red alert on the Dashboard shows when someone is waiting.
 To add another admin, run in Supabase SQL: `insert into private.admins (user_id) select id from auth.users where email = 'their@email';`
 The database setup for this is in `supabase/stage4.sql`.
 

@@ -115,7 +115,7 @@ document.addEventListener("click", e => {
 function setTheme(home){
   document.body.classList.toggle("home", home);
 }
-const isHome = () => onRoot() && !/^\/(g|join|consent|register|signin|me|teacher|practice)(\/|$)/.test(location.pathname);
+const isHome = () => onRoot() && !/^\/(g|join|consent|register|signin|me|teacher|practice|admin)(\/|$)/.test(location.pathname);
 
 function route(){
   if (!sb) return;
@@ -127,6 +127,7 @@ function route(){
   if ((m = p.match(/^\/g\/([a-z0-9-]+)\/?$/))) return viewGroup(m[1]);
   if ((m = p.match(/^\/(?:register|join|consent)\/([a-f0-9]{24,64})\/?$/))) return viewRegister(m[1]);
   if (p === "/signin") return viewSignIn();
+  if (p === "/admin" || p === "/admin/") return viewAdmin();
   if (p === "/me") return redirect(roles.teacher ? "/teacher" : roles.family ? "/practice" : "/teacher");
   if ((m = p.match(/^\/practice(?:\/(notes|chat))?\/?$/))) return viewDesk(m[1] || "");
   if ((m = p.match(/^\/teacher(?:\/(students|classes|chat|page|approve)(?:\/([0-9a-f-]{36}))?)?\/?$/))) return viewTeacher(m[1] || "", m[2] || "");
@@ -993,6 +994,27 @@ function tApprove(pane, list, again){
     if (!b.dataset.sure) { b.dataset.sure = "1"; b.textContent = "Tap again to undo"; return; }
     set(b.dataset.un, false, b);
   });
+}
+
+/* ---- Private admin link: /admin (not shown anywhere on the site; only the admin account gets in) ---- */
+async function viewAdmin(){
+  if (!onRoot()) { location.href = siteUrl("/admin"); return; }
+  if (!user) return go("/signin?next=/admin");
+  document.title = "Admin · Gurushishya";
+  if (!roles.admin) {
+    $app.innerHTML = `<section class="card narrow"><span class="eyebrow">Admin</span><h1 class="page-h">This page is for the Gurushishya admin</h1>
+      <p class="muted m0">You're signed in as <strong>${esc(user.email || "")}</strong>, which isn't an admin account. Sign out (top right) and sign in with the admin email.</p></section>`;
+    return;
+  }
+  $app.innerHTML = LOADING;
+  const { data, error } = await sb.rpc("admin_groups");
+  if (error) { $app.innerHTML = `<p class="notice">${esc(friendly(error))}</p>`; return; }
+  $app.innerHTML = `<section class="dash-head">
+      <img class="dash-mark" src="/assets/gs-emblem.png" alt="" width="240" height="134">
+      <div class="dash-title"><span class="eyebrow">Admin</span><h1 class="page-h">Approve teachers</h1>
+        <p class="muted m0">Signed in as ${esc(user.email || "")}</p></div></section>
+    <div id="pane" class="stack"></div>`;
+  tApprove(document.getElementById("pane"), data || [], viewAdmin);
 }
 
 /* ---- Students ---- */
