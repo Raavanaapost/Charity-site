@@ -541,3 +541,7 @@ body.home::before{opacity:.6;filter:sepia(.2) saturate(.9)}
 .add-class{border:1px solid var(--line);border-radius:14px;padding:10px 14px;background:var(--accent-soft)}
 .add-class summary{cursor:pointer;font-weight:800;color:var(--maroon)}
 .opt{font-weight:500;color:var(--muted);font-size:.88em}
+.sl-acts{display:flex;align-items:center;gap:6px}
+.btn.icon-only{width:34px;min-width:34px;padding:0;font-size:1.2rem;line-height:1}
+.mg-list{display:flex;flex-direction:column;gap:14px}
+.mg-item{display:flex;flex-direction:column;gap:6px;align-items:flex-start}

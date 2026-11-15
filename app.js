@@ -791,7 +791,8 @@ const STATUS = {
   consented: { label: "Parent said yes", cls: "info" },
   invited: { label: "Waiting to register", cls: "wait" },
   active: { label: "Registered", cls: "ok" },
-  declined: { label: "Parent said no", cls: "grey" }
+  declined: { label: "Parent said no", cls: "grey" },
+  withdrawn: { label: "Request withdrawn", cls: "grey" }
 };
 const statusPill = s => `<span class="pill ${STATUS[s.status]?.cls || ""}">${STATUS[s.status]?.label || esc(s.status)}</span>`;
 const waDigits = p => { let d = String(p || "").replace(/\D/g, ""); if (d.length === 10) d = "1" + d; return d; };
@@ -829,6 +830,44 @@ function openInvite(s, which, g, k, onDone){
   const close = () => { dlg.close(); dlg.remove(); if (onDone) onDone(); };
   dlg.querySelector("[data-close]").onclick = close;
   dlg.addEventListener("cancel", e => { e.preventDefault(); close(); });
+  dlg.showModal();
+}
+
+/* Manage one student: withdraw a request, send a new link, or delete them (and their records) */
+const PENDING = ["waiting_consent", "consented", "invited"];
+function openManage(s, g, D, again, after){
+  const pending = PENDING.includes(s.status), active = s.status === "active", nm = esc(s.first_name);
+  const acts = [];
+  if (pending) acts.push({ id: "withdraw", cls: "ghost", label: "Withdraw the request", note: "The link you sent stops working. " + nm + " stays on your list as \"withdrawn\", so you can send a new link later." });
+  if (s.status === "withdrawn" || s.status === "declined") acts.push({ id: "relink", cls: "", label: "Send a new link", note: "Makes a fresh registration link. Any old link stays switched off." });
+  acts.push(active
+    ? { id: "delete", cls: "ghost danger", label: `Delete ${s.first_name} and all their records`, note: `Removes ${nm} from your class, with their practice record, chat and your notes. This can't be undone.` }
+    : { id: "delete", cls: "ghost danger", label: "Delete this request", note: `Removes ${nm} from your list completely. Any link you sent stops working.` });
+  const dlg = document.createElement("dialog"); dlg.className = "dlg"; dlg.setAttribute("aria-labelledby", "dlg-h");
+  dlg.innerHTML = `<div class="dlg-in">
+    <h2 id="dlg-h">${nm}</h2>
+    <p class="muted m0">${esc(D.classOf(s.class_id).name)} · ${STATUS[s.status]?.label || esc(s.status)}</p>
+    <div class="mg-list">${acts.map(a => `<div class="mg-item"><button class="btn ${a.cls}" type="button" data-act="${a.id}">${a.label}</button><p class="hint m0">${a.note}</p></div>`).join("")}</div>
+    <div class="out" role="status"></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn small ghost" type="button" data-close>Cancel</button></div></div>`;
+  document.body.appendChild(dlg);
+  const out = dlg.querySelector(".out");
+  let changed = "";
+  const close = () => { dlg.close(); dlg.remove(); if (changed) (after ? after(changed) : again()); };
+  dlg.querySelector("[data-close]").onclick = close;
+  dlg.addEventListener("cancel", e => { e.preventDefault(); close(); });
+  dlg.querySelectorAll("[data-act]").forEach(b => b.onclick = async () => {
+    const a = b.dataset.act;
+    if ((a === "delete" || a === "withdraw") && !b.dataset.sure) { b.dataset.sure = "1"; b.textContent = a === "delete" ? "Tap again to delete" : "Tap again to withdraw"; return; }
+    dlg.querySelectorAll("[data-act]").forEach(x => x.disabled = true);
+    const r = a === "withdraw" ? await sb.rpc("withdraw_invite", { student: s.id })
+      : a === "relink" ? await sb.rpc("new_invite_links", { student: s.id })
+      : await sb.from("students").delete().eq("id", s.id);
+    if (r.error) { out.innerHTML = `<div class="notice">${esc(friendly(r.error))}</div>`; dlg.querySelectorAll("[data-act]").forEach(x => x.disabled = false); return; }
+    changed = a;
+    out.innerHTML = `<div class="notice ok">${a === "withdraw" ? "Request withdrawn. The link no longer works." : a === "relink" ? "New link ready. Tap \"Send registration link\" to send it." : `${nm} has been deleted.`}</div>`;
+    setTimeout(close, 1200);
+  });
   dlg.showModal();
 }
 
@@ -1178,11 +1217,12 @@ function tStudents(pane, g, D, again){
         return `<li><input type="checkbox" data-pick="${s.id}" aria-label="Select ${esc(s.first_name)}" ${s.status === "active" ? "" : "disabled title=\"Not joined yet\""}>
           <a href="/teacher/students/${s.id}" data-link class="sl-main">${avatar(s.first_name, 36)}<span><strong>${esc(s.first_name)}</strong>${s.is_adult ? ` <span class="hint">adult</span>` : ""}
             <span class="hint sl-sub">${esc(k.name)}${w ? ` · ${w.n} of 6 days · ${fmtMins(w.m)}` : ""}</span></span></a>
-          <span class="sl-side">${statusPill(s)}${nx && g.approved ? `<button class="btn tiny" type="button" data-inv="${s.id}">${nx.label}</button>` : ""}</span></li>`; }).join("")}</ul>
-      <p class="hint m0">Tick students to message them together. Tap a name for their report.</p>`
+          <span class="sl-side">${statusPill(s)}<span class="sl-acts">${nx && g.approved ? `<button class="btn tiny" type="button" data-inv="${s.id}">${nx.label}</button>` : ""}<button class="btn tiny ghost icon-only" type="button" data-mg="${s.id}" aria-label="Manage ${esc(s.first_name)}" title="Withdraw or delete">⋯</button></span></span></li>`; }).join("")}</ul>
+      <p class="hint m0">Tick students to message them together. Tap a name for their report, or ⋯ to withdraw or delete.</p>`
       : `<div class="empty">No students yet. Tap "Add a student" to start.</div>`;
     list.querySelectorAll("[data-pick]").forEach(c => c.onchange = () => { c.checked ? picked.add(c.dataset.pick) : picked.delete(c.dataset.pick); updBar(); });
     list.querySelectorAll("[data-inv]").forEach(b => b.onclick = () => { const s = D.studs.find(x => x.id === b.dataset.inv); openInvite(s, nextStep(s).which, g, D.classOf(s.class_id), again); });
+    list.querySelectorAll("[data-mg]").forEach(b => b.onclick = () => openManage(D.studs.find(x => x.id === b.dataset.mg), g, D, again));
   };
   const sf = document.getElementById("sf"); if (sf) sf.onchange = () => { classFilter = sf.value; draw(); };
   draw();
@@ -1216,6 +1256,7 @@ async function tReport(pane, g, D, id, again){
       </dl>
       ${nx ? (g.approved ? `<div class="row"><button class="btn" type="button" id="r-inv">${nx.label}</button></div>` : `<p class="hint m0">You can send invitations once your page is approved.</p>`) : ""}
       ${s.status === "declined" ? `<div class="row"><button class="btn ghost" type="button" id="r-again">Ask the parent again</button></div>` : ""}
+      <div class="row"><button class="btn small ghost" type="button" id="r-mg">${PENDING.includes(s.status) ? "Withdraw or delete request" : s.status === "active" ? "Delete student" : "New link or delete"}</button></div>
     </section>
     ${s.status === "active" ? `
     <div class="tiles">
@@ -1231,7 +1272,7 @@ async function tReport(pane, g, D, id, again){
     <section class="card"><h2>Private notes</h2><p class="hint m0">Only you can see these.</p>
       <form id="nt"><label class="sr" for="nt-body">Notes</label><textarea id="nt-body" rows="4" maxlength="4000" placeholder="Progress, things to work on, reminders…">${esc(note?.body || "")}</textarea>
       <div class="row"><button class="btn small" type="submit">Save notes</button><span class="hint" data-out role="status">${note ? "Last saved " + timeAgo(note.updated_at) : ""}</span></div></form></section>
-    <section class="card"><details><summary>Change details or remove</summary>
+    <section class="card"><details><summary>Change details</summary>
       <form id="ed" style="margin-top:12px">
         <div class="two"><label for="ed-name">First name<input id="ed-name" required maxlength="40" value="${esc(s.first_name)}"></label>
           <label for="ed-class">Class<select id="ed-class">${D.classes.map(c => `<option value="${c.id}" ${c.id === s.class_id ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></label></div>
@@ -1240,11 +1281,10 @@ async function tReport(pane, g, D, id, again){
           <label for="ed-email">Email<input id="ed-email" type="email" maxlength="120" value="${esc(s.contact_email || "")}"></label></div>
         <div class="row"><button class="btn small" type="submit">Save changes</button><span class="hint" data-out role="status"></span></div>
       </form>
-      <div class="row" style="margin-top:14px">${s.status !== "active" ? `<button class="btn small ghost" type="button" id="r-new">Make new invitation links</button>` : ""}<button class="btn small ghost danger" type="button" id="r-del">Remove ${esc(s.first_name)}</button></div>
     </details></section>`;
   const inv = document.getElementById("r-inv"); if (inv) inv.onclick = () => openInvite(s, nx.which, g, k, again);
   const ag = document.getElementById("r-again"); if (ag) ag.onclick = async () => { await sb.rpc("new_invite_links", { student: s.id }); again(); };
-  const nw = document.getElementById("r-new"); if (nw) nw.onclick = async () => { await sb.rpc("new_invite_links", { student: s.id }); again(); };
+  document.getElementById("r-mg").onclick = () => openManage(s, g, D, again, a => a === "delete" ? go("/teacher/students") : again());
   if (s.status === "active") chatThread(document.getElementById("thread"), s, true, s.first_name);
   document.getElementById("nt").onsubmit = async e => {
     e.preventDefault(); const out = e.target.querySelector("[data-out]");
@@ -1258,13 +1298,6 @@ async function tReport(pane, g, D, id, again){
     const { error } = await sb.from("students").update(upd).eq("id", s.id);
     if (error) { out.textContent = friendly(error); return; }
     again();
-  };
-  const del = document.getElementById("r-del");
-  del.onclick = async () => {
-    if (!del.dataset.sure) { del.dataset.sure = "1"; del.textContent = `Tap again to remove ${s.first_name} and their practice record`; return; }
-    const { error } = await sb.from("students").delete().eq("id", s.id);
-    if (error) { del.textContent = friendly(error); return; }
-    go("/teacher/students");
   };
 }
 
