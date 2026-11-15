@@ -1,14 +1,14 @@
-# GuruShishya – to do
+# GuruShiya – to do
 
 ## Front page
-- [x] Simple front page at `/` (temple-hall picture, name, tagline, teacher and student buttons, About)
+- [x] New front page at `/` in the logo colours (ivory, maroon, gold): logo, tagline, teacher and student buttons, temple-hall picture in a gold arch, Learn / Practise Daily / Progress, About
 - [ ] Earlier layouts kept for reference at `/v1` and `/v2`
-- [ ] New GuruShishya logo: the current "R" logo and app icons are from the Riyaz name
-- [ ] Decide whether the maroon-and-gold look should carry through the whole app
+- [x] GuruShiya logo on the site (header, front page, footer) and as the app icon
+- [ ] Decide whether the ivory, maroon and gold look should carry through the teacher and student pages
 
 ## Name and domain
-- [x] Renamed from Riyaz (name used by an existing singing app) to GuruShishya
-- [ ] Find and buy a GuruShishya domain
+- [x] Renamed from Riyaz (name used by an existing singing app) to GuruShiya, spelled as in the logo
+- [ ] Find and buy a GuruShiya domain
 
 ## Switch on (needs your accounts)
 - [ ] Google sign-in: create the Google client and send the Client ID (see SETUP.md)
@@ -18,7 +18,7 @@
 - [ ] Privacy policy and terms pages (Google and Facebook ask for them); privacy lawyer review before launch
 
 ## Next features
-- [ ] Riyaz sends consent and join requests itself (email first, then text/WhatsApp), instead of from the teacher's phone
+- [ ] GuruShiya sends consent and join requests itself (email first, then text/WhatsApp), instead of from the teacher's phone
 - [ ] Photos or PDFs on class notes and homework
 - [ ] Students send a short practice video or voice clip; teacher replies
 - [ ] Tanpura drone and tala counter on the practice screen

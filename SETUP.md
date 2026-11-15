@@ -1,6 +1,6 @@
-# GuruShishya – setup (formerly Riyaz)
+# GuruShiya – setup (formerly Riyaz)
 
-GuruShishya lives on its own branch (`abhyasa`) and its own Netlify site (`abhyasa-portal`).
+GuruShiya lives on its own branch (`abhyasa`) and its own Netlify site (`abhyasa-portal`).
 It shares nothing with raavanaa.org.
 
 ## 1. Database (done)
@@ -20,8 +20,8 @@ Supabase → **Table Editor → groups** → tick **approved** for that row → 
 ## 4. Sign-in options
 
 ### Google (recommended, about 15 minutes)
-1. Go to console.cloud.google.com and create a project called **Riyaz**.
-2. **Google Auth Platform → Branding**: app name *Riyaz*, your support email, the square Riyaz icon as the logo, and the home page link.
+1. Go to console.cloud.google.com and create a project called **GuruShiya**.
+2. **Google Auth Platform → Branding**: app name *GuruShiya*, your support email, the square GuruShiya icon (`icon-512.png`) as the logo, and the home page link.
 3. **Audience**: External. **Data access**: add the `openid` scope (email and profile are already there).
 4. **Clients → Create client → Web application**:
    - Authorized JavaScript origins: `https://abhyasa-portal.netlify.app` (add your own domain later)
@@ -51,7 +51,7 @@ Supabase → **Authentication → Emails → SMTP Settings**.
 ## How it works
 
 1. **Teacher** signs in, sets up the group, adds classes, then adds students.
-2. **Child**: Riyaz asks the parent for consent. The teacher sends the request with one tap, on WhatsApp, text or email from their own phone. The parent opens the link and says yes or no. No account is needed.
+2. **Child**: GuruShiya asks the parent for consent. The teacher sends the request with one tap, on WhatsApp, text or email from their own phone. The parent opens the link and says yes or no. No account is needed.
 3. After a yes, the teacher sends the **join link**. The parent (or adult student) signs in and the student's practice desk opens.
 4. **Student** picks the class, presses **Start**, practises, and presses **Stop**. The minutes appear on the teacher's dashboard.
 5. **Teacher** sets the weekly practice, posts homework, class notes and announcements to the class, chats with each student, and sees a report for every student.
