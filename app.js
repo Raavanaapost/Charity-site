@@ -483,8 +483,13 @@ function viewAccount(){
     btn.disabled = false;
     if (error) { out.innerHTML = `<div class="notice">${esc(friendly(error))}</div>`; return; }
     if (data?.user) user = data.user;
-    e.target.reset();
-    out.innerHTML = `<div class="notice ok">Password saved. Next time, sign in with your email and this password.</div>`;
+    // Done: show a clear finished screen (and finish a registration left half-way, if there is one)
+    let pending = "";
+    try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith("gs.reg.")) { pending = k.slice(7); break; } } } catch (er) {}
+    document.querySelector(".card.narrow").innerHTML = `<span class="eyebrow">Account</span><h1 class="page-h">Password saved ✓</h1>
+      <p class="m0">From now on, sign in with <strong>${esc(user.email || "")}</strong> and your new password. No email needed.</p>
+      ${pending ? `<div class="notice ok"><strong>You have a registration to finish.</strong><br>Tap below and it completes by itself.</div>${link("/register/" + pending, "Finish registration", "btn big")}` : ""}
+      <div class="row">${roles.admin ? link("/admin", "Admin", "btn small ghost") : ""}${roles.teacher || !roles.family ? link("/teacher", "Dashboard", "btn small ghost") : ""}${roles.family ? link("/practice", "Practice", "btn small ghost") : ""}</div>`;
   };
 }
 const notWorking = () => { $app.innerHTML = `<section class="card narrow"><h1 class="page-h">This link isn't working</h1>
