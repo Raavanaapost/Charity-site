@@ -2484,7 +2484,10 @@ body[data-light] .mosaic-eyebrow i{opacity:.92}
 .no-vetting a[href="/create"], .no-vetting a[href="/ta/create"],
 .no-vetting a[href^="/contact?topic=suggest"], .no-vetting a[href^="/ta/contact?topic=suggest"], .no-vetting .panel.idea,
 .no-vetting li:has(> a[href^="/contact?topic=suggest"]), .no-vetting li:has(> a[href^="/ta/contact?topic=suggest"]),
-.no-vetting .create-cta, .no-vetting .ask-band, .no-vetting .vouched, .no-vetting .hm-empty-go { display: none !important; }
+.no-vetting .create-cta:not(.sponsor-cta), .no-vetting .ask-band, .no-vetting .vouched, .no-vetting .hm-empty-go { display: none !important; }
 .soon-note { max-width: 520px; margin: 48px auto; text-align: center; padding: 32px 22px; }
 .soon-note h1 { font-family: "Cinzel", serif; color: #1f4d3a; font-size: 1.5rem; margin: 12px 0 8px; }
 .soon-note p { margin: 0 0 20px; }
+.sponsor-cta .cc-plus{font-size:24px}
+/* Home, 15 Nov 2026: with only two reasons (memory launch) the band shows them as one centred pair on phones too. */
+.mb-reasons:has(> a:nth-child(2):last-child),.mb-reasons:has(> .mb-tap + a + a:last-child){grid-template-columns:repeat(2,minmax(0,150px));justify-content:center}

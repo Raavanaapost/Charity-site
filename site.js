@@ -596,8 +596,8 @@ window.RAAV_FEATURES = (function () {
           <img class="mb-mark" src="/img/moment-mark.svg" alt="" width="96" height="96">
           ${momentTitleHTML()}
         </a>
-        <p class="mb-say">Turn a day that matters to you into a child's happiest day.</p>
-        <a class="mb-go" href="/moment">Gift a moment →</a>
+        <p class="mb-say">${FEAT.reasons.length && FEAT.reasons.every(k => k === "memory" || k === "remembrance") ? "Remember someone you love with a child's happiest day." : "Turn a day that matters to you into a child's happiest day."}</p>
+        <a class="mb-go" href="/moment${FEAT.reasons.length === 0 ? "" : "?for=" + FEAT.reasons[0]}">${FEAT.reasons[0] === "memory" ? "Give in loving memory" : "Gift a moment"} →</a>
       </div>
       <div class="mb-reasons">
         <p class="mb-tap">Tap your moment</p>
@@ -608,12 +608,20 @@ window.RAAV_FEATURES = (function () {
   const momentRibbonHTML = () => `<a class="moment-ribbon" href="/moment"><img src="/img/moment-mark.svg" alt="" width="34" height="34"><span><b>Gift a Moment</b> <em>in their name</em></span><i aria-hidden="true">→</i></a>`;
   // Gift a Moment as a small round icon that sits with the story pictures (Home, 14 Nov 2026).
   const momentChipHTML = () => `<a class="moment-chip" href="/moment"><img src="/img/moment-mark.svg" alt="" width="40" height="40"><span><b>Gift a Moment</b> <em>in their name</em></span><i aria-hidden="true">→</i></a>`;
-  const createHTML = (list = CREATE) => `<a class="create-cta" href="/initiate">
+  const createHTML = (list = CREATE, o = {}) => `<a class="create-cta${o.cls ? " " + o.cls : ""}" href="${o.href || "/initiate"}">
       <span class="cc-titles">${list.map((c, i) => `<b class="${i ? "" : "on"}">${c.title}</b>`).join("")}</span>
-      <span class="cc-icon" aria-hidden="true"><i class="cc-ring"></i><i class="cc-orbit"><b>✦</b><b>♥</b><b>✦</b><b>♥</b></i>${list.map((c, i) => `<img class="${i ? "" : "on"}" src="${c.img}" alt="" width="200" height="200">`).join("")}<i class="cc-plus">+</i></span>
+      <span class="cc-icon" aria-hidden="true"><i class="cc-ring"></i><i class="cc-orbit"><b>✦</b><b>♥</b><b>✦</b><b>♥</b></i>${list.map((c, i) => `<img class="${i ? "" : "on"}" src="${c.img}" alt="" width="200" height="200">`).join("")}<i class="cc-plus">${o.plus || "+"}</i></span>
       <span class="cc-says">${list.map((c, i) => `<span class="${i ? "" : "on"}">${c.say}</span>`).join("")}</span>
-      <span class="cc-go">Start here →</span>
+      <span class="cc-go">${o.go || "Start here"} →</span>
     </a>`;
+  // Home, 15 Nov 2026 (SURESH): a round "Sponsor a Smile" icon in the same design as Create a Smile, under the
+  // Gift a Moment section. While the sponsor switch is off (memory launch) it opens the moment page, in loving memory.
+  const SPONSOR = [
+    { img: "/img/create-smile.svg", title: "Sponsor a Smile", say: "Give children a day of joy, in the name of someone you love." },
+    { img: "/img/create-day.svg", title: "Fund a Smile", say: "A trip, a game, a good meal. Every rupee is shown openly." },
+    { img: "/img/create-moment.svg", title: "Be the Reason for a Smile", say: "Your gift becomes a child's happiest day." }
+  ];
+  const sponsorHTML = () => createHTML(SPONSOR, { cls: "sponsor-cta", href: FEAT.sponsor ? "/give" : "/moment?for=memory", plus: "♥", go: FEAT.sponsor ? "Sponsor a smile" : "Give in loving memory" });
   // Under the stage circles: one slogan in the middle, and a fine curved line from it up to
   // its stage. The line glides from stage to stage on its own; tapping a circle keeps it there.
   const STAGE_COLOR = ["#1f7a47", "#d08e0c", "#c8381e"];
@@ -733,7 +741,8 @@ window.RAAV_FEATURES = (function () {
         <p class="rail-say">${STAGE_SAY.map((t, i) => `<span class="s${i + 1}${i ? "" : " on"}">${t}</span>`).join("")}</p>
       </div>`}
       ${glanceHTML(projects)}
-      ${light ? momentChipHTML() : momentBandHTML()}
+      ${momentBandHTML()}
+      ${light ? sponsorHTML() : ""}
       ${createHTML(CREATE.slice(0, 3))}
       ${HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
