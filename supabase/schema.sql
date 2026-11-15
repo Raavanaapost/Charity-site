@@ -197,3 +197,8 @@ alter function public.keep_approval() set schema private;
 create or replace function private.teaches_student(s uuid) returns boolean
 language sql stable security definer set search_path = public as
 $$ select exists (select 1 from students st where st.id = s and private.owns_class(st.class_id)) $$;
+
+-- ---------- Change 3: Karlakattai as a class type ----------
+alter table public.groups drop constraint groups_art_type_check;
+alter table public.groups add constraint groups_art_type_check
+  check (art_type in ('dance','flute','violin','piano','veena','mridangam','vocal','karlakattai','yoga','art','other'));

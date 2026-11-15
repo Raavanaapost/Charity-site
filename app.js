@@ -5,8 +5,34 @@ const C = window.ABHYASA_CONFIG || {};
 const ARTS = {
   dance:{label:"Dance",dot:"#e0607a"}, flute:{label:"Flute",dot:"#0f7c86"}, violin:{label:"Violin",dot:"#b5651d"},
   piano:{label:"Piano",dot:"#1b2350"}, veena:{label:"Veena",dot:"#8a4fb0"}, mridangam:{label:"Mridangam",dot:"#7a5230"},
-  vocal:{label:"Vocal",dot:"#c4651a"}, yoga:{label:"Yoga",dot:"#5a9e4b"}, art:{label:"Art",dot:"#f2a43a"}, other:{label:"Other",dot:"#6a7194"}
+  vocal:{label:"Vocal",dot:"#c4651a"}, karlakattai:{label:"Karlakattai",dot:"#7a1424"}, yoga:{label:"Yoga",dot:"#5a9e4b"},
+  art:{label:"Art",dot:"#f2a43a"}, other:{label:"Other",dot:"#6a7194"}
 };
+/* Line icons for the front page (stroke = currentColor) */
+const svg = (d, extra = "") => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"${extra}>${d}</svg>`;
+const IC = {
+  dance: svg(`<circle cx="13" cy="3.6" r="1.8"/><path d="M12.6 6.2 11 13l-4.5 7.5M11 13l4 2.6 1.6 5.4M12.4 8.2 7 6.2 4.6 3M12.4 8.2l5 1.8 2.6-2.4"/>`),
+  music: svg(`<path d="M9 18V5.5l11-2.5v12.5"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="15.5" r="3"/><path d="M9 9.5 20 7"/>`),
+  clubs: svg(`<g transform="rotate(-32 12 15)"><path d="M12 22.2V16"/><path d="M10.9 16 9.5 6.2a2.6 2.6 0 1 1 5 0L13.1 16z"/></g><g transform="rotate(32 12 15)"><path d="M12 22.2V16"/><path d="M10.9 16 9.5 6.2a2.6 2.6 0 1 1 5 0L13.1 16z"/></g>`),
+  yoga: svg(`<circle cx="12" cy="4.2" r="2"/><path d="M12 6.8v6.4M12 9l-4.6 3.6L5 11.4M12 9l4.6 3.6 2.4-1.2M4 19.5c2.6-2.4 13.4-2.4 16 0M8 17.2l4 1.8 4-1.8"/>`),
+  palette: svg(`<path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-1.9 0-1.4-1-1.9-1-3 0-1 .9-1.9 2.4-1.9H18a3 3 0 0 0 3-3C21 6.7 17 3 12 3z"/><circle cx="7.5" cy="11" r="1.1"/><circle cx="9.6" cy="7" r="1.1"/><circle cx="14.4" cy="6.8" r="1.1"/>`),
+  more: svg(`<path d="M7.2 8C4.9 8 3 9.8 3 12s1.9 4 4.2 4c4.2 0 5.4-8 9.6-8C19.1 8 21 9.8 21 12s-1.9 4-4.2 4c-4.2 0-5.4-8-9.6-8z"/>`),
+  people: svg(`<circle cx="12" cy="7" r="3"/><path d="M6 20v-1.5A4.5 4.5 0 0 1 10.5 14h3a4.5 4.5 0 0 1 4.5 4.5V20"/><circle cx="5" cy="9" r="2.2"/><path d="M1.5 19v-1a3.5 3.5 0 0 1 4.6-3.3"/><circle cx="19" cy="9" r="2.2"/><path d="M22.5 19v-1a3.5 3.5 0 0 0-4.6-3.3"/>`),
+  calendar: svg(`<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M9 15.2l2.1 2.1 4-4.3"/>`),
+  chart: svg(`<path d="M4 20.5h16"/><rect x="5" y="14" width="3" height="6.5" rx=".6"/><rect x="10.5" y="10.5" width="3" height="10" rx=".6"/><rect x="16" y="7" width="3" height="13.5" rx=".6"/><path d="M4 11 9.5 6.5l3 2.2L19 3.5M15.5 3.5H19V7"/>`),
+  teacher: svg(`<circle cx="9" cy="6" r="2.6"/><path d="M3.5 20v-3.5a5 5 0 0 1 9.5-2.2M13 20h8M14.5 13.5 21 10"/><rect x="13" y="16" width="8" height="4" rx="1"/>`),
+  student: svg(`<circle cx="8" cy="8" r="2.6"/><circle cx="16" cy="8" r="2.6"/><path d="M3 19.5v-1.2A4.3 4.3 0 0 1 7.3 14h1.4a4.3 4.3 0 0 1 3.3 1.5A4.3 4.3 0 0 1 15.3 14h1.4a4.3 4.3 0 0 1 4.3 4.3v1.2"/>`),
+  chev: svg(`<path d="m9 6 6 6-6 6"/>`, ` class="chev"`)
+};
+/* The six front-page families and the class types inside each */
+const FAMILIES = [
+  { k:"dance", label:"Dance", types:["dance"], icon:IC.dance },
+  { k:"music", label:"Music", types:["flute","violin","piano","veena","mridangam","vocal"], icon:IC.music },
+  { k:"karlakattai", label:"Karlakattai", types:["karlakattai"], icon:IC.clubs },
+  { k:"yoga", label:"Yoga", types:["yoga"], icon:IC.yoga },
+  { k:"creative", label:"Creative Classes", types:["art"], icon:IC.palette },
+  { k:"more", label:"And Many More", types:["other"], icon:IC.more }
+];
 const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const SHORT = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 const $app = document.getElementById("app"), $nav = document.getElementById("topnav");
@@ -74,12 +100,28 @@ async function init(){
 }
 addEventListener("popstate", route);
 document.addEventListener("click", e => {
+  const s = e.target.closest("[data-scroll]");
+  if (s) {
+    const t = document.getElementById(s.dataset.scroll);
+    if (t) { e.preventDefault(); t.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"start" }); }
+    return;
+  }
   const a = e.target.closest("a[data-link]");
   if (a && !e.metaKey && !e.ctrlKey) { e.preventDefault(); go(a.getAttribute("href")); }
 });
 
+/* The front page has its own maroon-and-gold look; every other page keeps the app look */
+function setTheme(home){
+  document.body.classList.toggle("home", home);
+  const mark = document.querySelector(".brand img"), foot = document.querySelector(".foot-in img");
+  if (mark) mark.src = home ? "/assets/mark-light-96.png" : "/assets/logo-mark.png";
+  if (foot) foot.src = home ? "/assets/logo-full-light.png" : "/assets/logo-full.png";
+}
+const isHome = () => onRoot() && !/^\/(g|join|signin|me|teacher|practice)(\/|$)/.test(location.pathname);
+
 function route(){
   if (!sb) return;
+  setTheme(isHome()); document.title = "Riyaz";
   renderNav(); scrollTo(0,0);
   const p = location.pathname, hs = hostSlug();
   let m;
@@ -94,11 +136,17 @@ function route(){
 }
 function renderNav(){
   const items = [];
+  if (isHome()) items.push(`<span class="navlinks">
+    <a href="#classes" data-scroll="classes" class="navlink">Classes</a><a href="#teachers" data-scroll="teachers" class="navlink">For Teachers</a>
+    <a href="#students" data-scroll="students" class="navlink">For Students</a><a href="#about" data-scroll="about" class="navlink">About</a></span>`);
   if (user) {
     if (roles.family) items.push(link("/practice", "Practice", "btn small ghost"));
     if (roles.teacher || !roles.family) items.push(link("/teacher", "Classes", "btn small ghost"));
     items.push(`<button class="btn small ghost icon" id="signout" type="button" aria-label="Sign out" title="Sign out"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>`);
-  } else items.push(link("/signin", "Sign in", "btn small ghost"));
+  } else {
+    items.push(link("/signin", "Sign in", "btn small ghost"));
+    if (isHome()) items.push(link("/teacher", "Get started", "btn small"));
+  }
   $nav.innerHTML = items.join("");
   const so = document.getElementById("signout");
   if (so) so.onclick = async () => { await sb.auth.signOut(); user = null; roles = { teacher:false, family:false }; onRoot() ? go("/") : location.href = siteUrl("/"); };
@@ -112,32 +160,94 @@ function viewSetup(){
 
 /* ---------- homepage ---------- */
 async function viewHome(){
-  $app.innerHTML = `<section class="hero"><span class="tagline">Learn <i></i> Practise <i></i> Progress</span>
-    <h1>A little practice, every day.</h1>
-    <svg class="wave" viewBox="0 0 140 18" aria-hidden="true"><path d="M2 12 C 30 0, 50 0, 70 9 S 112 18, 138 4" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/></svg>
-    <p class="lead">Find a teacher, join their class, and keep up your practice between lessons.</p>
-    <div class="row">${link("/teacher","I'm a teacher","btn")}${roles.family ? link("/practice","My practice","btn ghost") : ""}</div></section>
-    <section class="card" style="gap:16px"><div class="row between"><h2>Browse classes</h2></div>
-    <div class="chips" id="chips" role="group" aria-label="Filter by class type"></div>
-    <div class="grid" id="groups">${LOADING}</div></section>`;
-  const { data, error } = await sb.from("groups").select("slug,name,art_type,teacher_name,location,is_online").eq("approved", true).order("name");
-  const box = document.getElementById("groups"), chips = document.getElementById("chips");
-  if (error) { box.innerHTML = `<p class="notice">${esc(friendly(error))}</p>`; return; }
-  const used = ["all", ...Object.keys(ARTS).filter(k => data.some(g => g.art_type === k))];
-  let pick = "all";
+  document.title = "Riyaz · The Practice Platform for Every Passion";
+  const studentBtn = roles.family
+    ? link("/practice", `${IC.student}<span>I'm a Student</span>${IC.chev}`, "h-btn cream")
+    : `<a href="#students" data-scroll="students" class="h-btn cream">${IC.student}<span>I'm a Student</span>${IC.chev}</a>`;
+  $app.innerHTML = `
+  <section class="h-hero" aria-labelledby="h-title">
+    <div class="h-sky"><div class="wrap h-sky-in">
+      <div class="h-lockup"><img src="/assets/mark-maroon-320.png" alt="" width="132" height="132"><h1 id="h-title">Riyaz</h1></div>
+      <p class="h-tag"><span aria-hidden="true"></span>The Practice Platform for Every Passion<span aria-hidden="true"></span></p>
+      <p class="h-band">Learn<i aria-hidden="true">◆</i>Practise Daily<i aria-hidden="true">◆</i>Progress</p>
+      <p class="h-lead">A simple and powerful platform for teachers and students across music, dance, movement, arts and many more classes.</p>
+    </div></div>
+    <div class="h-scene"><img src="/assets/hero-scene.jpg" srcset="/assets/hero-scene-800.jpg 800w, /assets/hero-scene.jpg 1199w" sizes="100vw" width="1199" height="328"
+      alt="Students practising flute, Bharatanatyam, Karlakattai, painting and yoga in a temple courtyard at sunset"></div>
+    <div class="wrap wide h-cats-wrap"><div class="h-cats" role="group" aria-label="Find classes by type">
+      ${FAMILIES.map(f => `<button type="button" class="h-cat" data-fam="${f.k}">${f.icon}<span>${f.label}</span></button>`).join("")}
+    </div></div>
+  </section>
+
+  <section class="h-maroon"><div class="wrap wide h-maroon-in">
+    <ul class="h-feats">
+      <li>${IC.people}<div><h2>Run Your Classes</h2><p>Manage students, lessons and practice plans.</p></div></li>
+      <li>${IC.calendar}<div><h2>Build a Daily Practice Habit</h2><p>Short, guided practice between lessons.</p></div></li>
+      <li>${IC.chart}<div><h2>Track Real Progress</h2><p>Stay consistent and see the improvement.</p></div></li>
+    </ul>
+    <div class="h-ctas">${link("/teacher", `${IC.teacher}<span>I'm a Teacher</span>${IC.chev}`, "h-btn gold")}${studentBtn}</div>
+    <p class="h-motto"><span aria-hidden="true"></span>A Digital Kalai Koodam for the Modern Learner<span aria-hidden="true"></span></p>
+  </div></section>
+
+  <section id="classes" class="h-sec"><div class="wrap wide h-col">
+    <div><span class="h-eyebrow">Classes</span><h2 class="h-h2" id="cls-title">Find a class</h2></div>
+    <div class="chips" id="chips" role="group" aria-label="Filter classes"></div>
+    <div class="grid" id="groups">${LOADING}</div>
+  </div></section>
+
+  <section id="teachers" class="h-sec alt"><div class="wrap wide h-two">
+    <div class="h-col"><span class="h-eyebrow">For teachers</span><h2 class="h-h2">Keep your class going between lessons</h2>
+      <p class="h-p">Riyaz gives every teacher their own page, a class link for families, and a simple view of who practised this week.</p>
+      <div>${link("/teacher", "Create your group page", "h-btn gold small")}</div></div>
+    <ol class="h-steps">
+      <li><div><strong>Create your group page</strong><span>Your classes, timetable and a way for new students to ask about joining.</span></div></li>
+      <li><div><strong>Share the class link on WhatsApp</strong><span>Families join in a minute with the child's first name.</span></div></li>
+      <li><div><strong>Set the week's practice</strong><span>See who practised each day, and who needs a gentle nudge.</span></div></li>
+    </ol>
+  </div></section>
+
+  <section id="students" class="h-sec"><div class="wrap wide h-two">
+    <div class="h-col"><span class="h-eyebrow">For students and parents</span><h2 class="h-h2">A little practice, every day</h2>
+      <p class="h-p">Your teacher sets a short practice for the week. Open Riyaz, start the timer, and tick the day. Your teacher sees it too.</p>
+      <div>${roles.family ? link("/practice", "Go to my practice", "h-btn gold small") : link("/signin?next=/practice", "Sign in to practise", "h-btn gold small")}</div></div>
+    <ol class="h-steps">
+      <li><div><strong>Get the class link from your teacher</strong><span>It usually comes on WhatsApp.</span></div></li>
+      <li><div><strong>Join with a first name</strong><span>Parents give consent for children. We never ask for age, school or address.</span></div></li>
+      <li><div><strong>Practise and tick it off</strong><span>Build a streak, and join online classes from the same place.</span></div></li>
+    </ol>
+  </div></section>
+
+  <section id="about" class="h-sec alt"><div class="wrap h-col h-about">
+    <span class="h-eyebrow">About Riyaz</span><h2 class="h-h2">A digital Kalai Koodam</h2>
+    <p class="h-p">In Tamil, a kalai koodam is a hall where the arts are taught and practised. Riyaz brings that hall online. Teachers of dance, music, Karlakattai, yoga, art and more run their classes in one place, and students keep up the daily practice that turns lessons into skill.</p>
+    <p class="h-p"><em>Riyaz</em> means dedicated daily practice.</p>
+  </div></section>`;
+
+  const box = document.getElementById("groups"), chips = document.getElementById("chips"), title = document.getElementById("cls-title");
+  let pick = "all", data = [];
   const draw = () => {
-    chips.innerHTML = used.map(k => `<button type="button" class="chip" data-k="${k}" aria-pressed="${k===pick}">${k==="all"?"All":ARTS[k].label}</button>`).join("");
-    const list = data.filter(g => pick === "all" || g.art_type === pick);
+    const used = FAMILIES.filter(f => f.k === pick || data.some(g => f.types.includes(g.art_type)));
+    chips.innerHTML = [`<button type="button" class="chip" data-k="all" aria-pressed="${pick === "all"}">All</button>`,
+      ...used.map(f => `<button type="button" class="chip" data-k="${f.k}" aria-pressed="${f.k === pick}">${f.label}</button>`)].join("");
+    const fam = FAMILIES.find(f => f.k === pick);
+    title.textContent = fam ? `${fam.label} classes` : "Find a class";
+    const list = data.filter(g => !fam || fam.types.includes(g.art_type));
     box.innerHTML = list.length ? list.map(g => `
       <a class="card" style="text-decoration:none" href="${groupUrl(g.slug)}" ${C.rootDomain ? "" : "data-link"}>
         <span class="row" style="gap:8px"><span class="dot" style="background:${ARTS[g.art_type]?.dot}"></span><span class="eyebrow">${esc(ARTS[g.art_type]?.label)}</span></span>
         <h3>${esc(g.name)}</h3>
         <span class="muted">${esc(g.teacher_name)} · ${g.is_online ? "Online" : ""}${g.is_online && g.location ? " and " : ""}${esc(g.location || "")}</span>
       </a>`).join("")
-      : `<div class="empty">No classes listed yet. Teachers can create their group page in a few minutes.</div>`;
+      : `<div class="empty">${fam ? `No ${esc(fam.label.toLowerCase())} listed yet.` : "No classes listed yet."} Teachers can create their group page in a few minutes.</div>`;
     chips.querySelectorAll(".chip").forEach(b => b.onclick = () => { pick = b.dataset.k; draw(); });
   };
-  draw();
+  document.querySelectorAll(".h-cat").forEach(b => b.onclick = () => {
+    pick = b.dataset.fam; draw();
+    document.getElementById("classes").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  });
+  const res = await sb.from("groups").select("slug,name,art_type,teacher_name,location,is_online").eq("approved", true).order("name");
+  if (res.error) { box.innerHTML = `<p class="notice">${esc(friendly(res.error))}</p>`; return; }
+  data = res.data || []; draw();
 }
 
 /* ---------- public group page ---------- */
