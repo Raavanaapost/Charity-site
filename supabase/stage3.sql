@@ -1,5 +1,5 @@
 -- =====================================================================
--- GuruShiya, change 5: one registration link.
+-- Gurushishya, change 5: one registration link.
 -- The teacher sends one link. The parent (or an adult student) fills in
 -- the student's first name, email and mobile, gives consent, signs in,
 -- and the student is joined. Old consent and join links keep working.

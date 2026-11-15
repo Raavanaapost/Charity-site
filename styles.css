@@ -1,5 +1,5 @@
 :root{
-  /* Colours taken from the GuruShiya logo: ivory, maroon and gold */
+  /* Colours taken from the Gurushishya logo: ivory, maroon and gold */
   --bg:#fbf5ea; --card:#fffdf8; --ink:#260c09; --muted:#4a3127; --line:#e7d3ad; --line-2:#cfae6e;
   --maroon:#6e0f0c; --maroon-d:#4f0a08; --gold:#c89027; --gold-d:#9a6a12; --gold-l:#e6b955;
   --accent:#c89027; --accent-soft:#f8ebcf; --teal:#b07a18; --done:#8a5d0e; --done-soft:#f7ebcc;
@@ -130,7 +130,7 @@ table.chart{border-collapse:collapse;font-variant-numeric:tabular-nums;width:100
 }
 [hidden]{display:none!important}
 
-/* ================= Front page theme: ivory, maroon and gold from the GuruShiya logo ================= */
+/* ================= Front page theme: ivory, maroon and gold from the Gurushishya logo ================= */
 body.home{--bg:#fffaf2;--card:#fffaf2;--ink:#3b1310;--muted:#6d4a3c;--accent:#c89027;--line:#ecd9b4;--line-2:#dcbc7c;--done:#6e0f0c;background:var(--bg)}
 body.home main.wrap{max-width:none;padding:0;gap:0}
 body.home .top{background:#fffaf2;border-bottom:1px solid #ead2a0}
@@ -379,7 +379,7 @@ table.heat{border-collapse:separate;border-spacing:4px;font-variant-numeric:tabu
 .chart .sq{display:inline-grid;place-items:center;width:auto;min-width:26px;height:24px;padding:0 3px;border-radius:6px;font-size:.68rem;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
 .chart .who{font-weight:700}
 
-/* ================= GuruShiya front page ================= */
+/* ================= Gurushishya front page ================= */
 .foot-line{font-family:Lora,Georgia,serif;font-weight:600;color:var(--ink)}
 @media (max-width:520px){.brand .brand-mark{display:none}.brand .brand-word{height:34px}}
 
@@ -417,7 +417,7 @@ table.heat{border-collapse:separate;border-spacing:4px;font-variant-numeric:tabu
 
 .gs2-about{background:radial-gradient(ellipse 70% 80% at 50% 0%,#8a1a12 0%,#6e0f0c 55%,#530a08 100%);color:#f6e3c4;border-top:3px solid #c89027}
 .gs2-about-in{max-width:780px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;padding-block:48px 62px}
-.gs2-about-mark{width:150px;height:auto;margin-bottom:4px}
+.gs2-about-glow{width:min(100%,330px);height:auto;mix-blend-mode:screen;margin:-10px 0 -8px}
 .gs2-eyebrow{font-family:Lora,Georgia,serif;font-weight:600;font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;color:#e6b955}
 .gs2-motto{margin:0;font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-weight:600;font-size:clamp(1.8rem,3.8vw,2.7rem);line-height:1.12;letter-spacing:0;color:#fbe9c8;text-wrap:balance}
 .gs2-about p{margin:0;max-width:58ch;font-family:Lora,Georgia,serif;font-size:1.06rem;line-height:1.65;color:#f1dcc0}
@@ -437,7 +437,7 @@ table.heat{border-collapse:separate;border-spacing:4px;font-variant-numeric:tabu
   .gs2-btn{flex:1 1 0;min-width:0;min-height:52px;padding:0 10px;gap:6px;font-size:1rem}
   .gs2-btn svg{width:20px;height:20px}
   .gs2-btn svg.chev{display:none}
-  .gs2-about-mark{width:120px}
+  .gs2-about-glow{width:min(100%,260px)}
 }
 
 /* ================= Faded picture behind every page (stronger on the front page) ================= */

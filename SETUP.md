@@ -1,6 +1,6 @@
-# GuruShiya – setup (formerly Riyaz)
+# Gurushishya – setup (formerly Riyaz)
 
-GuruShiya lives on its own branch (`abhyasa`) and its own Netlify site (`abhyasa-portal`).
+Gurushishya lives on its own branch (`abhyasa`) and its own Netlify site (`abhyasa-portal`).
 It shares nothing with raavanaa.org.
 
 ## 1. Database (done)
@@ -20,8 +20,8 @@ Supabase → **Table Editor → groups** → tick **approved** for that row → 
 ## 4. Sign-in options
 
 ### Google (recommended, about 15 minutes)
-1. Go to console.cloud.google.com and create a project called **GuruShiya**.
-2. **Google Auth Platform → Branding**: app name *GuruShiya*, your support email, the square GuruShiya icon (`icon-512.png`) as the logo, and the home page link.
+1. Go to console.cloud.google.com and create a project called **Gurushishya**.
+2. **Google Auth Platform → Branding**: app name *Gurushishya*, your support email, the square Gurushishya icon (`icon-512.png`) as the logo, and the home page link.
 3. **Audience**: External. **Data access**: add the `openid` scope (email and profile are already there).
 4. **Clients → Create client → Web application**:
    - Authorized JavaScript origins: `https://kalaikoodam.raavanaa.org` and `https://abhyasa-portal.netlify.app`
@@ -44,7 +44,7 @@ Supabase → **Authentication → Emails → SMTP Settings**.
 
 ## 5. Web address
 
-For now GuruShiya lives at **https://kalaikoodam.raavanaa.org** (the old address, abhyasa-portal.netlify.app, still works).
+For now Gurushishya lives at **https://kalaikoodam.raavanaa.org** (the old address, abhyasa-portal.netlify.app, still works).
 1. Netlify → abhyasa-portal → **Domain management → Add a domain** → `kalaikoodam.raavanaa.org`. If Netlify asks for a DNS record: CNAME, host `kalaikoodam`, value `abhyasa-portal.netlify.app`.
 2. Supabase → **Authentication → URL Configuration**: Site URL `https://kalaikoodam.raavanaa.org`, and add the redirect `https://kalaikoodam.raavanaa.org/**` (keep the Netlify one).
 3. Google sign-in, when switched on: add `https://kalaikoodam.raavanaa.org` to the Authorized JavaScript origins.

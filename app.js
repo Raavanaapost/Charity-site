@@ -1,4 +1,4 @@
-/* GuruShiya – Stage 1 app: sign in, teacher groups and classes, public group pages, homepage,
+/* Gurushishya – Stage 1 app: sign in, teacher groups and classes, public group pages, homepage,
    class join link with consent, student practice screen, weekly practice and the teacher's practice chart. */
 (() => {
 const C = window.ABHYASA_CONFIG || {};
@@ -74,7 +74,7 @@ function friendly(err){
   const m = (err && (err.message || err.error_description)) || "Something went wrong. Please try again.";
   if (/duplicate key|groups_slug_key/i.test(m)) return "That web address is already taken. Please try another.";
   if (/rate limit/i.test(m)) return "Too many tries. Please wait a minute and try again.";
-  if (/Failed to fetch|NetworkError/i.test(m)) return "Can't reach GuruShiya. Check your internet connection.";
+  if (/Failed to fetch|NetworkError/i.test(m)) return "Can't reach Gurushishya. Check your internet connection.";
   return m;
 }
 function safeNext(){ const n = new URLSearchParams(location.search).get("next") || ""; return /^\/[a-z0-9/_-]*$/i.test(n) && !n.startsWith("//") ? n : "/me"; }
@@ -118,7 +118,7 @@ const isHome = () => onRoot() && !/^\/(g|join|consent|register|signin|me|teacher
 
 function route(){
   if (!sb) return;
-  clearInterval(poll); setTheme(isHome()); document.title = "GuruShiya";
+  clearInterval(poll); setTheme(isHome()); document.title = "Gurushishya";
   renderNav(); scrollTo(0,0);
   const p = location.pathname, hs = hostSlug();
   let m;
@@ -154,11 +154,11 @@ function renderNav(){
 
 /* ---------- setup notice (before Supabase is connected) ---------- */
 function viewSetup(){
-  $app.innerHTML = `<section class="hero"><span class="eyebrow">Almost ready</span><h1>GuruShiya needs its database</h1>
+  $app.innerHTML = `<section class="hero"><span class="eyebrow">Almost ready</span><h1>Gurushishya needs its database</h1>
   <p class="lead">The site is installed. To switch it on, create the free Supabase project and fill in <strong>config.js</strong>. The steps are in SETUP.md.</p></section>`;
 }
 
-/* Front page, matched to the GuruShiya logo: ivory, maroon and gold. What it is, and where to tap.
+/* Front page, matched to the Gurushishya logo: ivory, maroon and gold. What it is, and where to tap.
    Everything else is inside after sign-in. */
 const LOTUS = `<svg class="gs-lotus" viewBox="0 0 48 22" aria-hidden="true"><path d="M24 2c4.2 5 4.2 11.5 0 17-4.2-5.5-4.2-12 0-17zM24 19c-6.5 0-12-3.2-15-9 6.5 0 12 3.2 15 9zm0 0c6.5 0 12-3.2 15-9-6.5 0-12 3.2-15 9z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
 const GS_WAYS = [
@@ -170,13 +170,13 @@ const GS_WAYS = [
     `<path d="M3 20h5v-5h5v-5h5V5h3"/><path d="M17.5 5H21v3.5"/>`]
 ];
 function viewHomeSimple(){
-  document.title = "GuruShiya · Connecting gurus and students";
+  document.title = "Gurushishya · Connecting gurus and students";
   const studentHref = roles.family ? "/practice" : "/signin?next=/practice";
   $app.innerHTML = `
   <section class="gs2-hero" aria-labelledby="h-title">
     <div class="wrap gs2-hero-in">
       <div class="gs2-intro">
-        <h1 id="h-title" class="gs2-logo"><img src="/assets/gs-logo.png" alt="GuruShiya" width="880" height="527"></h1>
+        <h1 id="h-title" class="gs2-logo"><img src="/assets/gs-logo.png" alt="Gurushishya" width="880" height="520"></h1>
         <p class="gs2-tag">Connecting Gurus and Students</p>
         <div class="gs2-orn">${LOTUS}</div>
         <p class="gs2-lead">One simple platform for teachers and students.</p>
@@ -184,14 +184,14 @@ function viewHomeSimple(){
       </div>
     </div>
   </section>
-  <section class="gs2-ways" aria-label="How GuruShiya works"><div class="wrap gs2-ways-in">
+  <section class="gs2-ways" aria-label="How Gurushishya works"><div class="wrap gs2-ways-in">
     ${GS_WAYS.map(([t, d, ic]) => `<div class="gs2-way"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ic}</svg><div><h2>${t}</h2><p>${d}</p></div></div>`).join("")}
   </div></section>
   <section id="about" class="gs2-about"><div class="wrap gs2-about-in">
-    <img class="gs2-about-mark" src="/assets/gs-emblem-light.png" alt="" width="320" height="179">
+    <img class="gs2-about-glow" src="/assets/gs-glow.jpg" alt="" width="540" height="281">
     <span class="gs2-eyebrow">About us</span>
     <h2 class="gs2-motto">A Digital Kalai Koodam for the Modern Learner</h2>
-    <p>GuruShiya brings the timeless bond between guru and student online. Gurus guide, students practise a little every day, and both can see the progress.</p>
+    <p>Gurushishya brings the timeless bond between guru and student online. Gurus guide, students practise a little every day, and both can see the progress.</p>
     <p>Teachers and students sign in to find their classes, practice, notes and messages.</p>
   </div></section>`;
 }
@@ -201,7 +201,7 @@ const catStrip = () => `<div class="h-cats" role="group" aria-label="Find classe
       ${FAMILIES.map(f => `<button type="button" class="h-cat" data-fam="${f.k}">${f.icon}<span>${f.label}</span></button>`).join("")}
     </div>`;
 const heroText = () => `
-      <div class="h-lockup"><img src="/assets/mark-maroon-320.png" alt="" width="132" height="132"><h1 id="h-title">GuruShiya</h1></div>
+      <div class="h-lockup"><img src="/assets/mark-maroon-320.png" alt="" width="132" height="132"><h1 id="h-title">Gurushishya</h1></div>
       <p class="h-tag"><span aria-hidden="true"></span>The Practice Platform for Every Passion<span aria-hidden="true"></span></p>
       <p class="h-band">Learn<i aria-hidden="true">◆</i>Practise Daily<i aria-hidden="true">◆</i>Progress</p>
       <p class="h-lead">A simple and powerful platform for teachers and students across music, dance, movement, arts and many more classes.</p>`;
@@ -226,7 +226,7 @@ const heroV2 = () => `
   </section>`;
 
 async function viewHome(layout = 1){
-  document.title = "GuruShiya · The Practice Platform for Every Passion";
+  document.title = "Gurushishya · The Practice Platform for Every Passion";
   const studentBtn = roles.family
     ? link("/practice", `${IC.student}<span>I'm a Student</span>${IC.chev}`, "h-btn cream")
     : `<a href="#students" data-scroll="students" class="h-btn cream">${IC.student}<span>I'm a Student</span>${IC.chev}</a>`;
@@ -250,7 +250,7 @@ async function viewHome(layout = 1){
 
   <section id="teachers" class="h-sec alt"><div class="wrap wide h-two">
     <div class="h-col"><span class="h-eyebrow">For teachers</span><h2 class="h-h2">Keep your class going between lessons</h2>
-      <p class="h-p">GuruShiya gives every teacher their own page, a class link for families, and a simple view of who practised this week.</p>
+      <p class="h-p">Gurushishya gives every teacher their own page, a class link for families, and a simple view of who practised this week.</p>
       <div>${link("/teacher", "Create your group page", "h-btn gold small")}</div></div>
     <ol class="h-steps">
       <li><div><strong>Create your group page</strong><span>Your classes, timetable and a way for new students to ask about joining.</span></div></li>
@@ -261,7 +261,7 @@ async function viewHome(layout = 1){
 
   <section id="students" class="h-sec"><div class="wrap wide h-two">
     <div class="h-col"><span class="h-eyebrow">For students and parents</span><h2 class="h-h2">A little practice, every day</h2>
-      <p class="h-p">Your teacher sets a short practice for the week. Open GuruShiya, start the timer, and tick the day. Your teacher sees it too.</p>
+      <p class="h-p">Your teacher sets a short practice for the week. Open Gurushishya, start the timer, and tick the day. Your teacher sees it too.</p>
       <div>${roles.family ? link("/practice", "Go to my practice", "h-btn gold small") : link("/signin?next=/practice", "Sign in to practise", "h-btn gold small")}</div></div>
     <ol class="h-steps">
       <li><div><strong>Get the class link from your teacher</strong><span>It usually comes on WhatsApp.</span></div></li>
@@ -271,8 +271,8 @@ async function viewHome(layout = 1){
   </div></section>
 
   <section id="about" class="h-sec alt"><div class="wrap h-col h-about">
-    <span class="h-eyebrow">About GuruShiya</span><h2 class="h-h2">A digital Kalai Koodam</h2>
-    <p class="h-p">In Tamil, a kalai koodam is a hall where the arts are taught and practised. GuruShiya brings that hall online. Teachers of dance, music, Karlakattai, yoga, art and more run their classes in one place, and students keep up the daily practice that turns lessons into skill.</p>
+    <span class="h-eyebrow">About Gurushishya</span><h2 class="h-h2">A digital Kalai Koodam</h2>
+    <p class="h-p">In Tamil, a kalai koodam is a hall where the arts are taught and practised. Gurushishya brings that hall online. Teachers of dance, music, Karlakattai, yoga, art and more run their classes in one place, and students keep up the daily practice that turns lessons into skill.</p>
     <p class="h-p"><em>Guru</em> and <em>shishya</em>: the teacher and the student, learning together.</p>
   </div></section>`;
 
@@ -308,11 +308,11 @@ async function viewGroup(slug){
   $app.innerHTML = LOADING;
   const { data: g } = await sb.from("groups").select("*").eq("slug", slug).maybeSingle();
   if (!g) { $app.innerHTML = `<section class="hero"><h1>Page not found</h1><p class="lead">This class page isn't available. It may not be approved yet.</p>${link("/","See all classes","btn ghost")}</section>`; return; }
-  document.title = g.name + " · GuruShiya";
+  document.title = g.name + " · Gurushishya";
   const { data: classes } = await sb.from("classes").select("name,day_of_week,start_time,duration_min").eq("group_id", g.id).order("day_of_week").order("start_time");
   const mine = user && user.id === g.owner_id;
   $app.innerHTML = `
-    ${!g.approved && mine ? `<p class="notice">Only you can see this page for now. It goes public once GuruShiya approves it.</p>` : ""}
+    ${!g.approved && mine ? `<p class="notice">Only you can see this page for now. It goes public once Gurushishya approves it.</p>` : ""}
     <section class="hero"><span class="row" style="gap:8px"><span class="dot" style="background:${ARTS[g.art_type]?.dot}"></span><span class="eyebrow">${esc(ARTS[g.art_type]?.label)}</span></span>
       <h1>${esc(g.name)}</h1>
       <p class="lead">With ${esc(g.teacher_name)}${g.location ? " · " + esc(g.location) : ""}${g.is_online ? " · Online classes" : ""}</p></section>
@@ -389,13 +389,13 @@ function viewSignIn(){
   const next = safeNext();
   if (user) return redirect(next);
   const b = signInBlock(next);
-  $app.innerHTML = `<section class="card narrow"><span class="eyebrow">Welcome to GuruShiya</span><h1 class="page-h">Sign in</h1>
+  $app.innerHTML = `<section class="card narrow"><span class="eyebrow">Welcome to Gurushishya</span><h1 class="page-h">Sign in</h1>
     <p class="muted m0">Teachers sign in or create an account here. Students and families use the link their teacher sends.</p>${b.html}
     <p class="hint m0">First time here? Signing in creates your account. No password needed.</p></section>`;
   b.wire();
 }
 const notWorking = () => { $app.innerHTML = `<section class="card narrow"><h1 class="page-h">This link isn't working</h1>
-  <p class="muted m0">It may be old or already used. Please ask your teacher to send a new one.</p>${link("/", "Go to GuruShiya", "btn ghost")}</section>`; };
+  <p class="muted m0">It may be old or already used. Please ask your teacher to send a new one.</p>${link("/", "Go to Gurushishya", "btn ghost")}</section>`; };
 
 /* ======================= REGISTRATION: one link from the teacher =======================
    The parent (or an adult student) fills in the student's first name, email and mobile,
@@ -437,12 +437,12 @@ async function viewRegister(token){
           <label for="rf-phone">${adult ? "Your mobile" : "Parent's mobile"}<input id="rf-phone" type="tel" required inputmode="tel" maxlength="20" autocomplete="tel" placeholder="416 555 0100" value="${esc(v.phone)}"></label>
         </div>
         <div class="facts">
-          <div><strong>What GuruShiya keeps</strong><span>${adult ? "Your" : "The student's"} first name, the days and minutes of practice, and messages with ${esc(k.teacher_name)}.</span></div>
+          <div><strong>What Gurushishya keeps</strong><span>${adult ? "Your" : "The student's"} first name, the days and minutes of practice, and messages with ${esc(k.teacher_name)}.</span></div>
           <div><strong>Who can see it</strong><span>Only ${adult ? "you" : "your family"} and ${esc(k.teacher_name)}. Other students can't.</span></div>
         </div>
         <label class="check" for="rf-ok"><input id="rf-ok" type="checkbox" ${v.ok ? "checked" : ""}><span>${adult
-          ? `I agree to GuruShiya keeping my first name, practice and messages as described above.`
-          : `I am the student's parent or guardian. I give consent for them to join ${esc(k.class_name)} and for GuruShiya to keep their first name, practice and messages as described above.`}</span></label>
+          ? `I agree to Gurushishya keeping my first name, practice and messages as described above.`
+          : `I am the student's parent or guardian. I give consent for them to join ${esc(k.class_name)} and for Gurushishya to keep their first name, practice and messages as described above.`}</span></label>
         <div class="row"><button class="btn" type="submit">${user ? "Register and start" : "Agree and continue"}</button>
           ${!adult && k.step === "consent" ? `<button class="btn ghost" type="button" id="rf-no">No, thank you</button>` : ""}</div>
         <div id="rf-out" role="status">${err ? `<div class="notice">${esc(err)}</div>` : ""}</div>
@@ -708,12 +708,12 @@ const nextStep = s => s.status === "waiting_consent" ? { which: "consent", label
 
 function inviteText(s, which, g, k){
   const url = siteUrl("/register/" + (which === "consent" ? s.consent_token : s.join_token));
-  if (s.is_adult) return `Hello ${s.first_name}, this is ${g.teacher_name} from ${g.name}. Please register for ${k.name} on GuruShiya, where you can keep track of your daily practice: ${url}`;
-  return `Hello${s.contact_name ? " " + s.contact_name : ""}, this is ${g.teacher_name} from ${g.name}. Please register ${s.first_name} for my ${k.name} class on GuruShiya and give your consent here. It takes a minute, and then ${s.first_name} can keep track of their daily practice: ${url}`;
+  if (s.is_adult) return `Hello ${s.first_name}, this is ${g.teacher_name} from ${g.name}. Please register for ${k.name} on Gurushishya, where you can keep track of your daily practice: ${url}`;
+  return `Hello${s.contact_name ? " " + s.contact_name : ""}, this is ${g.teacher_name} from ${g.name}. Please register ${s.first_name} for my ${k.name} class on Gurushishya and give your consent here. It takes a minute, and then ${s.first_name} can keep track of their daily practice: ${url}`;
 }
 function openInvite(s, which, g, k, onDone){
   const text = inviteText(s, which, g, k), phone = s.contact_phone, email = s.contact_email;
-  const subject = s.is_adult ? `Your GuruShiya registration for ${k.name}` : `Please register ${s.first_name} for ${k.name} on GuruShiya`;
+  const subject = s.is_adult ? `Your Gurushishya registration for ${k.name}` : `Please register ${s.first_name} for ${k.name} on Gurushishya`;
   const dlg = document.createElement("dialog"); dlg.className = "dlg"; dlg.setAttribute("aria-labelledby", "dlg-h");
   dlg.innerHTML = `<div class="dlg-in">
     <h2 id="dlg-h">Send ${esc(s.is_adult ? s.first_name : s.contact_name || "the parent")} the registration link</h2>
@@ -781,14 +781,14 @@ async function viewTeacher(sub = "", id = ""){
   const D = await loadGroup(g);
   const active = sub ? "/teacher/" + sub : "/teacher";
   const first = String(g.teacher_name || "").trim().split(/\s+/)[0];
-  document.title = "Dashboard · GuruShiya";
+  document.title = "Dashboard · Gurushishya";
   $app.innerHTML = `<section class="dash-head">
       <img class="dash-mark" src="/assets/gs-emblem.png" alt="" width="240" height="134">
       <div class="dash-title"><span class="eyebrow">Dashboard</span><h1 class="page-h">${first ? `Welcome, ${esc(first)}` : esc(g.name)}</h1>
         <p class="muted m0">${esc(g.name)} · ${today0().toLocaleDateString(undefined, { weekday:"long", day:"numeric", month:"long" })}</p></div>
       <div class="row dash-tools">${groups.length > 1 ? `<label class="sr" for="grp">Choose group</label><select id="grp" class="grp">${groups.map(x => `<option value="${x.id}" ${x.id === g.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select>` : ""}
       <button class="btn ghost small" type="button" id="add-group">Add a group</button></div></section>
-    ${g.approved ? "" : `<p class="notice m0">Your page is waiting for approval. You can set up classes and students now. Invitations start working once GuruShiya approves your page.</p>`}
+    ${g.approved ? "" : `<p class="notice m0">Your page is waiting for approval. You can set up classes and students now. Invitations start working once Gurushishya approves your page.</p>`}
     ${tabsNav(TTABS.map(([h, t]) => [h, t, h === "/teacher/chat" ? D.unread : 0]), active, "Dashboard menu")}
     <div id="pane" class="stack"></div>`;
   const sel = document.getElementById("grp");
@@ -830,7 +830,7 @@ function weekDots(s, D){
 }
 const reminderText = (list, g, D) => {
   const cls = new Set(list.map(s => s.class_id)), t = cls.size === 1 ? D.taskFor([...cls][0]) : null;
-  return `Hi${list.length === 1 ? " " + list[0].first_name : ""}, a gentle reminder to practise today${t ? `: ${t.title} (${t.minutes} min)` : ""}. Press Start in GuruShiya when you begin.\n${g.teacher_name}`;
+  return `Hi${list.length === 1 ? " " + list[0].first_name : ""}, a gentle reminder to practise today${t ? `: ${t.title} (${t.minutes} min)` : ""}. Press Start in Gurushishya when you begin.\n${g.teacher_name}`;
 };
 const remindedKey = s => "gs.reminded." + s.id;
 const remindedToday = s => store.get(remindedKey(s)) === ymd(today0());
@@ -844,10 +844,10 @@ function openMessage(list, mode, g, D, onDone){
   const dlg = document.createElement("dialog"); dlg.className = "dlg"; dlg.setAttribute("aria-labelledby", "dlg-h");
   dlg.innerHTML = `<form class="dlg-in" method="dialog">
     <h2 id="dlg-h">${mode === "remind" ? `Remind ${esc(who)}` : `Send a note to ${esc(who)}`}</h2>
-    <p class="muted m0">${one ? `${esc(one.first_name)} sees it in their GuruShiya chat.` : "Each student gets it in their own GuruShiya chat. Students can't see each other."}</p>
+    <p class="muted m0">${one ? `${esc(one.first_name)} sees it in their Gurushishya chat.` : "Each student gets it in their own Gurushishya chat. Students can't see each other."}</p>
     <label for="msg-text" class="sr">Message</label>
     <textarea id="msg-text" rows="5" maxlength="2000" required>${mode === "remind" ? esc(reminderText(list, g, D)) : ""}</textarea>
-    <div class="row"><button class="btn" type="submit">${ICO.note}<span>Send in GuruShiya</span></button>
+    <div class="row"><button class="btn" type="submit">${ICO.note}<span>Send in Gurushishya</span></button>
       ${phone ? `<a class="btn ghost" data-wa target="_blank" rel="noopener" href="#">WhatsApp ${esc(to)}</a>` : ""}</div>
     <div class="out" role="status"></div>
     <div class="row between"><span class="hint">${phone ? esc(phone) : ""}</span><button class="btn small ghost" type="button" data-close>Close</button></div>
@@ -1119,7 +1119,7 @@ async function tClasses(pane, g, D, again){
     const days = Array.from({ length: 6 }, (_, i) => addDays(cs, i + 1));
     const act = D.studs.filter(s => s.class_id === k.id && s.status === "active"), cur = D.taskFor(k.id), last = D.lastTask(k.id);
     const kp = (posts || []).filter(p => p.class_id === k.id).slice(0, 4);
-    const shareTask = cur ? wa(`This week's practice for ${k.name}: ${cur.title}. ${cur.minutes} min a day.\nTrack it on GuruShiya: ${siteUrl("/practice")}`) : "";
+    const shareTask = cur ? wa(`This week's practice for ${k.name}: ${cur.title}. ${cur.minutes} min a day.\nTrack it on Gurushishya: ${siteUrl("/practice")}`) : "";
     return `<li class="class-item" data-id="${k.id}">
       <div class="row between"><h3>${esc(k.name)}</h3><span class="muted">${DAYS[k.day_of_week]}s · ${fmtTime(k.start_time)} · ${k.duration_min} min · ${act.length} student${act.length === 1 ? "" : "s"}</span></div>
       <div class="sub"><strong>This week's practice</strong>
@@ -1263,11 +1263,11 @@ const groupValues = () => ({ name: val("gf-name"), teacher_name: val("gf-teacher
 function viewNewGroup(more = false){
   $app.innerHTML = `<section class="card narrow wide">
     <span class="eyebrow">${more ? "New group" : "Welcome, teacher"}</span><h1 class="page-h">Set up your group</h1>
-    <p class="muted m0">This becomes your class page and your teacher dashboard. GuruShiya checks each new teacher before the page goes public.</p>
+    <p class="muted m0">This becomes your class page and your teacher dashboard. Gurushishya checks each new teacher before the page goes public.</p>
     <form id="ng">${groupForm()}
       <label for="gf-slug">Web address<input id="gf-slug" required pattern="[a-z0-9][a-z0-9\\-]{1,38}[a-z0-9]" maxlength="40">
       <span class="hint" id="slug-prev"></span></label>
-      <label class="check" for="gf-agree"><input id="gf-agree" type="checkbox" required><span>I will keep my students' details private, use GuruShiya only for my own classes, and only add children with a parent's consent.</span></label>
+      <label class="check" for="gf-agree"><input id="gf-agree" type="checkbox" required><span>I will keep my students' details private, use Gurushishya only for my own classes, and only add children with a parent's consent.</span></label>
       <div class="row"><button class="btn" type="submit">Create my group</button>${more ? link("/teacher", "Cancel", "btn ghost") : ""}</div>
       <div id="ng-out" role="status"></div></form></section>`;
   const name = document.getElementById("gf-name"), slug = document.getElementById("gf-slug"), prev = document.getElementById("slug-prev");
