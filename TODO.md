@@ -5,6 +5,11 @@
 - [ ] Swap in the simpler logo from the design mockup, once it is available as its own file
 - [ ] Decide whether the maroon-and-gold look should carry through the whole app
 
+## Name and domain (decide later; keeping "Riyaz" for now)
+- [ ] Note: an existing app "Riyaz – Learn to Sing" (riyazapp.com, 1M+ downloads) uses the same name
+- [ ] Shortlist: Nitya Kala, Kala Sadhana, Kalashala, Abhyas, Kala Path, Payirchi, Arangam, DailyKala
+- [ ] Check which domains are free, then rename the site in one step
+
 ## Switch on (needs your accounts)
 - [ ] Google sign-in: create the Google client and send the Client ID (see SETUP.md)
 - [ ] Facebook sign-in: Meta app and App Review (optional)
