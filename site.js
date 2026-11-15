@@ -746,9 +746,9 @@ window.RAAV_FEATURES = (function () {
         <p class="rail-say">${STAGE_SAY.map((t, i) => `<span class="s${i + 1}${i ? "" : " on"}">${t}</span>`).join("")}</p>
       </div>`}
       ${glanceHTML(projects)}
-      ${momentBandHTML()}
-      ${light ? sponsorHTML() : ""}
       ${createHTML(CREATE.slice(0, 3))}
+      ${momentBandHTML()}
+      ${light && FEAT.sponsor ? sponsorHTML() : ""}
       ${HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
       <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
