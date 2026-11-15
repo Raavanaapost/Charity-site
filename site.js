@@ -11,15 +11,18 @@
      reasons  the reasons shown on /moment; [] shows all twelve.
    On a draft or local preview, ?features=all shows everything for this browser tab (?features=launch goes back). */
 window.RAAV_FEATURES = (function () {
-  const F = { sponsor: false, circle: false, vetting: true, reasons: ["memory", "remembrance"] };
+  const F = { sponsor: false, circle: false, vetting: true, tamil: false, reasons: ["memory", "remembrance"] };
   try {
     const q = new URLSearchParams(location.search).get("features");
     const test = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) || /--charity-projects-draft\./.test(location.hostname);
     if (test && q === "all") sessionStorage.setItem("raav-features", "all");
     if (q === "launch") sessionStorage.removeItem("raav-features");
-    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = true; F.reasons = []; }
+    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = true; F.reasons = []; }
   } catch (e) { /* storage blocked: the launch switches stay */ }
-  ["sponsor", "circle", "vetting"].forEach(k => { if (!F[k]) document.documentElement.classList.add("no-" + k); });
+  ["sponsor", "circle", "vetting", "tamil"].forEach(k => { if (!F[k]) document.documentElement.classList.add("no-" + k); });
+  // Tamil hidden for now (SURESH 15 Nov 2026): no தமிழ் switch, and a /ta/ page opens the same page in English.
+  // The Tamil pages and ta.js stay; set tamil: true to bring them back.
+  if (!F.tamil && /^\/ta(\/|$)/.test(location.pathname)) location.replace((location.pathname.replace(/^\/ta/, "") || "/") + location.search + location.hash);
   return F;
 })();
 (function () {
@@ -220,7 +223,7 @@ window.RAAV_FEATURES = (function () {
   function frame(site) {
     // English / Tamil switch in the header: the same page in the other language.
     const bar = document.querySelector(".bar .wrap");
-    if (bar && !bar.querySelector(".lang-switch")) {
+    if (bar && FEAT.tamil && !bar.querySelector(".lang-switch")) {
       const onTa = /^\/ta(\/|$)/.test(location.pathname);
       const path = onTa ? (location.pathname.replace(/^\/ta/, "") || "/") : "/ta" + (location.pathname === "/" ? "/" : location.pathname);
       const a = document.createElement("a");
