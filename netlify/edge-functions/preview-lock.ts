@@ -29,7 +29,10 @@ export default async (request: Request, context: { next: () => Promise<Response>
   const url = new URL(request.url);
   const path = url.pathname;
   if (!password) {
-    if (HOME[path]) return Response.redirect(new URL(HOME[path] + url.search, url).toString(), 302);
+    // Only page visits are redirected. Form entries (Initiate, I'd like to give, contact...) are POSTed to "/" for
+    // Netlify Forms; redirecting them lost every entry and its email between the 15 Nov launch and this fix.
+    const visit = request.method === "GET" || request.method === "HEAD";
+    if (visit && HOME[path]) return Response.redirect(new URL(HOME[path] + url.search, url).toString(), 302);
     if (SAMPLE_MAGAZINE.test(path)) return Response.redirect(NEWS_SITE, 302);
     if (TRY_OUTS.test(path)) {
       const res = await context.next();
