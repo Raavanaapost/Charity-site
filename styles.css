@@ -383,7 +383,7 @@ table.heat{border-collapse:separate;border-spacing:4px;font-variant-numeric:tabu
 .foot-line{font-family:Lora,Georgia,serif;font-weight:600;color:var(--ink)}
 @media (max-width:520px){.brand .brand-mark{display:none}.brand .brand-word{height:34px}}
 
-.gs2-hero{position:relative;display:flex;align-items:center;min-height:calc(100svh - 70px);background:radial-gradient(ellipse 48% 60% at 50% 48%,rgba(255,250,242,.97) 0%,rgba(255,250,242,.86) 50%,rgba(255,250,242,.2) 100%)}
+.gs2-hero{position:relative;display:flex;align-items:center;min-height:calc(100svh - 70px);background:radial-gradient(ellipse 42% 56% at 50% 50%,rgba(255,250,242,.96) 0%,rgba(255,250,242,.88) 55%,rgba(255,250,242,0) 100%)}
 .gs2-hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,rgba(200,144,39,0),#c89027 20%,#c89027 80%,rgba(200,144,39,0))}
 .gs2-hero-in{width:100%;max-width:1180px;display:flex;justify-content:center;padding-block:clamp(28px,5vw,64px)}
 .gs2-intro{display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;min-width:0}
@@ -429,7 +429,7 @@ table.heat{border-collapse:separate;border-spacing:4px;font-variant-numeric:tabu
   .gs2-way h2{font-size:1.45rem}
 }
 @media (max-width:600px){
-  .gs2-hero{min-height:calc(100svh - 64px);background:radial-gradient(ellipse 85% 52% at 50% 46%,rgba(255,250,242,.97) 0%,rgba(255,250,242,.86) 55%,rgba(255,250,242,.2) 100%)}
+  .gs2-hero{min-height:calc(100svh - 64px);background:radial-gradient(ellipse 80% 46% at 50% 48%,rgba(255,250,242,.96) 0%,rgba(255,250,242,.88) 58%,rgba(255,250,242,0) 100%)}
   .gs2-hero-in{padding-block:28px 40px}
   .gs2-intro{gap:10px}
   .gs2-logo img{width:min(100%,300px)}
@@ -443,7 +443,7 @@ table.heat{border-collapse:separate;border-spacing:4px;font-variant-numeric:tabu
 /* ================= Faded picture behind every page (stronger on the front page) ================= */
 body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:url(/assets/bg-wide-1100.jpg) 50% 100%/cover no-repeat;opacity:.05;filter:sepia(.45) saturate(.6)}
 @media (orientation:portrait){body::before{background-image:url(/assets/bg-tall-600.jpg)}}
-body.home::before{opacity:.28}
+body.home::before{opacity:.6;filter:sepia(.2) saturate(.9)}
 
 /* ================= Dashboard ================= */
 .dash-head{position:relative;overflow:hidden;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px 18px;padding:18px 20px 20px;border-radius:22px;background:linear-gradient(120deg,#fffdf8 0%,#fbf0dc 100%);border:1px solid var(--line)}
