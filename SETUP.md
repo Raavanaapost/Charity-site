@@ -15,7 +15,9 @@ Site **abhyasa-portal** deploys the `abhyasa` branch. Every saved change goes li
 ## 3. Approve a teacher
 
 New teachers can set up classes and students straight away, but their page and invitations only work once approved.
-Supabase → **Table Editor → groups** → tick **approved** for that row → Save.
+Sign in as the admin (sure.ganes@gmail.com) → **Dashboard → Approvals** → **Approve**. A red alert on the Dashboard shows when someone is waiting.
+To add another admin, run in Supabase SQL: `insert into private.admins (user_id) select id from auth.users where email = 'their@email';`
+The database setup for this is in `supabase/stage4.sql`.
 
 ## 4. Sign-in options
 

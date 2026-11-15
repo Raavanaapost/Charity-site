@@ -32,5 +32,6 @@
 - [ ] Tanpura drone and tala counter on the practice screen
 - [ ] Tamil language option
 - [ ] Badges and a class group streak
-- [ ] Simple admin screen to approve teachers (now done in Supabase)
+- [x] Approvals tab on the admin's Dashboard to approve teachers
+- [ ] Email the admin when a new teacher signs up
 - [ ] Events calendar, fees and receipts, automatic Zoom scheduling

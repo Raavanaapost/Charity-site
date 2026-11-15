@@ -39,7 +39,7 @@ const $app = document.getElementById("app"), $nav = document.getElementById("top
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const val = id => document.getElementById(id).value.trim();
 const LOADING = `<p class="muted">Loading…</p>`;
-let sb = null, user = null, roles = { teacher:false, family:false };
+let sb = null, user = null, roles = { teacher:false, family:false, admin:false };
 
 /* ---------- addresses ---------- */
 function hostSlug(){
@@ -81,13 +81,14 @@ function safeNext(){ const n = new URLSearchParams(location.search).get("next") 
 
 /* ---------- start ---------- */
 async function loadRoles(){
-  roles = { teacher:false, family:false };
+  roles = { teacher:false, family:false, admin:false };
   if (!user) return;
-  const [g, s] = await Promise.all([
+  const [g, s, a] = await Promise.all([
     sb.from("groups").select("id", { count:"exact", head:true }).eq("owner_id", user.id),
-    sb.from("students").select("id", { count:"exact", head:true }).eq("guardian_id", user.id).eq("status", "active")
+    sb.from("students").select("id", { count:"exact", head:true }).eq("guardian_id", user.id).eq("status", "active"),
+    sb.rpc("am_i_admin")
   ]);
-  roles = { teacher: (g.count || 0) > 0, family: (s.count || 0) > 0 };
+  roles = { teacher: (g.count || 0) > 0, family: (s.count || 0) > 0, admin: a.data === true };
 }
 async function init(){
   if (!C.supabaseUrl || !C.supabaseAnonKey || !window.supabase) return viewSetup();
@@ -128,7 +129,7 @@ function route(){
   if (p === "/signin") return viewSignIn();
   if (p === "/me") return redirect(roles.teacher ? "/teacher" : roles.family ? "/practice" : "/teacher");
   if ((m = p.match(/^\/practice(?:\/(notes|chat))?\/?$/))) return viewDesk(m[1] || "");
-  if ((m = p.match(/^\/teacher(?:\/(students|classes|chat|page)(?:\/([0-9a-f-]{36}))?)?\/?$/))) return viewTeacher(m[1] || "", m[2] || "");
+  if ((m = p.match(/^\/teacher(?:\/(students|classes|chat|page|approve)(?:\/([0-9a-f-]{36}))?)?\/?$/))) return viewTeacher(m[1] || "", m[2] || "");
   if (p === "/v2") return viewHome(2);
   if (p === "/v1") return viewHome(1);
   return viewHomeSimple();
@@ -149,7 +150,7 @@ function renderNav(){
   }
   $nav.innerHTML = items.join("");
   const so = document.getElementById("signout");
-  if (so) so.onclick = async () => { await sb.auth.signOut(); user = null; roles = { teacher:false, family:false }; onRoot() ? go("/") : location.href = siteUrl("/"); };
+  if (so) so.onclick = async () => { await sb.auth.signOut(); user = null; roles = { teacher:false, family:false, admin:false }; onRoot() ? go("/") : location.href = siteUrl("/"); };
 }
 
 /* ---------- setup notice (before Supabase is connected) ---------- */
@@ -778,7 +779,10 @@ async function viewTeacher(sub = "", id = ""){
   if (!groups.length) return viewNewGroup();
   roles.teacher = true;
   const g = groups.find(x => x.id === store.get("riyaz.group")) || groups[0];
-  const D = await loadGroup(g);
+  const [D, adm] = await Promise.all([loadGroup(g), roles.admin ? sb.rpc("admin_groups") : Promise.resolve({ data: null })]);
+  const approvals = adm.data || [];
+  D.waitingTeachers = approvals.filter(x => !x.approved).length;
+  const tabs = roles.admin ? [...TTABS, ["/teacher/approve", "Approvals"]] : TTABS;
   const active = sub ? "/teacher/" + sub : "/teacher";
   const first = String(g.teacher_name || "").trim().split(/\s+/)[0];
   document.title = "Dashboard · Gurushishya";
@@ -788,9 +792,12 @@ async function viewTeacher(sub = "", id = ""){
         <p class="muted m0">${esc(g.name)} · ${today0().toLocaleDateString(undefined, { weekday:"long", day:"numeric", month:"long" })}</p></div>
       <div class="row dash-tools">${groups.length > 1 ? `<label class="sr" for="grp">Choose group</label><select id="grp" class="grp">${groups.map(x => `<option value="${x.id}" ${x.id === g.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select>` : ""}
       <button class="btn ghost small" type="button" id="add-group">Add a group</button></div></section>
+    ${D.waitingTeachers && sub !== "approve" ? `<div class="ap-banner">${ICO.bell}<span><strong>${D.waitingTeachers} new teacher${D.waitingTeachers === 1 ? " is" : "s are"} waiting for your approval</strong></span>${link("/teacher/approve", "Review", "btn small")}</div>` : ""}
     ${g.approved ? "" : `<p class="notice m0">Your page is waiting for approval. You can set up classes and students now. Invitations start working once Gurushishya approves your page.</p>`}
-    ${tabsNav(TTABS.map(([h, t]) => [h, t, h === "/teacher/chat" ? D.unread : 0]), active, "Dashboard menu")}
+    ${tabsNav(tabs.map(([h, t]) => [h, t, h === "/teacher/chat" ? D.unread : h === "/teacher/approve" ? D.waitingTeachers : 0]), active, "Dashboard menu")}
     <div id="pane" class="stack"></div>`;
+  const cur = $app.querySelector('.tab[aria-current="page"]');
+  if (cur && cur.parentElement) cur.parentElement.scrollLeft = Math.max(0, cur.offsetLeft - 16);
   const sel = document.getElementById("grp");
   if (sel) sel.onchange = () => { store.set("riyaz.group", sel.value); go("/teacher"); };
   document.getElementById("add-group").onclick = () => viewNewGroup(true);
@@ -800,6 +807,7 @@ async function viewTeacher(sub = "", id = ""){
   if (sub === "classes") return tClasses(pane, g, D, again);
   if (sub === "chat") return tChat(pane, g, D, id);
   if (sub === "page") return tPage(pane, g, again);
+  if (sub === "approve" && roles.admin) return tApprove(pane, approvals, again);
   return tOverview(pane, g, D, again);
 }
 
@@ -950,6 +958,41 @@ function tOverview(pane, g, D, again){
   document.getElementById("remind-all").onclick = () => { const l = notYet(); if (l.length) openMessage(l, "remind", g, D, draw); };
   document.getElementById("note-all").onclick = () => openMessage(act.filter(inClass), "note", g, D, draw);
   draw();
+}
+
+/* ---- Approvals (site admin only): approve new teachers so their page and links start working ---- */
+function tApprove(pane, list, again){
+  const day = d => new Date(d).toLocaleDateString(undefined, { day:"numeric", month:"short", year:"numeric" });
+  const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
+  const row = x => `<li class="ap-row${x.approved ? "" : " ap-wait"}">
+      <div class="ap-main"><strong>${esc(x.name)}</strong>
+        <span class="hint">${esc(x.teacher_name || "")}${x.owner_email ? " · " + esc(x.owner_email) : ""}</span>
+        <span class="hint">${esc((ARTS[x.art_type] || {}).label || x.art_type || "")} · ${plural(x.classes, "class").replace("classs", "classes")} · ${plural(x.students, "student")} · joined ${day(x.created_at)}</span>
+        ${x.approved ? `<a class="link-btn" href="${groupUrl(x.slug)}" ${C.rootDomain ? "" : "data-link"}>View their page</a>` : ""}</div>
+      <div class="ap-act">${x.approved
+        ? `<span class="pill ok">Approved</span><button class="btn tiny ghost" type="button" data-un="${x.id}">Undo</button>`
+        : `<button class="btn" type="button" data-ok="${x.id}">${ICO.check}<span>Approve</span></button>`}</div>
+    </li>`;
+  const wait = list.filter(x => !x.approved), done = list.filter(x => x.approved);
+  pane.innerHTML = `
+    <section class="card"><h2>Teachers waiting for approval</h2>
+      <p class="hint m0">Check who the teacher is first. Once you approve, their page goes public and the registration links they send start working.</p>
+      ${wait.length ? `<ul class="ap-list">${wait.map(row).join("")}</ul>` : `<div class="empty">${ICO.lotus}<p class="m0">No one is waiting. All caught up.</p></div>`}
+      <div id="ap-out" role="status"></div></section>
+    <section class="card"><h2>Approved teachers (${done.length})</h2>
+      ${done.length ? `<ul class="ap-list">${done.map(row).join("")}</ul>` : `<p class="muted m0">None yet.</p>`}</section>`;
+  const out = document.getElementById("ap-out");
+  const set = async (id, approve, b) => {
+    b.disabled = true;
+    const { error } = await sb.rpc("admin_set_approved", { group_id: id, approve });
+    if (error) { b.disabled = false; out.innerHTML = `<div class="notice">${esc(friendly(error))}</div>`; return; }
+    again();
+  };
+  pane.querySelectorAll("[data-ok]").forEach(b => b.onclick = () => set(b.dataset.ok, true, b));
+  pane.querySelectorAll("[data-un]").forEach(b => b.onclick = () => {
+    if (!b.dataset.sure) { b.dataset.sure = "1"; b.textContent = "Tap again to undo"; return; }
+    set(b.dataset.un, false, b);
+  });
 }
 
 /* ---- Students ---- */
