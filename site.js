@@ -1211,7 +1211,7 @@ window.RAAV_FEATURES = (function () {
       ${tp("arc-face")}
       ${heart(500, 250, 3.4, "#c8381e")}${heart(440, 290, 1.8, "#f2b21c")}${heart(560, 290, 1.8, "#f2b21c")}
       ${spark(400, 230, 16)}${spark(600, 230, 16)}${spark(70, 400, 18)}${spark(930, 400, 18)}
-      <text class="arc-tag" x="500" y="372" text-anchor="middle">BEYOND THE LANES ✦ CREATING SMILES</text>
+      <text class="arc-tag" x="500" y="372" text-anchor="middle">CREATING SMILES</text>
     </svg>`;
   }
 
