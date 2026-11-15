@@ -201,6 +201,11 @@ window.RAAV_FEATURES = (function () {
     window.addEventListener("appinstalled", () => { ask = null; keep("raav-app-have", "1"); if (strip) strip.remove(); });
     document.addEventListener("click", e => { const a = e.target.closest && e.target.closest("[data-get-app]"); if (a) { e.preventDefault(); install(); } });
     offer();
+    // A link that opens the install steps by itself (SURESH, 15 Nov 2026): raavanaa.org/app (or any page with ?install=1).
+    if (qs.get("install") === "1" && !inApp) {
+      const go = () => setTimeout(help, 600);
+      if (document.readyState === "complete") go(); else window.addEventListener("load", go);
+    }
     return { inApp, install };
   })();
 
