@@ -128,7 +128,7 @@ window.RAAV_FEATURES = (function () {
       const ico = d => `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
       const TABS = [
         ["Home", "/overview", /^overview$/, ico('<path d="M3.5 11.2 12 4l8.5 7.2"/><path d="M5.8 9.8V20h4.4v-5.4h3.6V20h4.4V9.8"/>')],
-        ["Projects", "/initiated", /^(stage|project|home|create|initiate)$/, ico('<rect x="3.5" y="4.5" width="17" height="4.6" rx="1.6"/><rect x="3.5" y="11" width="17" height="4.6" rx="1.6"/><path d="M4.5 19.5h15"/>')],
+        ["Projects", "/projects", /^(projects|stage|project|home|create|initiate)$/, ico('<rect x="3.5" y="4.5" width="17" height="4.6" rx="1.6"/><rect x="3.5" y="11" width="17" height="4.6" rx="1.6"/><path d="M4.5 19.5h15"/>')],
         ["Gift", "/moment", /^(moment|together|give|fund|thanks)$/, '<span class="appbar-gift"><img src="/img/moment-mark.svg" alt="" width="34" height="34"></span>'],
         ["Map", "/smile-map", /^map2?$/, ico('<path d="M12 21s6.5-5.6 6.5-10.6A6.5 6.5 0 0 0 5.5 10.4C5.5 15.4 12 21 12 21Z"/><circle cx="12" cy="10.2" r="2.4"/>')],
         [signedIn ? "Account" : "Sign in", "/members", /^members$/, ico('<circle cx="12" cy="8.4" r="3.7"/><path d="M4.6 20c.9-3.6 3.8-5.4 7.4-5.4s6.5 1.8 7.4 5.4"/>')]
@@ -576,11 +576,12 @@ window.RAAV_FEATURES = (function () {
   // a title above and a line below. It opens the form to start a new project.
   // Five slogans take turns on the Home page (SURESH, 12 Nov 2026); the kept home page (/front-4) stays on the first three.
   const CREATE = [
-    { img: "/img/create-smile.svg", title: "Create a Smile", say: "One small idea can light up a child's whole day." },
-    { img: "/img/create-moment.svg", title: "Create a Moment", say: "Tell us where joy is needed. We'll help make it happen." },
-    { img: "/img/create-day.svg", title: "Spark a Day of Joy", say: "A trip, a game, a good meal. Start it here." },
-    { img: "/img/create-smile.svg", title: "Start a Smile", say: "Know children who are waiting for a day out? Tell us." },
-    { img: "/img/create-moment.svg", title: "Dream a Day for the Children", say: "You dream it. Together we make it real." }
+    // SURESH 15 Nov 2026: not only children. A moment can be for anyone: a mum, an elder, a family, a whole village.
+    { img: "/img/create-smile.svg", title: "Create a Smile", say: "One small idea can light up someone's whole day." },
+    { img: "/img/create-moment.svg", title: "Create a Moment", say: "For a child, a mum, an elder or a whole village. Tell us who." },
+    { img: "/img/create-day.svg", title: "Spark a Smile", say: "A trip, a celebration, a good meal, a helping hand. Start it here." },
+    { img: "/img/create-smile.svg", title: "Spark a Day of Joy", say: "Know a family, a school or a neighbour who could use a lift? Tell us." },
+    { img: "/img/create-moment.svg", title: "Start a Smile", say: "You dream it. Together we make it real." }
   ];
   // Home: "Gift a Moment, in their name" (title and design, SURESH 10 Nov 2026). A cream banner with the
   // heart-and-lamp mark, the title, and four reasons to tap: each opens the moment page with that reason chosen.
@@ -746,7 +747,7 @@ window.RAAV_FEATURES = (function () {
         <p class="rail-say">${STAGE_SAY.map((t, i) => `<span class="s${i + 1}${i ? "" : " on"}">${t}</span>`).join("")}</p>
       </div>`}
       ${glanceHTML(projects)}
-      ${createHTML(CREATE.slice(0, 3))}
+      ${createHTML(light ? CREATE : CREATE.slice(0, 3))}
       ${momentBandHTML()}
       ${light && FEAT.sponsor ? sponsorHTML() : ""}
       ${HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
@@ -925,6 +926,112 @@ window.RAAV_FEATURES = (function () {
       const r = tabsBox.getBoundingClientRect(); if (r.top > innerHeight * .7 || r.top < 0) tabsBox.scrollIntoView({ behavior: "smooth", block: "start" }); });
     draw();
     if (location.hash === "#keep-posted") { const t = document.getElementById("keep-posted"); if (t) t.scrollIntoView(); }
+  }
+
+  // Projects page (/projects, the web app's Projects tab), 15 Nov 2026 (SURESH): search box, then the stages as
+  // folder tabs (All first and open), each project one line in the team portal's style, shaded in its stage
+  // colour, with "Project at a glance" on hover (or the small i on a phone). Same rows as the /front-5 Home.
+  async function renderProjects(app, site, projects) {
+    const share = await load("/share.json").catch(() => null);
+    const safe = p => { const sh = (share && share.projects && share.projects[slugOf(p)]) || {};
+      return { title: (TA_PATH && sh.title_ta) || sh.title || p.title,
+        art: sh.art || (/\.svg$/i.test(p.cover || "") ? p.cover : "/img/project-hills.svg"),
+        reach: (TA_PATH && sh.reach_ta) || sh.reach || (/TBD/i.test(p.reach || "") ? "" : p.reach || "") }; };
+    const TABS = [[0, "All"], [1, "Initiated"], [2, "Activated"], [3, "Impact"]];
+    const cities = [...new Set(projects.map(cityOf).filter(Boolean))].sort();
+    const st = { q: "", city: "All" };
+    const match = p => {
+      if (st.city !== "All" && cityOf(p) !== st.city) return false;
+      if (!st.q) return true;
+      const sh = safe(p), hay = [sh.title, p.summary, p.theme, cityOf(p), (p.location || "").split(",")[0]].filter(Boolean).join(" ").toLowerCase();
+      return st.q.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(w));
+    };
+    let tab = 0;
+    app.innerHTML = `
+      <section class="finder home-finder">
+        <h1 class="section-title latest-title">Our projects</h1>
+        <form class="finder-search" role="search" action="#" onsubmit="return false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+          <input id="find-q" type="search" placeholder="Search projects, places or ideas" aria-label="Search projects" autocomplete="off">
+          <label class="finder-city"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
+            <select id="find-city" aria-label="City"><option value="All">All</option>${cities.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("")}</select></label>
+        </form>
+      </section>
+      <section class="hm-book pj-book" aria-label="Projects">
+        <p class="pj-stages-k">Stages</p>
+        <div class="hm-tabs" role="tablist" aria-label="Stages">
+          ${TABS.map(([n, name]) => `<button type="button" role="tab" class="hm-tab s${n}" data-n="${n}" aria-selected="${tab === n}" aria-controls="hm-folder"><span>${name}</span><b></b></button>`).join("")}
+        </div>
+        <div class="hm-folder s${tab}" id="hm-folder" role="tabpanel"></div>
+        <div class="hm-pop" id="hm-pop" role="tooltip" hidden></div>
+      </section>`;
+    const book = app.querySelector(".hm-book"), tabsBox = app.querySelector(".hm-tabs"), folder = app.querySelector(".hm-folder"), pop = app.querySelector(".hm-pop");
+    const circles = [];
+    const ring = pct => `<svg class="hm-ring" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" pathLength="100" class="tr"/><circle cx="20" cy="20" r="15" pathLength="100" class="fl" stroke-dasharray="${pct} 100" transform="rotate(-90 20 20)"/></svg>`;
+    const rowHTML = p => { const n = stageNum(p), s = safe(p), pct = ringPercent(p), slug = slugOf(p);
+      const place = cityOf(p) || (p.location || "").split(",")[0].trim();
+      const meta = [p.theme, place].filter(Boolean).map(t => `<span>${esc(t)}</span>`).concat(`<span class="hm-next"><span>Next:</span> <span>${esc(nextStepOf(p))}</span></span>`).join('<i aria-hidden="true"> · </i>');
+      return `<div class="hm-row s${n}" role="listitem" data-slug="${esc(slug)}">
+          <a class="hm-row-link" href="/projects/${slug}">
+            <span class="hm-thumb"><img src="${esc(s.art)}" alt="" loading="lazy" width="58" height="58"></span>
+            <span class="hm-main"><b>${esc(s.title)}</b><small>${meta}</small></span>
+            <span class="hm-side"><span class="hm-pill">${HOME_STAGE[n - 1]}</span><span class="hm-pct">${ring(pct)}<b>${pct}%</b></span></span>
+          </a>
+          <button type="button" class="hm-i" aria-label="Project at a glance" aria-expanded="false" aria-controls="hm-pop"><span aria-hidden="true">i</span></button>
+        </div>`; };
+    const EMPTY = { 0: "No projects yet." };
+    const draw = () => {
+      const found = projects.filter(match), list = tab ? found.filter(p => stageNum(p) === tab) : found;
+      tabsBox.querySelectorAll(".hm-tab").forEach(b => { const n = +b.dataset.n; b.querySelector("b").textContent = n ? found.filter(p => stageNum(p) === n).length : found.length; });
+      folder.className = `hm-folder s${tab}`;
+      folder.innerHTML = list.length ? `<div class="hm-list" role="list">${list.map(rowHTML).join("")}</div>`
+        : `<p class="hm-empty">${st.q || st.city !== "All" ? "No projects match your search." : tab ? HOME_ROWS[tab - 1].empty : EMPTY[0]}</p>${tab > 1 ? "" : `<p class="hm-empty-go"><a class="btn" href="/initiate">Suggest one</a></p>`}`;
+      tabsBox.querySelectorAll(".hm-tab").forEach(b => b.setAttribute("aria-selected", String(+b.dataset.n === tab)));
+      circles.forEach((c, k) => c.classList.toggle("on", k + 1 === tab));
+    };
+
+    // "Project at a glance": the same facts as on the project's own page, in a small window.
+    const RING_WORD = { 1: "Funded so far", 2: "Preparations done", 3: "Results reported" };
+    const popHTML = p => { const n = stageNum(p), s = safe(p), b = budgetOf(p), pct = ringPercent(p);
+      const facts = [["Where", esc(p.location || cityOf(p))], ["Who it is for", esc(s.reach)], ["Started", esc(p.started || "")], ["Cost of the day", b.goal ? moneyOf(site, b.goal, p) : ""],
+        [RING_WORD[n], pct + "%"], ["Next step", esc(nextStepOf(p))]].filter(x => x[1]);
+      return `<p class="hm-pop-k"><span>Project at a glance</span><b class="hm-pill">${HOME_STAGE[n - 1]}</b></p>
+        <b class="hm-pop-t">${esc(s.title)}</b>
+        <dl class="hm-facts">${facts.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
+        ${n === 3 && (p.impact || []).length ? `<p class="hm-pop-stats">${p.impact.slice(0, 3).map(x => `<span><b>${esc(x.value)}</b> ${esc(x.label)}</span>`).join("")}</p>` : ""}
+        <a class="hm-pop-go" href="/projects/${slugOf(p)}">Open the project →</a>`; };
+    let popRow = null, tIn = 0, tOut = 0;
+    const closePop = () => { clearTimeout(tIn); if (!popRow) return; popRow.classList.remove("peek"); const b = popRow.querySelector(".hm-i"); if (b) b.setAttribute("aria-expanded", "false"); popRow = null; pop.hidden = true; };
+    // by: "hover" (a pointer over the line; the window follows it and never gets in the way) or "tap" (the small i).
+    const openPop = (row, by, x) => {
+      const p = projects.find(q => slugOf(q) === row.dataset.slug); if (!p) return;
+      if (popRow && popRow !== row) closePop();
+      popRow = row; row.classList.add("peek");
+      pop.className = `hm-pop s${stageNum(p)} by-${by}`; pop.innerHTML = popHTML(p); pop.hidden = false;
+      if (by === "tap") row.querySelector(".hm-i").setAttribute("aria-expanded", "true");
+      const br = book.getBoundingClientRect(), rr = row.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+      const below = rr.bottom + ph + 12 < innerHeight || rr.top - ph - 8 < 70;
+      pop.style.top = Math.round((below ? rr.bottom + 6 : rr.top - ph - 6) - br.top) + "px";
+      const want = by === "hover" && x != null ? x - br.left + 14 : rr.left - br.left + 12;
+      pop.style.left = Math.round(Math.max(8, Math.min(want, br.width - pw - 8))) + "px";
+    };
+    const canHover = matchMedia("(hover: hover) and (pointer: fine)").matches;
+    folder.addEventListener("mouseover", e => { if (!canHover) return; const row = e.target.closest(".hm-row"); if (!row) return; clearTimeout(tOut);
+      if (row === popRow) return; clearTimeout(tIn); const x = e.clientX; tIn = setTimeout(() => openPop(row, "hover", x), popRow ? 60 : 220); });
+    folder.addEventListener("mouseout", e => { if (!canHover) return; const row = e.target.closest(".hm-row"); if (!row || row.contains(e.relatedTarget)) return; clearTimeout(tIn); tOut = setTimeout(closePop, 160); });
+    folder.addEventListener("focusin", e => { if (e.target.matches(".hm-row-link:focus-visible")) openPop(e.target.closest(".hm-row"), "hover"); });
+    folder.addEventListener("focusout", e => { if (e.target.matches(".hm-row-link")) closePop(); });
+    folder.addEventListener("click", e => { const b = e.target.closest(".hm-i"); if (!b) return; e.preventDefault(); const row = b.closest(".hm-row"); if (row === popRow) closePop(); else openPop(row, "tap"); });
+    document.addEventListener("click", e => { if (popRow && !e.target.closest(".hm-pop, .hm-i")) closePop(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closePop(); });
+    addEventListener("scroll", () => { if (popRow && pop.classList.contains("by-hover")) closePop(); }, { passive: true });
+
+    const setTab = n => { closePop(); tab = n; draw(); };
+    tabsBox.addEventListener("click", e => { const b = e.target.closest(".hm-tab"); if (b) setTab(+b.dataset.n); });
+    app.querySelector("#find-q").addEventListener("input", e => { st.q = e.target.value.trim(); closePop(); draw(); });
+    const citySel = app.querySelector("#find-city");
+    citySel.addEventListener("change", () => { st.city = citySel.value; citySel.closest(".finder-city").classList.toggle("on", st.city !== "All"); closePop(); draw(); });
+    draw();
   }
 
   // Front page (raavanaa.org): arched title, picture slideshow, and one button into the site.
@@ -2402,7 +2509,7 @@ window.RAAV_FEATURES = (function () {
     const draw = tab => {
       app.innerHTML = `
         ${p.sample ? `<p class="sample-note"><b>Sample page.</b> This shows how a project page looks once it is filled in. The project, the figures and the names are examples, not real.</p>` : ""}
-        <nav class="crumbs"><a href="/initiated">Projects</a>${p.theme ? ` / ${esc(p.theme)}` : ""}</nav>
+        <nav class="crumbs"><a href="/projects">Projects</a>${p.theme ? ` / ${esc(p.theme)}` : ""}</nav>
         <div class="layout">
           <div style="min-width:0">
             <header class="phead">
@@ -2495,7 +2602,7 @@ window.RAAV_FEATURES = (function () {
     const open = GIVE_OPEN.has(slugOf(p));
     const tile = (cls, label, value, small) => `<div class="mny-tile ${cls}"><span>${label}</span><b>${value}</b>${small ? `<small>${small}</small>` : ""}</div>`;
     app.innerHTML = `
-      <nav class="crumbs"><a href="/initiated">Projects</a> / <a href="/projects/${slugOf(p)}">${esc(p.title)}</a></nav>
+      <nav class="crumbs"><a href="/projects">Projects</a> / <a href="/projects/${slugOf(p)}">${esc(p.title)}</a></nav>
       <section class="mny">
         <header class="mny-head">
           <span class="eyebrow">Every rupee, in the open</span>
@@ -3330,6 +3437,9 @@ window.RAAV_FEATURES = (function () {
       } else if (page === "members") {
         document.title = `Members · ${site.name}`;
         await (await import("/members.js")).render(app, site);
+      } else if (page === "projects") {
+        document.title = `Our projects · ${site.name}`;
+        await renderProjects(app, site, projects);
       } else if (page === "create") {
         document.title = `Make a Smile Happen · ${site.name}`;
         renderCreate(app, site, projects);

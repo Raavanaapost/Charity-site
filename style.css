@@ -2513,3 +2513,17 @@ body[data-light] .home-latest{background:linear-gradient(135deg,color-mix(in srg
 
 /* Home (15 Nov 2026): request a smile first, then Gift a Moment; room before the project rows */
 body[data-light] .moment-band + .home-latest { margin-top: 44px; }
+/* Home project list (15 Nov 2026): the search page's list, All first; four tabs fit a phone */
+.home-finder { margin-top: 44px; }
+.home-finder .latest-title { text-align: left; margin: 0 0 14px; }
+.home-finder-results .finder-tabs { justify-content: space-between; }
+.home-finder-results .ftab.s0 { --c: var(--brand); }
+@media (max-width:560px){ .home-finder-results .ftab { padding: 11px 6px; font-size: 14px; gap: 5px; } .home-finder-results .ftab span { padding: 3px 5px; } }
+body[data-page="projects"] .home-finder { margin-top: 20px; }
+/* Projects page: the word "Stages" over the folder tabs */
+.pj-book { margin-top: 18px; }
+.pj-stages-k { margin: 0 0 6px 4px; font: 800 12px/1 var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+/* Projects page (SURESH 15 Nov 2026): very light row and folder backgrounds; stage tags and rings unchanged */
+.pj-book .hm-folder { background: color-mix(in srgb, var(--c) 2%, var(--surface)); border-color: color-mix(in srgb, var(--c) 18%, var(--surface)); }
+.pj-book .hm-row { background: color-mix(in srgb, var(--c) 3.5%, #fff); border-color: color-mix(in srgb, var(--c) 14%, var(--surface)); border-left-color: color-mix(in srgb, var(--c) 55%, #fff); }
+.pj-book .hm-thumb { border-color: color-mix(in srgb, var(--c) 18%, #fff); }
