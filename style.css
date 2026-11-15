@@ -2520,3 +2520,6 @@ body[data-light] .moment-band + .home-latest { margin-top: 44px; }
 .home-finder-results .ftab.s0 { --c: var(--brand); }
 @media (max-width:560px){ .home-finder-results .ftab { padding: 11px 6px; font-size: 14px; gap: 5px; } .home-finder-results .ftab span { padding: 3px 5px; } }
 body[data-page="projects"] .home-finder { margin-top: 20px; }
+/* Projects page: the word "Stages" over the folder tabs */
+.pj-book { margin-top: 18px; }
+.pj-stages-k { margin: 0 0 6px 4px; font: 800 12px/1 var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
