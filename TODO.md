@@ -1,10 +1,11 @@
 # GuruShiya – to do
 
 ## Front page
-- [x] New front page at `/` in the logo colours (ivory, maroon, gold): logo, tagline, teacher and student buttons, temple-hall picture in a gold arch, Learn / Practise Daily / Progress, About
+- [x] Front page in the logo colours: logo, tagline, teacher and student buttons, Learn / Practise Daily / Progress, About, with a faded picture behind the page
 - [ ] Earlier layouts kept for reference at `/v1` and `/v2`
 - [x] GuruShiya logo on the site (header, front page, footer) and as the app icon
-- [ ] Decide whether the ivory, maroon and gold look should carry through the teacher and student pages
+- [x] Ivory, maroon and gold look carried through the dashboard and the student practice pages
+- [ ] Swap in the new background picture when it arrives (now using the temple-hall picture, faded)
 
 ## Name and domain
 - [x] Renamed from Riyaz (name used by an existing singing app) to GuruShiya, spelled as in the logo
@@ -16,6 +17,9 @@
 - [ ] Email service with your own domain, so every teacher and parent can sign in by email
 - [ ] Ask Netlify for wildcard subdomains once the domain is bought
 - [ ] Privacy policy and terms pages (Google and Facebook ask for them); privacy lawyer review before launch
+
+## Dashboard
+- [x] Overview: who practised today, who hasn't, who needs a reminder; Note and Remind buttons; remind everyone not yet at once
 
 ## Next features
 - [ ] GuruShiya sends consent and join requests itself (email first, then text/WhatsApp), instead of from the teacher's phone

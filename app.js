@@ -142,7 +142,7 @@ function renderNav(){
     <a href="#students" data-scroll="students" class="navlink">For Students</a><a href="#about" data-scroll="about" class="navlink">About</a></span>`);
   if (user) {
     if (roles.family) items.push(link("/practice", "Practice", "btn small ghost"));
-    if (roles.teacher || !roles.family) items.push(link("/teacher", "Teacher", "btn small ghost"));
+    if (roles.teacher || !roles.family) items.push(link("/teacher", "Dashboard", "btn small ghost"));
     items.push(`<button class="btn small ghost icon" id="signout" type="button" aria-label="Sign out" title="Sign out"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>`);
   } else {
     items.push(link("/signin", "Sign in", "btn small ghost"));
@@ -183,14 +183,6 @@ function viewHomeSimple(){
         <p class="gs2-lead">One simple platform for teachers and students.</p>
         <div class="gs2-ctas">${link("/teacher", `${IC.teacher}<span>I'm a Teacher</span>${IC.chev}`, "gs2-btn maroon")}${link(studentHref, `${IC.student}<span>I'm a Student</span>${IC.chev}`, "gs2-btn ivory")}</div>
       </div>
-      <figure class="gs2-arch">
-        <picture>
-          <source media="(max-width: 600px)" srcset="/assets/bg-tall-600.jpg 600w, /assets/bg-tall.jpg 941w" sizes="100vw">
-          <source media="(max-width: 860px)" srcset="/assets/bg-wide-1100.jpg 1100w, /assets/bg-wide.jpg 1672w" sizes="100vw">
-          <img src="/assets/bg-tall-600.jpg" srcset="/assets/bg-tall-600.jpg 600w, /assets/bg-tall.jpg 941w" sizes="(max-width: 1180px) 42vw, 480px" width="941" height="1672"
-            alt="A guru's hall at sunset: students practising music, dance, Karlakattai, painting and yoga">
-        </picture>
-      </figure>
     </div>
   </section>
   <section class="gs2-ways" aria-label="How GuruShiya works"><div class="wrap gs2-ways-in">
@@ -485,7 +477,7 @@ async function viewJoin(token){
 /* ======================= SHARED BITS ======================= */
 const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k, v){ try { localStorage.setItem(k, v); } catch(e){} }, del(k){ try { localStorage.removeItem(k); } catch(e){} } };
 let poll = null;
-const AV = ["#e0607a","#0f7c86","#b5651d","#5a9e4b","#8a4fb0","#c4651a","#1b5fa8","#7a1424"];
+const AV = ["#9a2a22","#b07a18","#6e0f0c","#8a5a2b","#4f6b3a","#7a3b5c","#2f5d6c","#c4651a"];
 const avColor = n => AV[[...String(n).toLowerCase()].reduce((a, c) => a + c.charCodeAt(0), 0) % AV.length];
 const avatar = (n, size = 44) => `<span class="avatar" style="background:${avColor(n)};width:${size}px;height:${size}px;font-size:${Math.round(size*.42)}px" aria-hidden="true">${esc(String(n).trim().charAt(0).toUpperCase())}</span>`;
 const fmtMins = m => m >= 60 ? `${Math.floor(m/60)} h${m % 60 ? " " + (m % 60) + " min" : ""}` : `${m} min`;
@@ -764,11 +756,11 @@ async function loadGroup(g){
 function needsNudge(s, ds, classDay){
   if (new Date(s.joined_at || s.created_at) > addDays(today0(), -3)) return false;
   let d = today0(), checked = 0;
-  while (checked < 3) { if (d.getDay() !== classDay) { if (ds.has(ymd(d))) return false; checked++; } d = addDays(d, -1); }
+  while (checked < 3) { if (ds.has(ymd(d))) return false; if (d.getDay() !== classDay) checked++; d = addDays(d, -1); }
   return true;
 }
 
-const TTABS = [["/teacher", "Today"], ["/teacher/students", "Students"], ["/teacher/classes", "Classes"], ["/teacher/chat", "Chat"], ["/teacher/page", "My page"]];
+const TTABS = [["/teacher", "Overview"], ["/teacher/students", "Students"], ["/teacher/classes", "Classes"], ["/teacher/chat", "Chat"], ["/teacher/page", "My page"]];
 async function viewTeacher(sub = "", id = ""){
   if (!onRoot()) { location.href = siteUrl("/teacher"); return; }
   if (!user) return go("/signin?next=/teacher");
@@ -780,11 +772,16 @@ async function viewTeacher(sub = "", id = ""){
   const g = groups.find(x => x.id === store.get("riyaz.group")) || groups[0];
   const D = await loadGroup(g);
   const active = sub ? "/teacher/" + sub : "/teacher";
-  $app.innerHTML = `<section class="row between portal-head"><div style="min-width:0"><span class="eyebrow">Teacher</span><h1 class="page-h">${esc(g.name)}</h1></div>
-      <div class="row">${groups.length > 1 ? `<label class="sr" for="grp">Choose group</label><select id="grp" class="grp">${groups.map(x => `<option value="${x.id}" ${x.id === g.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select>` : ""}
+  const first = String(g.teacher_name || "").trim().split(/\s+/)[0];
+  document.title = "Dashboard · GuruShiya";
+  $app.innerHTML = `<section class="dash-head">
+      <img class="dash-mark" src="/assets/gs-emblem.png" alt="" width="240" height="134">
+      <div class="dash-title"><span class="eyebrow">Dashboard</span><h1 class="page-h">${first ? `Welcome, ${esc(first)}` : esc(g.name)}</h1>
+        <p class="muted m0">${esc(g.name)} · ${today0().toLocaleDateString(undefined, { weekday:"long", day:"numeric", month:"long" })}</p></div>
+      <div class="row dash-tools">${groups.length > 1 ? `<label class="sr" for="grp">Choose group</label><select id="grp" class="grp">${groups.map(x => `<option value="${x.id}" ${x.id === g.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select>` : ""}
       <button class="btn ghost small" type="button" id="add-group">Add a group</button></div></section>
     ${g.approved ? "" : `<p class="notice m0">Your page is waiting for approval. You can set up classes and students now. Invitations start working once GuruShiya approves your page.</p>`}
-    ${tabsNav(TTABS.map(([h, t]) => [h, t, h === "/teacher/chat" ? D.unread : 0]), active, "Teacher menu")}
+    ${tabsNav(TTABS.map(([h, t]) => [h, t, h === "/teacher/chat" ? D.unread : 0]), active, "Dashboard menu")}
     <div id="pane" class="stack"></div>`;
   const sel = document.getElementById("grp");
   if (sel) sel.onchange = () => { store.set("riyaz.group", sel.value); go("/teacher"); };
@@ -795,15 +792,87 @@ async function viewTeacher(sub = "", id = ""){
   if (sub === "classes") return tClasses(pane, g, D, again);
   if (sub === "chat") return tChat(pane, g, D, id);
   if (sub === "page") return tPage(pane, g, again);
-  return tToday(pane, g, D, again);
+  return tOverview(pane, g, D, again);
 }
 
-/* ---- Today ---- */
-function tToday(pane, g, D, again){
-  const act = D.studs.filter(s => s.status === "active"), tKey = ymd(today0());
-  const practisedToday = act.filter(s => D.done(s.id).has(tKey)).length;
-  const weekMins = act.reduce((a, s) => a + D.weekOf(s.id, D.classOf(s.class_id)).m, 0);
+/* ---- Overview: who practised today, who hasn't, and a quick note or reminder ---- */
+const lastPractice = ds => { let last = ""; ds.forEach(d => { if (d > last) last = d; }); return last; };
+const ICO = {
+  check: svg(`<path d="m5 12.5 4.5 4.5L19 7.5"/>`),
+  clock: svg(`<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>`),
+  bell: svg(`<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/>`),
+  door: svg(`<path d="M5 20.5V9a7 7 0 0 1 14 0v11.5"/><path d="M3 20.5h18M12 13v3"/>`),
+  note: svg(`<path d="M5 4.5h14v11l-4.5 4H5z"/><path d="M14.5 19.5v-4H19M8.5 9h7M8.5 12.5h4"/>`),
+  lotus: svg(`<path d="M12 5c2.4 2.8 2.4 6.6 0 9.6-2.4-3-2.4-6.8 0-9.6z"/><path d="M12 14.6c-3.8 0-7-1.9-8.7-5.2 3.8 0 7 1.9 8.7 5.2zm0 0c3.8 0 7-1.9 8.7-5.2-3.8 0-7 1.9-8.7 5.2zM5 18h14"/>`)
+};
+function practiceState(s, D){
+  const k = D.classOf(s.class_id), ds = D.done(s.id), t = ymd(today0());
+  if (ds.has(t)) { const m = D.mins(s.id, t); return { key: "done", label: m ? `Practised · ${fmtMins(m)}` : "Practised today", icon: ICO.check }; }
+  if (today0().getDay() === k.day_of_week) return { key: "class", label: "Class day", icon: ICO.door };
+  if (needsNudge(s, ds, k.day_of_week)) { const l = lastPractice(ds);
+    const ld = l ? new Date(l + "T00:00") : null, recent = ld && ld > addDays(today0(), -7);
+    return { key: "remind", label: ld ? `Last practised ${ld.toLocaleDateString(undefined, recent ? { weekday:"short" } : { day:"numeric", month:"short" })}` : "Not started yet", icon: ICO.bell }; }
+  return { key: "notyet", label: "Not yet today", icon: ICO.clock };
+}
+function weekDots(s, D){
+  const k = D.classOf(s.class_id), ws = weekStartFor(k.day_of_week), ds = D.done(s.id), t = ymd(today0());
+  return `<span class="wdots" aria-hidden="true">${Array.from({ length: 7 }, (_, i) => { const d = addDays(ws, i), key = ymd(d);
+    const c = i === 0 ? "cls" : ds.has(key) ? "on" : key > t ? "fut" : key === t ? "now" : "";
+    return `<i class="${c}" title="${shortDate(d)}">${SHORT[d.getDay()].charAt(0)}</i>`; }).join("")}</span>`;
+}
+const reminderText = (list, g, D) => {
+  const cls = new Set(list.map(s => s.class_id)), t = cls.size === 1 ? D.taskFor([...cls][0]) : null;
+  return `Hi${list.length === 1 ? " " + list[0].first_name : ""}, a gentle reminder to practise today${t ? `: ${t.title} (${t.minutes} min)` : ""}. Press Start in GuruShiya when you begin.\n${g.teacher_name}`;
+};
+const remindedKey = s => "gs.reminded." + s.id;
+const remindedToday = s => store.get(remindedKey(s)) === ymd(today0());
+
+/* One dialog for a note or a reminder, to one student or to many */
+function openMessage(list, mode, g, D, onDone){
+  const one = list.length === 1 ? list[0] : null;
+  const names = list.map(s => s.first_name);
+  const who = one ? one.first_name : names.length <= 3 ? names.join(", ") : `${names.slice(0, 2).join(", ")} and ${names.length - 2} more`;
+  const phone = one?.contact_phone, to = one ? (one.is_adult ? one.first_name : (one.contact_name || "the parent")) : "";
+  const dlg = document.createElement("dialog"); dlg.className = "dlg"; dlg.setAttribute("aria-labelledby", "dlg-h");
+  dlg.innerHTML = `<form class="dlg-in" method="dialog">
+    <h2 id="dlg-h">${mode === "remind" ? `Remind ${esc(who)}` : `Send a note to ${esc(who)}`}</h2>
+    <p class="muted m0">${one ? `${esc(one.first_name)} sees it in their GuruShiya chat.` : "Each student gets it in their own GuruShiya chat. Students can't see each other."}</p>
+    <label for="msg-text" class="sr">Message</label>
+    <textarea id="msg-text" rows="5" maxlength="2000" required>${mode === "remind" ? esc(reminderText(list, g, D)) : ""}</textarea>
+    <div class="row"><button class="btn" type="submit">${ICO.note}<span>Send in GuruShiya</span></button>
+      ${phone ? `<a class="btn ghost" data-wa target="_blank" rel="noopener" href="#">WhatsApp ${esc(to)}</a>` : ""}</div>
+    <div class="out" role="status"></div>
+    <div class="row between"><span class="hint">${phone ? esc(phone) : ""}</span><button class="btn small ghost" type="button" data-close>Close</button></div>
+  </form>`;
+  document.body.appendChild(dlg);
+  const ta = dlg.querySelector("textarea"), out = dlg.querySelector(".out");
+  const close = () => { dlg.close(); dlg.remove(); if (sent && onDone) onDone(); };
+  let sent = false;
+  const markReminded = () => { if (mode === "remind") list.forEach(s => store.set(remindedKey(s), ymd(today0()))); };
+  dlg.querySelector("form").onsubmit = async e => {
+    e.preventDefault(); const b = dlg.querySelector("button[type=submit]"); b.disabled = true;
+    const { data: n, error } = await sb.rpc("message_students", { student_ids: list.map(s => s.id), body: ta.value });
+    b.disabled = false;
+    if (error) { out.innerHTML = `<div class="notice">${esc(friendly(error))}</div>`; return; }
+    sent = true; markReminded();
+    out.innerHTML = `<div class="notice ok">Sent${one ? "" : ` to ${n} student${n === 1 ? "" : "s"}`}. ${one ? esc(one.first_name) + " will" : "They'll"} see it in their chat.</div>`;
+    setTimeout(close, 1400);
+  };
+  const waBtn = dlg.querySelector("[data-wa]");
+  if (waBtn) waBtn.onclick = () => { waBtn.href = `https://wa.me/${waDigits(phone)}?text=${encodeURIComponent(ta.value)}`; sent = true; markReminded(); };
+  dlg.querySelector("[data-close]").onclick = close;
+  dlg.addEventListener("cancel", e => { e.preventDefault(); close(); });
+  dlg.showModal(); if (mode !== "remind") ta.focus();
+}
+
+function tOverview(pane, g, D, again){
+  const act = D.studs.filter(s => s.status === "active");
   const waiting = D.studs.filter(s => ["waiting_consent", "consented", "invited"].includes(s.status)).length;
+  const st = new Map(act.map(s => [s.id, practiceState(s, D)]));
+  const is = (s, f) => { const k = st.get(s.id).key; return f === "all" || (f === "done" && k === "done") || (f === "notyet" && (k === "notyet" || k === "remind")) || (f === "remind" && k === "remind"); };
+  let filter = "all", classFilter = "all";
+  const inClass = s => classFilter === "all" || s.class_id === classFilter;
+  const count = f => act.filter(s => inClass(s) && is(s, f)).length;
   const old = t => t && new Date(t) < addDays(new Date(), -3);
   const todo = [];
   if (D.unread) todo.push({ hot: true, text: `${D.unread} new message${D.unread === 1 ? "" : "s"} from students`, btn: link("/teacher/chat", "Open chat", "btn small") });
@@ -811,32 +880,68 @@ function tToday(pane, g, D, again){
   else if (!D.studs.length) todo.push({ text: "Add your first student", btn: link("/teacher/students", "Add a student", "btn small") });
   D.classes.forEach(k => { if (!D.taskFor(k.id) && D.studs.some(s => s.class_id === k.id)) todo.push({ text: `Set this week's practice for ${k.name}`, btn: link("/teacher/classes", "Set practice", "btn small ghost") }); });
   D.studs.forEach(s => {
-    const k = D.classOf(s.class_id);
     if (s.status === "waiting_consent" && !s.consent_sent_at) todo.push({ s, which: "consent", text: `Ask ${s.contact_name || "the parent"} for consent for ${s.first_name}`, label: "Send request" });
     else if (s.status === "waiting_consent" && old(s.consent_sent_at)) todo.push({ s, which: "consent", text: `No answer yet from ${s.first_name}'s parent`, label: "Send again" });
     else if (s.status === "consented") todo.push({ hot: true, s, which: "join", text: `${s.first_name}'s parent said yes. Send the join link`, label: "Send join link" });
     else if (s.status === "invited" && !s.join_sent_at) todo.push({ s, which: "join", text: `Send ${s.first_name} the join link`, label: "Send join link" });
     else if (s.status === "invited" && old(s.join_sent_at)) todo.push({ s, which: "join", text: `${s.first_name} hasn't started yet`, label: "Send again" });
     else if (s.status === "declined") todo.push({ text: `${s.first_name}'s parent said no`, btn: link("/teacher/students/" + s.id, "View", "btn small ghost") });
-    else if (s.status === "active" && needsNudge(s, D.done(s.id), k.day_of_week)) todo.push({ text: `${s.first_name} hasn't practised for 3 days`, btn: link("/teacher/chat/" + s.id, "Send a message", "btn small ghost") });
   });
+  const FILTERS = [["all", "All"], ["done", "Practised"], ["notyet", "Not yet"], ["remind", "Need a reminder"]];
   pane.innerHTML = `
-    <div class="tiles">
-      <div class="tile"><b>${act.length}</b><span>Active students</span></div>
-      <div class="tile"><b>${practisedToday}<small> of ${act.length}</small></b><span>Practised today</span></div>
-      <div class="tile"><b>${fmtMins(weekMins)}</b><span>Practice this week</span></div>
-      <div class="tile"><b>${waiting}</b><span>Waiting to join</span></div>
+    <div class="tiles dash-tiles">
+      <button type="button" class="tile t-done" data-f="done">${ICO.check}<b id="n-done"></b><span>Practised today</span></button>
+      <button type="button" class="tile t-notyet" data-f="notyet">${ICO.clock}<b id="n-notyet"></b><span>Not yet today</span></button>
+      <button type="button" class="tile t-remind" data-f="remind">${ICO.bell}<b id="n-remind"></b><span>Need a reminder</span></button>
+      <a class="tile t-wait" href="/teacher/students" data-link>${ICO.door}<b>${waiting}</b><span>Waiting to join</span></a>
     </div>
+    <section class="card ps-card">
+      <div class="row between ps-top"><div><h2>Today's practice</h2><p class="hint m0">${act.length ? "Tap a name for the full report." : ""}</p></div>
+        ${D.classes.length > 1 ? `<label class="sr" for="ps-class">Show class</label><select id="ps-class" class="grp"><option value="all">All classes</option>${D.classes.map(k => `<option value="${k.id}">${esc(k.name)}</option>`).join("")}</select>` : ""}</div>
+      ${act.length ? `<div class="chips ps-chips" role="group" aria-label="Show">${FILTERS.map(([f, t]) => `<button type="button" class="chip" data-chip="${f}" aria-pressed="${f === filter}">${t} <span class="chip-n" data-cn="${f}"></span></button>`).join("")}</div>
+      <div class="ps-bulk"><button class="btn small" type="button" id="remind-all">${ICO.bell}<span id="remind-all-t"></span></button>
+        <button class="btn small ghost" type="button" id="note-all">${ICO.note}<span>Note to everyone</span></button></div>
+      <ul class="ps-list" id="ps-list"></ul>`
+      : `<div class="empty">${ICO.lotus}<p class="m0">When your students join, you'll see here who practised today and who hasn't.</p>${link("/teacher/students", "Add students", "btn small")}</div>`}
+    </section>
     <section class="card"><h2>To do</h2>
       ${todo.length ? `<ul class="todo">${todo.map((t, i) => `<li class="${t.hot ? "hot" : ""}"><span>${esc(t.text)}</span>${t.btn || (g.approved ? `<button class="btn small" type="button" data-i="${i}">${t.label}</button>` : `<span class="hint">After approval</span>`)}</li>`).join("")}</ul>`
         : `<div class="empty">All caught up. Nice work!</div>`}
-    </section>
-    <section class="card"><div class="row between"><h2>Your classes</h2>${link("/teacher/classes", "Manage", "btn small ghost")}</div>
-      ${D.classes.length ? `<ul class="list">${D.classes.map(k => { const n = D.studs.filter(s => s.class_id === k.id && s.status === "active").length, t = D.taskFor(k.id);
-        return `<li class="class-row"><div><strong>${esc(k.name)}</strong> <span class="muted">· ${DAYS[k.day_of_week]}s ${fmtTime(k.start_time)}</span></div><span class="hint">${n} student${n === 1 ? "" : "s"} · ${t ? "practice set" : "no practice set yet"}</span></li>`; }).join("")}</ul>`
-        : `<div class="empty">No classes yet.</div>`}
     </section>`;
   pane.querySelectorAll("[data-i]").forEach(b => b.onclick = () => { const t = todo[+b.dataset.i]; openInvite(t.s, t.which, g, D.classOf(t.s.class_id), again); });
+  if (!act.length) { ["done", "notyet", "remind"].forEach(f => document.getElementById("n-" + f).textContent = "0"); return; }
+  const list = document.getElementById("ps-list");
+  const notYet = () => act.filter(s => inClass(s) && is(s, "notyet"));
+  const draw = () => {
+    ["done", "notyet", "remind"].forEach(f => { const n = count(f), exp = act.filter(s => inClass(s) && st.get(s.id).key !== "class").length;
+      document.getElementById("n-" + f).innerHTML = f === "done" ? `${n}<small> of ${exp}</small>` : String(n); });
+    pane.querySelectorAll("[data-cn]").forEach(e => e.textContent = count(e.dataset.cn));
+    pane.querySelectorAll("[data-chip]").forEach(c => c.setAttribute("aria-pressed", String(c.dataset.chip === filter)));
+    const ny = notYet().length, ra = document.getElementById("remind-all");
+    ra.disabled = !ny; document.getElementById("remind-all-t").textContent = ny ? `Remind all not yet (${ny})` : "Everyone has practised";
+    const rows = act.filter(s => inClass(s) && is(s, filter));
+    const order = { remind: 0, notyet: 1, class: 2, done: 3 };
+    rows.sort((a, b) => order[st.get(a.id).key] - order[st.get(b.id).key] || a.first_name.localeCompare(b.first_name));
+    list.innerHTML = rows.length ? rows.map(s => { const k = D.classOf(s.class_id), x = st.get(s.id), w = D.weekOf(s.id, k), canRemind = x.key === "notyet" || x.key === "remind";
+      return `<li class="ps-row ps-${x.key}">
+        <a class="ps-who" href="/teacher/students/${s.id}" data-link>${avatar(s.first_name, 40)}<span class="ps-name"><strong>${esc(s.first_name)}</strong>
+          <span class="hint">${esc(k.name)}<span class="ps-wk"> · ${w.n} of 6 days</span></span></span></a>
+        ${weekDots(s, D)}
+        <span class="ps-state">${x.icon}<span>${esc(x.label)}</span></span>
+        <span class="ps-acts">${canRemind && remindedToday(s) ? `<span class="hint ps-sent">Reminded today</span>` : ""}
+          <button class="btn tiny ghost" type="button" data-note="${s.id}" aria-label="Send a note to ${esc(s.first_name)}">${ICO.note}<span>Note</span></button>
+          ${canRemind ? `<button class="btn tiny" type="button" data-remind="${s.id}">${ICO.bell}<span>Remind</span></button>` : ""}</span>
+      </li>`; }).join("")
+      : `<li class="ps-none">${filter === "done" ? "No one has practised yet today." : filter === "remind" ? "No one needs a reminder. Lovely!" : "Everyone here has practised today."}</li>`;
+    list.querySelectorAll("[data-note]").forEach(b => b.onclick = () => openMessage([act.find(s => s.id === b.dataset.note)], "note", g, D, draw));
+    list.querySelectorAll("[data-remind]").forEach(b => b.onclick = () => openMessage([act.find(s => s.id === b.dataset.remind)], "remind", g, D, draw));
+  };
+  pane.querySelectorAll("[data-chip]").forEach(c => c.onclick = () => { filter = c.dataset.chip; draw(); });
+  pane.querySelectorAll(".tile[data-f]").forEach(t => t.onclick = () => { filter = t.dataset.f; draw(); list.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" }); });
+  const pc = document.getElementById("ps-class"); if (pc) pc.onchange = () => { classFilter = pc.value; draw(); };
+  document.getElementById("remind-all").onclick = () => { const l = notYet(); if (l.length) openMessage(l, "remind", g, D, draw); };
+  document.getElementById("note-all").onclick = () => openMessage(act.filter(inClass), "note", g, D, draw);
+  draw();
 }
 
 /* ---- Students ---- */
