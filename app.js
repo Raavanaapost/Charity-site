@@ -519,7 +519,7 @@ async function viewRegister(token){
         ${adult ? "" : `<p class="hint m0 reg-note">First name only. We never ask for age, school or address.</p>`}
         <div class="two">
           <label for="rf-email">${adult ? "Your email" : "Parent's email"}<input id="rf-email" type="email" required maxlength="120" autocomplete="email" value="${esc(v.email)}"></label>
-          <label for="rf-phone">${adult ? "Your mobile" : "Parent's mobile"}<input id="rf-phone" type="tel" required inputmode="tel" maxlength="20" autocomplete="tel" placeholder="416 555 0100" value="${esc(v.phone)}"></label>
+          <label for="rf-phone">${adult ? "Your mobile" : "Parent's mobile"} <span class="opt">(optional)</span><input id="rf-phone" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" placeholder="416 555 0100" value="${esc(v.phone)}"></label>
         </div>
         <div class="facts">
           <div><strong>What Gurushishya keeps</strong><span>${adult ? "Your" : "The student's"} first name, the days and minutes of practice, and messages with ${esc(k.teacher_name)}.</span></div>
@@ -539,7 +539,7 @@ async function viewRegister(token){
       if (!nv.name) return bad(adult ? "Please type your first name." : "Please type the student's first name.", "rf-name");
       if (!adult && nv.name.includes(" ")) return bad("Please type the first name only.", "rf-name");
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(nv.email)) return bad("Please check the email address.", "rf-email");
-      if (!/^\+?[0-9 ().-]{7,20}$/.test(nv.phone)) return bad("Please check the mobile number.", "rf-phone");
+      if (nv.phone && !/^\+?[0-9 ().-]{7,20}$/.test(nv.phone)) return bad("Please check the mobile number, or leave it empty.", "rf-phone");
       if (!nv.ok) return bad("Please tick the box to give consent.", "rf-ok");
       e.target.querySelector("button[type=submit]").disabled = true;
       if (user) return finish(nv);
@@ -558,7 +558,7 @@ async function viewRegister(token){
     $app.innerHTML = `<section class="card narrow reg">${head}${steps(1)}
       <p class="m0"><strong>Last step: create your account</strong> so you can open ${adult ? "your" : esc(v.name) + "'s"} practice page. Choose a password, then tap the link we email you once to confirm. Already have an account? Sign in instead.</p>
       ${b.html}
-      <p class="hint m0">Details: ${esc(v.name)} · ${esc(v.email)} · ${esc(v.phone)} <button class="link-btn" type="button" id="rf-edit">Change</button></p></section>`;
+      <p class="hint m0">Details: ${[v.name, v.email, v.phone].filter(Boolean).map(esc).join(" · ")} <button class="link-btn" type="button" id="rf-edit">Change</button></p></section>`;
     b.wire();
     const em = document.getElementById("si-email"); if (em && !em.value) em.value = v.email;
     document.getElementById("rf-edit").onclick = () => form(v);
@@ -802,19 +802,20 @@ function openInvite(s, which, g, k, onDone){
   const dlg = document.createElement("dialog"); dlg.className = "dlg"; dlg.setAttribute("aria-labelledby", "dlg-h");
   dlg.innerHTML = `<div class="dlg-in">
     <h2 id="dlg-h">Send ${esc(s.is_adult ? s.first_name : s.contact_name || "the parent")} the registration link</h2>
-    <p class="muted m0">Choose how to send it. Your WhatsApp, messages or email opens with this message ready. Just press send.</p>
+    <p class="muted m0">${phone || email ? "Choose how to send it. Your WhatsApp, messages or email opens with this message ready. Just press send." : "No mobile number or email is saved for them. Copy the message and send it your own way, or add their details on the Students tab."}</p>
     <div class="msg-preview">${esc(text)}</div>
     <div class="send-btns">
-      <a class="btn wa" data-send target="_blank" rel="noopener" href="${phone ? `https://wa.me/${waDigits(phone)}?text=${encodeURIComponent(text)}` : wa(text)}">WhatsApp</a>
+      ${phone ? `<a class="btn wa" data-send target="_blank" rel="noopener" href="https://wa.me/${waDigits(phone)}?text=${encodeURIComponent(text)}">WhatsApp</a>` : ""}
       ${phone ? `<a class="btn ghost" data-send href="sms:${esc(phone.replace(/[^\d+]/g, ""))}?&body=${encodeURIComponent(text)}">Text message</a>` : ""}
       ${email ? `<a class="btn ghost" data-send href="mailto:${esc(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}">Email</a>` : ""}
       <button class="btn ghost" type="button" data-copy>Copy message</button>
     </div>
-    <div class="row between"><span class="hint">${[phone, email].filter(Boolean).map(esc).join(" · ")}</span><button class="btn small" type="button" data-close>Done</button></div>
+    <div class="row between"><span class="hint">${[phone, email].filter(Boolean).map(esc).join(" · ")}</span><button class="btn small ghost" type="button" data-close>Cancel</button></div>
   </div>`;
   document.body.appendChild(dlg);
   let sent = false;
-  const mark = async () => { if (sent) return; sent = true; await sb.rpc("mark_invite_sent", { student: s.id, which }); };
+  const closeBtn = dlg.querySelector("[data-close]");
+  const mark = async () => { if (sent) return; sent = true; closeBtn.textContent = "Done"; closeBtn.classList.remove("ghost"); await sb.rpc("mark_invite_sent", { student: s.id, which }); };
   dlg.querySelectorAll("[data-send]").forEach(a => a.addEventListener("click", mark));
   dlg.querySelector("[data-copy]").onclick = e => { mark(); copy(text, e.currentTarget); };
   const close = () => { dlg.close(); dlg.remove(); if (onDone) onDone(); };

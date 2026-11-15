@@ -540,3 +540,4 @@ body.home::before{opacity:.6;filter:sepia(.2) saturate(.9)}
 .pw-tip span{flex:1 1 200px;min-width:0;font-weight:600}
 .add-class{border:1px solid var(--line);border-radius:14px;padding:10px 14px;background:var(--accent-soft)}
 .add-class summary{cursor:pointer;font-weight:800;color:var(--maroon)}
+.opt{font-weight:500;color:var(--muted);font-size:.88em}
