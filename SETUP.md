@@ -21,6 +21,8 @@ The database setup for this is in `supabase/stage4.sql`.
 
 ## 4. Sign-in options
 
+Everyone can sign in with **email and password**. New teachers tap "Create an account"; parents create theirs at registration (one confirmation email). "Forgot password?" emails a reset link. People who first came in by email link can set a password under **Account** (`/account`).
+
 ### Google (recommended, about 15 minutes)
 1. Go to console.cloud.google.com and create a project called **Gurushishya**.
 2. **Google Auth Platform → Branding**: app name *Gurushishya*, your support email, the square Gurushishya icon (`icon-512.png`) as the logo, and the home page link.

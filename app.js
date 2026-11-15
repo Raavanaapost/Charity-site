@@ -73,7 +73,13 @@ async function copy(text, btn){
 function friendly(err){
   const m = (err && (err.message || err.error_description)) || "Something went wrong. Please try again.";
   if (/duplicate key|groups_slug_key/i.test(m)) return "That web address is already taken. Please try another.";
+  if (/email rate limit/i.test(m)) return "Too many emails for now. If you've set a password, sign in with it. Otherwise please try the email link again in an hour.";
   if (/rate limit/i.test(m)) return "Too many tries. Please wait a minute and try again.";
+  if (/invalid login credentials/i.test(m)) return "Email or password doesn't match. If you haven't set a password yet, use \"Email me a sign-in link\" once, then set one under Account.";
+  if (/email not confirmed/i.test(m)) return "Please confirm your email first: tap the link we emailed you, then sign in.";
+  if (/user already registered/i.test(m)) return "There's already an account with this email. Sign in instead, or use \"Forgot password?\".";
+  if (/should be different from the old password/i.test(m)) return "That's the same as your current password. Please choose a new one.";
+  if (/password should be at least/i.test(m)) return "Please use a longer password (at least 8 characters).";
   if (/Failed to fetch|NetworkError/i.test(m)) return "Can't reach Gurushishya. Check your internet connection.";
   return m;
 }
@@ -96,7 +102,11 @@ async function init(){
   const { data } = await sb.auth.getSession();
   user = data.session?.user || null;
   await loadRoles();
-  sb.auth.onAuthStateChange(async (_e, s) => { const was = user?.id; user = s?.user || null; if (was !== user?.id) { await loadRoles(); route(); } });
+  sb.auth.onAuthStateChange(async (e, s) => {
+    const was = user?.id; user = s?.user || null;
+    if (e === "PASSWORD_RECOVERY") { if (was !== user?.id) await loadRoles(); return go("/account?reset=1"); }
+    if (was !== user?.id) { await loadRoles(); route(); }
+  });
   route();
 }
 addEventListener("popstate", route);
@@ -115,7 +125,7 @@ document.addEventListener("click", e => {
 function setTheme(home){
   document.body.classList.toggle("home", home);
 }
-const isHome = () => onRoot() && !/^\/(g|join|consent|register|signin|me|teacher|practice|admin)(\/|$)/.test(location.pathname);
+const isHome = () => onRoot() && !/^\/(g|join|consent|register|signin|me|teacher|practice|admin|account)(\/|$)/.test(location.pathname);
 
 function route(){
   if (!sb) return;
@@ -127,6 +137,7 @@ function route(){
   if ((m = p.match(/^\/g\/([a-z0-9-]+)\/?$/))) return viewGroup(m[1]);
   if ((m = p.match(/^\/(?:register|join|consent)\/([a-f0-9]{24,64})\/?$/))) return viewRegister(m[1]);
   if (p === "/signin") return viewSignIn();
+  if (p === "/account") return viewAccount();
   if (p === "/admin" || p === "/admin/") return viewAdmin();
   if (p === "/me") return redirect(roles.teacher ? "/teacher" : roles.family ? "/practice" : "/teacher");
   if ((m = p.match(/^\/practice(?:\/(notes|chat))?\/?$/))) return viewDesk(m[1] || "");
@@ -354,23 +365,56 @@ function loadGis(){
 }
 async function sha256hex(t){ const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
 
-function signInBlock(next){
+function signInBlock(next, startMode = "password"){
   const gHtml = C.googleClientId ? `<div class="g-wrap"><div id="si-google" class="g-btn"></div></div>` : "";
   const fbHtml = C.facebookLogin ? `<button type="button" class="btn fb" id="si-fb">${FB_ICON}<span>Continue with Facebook</span></button>` : "";
   const social = !!(gHtml || fbHtml);
   const html = `<div class="signin">${gHtml}${fbHtml}
     ${social ? `<div class="or"><span>or use your email</span></div>` : ""}
-    <form id="si"><label for="si-email">Email<input id="si-email" type="email" required autocomplete="email"></label>
-      <button class="btn${social ? " ghost" : ""}" type="submit">Email me a sign-in link</button></form>
+    <form id="si" novalidate>
+      <label for="si-email">Email<input id="si-email" type="email" required autocomplete="email" maxlength="120"></label>
+      <label for="si-pass" id="si-pass-wrap">Password<input id="si-pass" type="password" autocomplete="current-password" minlength="8" maxlength="72"></label>
+      <button class="btn" type="submit" id="si-go">Sign in</button>
+    </form>
+    <div class="si-alt" id="si-alt"></div>
     <div id="si-out" role="status"></div></div>`;
+  let mode = startMode;
+  function setMode(m){
+    mode = m;
+    const pw = document.getElementById("si-pass"), wrap = document.getElementById("si-pass-wrap"), go_ = document.getElementById("si-go");
+    wrap.hidden = m === "link" || m === "forgot";
+    pw.autocomplete = m === "signup" ? "new-password" : "current-password";
+    wrap.firstChild.textContent = m === "signup" ? "Choose a password (8 or more characters)" : "Password";
+    go_.textContent = { password: "Sign in", link: "Email me a sign-in link", signup: "Create account", forgot: "Email me a reset link" }[m];
+    const a = (id, t) => `<button type="button" class="link-btn" data-m="${id}">${t}</button>`;
+    document.getElementById("si-alt").innerHTML = {
+      password: `${a("forgot", "Forgot password?")}${a("link", "Email me a sign-in link instead")}${a("signup", "New here? Create an account")}`,
+      link: `${a("password", "Sign in with a password instead")}`,
+      signup: `${a("password", "Already have an account? Sign in")}`,
+      forgot: `${a("password", "Back to sign in")}`
+    }[m];
+    document.querySelectorAll("#si-alt [data-m]").forEach(b => b.onclick = () => { document.getElementById("si-out").innerHTML = ""; setMode(b.dataset.m); });
+  }
   async function wire(){
-    const out = document.getElementById("si-out"), fail = m => out.innerHTML = `<div class="notice">${esc(m)}</div>`;
+    const out = document.getElementById("si-out"), fail = m => out.innerHTML = `<div class="notice">${esc(m)}</div>`, ok = m => out.innerHTML = `<div class="notice ok">${esc(m)}</div>`;
+    setMode(mode);
     document.getElementById("si").onsubmit = async e => {
-      e.preventDefault(); const b = e.target.querySelector("button"); b.disabled = true;
-      const { error } = await sb.auth.signInWithOtp({ email: val("si-email"), options: { emailRedirectTo: siteUrl(next) } });
+      e.preventDefault();
+      const email = val("si-email"), pass = document.getElementById("si-pass").value;
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return fail("Please check the email address.");
+      if ((mode === "password" || mode === "signup") && pass.length < 8) return fail(mode === "signup" ? "Please choose a password with at least 8 characters." : "Please type your password.");
+      const b = document.getElementById("si-go"); b.disabled = true;
+      let r;
+      if (mode === "password") r = await sb.auth.signInWithPassword({ email, password: pass });
+      else if (mode === "signup") r = await sb.auth.signUp({ email, password: pass, options: { emailRedirectTo: siteUrl(next), data: { has_password: true } } });
+      else if (mode === "forgot") r = await sb.auth.resetPasswordForEmail(email, { redirectTo: siteUrl("/account") });
+      else r = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: siteUrl(next) } });
       b.disabled = false;
-      out.innerHTML = error ? `<div class="notice">${esc(friendly(error))}</div>`
-        : `<div class="notice ok">Check your email and tap the link to continue. It may be in your spam folder.</div>`;
+      if (r.error) return fail(friendly(r.error));
+      if (mode === "password") return;                       // signed in: the page moves on by itself
+      if (mode === "signup") return r.data?.session ? null : ok("Account created. Check your email and tap the link to confirm it. After that you can sign in with your password.");
+      if (mode === "forgot") return ok("Check your email and tap the link. It opens a page where you choose a new password.");
+      ok("Check your email and tap the link to continue. It may be in your spam folder.");
     };
     const fb = document.getElementById("si-fb");
     if (fb) fb.onclick = async () => { const { error } = await sb.auth.signInWithOAuth({ provider: "facebook", options: { redirectTo: siteUrl(next) } }); if (error) fail(friendly(error)); };
@@ -393,8 +437,37 @@ function viewSignIn(){
   const b = signInBlock(next);
   $app.innerHTML = `<section class="card narrow"><span class="eyebrow">Welcome to Gurushishya</span><h1 class="page-h">Sign in</h1>
     <p class="muted m0">Teachers sign in or create an account here. Students and families use the link their teacher sends.</p>${b.html}
-    <p class="hint m0">First time here? Signing in creates your account. No password needed.</p></section>`;
+    <p class="hint m0">No password yet? Use "Email me a sign-in link" once, then set a password under Account.</p></section>`;
   b.wire();
+}
+/* Account: set or change the password (also where "Forgot password?" links land) */
+function viewAccount(){
+  if (!user) return go("/signin?next=/account");
+  document.title = "Account · Gurushishya";
+  const reset = /reset=1/.test(location.search), has = !!user.user_metadata?.has_password;
+  $app.innerHTML = `<section class="card narrow"><span class="eyebrow">Account</span><h1 class="page-h">${reset ? "Choose a new password" : has ? "Change your password" : "Set a password"}</h1>
+    <p class="muted m0">Signed in as <strong>${esc(user.email || "")}</strong>. ${has || reset ? "" : "With a password you can sign in any time, without waiting for an email."}</p>
+    <form id="pw" novalidate>
+      <label for="pw-1">New password (8 or more characters)<input id="pw-1" type="password" autocomplete="new-password" minlength="8" maxlength="72" required></label>
+      <label for="pw-2">Type it again<input id="pw-2" type="password" autocomplete="new-password" minlength="8" maxlength="72" required></label>
+      <button class="btn" type="submit">Save password</button>
+      <div id="pw-out" role="status"></div>
+    </form>
+    <div class="row">${roles.admin ? link("/admin", "Admin", "btn small ghost") : ""}${roles.teacher || !roles.family ? link("/teacher", "Dashboard", "btn small ghost") : ""}${roles.family ? link("/practice", "Practice", "btn small ghost") : ""}</div></section>`;
+  const out = document.getElementById("pw-out");
+  document.getElementById("pw").onsubmit = async e => {
+    e.preventDefault();
+    const a = document.getElementById("pw-1").value, b2 = document.getElementById("pw-2").value;
+    if (a.length < 8) { out.innerHTML = `<div class="notice">Please use at least 8 characters.</div>`; return; }
+    if (a !== b2) { out.innerHTML = `<div class="notice">The two passwords don't match.</div>`; return; }
+    const btn = e.target.querySelector("button"); btn.disabled = true;
+    const { data, error } = await sb.auth.updateUser({ password: a, data: { has_password: true } });
+    btn.disabled = false;
+    if (error) { out.innerHTML = `<div class="notice">${esc(friendly(error))}</div>`; return; }
+    if (data?.user) user = data.user;
+    e.target.reset();
+    out.innerHTML = `<div class="notice ok">Password saved. Next time, sign in with your email and this password.</div>`;
+  };
 }
 const notWorking = () => { $app.innerHTML = `<section class="card narrow"><h1 class="page-h">This link isn't working</h1>
   <p class="muted m0">It may be old or already used. Please ask your teacher to send a new one.</p>${link("/", "Go to Gurushishya", "btn ghost")}</section>`; };
@@ -471,9 +544,9 @@ async function viewRegister(token){
     };
   }
   function signInStep(v){
-    const b = signInBlock("/register/" + token);
+    const b = signInBlock("/register/" + token, "signup");
     $app.innerHTML = `<section class="card narrow reg">${head}${steps(1)}
-      <p class="m0"><strong>Last step: sign in</strong> so you can open ${adult ? "your" : esc(v.name) + "'s"} practice page. No password needed. Use the same email next time.</p>
+      <p class="m0"><strong>Last step: create your account</strong> so you can open ${adult ? "your" : esc(v.name) + "'s"} practice page. Choose a password, then tap the link we email you once to confirm. Already have an account? Sign in instead.</p>
       ${b.html}
       <p class="hint m0">Details: ${esc(v.name)} · ${esc(v.email)} · ${esc(v.phone)} <button class="link-btn" type="button" id="rf-edit">Change</button></p></section>`;
     b.wire();
@@ -792,7 +865,8 @@ async function viewTeacher(sub = "", id = ""){
       <div class="dash-title"><span class="eyebrow">Dashboard</span><h1 class="page-h">${first ? `Welcome, ${esc(first)}` : esc(g.name)}</h1>
         <p class="muted m0">${esc(g.name)} · ${today0().toLocaleDateString(undefined, { weekday:"long", day:"numeric", month:"long" })}</p></div>
       <div class="row dash-tools">${groups.length > 1 ? `<label class="sr" for="grp">Choose group</label><select id="grp" class="grp">${groups.map(x => `<option value="${x.id}" ${x.id === g.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select>` : ""}
-      <button class="btn ghost small" type="button" id="add-group">Add a group</button></div></section>
+      <button class="btn ghost small" type="button" id="add-group">Add a group</button>${link("/account", "Account", "btn ghost small")}</div></section>
+    ${user.user_metadata?.has_password ? "" : `<div class="pw-tip"><span>Set a password so you can sign in any time without waiting for an email.</span>${link("/account", "Set password", "btn small ghost")}</div>`}
     ${D.waitingTeachers && sub !== "approve" ? `<div class="ap-banner">${ICO.bell}<span><strong>${D.waitingTeachers} new teacher${D.waitingTeachers === 1 ? " is" : "s are"} waiting for your approval</strong></span>${link("/teacher/approve", "Review", "btn small")}</div>` : ""}
     ${g.approved ? "" : `<p class="notice m0">Your page is waiting for approval. You can set up classes and students now. Invitations start working once Gurushishya approves your page.</p>`}
     ${tabsNav(tabs.map(([h, t]) => [h, t, h === "/teacher/chat" ? D.unread : h === "/teacher/approve" ? D.waitingTeachers : 0]), active, "Dashboard menu")}
@@ -1012,7 +1086,8 @@ async function viewAdmin(){
   $app.innerHTML = `<section class="dash-head">
       <img class="dash-mark" src="/assets/gs-emblem.png" alt="" width="240" height="134">
       <div class="dash-title"><span class="eyebrow">Admin</span><h1 class="page-h">Approve teachers</h1>
-        <p class="muted m0">Signed in as ${esc(user.email || "")}</p></div></section>
+        <p class="muted m0">Signed in as ${esc(user.email || "")}</p></div>
+      <div class="row dash-tools">${link("/account", user.user_metadata?.has_password ? "Change password" : "Set password", "btn ghost small")}</div></section>
     <div id="pane" class="stack"></div>`;
   tApprove(document.getElementById("pane"), data || [], viewAdmin);
 }

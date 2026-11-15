@@ -534,3 +534,7 @@ body.home::before{opacity:.6;filter:sepia(.2) saturate(.9)}
 .ap-banner{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;border-radius:14px;background:var(--warn-soft);color:var(--warn);border:1px solid #efc9bd}
 .ap-banner svg{width:22px;height:22px;flex:none}
 .ap-banner span{flex:1 1 180px;min-width:0}
+.si-alt{display:flex;flex-wrap:wrap;gap:6px 16px}
+.si-alt .link-btn{padding:0;color:var(--maroon);font-weight:700}
+.pw-tip{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;border-radius:14px;background:var(--accent-soft);border:1px solid var(--line)}
+.pw-tip span{flex:1 1 200px;min-width:0;font-weight:600}
