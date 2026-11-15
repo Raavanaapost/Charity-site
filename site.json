@@ -279,5 +279,19 @@
    }
   ]
  },
- "rate_lkr_per_cad": 230
+ "rate_lkr_per_cad": 230,
+ "give_amounts": [
+  {
+   "amount": 1100,
+   "label": "about one child's day out: transport and food"
+  },
+  {
+   "amount": 5500,
+   "label": "about five children's day out"
+  },
+  {
+   "amount": 20000,
+   "label": "about a whole day out for a small pre-school (our October trip cost Rs 20,000)"
+  }
+ ]
 }

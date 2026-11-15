@@ -1,0 +1,6 @@
+# Browser caching (13 Nov 2026, "Make the site load faster").
+# Pictures are kept on the phone for a day, and for a week more they show at once while a fresh copy is fetched quietly.
+# Pages, styles, scripts and the .json data files are NOT listed here, so they stay fresh on every visit and a "post" shows at once.
+# If a picture is replaced under the same file name, add or raise ?v= where it is used (as the logo does), or phones may show the old one for a day.
+/img/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800

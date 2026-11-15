@@ -1,7 +1,30 @@
 /* Shared site script: loads content/*.json and renders the current page.
    Content is edited from /admin — no code changes needed for new projects. */
+/* ---------- Feature switches (SURESH, 14 Nov 2026: "go feature by feature") ----------
+   The launch carries ONE feature: giving in loving memory of someone, with one simple page for that person (/m/<code>).
+   Everything else stays built and comes back one at a time: set its switch to true and publish.
+     sponsor  Sponsor a Smile and Donate (Home icons, /give and /fund opened directly, Donate on project pages).
+              While false, every way to give goes through /moment, in someone's memory.
+     circle   family and friends circles on the moment page and the family page (invites, joining, circle choice).
+     vetting  people asking for a project and vouching for it (/initiate, /create, /e/<link>, "Start a project",
+              "Vouched for by").
+     reasons  the reasons shown on /moment; [] shows all twelve.
+   On a draft or local preview, ?features=all shows everything for this browser tab (?features=launch goes back). */
+window.RAAV_FEATURES = (function () {
+  const F = { sponsor: false, circle: false, vetting: false, reasons: ["memory", "remembrance"] };
+  try {
+    const q = new URLSearchParams(location.search).get("features");
+    const test = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) || /--charity-projects-draft\./.test(location.hostname);
+    if (test && q === "all") sessionStorage.setItem("raav-features", "all");
+    if (q === "launch") sessionStorage.removeItem("raav-features");
+    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = true; F.reasons = []; }
+  } catch (e) { /* storage blocked: the launch switches stay */ }
+  ["sponsor", "circle", "vetting"].forEach(k => { if (!F[k]) document.documentElement.classList.add("no-" + k); });
+  return F;
+})();
 (function () {
   let COMMENTS = [];
+  const FEAT = window.RAAV_FEATURES;
   const PALETTES = [
     ["#2f7f8f", "#163a45", "#f2c14e"], ["#c0583a", "#5a2a2a", "#f6d79a"],
     ["#3d7a4f", "#1b3a2a", "#9fd3c7"], ["#b07d2b", "#4a3418", "#f1e3b5"],
@@ -54,7 +77,141 @@
     return r.json();
   }
 
+  /* ---------- Raavanaa as a web app (SURESH, 12 Nov 2026: "I want to build this as a web app") ----------
+     The site can be put on a phone's home screen and then opens like any other app: its own icon, no address bar,
+     a bar of five buttons along the bottom, and pages that still open when the connection is weak or gone.
+     The parts: /manifest.json (name, icon, colours, where it opens), /sw.js (the saved copies), /offline.html (no connection),
+     img/app/ (icons, made by tools/logo/make_app_icons.py), and this block (install button, bottom bar).
+     To see the app look in an ordinary browser, add ?app=1 to any address (?app=0 turns it off again). */
+  const APP = (() => {
+    const TA = /^\/ta(\/|$)/.test(location.pathname);
+    const qs = new URLSearchParams(location.search);
+    const keep = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { /* storage blocked */ } return null; };
+    // Opened from the home-screen icon: carry on in the language used last time.
+    if (qs.get("from") === "app") {
+      if (!TA && keep("raav-lang") === "ta") { location.replace("/ta" + location.pathname + location.search); return { inApp: true, install() {} }; }
+      qs.delete("from");
+      try { history.replaceState(null, "", location.pathname + (qs.toString() ? "?" + qs : "") + location.hash); } catch (e) { /* keep the address as it is */ }
+    }
+    keep("raav-lang", TA ? "ta" : "en");
+
+    const head = document.head;
+    const add = (tag, attrs) => { const el = document.createElement(tag); Object.keys(attrs).forEach(k => el.setAttribute(k, attrs[k])); head.appendChild(el); return el; };
+    if (!head.querySelector('link[rel="manifest"]')) add("link", { rel: "manifest", href: "/manifest.json" });
+    [["mobile-web-app-capable", "yes"], ["apple-mobile-web-app-capable", "yes"], ["apple-mobile-web-app-title", "Raavanaa"]]
+      .forEach(([name, content]) => { if (!head.querySelector(`meta[name="${name}"]`)) add("meta", { name, content }); });
+    const touch = head.querySelector('link[rel="apple-touch-icon"]');
+    if (touch) touch.setAttribute("href", "/img/app/apple-touch-icon.png?v=1"); else add("link", { rel: "apple-touch-icon", href: "/img/app/apple-touch-icon.png?v=1" });
+
+    // Saved copies for a weak or lost connection. Each page opened is kept for later.
+    if ("serviceWorker" in navigator && (location.protocol === "https:" || /^(localhost|127\.0\.0\.1)$/.test(location.hostname))) {
+      const start = () => navigator.serviceWorker.register("/sw.js").then(() => navigator.serviceWorker.ready)
+        .then(reg => { if (reg.active) reg.active.postMessage({ keep: location.pathname }); }).catch(() => { /* the site works without it */ });
+      if (document.readyState === "complete") start(); else window.addEventListener("load", start);
+    }
+
+    const mq = q => !!(window.matchMedia && window.matchMedia(q).matches);
+    const installed = mq("(display-mode: standalone)") || mq("(display-mode: fullscreen)") || mq("(display-mode: minimal-ui)") || navigator.standalone === true;
+    let preview = false;
+    try {
+      if (qs.get("app") === "1") sessionStorage.setItem("raav-app", "1");
+      if (qs.get("app") === "0") sessionStorage.removeItem("raav-app");
+      preview = sessionStorage.getItem("raav-app") === "1";
+    } catch (e) { /* storage blocked */ }
+    const inApp = installed || preview;
+    const page = document.body.dataset.page || "";
+
+    // The bar along the bottom of the phone, as in any app. Shown only inside the app.
+    if (inApp && page !== "welcome") {
+      document.documentElement.classList.add("in-app");
+      let signedIn = false; try { signedIn = !!localStorage.getItem("gotrue.user"); } catch (e) { /* storage blocked */ }
+      const ico = d => `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+      const TABS = [
+        ["Home", "/overview", /^overview$/, ico('<path d="M3.5 11.2 12 4l8.5 7.2"/><path d="M5.8 9.8V20h4.4v-5.4h3.6V20h4.4V9.8"/>')],
+        ["Projects", "/initiated", /^(stage|project|home|create|initiate)$/, ico('<rect x="3.5" y="4.5" width="17" height="4.6" rx="1.6"/><rect x="3.5" y="11" width="17" height="4.6" rx="1.6"/><path d="M4.5 19.5h15"/>')],
+        ["Gift", "/moment", /^(moment|together|give|fund|thanks)$/, '<span class="appbar-gift"><img src="/img/moment-mark.svg" alt="" width="34" height="34"></span>'],
+        ["Map", "/smile-map", /^map2?$/, ico('<path d="M12 21s6.5-5.6 6.5-10.6A6.5 6.5 0 0 0 5.5 10.4C5.5 15.4 12 21 12 21Z"/><circle cx="12" cy="10.2" r="2.4"/>')],
+        [signedIn ? "Account" : "Sign in", "/members", /^members$/, ico('<circle cx="12" cy="8.4" r="3.7"/><path d="M4.6 20c.9-3.6 3.8-5.4 7.4-5.4s6.5 1.8 7.4 5.4"/>')]
+      ];
+      const nav = document.createElement("nav");
+      nav.className = "appbar"; nav.setAttribute("aria-label", "App");
+      nav.innerHTML = TABS.map(([t, h, on, pic], i) => `<a class="appbar-tab${i === 2 ? " gift" : ""}" href="${h}"${on.test(page) ? ' aria-current="page"' : ""}>${pic}<span>${t}</span></a>`).join("");
+      document.body.appendChild(nav);
+    }
+
+    // "Install": Android and computers can ask the phone directly; iPhones need three taps, which we show.
+    const ua = navigator.userAgent || "";
+    const ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const android = /Android/i.test(ua);
+    // Facebook's and Instagram's own browsers cannot add anything to a home screen, so the offer stays out of the way there.
+    const boxed = /FBAN|FBAV|FB_IAB|Instagram|Line\//i.test(ua);
+    if (installed) keep("raav-app-have", "1");
+    let ask = null, strip = null;
+    const STEPS = {
+      ios: ["On an iPhone or iPad", ["Tap the Share button (the square with an arrow) in your browser.", "Scroll down and tap “Add to Home Screen”.", "Tap “Add”. Raavanaa is now on your home screen."]],
+      android: ["On an Android phone", ["Tap the three dots at the top of your browser.", "Tap “Install app” or “Add to Home screen”.", "Tap “Install”. Raavanaa is now on your home screen."]],
+      computer: ["On a computer", ["In Chrome or Edge, click the install icon at the end of the address bar.", "Click “Install”. Raavanaa opens in its own window."]]
+    };
+    function help() {
+      if (document.querySelector(".app-sheet")) return;
+      const order = ios ? ["ios", "android", "computer"] : android ? ["android", "ios", "computer"] : ["computer", "android", "ios"];
+      const part = k => `<h3>${STEPS[k][0]}</h3><ol>${STEPS[k][1].map(t => `<li>${t}</li>`).join("")}</ol>`;
+      const box = document.createElement("div");
+      box.className = "app-sheet"; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "app-sheet-t");
+      box.innerHTML = `<div class="app-sheet-box">
+        <button type="button" class="app-sheet-x" aria-label="Close">×</button>
+        <img src="/img/app/icon-192.png" alt="" width="72" height="72">
+        <h2 id="app-sheet-t">Put Raavanaa on your home screen</h2>
+        <p>It opens like any other app, and it still opens when the connection is weak.</p>
+        <div class="app-sheet-mine">${part(order[0])}</div>
+        <details><summary>On another device</summary>${order.slice(1).map(part).join("")}</details>
+      </div>`;
+      const shut = () => { box.remove(); document.removeEventListener("keydown", onKey); };
+      const onKey = e => { if (e.key === "Escape") shut(); };
+      box.addEventListener("click", e => { if (e.target === box || e.target.closest(".app-sheet-x")) shut(); });
+      document.addEventListener("keydown", onKey);
+      document.body.appendChild(box);
+      box.querySelector(".app-sheet-x").focus();
+    }
+    function install() {
+      if (!ask) { help(); return; }
+      const e = ask; ask = null;
+      e.prompt();
+      Promise.resolve(e.userChoice).then(c => { if (c && c.outcome === "accepted" && strip) strip.remove(); }).catch(() => {});
+    }
+    // A slim strip at the top of Home that offers the app. "×" hides it for a month.
+    function offer() {
+      if (strip || inApp || page !== "overview" || keep("raav-app-have")) return;
+      if (!(ask || ((ios || android) && !boxed))) return;
+      const hidden = +keep("raav-app-later") || 0;
+      if (hidden && Date.now() - hidden < 30 * 24 * 3600 * 1000) return;
+      const main = document.getElementById("app"); if (!main) return;
+      const phone = ios || android;
+      strip = document.createElement("aside");
+      strip.className = "app-strip wrap"; strip.setAttribute("aria-label", "Get the app");
+      strip.innerHTML = `<div class="app-strip-in"><img src="/img/app/icon-192.png" alt="" width="46" height="46">
+        <span class="app-strip-t"><b>${phone ? "Raavanaa on your phone" : "Raavanaa as an app"}</b><small>${phone ? "Add it to your home screen. It is free." : "Install it on this computer. It is free."}</small></span>
+        <button type="button" class="app-strip-go">Install</button>
+        <button type="button" class="app-strip-x" aria-label="Close">×</button></div>`;
+      strip.querySelector(".app-strip-go").addEventListener("click", install);
+      strip.querySelector(".app-strip-x").addEventListener("click", () => { keep("raav-app-later", String(Date.now())); strip.remove(); });
+      main.before(strip);
+    }
+    window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); ask = e; offer(); });
+    window.addEventListener("appinstalled", () => { ask = null; keep("raav-app-have", "1"); if (strip) strip.remove(); });
+    document.addEventListener("click", e => { const a = e.target.closest && e.target.closest("[data-get-app]"); if (a) { e.preventDefault(); install(); } });
+    offer();
+    return { inApp, install };
+  })();
+
   // Footer shown on every page. Social links and email appear only when filled in under Site settings.
+  // Shown where a switched-off feature used to be (see the feature switches at the top).
+  const soonHTML = () => `<section class="soon-note panel">
+      <img src="/img/moment-mark.svg" alt="" width="72" height="72">
+      <h1>Starting a project opens soon</h1>
+      <p>For now, you can give children a day of joy in loving memory of someone dear to you.</p>
+      <a class="btn" href="/moment?for=memory">Give in loving memory</a>
+    </section>`;
   function frame(site) {
     // English / Tamil switch in the header: the same page in the other language.
     const bar = document.querySelector(".bar .wrap");
@@ -110,9 +267,10 @@
       <svg class="foot-wave" viewBox="0 0 400 30" preserveAspectRatio="none" aria-hidden="true"><path class="w1" d="M0 16C70 2 140 4 200 12 260 20 330 4 400 10V30H0Z"/><path class="w2" d="M0 24C80 10 150 12 210 18 270 24 336 12 400 16V30H0Z"/></svg>
       <div class="foot-main"><div class="wrap">
         <nav class="foot-cols" aria-label="Footer">
-          ${col("Explore", [["Home", "/overview"], ["Raavanaa Post", "/post"], ["Smile Map", "/smile-map"], ["About us", "/about"], ["Contact", "/contact"]])}
+          ${col("Explore", [["Home", "/overview"], ["Raavanaa Post", "https://raavanaapost.raavanaa.org/"], ["Smile Map", "/smile-map"], ["About us", "/about"], ["Contact", "/contact"]])}
           ${col("Our stages", [["Initiated", "/initiated"], ["Activated", "/activated"], ["Impact", "/impact"]])}
-          ${col("Get involved", [["Gift a Moment in their name", "/moment"], ["Volunteer with us", "/volunteer"], ["Suggest a project", "/contact?topic=suggest"], ["Partner with us", "/contact?topic=partner"]])}
+          ${col("Get involved", [["Gift a Moment in their name", "/moment"], ["Volunteer with us", "/volunteer"], ["Suggest a project", "/contact?topic=suggest"], ["Partner with us", "/contact?topic=partner"]])
+            .replace("</ul>", APP.inApp ? "</ul>" : `<li><a href="#app" data-get-app>Get the app</a></li></ul>`)}
           ${follow.length ? col("Follow us", follow) : ""}
         </nav>
       </div></div>
@@ -204,7 +362,7 @@
     const str = String(t || "").trim();
     if (!str) return "";
     const first = [...str][0];
-    const rest = esc(str.slice(first.length)).replace(/\s+[-–—]\s+/, ' <span class="dash">–</span> ');
+    const rest = esc(str.slice(first.length)).replace(/\s+[-–—]\s+(.*)$/, ' <span class="dash">–</span> <span class="hl2">$1</span>');
     return `<span class="initial">${esc(first.toUpperCase())}</span>${rest}`;
   };
 
@@ -411,10 +569,13 @@
   const STAGE_SAY = ["Smiles in the Making", "Moments on the Way", "Days of Joy, Created"];
   // "Create a Smile": a round, tappable icon with three little pictures taking turns,
   // a title above and a line below. It opens the form to start a new project.
+  // Five slogans take turns on the Home page (SURESH, 12 Nov 2026); the kept home page (/front-4) stays on the first three.
   const CREATE = [
     { img: "/img/create-smile.svg", title: "Create a Smile", say: "One small idea can light up a child's whole day." },
     { img: "/img/create-moment.svg", title: "Create a Moment", say: "Tell us where joy is needed. We'll help make it happen." },
-    { img: "/img/create-day.svg", title: "Spark a Day of Joy", say: "A trip, a game, a good meal. Start it here." }
+    { img: "/img/create-day.svg", title: "Spark a Day of Joy", say: "A trip, a game, a good meal. Start it here." },
+    { img: "/img/create-smile.svg", title: "Start a Smile", say: "Know children who are waiting for a day out? Tell us." },
+    { img: "/img/create-moment.svg", title: "Dream a Day for the Children", say: "You dream it. Together we make it real." }
   ];
   // Home: "Gift a Moment, in their name" (title and design, SURESH 10 Nov 2026). A cream banner with the
   // heart-and-lamp mark, the title, and four reasons to tap: each opens the moment page with that reason chosen.
@@ -424,8 +585,9 @@
     { k: "memory", en: "In loving memory", ta: "அன்பு நினைவாக" },
     { k: "birthday", en: "A birthday", ta: "பிறந்தநாள்" },
     { k: "wedding", en: "A wedding day", ta: "திருமண நாள்" },
-    { k: "festival", en: "A festival", ta: "பண்டிகை" }
-  ];
+    { k: "festival", en: "A festival", ta: "பண்டிகை" },
+    { k: "remembrance", en: "Remembrance day", ta: "நினைவு நாள்" }
+  ].filter((r, i) => FEAT.reasons.length ? FEAT.reasons.includes(r.k) : i < 4);
   const momentTitleHTML = () => `<span class="mt-title${TA_PATH ? " ta" : ""}"><span>${MOMENT_TITLE[0]}</span> <b>${MOMENT_TITLE[1]}</b></span><span class="mt-ribbon">${MOMENT_TITLE[2]}</span>`;
   const momentBandHTML = () => `<section class="moment-band" aria-label="Gift a Moment, in their name">
       <i class="mb-sparks" aria-hidden="true"></i>
@@ -444,10 +606,12 @@
     </section>`;
   // On phones the menu is folded away, so the Home page also carries a slim strip at the very top.
   const momentRibbonHTML = () => `<a class="moment-ribbon" href="/moment"><img src="/img/moment-mark.svg" alt="" width="34" height="34"><span><b>Gift a Moment</b> <em>in their name</em></span><i aria-hidden="true">→</i></a>`;
-  const createHTML = () => `<a class="create-cta" href="/initiate">
-      <span class="cc-titles">${CREATE.map((c, i) => `<b class="${i ? "" : "on"}">${c.title}</b>`).join("")}</span>
-      <span class="cc-icon" aria-hidden="true"><i class="cc-ring"></i><i class="cc-orbit"><b>✦</b><b>♥</b><b>✦</b><b>♥</b></i>${CREATE.map((c, i) => `<img class="${i ? "" : "on"}" src="${c.img}" alt="" width="200" height="200">`).join("")}<i class="cc-plus">+</i></span>
-      <span class="cc-says">${CREATE.map((c, i) => `<span class="${i ? "" : "on"}">${c.say}</span>`).join("")}</span>
+  // Gift a Moment as a small round icon that sits with the story pictures (Home, 14 Nov 2026).
+  const momentChipHTML = () => `<a class="moment-chip" href="/moment"><img src="/img/moment-mark.svg" alt="" width="40" height="40"><span><b>Gift a Moment</b> <em>in their name</em></span><i aria-hidden="true">→</i></a>`;
+  const createHTML = (list = CREATE) => `<a class="create-cta" href="/initiate">
+      <span class="cc-titles">${list.map((c, i) => `<b class="${i ? "" : "on"}">${c.title}</b>`).join("")}</span>
+      <span class="cc-icon" aria-hidden="true"><i class="cc-ring"></i><i class="cc-orbit"><b>✦</b><b>♥</b><b>✦</b><b>♥</b></i>${list.map((c, i) => `<img class="${i ? "" : "on"}" src="${c.img}" alt="" width="200" height="200">`).join("")}<i class="cc-plus">+</i></span>
+      <span class="cc-says">${list.map((c, i) => `<span class="${i ? "" : "on"}">${c.say}</span>`).join("")}</span>
       <span class="cc-go">Start here →</span>
     </a>`;
   // Under the stage circles: one slogan in the middle, and a fine curved line from it up to
@@ -455,8 +619,8 @@
   const STAGE_COLOR = ["#1f7a47", "#d08e0c", "#c8381e"];
   function startRail(app) {
     const rail = app.querySelector(".stage-rail"), nav = app.querySelector(".stages");
-    if (!rail || !nav) return;
-    const circles = [...nav.querySelectorAll(".stage")], says = [...rail.querySelectorAll(".rail-say span")];
+    if (!nav) return; // the 14 Nov Home has no slogan line, but its circles still light up in turn
+    const circles = [...nav.querySelectorAll(".stage")], says = rail ? [...rail.querySelectorAll(".rail-say span")] : [];
     const paths = [...nav.querySelectorAll(".stage-path")];
     let k = 0, locked = false;
     // Moving forward a stage, a glowing spark runs along the little arrow, then the next stage lights up.
@@ -476,6 +640,8 @@
     nav.addEventListener("click", e => { const c = e.target.closest(".stage"); if (!c) return; locked = true; go(circles.indexOf(c)); });
     if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
       rotTimers.push(setInterval(() => { if (!locked && !document.hidden) go((k + 1) % circles.length); }, 3600));
+    // For the Home page's folder tabs: light this stage and stay on it.
+    return i => { locked = true; go(i); };
   }
   function startCreate(app) {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -533,7 +699,8 @@
     if (circles) circles.addEventListener("click", e => { const c = e.target.closest(".stage"); if (!c) return; e.preventDefault(); show(c.dataset.ex); });
   }
 
-  function renderOverview(app, site, projects) {
+  // The home page as it was until 12 Nov 2026, kept at /front-4 (SURESH: "keep the current page as another main backup").
+  function renderOverviewClassic(app, site, projects) {
     const counts = {
       initiated: projects.filter(p => stageNum(p) === 1).length,
       activated: projects.filter(p => stageNum(p) === 2).length,
@@ -545,8 +712,12 @@
     const start = slides.length ? Math.floor(Math.random() * slides.length) : 0; // a different slide comes first on each visit
     const follow = (site.follow || []).filter(x => x && x.title && x.text);
     const fstart = follow.length ? Math.floor(Math.random() * follow.length) : 0;
+    // The 14 Nov 2026 Home (SURESH): no Gift a Moment strip on top, a bolder headline that turns through
+    // the sayings, softer stage circles, no slogan under them, and Gift a Moment as a small icon beside the stories.
+    // /front-4 (no data-light) keeps the page exactly as it was.
+    const light = document.body.hasAttribute("data-light");
     app.innerHTML = `
-      ${momentRibbonHTML()}
+      ${light ? "" : momentRibbonHTML()}
       <section class="intro">
         <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
       </section>
@@ -558,12 +729,12 @@
             <span>${st.label}</span>
           </a>`).join("")}
       </nav>
-      <div class="stage-rail" aria-live="polite">
+      ${light ? "" : `<div class="stage-rail" aria-live="polite">
         <p class="rail-say">${STAGE_SAY.map((t, i) => `<span class="s${i + 1}${i ? "" : " on"}">${t}</span>`).join("")}</p>
-      </div>
+      </div>`}
       ${glanceHTML(projects)}
-      ${momentBandHTML()}
-      ${createHTML()}
+      ${light ? momentChipHTML() : momentBandHTML()}
+      ${createHTML(CREATE.slice(0, 3))}
       ${HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
       <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
@@ -586,7 +757,159 @@
     startFollow(app);
     startCreate(app);
     startRail(app);
+    if (light) startHeadlines(app, slides.map(x => x.title).filter(Boolean), start);
     // arriving from the footer's "Keep me posted" button on another page
+    if (location.hash === "#keep-posted") { const t = document.getElementById("keep-posted"); if (t) t.scrollIntoView(); }
+  }
+
+  // Home (/overview), the design of 12 Nov 2026 (SURESH). Three round icons whose words take turns
+  // (Gift a Moment, Sponsor a Smile, Donate), the three stage circles, then every project in folder tabs:
+  // Initiated first, then Activated, Impact and All. Each project is one line in the format of the team
+  // portal's list (picture, title, category · place · next step, its stage, its progress ring), shaded in
+  // the colour of its stage. Pointing at a line opens "Project at a glance"; on a phone the small "i" on
+  // the picture does the same. This page shows drawings only and the titles from share.json: never a
+  // child's photo, never the name of a school or a home. The home page as it was is kept at /front-4.
+  const HOME_ACTS = [
+    { k: "moment", href: "/moment", says: ["Gift a Moment", "In their name", "For a birthday", "In loving memory", "For a festival"] },
+    FEAT.sponsor && { k: "sponsor", href: "/give", says: ["Sponsor a Smile", "Fund a Smile", "Give a Day of Joy", "Be the Reason for a Smile", "Sponsor a Moment"] },
+    FEAT.sponsor && { k: "donate", href: "/fund", says: ["Donate", "Any amount helps", "Every rupee is shown", "To the Raavanaa Fund", "Give what you can"] }
+  ].filter(Boolean);
+  const HOME_ACT_ICONS = {
+    moment: `<img src="/img/moment-mark.svg" alt="" width="64" height="64">`,
+    sponsor: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="13" r="7.2"/><path d="M8 14.4c.8 1.4 1.8 2.1 3 2.1s2.2-.7 3-2.1"/><path class="dot" d="M8.6 11.1h.01M13.4 11.1h.01"/><path class="spark" d="M19.2 2.6l.8 1.9 1.9.8-1.9.8-.8 1.9-.8-1.9-1.9-.8 1.9-.8z"/></svg>`,
+    donate: `<svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart" d="M12 10.6S8.2 8.3 8.2 5.5A2.2 2.2 0 0 1 12 4.1a2.2 2.2 0 0 1 3.8 1.4c0 2.8-3.8 5.1-3.8 5.1z"/><path d="M2.8 14.4h3.4l3.5 1.5h3.7a1.4 1.4 0 0 1 0 2.8h-3"/><path d="M13.9 17.3l4.9-2.3a1.5 1.5 0 0 1 1.4 2.6l-5.6 3.3a3 3 0 0 1-2.3.3l-5.9-1.6H2.8"/></svg>`
+  };
+  const HOME_STAGE = ["Initiated", "Activated", "Impact"];
+  const nextStepOf = p => { const st = ringSteps(p).find(x => x.done < 1); return st ? st.name : stageNum(p) === 2 ? "Ready for the day" : "All done"; };
+  // Each round icon turns through its own words, a beat apart from its neighbours.
+  function startActs(app) {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    app.querySelectorAll(".hm-act").forEach((box, n) => {
+      const says = [...box.querySelectorAll(".hm-act-says b")]; if (says.length < 2) return;
+      let k = 0;
+      const turn = () => { if (document.hidden) return; k = (k + 1) % says.length; says.forEach((el, i) => { el.classList.toggle("on", i === k); el.setAttribute("aria-hidden", String(i !== k)); }); };
+      setTimeout(() => rotTimers.push(setInterval(turn, 3000)), n * 1000);
+    });
+  }
+  async function renderOverview(app, site, projects) {
+    const share = await load("/share.json").catch(() => null);
+    const safe = p => { const sh = (share && share.projects && share.projects[slugOf(p)]) || {};
+      return { title: (TA_PATH && sh.title_ta) || sh.title || p.title,
+        art: sh.art || (/\.svg$/i.test(p.cover || "") ? p.cover : "/img/project-hills.svg"),
+        reach: (TA_PATH && sh.reach_ta) || sh.reach || (/TBD/i.test(p.reach || "") ? "" : p.reach || "") }; };
+    const TABS = [[1, "Initiated"], [2, "Activated"], [3, "Impact"], [0, "All"]];
+    const count = n => n ? projects.filter(p => stageNum(p) === n).length : projects.length;
+    const slides = (site.sayings || []).map(x => typeof x === "string" ? { text: x } : x).filter(x => x && x.text);
+    const start = slides.length ? Math.floor(Math.random() * slides.length) : 0;
+    const follow = (site.follow || []).filter(x => x && x.title && x.text);
+    const fstart = follow.length ? Math.floor(Math.random() * follow.length) : 0;
+    let tab = 1;
+    app.innerHTML = `
+      <section class="intro">
+        <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
+      </section>
+      <nav class="hm-acts" aria-label="Ways to give">
+        ${HOME_ACTS.map(a => `<a class="hm-act a-${a.k}" href="${a.href}" aria-label="${a.says[0]}">
+          <span class="hm-act-ic" aria-hidden="true">${HOME_ACT_ICONS[a.k]}</span>
+          <span class="hm-act-says">${a.says.map((t, i) => `<b${i ? ' aria-hidden="true"' : ' class="on"'}>${t}</b>`).join("")}</span>
+        </a>`).join("")}
+      </nav>
+      <nav class="stages hm-stages" aria-label="Show projects by stage">
+        ${Object.entries(STAGES).map(([slug, st], k) => `${k ? `<span class="stage-path p${k}" aria-hidden="true"><svg viewBox="0 0 60 34"><path class="sp-base" d="M6 17H50"/><path class="sp-chev c1" d="M12 9l8 8-8 8"/><path class="sp-chev c2" d="M26 9l8 8-8 8"/><path class="sp-chev c3" d="M40 9l8 8-8 8"/><circle class="sp-spark" r="3.6" cx="0" cy="0"><animateMotion dur="0.75s" begin="indefinite" fill="freeze" path="M6 17H54" calcMode="spline" keyTimes="0;1" keySplines="0.45 0 0.55 1"/></circle></svg></span>` : ""}
+          <a class="stage art stat-${st.key}" href="/${slug}" data-n="${k + 1}">
+            <i>${ICONS[st.key]}</i>
+            <b${count(k + 1) ? "" : ' class="zero"'}>${count(k + 1) || "Soon"}</b>
+            <span>${st.label}</span>
+          </a>`).join("")}
+      </nav>
+      <div class="stage-rail" aria-live="polite">
+        <p class="rail-say">${STAGE_SAY.map((t, i) => `<span class="s${i + 1}${i ? "" : " on"}">${t}</span>`).join("")}</p>
+      </div>
+      <section class="hm-book" aria-label="Projects">
+        <div class="hm-tabs" role="tablist" aria-label="Projects by stage">
+          ${TABS.map(([n, name]) => `<button type="button" role="tab" class="hm-tab s${n}" data-n="${n}" aria-selected="${tab === n}" aria-controls="hm-folder"><span>${name}</span><b>${count(n)}</b></button>`).join("")}
+        </div>
+        <div class="hm-folder s${tab}" id="hm-folder" role="tabpanel"></div>
+        <div class="hm-pop" id="hm-pop" role="tooltip" hidden></div>
+      </section>
+      ${createHTML()}
+      <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
+
+    const book = app.querySelector(".hm-book"), tabsBox = app.querySelector(".hm-tabs"), folder = app.querySelector(".hm-folder"), pop = app.querySelector(".hm-pop");
+    const circles = [...app.querySelectorAll(".hm-stages .stage")];
+    const ring = pct => `<svg class="hm-ring" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" pathLength="100" class="tr"/><circle cx="20" cy="20" r="15" pathLength="100" class="fl" stroke-dasharray="${pct} 100" transform="rotate(-90 20 20)"/></svg>`;
+    const rowHTML = p => { const n = stageNum(p), s = safe(p), pct = ringPercent(p), slug = slugOf(p);
+      const place = cityOf(p) || (p.location || "").split(",")[0].trim();
+      const meta = [p.theme, place].filter(Boolean).map(t => `<span>${esc(t)}</span>`).concat(`<span class="hm-next"><span>Next:</span> <span>${esc(nextStepOf(p))}</span></span>`).join('<i aria-hidden="true"> · </i>');
+      return `<div class="hm-row s${n}" role="listitem" data-slug="${esc(slug)}">
+          <a class="hm-row-link" href="/projects/${slug}">
+            <span class="hm-thumb"><img src="${esc(s.art)}" alt="" loading="lazy" width="58" height="58"></span>
+            <span class="hm-main"><b>${esc(s.title)}</b><small>${meta}</small></span>
+            <span class="hm-side"><span class="hm-pill">${HOME_STAGE[n - 1]}</span><span class="hm-pct">${ring(pct)}<b>${pct}%</b></span></span>
+          </a>
+          <button type="button" class="hm-i" aria-label="Project at a glance" aria-expanded="false" aria-controls="hm-pop"><span aria-hidden="true">i</span></button>
+        </div>`; };
+    const EMPTY = { 0: "No projects yet." };
+    const draw = () => {
+      const list = tab ? projects.filter(p => stageNum(p) === tab) : projects;
+      folder.className = `hm-folder s${tab}`;
+      folder.innerHTML = list.length ? `<div class="hm-list" role="list">${list.map(rowHTML).join("")}</div>`
+        : `<p class="hm-empty">${tab ? HOME_ROWS[tab - 1].empty : EMPTY[0]}</p>${tab > 1 ? "" : `<p class="hm-empty-go"><a class="btn" href="/initiate">Suggest one</a></p>`}`;
+      tabsBox.querySelectorAll(".hm-tab").forEach(b => b.setAttribute("aria-selected", String(+b.dataset.n === tab)));
+      circles.forEach((c, k) => c.classList.toggle("on", k + 1 === tab));
+    };
+
+    // "Project at a glance": the same facts as on the project's own page, in a small window.
+    const RING_WORD = { 1: "Funded so far", 2: "Preparations done", 3: "Results reported" };
+    const popHTML = p => { const n = stageNum(p), s = safe(p), b = budgetOf(p), pct = ringPercent(p);
+      const facts = [["Where", esc(p.location || cityOf(p))], ["Who it is for", esc(s.reach)], ["Started", esc(p.started || "")], ["Cost of the day", b.goal ? moneyOf(site, b.goal, p) : ""],
+        [RING_WORD[n], pct + "%"], ["Next step", esc(nextStepOf(p))]].filter(x => x[1]);
+      return `<p class="hm-pop-k"><span>Project at a glance</span><b class="hm-pill">${HOME_STAGE[n - 1]}</b></p>
+        <b class="hm-pop-t">${esc(s.title)}</b>
+        <dl class="hm-facts">${facts.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
+        ${n === 3 && (p.impact || []).length ? `<p class="hm-pop-stats">${p.impact.slice(0, 3).map(x => `<span><b>${esc(x.value)}</b> ${esc(x.label)}</span>`).join("")}</p>` : ""}
+        <a class="hm-pop-go" href="/projects/${slugOf(p)}">Open the project →</a>`; };
+    let popRow = null, tIn = 0, tOut = 0;
+    const closePop = () => { clearTimeout(tIn); if (!popRow) return; popRow.classList.remove("peek"); const b = popRow.querySelector(".hm-i"); if (b) b.setAttribute("aria-expanded", "false"); popRow = null; pop.hidden = true; };
+    // by: "hover" (a pointer over the line; the window follows it and never gets in the way) or "tap" (the small i).
+    const openPop = (row, by, x) => {
+      const p = projects.find(q => slugOf(q) === row.dataset.slug); if (!p) return;
+      if (popRow && popRow !== row) closePop();
+      popRow = row; row.classList.add("peek");
+      pop.className = `hm-pop s${stageNum(p)} by-${by}`; pop.innerHTML = popHTML(p); pop.hidden = false;
+      if (by === "tap") row.querySelector(".hm-i").setAttribute("aria-expanded", "true");
+      const br = book.getBoundingClientRect(), rr = row.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+      const below = rr.bottom + ph + 12 < innerHeight || rr.top - ph - 8 < 70;
+      pop.style.top = Math.round((below ? rr.bottom + 6 : rr.top - ph - 6) - br.top) + "px";
+      const want = by === "hover" && x != null ? x - br.left + 14 : rr.left - br.left + 12;
+      pop.style.left = Math.round(Math.max(8, Math.min(want, br.width - pw - 8))) + "px";
+    };
+    const canHover = matchMedia("(hover: hover) and (pointer: fine)").matches;
+    folder.addEventListener("mouseover", e => { if (!canHover) return; const row = e.target.closest(".hm-row"); if (!row) return; clearTimeout(tOut);
+      if (row === popRow) return; clearTimeout(tIn); const x = e.clientX; tIn = setTimeout(() => openPop(row, "hover", x), popRow ? 60 : 220); });
+    folder.addEventListener("mouseout", e => { if (!canHover) return; const row = e.target.closest(".hm-row"); if (!row || row.contains(e.relatedTarget)) return; clearTimeout(tIn); tOut = setTimeout(closePop, 160); });
+    folder.addEventListener("focusin", e => { if (e.target.matches(".hm-row-link:focus-visible")) openPop(e.target.closest(".hm-row"), "hover"); });
+    folder.addEventListener("focusout", e => { if (e.target.matches(".hm-row-link")) closePop(); });
+    folder.addEventListener("click", e => { const b = e.target.closest(".hm-i"); if (!b) return; e.preventDefault(); const row = b.closest(".hm-row"); if (row === popRow) closePop(); else openPop(row, "tap"); });
+    document.addEventListener("click", e => { if (popRow && !e.target.closest(".hm-pop, .hm-i")) closePop(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closePop(); });
+    addEventListener("scroll", () => { if (popRow && pop.classList.contains("by-hover")) closePop(); }, { passive: true });
+
+    wireForms(app);
+    fitHeadline();
+    rotTimers.forEach(clearInterval); rotTimers = [];
+    startFollow(app);
+    startCreate(app);
+    startActs(app);
+    const light = startRail(app);
+    const setTab = n => { closePop(); tab = n; draw(); if (n && light) light(n - 1); };
+    tabsBox.addEventListener("click", e => { const b = e.target.closest(".hm-tab"); if (b) setTab(+b.dataset.n); });
+    tabsBox.addEventListener("keydown", e => { if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return; const all = [...tabsBox.querySelectorAll(".hm-tab")], i = all.indexOf(document.activeElement); if (i < 0) return;
+      e.preventDefault(); const nx = all[(i + (e.key === "ArrowRight" ? 1 : all.length - 1)) % all.length]; nx.focus(); setTab(+nx.dataset.n); });
+    // A stage circle opens its tab (instead of leaving the page) and brings the list into view.
+    app.querySelector(".hm-stages").addEventListener("click", e => { const c = e.target.closest(".stage"); if (!c) return; e.preventDefault(); closePop(); tab = +c.dataset.n; draw();
+      const r = tabsBox.getBoundingClientRect(); if (r.top > innerHeight * .7 || r.top < 0) tabsBox.scrollIntoView({ behavior: "smooth", block: "start" }); });
+    draw();
     if (location.hash === "#keep-posted") { const t = document.getElementById("keep-posted"); if (t) t.scrollIntoView(); }
   }
 
@@ -940,6 +1263,13 @@
     el._t = setTimeout(() => { el.innerHTML = html; if (after) after(); el.style.opacity = "1"; }, 320);
   }
 
+  // Home headline turns through the sayings' titles ("Together – Real Change", "Small Steps – Big Smiles"...).
+  function startHeadlines(root, titles, start) {
+    const head = root.querySelector(".headline");
+    if (!head || titles.length < 2 || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let k = start;
+    rotTimers.push(setInterval(() => { if (document.hidden) return; k = (k + 1) % titles.length; fadeText(head, headline(titles[k]), () => { fitHeadline(); setTimeout(fitHeadline, 80); }); }, 4200)); // fit again once the Tamil words are in
+  }
   function startSayings(root) {
     const box = root.querySelector(".sayings");
     if (!box) return;
@@ -1292,9 +1622,9 @@
 
   // Sponsors' names and their share of the budget, shown under "Funded" (SURESH, 6 Nov 2026).
   const whoFunded = p => { const b = budgetOf(p); if (!b.goal || !b.funders.length) return "";
-    return `<small class="who">${b.funders.map(f => `${esc(f.name)} <b>${Math.round(numOf(f.amount) / b.goal * 100)}%</b>`).join(" · ")}</small>`; };
-  // The Donate button. While Raavanaa is a pilot it opens a note instead of a payment page (wireGo).
-  const DONATE_BTN = `<button class="donate-btn" type="button" data-donate><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg><span>Donate</span></button>`;
+    return `<small class="who">${b.funders.map(f => `${esc(f.name)}${f.hide_amount ? "" : ` <b>${Math.round(numOf(f.amount) / b.goal * 100)}%</b>`}`).join(" · ")}</small>`; };
+  // The Donate button (wireDonate): it opens the giving form.
+  const DONATE_BTN = `<button class="donate-btn" type="button" data-donate><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg><span>${FEAT.sponsor ? "Donate" : "Give in loving memory"}</span></button>`;
   // The "Activating" circle with its list of steps, as on a project page.
   function activatingPanelHTML(p, cls = "") {
     const steps = ringSteps(p), T = RING_TEXT[stageNum(p)];
@@ -1342,16 +1672,16 @@
         </div>
         ${pct < 100 ? `<button class="go-open" type="button" aria-expanded="false" aria-controls="go-fold-${id}"><span>See what's left to reach 100%</span><i aria-hidden="true">⌄</i></button>
         <div class="go-fold" id="go-fold-${id}" hidden>
-          <ol class="go-list">${b.funders.map(f => `<li class="done funder"><i aria-hidden="true">${b.goal ? Math.round(numOf(f.amount) / b.goal * 100) : 0}%</i>
+          <ol class="go-list">${b.funders.map(f => `<li class="done funder"><i aria-hidden="true">${f.hide_amount ? "♥" : (b.goal ? Math.round(numOf(f.amount) / b.goal * 100) : 0) + "%"}</i>
               <div><b>${esc(f.name)}</b>${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}<span>Pledged ${money(numOf(f.amount))} for this day.</span></div></li>`).join("")}
             <li class="todo" data-add="${slice * (1 - Math.min(1, b.goal ? b.raised / b.goal : 0))}" tabindex="0">
               <i aria-hidden="true">${b.goal ? Math.max(0, 100 - b.pct) + "%" : "…"}</i>
               <div><b>${b.funders.length ? "Still to fund" : "Be the first sponsor"}</b><span>${b.goal ? `${money(need)} still to go. This is where you come in.` : "Opens as soon as the budget is ready. Send a note and we'll tell you first."}</span></div></li></ol>
           <div class="go-form go-make">
             <h3>Make this happen</h3>
-            <div class="mk-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-mk="donate"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>Donate</button><button type="button" role="tab" aria-selected="false" data-mk="other">Help another way</button></div>
-            <div class="mk-pane" data-mkpane="donate"><p class="go-sub">${canGive(p) ? `Give towards this day by card. Secure payment by ${GIVE_BY}.` : "Want to give towards this day? Tap Donate and we'll tell you how it works during our pilot."}</p>${DONATE_BTN}
-              <p class="go-name"><a href="/moment?project=${encodeURIComponent(slugOf(p))}">♡ Give in someone's name, or on behalf of a family or group →</a></p></div>
+            <div class="mk-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-mk="donate"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>${FEAT.sponsor ? "Donate" : "Give"}</button><button type="button" role="tab" aria-selected="false" data-mk="other">Help another way</button></div>
+            <div class="mk-pane" data-mkpane="donate"><p class="go-sub">${!FEAT.sponsor ? "Give towards this day in loving memory of someone dear to you. Their name goes with the gift, and a volunteer will reply to you personally." : canGive(p) ? `Give towards this day by card. Secure payment by ${GIVE_BY}.` : "Want to give towards this day? Tap Donate and tell us what you would like to give. A volunteer will reply to you personally."}</p>${DONATE_BTN}
+              <p class="go-name"${FEAT.sponsor ? "" : " hidden"}><a href="/moment?project=${encodeURIComponent(slugOf(p))}">♡ Give in someone's name, or on behalf of a family or group →</a></p></div>
             <form class="mk-pane" data-mkpane="other" hidden name="make-it-happen" data-ajax data-done="Thank you! Your note is on its way. We'll be in touch soon, and you'll be part of a child's best day.">
               <p class="go-sub">Not able to give money? There are other ways to make this day happen. Tell us how you'd like to help and we'll reach out.</p>
               <input type="hidden" name="form-name" value="make-it-happen">
@@ -1398,8 +1728,6 @@
       });
     });
   }
-  // Donate: during the pilot there are no online donations. The pop-up says so and asks people
-  // to join the community: sign up and follow the project (SURESH, 6 Nov 2026).
   /* "At a glance": tap or click the small icon to open; tap it again, tap anywhere else or press Esc to close. */
   function wireGlance(root) {
     root.querySelectorAll(".glance").forEach(g => {
@@ -1416,32 +1744,13 @@
     }
   }
 
+  // Donate on a project page. While the project still needs money it opens that project's giving form; otherwise the
+  // Raavanaa Fund. With card payments off (launch, SURESH 12 Nov 2026) the form is "I'd like to give": a volunteer replies.
   function wireDonate(root, slug) {
     root.querySelectorAll("[data-donate]").forEach(b => b.addEventListener("click", () => {
-      if (GIVE_OPEN.has(slug)) { location.href = "/give?project=" + encodeURIComponent(slug); return; }
-      const pop = document.createElement("div");
-      pop.className = "donate-pop";
-      pop.innerHTML = `<div class="donate-card" role="dialog" aria-modal="true" aria-labelledby="donate-h">
-          <button class="donate-x" type="button" data-close aria-label="Close">×</button>
-          <p class="donate-heart" aria-hidden="true"><svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg></p>
-          <h2 id="donate-h">Thank you for wanting to give!</h2>
-          <p>We are in our <b>pilot phase</b>, so we are not taking donations online yet. Every day so far has been made possible by our community.</p>
-          <p>Join the Raavanaa community: sign up and follow this project. We'll tell you the moment you can give, and share every smile you help create.</p>
-          ${signupHTML(slug + "-donate", "Sign up and follow")}
-          <p class="donate-other"><button type="button" data-other>Or help another way →</button></p>
-        </div>`;
-      const close = () => { pop.remove(); document.removeEventListener("keydown", esc_); b.focus(); };
-      const esc_ = e => { if (e.key === "Escape") close(); };
-      pop.addEventListener("click", e => { if (e.target === pop || e.target.closest("[data-close]")) close(); });
-      document.addEventListener("keydown", esc_);
-      pop.querySelector("[data-other]").addEventListener("click", () => {
-        close();
-        const g = [...root.querySelectorAll(".go100")].find(x => x.offsetParent !== null); if (!g) return;
-        const open = g.querySelector(".go-open"); if (open && open.getAttribute("aria-expanded") !== "true") open.click();
-        const t = g.querySelector("[data-mk=other]"); if (t) { t.click(); t.scrollIntoView({ block: "center", behavior: "smooth" }); }
-      });
-      document.body.appendChild(pop); wireForms(pop);
-      const f = pop.querySelector("input[name=email]"); if (f) f.focus();
+      // Memory launch (FEAT.sponsor off): every gift goes through the moment page, in someone's memory.
+      if (!FEAT.sponsor) { location.href = (TA_PATH ? "/ta" : "") + "/moment?for=memory" + (GIVE_OPEN.has(slug) ? "&project=" + encodeURIComponent(slug) : "") + "#mo-step-2"; return; }
+      location.href = (TA_PATH ? "/ta" : "") + (GIVE_OPEN.has(slug) ? "/give?project=" + encodeURIComponent(slug) : "/fund");
     }));
   }
   function wireTale(root, open, remember) {
@@ -1492,7 +1801,7 @@
     const listOf = (h, total) => b.lines.length ? `<h3 class="money-h">${h}</h3><ul class="bx-list">${b.lines.map(x => `<li><span>${esc(x.item)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>
         <p class="bx-total"><span>${total}</span><b>${money(sum)}</b></p>` : "";
     const funders = h => b.funders.length ? `<h3 class="money-h">${h}</h3>
-        <ul class="funders">${b.funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${numOf(f.amount) ? `<b>${money(numOf(f.amount))}</b>` : ""}</li>`).join("")}</ul>` : "";
+        <ul class="funders">${b.funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${numOf(f.amount) && !f.hide_amount ? `<b>${money(numOf(f.amount))}</b>` : ""}</li>`).join("")}</ul>` : "";
     if (st === 1) {
       const need = Math.max(0, b.goal - b.raised), kids = String(p.reach || "").match(/\d+/);
       return `
@@ -1951,7 +2260,15 @@
     const text = (ta && c.text_ta) || c.text || "";
     const pic = `/img/share/${own ? slug : "default"}-story${ta ? "-ta" : ""}.jpg`;
     const enc = encodeURIComponent;
-    const picBlob = fetch(pic).then(r => r.ok ? r.blob() : Promise.reject()).catch(() => null);
+    // The story picture (100-200 KB) is fetched only when the share box comes near the screen, not with every page (speed, 13 Nov 2026).
+    // It is still fetched before a tap, because a phone only opens its share sheet straight after the tap.
+    let picP = null;
+    const getPic = () => picP || (picP = fetch(pic).then(r => r.ok ? r.blob() : Promise.reject()).catch(() => { picP = null; return null; }));
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); getPic(); } }, { rootMargin: "400px" });
+      io.observe(box);
+    } else getPic();
+    box.querySelector('[data-sh="ig"]').addEventListener("pointerdown", getPic);
     box.querySelector('[data-sh="wa"]').href = `https://wa.me/?text=${enc(`${title}\n${text}\n${url}`)}`;
     box.querySelector('[data-sh="fb"]').href = `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`;
     box.querySelector('[data-sh="x"]').href = `https://twitter.com/intent/tweet?text=${enc(title)}&url=${enc(url)}`;
@@ -1970,7 +2287,7 @@
     // (pick Instagram); computers download it. The tip says to add the link sticker.
     box.querySelector('[data-sh="ig"]').onclick = async () => {
       try {
-        const blob = await picBlob;
+        const blob = await getPic();
         if (!blob) throw new Error("no picture");
         const file = new File([blob], `raavanaa-${slug}.jpg`, { type: "image/jpeg" });
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -2036,7 +2353,7 @@
       </section>` : ""}
       ${funders.length ? `<section class="money">
         <h2 class="section-title">Made possible by</h2>
-        <ul class="funders">${funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${num(f.amount) ? `<b>${money(num(f.amount))}</b>` : ""}</li>`).join("")}</ul>
+        <ul class="funders">${funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${num(f.amount) && !f.hide_amount ? `<b>${money(num(f.amount))}</b>` : ""}</li>`).join("")}</ul>
       </section>` : ""}`;
     // Small line icons for the folder tabs: book, heart, camera, play.
     const ic = d => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -2063,8 +2380,8 @@
       // The story tab: the opening paragraph in full, the rest behind "See how this smile begins".
       story: taleHTML || `<p class="empty">The story is on its way.</p>`,
       updates: expectHTML(p) + (updates.length ? updates.map(u => `<article class="update"><div class="meta">${fmtDate(u.date)}</div><h3>${esc(u.title)}</h3><div>${md(u.body)}</div></article>`).join("") : `<p class="empty">No impact updates yet.</p>`) + (p.sample ? "" : commentsHTML(slugOf(p))),
-      budget: `<div class="budget-tab">${budgetDetailHTML(p, site, true)}${stageNum(p) === 1 && budgetOf(p).lines.length ? `<p class="note">These are estimates. Once the day has happened, the real costs are shown here.</p>` : stageNum(p) === 2 ? `<p class="note">Once the day has happened, a breakdown of where the money went is shown here.</p>` : ""}</div>`,
-      media: (photos.length || media.length) ? `${media.length ? `<div class="media">${media.map(m => { const e = embedFor(m.url); return e ? `<figure style="margin:0"><div class="embed"><iframe src="${esc(e)}" title="${esc(m.title)}" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy"></iframe></div>${m.title ? `<figcaption class="note" style="padding-top:6px">${esc(m.title)}</figcaption>` : ""}</figure>` : `<a class="media-link" href="${esc(m.url)}" target="_blank" rel="noopener">▶ ${esc(m.title || m.url)}</a>`; }).join("")}</div>` : ""}${photos.length ? `<div class="photos">${photos.map((ph, k) => `<figure><button data-src="${esc(imgUrl(ph.image, 1600))}" aria-label="Open picture"><div class="cover"><img src="${esc(imgUrl(ph.image, 600))}" alt="${esc(ph.caption)}" loading="lazy"></div></button>${ph.caption ? `<figcaption>${esc(ph.caption)}</figcaption>` : ""}</figure>`).join("")}</div>` : ""}` : `<p class="empty">No videos or pictures yet.</p>`
+      budget: `<div class="budget-tab">${budgetDetailHTML(p, site, true)}${p.money ? `<p class="mny-link"><a class="btn ghost" href="/projects/${slugOf(p)}/money">See every rupee in and out</a></p>` : ""}${stageNum(p) === 1 && budgetOf(p).lines.length ? `<p class="note">These are estimates. Once the day has happened, the real costs are shown here.</p>` : stageNum(p) === 2 ? `<p class="note">Once the day has happened, a breakdown of where the money went is shown here.</p>` : ""}</div>`,
+      media: (photos.length || media.length) ? `${media.length ? `<div class="media">${media.map(m => { const e = embedFor(m.url); return e ? `<figure style="margin:0"><div class="embed"><iframe src="${esc(e)}" title="${esc(m.title)}" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy"></iframe></div>${m.title ? `<figcaption class="note" style="padding-top:6px">${esc(m.title)}</figcaption>` : ""}</figure>` : `<a class="media-link" href="${esc(m.url)}" target="_blank" rel="noopener">▶ ${esc(m.title || m.url)}</a>`; }).join("")}</div>` : ""}${photos.length ? `<div class="photos">${photos.map((ph, k) => `<figure><button data-src="${esc(imgUrl(ph.image, 1600))}" aria-label="Open picture"><div class="cover"><img src="${esc(imgUrl(ph.image, 600))}" alt="${esc(ph.caption)}" loading="lazy"></div></button>${ph.caption ? `<figcaption>${esc(ph.caption)}</figcaption>` : ""}</figure>`).join("")}</div>` : ""}` : `<p class="empty">${p.photos_private ? "To protect the children, we do not put their photos on this website. The day is told here in words, and the organisers and families keep the photos." : "No videos or pictures yet."}</p>`
     };
 
     let taleOpen = false;
@@ -2137,6 +2454,85 @@
     draw(tabs.some(([k]) => k === start) ? start : tabs[0][0]);
   }
 
+  // The money page of a project (/projects/<slug>/money): every rupee in, every rupee out, and the receipts.
+  // It is shown for projects that carry a "money" block in projects.json:
+  //   "money": { "as_of": "2026-11-12", "day": "2026-11-27",
+  //              "spent": [{ "date": "2026-11-27", "item": "Bus to Kandy and back", "amount": 30000, "receipt": "/img/projects/<folder>/receipts/bus.jpg" }],
+  //              "receipts": [{ "image": "/img/…", "caption": "…" }] }
+  // Money in comes from the project's "funders"; add "received": "2026-11-20" to a funder once the money has arrived
+  // (until then it shows as Pledged). A giver who asked for "my name only" gets "hide_amount": true: the name shows,
+  // the amount is counted in the totals but not shown beside the name. Receipts: cover names, phone numbers and the school's name before a photo goes up.
+  function renderMoney(app, site, projects, slug) {
+    const p = projects.find(x => slugOf(x) === slug);
+    if (!p || !p.money) {
+      app.innerHTML = `<section class="intro"><h1>${p ? "No money page yet" : "Project not found"}</h1><p>${p ? "This project does not have a money page yet." : "It may have been renamed or removed."}</p><p><a href="${p ? "/projects/" + slugOf(p) : "/initiated"}">${p ? "Back to the project" : "See all projects"}</a></p></section>`;
+      return;
+    }
+    document.title = `${p.title} · ${site.name}`;
+    const m = p.money, b = budgetOf(p), money = n => moneyOf(site, n, p);
+    const day = d => { if (!d) return ""; const dt = new Date(String(d).length === 10 ? d + "T12:00:00" : d);
+      return isNaN(dt) ? esc(d) : dt.toLocaleDateString(TA_PATH ? "ta-LK" : "en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" }); };
+    const short = d => { if (!d || d === true) return ""; const dt = new Date(String(d).length === 10 ? d + "T12:00:00" : d);
+      return isNaN(dt) ? "" : dt.toLocaleDateString(TA_PATH ? "ta-LK" : "en-GB", { day: "numeric", month: "short", year: "numeric" }); };
+    const spent = (m.spent || []).filter(x => x && x.item), out = spent.reduce((t, x) => t + numOf(x.amount), 0);
+    const got = b.funders.filter(f => f.received).reduce((t, f) => t + numOf(f.amount), 0);
+    const need = Math.max(0, b.goal - b.raised), planned = b.lines.reduce((t, x) => t + numOf(x.amount), 0);
+    const receipts = [...spent.filter(x => x.receipt).map(x => ({ image: x.receipt, caption: x.item })), ...(m.receipts || []).filter(x => x && x.image)];
+    const open = GIVE_OPEN.has(slugOf(p));
+    const tile = (cls, label, value, small) => `<div class="mny-tile ${cls}"><span>${label}</span><b>${value}</b>${small ? `<small>${small}</small>` : ""}</div>`;
+    app.innerHTML = `
+      <nav class="crumbs"><a href="/initiated">Projects</a> / <a href="/projects/${slugOf(p)}">${esc(p.title)}</a></nav>
+      <section class="mny">
+        <header class="mny-head">
+          <span class="eyebrow">Every rupee, in the open</span>
+          <h1>Money in, money out</h1>
+          <p class="mny-for"><a href="/projects/${slugOf(p)}">${esc(p.title)}</a></p>
+          ${m.as_of ? `<p class="mny-date"><span>Last updated</span> <time datetime="${esc(m.as_of)}">${day(m.as_of)}</time></p>` : ""}
+        </header>
+        <div class="mny-tiles">
+          ${tile("goal", "Budget", money(b.goal))}
+          ${tile("in", "Money in", money(b.raised), !b.raised ? "" : got >= b.raised ? "received" : got ? "pledged and received" : "pledged so far")}
+          ${tile("out", "Money out", money(out), out ? "spent so far" : "nothing spent yet")}
+          ${need > 0 ? tile("need", "Still needed", money(need)) : tile("bal", "Balance", money(Math.max(0, b.raised - out)), "money in, less money out")}
+        </div>
+
+        <section class="mny-box">
+          <h2>Money in</h2>
+          ${b.funders.length ? `<table class="mny-table">
+            <thead><tr><th scope="col">From</th><th scope="col">Status</th><th scope="col" class="num">Amount</th></tr></thead>
+            <tbody>${b.funders.map(f => `<tr><td><span class="f-name">${esc(f.name)}</span>${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</td>
+              <td>${f.received ? `<span class="mny-st got"><b>Received</b>${short(f.received) ? ` <time>${short(f.received)}</time>` : ""}</span>` : `<span class="mny-st"><b>Pledged</b></span>`}</td>
+              <td class="num">${f.hide_amount ? `<small>in the total</small>` : money(numOf(f.amount))}</td></tr>`).join("")}</tbody>
+            <tfoot><tr><th scope="row" colspan="2">Total</th><td class="num">${money(b.raised)}</td></tr></tfoot>
+          </table>
+          <p class="note">Pledged means the giver has told us the amount. We mark it Received when the money reaches Raavanaa.</p>` : `<p class="empty">No gifts yet.</p>`}
+          ${need > 0 ? `<p class="mny-need"><span><b>${money(need)}</b> <span>still to go</span></span>${open ? DONATE_BTN : ""}</p>` : ""}
+        </section>
+
+        <section class="mny-box">
+          <h2>Money out</h2>
+          ${spent.length ? `<table class="mny-table">
+            <thead><tr><th scope="col">Date</th><th scope="col">What for</th><th scope="col" class="num">Amount</th></tr></thead>
+            <tbody>${spent.map(x => `<tr><td><time>${short(x.date)}</time></td><td>${esc(x.item)}${x.note ? `<small>${esc(x.note)}</small>` : ""}${x.receipt ? ` <a class="mny-rc" href="${esc(x.receipt)}" target="_blank" rel="noopener">See receipt</a>` : ""}</td><td class="num">${money(numOf(x.amount))}</td></tr>`).join("")}</tbody>
+            <tfoot><tr><th scope="row" colspan="2">Total spent</th><td class="num">${money(out)}</td></tr></tfoot>
+          </table>` : `<p class="mny-wait"><b>Nothing has been spent yet.</b> <span>Each cost is written here when it is paid, with its receipt.</span></p>
+          ${m.day ? `<p class="mny-day"><span>The day:</span> <time datetime="${esc(m.day)}">${day(m.day)}</time></p>` : ""}`}
+          ${!spent.length && b.lines.length ? `<h3 class="money-h">Planned costs</h3>
+          <ul class="bx-list">${b.lines.map(x => `<li><span>${esc(x.item)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>
+          <p class="bx-total"><span>Planned total</span><b>${money(planned)}</b></p>` : ""}
+        </section>
+
+        <section class="mny-box">
+          <h2>Receipts</h2>
+          ${receipts.length ? `<div class="mny-receipts">${receipts.map(r => `<a href="${esc(r.image)}" target="_blank" rel="noopener"><img src="${esc(imgUrl(r.image, 480))}" alt="" loading="lazy"><span>${esc(r.caption || "")}</span></a>`).join("")}</div>`
+            : `<p class="mny-wait"><span>A photo of each receipt is put here after the cost is paid.</span></p>`}
+        </section>
+
+        <p class="mny-back"><a class="btn ghost" href="/projects/${slugOf(p)}">Back to the project</a></p>
+      </section>`;
+    wireDonate(app, slugOf(p));
+  }
+
   function renderPrivacy(app, site) {
     app.innerHTML = `<section class="intro about-page"><span class="eyebrow">Our promise</span><h1 class="follow-title">${headline("Privacy & Child Safety")}</h1><div class="story">${md(site.privacy || "")}</div><p><a href="/contact">Contact us</a></p></section>`;
   }
@@ -2169,7 +2565,20 @@
   //   /give?project=<slug>   sponsor that project (never more than what it still needs)
   function renderGive(app, site, projects, GIVE) {
     const q = new URLSearchParams(location.search);
+    // Memory launch (FEAT.sponsor off): /give and /fund open only from the moment page (which sends ?tribute=).
+    // Opened directly, they go to the moment page instead, keeping the project chosen.
+    if (!FEAT.sponsor && !q.get("tribute")) {
+      const pj = q.get("project");
+      location.replace((TA_PATH ? "/ta" : "") + "/moment?for=memory" + (pj ? "&project=" + encodeURIComponent(pj) : ""));
+      return;
+    }
     const on = !!(GIVE && GIVE.enabled);
+    // No card payments at launch (SURESH, 12 Nov 2026): the form asks what the person would like to give, and a volunteer
+    // replies to them personally. No money is taken on the site and no bank details are shown anywhere on it.
+    // The card forms below stay built; they come back by themselves when PayHere is switched on in Netlify.
+    const ASK = !on;
+    const SAFE = `<p class="note give-safe"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3l7 2.6v5.6c0 4.3-2.9 7.6-7 9.3-4.1-1.7-7-5-7-9.3V5.6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12l2.2 2.2L15.2 10" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Raavanaa will only ever share bank details in a personal reply from our official email. Never pay into an account sent to you any other way.</span></p>`;
+    const needsMoney = x => { if (!x || !x.verified || stageNum(x) !== 1) return false; const b = budgetOf(x); return b.goal > 0 && b.raised < b.goal; };
     const LKR = GIVE_CUR === "LKR";
     // An estimate of the card fee, so a giver can choose to cover it (PayHere about 3.3%, Stripe about 2.9% + 30¢).
     const fee = c => LKR ? Math.max(0, Math.ceil((c / (1 - 0.033) - c) / 100) * 100) : Math.max(0, Math.ceil((c + 30) / (1 - 0.029)) - c);
@@ -2180,12 +2589,31 @@
     const p = !FUND && q.get("project") ? projects.find(x => slugOf(x) === slugify(q.get("project"))) : null;
     const open = projects.filter(canGive);
     document.title = (FUND ? "The Raavanaa Fund" : p ? `Sponsor a smile: ${p.title}` : "Sponsor a smile") + ` · ${site.name}`;
+    const TR_EN = { memory: "In loving memory of", remembrance: "Remembering, on the anniversary of", birthday: "Celebrating the birthday of", wedding: "Celebrating the wedding anniversary of",
+      newborn: "Welcoming", success: "Celebrating the success of", recovery: "Giving thanks for the recovery of", gratitude: "With gratitude for", festival: "A festival gift in the name of", honour: "In honour of" };
     const REASONS = [["memory", "In loving memory of"], ["remembrance", "Remembering, on the anniversary of"], ["birthday", "Celebrating the birthday of"], ["wedding", "Celebrating the wedding anniversary of"],
       ["newborn", "Welcoming"], ["success", "Celebrating the success of"], ["recovery", "Giving thanks for the recovery of"], ["gratitude", "With gratitude for"], ["festival", "A festival gift in the name of"], ["honour", "In honour of"]];
 
     const formHTML = (kind, amounts, opts = {}) => {
       const id = "g-" + kind;
-      return `<form class="give-form" data-kind="${kind}" ${opts.left ? `data-left="${opts.left}"` : ""} novalidate>
+      // "I'd like to give": the same choices, then a name and a way to reply. Nothing is paid here.
+      const tail = ASK ? `
+        <label><span>Your name</span><input name="name" maxlength="80" autocomplete="name" required></label>
+        <label><span>WhatsApp number or email</span><input name="contact" maxlength="120" required placeholder="077 123 4567 or you@example.com"></label>
+        <fieldset class="give-for give-list"><legend>How should we list your gift?</legend>
+          <label class="give-chip"><input type="radio" name="listing" value="both" checked><span>My name and the amount</span></label>
+          <label class="give-chip"><input type="radio" name="listing" value="name"><span>My name only</span></label>
+          <label class="give-chip"><input type="radio" name="listing" value="anonymous"><span>Anonymous</span></label>
+          <label class="give-chip"><input type="radio" name="listing" value="own"><span>In my own words</span></label>
+        </fieldset>
+        <label class="give-list-own" hidden><span>List my gift as</span><input name="listing_words" maxlength="80" placeholder="e.g. The Rajan family, Toronto"></label>
+        <p class="note give-list-note">Every gift is shown openly. You choose how yours appears.</p>
+        <label class="give-wish"><span>${kind === "general" ? "Your wish" : "A few words for us"} <small>(optional)</small></span><textarea name="wish" maxlength="300" rows="2"${kind === "general" ? ` placeholder="Is there something you would love this gift to do?"` : ""}></textarea></label>
+        <button class="btn give-pay" type="submit">I'd like to give</button>
+        ${SAFE}
+        <p class="note give-msg" role="status" hidden></p>
+      </form>` : "";
+      return `<form class="give-form${ASK ? " give-ask" : ""}" data-kind="${kind}" ${opts.left ? `data-left="${opts.left}"` : ""}${ASK ? " data-ask" : ""}${ASK && opts.goal ? ` data-goal="${opts.goal}" data-raised="${opts.raised || 0}" data-cur="${esc(opts.cur || "")}"` : ""} novalidate>
         <input type="hidden" name="kind" value="${kind}">
         ${opts.slug ? `<input type="hidden" name="project" value="${esc(opts.slug)}">` : ""}
         <p hidden><label>Leave empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
@@ -2206,11 +2634,12 @@
           <label class="give-remind-day" hidden><span>The day <small>(a birthday, a remembrance day...)</small></span><input type="date" name="remind_day"></label>`}
           <p class="note give-moment-link"><a href="/moment">More reasons, and a card to keep →</a></p>
         </div>
-        <fieldset class="give-amounts"><legend>${kind === "member" ? "Each month" : "Amount"} (${LKR ? "Sri Lankan rupees" : "CAD"})</legend>
-          ${amounts.map((a, i) => `<label class="give-chip"><input type="radio" name="pick" value="${a.v}"${i === (opts.pick || 0) ? " checked" : ""}><span>${esc(a.label || dollars(a.v))}</span></label>`).join("")}
+        <fieldset class="give-amounts"><legend>${ASK ? (kind === "member" ? "Roughly how much each month?" : "Roughly how much?") : `${kind === "member" ? "Each month" : "Amount"} (${LKR ? "Sri Lankan rupees" : "CAD"})`}</legend>
+          ${amounts.map((a, i) => `<label class="give-chip${a.what ? " give-real" : ""}"><input type="radio" name="pick" value="${a.v}" data-label="${esc(a.label || dollars(a.v))}"${i === (opts.pick || 0) ? " checked" : ""}><span>${a.what ? `<b>${esc(a.label || dollars(a.v))}</b><small>${esc(a.what)}</small>` : esc(a.label || dollars(a.v))}</span></label>`).join("")}
           <label class="give-chip give-other"><input type="radio" name="pick" value="other"><span>Other</span></label>
+          ${ASK ? `<label class="give-chip"><input type="radio" name="pick" value="unsure"><span>Not sure yet</span></label>` : ""}
         </fieldset>
-        <label class="give-own" hidden>Your amount
+        ${ASK ? `<label class="give-own" hidden><span>Your amount <small>(any currency)</small></span><input name="own" maxlength="40" autocomplete="off" placeholder="Rs 7,500 or $40"></label>${opts.goal ? `<p class="give-reach" role="status" hidden></p>` : ""}${tail}` : `<label class="give-own" hidden>Your amount
           <span class="give-dollar"><b aria-hidden="true">${LKR ? "Rs" : "$"}</b><input name="own" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Your amount in ${LKR ? "Sri Lankan rupees" : "Canadian dollars"}"></span></label>
         ${kind === "general" ? "" : `<label><span>Your name <small>(optional)</small></span><input name="name" maxlength="60" autocomplete="name"></label>
         <label class="give-check"><input type="checkbox" name="show_name" value="yes"> <span>${kind === "member" ? "Show my name with the Smile members" : "Show my name on the project page"}</span></label>
@@ -2221,34 +2650,45 @@
         <label class="give-check"><input type="checkbox" name="cover_fee" value="yes" checked> <span>Add <b class="give-fee">${dollars(0)}</b> so the card fee doesn't come out of the gift</span></label>
         <button class="btn give-pay" type="submit"${on ? "" : " disabled"}>${on ? "Continue to secure payment" : "Card payments coming soon"}</button>
         <p class="note give-msg" role="status" hidden></p>
-      </form>`;
+      </form>`}`;
     };
     const card = x => { const b = budgetOf(x), left = Math.max(0, b.goal - b.raised), cad = leftCad(x);
-      const need = isRupees(x) && !LKR ? `${moneyOf(site, left, x)} still needed (about ${dollars(Math.round(cad))} CAD)` : `${isRupees(x) ? moneyOf(site, left, x) : dollars(left)} still needed`;
+      const need = ASK ? `${moneyOf(site, left, x)} still needed` : isRupees(x) && !LKR ? `${moneyOf(site, left, x)} still needed (about ${dollars(Math.round(cad))} CAD)` : `${isRupees(x) ? moneyOf(site, left, x) : dollars(left)} still needed`;
       return `<a class="give-proj" href="/give?project=${encodeURIComponent(slugOf(x))}">
         <span class="give-proj-pic" style="${coverStyle(x, 0)}">${x.cover ? `<img src="${esc(imgUrl(x.cover, 400))}" alt="" loading="lazy">` : ""}</span>
         <span class="give-proj-text"><b>${esc(x.title)}</b><span>${esc(need)} · ${b.pct}% covered</span>
         <span class="b-bar" aria-hidden="true"><i style="width:${b.pct}%"></i></span></span></a>`; };
-    const notes = `<ul class="give-notes">
+    const notes = ASK ? `<ul class="give-notes">
+        <li>No money is taken on this site, and no bank details are shown on it. A volunteer replies to you personally and tells you how to send your gift.</li>
+        <li>Raavanaa Community is a nonprofit, not a registered charity, so gifts don't come with a tax receipt.</li>
+        <li>Every gift shows on the project page, and after the day you'll see how it went and where the money went.</li>
+      </ul>` : `<ul class="give-notes">
         <li>Payments are handled securely by ${GIVE_BY}. Raavanaa never sees your card details.${LKR ? " Cards from any country are welcome; your bank converts from rupees." : ""}</li>
         <li>Raavanaa Community is a nonprofit, not a registered charity, so gifts don't come with a tax receipt. ${GIVE_BY} emails you a payment receipt.</li>
         <li>Every gift shows on the project page, and after the day you'll see the photos and where the money went.</li>
       </ul>`;
     const banner = `${q.get("cancelled") ? `<p class="give-banner">Payment cancelled. Nothing was charged.</p>` : ""}
-      ${on ? (GIVE.test ? `<p class="give-banner test">Test mode: ${LKR ? "this opens PayHere's sandbox; use one of PayHere's test cards" : "use Stripe's test card 4242 4242 4242 4242"}. No real money is taken.</p>` : "") : `<p class="give-banner">Card payments are coming soon. Until then, send us a note from any project page and we'll reach out.</p>`}`;
+      ${on ? (GIVE.test ? `<p class="give-banner test">Test mode: ${LKR ? "this opens PayHere's sandbox; use one of PayHere's test cards" : "use Stripe's test card 4242 4242 4242 4242"}. No real money is taken.</p>` : "") : `<p class="give-banner ask">Tell us what you would like to give, and a Raavanaa volunteer will reply to you personally.</p>`}`;
 
+    // The fund's ready-made amounts: "give_amounts" in site.json (what each amount pays for) while asking, else the usual three.
+    const fundPicks = ASK && LKR && (site.give_amounts || []).some(x => x && numOf(x.amount) > 0 && x.label)
+      ? site.give_amounts.filter(x => x && numOf(x.amount) > 0 && x.label).map(x => ({ v: numOf(x.amount), label: dollars(numOf(x.amount)), what: x.label }))
+      : (LKR ? [2500, 5000, 10000] : [25, 50, 100]).map(v => ({ v }));
     let body;
     if (p) {
       // Until card payments are switched on, the form still shows (its button says "coming soon"), so a giver sees what is ahead.
       const bp = budgetOf(p), needs = !!p.verified && stageNum(p) === 1 && bp.goal > 0 && bp.raised < bp.goal && takesCards(p);
-      const left = Math.floor(leftCad(p) * 100) / 100, open1 = canGive(p) || (!on && needs && left > 0);
-      const picks = (LKR ? [2500, 5000, 10000] : [25, 50, 100]).filter(v => v < left).map(v => ({ v }));
-      picks.push({ v: left, label: `All of it: ${dollars(left)}` });
+      // When asking, amounts are in the project's own money (rupees or dollars); with cards, in the card currency.
+      const left = ASK ? Math.max(0, bp.goal - bp.raised) : Math.floor(leftCad(p) * 100) / 100, open1 = ASK ? needsMoney(p) : canGive(p);
+      // Ready-made amounts tied to real things (SURESH, 12 Nov 2026): "give_amounts" in projects.json, e.g. { "amount": 1100, "label": "about one child's whole day in Kandy" }.
+      const real = ASK ? (p.give_amounts || []).filter(x => x && numOf(x.amount) > 0 && numOf(x.amount) < left && x.label).map(x => ({ v: numOf(x.amount), label: moneyOf(site, numOf(x.amount), p), what: x.label })) : [];
+      const picks = real.length ? real : ((ASK ? isRupees(p) : LKR) ? [2500, 5000, 10000] : [25, 50, 100]).filter(v => v < left).map(v => (ASK ? { v, label: moneyOf(site, v, p) } : { v }));
+      picks.push({ v: left, label: `All of it: ${ASK ? moneyOf(site, left, p) : dollars(left)}` });
       body = `<section class="give-one">
         <div class="give-proj big">${card(p).replace(/^<a [^>]*>/, "").replace(/<\/a>$/, "")}</div>
         <div class="panel give-box">
           <h2>${open1 ? "Sponsor a smile" : "This project is fully covered"}</h2>
-          ${open1 ? formHTML("project", picks, { slug: slugOf(p), left, pick: Math.min(1, picks.length - 1) }) : `<p>Thank you to everyone who made it happen. <a href="/projects/${esc(slugOf(p))}">See the project</a>.</p>`}
+          ${open1 ? formHTML("project", picks, { slug: slugOf(p), left, pick: Math.min(1, picks.length - 1), goal: bp.goal, raised: bp.raised, cur: String(p.currency || site.currency || "$").trim() }) : `<p>Thank you to everyone who made it happen. <a href="/projects/${esc(slugOf(p))}">See the project</a>.</p>`}
           ${open1 && isRupees(p) && !LKR ? `<p class="note">This project's budget is in Sri Lankan rupees. Card gifts are in Canadian dollars and shown on the project at 1 CAD = Rs ${GIVE_RATE}.</p>` : ""}
         </div>
       </section>`;
@@ -2266,7 +2706,7 @@
         </div>
         <div class="panel give-box">
           <h2>Give to the Raavanaa Fund</h2>
-          ${formHTML("general", (LKR ? [2500, 5000, 10000] : [25, 50, 100]).map(v => ({ v })), { pick: 1 })}
+          ${formHTML("general", fundPicks, { pick: 1 })}
         </div>
       </section>`;
     } else {
@@ -2276,21 +2716,21 @@
             <h2>Become a Smile member</h2>
             <p>A small gift every month keeps the bridge open, so the next need can be met quickly.${GIVE && GIVE.members ? ` <b>${GIVE.members} Smile member${GIVE.members === 1 ? "" : "s"}</b> already.` : ""}</p>
             ${formHTML("member", (LKR ? [1000, 2500, 5000] : [15, 25, 50]).map(v => ({ v })))}
-            <p class="note">You can stop your monthly gift at any time: reply to your receipt email or <a href="/contact">contact us</a>.</p>
+            <p class="note">${ASK ? `You can stop your monthly gift at any time: just tell us.` : `You can stop your monthly gift at any time: reply to your receipt email or <a href="/contact">contact us</a>.`}</p>
           </div>
           <div class="panel give-box">
             <p class="give-tag">Once</p>
             <h2>Give to Raavanaa</h2>
             <p>A one-time gift the team uses where it is needed most. <a href="/fund">About the Raavanaa Fund →</a></p>
-            ${formHTML("general", (LKR ? [2500, 5000, 10000] : [25, 50, 100]).map(v => ({ v })), { pick: 1 })}
+            ${formHTML("general", fundPicks, { pick: 1 })}
           </div>
         </section>
-        ${open.length ? `<section class="give-list"><h2>Or sponsor a project</h2><div class="give-grid">${open.map(card).join("")}</div></section>` : ""}`;
+        ${(ASK ? projects.filter(needsMoney) : open).length ? `<section class="give-list"><h2>Or sponsor a project</h2><div class="give-grid">${(ASK ? projects.filter(needsMoney) : open).map(card).join("")}</div></section>` : ""}`;
     }
     app.innerHTML = `<div class="give-page">
       <header class="give-head"><p class="eyebrow">${FUND ? "The Raavanaa Fund" : "Sponsor a smile"}</p>
         <h1>${FUND ? "Give once. We find the smile." : p ? esc(p.title) : "Be part of the next moment"}</h1>
-        <p>${FUND ? "For when you want to help and are happy for us to choose where. Volunteers decide, and every rupee in and out is shown openly." : p ? "Your gift goes straight to this project. You'll see it on the project page, and after the day you'll see the photos and where every " + (LKR ? "rupee" : "dollar") + " went." : "Raavanaa is a bridge between people who need a hand and people ready to give one. Choose how you'd like to help."}</p>
+        <p>${FUND ? "For when you want to help and are happy for us to choose where. Volunteers decide, and every rupee in and out is shown openly." : p ? (ASK ? "Your gift goes straight to this project. You'll see it on the project page, and after the day you'll see how it went and where the money went." : "Your gift goes straight to this project. You'll see it on the project page, and after the day you'll see the photos and where every " + (LKR ? "rupee" : "dollar") + " went.") : "Raavanaa is a bridge between people who need a hand and people ready to give one. Choose how you'd like to help."}</p>
       </header>
       ${banner}${body}${notes}</div>`;
 
@@ -2311,6 +2751,20 @@
         }
         const rem = f.querySelector('[name="remind"]'), remDay = f.querySelector(".give-remind-day");
         if (rem && remDay) remDay.hidden = !rem.checked;
+        const listOwn = f.querySelector(".give-list-own");
+        if (listOwn) listOwn.hidden = (f.querySelector('[name="listing"]:checked') || {}).value !== "own";
+        // "Your gift brings this project to N% of its goal": shown when the amount is in the project's own money.
+        const reach = f.querySelector(".give-reach");
+        if (reach) {
+          const pk = (f.querySelector('[name="pick"]:checked') || {}).value, goal = +f.dataset.goal || 0, cur = (f.dataset.cur || "").toLowerCase();
+          let v = parseFloat(pk);
+          if (pk === "other") { const t = ownIn.value.trim().toLowerCase().replace(cur, "").replace(/^(rs\.?|lkr)/, "").trim(); v = /^[\d,]+(\.\d+)?$/.test(t) ? parseFloat(t.replace(/,/g, "")) : NaN; }
+          const pct = goal && v > 0 ? Math.min(100, Math.round(((+f.dataset.raised || 0) + v) / goal * 100)) : 0;
+          const text = !pct ? "" : pct >= 100 ? "Your gift completes this project: 100% of its goal." : `Your gift brings this project to ${pct}% of its goal.`;
+          if (reach.textContent !== text) reach.textContent = text;
+          reach.hidden = !text;
+        }
+        if (ASK) { if (msg.classList.contains("bad")) msg.hidden = true; return; }
         const a = amount(), c = Math.round(a * 100), add = fee(c) / 100, cover = f.querySelector('[name="cover_fee"]').checked;
         feeEl.textContent = dollars(add);
         if (msg.classList.contains("bad") && a >= MIN) msg.hidden = true;
@@ -2331,10 +2785,80 @@
         if (rem && q.get("every") === "year" && /^\d{4}-\d{2}-\d{2}$/.test(day)) { f.querySelector('[name="remind_day"]').value = day; rem.checked = q.get("remind") === "1"; }
       }
       if (q.get("wish") && f.querySelector('[name="wish"]')) f.querySelector('[name="wish"]').value = q.get("wish").slice(0, 300);
+      // Coming from Gift a Moment with a name (SURESH, 13 Nov 2026): the moment already says who the gift is for, so the
+      // form does not ask again. It shows one line instead, with "Change" to open the questions.
+      if (trPick && q.get("tn") && f.querySelector(".give-tribute")) {
+        const ta = location.pathname.startsWith("/ta/");
+        f.classList.add("from-moment");
+        const line = document.createElement("p"); line.className = "give-moment-sum";
+        line.innerHTML = `<span aria-hidden="true">♡</span><span>${esc(trPick === "behalf" ? (ta ? "சார்பில்:" : "On behalf of") : (q.get("tw") || "").slice(0, 60))} <b>${esc(q.get("tn").slice(0, 60))}</b></span><button type="button">${ta ? "மாற்று" : "Change"}</button>`;
+        line.querySelector("button").addEventListener("click", () => { f.classList.remove("from-moment"); line.remove(); });
+        f.querySelector(".give-for").before(line);
+      }
+      // More than one project chosen with the heart: the gift is shared, and the team sees which ones.
+      const also = (q.get("also") || "").split(",").map(x => projects.find(y => slugOf(y) === slugify(x))).filter(Boolean).slice(0, 6);
+      if (also.length && f.dataset.kind === "project") {
+        f.dataset.also = also.map(x => x.title).join("; ");
+        const line = document.createElement("p"); line.className = "note give-also";
+        line.textContent = (location.pathname.startsWith("/ta/") ? "இவற்றுடனும் பகிரப்படும்: " : "Shared with: ") + also.map(x => x.title).join(" · ");
+        (f.querySelector(".give-moment-sum") || f.querySelector(".give-for")).after(line);
+      }
       f.addEventListener("change", update); f.addEventListener("input", update); update();
+      // "I'd like to give": save the request for the team (and a copy in Netlify Forms), then say what happens next.
+      const ask = async () => {
+        const say = (t, bad) => { msg.hidden = false; msg.textContent = t; msg.classList.toggle("bad", !!bad); };
+        const nameIn = f.querySelector('[name="name"]'), ct = f.querySelector('[name="contact"]'), chip = f.querySelector('[name="pick"]:checked');
+        const pick = chip ? chip.value : "unsure";
+        if (pick === "other" && !ownIn.value.trim()) { say("Please tell us roughly how much, or choose “Not sure yet”.", true); ownIn.focus(); return; }
+        if (!nameIn.value.trim()) { say("Please add your name.", true); nameIn.focus(); return; }
+        const contact = ct.value.trim();
+        if (!(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) || contact.replace(/\D/g, "").length >= 7)) { say("Please add a WhatsApp number or an email address, so we can reply.", true); ct.focus(); return; }
+        const mode = (f.querySelector('[name="tribute_mode"]:checked') || {}).value || "none", trName = f.querySelector('[name="tribute_name"]');
+        if (mode !== "none" && !trName.value.trim()) { say(mode === "behalf" ? "Please add the name of the family or group." : "Please add the name of the person this gift is for.", true); trName.focus(); return; }
+        const remOn = f.querySelector('[name="remind"]'), remDay = f.querySelector('[name="remind_day"]');
+        if (mode !== "none" && remOn && remOn.checked && !remDay.value) { say("Please choose the day you would like to be reminded of.", true); remDay.focus(); return; }
+        const listing = (f.querySelector('[name="listing"]:checked') || {}).value || "both", listIn = f.querySelector('[name="listing_words"]'), listWords = listIn ? listIn.value.trim() : "";
+        if (listing === "own" && !listWords) { say("Please write how you would like your gift to be listed.", true); listIn.focus(); return; }
+        const taPage = location.pathname.startsWith("/ta/");
+        const fd = new FormData(f), body = { lang: taPage ? "ta" : "en" };
+        for (const [k, v] of fd.entries()) if (k !== "pick" && k !== "own" && k !== "tribute_mode" && k !== "wish") body[k] = v;
+        body.amount = (pick === "other" ? ownIn.value.trim() : pick === "unsure" ? "Not sure yet" : chip.dataset.label || chip.value) + (f.dataset.kind === "member" && pick !== "unsure" ? " a month" : "");
+        body.message = String(fd.get("wish") || "").trim();
+        if (f.dataset.also) body.message = ("Also for: " + f.dataset.also + (body.message ? "\n" + body.message : "")).slice(0, 500);
+        body.listing = listing; if (listing === "own") body.listing_words = listWords; else delete body.listing_words;
+        const trSel = f.querySelector('[name="tribute_kind"]');
+        if (mode === "none") { delete body.remind; delete body.remind_day; ["tribute_kind", "tribute_name", "tribute_note", "tribute_show"].forEach(k => delete body[k]); }
+        else {
+          body.tribute_on = "yes";
+          if (mode === "behalf") { body.tribute_kind = "behalf"; body.tribute_words = "Given on behalf of"; }
+          else if (trSel && trSel.selectedOptions[0]) body.tribute_words = (TA_PATH && TR_EN[trSel.value]) || trSel.selectedOptions[0].textContent.trim();
+        }
+        pay.disabled = true; say("Sending…");
+        const copy = new URLSearchParams({ "form-name": "give-request", name: body.name, contact, amount: body.amount, kind: body.kind || "", project: body.project || "", moment: body.moment || "",
+          tribute: mode === "none" ? "" : [body.tribute_words, body.tribute_name, body.tribute_note ? "(" + body.tribute_note + ")" : ""].filter(Boolean).join(" "), message: body.message, lang: body.lang, "bot-field": body["bot-field"] || "",
+          listing: listing === "own" ? "In their own words: " + listWords : { both: "Name and amount", name: "Name only", anonymous: "Anonymous" }[listing] || "" });
+        try {
+          const [r, n] = await Promise.all([
+            fetch("/api/pledge", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).catch(() => null),
+            fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: copy.toString() }).catch(() => null)]);
+          const out = r ? await r.json().catch(() => ({})) : {};
+          if (r && r.status === 400 && out.error) { say(out.error, true); pay.disabled = false; return; }
+          if (!(r && r.ok && out.ok) && !(n && n.ok)) throw new Error("not saved");
+          const slug = body.project || "", box = document.createElement("div");
+          box.className = "give-done"; box.tabIndex = -1; box.setAttribute("role", "status");
+          box.innerHTML = `<p class="give-done-heart" aria-hidden="true"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg></p>
+            <h3><span>Thank you,</span> <b>${esc(body.name)}</b></h3>
+            <p>A Raavanaa volunteer will write to you personally and tell you how to send your gift.</p>
+            <p class="give-done-at"><span>We will reply to:</span> <b>${esc(contact)}</b></p>
+            <p class="give-done-at"><span>Your gift will be listed as:</span> <b>${listing === "own" ? esc(listWords) : listing === "anonymous" ? "A friend of Raavanaa" : esc(body.name)}</b>${listing === "both" ? ` <span>with the amount</span>` : listing === "name" ? ` <span>without the amount</span>` : ""}</p>
+            ${SAFE}
+            <p class="give-done-next">${slug ? `<a class="btn ghost" href="/projects/${esc(slug)}">Back to the project</a>` : `<a class="btn ghost" href="/overview">See the projects</a>`}</p>`;
+          f.replaceWith(box); box.focus({ preventScroll: true }); box.scrollIntoView({ block: "center", behavior: "smooth" });
+        } catch (_) { say("We couldn't send that. Please check your connection and try again.", true); pay.disabled = false; }
+      };
       f.addEventListener("submit", async e => {
         e.preventDefault();
-        if (!on) return;
+        if (ASK) { ask(); return; }
         const a = amount();
         const say = (t, bad) => { msg.hidden = false; msg.textContent = t; msg.classList.toggle("bad", !!bad); };
         if (!(a >= MIN)) { say(`The smallest gift by card is ${dollars(MIN)}.`, true); (ownIn.offsetParent ? ownIn : pay).focus(); return; }
@@ -2383,7 +2907,7 @@
     const by = s && s.provider === "payhere" ? "PayHere" : GIVE_BY;
     const dollars = n => cash(Number(n), (s && s.currency) || GIVE_CUR);
     const TAp = location.pathname.startsWith("/ta/");
-    let h = "Thank you", t = `Your gift is on its way. ${by} will email you a receipt.`, link = `<a class="btn" href="/give">Back to Sponsor a smile</a>`;
+    let h = "Thank you", t = `Your gift is on its way. ${by} will email you a receipt.`, link = FEAT.sponsor ? `<a class="btn" href="/give">Back to Sponsor a smile</a>` : `<a class="btn" href="/moment">Back to Gift a Moment</a>`;
     if (s && s.ok) {
       if (s.kind === "project" && s.project) { h = "Thank you for sponsoring a smile"; t = TAp ? `உங்கள் ${dollars(s.amount)} “${esc(s.project.title)}” நடக்க உதவுகிறது. ${s.status === "pending" ? "உங்கள் வங்கி உறுதிப்படுத்தியதும், " : ""}ஒரு நிமிடத்துக்குள் இது திட்டப் பக்கத்தில் காட்டப்படும்; அந்த நாளுக்குப் பின் படங்களையும் பணம் எங்கே சென்றது என்பதையும் பார்ப்பீர்கள்.`
         : `Your ${dollars(s.amount)} is helping make “${esc(s.project.title)}” happen. It will show on the project page within a minute${s.status === "pending" ? " once your bank confirms it" : ""}, and after the day you'll see the photos and where the money went.`; link = `<a class="btn" href="/projects/${esc(s.project.slug)}">See the project</a>`; }
@@ -2416,21 +2940,28 @@
     const app = document.getElementById("app");
     const page = document.body.dataset.page;
     try {
+      // All five data calls start together (13 Nov 2026, speed): the gift totals used to wait for the other four.
+      const giveP = load("/api/give/totals").catch(() => null);
       const [site, data, cm, made] = await Promise.all([load("/site.json"), load("/projects.json"), load("/comments.json").catch(() => ({})), load("/api/projects").catch(() => null)]);
       // Projects created from requests in the team portal come from the database; projects.json wins if a slug is in both.
       if (made && made.projects) { const have = new Set((data.projects || []).map(p => p.slug)); data.projects = [...(data.projects || []), ...made.projects.filter(p => p && !have.has(p.slug))]; }
       COMMENTS = (cm && cm.comments) || [];
       frame(site);
+      // Asking for a project and vouching for it are switched off for the memory launch (FEAT.vetting): the form pages
+      // show a short note instead. The form itself stays in the HTML and comes back when the switch is true.
+      if (!FEAT.vetting && (page === "initiate" || page === "create")) { app.innerHTML = soonHTML(); document.title = `Opening soon · ${site.name}`; return; }
       // Only projects that have been visited and verified are public (Decisions log, 10 Oct 2026).
       const projects = (data.projects || []).filter(p => p && p.title && !p.hidden && p.verified);
       // Card gifts (PayHere or Stripe) are added to each project's supporters, so the budget bars and stages stay right.
-      const GIVE = await load("/api/give/totals").catch(() => null);
+      const GIVE = await giveP;
       GIVE_ON = !!(GIVE && GIVE.enabled);
       // PayHere (rupees) is the card service chosen for launch, so the forms show rupees even before it is switched on.
       if ((GIVE && GIVE.provider === "payhere") || !GIVE || !GIVE.enabled) { GIVE_BY = "PayHere"; GIVE_CUR = "LKR"; }
       GIVE_RATE = (GIVE && +GIVE.rate) || +site.rate_lkr_per_cad || 0;
       if (GIVE && GIVE.projects) projects.forEach(p => { const t = GIVE.projects[slugOf(p)]; if (t && takesCards(p)) p.funders = [...(p.funders || []), ...t.gifts]; });
       projects.filter(canGive).forEach(p => GIVE_OPEN.add(slugOf(p)));
+      // With card payments off, Donate still opens the project's form ("I'd like to give") while the project needs money.
+      if (!GIVE_ON) projects.forEach(p => { if (p.verified && stageNum(p) === 1) { const b = budgetOf(p); if (b.goal > 0 && b.raised < b.goal) GIVE_OPEN.add(slugOf(p)); } });
       if (page === "give" || page === "fund") renderGive(app, site, projects, GIVE);
       else if (page === "thanks") renderThanks(app, site);
       else if (page === "contact" || page === "volunteer") {
@@ -2464,8 +2995,13 @@
         }
         wireForms(document);
       } else if (page === "project") {
-        const slug = decodeURIComponent(location.pathname.replace(/\/+$/, "").split("/").pop());
-        if (slug === "sample") {
+        const parts = location.pathname.replace(/\/+$/, "").split("/");
+        // /projects/<slug>/money is the project's money page: money in, money out, receipts.
+        const moneyPage = parts.length > 3 && parts[parts.length - 1] === "money";
+        if (moneyPage) parts.pop();
+        const slug = decodeURIComponent(parts.pop());
+        if (moneyPage) renderMoney(app, site, projects, slugify(slug));
+        else if (slug === "sample") {
           // A filled-in example of the project page. It is not a real project and is not listed anywhere.
           const sample = await load("/sample-project.json");
           sample.sample = true;
@@ -2766,7 +3302,8 @@
         renderStage(app, site, projects, stage, example);
       } else if (page === "overview") {
         document.title = site.name;
-        renderOverview(app, site, projects);
+        if (document.body.dataset.variant === "classic") renderOverviewClassic(app, site, projects);
+        else await renderOverview(app, site, projects);
       } else if (page === "welcome") {
         document.title = site.name;
         renderWelcome(app, site);

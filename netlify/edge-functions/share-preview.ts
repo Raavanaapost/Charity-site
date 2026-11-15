@@ -60,7 +60,7 @@ export default async (request: Request, context: { next: () => Promise<Response>
     card = share.vouch || share.default;
     image = "vouch";
   } else {
-    const slug = decodeURIComponent(path.replace(/^\/projects\//, "").replace(/\/+$/, "")).toLowerCase();
+    const slug = decodeURIComponent(path.replace(/^\/projects\//, "").replace(/\/+$/, "").replace(/\/money$/, "")).toLowerCase();
     card = share.projects[slug] || share.default;
     image = share.projects[slug] ? slug : "default";
   }

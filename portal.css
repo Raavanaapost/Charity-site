@@ -448,3 +448,14 @@ body.pt-signedout .pt-main,body.pt-signedout .pt-shell{padding-top:0}body.pt-sig
 .pt-champ.off{opacity:.6}
 .pt-champ-meta{margin:6px 0 0;font-size:14px}
 .pt-champ-form h2{margin:0 0 10px;font-size:18px}
+
+/* "I'd like to give": people waiting for a volunteer's personal reply (Sponsors & pledges, live) */
+.pt-asks{margin:0 0 16px;border-color:#f3dfb0}
+.pt-asks h2{margin-top:0}
+.pt-ask{align-items:flex-start}
+.pt-ask.new{border-color:#f3dfb0;background:color-mix(in srgb,#fdf0dc 55%,var(--surface))}
+.pt-ask .pt-row-main small{display:block;margin-top:2px}
+.pt-ask .pt-row-main a{color:inherit;text-decoration:underline}
+.pt-ask-msg{font-style:italic}
+.pt-ask .pt-row-side{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.pt-asks-done{margin-top:10px}.pt-asks-done summary{cursor:pointer;font-weight:600;font-size:14px;padding:6px 0}
