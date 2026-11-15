@@ -15,7 +15,7 @@
 - [ ] Keep me posted: decide how sign-ups get their news (the addresses are stored under Forms in Netlify).
 - [ ] Privacy & child safety page: the team should read it and confirm the promises match what they do.
 - [ ] Publishing: work goes to the `draft` branch (free preview at draft--charity-projects-draft.netlify.app); merge to `main` only when the owner says "post" (15 Netlify credits per publish).
-- [ ] Launch: `SITE_PASSWORD` is set again (10 Oct 2026, owner asked: not going live yet). It locks raavanaa.org and the draft; the portal sign-in and /api are not blocked. Delete it and publish when ready to launch.
+- [x] Launch (15 Nov 2026): SURESH deleted `SITE_PASSWORD` in Netlify and the site was published once more, so raavanaa.org is open to everyone. Earlier note: `SITE_PASSWORD` was set again (10 Oct 2026, owner asked: not going live yet). It locks raavanaa.org and the draft; the portal sign-in and /api are not blocked. Delete it and publish when ready to launch.
 - [ ] Optional: "Sign in with GitHub" button for admins.
 - [ ] Second front page (/front-2) "Being checked" list: reads /api/pipeline, a safe summary of requests in the team portal (kind of day, district, children band, month, step; no names, villages, contacts or typed text). On the draft it adds rows marked "Example" while there are fewer than 2 real ones; the live site never shows examples.
 
