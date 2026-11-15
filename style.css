@@ -2504,3 +2504,9 @@ body[data-light] .intro .headline::after{content:"";display:block;width:84px;hei
 @media (min-width:821px){body[data-light] .intro .headline{font-size:clamp(56px,6vw,96px)}}
 body[data-light] .intro::after{display:none}
 html[lang="ta"] body[data-light] .intro .headline{font-family:"Noto Serif Tamil",serif;font-weight:700;color:#1f4d3a}
+/* Home, 15 Nov 2026 (SURESH: "make the stage colours a bit more colourful, it's too light now"): the circles show their
+   pictures at full colour with a full-colour rim and glow; the stage sections get a stronger tint and a coloured edge. */
+body[data-light] .stage.art{background:var(--art) center/cover padding-box,conic-gradient(from 210deg,var(--c),var(--c2),var(--c)) border-box;box-shadow:0 10px 26px -10px color-mix(in srgb,var(--c) 70%,transparent),0 0 0 4px color-mix(in srgb,var(--c) 18%,transparent)}
+body[data-light] .stage::before{opacity:.7}
+body[data-light] .stage.art::after{background:linear-gradient(transparent,rgba(255,253,247,.8) 22%,rgba(255,253,247,.8) 78%,transparent)}
+body[data-light] .home-latest{background:linear-gradient(135deg,color-mix(in srgb,var(--hc) 16%,var(--surface)),color-mix(in srgb,var(--hc) 7%,var(--surface)));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--hc) 35%,transparent),inset 5px 0 0 var(--hc)}
