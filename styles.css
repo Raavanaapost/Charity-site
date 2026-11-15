@@ -505,3 +505,18 @@ body.home::before{opacity:.6;filter:sepia(.2) saturate(.9)}
   .ps-acts .btn[data-note]{width:36px;padding:0}
 }
 @media (max-width:400px){.brand .brand-word{height:30px}#topnav{gap:4px}.top .btn.small{padding:0 10px}.top .btn.icon{width:36px;padding:0}}
+
+/* ================= Registration (parent or adult student) ================= */
+.reg{gap:16px}
+.reg-head{display:flex;align-items:center;gap:14px}
+.reg-mark{width:72px;height:auto;flex:none}
+.reg-head .eyebrow{color:#7d5208;letter-spacing:.12em}
+.reg-steps{list-style:none;margin:0;padding:12px 0 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;border-top:1px solid var(--line)}
+.reg-steps li{display:flex;align-items:center;gap:8px;min-width:0;font-size:.9rem;font-weight:700;color:var(--muted)}
+.reg-steps b{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#efe5d4;color:var(--muted);font-size:.85rem}
+.reg-steps li.now{color:var(--maroon)}
+.reg-steps li.now b{background:var(--maroon);color:#fff7ea}
+.reg-steps li.done b{background:var(--gold);color:#fff}
+.reg-steps span{line-height:1.2}
+.reg-note{margin-top:-6px}
+@media (max-width:420px){.reg-head{align-items:flex-start}.reg-mark{width:54px;margin-top:4px}.reg-steps li{font-size:.8rem;gap:6px}.reg-steps b{width:22px;height:22px}}

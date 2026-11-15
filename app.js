@@ -114,7 +114,7 @@ document.addEventListener("click", e => {
 function setTheme(home){
   document.body.classList.toggle("home", home);
 }
-const isHome = () => onRoot() && !/^\/(g|join|consent|signin|me|teacher|practice)(\/|$)/.test(location.pathname);
+const isHome = () => onRoot() && !/^\/(g|join|consent|register|signin|me|teacher|practice)(\/|$)/.test(location.pathname);
 
 function route(){
   if (!sb) return;
@@ -124,8 +124,7 @@ function route(){
   let m;
   if (hs && (p === "/" || p === "")) return viewGroup(hs);
   if ((m = p.match(/^\/g\/([a-z0-9-]+)\/?$/))) return viewGroup(m[1]);
-  if ((m = p.match(/^\/join\/([a-f0-9]{24,64})\/?$/))) return viewJoin(m[1]);
-  if ((m = p.match(/^\/consent\/([a-f0-9]{24,64})\/?$/))) return viewConsent(m[1]);
+  if ((m = p.match(/^\/(?:register|join|consent)\/([a-f0-9]{24,64})\/?$/))) return viewRegister(m[1]);
   if (p === "/signin") return viewSignIn();
   if (p === "/me") return redirect(roles.teacher ? "/teacher" : roles.family ? "/practice" : "/teacher");
   if ((m = p.match(/^\/practice(?:\/(notes|chat))?\/?$/))) return viewDesk(m[1] || "");
@@ -398,80 +397,90 @@ function viewSignIn(){
 const notWorking = () => { $app.innerHTML = `<section class="card narrow"><h1 class="page-h">This link isn't working</h1>
   <p class="muted m0">It may be old or already used. Please ask your teacher to send a new one.</p>${link("/", "Go to GuruShiya", "btn ghost")}</section>`; };
 
-/* ======================= PARENT CONSENT (no account needed) ======================= */
-async function viewConsent(token){
-  if (!onRoot()) { location.href = siteUrl("/consent/" + token); return; }
+/* ======================= REGISTRATION: one link from the teacher =======================
+   The parent (or an adult student) fills in the student's first name, email and mobile,
+   gives consent, signs in, and the student is joined. Old /consent and /join links land here too. */
+async function viewRegister(token){
+  if (!onRoot()) { location.href = siteUrl("/register/" + token); return; }
   $app.innerHTML = LOADING;
   const { data } = await sb.rpc("invite_info", { token });
   const k = data && data[0];
-  if (!k || k.step !== "consent") return notWorking();
-  const head = `<span class="eyebrow">Parent consent</span>
-    <h1 class="page-h">${esc(k.teacher_name)} would like to add ${esc(k.first_name)} to ${esc(k.class_name)}</h1>
-    <p class="muted m0">${esc(k.group_name)} · ${DAYS[k.day_of_week]}s at ${fmtTime(k.start_time)}</p>`;
-  const done = (title, text) => { $app.innerHTML = `<section class="card narrow">${head}<div class="notice ok"><strong>${esc(title)}</strong><br>${esc(text)}</div></section>`; };
-  if (k.status === "declined") return done("You said no", `${k.first_name} won't be added. If you change your mind, ask ${k.teacher_name} to send a new request.`);
-  if (k.status !== "waiting_consent") return done("Consent already given. Thank you.", `${k.teacher_name} will send you a link to start practising.`);
-  $app.innerHTML = `<section class="card narrow">${head}
-    <div class="facts">
-      <div><strong>What GuruShiya keeps</strong><span>${esc(k.first_name)}'s first name, the days and minutes they practise, and messages with the teacher.</span></div>
-      <div><strong>Who can see it</strong><span>Only your family and ${esc(k.teacher_name)}.</span></div>
-      <div><strong>What we never ask for</strong><span>Age, school, address or photos.</span></div>
-    </div>
-    <form id="cf">
-      <label for="cf-name">Your name<input id="cf-name" required minlength="2" maxlength="80" autocomplete="name"></label>
-      <label class="check" for="cf-ok"><input id="cf-ok" type="checkbox" required><span>I'm ${esc(k.first_name)}'s parent or guardian, and I agree.</span></label>
-      <div class="row"><button class="btn" type="submit">Yes, I agree</button><button class="btn ghost" type="button" id="cf-no">No, thank you</button></div>
-      <div id="cf-out" role="status"></div>
-    </form></section>`;
-  const out = document.getElementById("cf-out");
-  document.getElementById("cf").onsubmit = async e => {
-    e.preventDefault(); const b = e.target.querySelector("button[type=submit]"); b.disabled = true;
-    const { error } = await sb.rpc("answer_consent", { token, parent_name: val("cf-name"), agree: true });
-    b.disabled = false;
-    if (error) { out.innerHTML = `<div class="notice">${esc(friendly(error))}</div>`; return; }
-    done("Thank you. Consent given.", `${k.teacher_name} will now send you a link to start ${k.first_name}'s practice.`);
-  };
-  const no = document.getElementById("cf-no");
-  no.onclick = async () => {
-    if (!no.dataset.sure) { no.dataset.sure = "1"; no.textContent = "Tap again to say no"; return; }
-    const { error } = await sb.rpc("answer_consent", { token, parent_name: "", agree: false });
-    if (error) { out.innerHTML = `<div class="notice">${esc(friendly(error))}</div>`; return; }
-    done("Thanks for letting us know", `${k.first_name} won't be added to the class.`);
-  };
-}
-
-/* ======================= JOIN INVITATION (teacher sends it after consent) ======================= */
-async function viewJoin(token){
-  if (!onRoot()) { location.href = siteUrl("/join/" + token); return; }
-  $app.innerHTML = LOADING;
-  const { data } = await sb.rpc("invite_info", { token });
-  const k = data && data[0];
-  if (!k || k.step !== "join") return notWorking();
+  if (!k) return notWorking();
   if (k.mine) return redirect("/practice");
-  const head = `<span class="eyebrow">Your invitation</span>
-    <h1 class="page-h">${k.is_adult ? `Join ${esc(k.class_name)}` : `Start ${esc(k.first_name)}'s practice in ${esc(k.class_name)}`}</h1>
-    <p class="muted m0">${esc(k.group_name)} with ${esc(k.teacher_name)} · ${DAYS[k.day_of_week]}s at ${fmtTime(k.start_time)}</p>`;
-  const say = (t) => { $app.innerHTML = `<section class="card narrow">${head}<div class="notice">${esc(t)}</div></section>`; };
-  if (k.status === "waiting_consent" || k.status === "declined") return say("A parent needs to give consent first. Your teacher will send this link again after that.");
-  if (k.status === "active") return say("This invitation has already been used. If that wasn't you, ask your teacher for a new one.");
-  if (!user) {
-    const b = signInBlock("/join/" + token);
-    $app.innerHTML = `<section class="card narrow">${head}
-      <p class="m0">${k.is_adult ? "Sign in to start." : `Sign in with the parent's account. ${esc(k.first_name)}'s practice will be kept on it.`}</p>${b.html}</section>`;
-    b.wire(); return;
-  }
-  $app.innerHTML = `<section class="card narrow">${head}
-    <p class="m0">You're signed in as <strong>${esc(user.email || "this account")}</strong>. ${k.is_adult ? "Your practice will be kept here." : `${esc(k.first_name)}'s practice will be kept on this account.`}</p>
-    <form id="jf">${k.is_adult ? `<label class="check" for="jf-ok"><input id="jf-ok" type="checkbox" required><span>I agree to GuruShiya keeping my first name, practice and messages. Only I and ${esc(k.teacher_name)} can see them.</span></label>` : ""}
-      <button class="btn big" type="submit">Start practising</button><div id="jf-out" role="status"></div></form></section>`;
-  document.getElementById("jf").onsubmit = async e => {
-    e.preventDefault(); const b = e.target.querySelector("button"); b.disabled = true;
-    const ok = document.getElementById("jf-ok");
-    const { data: sid, error } = await sb.rpc("accept_invite", { token, agree: ok ? ok.checked : false });
-    b.disabled = false;
-    if (error) { document.getElementById("jf-out").innerHTML = `<div class="notice">${esc(friendly(error))}</div>`; return; }
-    roles.family = true; store.set("riyaz.enrol", sid); go("/practice");
+  const adult = k.is_adult, KEY = "gs.reg." + token, first = k.first_name;
+  const head = `<div class="reg-head"><img class="reg-mark" src="/assets/gs-emblem.png" alt="" width="240" height="134">
+    <div><span class="eyebrow">${adult ? "Registration" : "Registration and consent"}</span>
+    <h1 class="page-h">${adult ? `Join ${esc(k.class_name)}` : `Register ${esc(first)} for ${esc(k.class_name)}`}</h1>
+    <p class="muted m0">${esc(k.group_name)} with ${esc(k.teacher_name)} · ${DAYS[k.day_of_week]}s at ${fmtTime(k.start_time)}</p></div></div>`;
+  const steps = n => `<ol class="reg-steps">${["Details and consent", "Sign in", "Start practising"].map((t, i) =>
+    `<li class="${i < n ? "done" : i === n ? "now" : ""}"${i === n ? ' aria-current="step"' : ""}><b>${i < n ? "✓" : i + 1}</b><span>${t}</span></li>`).join("")}</ol>`;
+  const say = (t, ok) => { $app.innerHTML = `<section class="card narrow reg">${head}<div class="notice${ok ? " ok" : ""}">${t}</div></section>`; };
+  if (k.status === "declined") return say(`You said no, so ${esc(first)} won't be added. If you change your mind, ask ${esc(k.teacher_name)} for a new link.`, true);
+  if (k.status === "active") return say("This link has already been used. If that wasn't you, please ask the teacher for a new one.");
+  let saved = null; try { saved = JSON.parse(store.get(KEY) || "null"); } catch (e) {}
+  const finish = async v => {
+    const { data: sid, error } = await sb.rpc("register_student", { token, student_name: v.name, email: v.email, phone: v.phone, agree: true });
+    if (error) return form(v, friendly(error));
+    store.del(KEY); roles.family = true; store.set("riyaz.enrol", sid);
+    $app.innerHTML = `<section class="card narrow reg">${head}${steps(2)}
+      <div class="notice ok"><strong>Thank you. ${adult ? "You're registered." : `${esc(v.name)} is registered.`}</strong><br>
+        ${adult ? "Your" : `${esc(v.name)}'s`} practice page is ready. ${esc(k.teacher_name)} will see the practice each day.</div>
+      ${link("/practice", adult ? "Start practising" : `Open ${esc(v.name)}'s practice`, "btn big")}</section>`;
   };
+  function form(v, err){
+    $app.innerHTML = `<section class="card narrow reg">${head}${steps(0)}
+      <form id="rf" novalidate>
+        <label for="rf-name">${adult ? "Your first name" : "Student's first name"}<input id="rf-name" required maxlength="40" autocomplete="${adult ? "given-name" : "off"}" value="${esc(v.name)}"></label>
+        ${adult ? "" : `<p class="hint m0 reg-note">First name only. We never ask for age, school or address.</p>`}
+        <div class="two">
+          <label for="rf-email">${adult ? "Your email" : "Parent's email"}<input id="rf-email" type="email" required maxlength="120" autocomplete="email" value="${esc(v.email)}"></label>
+          <label for="rf-phone">${adult ? "Your mobile" : "Parent's mobile"}<input id="rf-phone" type="tel" required inputmode="tel" maxlength="20" autocomplete="tel" placeholder="416 555 0100" value="${esc(v.phone)}"></label>
+        </div>
+        <div class="facts">
+          <div><strong>What GuruShiya keeps</strong><span>${adult ? "Your" : "The student's"} first name, the days and minutes of practice, and messages with ${esc(k.teacher_name)}.</span></div>
+          <div><strong>Who can see it</strong><span>Only ${adult ? "you" : "your family"} and ${esc(k.teacher_name)}. Other students can't.</span></div>
+        </div>
+        <label class="check" for="rf-ok"><input id="rf-ok" type="checkbox" ${v.ok ? "checked" : ""}><span>${adult
+          ? `I agree to GuruShiya keeping my first name, practice and messages as described above.`
+          : `I am the student's parent or guardian. I give consent for them to join ${esc(k.class_name)} and for GuruShiya to keep their first name, practice and messages as described above.`}</span></label>
+        <div class="row"><button class="btn" type="submit">${user ? "Register and start" : "Agree and continue"}</button>
+          ${!adult && k.step === "consent" ? `<button class="btn ghost" type="button" id="rf-no">No, thank you</button>` : ""}</div>
+        <div id="rf-out" role="status">${err ? `<div class="notice">${esc(err)}</div>` : ""}</div>
+      </form></section>`;
+    const out = document.getElementById("rf-out"), bad = (m, id) => { out.innerHTML = `<div class="notice">${esc(m)}</div>`; if (id) document.getElementById(id).focus(); };
+    document.getElementById("rf").onsubmit = async e => {
+      e.preventDefault();
+      const nv = { name: val("rf-name").replace(/\s+/g, " "), email: val("rf-email"), phone: val("rf-phone"), ok: document.getElementById("rf-ok").checked };
+      if (!nv.name) return bad(adult ? "Please type your first name." : "Please type the student's first name.", "rf-name");
+      if (!adult && nv.name.includes(" ")) return bad("Please type the first name only.", "rf-name");
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(nv.email)) return bad("Please check the email address.", "rf-email");
+      if (!/^\+?[0-9 ().-]{7,20}$/.test(nv.phone)) return bad("Please check the mobile number.", "rf-phone");
+      if (!nv.ok) return bad("Please tick the box to give consent.", "rf-ok");
+      e.target.querySelector("button[type=submit]").disabled = true;
+      if (user) return finish(nv);
+      store.set(KEY, JSON.stringify(nv)); signInStep(nv);
+    };
+    const no = document.getElementById("rf-no");
+    if (no) no.onclick = async () => {
+      if (!no.dataset.sure) { no.dataset.sure = "1"; no.textContent = "Tap again to say no"; return; }
+      const { error } = await sb.rpc("answer_consent", { token, parent_name: "", agree: false });
+      if (error) return bad(friendly(error));
+      store.del(KEY); say(`Thanks for letting us know. ${esc(first)} won't be added to the class.`, true);
+    };
+  }
+  function signInStep(v){
+    const b = signInBlock("/register/" + token);
+    $app.innerHTML = `<section class="card narrow reg">${head}${steps(1)}
+      <p class="m0"><strong>Last step: sign in</strong> so you can open ${adult ? "your" : esc(v.name) + "'s"} practice page. No password needed. Use the same email next time.</p>
+      ${b.html}
+      <p class="hint m0">Details: ${esc(v.name)} · ${esc(v.email)} · ${esc(v.phone)} <button class="link-btn" type="button" id="rf-edit">Change</button></p></section>`;
+    b.wire();
+    const em = document.getElementById("si-email"); if (em && !em.value) em.value = v.email;
+    document.getElementById("rf-edit").onclick = () => form(v);
+  }
+  if (user && saved && saved.ok) { $app.innerHTML = `<section class="card narrow reg">${head}<p class="muted m0">Finishing your registration…</p></section>`; return finish(saved); }
+  if (!user && saved && saved.ok) return signInStep(saved);
+  form(saved || { name: first, email: user?.email || "", phone: "", ok: false });
 }
 
 /* ======================= SHARED BITS ======================= */
@@ -685,30 +694,29 @@ async function viewDesk(tab = ""){
 
 /* ======================= TEACHER PORTAL ======================= */
 const STATUS = {
-  waiting_consent: { label: "Waiting for parent", cls: "wait" },
+  waiting_consent: { label: "Waiting to register", cls: "wait" },
   consented: { label: "Parent said yes", cls: "info" },
-  invited: { label: "Invited", cls: "info" },
-  active: { label: "Active", cls: "ok" },
+  invited: { label: "Waiting to register", cls: "wait" },
+  active: { label: "Registered", cls: "ok" },
   declined: { label: "Parent said no", cls: "grey" }
 };
 const statusPill = s => `<span class="pill ${STATUS[s.status]?.cls || ""}">${STATUS[s.status]?.label || esc(s.status)}</span>`;
 const waDigits = p => { let d = String(p || "").replace(/\D/g, ""); if (d.length === 10) d = "1" + d; return d; };
-const nextStep = s => s.status === "waiting_consent" ? { which: "consent", label: s.consent_sent_at ? "Send again" : "Ask for consent" }
-  : s.status === "consented" ? { which: "join", label: "Send join link" }
-  : s.status === "invited" ? { which: "join", label: s.join_sent_at ? "Send again" : "Send join link" } : null;
+const nextStep = s => s.status === "waiting_consent" ? { which: "consent", label: s.consent_sent_at ? "Send again" : "Send registration link" }
+  : s.status === "consented" ? { which: "join", label: "Send registration link" }
+  : s.status === "invited" ? { which: "join", label: s.join_sent_at ? "Send again" : "Send registration link" } : null;
 
 function inviteText(s, which, g, k){
-  const url = siteUrl(which === "consent" ? "/consent/" + s.consent_token : "/join/" + s.join_token);
-  if (which === "consent") return `Hello${s.contact_name ? " " + s.contact_name : ""}, this is ${g.teacher_name} from ${g.name}. I'd like to add ${s.first_name} to my ${k.name} class on GuruShiya, where students keep track of their daily practice. Please confirm you agree here: ${url}`;
-  if (s.is_adult) return `Hello ${s.first_name}, this is ${g.teacher_name} from ${g.name}. Here is your link to join ${k.name} on GuruShiya and keep track of your daily practice: ${url}`;
-  return `Hello${s.contact_name ? " " + s.contact_name : ""}, thank you for agreeing. ${s.first_name}'s place in ${k.name} is ready. Open this link to start practising: ${url}`;
+  const url = siteUrl("/register/" + (which === "consent" ? s.consent_token : s.join_token));
+  if (s.is_adult) return `Hello ${s.first_name}, this is ${g.teacher_name} from ${g.name}. Please register for ${k.name} on GuruShiya, where you can keep track of your daily practice: ${url}`;
+  return `Hello${s.contact_name ? " " + s.contact_name : ""}, this is ${g.teacher_name} from ${g.name}. Please register ${s.first_name} for my ${k.name} class on GuruShiya and give your consent here. It takes a minute, and then ${s.first_name} can keep track of their daily practice: ${url}`;
 }
 function openInvite(s, which, g, k, onDone){
   const text = inviteText(s, which, g, k), phone = s.contact_phone, email = s.contact_email;
-  const subject = which === "consent" ? `Consent for ${s.first_name} to join ${k.name} on GuruShiya` : `${s.first_name}'s GuruShiya link for ${k.name}`;
+  const subject = s.is_adult ? `Your GuruShiya registration for ${k.name}` : `Please register ${s.first_name} for ${k.name} on GuruShiya`;
   const dlg = document.createElement("dialog"); dlg.className = "dlg"; dlg.setAttribute("aria-labelledby", "dlg-h");
   dlg.innerHTML = `<div class="dlg-in">
-    <h2 id="dlg-h">${which === "consent" ? `Ask ${esc(s.contact_name || "the parent")} for consent` : `Send ${esc(s.first_name)}'s join link`}</h2>
+    <h2 id="dlg-h">Send ${esc(s.is_adult ? s.first_name : s.contact_name || "the parent")} the registration link</h2>
     <p class="muted m0">Choose how to send it. Your WhatsApp, messages or email opens with this message ready. Just press send.</p>
     <div class="msg-preview">${esc(text)}</div>
     <div class="send-btns">
@@ -880,11 +888,11 @@ function tOverview(pane, g, D, again){
   else if (!D.studs.length) todo.push({ text: "Add your first student", btn: link("/teacher/students", "Add a student", "btn small") });
   D.classes.forEach(k => { if (!D.taskFor(k.id) && D.studs.some(s => s.class_id === k.id)) todo.push({ text: `Set this week's practice for ${k.name}`, btn: link("/teacher/classes", "Set practice", "btn small ghost") }); });
   D.studs.forEach(s => {
-    if (s.status === "waiting_consent" && !s.consent_sent_at) todo.push({ s, which: "consent", text: `Ask ${s.contact_name || "the parent"} for consent for ${s.first_name}`, label: "Send request" });
-    else if (s.status === "waiting_consent" && old(s.consent_sent_at)) todo.push({ s, which: "consent", text: `No answer yet from ${s.first_name}'s parent`, label: "Send again" });
-    else if (s.status === "consented") todo.push({ hot: true, s, which: "join", text: `${s.first_name}'s parent said yes. Send the join link`, label: "Send join link" });
-    else if (s.status === "invited" && !s.join_sent_at) todo.push({ s, which: "join", text: `Send ${s.first_name} the join link`, label: "Send join link" });
-    else if (s.status === "invited" && old(s.join_sent_at)) todo.push({ s, which: "join", text: `${s.first_name} hasn't started yet`, label: "Send again" });
+    if (s.status === "waiting_consent" && !s.consent_sent_at) todo.push({ s, which: "consent", text: `Send ${s.contact_name || "the parent"} the registration link for ${s.first_name}`, label: "Send link" });
+    else if (s.status === "waiting_consent" && old(s.consent_sent_at)) todo.push({ s, which: "consent", text: `${s.first_name}'s parent hasn't registered yet`, label: "Send again" });
+    else if (s.status === "consented") todo.push({ hot: true, s, which: "join", text: `${s.first_name}'s parent said yes. Send the registration link to finish`, label: "Send link" });
+    else if (s.status === "invited" && !s.join_sent_at) todo.push({ s, which: "join", text: `Send ${s.first_name} the registration link`, label: "Send link" });
+    else if (s.status === "invited" && old(s.join_sent_at)) todo.push({ s, which: "join", text: `${s.first_name} hasn't registered yet`, label: "Send again" });
     else if (s.status === "declined") todo.push({ text: `${s.first_name}'s parent said no`, btn: link("/teacher/students/" + s.id, "View", "btn small ghost") });
   });
   const FILTERS = [["all", "All"], ["done", "Practised"], ["notyet", "Not yet"], ["remind", "Need a reminder"]];
@@ -963,7 +971,7 @@ function tStudents(pane, g, D, again){
       <label for="ns-pname" id="ns-pname-wrap">Parent or guardian's name<input id="ns-pname" maxlength="80" autocomplete="off"></label>
       <div class="two"><label for="ns-phone"><span id="ns-phone-l">Parent's mobile (WhatsApp or text)</span><input id="ns-phone" type="tel" inputmode="tel" maxlength="20" pattern="[+]?[0-9 ().\\-]{7,20}" placeholder="416 555 0100"></label>
         <label for="ns-email"><span id="ns-email-l">Parent's email</span><input id="ns-email" type="email" maxlength="120"></label></div>
-      <p class="hint m0" id="ns-hint">GuruShiya asks the parent for consent before a child can join. Add a mobile number or an email.</p>
+      <p class="hint m0" id="ns-hint">You'll send the parent a registration link. They fill in the form and give consent before the child can join. Add a mobile number or an email.</p>
       <div class="row"><button class="btn" type="submit">Add student</button><button class="btn ghost" type="button" id="ns-cancel">Cancel</button></div>
       <div id="ns-out" role="status"></div>
     </form>
@@ -977,14 +985,14 @@ function tStudents(pane, g, D, again){
     document.getElementById("ns-pname-wrap").hidden = adult;
     document.getElementById("ns-phone-l").textContent = adult ? "Student's mobile (WhatsApp or text)" : "Parent's mobile (WhatsApp or text)";
     document.getElementById("ns-email-l").textContent = adult ? "Student's email" : "Parent's email";
-    document.getElementById("ns-hint").textContent = adult ? "Adults agree for themselves when they open their join link." : "GuruShiya asks the parent for consent before a child can join. Add a mobile number or an email."; };
+    document.getElementById("ns-hint").textContent = adult ? "You'll send a registration link. Adults fill in the form and agree for themselves." : "You'll send the parent a registration link. They fill in the form and give consent before the child can join. Add a mobile number or an email."; };
   form.querySelectorAll('input[name="ns-who"]').forEach(r => r.onchange = setWho);
   document.getElementById("add-btn").onclick = () => { form.hidden = false; document.getElementById("ns-name").focus(); };
   document.getElementById("ns-cancel").onclick = () => { form.reset(); setWho(); form.hidden = true; };
   form.onsubmit = async e => {
     e.preventDefault(); const out = document.getElementById("ns-out"), adult = document.getElementById("ns-adult").checked;
     const phone = val("ns-phone") || null, email = val("ns-email") || null;
-    if (!adult && !phone && !email) { out.innerHTML = `<div class="notice">Please add the parent's mobile number or email, so GuruShiya can ask for consent.</div>`; return; }
+    if (!adult && !phone && !email) { out.innerHTML = `<div class="notice">Please add the parent's mobile number or email, so you can send the registration link.</div>`; return; }
     const b = form.querySelector("button[type=submit]"); b.disabled = true;
     const { data: s, error } = await sb.from("students").insert({ class_id: val("ns-class"), first_name: val("ns-name"), is_adult: adult,
       contact_name: adult ? null : (val("ns-pname") || null), contact_phone: phone, contact_email: email }).select().single();

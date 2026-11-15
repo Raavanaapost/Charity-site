@@ -5,7 +5,7 @@ It shares nothing with raavanaa.org.
 
 ## 1. Database (done)
 
-Supabase project **riyaz** (Canada Central). The design and every change are in `supabase/schema.sql` and `supabase/stage2.sql`.
+Supabase project **riyaz** (Canada Central). The design and every change are in `supabase/schema.sql`, `supabase/stage2.sql` and `supabase/stage3.sql`.
 Authentication → URL Configuration is set to `https://abhyasa-portal.netlify.app` with redirect `https://abhyasa-portal.netlify.app/**`.
 
 ## 2. Netlify (done)
@@ -51,8 +51,8 @@ Supabase → **Authentication → Emails → SMTP Settings**.
 ## How it works
 
 1. **Teacher** signs in, sets up the group, adds classes, then adds students.
-2. **Child**: GuruShiya asks the parent for consent. The teacher sends the request with one tap, on WhatsApp, text or email from their own phone. The parent opens the link and says yes or no. No account is needed.
-3. After a yes, the teacher sends the **join link**. The parent (or adult student) signs in and the student's practice desk opens.
+2. The teacher sends one **registration link** with one tap, on WhatsApp, text or email from their own phone.
+3. The **parent** (or an adult student) opens it, fills in the student's first name, email and mobile, ticks consent, and signs in. The student is joined and the practice page opens. A parent can also say "No, thank you".
 4. **Student** picks the class, presses **Start**, practises, and presses **Stop**. The minutes appear on the teacher's dashboard.
 5. **Teacher** sets the weekly practice, posts homework, class notes and announcements to the class, chats with each student, and sees a report for every student.
 

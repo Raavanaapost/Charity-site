@@ -21,6 +21,10 @@
 ## Dashboard
 - [x] Overview: who practised today, who hasn't, who needs a reminder; Note and Remind buttons; remind everyone not yet at once
 
+## Registration
+- [x] One registration link: parent fills in the student's first name, email and mobile, gives consent, signs in, and the student is joined
+- [ ] Parents need Google sign-in or the email service switched on (see Switch on) before they can finish registering
+
 ## Next features
 - [ ] GuruShiya sends consent and join requests itself (email first, then text/WhatsApp), instead of from the teacher's phone
 - [ ] Photos or PDFs on class notes and homework
