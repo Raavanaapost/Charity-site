@@ -24,7 +24,7 @@ Supabase → **Table Editor → groups** → tick **approved** for that row → 
 2. **Google Auth Platform → Branding**: app name *GuruShiya*, your support email, the square GuruShiya icon (`icon-512.png`) as the logo, and the home page link.
 3. **Audience**: External. **Data access**: add the `openid` scope (email and profile are already there).
 4. **Clients → Create client → Web application**:
-   - Authorized JavaScript origins: `https://abhyasa-portal.netlify.app` (add your own domain later)
+   - Authorized JavaScript origins: `https://kalaikoodam.raavanaa.org` and `https://abhyasa-portal.netlify.app`
    - Authorized redirect URIs: `https://ppoxitvzimilqvywrwpf.supabase.co/auth/v1/callback`
 5. Copy the **Client ID** and **Client secret**.
 6. Supabase → **Authentication → Sign In / Providers → Google**: turn it on, paste both, save.
@@ -42,11 +42,15 @@ Supabase's built-in email only sends to members of your Supabase team, at most 2
 Set up an email service (for example Resend or Brevo) with your own domain, then add its details in
 Supabase → **Authentication → Emails → SMTP Settings**.
 
-## 5. Own domain (later)
+## 5. Web address
 
-1. Netlify → abhyasa-portal → **Domain management → Add a domain**, using Netlify DNS.
-2. Ask Netlify support to turn on **wildcard subdomains** (`*.yourdomain`) for the site.
-3. Put the domain in `config.js` as `rootDomain`, and update the Supabase Site URL, Redirect URLs and the Google origins.
+For now GuruShiya lives at **https://kalaikoodam.raavanaa.org** (the old address, abhyasa-portal.netlify.app, still works).
+1. Netlify → abhyasa-portal → **Domain management → Add a domain** → `kalaikoodam.raavanaa.org`. If Netlify asks for a DNS record: CNAME, host `kalaikoodam`, value `abhyasa-portal.netlify.app`.
+2. Supabase → **Authentication → URL Configuration**: Site URL `https://kalaikoodam.raavanaa.org`, and add the redirect `https://kalaikoodam.raavanaa.org/**` (keep the Netlify one).
+3. Google sign-in, when switched on: add `https://kalaikoodam.raavanaa.org` to the Authorized JavaScript origins.
+
+Later, with its own domain: add the domain the same way, ask Netlify support to turn on **wildcard subdomains** (`*.yourdomain`),
+put the domain in `config.js` as `rootDomain`, and update Supabase and Google the same way.
 
 ## How it works
 
