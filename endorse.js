@@ -13,7 +13,7 @@
   const pageUrl = location.origin + (TA ? "/ta/e/" : "/e/") + token;
   // Memory launch (SURESH, 14 Nov 2026): vouching is switched off for now. This page does not load site.js, so its
   // switch is here; set VETTING to true together with "vetting" at the top of site.js. The team's preview still works.
-  const VETTING = false;
+  const VETTING = true;
   if (!VETTING && params.get("preview") !== "1") {
     document.addEventListener("DOMContentLoaded", () => {
       const m = document.querySelector("main") || document.body;
