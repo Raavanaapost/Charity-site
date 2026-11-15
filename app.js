@@ -38,7 +38,7 @@ const SHORT = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 const $app = document.getElementById("app"), $nav = document.getElementById("topnav");
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const val = id => document.getElementById(id).value.trim();
-const LOADING = `<p class="muted">Loading…</p>`;
+const LOADING = `<p class="muted loading-msg">Loading…</p>`;
 let sb = null, user = null, roles = { teacher:false, family:false, admin:false };
 
 /* ---------- addresses ---------- */
@@ -98,15 +98,25 @@ async function loadRoles(){
 }
 async function init(){
   if (!C.supabaseUrl || !C.supabaseAnonKey || !window.supabase) return viewSetup();
-  sb = window.supabase.createClient(C.supabaseUrl, C.supabaseAnonKey);
+  // No cross-tab lock: on phones a sign-in link often opens a second tab, and a paused tab could hold the lock and stall this one.
+  sb = window.supabase.createClient(C.supabaseUrl, C.supabaseAnonKey, { auth: { lock: async (_name, _wait, fn) => await fn() } });
   const { data } = await sb.auth.getSession();
   user = data.session?.user || null;
   await loadRoles();
-  sb.auth.onAuthStateChange(async (e, s) => {
+  // Run our follow-up work after the sign-in library has finished its own step (Supabase's advice, avoids stalls).
+  sb.auth.onAuthStateChange((e, s) => setTimeout(async () => {
     const was = user?.id; user = s?.user || null;
     if (e === "PASSWORD_RECOVERY") { if (was !== user?.id) await loadRoles(); return go("/account?reset=1"); }
     if (was !== user?.id) { await loadRoles(); route(); }
-  });
+  }, 0));
+  // If a page is still on "Loading…" after 15 seconds, offer a reload instead of leaving people waiting.
+  new MutationObserver(() => {
+    clearTimeout(window.__gsLoad);
+    if ($app.querySelector(".loading-msg")) window.__gsLoad = setTimeout(() => {
+      const m = $app.querySelector(".loading-msg");
+      if (m) m.outerHTML = `<div class="card narrow"><p class="m0"><strong>This is taking longer than usual.</strong> If you have Gurushishya open in another tab, close it, then reload.</p><button class="btn" type="button" onclick="location.reload()">Reload</button></div>`;
+    }, 15000);
+  }).observe($app, { childList: true });
   route();
 }
 addEventListener("popstate", route);
