@@ -422,7 +422,15 @@ function signInBlock(next, startMode = "password"){
       b.disabled = false;
       if (r.error) return fail(friendly(r.error));
       if (mode === "password") return;                       // signed in: the page moves on by itself
-      if (mode === "signup") return r.data?.session ? null : ok("Account created. Check your email and tap the link to confirm it. After that you can sign in with your password.");
+      if (mode === "signup") {
+        if (r.data?.session) return;
+        // Supabase answers "ok" for an email that already has an account, but sends nothing. Spot that and say so.
+        if (r.data?.user && Array.isArray(r.data.user.identities) && r.data.user.identities.length === 0) {
+          setMode("password"); document.getElementById("si-pass").value = "";
+          return fail("You already have a Gurushishya account with this email. Sign in with your password below. No password yet, or forgotten it? Tap \"Forgot password?\".");
+        }
+        return ok("Account created. Check your email and tap the link to confirm it. After that you can sign in with your password.");
+      }
       if (mode === "forgot") return ok("Check your email and tap the link. It opens a page where you choose a new password.");
       ok("Check your email and tap the link to continue. It may be in your spam folder.");
     };
