@@ -1,6 +1,6 @@
-# Riyaz – setup
+# GuruShishya – setup (formerly Riyaz)
 
-Riyaz lives on its own branch (`abhyasa`) and its own Netlify site (`abhyasa-portal`).
+GuruShishya lives on its own branch (`abhyasa`) and its own Netlify site (`abhyasa-portal`).
 It shares nothing with raavanaa.org.
 
 ## 1. Database (done)

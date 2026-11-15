@@ -373,3 +373,31 @@ table.heat{border-collapse:separate;border-spacing:4px;font-variant-numeric:tabu
 @media (max-width:480px){table.heat{border-spacing:3px}.hc{width:28px;height:28px;font-size:.7rem}.heat th{font-size:.68rem}}
 .chart .sq{display:inline-grid;place-items:center;width:auto;min-width:26px;height:24px;padding:0 3px;border-radius:6px;font-size:.68rem;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
 .chart .who{font-weight:700}
+
+/* ================= GuruShishya name and simple front page ================= */
+.brand{gap:0}
+.brand-g{color:#c4651a}
+body.home .brand .brand-g{color:#f0b24a}
+.foot-word{font-family:"Playfair Display",Georgia,serif;font-weight:800;font-size:1.3rem;color:var(--ink)}
+body.home .foot-word{color:#fbe9c8}
+body.home .foot-word .brand-g{color:#f0b24a}
+.gs-hero{justify-content:flex-start}
+.gs-top{gap:clamp(10px,1.2vw,16px);padding-bottom:24px}
+.gs-word{margin:0;font-family:"Playfair Display",Georgia,serif;font-weight:800;font-size:clamp(3rem,7vw,5.6rem);line-height:1;letter-spacing:-.015em;text-shadow:0 2px 18px rgba(255,240,215,.8)}
+.gs-word span:first-child{color:#6b1422}
+.gs-word span:last-child{color:#9a5b12}
+.gs-tag{font-size:clamp(1.3rem,2.6vw,1.9rem)}
+.gs-ctas{margin-top:6px}
+.gs-about-in{display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;padding-block:52px 60px;max-width:760px}
+.gs-eyebrow{font-family:Lora,Georgia,serif;font-weight:600;font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;color:#f0b24a}
+.gs-motto{margin:0;font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-weight:600;font-size:clamp(1.7rem,3.6vw,2.5rem);line-height:1.15;color:#fbe9c8;text-wrap:balance}
+.gs-about p{margin:0;font-family:Lora,Georgia,serif;font-size:1.08rem;color:#f1d9ae;max-width:58ch}
+@media (max-width:600px){
+  .gs-top{padding-top:clamp(84px,24vw,104px)}
+  .gs-word{font-size:clamp(2.1rem,10vw,2.6rem)}
+  .gs-tag{display:block;max-width:14em;text-shadow:0 0 10px rgba(255,240,215,.9)}
+  .gs-ctas{gap:10px;flex-wrap:nowrap}
+  .gs-ctas .h-btn{min-height:50px;padding:0 14px;gap:6px;font-size:1rem}
+  .gs-ctas .h-btn svg{width:20px;height:20px}
+  .gs-ctas .h-btn svg.chev{display:none}
+}

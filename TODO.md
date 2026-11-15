@@ -1,20 +1,20 @@
-# Riyaz – to do
+# GuruShishya – to do
 
-## Front page (parked to save credits)
-- [ ] Choose the main front page: layout 1 (`/`, painted sky and performers band) or layout 2 (`/v2`, full temple-hall picture)
-- [ ] Swap in the simpler logo from the design mockup, once it is available as its own file
+## Front page
+- [x] Simple front page at `/` (temple-hall picture, name, tagline, teacher and student buttons, About)
+- [ ] Earlier layouts kept for reference at `/v1` and `/v2`
+- [ ] New GuruShishya logo: the current "R" logo and app icons are from the Riyaz name
 - [ ] Decide whether the maroon-and-gold look should carry through the whole app
 
-## Name and domain (decide later; keeping "Riyaz" for now)
-- [ ] Note: an existing app "Riyaz – Learn to Sing" (riyazapp.com, 1M+ downloads) uses the same name
-- [ ] Shortlist: Nitya Kala, Kala Sadhana, Kalashala, Abhyas, Kala Path, Payirchi, Arangam, DailyKala
-- [ ] Check which domains are free, then rename the site in one step
+## Name and domain
+- [x] Renamed from Riyaz (name used by an existing singing app) to GuruShishya
+- [ ] Find and buy a GuruShishya domain
 
 ## Switch on (needs your accounts)
 - [ ] Google sign-in: create the Google client and send the Client ID (see SETUP.md)
 - [ ] Facebook sign-in: Meta app and App Review (optional)
 - [ ] Email service with your own domain, so every teacher and parent can sign in by email
-- [ ] Buy the Riyaz domain; ask Netlify for wildcard subdomains
+- [ ] Ask Netlify for wildcard subdomains once the domain is bought
 - [ ] Privacy policy and terms pages (Google and Facebook ask for them); privacy lawyer review before launch
 
 ## Next features
