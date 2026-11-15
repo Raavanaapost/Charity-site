@@ -132,6 +132,7 @@ function route(){
   if (p === "/me") return redirect(roles.teacher ? "/teacher" : roles.family ? "/practice" : "/teacher");
   if (p === "/teacher") return viewTeacher();
   if (p === "/practice") return viewPractice();
+  if (p === "/v2") return viewHome(2);
   return viewHome();
 }
 function renderNav(){
@@ -159,26 +160,41 @@ function viewSetup(){
 }
 
 /* ---------- homepage ---------- */
-async function viewHome(){
+const catStrip = () => `<div class="h-cats" role="group" aria-label="Find classes by type">
+      ${FAMILIES.map(f => `<button type="button" class="h-cat" data-fam="${f.k}">${f.icon}<span>${f.label}</span></button>`).join("")}
+    </div>`;
+const heroText = () => `
+      <div class="h-lockup"><img src="/assets/mark-maroon-320.png" alt="" width="132" height="132"><h1 id="h-title">Riyaz</h1></div>
+      <p class="h-tag"><span aria-hidden="true"></span>The Practice Platform for Every Passion<span aria-hidden="true"></span></p>
+      <p class="h-band">Learn<i aria-hidden="true">◆</i>Practise Daily<i aria-hidden="true">◆</i>Progress</p>
+      <p class="h-lead">A simple and powerful platform for teachers and students across music, dance, movement, arts and many more classes.</p>`;
+/* Front page, layout 1: painted sky with the performers scene below it */
+const heroV1 = () => `
+  <section class="h-hero" aria-labelledby="h-title">
+    <div class="h-sky"><div class="wrap h-sky-in">${heroText()}</div></div>
+    <div class="h-scene"><img src="/assets/hero-scene.jpg" srcset="/assets/hero-scene-800.jpg 800w, /assets/hero-scene.jpg 1199w" sizes="100vw" width="1199" height="328"
+      alt="Students practising flute, Bharatanatyam, Karlakattai, painting and yoga in a temple courtyard at sunset"></div>
+    <div class="wrap wide h-cats-wrap">${catStrip()}</div>
+  </section>`;
+/* Front page, layout 2: the full temple-hall picture behind everything */
+const heroV2 = () => `
+  <section class="v2-hero" aria-labelledby="h-title">
+    <picture class="v2-bg">
+      <source media="(max-width: 600px)" srcset="/assets/bg-tall-600.jpg 600w, /assets/bg-tall.jpg 941w" sizes="100vw">
+      <img src="/assets/bg-wide.jpg" srcset="/assets/bg-wide-1100.jpg 1100w, /assets/bg-wide.jpg 1672w" sizes="100vw" width="1672" height="941"
+        alt="Students practising flute, Bharatanatyam, Karlakattai, painting and yoga in a temple hall at sunset">
+    </picture>
+    <div class="wrap wide v2-top">${heroText()}</div>
+    <div class="wrap wide v2-cats-wrap">${catStrip()}</div>
+  </section>`;
+
+async function viewHome(layout = 1){
   document.title = "Riyaz · The Practice Platform for Every Passion";
   const studentBtn = roles.family
     ? link("/practice", `${IC.student}<span>I'm a Student</span>${IC.chev}`, "h-btn cream")
     : `<a href="#students" data-scroll="students" class="h-btn cream">${IC.student}<span>I'm a Student</span>${IC.chev}</a>`;
   $app.innerHTML = `
-  <section class="h-hero" aria-labelledby="h-title">
-    <div class="h-sky"><div class="wrap h-sky-in">
-      <div class="h-lockup"><img src="/assets/mark-maroon-320.png" alt="" width="132" height="132"><h1 id="h-title">Riyaz</h1></div>
-      <p class="h-tag"><span aria-hidden="true"></span>The Practice Platform for Every Passion<span aria-hidden="true"></span></p>
-      <p class="h-band">Learn<i aria-hidden="true">◆</i>Practise Daily<i aria-hidden="true">◆</i>Progress</p>
-      <p class="h-lead">A simple and powerful platform for teachers and students across music, dance, movement, arts and many more classes.</p>
-    </div></div>
-    <div class="h-scene"><img src="/assets/hero-scene.jpg" srcset="/assets/hero-scene-800.jpg 800w, /assets/hero-scene.jpg 1199w" sizes="100vw" width="1199" height="328"
-      alt="Students practising flute, Bharatanatyam, Karlakattai, painting and yoga in a temple courtyard at sunset"></div>
-    <div class="wrap wide h-cats-wrap"><div class="h-cats" role="group" aria-label="Find classes by type">
-      ${FAMILIES.map(f => `<button type="button" class="h-cat" data-fam="${f.k}">${f.icon}<span>${f.label}</span></button>`).join("")}
-    </div></div>
-  </section>
-
+  ${layout === 2 ? heroV2() : heroV1()}
   <section class="h-maroon"><div class="wrap wide h-maroon-in">
     <ul class="h-feats">
       <li>${IC.people}<div><h2>Run Your Classes</h2><p>Manage students, lessons and practice plans.</p></div></li>
