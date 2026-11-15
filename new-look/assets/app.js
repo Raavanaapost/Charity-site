@@ -1,4 +1,4 @@
-/* Raavanaa · Beyond the Lanes — the new look.
+/* Raavanaa — the new look.
    One script for every page: it draws the header and footer, the page banner,
    the Initiate → Activate → Impact circle, and the project cards from /data/projects.json. */
 (() => {
@@ -100,7 +100,7 @@
     if (!el) return;
     el.className = "hdr";
     el.innerHTML = `<div class="hdr-in">
-        <a class="brand" href="/" aria-label="Raavanaa Beyond the Lanes, home"><picture><source srcset="/img/logo.webp" type="image/webp"><img src="/img/logo.jpg" alt="Raavanaa · Beyond the Lanes · Creating Smiles" width="900" height="298"></picture></a>
+        <a class="brand" href="/" aria-label="Raavanaa, home"><picture><source srcset="/img/logo.webp" type="image/webp"><img src="/img/logo.jpg" alt="Raavanaa · Creating Smiles" width="900" height="298"></picture></a>
         <button class="burger" type="button" aria-expanded="false" aria-controls="nav" aria-label="Menu">${ico("menu")}</button>
         <nav class="nav" id="nav" aria-label="Main">
           ${NAV.map(n => n.menu
@@ -131,14 +131,14 @@
     el.innerHTML = `<svg class="ftr-wave" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 34C240 4 480 4 720 26s480 28 720-6V60H0z"/></svg>
       <div class="ftr-in">
         <div class="ftr-brand">
-          <a class="ftr-logo" href="/"><picture><source srcset="/img/logo.webp" type="image/webp"><img src="/img/logo.jpg" alt="Raavanaa · Beyond the Lanes" width="900" height="298" loading="lazy"></picture></a>
+          <a class="ftr-logo" href="/"><picture><source srcset="/img/logo.webp" type="image/webp"><img src="/img/logo.jpg" alt="Raavanaa" width="900" height="298" loading="lazy"></picture></a>
           <p>Every penny goes to the day, and every smile is shared.</p>
         </div>
         <div><h3>Explore</h3><a href="/initiatives">Initiatives</a><a href="/projects">Projects</a><a href="/impact">Impact</a><a href="/about">About us</a></div>
         <div><h3>Get involved</h3><a href="/sponsor">Sponsor a Smile</a><a href="/request">Request a Smile</a><a href="/get-involved#volunteer">Volunteer</a><a href="/get-involved#partner">Partner with us</a></div>
         <div><h3>Children come first</h3><p class="ftr-safe">${ico("shield")}<span>First names only. Faces only with a parent's or guardian's permission. We mark the town, never a home or school.</span></p></div>
       </div>
-      <div class="ftr-bottom"><span>© ${new Date().getFullYear()} Raavanaa · Beyond the Lanes</span><span>Creating smiles, creating moments</span></div>`;
+      <div class="ftr-bottom"><span>© ${new Date().getFullYear()} Raavanaa</span><span>Creating smiles, creating moments</span></div>`;
   }
 
   // ---------- The circle: Initiate → Activate → Impact ----------
@@ -351,7 +351,7 @@
     const p = projects.find(x => slugOf(x) === slug);
     const app = document.getElementById("app");
     if (!p) { hero({ a: "Smile", b: "Not Found", img: "/img/moment-hero.webp", sub: "This project isn't here. Have a look at all our projects instead.", btns: false, small: true, extra: `<a class="btn orange" href="/projects">See all projects</a>` }); return; }
-    document.title = `${p.title} · Raavanaa · Beyond the Lanes`;
+    document.title = `${p.title} · Raavanaa`;
     const n = stageNum(p), goal = goalOf(p), raised = raisedOf(p);
     const el = document.getElementById("hero");
     el.className = "hero project-hero";
