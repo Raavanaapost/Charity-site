@@ -4,6 +4,7 @@
 # Tamil version: the same pages, translated in the browser by /ta.js
 /ta  /ta/index.html  200
 /ta/home  /ta/home.html  200
+/ta/projects  /ta/projects.html  200
 /ta/give  /ta/give.html  200
 /ta/moment  /ta/moment.html  200
 /ta/m/*  /ta/together.html  200
@@ -33,6 +34,8 @@
 /ta/privacy  /ta/privacy.html  200
 /ta/smile-map  /ta/smile-map.html  200
 /home  /home.html  200
+# The app's Projects tab: every project, searchable, All first then the stages (15 Nov 2026)
+/projects  /projects.html  200
 # raavanaa.org/app: Home with the "install the app" steps open (15 Nov 2026)
 /app  /overview?install=1  302
 /ta/app  /ta/overview?install=1  302

@@ -2519,3 +2519,4 @@ body[data-light] .moment-band + .home-latest { margin-top: 44px; }
 .home-finder-results .finder-tabs { justify-content: space-between; }
 .home-finder-results .ftab.s0 { --c: var(--brand); }
 @media (max-width:560px){ .home-finder-results .ftab { padding: 11px 6px; font-size: 14px; gap: 5px; } .home-finder-results .ftab span { padding: 3px 5px; } }
+body[data-page="projects"] .home-finder { margin-top: 20px; }

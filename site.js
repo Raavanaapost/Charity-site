@@ -128,7 +128,7 @@ window.RAAV_FEATURES = (function () {
       const ico = d => `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
       const TABS = [
         ["Home", "/overview", /^overview$/, ico('<path d="M3.5 11.2 12 4l8.5 7.2"/><path d="M5.8 9.8V20h4.4v-5.4h3.6V20h4.4V9.8"/>')],
-        ["Projects", "/initiated", /^(stage|project|home|create|initiate)$/, ico('<rect x="3.5" y="4.5" width="17" height="4.6" rx="1.6"/><rect x="3.5" y="11" width="17" height="4.6" rx="1.6"/><path d="M4.5 19.5h15"/>')],
+        ["Projects", "/projects", /^(projects|stage|project|home|create|initiate)$/, ico('<rect x="3.5" y="4.5" width="17" height="4.6" rx="1.6"/><rect x="3.5" y="11" width="17" height="4.6" rx="1.6"/><path d="M4.5 19.5h15"/>')],
         ["Gift", "/moment", /^(moment|together|give|fund|thanks)$/, '<span class="appbar-gift"><img src="/img/moment-mark.svg" alt="" width="34" height="34"></span>'],
         ["Map", "/smile-map", /^map2?$/, ico('<path d="M12 21s6.5-5.6 6.5-10.6A6.5 6.5 0 0 0 5.5 10.4C5.5 15.4 12 21 12 21Z"/><circle cx="12" cy="10.2" r="2.4"/>')],
         [signedIn ? "Account" : "Sign in", "/members", /^members$/, ico('<circle cx="12" cy="8.4" r="3.7"/><path d="M4.6 20c.9-3.6 3.8-5.4 7.4-5.4s6.5 1.8 7.4 5.4"/>')]
@@ -529,13 +529,13 @@ window.RAAV_FEATURES = (function () {
   }
 
   // The earlier home page, kept at /overview: stage circles with numbers, latest projects and the sign-up box.
-  // Home (/overview), 15 Nov 2026 (SURESH): the project list of the search-style page (/home), without its
-  // "Raavanaa Community" title and stage pictures: a search box, then folder tabs with All first and open.
+  // Projects page (/projects, the app's Projects tab), 15 Nov 2026 (SURESH): the project list of the search-style
+  // page (/home), without its "Raavanaa Community" title and stage pictures: a search box, then tabs with All first.
   const FINDER_TABS = [["All", 0], ["Initiated", 1], ["Activated", 2], ["Impact", 3]];
   function finderListHTML(projects) {
     const cities = [...new Set(projects.map(cityOf).filter(Boolean))].sort();
     return `<section class="finder home-finder">
-        <h2 class="section-title latest-title">Our projects</h2>
+        <h1 class="section-title latest-title">Our projects</h1>
         <form class="finder-search" role="search" action="#" onsubmit="return false">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
           <input id="find-q" type="search" placeholder="Search projects, places or ideas" aria-label="Search projects" autocomplete="off">
@@ -778,14 +778,14 @@ window.RAAV_FEATURES = (function () {
       <section class="intro">
         <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
       </section>
-      ${light ? "" : `<nav class="stages" aria-label="Show pictures by stage">
+      <nav class="stages" aria-label="Show pictures by stage">
         ${Object.entries(STAGES).map(([slug, st], k) => `${k ? `<span class="stage-path p${k}" aria-hidden="true"><svg viewBox="0 0 60 34"><path class="sp-base" d="M6 17H50"/><path class="sp-chev c1" d="M12 9l8 8-8 8"/><path class="sp-chev c2" d="M26 9l8 8-8 8"/><path class="sp-chev c3" d="M40 9l8 8-8 8"/><circle class="sp-spark" r="3.6" cx="0" cy="0"><animateMotion dur="0.75s" begin="indefinite" fill="freeze" path="M6 17H54" calcMode="spline" keyTimes="0;1" keySplines="0.45 0 0.55 1"/></circle></svg></span>` : ""}
           <a class="stage art stat-${st.key}" href="/${slug}" data-ex="${st.label}">
             <i>${ICONS[st.key]}</i>
             <b${counts[slug] ? "" : ' class="zero"'}>${counts[slug] || "Soon"}</b>
             <span>${st.label}</span>
           </a>`).join("")}
-      </nav>`}
+      </nav>
       ${light ? "" : `<div class="stage-rail" aria-live="polite">
         <p class="rail-say">${STAGE_SAY.map((t, i) => `<span class="s${i + 1}${i ? "" : " on"}">${t}</span>`).join("")}</p>
       </div>`}
@@ -793,7 +793,7 @@ window.RAAV_FEATURES = (function () {
       ${createHTML(light ? CREATE : CREATE.slice(0, 3))}
       ${momentBandHTML()}
       ${light && FEAT.sponsor ? sponsorHTML() : ""}
-      ${light ? finderListHTML(projects) : HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
+      ${HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
       <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
     app.querySelectorAll(".home-latest").forEach(sec => {
@@ -807,7 +807,6 @@ window.RAAV_FEATURES = (function () {
           : `<div class="panel empty-state latest-empty"><p>No ${esc(cat)} projects here yet.</p>${r.n === 1 ? '<a class="btn" href="/initiate">Suggest one</a>' : ""}</div>`;
       });
     });
-    if (light) wireFinderList(app, projects);
     wireExplore(app, projects);
     wireForms(app);
     fitHeadline();
@@ -2447,7 +2446,7 @@ window.RAAV_FEATURES = (function () {
     const draw = tab => {
       app.innerHTML = `
         ${p.sample ? `<p class="sample-note"><b>Sample page.</b> This shows how a project page looks once it is filled in. The project, the figures and the names are examples, not real.</p>` : ""}
-        <nav class="crumbs"><a href="/initiated">Projects</a>${p.theme ? ` / ${esc(p.theme)}` : ""}</nav>
+        <nav class="crumbs"><a href="/projects">Projects</a>${p.theme ? ` / ${esc(p.theme)}` : ""}</nav>
         <div class="layout">
           <div style="min-width:0">
             <header class="phead">
@@ -2540,7 +2539,7 @@ window.RAAV_FEATURES = (function () {
     const open = GIVE_OPEN.has(slugOf(p));
     const tile = (cls, label, value, small) => `<div class="mny-tile ${cls}"><span>${label}</span><b>${value}</b>${small ? `<small>${small}</small>` : ""}</div>`;
     app.innerHTML = `
-      <nav class="crumbs"><a href="/initiated">Projects</a> / <a href="/projects/${slugOf(p)}">${esc(p.title)}</a></nav>
+      <nav class="crumbs"><a href="/projects">Projects</a> / <a href="/projects/${slugOf(p)}">${esc(p.title)}</a></nav>
       <section class="mny">
         <header class="mny-head">
           <span class="eyebrow">Every rupee, in the open</span>
@@ -3375,6 +3374,10 @@ window.RAAV_FEATURES = (function () {
       } else if (page === "members") {
         document.title = `Members · ${site.name}`;
         await (await import("/members.js")).render(app, site);
+      } else if (page === "projects") {
+        document.title = `Our projects · ${site.name}`;
+        app.innerHTML = finderListHTML(projects);
+        wireFinderList(app, projects);
       } else if (page === "create") {
         document.title = `Make a Smile Happen · ${site.name}`;
         renderCreate(app, site, projects);
