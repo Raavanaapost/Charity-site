@@ -30,6 +30,7 @@ $locations['footer'] = $menu;
 set_theme_mod( 'nav_menu_locations', $locations );
 
 set_theme_mod( 'rp_report_url', 'https://raavanaa.org/initiate' );
+set_theme_mod( 'rp_coming_soon', false ); // raavanaa.org is open (15 Nov 2026): links go to the real pages, no "Coming soon" tags
 set_theme_mod( 'rp_partner_url', 'https://raavanaa.org' );
 set_theme_mod( 'rp_partner_title', 'Be part of the next day of joy' );
 set_theme_mod( 'rp_partner_text', 'Every story here began with a need. See the days that are waiting on raavanaa.org, and help make the next one happen.' );
