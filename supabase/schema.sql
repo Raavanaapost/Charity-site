@@ -202,3 +202,6 @@ $$ select exists (select 1 from students st where st.id = s and private.owns_cla
 alter table public.groups drop constraint groups_art_type_check;
 alter table public.groups add constraint groups_art_type_check
   check (art_type in ('dance','flute','violin','piano','veena','mridangam','vocal','karlakattai','yoga','art','other'));
+
+-- ---------- Change 4: student list, consent, join invites, practice sessions, chat, class board, notes ----------
+-- See supabase/stage2.sql (applied to project "riyaz" on 2026-11-14).

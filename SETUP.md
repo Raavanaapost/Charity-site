@@ -1,37 +1,66 @@
-# Abhyasa – setup
+# Riyaz – setup
 
-Abhyasa lives on its own branch (`abhyasa`) and its own Netlify site (`abhyasa-portal`).
+Riyaz lives on its own branch (`abhyasa`) and its own Netlify site (`abhyasa-portal`).
 It shares nothing with raavanaa.org.
 
 ## 1. Database (done)
 
-The Supabase project **riyaz** (Canada Central) has the tables and privacy rules, and `config.js` points to it.
-Still to do by hand:
+Supabase project **riyaz** (Canada Central). The design and every change are in `supabase/schema.sql` and `supabase/stage2.sql`.
+Authentication → URL Configuration is set to `https://abhyasa-portal.netlify.app` with redirect `https://abhyasa-portal.netlify.app/**`.
 
-1. Open **Authentication → URL Configuration**:
-   - Site URL: `https://abhyasa-portal.netlify.app` (later, your own domain)
-   - Redirect URLs: add `https://abhyasa-portal.netlify.app/**`
+## 2. Netlify (done)
 
-## 2. Connect Netlify
-
-1. Netlify → **abhyasa-portal** → **Site configuration → Build & deploy → Link repository**.
-2. Choose GitHub → `Raavanaapost/Charity-site`, and set **Branch to deploy: `abhyasa`**.
-3. Leave the build command empty and set the publish directory to `.`.
+Site **abhyasa-portal** deploys the `abhyasa` branch. Every saved change goes live by itself.
 
 ## 3. Approve a teacher
 
-New group pages stay private until approved.
+New teachers can set up classes and students straight away, but their page and invitations only work once approved.
 Supabase → **Table Editor → groups** → tick **approved** for that row → Save.
 
-## 4. Own domain (later)
+## 4. Sign-in options
 
-1. Netlify → abhyasa-portal → **Domain management → Add a domain** (e.g. `abhyasa.ca`), using Netlify DNS.
-2. Ask Netlify support to turn on **wildcard subdomains** (`*.abhyasa.ca`) for the site.
-3. Put the domain in `config.js` as `rootDomain`, and update the Supabase Site URL and Redirect URLs.
+### Google (recommended, about 15 minutes)
+1. Go to console.cloud.google.com and create a project called **Riyaz**.
+2. **Google Auth Platform → Branding**: app name *Riyaz*, your support email, the square Riyaz icon as the logo, and the home page link.
+3. **Audience**: External. **Data access**: add the `openid` scope (email and profile are already there).
+4. **Clients → Create client → Web application**:
+   - Authorized JavaScript origins: `https://abhyasa-portal.netlify.app` (add your own domain later)
+   - Authorized redirect URIs: `https://ppoxitvzimilqvywrwpf.supabase.co/auth/v1/callback`
+5. Copy the **Client ID** and **Client secret**.
+6. Supabase → **Authentication → Sign In / Providers → Google**: turn it on, paste both, save.
+7. Put the Client ID in `config.js` as `googleClientId` (it is safe to show). The official Google button then appears on the sign-in and join pages.
+
+### Facebook (optional)
+1. developers.facebook.com → **Create App** → add **Facebook Login**.
+2. Valid OAuth Redirect URI: `https://ppoxitvzimilqvywrwpf.supabase.co/auth/v1/callback`. Make sure the `email` permission is included.
+3. Copy the App ID and App Secret into Supabase → **Authentication → Sign In / Providers → Facebook**, and turn it on.
+4. Set `facebookLogin: true` in `config.js`.
+5. Before the public can use it, Meta needs a privacy policy link, an app icon, and an App Review of the `email` permission. Until then only people added to the Meta app can sign in.
+
+### Email for everyone (needed before real teachers and parents use email sign-in)
+Supabase's built-in email only sends to members of your Supabase team, at most 2 emails an hour.
+Set up an email service (for example Resend or Brevo) with your own domain, then add its details in
+Supabase → **Authentication → Emails → SMTP Settings**.
+
+## 5. Own domain (later)
+
+1. Netlify → abhyasa-portal → **Domain management → Add a domain**, using Netlify DNS.
+2. Ask Netlify support to turn on **wildcard subdomains** (`*.yourdomain`) for the site.
+3. Put the domain in `config.js` as `rootDomain`, and update the Supabase Site URL, Redirect URLs and the Google origins.
+
+## How it works
+
+1. **Teacher** signs in, sets up the group, adds classes, then adds students.
+2. **Child**: Riyaz asks the parent for consent. The teacher sends the request with one tap, on WhatsApp, text or email from their own phone. The parent opens the link and says yes or no. No account is needed.
+3. After a yes, the teacher sends the **join link**. The parent (or adult student) signs in and the student's practice desk opens.
+4. **Student** picks the class, presses **Start**, practises, and presses **Stop**. The minutes appear on the teacher's dashboard.
+5. **Teacher** sets the weekly practice, posts homework, class notes and announcements to the class, chats with each student, and sees a report for every student.
 
 ## Privacy rules (built into the database)
 
-- Children: first name only; parent consent required to join.
-- Zoom/Meet links are only visible to the teacher and families in that class.
-- Practice ticks are only visible to the family and their teacher.
+- Children: first name only. A parent must say yes before a child can join, and students can't join by themselves.
+- A join link works once. Links stop working if the teacher isn't approved.
+- Families see only their own child, their class board and their own chat. Students can't message each other.
+- Teachers see only their own students. Teacher notes are private to the teacher.
+- Zoom/Meet links are visible only to the teacher and families in that class.
 - Teachers cannot approve their own page.
