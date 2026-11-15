@@ -201,6 +201,11 @@ window.RAAV_FEATURES = (function () {
     window.addEventListener("appinstalled", () => { ask = null; keep("raav-app-have", "1"); if (strip) strip.remove(); });
     document.addEventListener("click", e => { const a = e.target.closest && e.target.closest("[data-get-app]"); if (a) { e.preventDefault(); install(); } });
     offer();
+    // A link that opens the install steps by itself (SURESH, 15 Nov 2026): raavanaa.org/app (or any page with ?install=1).
+    if (qs.get("install") === "1" && !inApp) {
+      const go = () => setTimeout(help, 600);
+      if (document.readyState === "complete") go(); else window.addEventListener("load", go);
+    }
     return { inApp, install };
   })();
 
@@ -275,7 +280,7 @@ window.RAAV_FEATURES = (function () {
         </nav>
       </div></div>
       <div class="foot-bar"><div class="wrap">
-        <span>© ${new Date().getFullYear()} ${esc(site.name)} · Beyond the Lanes</span>
+        <span>© ${new Date().getFullYear()} ${esc(site.name)}</span>
         ${site.footer ? `<span>${esc(site.footer)}</span>` : ""}
         <span class="foot-links"><a href="/report">Report a concern</a><a href="/privacy">Privacy &amp; child safety</a><a href="/admin">Team login</a></span>
       </div></div>`;
@@ -489,7 +494,7 @@ window.RAAV_FEATURES = (function () {
       foot.innerHTML = `
         <svg class="foot-wave" viewBox="0 0 400 30" preserveAspectRatio="none" aria-hidden="true"><path class="w1" d="M0 16C70 2 140 4 200 12 260 20 330 4 400 10V30H0Z"/><path class="w2" d="M0 24C80 10 150 12 210 18 270 24 336 12 400 16V30H0Z"/></svg>
         <div class="foot-bar"><div class="wrap">
-          <span>© ${new Date().getFullYear()} Raavanaa Community · Beyond the Lanes</span>
+          <span>© ${new Date().getFullYear()} Raavanaa Community</span>
           <span class="foot-links"><a href="/about">About us</a><a href="/contact">Contact</a><a href="/report">Report a concern</a><a href="/privacy">Privacy &amp; child safety</a><a href="/admin">Team login</a></span>
         </div></div>`;
     }
@@ -931,7 +936,7 @@ window.RAAV_FEATURES = (function () {
         <section class="logo-entry">
           <span class="le-glow" aria-hidden="true"></span>
           <h1 class="sr">Raavanaa Community: creating smiles, creating moments</h1>
-          <picture class="le-logo"><source srcset="/img/logo.webp?v=6" type="image/webp"><img src="/img/logo.jpg?v=6" alt="Raavanaa · Beyond the Lanes · Creating Smiles" width="900" height="298"></picture>
+          <picture class="le-logo"><source srcset="/img/logo.webp?v=6" type="image/webp"><img src="/img/logo.jpg?v=6" alt="Raavanaa · Creating Smiles" width="900" height="298"></picture>
           <div class="le-rule" aria-hidden="true"><i></i><b></b><i></i></div>
           <p class="le-slogan">Creating smiles, creating moments</p>
           <p class="le-sub">A day of joy, together</p>
@@ -957,7 +962,7 @@ window.RAAV_FEATURES = (function () {
     app.innerHTML = `
       <section class="home-hero welcome${big ? " welcome-big" : ""}">
         <h1 class="arc-title">${big ? bigArcHTML() : arcTitleHTML()}</h1>
-        ${big ? "" : `<p class="arc-sub">Beyond the Lanes <span aria-hidden="true">✦</span> Creating Smiles</p>`}
+        ${big ? "" : `<p class="arc-sub">Creating Smiles</p>`}
         ${sayingsHTML(site, slides, start)}
         <a class="enter-btn" href="/overview">Enter Raavanaa <span aria-hidden="true">→</span></a>
       </section>`;
@@ -1206,7 +1211,7 @@ window.RAAV_FEATURES = (function () {
       ${tp("arc-face")}
       ${heart(500, 250, 3.4, "#c8381e")}${heart(440, 290, 1.8, "#f2b21c")}${heart(560, 290, 1.8, "#f2b21c")}
       ${spark(400, 230, 16)}${spark(600, 230, 16)}${spark(70, 400, 18)}${spark(930, 400, 18)}
-      <text class="arc-tag" x="500" y="372" text-anchor="middle">BEYOND THE LANES ✦ CREATING SMILES</text>
+      <text class="arc-tag" x="500" y="372" text-anchor="middle">CREATING SMILES</text>
     </svg>`;
   }
 

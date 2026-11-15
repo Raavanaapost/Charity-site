@@ -33,6 +33,9 @@
 /ta/privacy  /ta/privacy.html  200
 /ta/smile-map  /ta/smile-map.html  200
 /home  /home.html  200
+# raavanaa.org/app: Home with the "install the app" steps open (15 Nov 2026)
+/app  /overview?install=1  302
+/ta/app  /ta/overview?install=1  302
 /overview  /overview.html  200
 /front  /front.html  200
 /front-2  /front-2.html  200

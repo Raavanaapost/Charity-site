@@ -59,7 +59,7 @@ export default async (request: Request, context: { next: () => Promise<Response>
   }
 
   return new Response(
-    "<!doctype html><meta name=viewport content='width=device-width,initial-scale=1'><title>Raavanaa · Coming soon</title><body style='font-family:system-ui;padding:40px 20px;text-align:center;color:#0f5132'><h1>Raavanaa · Beyond the Lanes</h1><p>Our website is coming soon.</p>",
+    "<!doctype html><meta name=viewport content='width=device-width,initial-scale=1'><title>Raavanaa · Coming soon</title><body style='font-family:system-ui;padding:40px 20px;text-align:center;color:#0f5132'><h1>Raavanaa</h1><p>Our website is coming soon.</p>",
     { status: 401, headers: { "WWW-Authenticate": 'Basic realm="Raavanaa preview", charset="UTF-8"', "Content-Type": "text/html; charset=utf-8", "X-Robots-Tag": "noindex" } }
   );
 };
