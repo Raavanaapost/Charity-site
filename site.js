@@ -529,6 +529,49 @@ window.RAAV_FEATURES = (function () {
   }
 
   // The earlier home page, kept at /overview: stage circles with numbers, latest projects and the sign-up box.
+  // Home (/overview), 15 Nov 2026 (SURESH): the project list of the search-style page (/home), without its
+  // "Raavanaa Community" title and stage pictures: a search box, then folder tabs with All first and open.
+  const FINDER_TABS = [["All", 0], ["Initiated", 1], ["Activated", 2], ["Impact", 3]];
+  function finderListHTML(projects) {
+    const cities = [...new Set(projects.map(cityOf).filter(Boolean))].sort();
+    return `<section class="finder home-finder">
+        <h2 class="section-title latest-title">Our projects</h2>
+        <form class="finder-search" role="search" action="#" onsubmit="return false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+          <input id="find-q" type="search" placeholder="Search projects, places or ideas" aria-label="Search projects" autocomplete="off">
+          <label class="finder-city"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
+            <select id="find-city" aria-label="City"><option value="All">All</option>${cities.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("")}</select></label>
+        </form>
+      </section>
+      <section class="finder-results home-finder-results">
+        <div class="finder-tabs" role="tablist" aria-label="Projects by stage"></div>
+        <div id="find-list" role="tabpanel"></div>
+      </section>`;
+  }
+  function wireFinderList(app, projects) {
+    const st = { q: "", city: "All", tab: 0 };
+    const tabsBox = app.querySelector(".finder-tabs"), listBox = app.querySelector("#find-list");
+    if (!tabsBox || !listBox) return;
+    const match = p => {
+      if (st.city !== "All" && cityOf(p) !== st.city) return false;
+      if (!st.q) return true;
+      const hay = [p.title, p.summary, p.story, p.body, p.theme, p.location, cityOf(p), p.organization].filter(Boolean).join(" ").toLowerCase();
+      return st.q.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(w));
+    };
+    const inTab = (p, n) => !n || stageNum(p) === n;
+    const draw = () => {
+      const found = projects.filter(match);
+      tabsBox.innerHTML = FINDER_TABS.map(([name, n]) => `<button type="button" role="tab" class="ftab s${n}" data-n="${n}" aria-selected="${st.tab === n}">${name} <span>${found.filter(p => inTab(p, n)).length}</span></button>`).join("");
+      const list = found.filter(p => inTab(p, st.tab)), filtered = st.q || st.city !== "All";
+      listBox.innerHTML = list.length ? `<div class="plist" role="list">${projectRowsHTML(list, projects)}</div>`
+        : `<div class="panel empty-state finder-empty"><p>${filtered ? "No projects match your search." : st.tab === 3 ? "The first impact stories are coming soon." : "No projects here yet."}</p></div>`;
+    };
+    app.querySelector("#find-q").addEventListener("input", e => { st.q = e.target.value.trim(); draw(); });
+    const citySel = app.querySelector("#find-city");
+    citySel.addEventListener("change", () => { st.city = citySel.value; citySel.closest(".finder-city").classList.toggle("on", st.city !== "All"); draw(); });
+    tabsBox.addEventListener("click", e => { const b = e.target.closest(".ftab"); if (!b) return; st.tab = Number(b.dataset.n); draw(); });
+    draw();
+  }
   // Home: one row per stage, each with its own title.
   const HOME_ROWS = [
     { n: 1, title: "Smiles in the Making", href: "/initiated", empty: "New ideas for a day of joy are on their way." },
@@ -576,11 +619,12 @@ window.RAAV_FEATURES = (function () {
   // a title above and a line below. It opens the form to start a new project.
   // Five slogans take turns on the Home page (SURESH, 12 Nov 2026); the kept home page (/front-4) stays on the first three.
   const CREATE = [
-    { img: "/img/create-smile.svg", title: "Create a Smile", say: "One small idea can light up a child's whole day." },
-    { img: "/img/create-moment.svg", title: "Create a Moment", say: "Tell us where joy is needed. We'll help make it happen." },
-    { img: "/img/create-day.svg", title: "Spark a Day of Joy", say: "A trip, a game, a good meal. Start it here." },
-    { img: "/img/create-smile.svg", title: "Start a Smile", say: "Know children who are waiting for a day out? Tell us." },
-    { img: "/img/create-moment.svg", title: "Dream a Day for the Children", say: "You dream it. Together we make it real." }
+    // SURESH 15 Nov 2026: not only children. A moment can be for anyone: a mum, an elder, a family, a whole village.
+    { img: "/img/create-smile.svg", title: "Create a Smile", say: "One small idea can light up someone's whole day." },
+    { img: "/img/create-moment.svg", title: "Create a Moment", say: "For a child, a mum, an elder or a whole village. Tell us who." },
+    { img: "/img/create-day.svg", title: "Spark a Smile", say: "A trip, a celebration, a good meal, a helping hand. Start it here." },
+    { img: "/img/create-smile.svg", title: "Spark a Day of Joy", say: "Know a family, a school or a neighbour who could use a lift? Tell us." },
+    { img: "/img/create-moment.svg", title: "Start a Smile", say: "You dream it. Together we make it real." }
   ];
   // Home: "Gift a Moment, in their name" (title and design, SURESH 10 Nov 2026). A cream banner with the
   // heart-and-lamp mark, the title, and four reasons to tap: each opens the moment page with that reason chosen.
@@ -734,22 +778,22 @@ window.RAAV_FEATURES = (function () {
       <section class="intro">
         <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
       </section>
-      <nav class="stages" aria-label="Show pictures by stage">
+      ${light ? "" : `<nav class="stages" aria-label="Show pictures by stage">
         ${Object.entries(STAGES).map(([slug, st], k) => `${k ? `<span class="stage-path p${k}" aria-hidden="true"><svg viewBox="0 0 60 34"><path class="sp-base" d="M6 17H50"/><path class="sp-chev c1" d="M12 9l8 8-8 8"/><path class="sp-chev c2" d="M26 9l8 8-8 8"/><path class="sp-chev c3" d="M40 9l8 8-8 8"/><circle class="sp-spark" r="3.6" cx="0" cy="0"><animateMotion dur="0.75s" begin="indefinite" fill="freeze" path="M6 17H54" calcMode="spline" keyTimes="0;1" keySplines="0.45 0 0.55 1"/></circle></svg></span>` : ""}
           <a class="stage art stat-${st.key}" href="/${slug}" data-ex="${st.label}">
             <i>${ICONS[st.key]}</i>
             <b${counts[slug] ? "" : ' class="zero"'}>${counts[slug] || "Soon"}</b>
             <span>${st.label}</span>
           </a>`).join("")}
-      </nav>
+      </nav>`}
       ${light ? "" : `<div class="stage-rail" aria-live="polite">
         <p class="rail-say">${STAGE_SAY.map((t, i) => `<span class="s${i + 1}${i ? "" : " on"}">${t}</span>`).join("")}</p>
       </div>`}
       ${glanceHTML(projects)}
-      ${createHTML(CREATE.slice(0, 3))}
+      ${createHTML(light ? CREATE : CREATE.slice(0, 3))}
       ${momentBandHTML()}
       ${light && FEAT.sponsor ? sponsorHTML() : ""}
-      ${HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
+      ${light ? finderListHTML(projects) : HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
       <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
     app.querySelectorAll(".home-latest").forEach(sec => {
@@ -763,6 +807,7 @@ window.RAAV_FEATURES = (function () {
           : `<div class="panel empty-state latest-empty"><p>No ${esc(cat)} projects here yet.</p>${r.n === 1 ? '<a class="btn" href="/initiate">Suggest one</a>' : ""}</div>`;
       });
     });
+    if (light) wireFinderList(app, projects);
     wireExplore(app, projects);
     wireForms(app);
     fitHeadline();

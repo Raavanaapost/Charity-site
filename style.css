@@ -2513,3 +2513,9 @@ body[data-light] .home-latest{background:linear-gradient(135deg,color-mix(in srg
 
 /* Home (15 Nov 2026): request a smile first, then Gift a Moment; room before the project rows */
 body[data-light] .moment-band + .home-latest { margin-top: 44px; }
+/* Home project list (15 Nov 2026): the search page's list, All first; four tabs fit a phone */
+.home-finder { margin-top: 44px; }
+.home-finder .latest-title { text-align: left; margin: 0 0 14px; }
+.home-finder-results .finder-tabs { justify-content: space-between; }
+.home-finder-results .ftab.s0 { --c: var(--brand); }
+@media (max-width:560px){ .home-finder-results .ftab { padding: 11px 6px; font-size: 14px; gap: 5px; } .home-finder-results .ftab span { padding: 3px 5px; } }
