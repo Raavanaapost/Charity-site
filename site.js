@@ -581,7 +581,7 @@ window.RAAV_FEATURES = (function () {
   const CATS = ["All", "Trips & Events", "Livelihood", "Education"];
   const STAGE_SAY = ["Smiles in the Making", "Moments on the Way", "Days of Joy, Created"];
   // "Create a Smile": a round, tappable icon with three little pictures taking turns,
-  // a title above and a line below. It opens the form to start a new project.
+  // a title above and a line below. It opens Spark a Smile (/spark, 16 Nov 2026), which leads on to the form.
   // Five slogans take turns on the Home page (SURESH, 12 Nov 2026); the kept home page (/front-4) stays on the first three.
   const CREATE = [
     // SURESH 15 Nov 2026: not only children. A moment can be for anyone: a mum, an elder, a family, a whole village.
@@ -622,7 +622,7 @@ window.RAAV_FEATURES = (function () {
   const momentRibbonHTML = () => `<a class="moment-ribbon" href="/moment"><img src="/img/moment-mark.svg" alt="" width="34" height="34"><span><b>Gift a Moment</b> <em>in their name</em></span><i aria-hidden="true">→</i></a>`;
   // Gift a Moment as a small round icon that sits with the story pictures (Home, 14 Nov 2026).
   const momentChipHTML = () => `<a class="moment-chip" href="/moment"><img src="/img/moment-mark.svg" alt="" width="40" height="40"><span><b>Gift a Moment</b> <em>in their name</em></span><i aria-hidden="true">→</i></a>`;
-  const createHTML = (list = CREATE, o = {}) => `<a class="create-cta${o.cls ? " " + o.cls : ""}" href="${o.href || "/initiate"}">
+  const createHTML = (list = CREATE, o = {}) => `<a class="create-cta${o.cls ? " " + o.cls : ""}" href="${o.href || "/spark"}">
       <span class="cc-titles">${list.map((c, i) => `<b class="${i ? "" : "on"}">${c.title}</b>`).join("")}</span>
       <span class="cc-icon" aria-hidden="true"><i class="cc-ring"></i><i class="cc-orbit"><b>✦</b><b>♥</b><b>✦</b><b>♥</b></i>${list.map((c, i) => `<img class="${i ? "" : "on"}" src="${c.img}" alt="" width="200" height="200">`).join("")}<i class="cc-plus">${o.plus || "+"}</i></span>
       <span class="cc-says">${list.map((c, i) => `<span class="${i ? "" : "on"}">${c.say}</span>`).join("")}</span>
