@@ -751,30 +751,67 @@ async function viewDesk(tab = ""){
       : `<p class="m0"><strong>Next class:</strong> ${nextClassText(k)}${url ? `<br><span class="hint">The Join button appears here 10 minutes before class.</span>` : ""}</p>`}</section>`;
 
   const out = document.getElementById("p-out"), goBtn = document.getElementById("go"), cancel = document.getElementById("cancel");
-  const ring = document.getElementById("ring"), clock = document.getElementById("clock");
+  const ring = document.getElementById("ring"), clock = document.getElementById("clock"), goalTxt = document.getElementById("goal-txt");
+  // The timer only counts while this screen is open and in front. Leaving it (another app, tab or window,
+  // or the screen turning off) pauses it; the student taps Resume when they're back.
+  // Saved as { acc: ms counted so far, start: when the current stretch began (null = paused), beat: last tick }.
   let tick = null, chimed = false;
-  const startedAt = () => +store.get(TK) || 0;
+  const read = () => { const raw = store.get(TK); if (!raw) return null;
+    if (/^\d+$/.test(raw)) return { acc: 0, start: null, beat: 0, paused: true, acc0: Date.now() - +raw };   // older format
+    try { return JSON.parse(raw); } catch (e) { return null; } };
+  const write = t => t ? store.set(TK, JSON.stringify(t)) : store.del(TK);
+  const elapsed = t => !t ? 0 : t.acc + (t.start ? Date.now() - t.start : 0);
+  let T = read();
+  if (T && T.acc0 != null) { T = { acc: 0, start: null, beat: 0, paused: true }; write(T); }          // can't tell how long an old timer really ran
+  if (T && T.start) { T.acc += Math.max(0, (T.beat || T.start) - T.start); T.start = null; T.paused = true; write(T); }  // the page was closed while running
+  const pause = () => {
+    if (!T || !T.start) return;
+    T.acc += Date.now() - T.start; T.start = null; T.paused = true; write(T); clearInterval(tick);
+    try { wake?.release(); } catch (e) {}
+    paint();
+  };
+  const resume = () => { T.start = Date.now(); T.beat = T.start; T.paused = false; write(T); out.innerHTML = ""; keepAwake(); run(); };
   const paint = () => {
-    const s0 = startedAt(), secs = s0 ? Math.floor((Date.now() - s0) / 1000) : 0;
+    const secs = Math.floor(elapsed(T) / 1000), running = !!(T && T.start), paused = !!(T && !T.start);
     clock.textContent = mmss(secs);
     ring.setAttribute("stroke-dashoffset", String(326.7 * (1 - Math.min(1, secs / (goal * 60)))));
-    if (s0 && !chimed && secs >= goal * 60) { chimed = true; chime(); out.innerHTML = `<div class="notice ok">Goal reached! Keep going or press Stop to save.</div>`; }
-    goBtn.textContent = s0 ? "Stop" : "Start"; goBtn.classList.toggle("stop", !!s0); cancel.hidden = !s0;
+    ring.classList.toggle("paused", paused);
+    goalTxt.textContent = paused ? "Paused" : `of ${goal} min`;
+    if (running && !chimed && secs >= goal * 60) { chimed = true; chime(); out.innerHTML = `<div class="notice ok">Goal reached! Keep going or press Stop to save.</div>`; }
+    if (paused && !out.innerHTML) out.innerHTML = `<div class="notice">Paused. The timer only runs while this screen is open. Tap <strong>Resume</strong> to carry on, or <strong>Save</strong> to keep the time so far.</div>`;
+    goBtn.textContent = running ? "Stop" : paused ? "Resume" : "Start";
+    goBtn.classList.toggle("stop", running);
+    cancel.hidden = !T; save.hidden = !paused;
   };
-  const run = () => { clearInterval(tick); tick = setInterval(() => { if (!clock.isConnected) { clearInterval(tick); return; } paint(); }, 1000); paint(); };
-  goBtn.onclick = async () => {
-    if (!startedAt()) { store.set(TK, String(Date.now())); chimed = false; out.innerHTML = ""; keepAwake(); run(); return; }
-    const mins = Math.min(300, Math.round((Date.now() - startedAt()) / 60000));
+  const save = document.createElement("button"); save.type = "button"; save.className = "btn ghost light small"; save.textContent = "Save"; save.hidden = true;
+  cancel.before(save);
+  const run = () => { clearInterval(tick); tick = setInterval(() => {
+      if (!clock.isConnected) { clearInterval(tick); return; }
+      if (T && T.start) { T.beat = Date.now(); write(T); }
+      paint(); }, 1000); paint(); };
+  const finish = async () => {
+    const mins = Math.min(300, Math.round(elapsed(T) / 60000));
     if (mins < 1) { out.innerHTML = `<div class="notice">Practise for at least a minute to save it. Keep going, or press Cancel.</div>`; return; }
-    goBtn.disabled = true;
+    goBtn.disabled = save.disabled = true;
     const { error } = await sb.rpc("add_practice", { student: cur.id, mins, on_day: ymd(today0()) });
-    goBtn.disabled = false;
+    goBtn.disabled = save.disabled = false;
     if (error) { out.innerHTML = `<div class="notice">${esc(friendly(error))}</div>`; return; }
-    store.del(TK); clearInterval(tick); try { wake?.release(); } catch(e){}
+    T = null; write(null); clearInterval(tick); try { wake?.release(); } catch (e) {}
     viewDesk(""); setTimeout(() => { const o = document.getElementById("p-out"); if (o) o.innerHTML = `<div class="notice ok">Saved ${fmtMins(mins)}. Well done, ${esc(person.name)}! ${esc(g.teacher_name)} will see it.</div>`; }, 400);
   };
-  cancel.onclick = () => { if (!cancel.dataset.sure) { cancel.dataset.sure = "1"; cancel.textContent = "Tap again to cancel"; return; } store.del(TK); clearInterval(tick); out.innerHTML = ""; cancel.dataset.sure = ""; cancel.textContent = "Cancel"; paint(); };
-  if (startedAt()) run(); else paint();
+  goBtn.onclick = () => {
+    if (!T) { T = { acc: 0, start: Date.now(), beat: Date.now(), paused: false }; write(T); chimed = false; out.innerHTML = ""; keepAwake(); run(); return; }
+    if (!T.start) return resume();
+    pause(); out.innerHTML = ""; finish();
+  };
+  save.onclick = () => finish();
+  cancel.onclick = () => { if (!cancel.dataset.sure) { cancel.dataset.sure = "1"; cancel.textContent = "Tap again to cancel"; return; }
+    T = null; write(null); clearInterval(tick); out.innerHTML = ""; cancel.dataset.sure = ""; cancel.textContent = "Cancel"; try { wake?.release(); } catch (e) {} paint(); };
+  // Leaving the screen pauses the timer
+  const away = () => { if (!clock.isConnected) { document.removeEventListener("visibilitychange", onVis); window.removeEventListener("blur", away); window.removeEventListener("pagehide", away); return; } pause(); };
+  const onVis = () => { if (document.visibilityState === "hidden") away(); };
+  document.addEventListener("visibilitychange", onVis); window.addEventListener("blur", away); window.addEventListener("pagehide", away);
+  paint();
   pane.querySelectorAll("[data-day]").forEach(b => b.onclick = async () => {
     const key = b.dataset.day;
     const r = done.has(key) ? await sb.from("practice_logs").delete().eq("student_id", cur.id).eq("day", key)
@@ -805,21 +842,35 @@ const nextStep = s => s.status === "waiting_consent" ? { which: "consent", label
   : s.status === "consented" ? { which: "join", label: "Send registration link" }
   : s.status === "invited" ? { which: "join", label: s.join_sent_at ? "Send again" : "Send registration link" } : null;
 
-function inviteText(s, which, g, k){
+// The registration message. bold = true wraps key words in *stars*, which WhatsApp shows as bold.
+function inviteText(s, which, g, k, bold){
   const url = siteUrl("/register/" + (which === "consent" ? s.consent_token : s.join_token));
-  if (s.is_adult) return `Hello ${s.first_name}, this is ${g.teacher_name} from ${g.name}. Please register for ${k.name} on Gurushishya, where you can keep track of your daily practice: ${url}`;
-  return `Hello${s.contact_name ? " " + s.contact_name : ""}, this is ${g.teacher_name} from ${g.name}. Please register ${s.first_name} for my ${k.name} class on Gurushishya and give your consent here. It takes a minute, and then ${s.first_name} can keep track of their daily practice: ${url}`;
+  const B = t => bold ? `*${t}*` : t, when = `${DAYS[k.day_of_week]}s at ${fmtTime(k.start_time)}`;
+  const sign = `Warm regards,\n${g.teacher_name}\n${g.name}`;
+  if (s.is_adult) return [
+    `${B("Gurushishya")} | ${g.name}`, ``,
+    `Hello ${s.first_name},`, ``,
+    `You're invited to join ${B(k.name)} (${when}) on Gurushishya, where students keep track of their daily practice between classes.`, ``,
+    `Please register here. It takes about a minute:`, url, ``,
+    `If you have any questions, just reply to this message.`, ``, sign].join("\n");
+  return [
+    `${B("Gurushishya")} | ${g.name}`, ``,
+    `Hello${s.contact_name ? " " + s.contact_name : ""},`, ``,
+    `I'd like to add ${B(s.first_name)} to my ${B(k.name)} class (${when}) on Gurushishya, where students keep track of their daily practice between classes.`, ``,
+    `As ${s.first_name}'s parent or guardian, please register and give your consent here. It takes about a minute:`, url, ``,
+    `Gurushishya keeps only ${s.first_name}'s first name and practice record, and only you and I can see them.`, ``,
+    `If you have any questions, just reply to this message.`, ``, sign].join("\n");
 }
 function openInvite(s, which, g, k, onDone){
-  const text = inviteText(s, which, g, k), phone = s.contact_phone, email = s.contact_email;
-  const subject = s.is_adult ? `Your Gurushishya registration for ${k.name}` : `Please register ${s.first_name} for ${k.name} on Gurushishya`;
+  const text = inviteText(s, which, g, k), waText = inviteText(s, which, g, k, true), phone = s.contact_phone, email = s.contact_email;
+  const subject = s.is_adult ? `${g.name}: your registration for ${k.name}` : `${g.name}: please register ${s.first_name} for ${k.name}`;
   const dlg = document.createElement("dialog"); dlg.className = "dlg"; dlg.setAttribute("aria-labelledby", "dlg-h");
   dlg.innerHTML = `<div class="dlg-in">
     <h2 id="dlg-h">Send ${esc(s.is_adult ? s.first_name : s.contact_name || "the parent")} the registration link</h2>
     <p class="muted m0">${phone || email ? "Choose how to send it. Your WhatsApp, messages or email opens with this message ready. Just press send." : "No mobile number or email is saved for them. Copy the message and send it your own way, or add their details on the Students tab."}</p>
     <div class="msg-preview">${esc(text)}</div>
     <div class="send-btns">
-      ${phone ? `<a class="btn wa" data-send target="_blank" rel="noopener" href="https://wa.me/${waDigits(phone)}?text=${encodeURIComponent(text)}">WhatsApp</a>` : ""}
+      ${phone ? `<a class="btn wa" data-send target="_blank" rel="noopener" href="https://wa.me/${waDigits(phone)}?text=${encodeURIComponent(waText)}">WhatsApp</a>` : ""}
       ${phone ? `<a class="btn ghost" data-send href="sms:${esc(phone.replace(/[^\d+]/g, ""))}?&body=${encodeURIComponent(text)}">Text message</a>` : ""}
       ${email ? `<a class="btn ghost" data-send href="mailto:${esc(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}">Email</a>` : ""}
       <button class="btn ghost" type="button" data-copy>Copy message</button>
@@ -948,6 +999,14 @@ async function viewTeacher(sub = "", id = ""){
   return tOverview(pane, g, D, again);
 }
 
+/* Online classes: teachers paste a Zoom / Meet / Teams link, or the whole invitation, and we keep the link */
+const meetingLink = txt => { const all = String(txt || "").match(/https:\/\/[^\s<>"')]+/g) || [];
+  return (all.find(u => /zoom\.(us|com)|meet\.google|teams\.(microsoft|live)|webex/i.test(u)) || all[0] || "").replace(/[.,;]+$/, ""); };
+const meetingKind = u => /zoom\./i.test(u) ? "Zoom" : /meet\.google/i.test(u) ? "Google Meet" : /teams\./i.test(u) ? "Teams" : /webex/i.test(u) ? "Webex" : "Online";
+const startsIn = (k, now = new Date()) => { const [h, m] = String(k.start_time || "0:0").split(":").map(Number); const t = new Date(now); t.setHours(h, m, 0, 0);
+  const diff = Math.round((t - now) / 60000); if (diff > 90) return ""; if (diff > 0) return `starts in ${diff} min`;
+  return diff > -(k.duration_min || 60) ? "on now" : "finished"; };
+
 /* ---- Overview: who practised today, who hasn't, and a quick note or reminder ---- */
 const lastPractice = ds => { let last = ""; ds.forEach(d => { if (d > last) last = d; }); return last; };
 const ICO = {
@@ -956,7 +1015,9 @@ const ICO = {
   bell: svg(`<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/>`),
   door: svg(`<path d="M5 20.5V9a7 7 0 0 1 14 0v11.5"/><path d="M3 20.5h18M12 13v3"/>`),
   note: svg(`<path d="M5 4.5h14v11l-4.5 4H5z"/><path d="M14.5 19.5v-4H19M8.5 9h7M8.5 12.5h4"/>`),
-  lotus: svg(`<path d="M12 5c2.4 2.8 2.4 6.6 0 9.6-2.4-3-2.4-6.8 0-9.6z"/><path d="M12 14.6c-3.8 0-7-1.9-8.7-5.2 3.8 0 7 1.9 8.7 5.2zm0 0c3.8 0 7-1.9 8.7-5.2-3.8 0-7 1.9-8.7 5.2zM5 18h14"/>`)
+  lotus: svg(`<path d="M12 5c2.4 2.8 2.4 6.6 0 9.6-2.4-3-2.4-6.8 0-9.6z"/><path d="M12 14.6c-3.8 0-7-1.9-8.7-5.2 3.8 0 7 1.9 8.7 5.2zm0 0c3.8 0 7-1.9 8.7-5.2-3.8 0-7 1.9-8.7 5.2zM5 18h14"/>`),
+  video: svg(`<rect x="2.5" y="6.5" width="13" height="11" rx="2.5"/><path d="m15.5 10.5 6-3.5v10l-6-3.5"/>`),
+  people: IC.people, calendar: IC.calendar
 };
 function practiceState(s, D){
   const k = D.classOf(s.class_id), ds = D.done(s.id), t = ymd(today0());
@@ -1041,7 +1102,12 @@ function tOverview(pane, g, D, again){
     else if (s.status === "declined") todo.push({ text: `${s.first_name}'s parent said no`, btn: link("/teacher/students/" + s.id, "View", "btn small ghost") });
   });
   const FILTERS = [["all", "All"], ["done", "Practised"], ["notyet", "Not yet"], ["remind", "Need a reminder"]];
+  const todays = D.classes.filter(k => k.day_of_week === today0().getDay());
   pane.innerHTML = `
+    ${todays.length ? `<section class="card today-cls"><h2 class="with-ico">${ICO.calendar}Today's class${todays.length > 1 ? "es" : ""}</h2>
+      <ul class="tc-list">${todays.map(k => { const u = D.linkOf(k.id), n = D.studs.filter(s => s.class_id === k.id && s.status === "active").length;
+        return `<li><div class="tc-main"><strong>${esc(k.name)}</strong><span class="hint">${fmtTime(k.start_time)} · ${k.duration_min} min · ${n} student${n === 1 ? "" : "s"}${startsIn(k) ? " · " + startsIn(k) : ""}</span></div>
+          ${u ? `<a class="btn small zoom" href="${esc(u)}" target="_blank" rel="noopener">${ICO.video}<span>Start ${esc(meetingKind(u))} class</span></a>` : link("/teacher/classes", "Add online link", "btn small ghost")}</li>`; }).join("")}</ul></section>` : ""}
     <div class="tiles dash-tiles">
       <button type="button" class="tile t-done" data-f="done">${ICO.check}<b id="n-done"></b><span>Practised today</span></button>
       <button type="button" class="tile t-notyet" data-f="notyet">${ICO.clock}<b id="n-notyet"></b><span>Not yet today</span></button>
@@ -1316,8 +1382,19 @@ async function tClasses(pane, g, D, again){
     const act = D.studs.filter(s => s.class_id === k.id && s.status === "active"), cur = D.taskFor(k.id), last = D.lastTask(k.id);
     const kp = (posts || []).filter(p => p.class_id === k.id).slice(0, 4);
     const shareTask = cur ? wa(`This week's practice for ${k.name}: ${cur.title}. ${cur.minutes} min a day.\nTrack it on Gurushishya: ${siteUrl("/practice")}`) : "";
+    const waiting = D.studs.filter(s => s.class_id === k.id && PENDING.includes(s.status)).length;
+    const doneToday = act.filter(s => D.done(s.id).has(ymd(t0))).length, url = D.linkOf(k.id), kind = url ? meetingKind(url) : "";
     return `<li class="class-item" data-id="${k.id}">
-      <div class="row between"><h3>${esc(k.name)}</h3><span class="muted">${DAYS[k.day_of_week]}s · ${fmtTime(k.start_time)} · ${k.duration_min} min · ${act.length} student${act.length === 1 ? "" : "s"}</span></div>
+      <div class="ci-head">
+        <div class="ci-title"><h3>${esc(k.name)}</h3><span class="ci-when">${DAYS[k.day_of_week]}s · ${fmtTime(k.start_time)}${classToday ? ` · <strong>today${startsIn(k) ? ", " + startsIn(k) : ""}</strong>` : ""}</span></div>
+        <div class="ci-stats">
+          <div class="ci-stat">${ICO.people}<b>${act.length}</b><span>student${act.length === 1 ? "" : "s"}${waiting ? ` · ${waiting} waiting` : ""}</span></div>
+          <div class="ci-stat">${ICO.check}<b>${doneToday}<small>/${act.length}</small></b><span>practised today</span></div>
+          <div class="ci-stat">${ICO.clock}<b>${k.duration_min}</b><span>minutes</span></div>
+          <div class="ci-stat${url ? " on" : ""}">${ICO.video}<b>${url ? esc(kind) : "None"}</b><span>${url ? "online class" : "no online link"}</span></div>
+        </div>
+        ${url ? `<div class="row ci-go"><a class="btn small zoom" href="${esc(url)}" target="_blank" rel="noopener">${ICO.video}<span>Start online class</span></a></div>` : ""}
+      </div>
       <div class="sub"><strong>This week's practice</strong>
         <form data-f="task">
           <label for="pt-title-${k.id}">What to practise<input id="pt-title-${k.id}" required maxlength="200" value="${esc(cur?.title || "")}" placeholder="${esc(last?.title || "e.g. Tatta adavu 1 to 4, slow then medium speed")}"></label>
@@ -1342,10 +1419,16 @@ async function tClasses(pane, g, D, again){
             return `<tr><td><a href="/teacher/students/${s.id}" data-link class="who">${esc(s.first_name)}</a>${needsNudge(s, ds, k.day_of_week) ? `<br><span class="pill wait">Needs a nudge</span>` : ""}</td>${cells}<td class="num">${fmtMins(tot)}</td></tr>`; }).join("")}
         </tbody></table></div>` : `<div class="empty">No active students yet. Add students from the Students tab.</div>`}
       </div>
-      <details class="sub"><summary>Online class link and settings</summary>
-        <form data-f="link" class="row" style="flex-wrap:nowrap;margin-top:10px"><label class="hint" style="flex:1;min-width:0" for="ml-${k.id}">Zoom or Meet link (only your students see it)
-          <input id="ml-${k.id}" type="url" pattern="https://.*" placeholder="https://zoom.us/j/…" value="${esc(D.linkOf(k.id))}"></label>
-          <button class="btn small ghost" type="submit" style="align-self:flex-end">Save</button></form>
+      <div class="sub zoom-sub"><div class="row between"><strong class="with-ico">${ICO.video}Online class</strong>${url ? `<span class="pill ok">${esc(kind)} link saved</span>` : `<span class="pill grey">Not set</span>`}</div>
+        ${url ? `<div class="row"><a class="btn small zoom" href="${esc(url)}" target="_blank" rel="noopener">${ICO.video}<span>Start online class</span></a>
+            <button class="btn small ghost" type="button" data-copylink>Copy link</button>
+            <a class="btn small wa" target="_blank" rel="noopener" href="${wa(`${k.name} online class, ${DAYS[k.day_of_week]}s at ${fmtTime(k.start_time)}\nJoin here: ${url}`)}">Share on WhatsApp</a></div>
+          <p class="hint m0">Your students see a <strong>Join online class</strong> button on their practice page from 10 minutes before class. Only students in this class can see the link.</p>`
+        : `<p class="hint m0">Teaching on Zoom, Google Meet or Teams? Paste the meeting link, or the whole invitation, and save. Your students then get a <strong>Join online class</strong> button 10 minutes before class.</p>`}
+        <form data-f="link"><label for="ml-${k.id}">${url ? "Change the link" : "Meeting link or invitation"}<textarea id="ml-${k.id}" rows="2" maxlength="3000" placeholder="https://us05web.zoom.us/j/123456789?pwd=…">${esc(url)}</textarea></label>
+          <div class="row"><button class="btn small" type="submit">Save link</button>${url ? `<button class="btn small ghost" type="button" data-rmlink>Remove link</button>` : ""}<span class="hint" data-lmsg role="status"></span></div></form>
+      </div>
+      <details class="sub"><summary>Class settings</summary>
         <div class="row" style="margin-top:10px"><button class="btn small ghost danger" type="button" data-del>Remove class</button><span class="hint" data-msg role="status"></span></div>
       </details></li>`;
   };
@@ -1357,14 +1440,15 @@ async function tClasses(pane, g, D, again){
         <div class="two"><label for="nc-day">Day<select id="nc-day">${DAYS.map((d, i) => `<option value="${i}" ${i === 6 ? "selected" : ""}>${d}</option>`).join("")}</select></label>
           <label for="nc-time">Start time<input id="nc-time" type="time" required value="10:00"></label>
           <label for="nc-len">Length (minutes)<input id="nc-len" type="number" min="10" max="300" value="60" required></label></div>
-        <label for="nc-url">Zoom or Meet link (optional)<input id="nc-url" type="url" pattern="https://.*" placeholder="https://zoom.us/j/…"></label>
+        <label for="nc-url">Zoom, Meet or Teams link (optional). You can paste the whole invitation.<textarea id="nc-url" rows="2" maxlength="3000" placeholder="https://us05web.zoom.us/j/…"></textarea></label>
         <div class="row"><button class="btn" type="submit">Add class</button><span class="hint" data-out role="status"></span></div></form></details>
     ${D.classes.length ? `<ul class="list">${D.classes.map(card).join("")}</ul>` : `<div class="empty">No classes yet. Add your first one above.</div>`}</section>`;
   if (wantAdd) { const n = document.getElementById("nc-name"); if (n) { n.scrollIntoView({ block: "center" }); n.focus({ preventScroll: true }); } }
   document.getElementById("nc").onsubmit = async e => {
     e.preventDefault(); const out = e.target.querySelector("[data-out]"), b = e.target.querySelector("button"); b.disabled = true;
     const { data: k, error } = await sb.from("classes").insert({ group_id: g.id, name: val("nc-name"), day_of_week: +val("nc-day"), start_time: val("nc-time"), duration_min: +val("nc-len") }).select().single();
-    if (!error && val("nc-url")) await sb.from("class_links").upsert({ class_id: k.id, meeting_url: val("nc-url") });
+    const ncu = meetingLink(val("nc-url"));
+    if (!error && ncu) await sb.from("class_links").upsert({ class_id: k.id, meeting_url: ncu });
     b.disabled = false;
     if (error) { out.textContent = friendly(error); return; }
     again();
@@ -1389,10 +1473,16 @@ async function tClasses(pane, g, D, again){
       await sb.from("chat_messages").delete().eq("id", b.dataset.delpost); again();
     });
     li.querySelector('[data-f="link"]').onsubmit = async e => {
-      e.preventDefault(); const url = e.target.querySelector("input").value.trim(), msg = li.querySelector("[data-msg]");
+      e.preventDefault(); const raw = e.target.querySelector("textarea").value, url = meetingLink(raw), msg = li.querySelector("[data-lmsg]");
+      if (raw.trim() && !url) { msg.textContent = "Couldn't find a link starting with https:// in that. Please paste the meeting link."; return; }
       const r = url ? await sb.from("class_links").upsert({ class_id: id, meeting_url: url }) : await sb.from("class_links").delete().eq("class_id", id);
-      msg.textContent = r.error ? friendly(r.error) : "Link saved.";
+      if (r.error) { msg.textContent = friendly(r.error); return; }
+      again();
     };
+    const rml = li.querySelector("[data-rmlink]");
+    if (rml) rml.onclick = async () => { if (!rml.dataset.sure) { rml.dataset.sure = "1"; rml.textContent = "Tap again to remove"; return; }
+      const { error } = await sb.from("class_links").delete().eq("class_id", id); if (error) { li.querySelector("[data-lmsg]").textContent = friendly(error); return; } again(); };
+    const cpl = li.querySelector("[data-copylink]"); if (cpl) cpl.onclick = e => copy(D.linkOf(id), e.currentTarget);
     const del = li.querySelector("[data-del]");
     del.onclick = async () => {
       if (!del.dataset.sure) { del.dataset.sure = "1"; del.textContent = "Tap again to remove this class, its students and their practice record"; return; }

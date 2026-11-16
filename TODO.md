@@ -26,6 +26,7 @@
 - [ ] Parents need Google sign-in or the email service switched on (see Switch on) before they can finish registering
 
 ## Next features
+- [x] Practice timer only runs while the practice screen is open (pauses when the student leaves)
 - [ ] Gurushishya sends consent and join requests itself (email first, then text/WhatsApp), instead of from the teacher's phone
 - [ ] Photos or PDFs on class notes and homework
 - [ ] Students send a short practice video or voice clip; teacher replies
@@ -34,4 +35,6 @@
 - [ ] Badges and a class group streak
 - [x] Approvals tab on the admin's Dashboard to approve teachers
 - [ ] Email the admin when a new teacher signs up
-- [ ] Events calendar, fees and receipts, automatic Zoom scheduling
+- [x] Online classes: each class can hold a Zoom / Meet / Teams link (paste the invitation); Start button for the teacher, Join button for students 10 minutes before
+- [ ] Connect a teacher's Zoom account so Gurushishya creates the meetings itself (needs a Zoom Marketplace app)
+- [ ] Events calendar, fees and receipts
