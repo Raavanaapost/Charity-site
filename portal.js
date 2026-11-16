@@ -1421,7 +1421,7 @@
     const visitsTotal = (TR.sources || []).reduce((a, s) => a + s.visits, 0) || 1;
     const srcName = k => (SOURCES[k] || [k])[0];
     const srcNote = k => (SOURCES[k] || [, ""])[1];
-    const actedCol = r => `<span class="tr-x">${r.acted ? `${r.acted} led to something (${pct(r.acted, r.visits)}%)` : "–"}${r.shares ? ` · ${r.shares} shares` : ""}${r.pages ? ` · ${r.pages} pages each` : ""}</span>`;
+    const actedCol = r => `<span class="tr-x">${[r.acted ? `${r.acted} led to something (${pct(r.acted, r.visits)}%)` : "", r.shares ? `${r.shares} share${r.shares === 1 ? "" : "s"}` : "", r.pages ? `${r.pages} pages each` : ""].filter(Boolean).join(" · ")}</span>`;
     const allDays = (() => { const out = [], from = new Date(trRange.from + "T00:00:00Z"), to = new Date(trRange.to + "T00:00:00Z"); const by = new Map(days.map(d => [d.day, d])); for (let t = from.getTime(); t <= to.getTime(); t += 864e5) { const k = trDay(new Date(t)); out.push(by.get(k) || { day: k, visits: 0, views: 0, actions: 0, shares: 0 }); } return out; })();
     const hours = [...Array(24)].map((_, h) => (TR.hours || []).find(x => x.key === h) || { key: h, views: 0 });
     const wk = [1, 2, 3, 4, 5, 6, 7].map(d => (TR.weekdays || []).find(x => x.key === d) || { key: d, views: 0 });
