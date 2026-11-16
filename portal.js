@@ -110,7 +110,7 @@
     const pct = funding.goal ? Math.round(funding.raised / funding.goal * 100) : 0;
     return `
       <header class="pt-head"><div><p class="pt-kicker">Dashboard</p><h1>Hello, ${esc(D.user.name)}</h1></div>
-        <a class="pt-btn ghost" href="#/suggestions">Open suggestions</a></header>
+        <div class="pt-actions-row"><a class="pt-btn ghost" href="#/suggestions">Open suggestions</a><a class="pt-btn ghost" href="#/traffic">${svg(ICON.traffic, 18)} Traffic</a></div></header>
       <section class="pt-stats">
         <a class="pt-stat s1" href="#/suggestions"><b>${sNew.length}</b><span>New suggestions</span></a>
         <div class="pt-stat st1"><b>${st[0].length}</b><span>Initiated</span></div>
@@ -1551,7 +1551,7 @@
       if (!LIVE) C = { list: [{ id: 1, name: "Kumar Selvam", phone: "077 123 4567", email: "", district: "Nuwara Eliya", areas: "Pussellawa, Gampola", note: "Knows the estate schools.", active: true, visits: 2 }, { id: 2, name: "Nadeesha Perera", phone: "071 555 0101", email: "", district: "Kandy", areas: "Gampola, Peradeniya", note: "", active: true, visits: 0 }],
         districts: ["Ampara", "Anuradhapura", "Badulla", "Batticaloa", "Colombo", "Galle", "Gampaha", "Hambantota", "Jaffna", "Kalutara", "Kandy", "Kegalle", "Kilinochchi", "Kurunegala", "Mannar", "Matale", "Matara", "Monaragala", "Mullaitivu", "Nuwara Eliya", "Polonnaruwa", "Puttalam", "Ratnapura", "Trincomalee", "Vavuniya"] };
       const banner = document.querySelector(".pt-demo");
-      if (LIVE) { banner.textContent = `Signed in as ${ME.email} · Suggestions and “I'd like to give” requests are live · other screens are still a demo`; banner.classList.add("live"); }
+      if (LIVE) { banner.textContent = `Signed in as ${ME.email} · Suggestions, “I'd like to give” requests and Traffic are live · other screens are still a demo`; banner.classList.add("live"); }
       window.addEventListener("hashchange", () => { render(); window.scrollTo(0, 0); });
       render();
     })
