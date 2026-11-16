@@ -47,13 +47,14 @@
     circles: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="5" r="2"/><circle cx="5.5" cy="15" r="2"/><circle cx="18.5" cy="15" r="2"/>',
     champions: '<path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.6L12 16.4l-5.1 2.7 1-5.6-4.1-4 5.7-.8z"/>',
     reports: '<path d="M12 3l8 3v6c0 4.6-3.3 8-8 9-4.7-1-8-4.4-8-9V6z"/><path d="M12 8v5M12 16h.01" stroke-width="2.2"/>',
+    traffic: '<path d="M4 19V11M9.3 19V6M14.6 19v-5M20 19V9"/><path d="M3 21h18"/>',
     more: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'
   };
   const svg = (d, s = 20) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
   const MENU = [
     ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true],
     ["sponsors", "Sponsors & pledges", true], ["day", "Day preparation", true], ["close", "Close the day", true],
-    ["people", "People", true], ["champions", "Champions", true], ["circles", "Family circles", true], ["team", "Team & logins", true]
+    ["people", "People", true], ["champions", "Champions", true], ["circles", "Family circles", true], ["traffic", "Traffic", true], ["team", "Team & logins", true]
   ];
 
   let D = null, P = [], C = { list: [], districts: [] }, chDistrict = "All", chEdit = null;
@@ -73,7 +74,7 @@
     document.getElementById("pt-tabbar").innerHTML = [["dashboard", "Home"], ["suggestions", "Suggestions"], ["projects", "Projects"], ["reports", "Reports"], ["more", "More"]].map(([k, l]) => {
       const ready = k !== "more";
       return ready ? `<a href="#/${k}" class="${cur === k ? "on" : ""}">${svg(ICON[k], 22)}<span>${l}</span>${k === "sponsors" && newAsk ? `<b class="pt-badge">${newAsk}</b>` : k === "suggestions" && newCount ? `<b class="pt-badge">${newCount}</b>` : k === "reports" && openRep ? `<b class="pt-badge">${openRep}</b>` : ""}</a>`
-        : `<button type="button" class="${["sponsors", "day", "close", "people", "team"].includes(cur) ? "on" : ""}" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
+        : `<button type="button" class="${["sponsors", "day", "close", "people", "champions", "circles", "traffic", "team"].includes(cur) ? "on" : ""}" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
     }).join("");
     document.querySelectorAll("[data-soon]").forEach(b => b.onclick = () => {
       let m = document.getElementById("pt-more");
@@ -1325,15 +1326,197 @@
     app.querySelector("[data-rev]").onchange = e => { D.reviewer = e.target.value; render(); };
   }
 
+  // ---------- Traffic (SURESH, 16 Nov 2026) ----------
+  // The site's own visit record (track.js -> /api/hit -> site_hits). Free, no cookies, nothing personal.
+  // Netlify keeps only 7 days; this keeps everything, and a nightly GitHub job saves a daily copy (branch traffic-record).
+  let TR = null, trBusy = false;
+  const trDay = d => d.toISOString().slice(0, 10);
+  let trRange = (() => { const to = new Date(); return { key: "7", from: trDay(new Date(to.getTime() - 6 * 864e5)), to: trDay(to) }; })();
+  const TZ = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; } catch (e) { return "UTC"; } })();
+  const SOURCES = {
+    whatsapp: ["WhatsApp", "From a WhatsApp campaign link or WhatsApp's own browser"], facebook: ["Facebook", ""], instagram: ["Instagram", ""],
+    google: ["Google", "Google search or the Google app"], search: ["Other search engines", "Bing, DuckDuckGo, Yahoo…"], x: ["X (Twitter)", ""],
+    youtube: ["YouTube", ""], tiktok: ["TikTok", ""], linkedin: ["LinkedIn", ""], raavanaapost: ["RaavanaaPost", "Links on our news site"],
+    email: ["Email", ""], sms: ["Text message", ""], print: ["Poster or QR code", ""], other: ["Other websites", ""],
+    direct: ["Direct or WhatsApp (unknown)", "Typed in, a saved link, or an app that hides itself (WhatsApp does). Use campaign links to see these."]
+  };
+  const SHARE_NAMES = { wa: "WhatsApp", fb: "Facebook", x: "X", link: "Copy link", ig: "Instagram story", more: "Phone share menu", phone: "Phone share (memory pages)" };
+  const DAYS = ["", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const pageName = path => {
+    const p = String(path || "").replace(/^\/ta(?=\/|$)/, ""), ta = /^\/ta(\/|$)/.test(path) ? " (Tamil)" : "";
+    const fixed = { "": "Home", "/": "Home", "/overview": "Home", "/moment": "Gift a Moment", "/projects": "All projects", "/initiate": "Start a project (request)", "/create": "Create a Moment",
+      "/members": "Sign in / Join", "/about": "About", "/contact": "Contact", "/give": "Give form", "/fund": "Raavanaa Fund", "/smile-map": "Smile Map", "/how-it-works": "How it works",
+      "/initiated": "Initiated projects", "/activated": "Activated projects", "/impact": "Impact projects", "/privacy": "Privacy", "/thank-you": "Thank you" };
+    if (p in fixed) return fixed[p] + ta;
+    let m = p.match(/^\/projects\/([^/]+)(\/money)?$/);
+    if (m) { const pr = P.find(x => x.slug === m[1]); return (pr ? pr.title : m[1]) + (m[2] ? " · money page" : "") + ta; }
+    if (/^\/m\//.test(p)) return "Memory page " + p.slice(3) + ta;
+    if (/^\/e\//.test(p)) return "Vouching page" + ta;
+    return p + ta;
+  };
+  const country = c => { if (c === "??") return "Unknown"; try { return new Intl.DisplayNames(["en"], { type: "region" }).of(c) || c; } catch (e) { return c; } };
+  const flag = c => /^[A-Z]{2}$/.test(c) ? String.fromCodePoint(...[...c].map(ch => 127397 + ch.charCodeAt(0))) : "🌐";
+  const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+  const change = (a, b) => {
+    if (!b && !a) return `<small class="tr-ch">no change</small>`;
+    if (!b) return `<small class="tr-ch up">new</small>`;
+    const c = Math.round((a - b) / b * 100);
+    return `<small class="tr-ch ${c > 0 ? "up" : c < 0 ? "down" : ""}">${c > 0 ? "▲" : c < 0 ? "▼" : ""} ${Math.abs(c)}% <span>vs before</span></small>`;
+  };
+  const acted = t => (t.give || 0) + (t.memory || 0) + (t.request || 0) + (t.vouch || 0);
+
+  // Invented numbers for the design preview (no sign-in). The live portal never shows these.
+  function trDemo() {
+    const from = new Date(trRange.from + "T00:00:00Z"), to = new Date(trRange.to + "T00:00:00Z"), days = Math.round((to - from) / 864e5) + 1;
+    let seed = 7; const r = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+    const daily = [...Array(days)].map((_, i) => { const v = Math.round(18 + i * 0.6 + r() * 22 + (i % 7 === 5 ? 25 : 0)); return { day: trDay(new Date(from.getTime() + i * 864e5)), visits: v, views: Math.round(v * 2.6), actions: Math.round(v * 0.05 + r()), shares: Math.round(v * 0.12) }; });
+    const visits = daily.reduce((a, d) => a + d.visits, 0), views = daily.reduce((a, d) => a + d.views, 0);
+    const split = (list) => list.map(([key, share, act, sh, pg]) => ({ key, visits: Math.round(visits * share), acted: Math.round(visits * share * act), shares: Math.round(visits * share * sh), pages: pg }));
+    return {
+      demo: true, tz: TZ,
+      now: { views, visits, shares: Math.round(visits * 0.12), give: Math.round(visits * 0.02), memory: Math.round(visits * 0.015), request: Math.round(visits * 0.01), vouch: Math.round(visits * 0.008), install: Math.round(visits * 0.006), app_visits: Math.round(visits * 0.04) },
+      before: { views: Math.round(views * 0.8), visits: Math.round(visits * 0.78), shares: Math.round(visits * 0.09), give: Math.round(visits * 0.015), memory: Math.round(visits * 0.01), request: Math.round(visits * 0.01), vouch: 2, install: 1 },
+      daily,
+      sources: split([["direct", .44, .03, .1, 2.1], ["whatsapp", .22, .08, .2, 3.2], ["facebook", .16, .05, .12, 2.6], ["google", .08, .04, .02, 2.4], ["instagram", .05, .06, .1, 2.2], ["raavanaapost", .03, .1, .05, 3.8], ["other", .02, 0, 0, 1.4]]),
+      campaigns: split([["wa-kandy-trip", .14, .1, .22, 3.4], ["fb-memory-launch", .09, .06, .14, 2.8], ["ig-bio", .03, .05, .1, 2.0], ["qr-temple-poster", .01, .2, 0, 4.1]]),
+      pages: [["/overview", .3], ["/moment", .17], ["/projects/pussellawa-kandy-trip", .14], ["/projects", .09], ["/initiate", .06], ["/projects/pussellawa-kandy-trip/money", .05], ["/m/demo4x8k", .04], ["/about", .03]].map(([key, s]) => ({ key, views: Math.round(views * s), visits: Math.round(visits * s * 1.3) })),
+      countries: [["CA", .46], ["GB", .14], ["LK", .12], ["US", .08], ["CH", .06], ["DE", .05], ["AU", .04], ["FR", .03], ["??", .02]].map(([key, s]) => ({ key, visits: Math.round(visits * s) })),
+      devices: [["phone", .71], ["computer", .22], ["app", .05], ["tablet", .02]].map(([key, s]) => ({ key, visits: Math.round(visits * s) })),
+      hours: [...Array(24)].map((_, h) => ({ key: h, views: Math.round(views / 40 * (0.3 + Math.max(0, Math.sin((h - 6) / 24 * Math.PI * 2)) + (h >= 19 && h <= 22 ? 0.9 : 0))) })),
+      weekdays: [1, 2, 3, 4, 5, 6, 7].map(d => ({ key: d, views: Math.round(views / 9 * (d >= 6 ? 1.5 : 1)) })),
+      shares: [["wa", .55], ["link", .2], ["fb", .12], ["phone", .08], ["ig", .05]].map(([key, s]) => ({ key, shares: Math.round(visits * 0.12 * s) })),
+      refs: [{ key: "l.facebook.com", visits: 40 }, { key: "www.google.com", visits: 22 }, { key: "raavanaapost.raavanaa.org", visits: 9 }]
+    };
+  }
+  async function loadTraffic() {
+    await null;
+    if (trBusy) return; trBusy = true;
+    if (!LIVE) { TR = trDemo(); trBusy = false; render(); return; }
+    try { TR = await api(`/api/portal/traffic?from=${trRange.from}&to=${trRange.to}&tz=${encodeURIComponent(TZ)}`); }
+    catch (e) { TR = { error: e.message || "Could not load the traffic record." }; }
+    trBusy = false; render();
+  }
+  const bars = (rows, val, label, title, cls = "") => {
+    const max = Math.max(1, ...rows.map(val));
+    return `<div class="tr-bars ${cls}" role="img" aria-label="${esc(label)}">${rows.map(r => `<span class="tr-b" title="${esc(title(r))}"><i style="height:${Math.max(val(r) ? 3 : 0, Math.round(val(r) / max * 100))}%"></i></span>`).join("")}</div>`;
+  };
+  const rank = (rows, name, val, extra = () => "", note = () => "") => {
+    const max = Math.max(1, ...rows.map(val));
+    return rows.length ? `<ol class="tr-rank">${rows.map(r => `<li><div class="tr-rk"><span class="tr-nm">${name(r)}${note(r) ? `<small>${note(r)}</small>` : ""}</span><b>${val(r).toLocaleString("en-US")}</b>${extra(r)}</div><span class="tr-bar"><i style="width:${Math.max(2, Math.round(val(r) / max * 100))}%"></i></span></li>`).join("")}</ol>`
+      : `<p class="pt-sub">Nothing counted in this period yet.</p>`;
+  };
+  function traffic() {
+    let off = false; try { off = localStorage.getItem("raav-notrack") === "1"; } catch (e) { /* storage blocked */ }
+    const chips = [["7", "7 days"], ["30", "30 days"], ["90", "90 days"], ["365", "1 year"]];
+    const head = `
+      <header class="pt-head"><div><p class="pt-kicker">Traffic</p><h1>Who is visiting Raavanaa</h1>
+        <p class="pt-sub">raavanaa.org's own record of visits: where people came from, what they looked at, and what it led to. Free, no cookies, nothing personal. Kept for good, with a daily copy saved in GitHub.</p></div></header>
+      <div class="tr-period">
+        <div class="pt-chips">${chips.map(([k, l]) => `<button type="button" data-trp="${k}" aria-pressed="${trRange.key === k}">${l}</button>`).join("")}</div>
+        <form class="tr-dates" data-trdates><label>From <input type="date" name="from" value="${trRange.from}" required></label><label>To <input type="date" name="to" value="${trRange.to}" required></label><button class="pt-btn ghost" type="submit">Show</button></form>
+      </div>`;
+    if (!TR) { loadTraffic(); return head + `<p class="pt-sub">Loading…</p>`; }
+    if (TR.error) return head + `<p class="pt-sub">${esc(TR.error)}</p>`;
+    const n = TR.now, b = TR.before || {}, days = TR.daily || [];
+    const visitsTotal = (TR.sources || []).reduce((a, s) => a + s.visits, 0) || 1;
+    const srcName = k => (SOURCES[k] || [k])[0];
+    const srcNote = k => (SOURCES[k] || [, ""])[1];
+    const actedCol = r => `<span class="tr-x">${r.acted ? `${r.acted} led to something (${pct(r.acted, r.visits)}%)` : "–"}${r.shares ? ` · ${r.shares} shares` : ""}${r.pages ? ` · ${r.pages} pages each` : ""}</span>`;
+    const allDays = (() => { const out = [], from = new Date(trRange.from + "T00:00:00Z"), to = new Date(trRange.to + "T00:00:00Z"); const by = new Map(days.map(d => [d.day, d])); for (let t = from.getTime(); t <= to.getTime(); t += 864e5) { const k = trDay(new Date(t)); out.push(by.get(k) || { day: k, visits: 0, views: 0, actions: 0, shares: 0 }); } return out; })();
+    const hours = [...Array(24)].map((_, h) => (TR.hours || []).find(x => x.key === h) || { key: h, views: 0 });
+    const wk = [1, 2, 3, 4, 5, 6, 7].map(d => (TR.weekdays || []).find(x => x.key === d) || { key: d, views: 0 });
+    const topHour = hours.reduce((a, h) => h.views > a.views ? h : a, hours[0]), topDay = wk.reduce((a, d) => d.views > a.views ? d : a, wk[0]);
+    const hh = h => `${String(h).padStart(2, "0")}:00`;
+    return head + `
+      ${TR.demo ? `<p class="tr-demo">Design preview with invented numbers. Signed in on raavanaa.org, this screen shows the real record.</p>` : ""}
+      <section class="pt-stats tr-stats">
+        <div class="pt-stat st1"><b>${n.visits.toLocaleString("en-US")}</b><span>Visits</span>${change(n.visits, b.visits)}</div>
+        <div class="pt-stat st1"><b>${n.views.toLocaleString("en-US")}</b><span>Pages seen</span>${change(n.views, b.views)}</div>
+        <div class="pt-stat st3"><b>${acted(n)}</b><span>Led to something</span>${change(acted(n), acted(b))}</div>
+        <div class="pt-stat st2"><b>${n.shares}</b><span>Shares</span>${change(n.shares, b.shares)}</div>
+      </section>
+      <section class="pt-card tr-card"><h2>Visits each day</h2>
+        ${bars(allDays, d => d.visits, "Visits each day", d => `${fmtDay(d.day)}: ${d.visits} visits, ${d.views} pages, ${d.actions} led to something, ${d.shares} shares`, allDays.length > 60 ? "dense" : "")}
+        <div class="tr-axis"><span>${fmtDay(allDays[0].day)}</span><span>${fmtDay(allDays[allDays.length - 1].day)}</span></div>
+        <p class="pt-sub">“Before” means the same number of days just before this period, so a campaign can be compared with the weeks before it: pick its dates above.</p></section>
+      <div class="pt-grid">
+        <section class="pt-card tr-card"><h2>Where visitors came from</h2>
+          ${rank(TR.sources || [], r => esc(srcName(r.key)), r => r.visits, r => `<span class="tr-x">${pct(r.visits, visitsTotal)}% of visits</span>` + actedCol(r), r => esc(srcNote(r.key)))}
+          ${(TR.refs || []).length ? `<details class="tr-more"><summary>Exact websites</summary>${rank(TR.refs, r => esc(r.key), r => r.visits)}</details>` : ""}</section>
+        <section class="pt-card tr-card"><h2>Campaigns</h2>
+          ${(TR.campaigns || []).length ? rank(TR.campaigns, r => esc(r.key), r => r.visits, actedCol) : `<p class="pt-sub">No campaign links used yet. Make one below and use it in a WhatsApp group, post or poster.</p>`}
+          <form class="tr-maker" data-trmaker>
+            <h3>Make a campaign link</h3>
+            <label>Where it will be posted <select name="where" class="pt-sel">
+              <option value="wa">WhatsApp group or chat</option><option value="fb">Facebook</option><option value="ig">Instagram</option><option value="email">Email</option>
+              <option value="qr">Poster or QR code</option><option value="sms">Text message</option><option value="rp">RaavanaaPost</option><option value="other">Somewhere else</option></select></label>
+            <label>Name of the campaign or group <input name="name" placeholder="kandy trip, toronto temple group" maxlength="40" required></label>
+            <label>Page it opens <select name="page" class="pt-sel"><option value="/">Home</option><option value="/moment">Gift a Moment</option><option value="/projects">All projects</option>
+              ${P.map(p => `<option value="/projects/${esc(p.slug)}">${esc(p.title)}</option>`).join("")}<option value="/initiate">Start a project</option></select></label>
+            <button class="pt-btn" type="submit">Make the link</button>
+            <p class="tr-link" data-trlink hidden></p>
+          </form></section>
+      </div>
+      <div class="pt-grid">
+        <section class="pt-card tr-card"><h2>What visits led to</h2>
+          ${rank([["give", "“I'd like to give” sent"], ["memory", "Pages made in someone's memory"], ["request", "Project requests sent"], ["vouch", "Vouches for a request"], ["install", "App installed"]].map(([k, l]) => ({ key: k, l, v: n[k] || 0, was: b[k] || 0 })), r => esc(r.l), r => r.v, r => `<span class="tr-x">${r.was} the period before</span>`)}
+        </section>
+        <section class="pt-card tr-card"><h2>Share buttons pressed</h2>
+          ${rank(TR.shares || [], r => esc(SHARE_NAMES[r.key] || r.key), r => r.shares)}
+          <p class="pt-sub">People who press Share are spreading the word for us.</p></section>
+      </div>
+      <div class="pt-grid">
+        <section class="pt-card tr-card"><h2>Pages people looked at</h2>
+          ${rank(TR.pages || [], r => { const p = String(r.key); const link = /^\/e\//.test(p) ? "" : p; return link ? `<a href="${esc(link)}" target="_blank" rel="noopener">${esc(pageName(p))}</a>` : esc(pageName(p)); }, r => r.views, r => `<span class="tr-x">${r.visits} visits</span>`)}</section>
+        <section class="pt-card tr-card"><h2>Countries</h2>
+          ${rank(TR.countries || [], r => `${flag(r.key)} ${esc(country(r.key))}`, r => r.visits, r => `<span class="tr-x">${pct(r.visits, n.visits)}%</span>`)}</section>
+      </div>
+      <div class="pt-grid">
+        <section class="pt-card tr-card"><h2>Phone, computer or the app</h2>
+          ${rank(TR.devices || [], r => esc({ phone: "Phone", computer: "Computer", tablet: "Tablet", app: "The Raavanaa app" }[r.key] || r.key), r => r.visits, r => `<span class="tr-x">${pct(r.visits, n.visits)}%</span>`)}</section>
+        <section class="pt-card tr-card"><h2>Busiest times</h2>
+          <p class="pt-sub">In your time (${esc(TR.tz || TZ)}). ${topHour.views ? `Busiest around <b>${hh(topHour.key)}</b> and on <b>${DAYS[topDay.key]}</b>: a good time to post in the groups.` : ""}</p>
+          ${bars(hours, h => h.views, "Pages seen by hour", h => `${hh(h.key)}: ${h.views} pages`, "hours")}
+          <div class="tr-axis"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:00</span></div>
+          ${bars(wk, d => d.views, "Pages seen by weekday", d => `${DAYS[d.key]}: ${d.views} pages`, "week")}
+          <div class="tr-axis week">${wk.map(d => `<span>${DAYS[d.key]}</span>`).join("")}</div></section>
+      </div>
+      <section class="pt-card tr-card tr-foot">
+        <label class="tr-opt"><input type="checkbox" data-notrack ${off ? "checked" : ""}> Don't count visits from this device (tick it on your own phone and computer so the team's visits don't fill the record)</label>
+        <p class="pt-sub">The record started when this was published. Older visits are only in Netlify's own 7-day view. A visit is one browser tab; no IP address, cookie, name or exact place is kept. A copy of each day's totals is saved every night in GitHub (Charity-site, branch <code>traffic-record</code>).</p>
+      </section>`;
+  }
+  function wireTraffic() {
+    app.querySelectorAll("[data-trp]").forEach(btn => btn.onclick = () => {
+      const k = btn.dataset.trp, to = new Date();
+      trRange = { key: k, from: trDay(new Date(to.getTime() - (Number(k) - 1) * 864e5)), to: trDay(to) }; TR = null; render();
+    });
+    const df = app.querySelector("[data-trdates]");
+    if (df) df.onsubmit = e => { e.preventDefault(); const f = new FormData(df); const a = String(f.get("from")), z = String(f.get("to")); if (a > z) { toast("“From” must be before “To”."); return; } trRange = { key: "", from: a, to: z }; TR = null; render(); };
+    const mk = app.querySelector("[data-trmaker]");
+    if (mk) mk.onsubmit = e => {
+      e.preventDefault();
+      const f = new FormData(mk), name = String(f.get("name")).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
+      if (!name) { toast("Give the campaign a name."); return; }
+      const page = String(f.get("page")), link = `https://raavanaa.org${page === "/" ? "/" : page}?from=${f.get("where")}-${name}`;
+      const out = mk.querySelector("[data-trlink]");
+      out.hidden = false; out.innerHTML = `<code>${esc(link)}</code> <button type="button" class="pt-btn ghost" data-trcopy>Copy</button><br><small>Every visit through this link shows under Campaigns as “${esc(f.get("where") + "-" + name)}”.</small>`;
+      out.querySelector("[data-trcopy]").onclick = () => { (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(() => toast("Link copied"), () => toast(link)); };
+    };
+    const nt = app.querySelector("[data-notrack]");
+    if (nt) nt.onchange = () => { try { if (nt.checked) localStorage.setItem("raav-notrack", "1"); else localStorage.removeItem("raav-notrack"); toast(nt.checked ? "This device is no longer counted" : "This device is counted again"); } catch (e) { toast("This browser blocks saving the choice."); } };
+  }
+
   function render() {
     const [page, id] = route();
-    const cur = ["suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "circles", "team"].includes(page) ? page : "dashboard";
+    const cur = ["suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "circles", "traffic", "team"].includes(page) ? page : "dashboard";
     drawNav(cur);
     if (page === "suggestions" && id) { app.innerHTML = detail(id); wireDetail(id); }
     else if (page === "suggestions") { app.innerHTML = suggestions(); wireSuggestions(); }
     else if (page === "people") { app.innerHTML = people(); wirePeople(); }
     else if (page === "champions") { app.innerHTML = champions(); wireChampions(); }
     else if (page === "circles") { app.innerHTML = circles(); wireCircles(); }
+    else if (page === "traffic") { app.innerHTML = traffic(); wireTraffic(); }
     else if (page === "team") { app.innerHTML = team(); wireTeam(); }
     else if (page === "close") { app.innerHTML = closeDay(id); wireClose(); }
     else if (page === "day") { app.innerHTML = dayPrep(id); wireDay(); }
@@ -1343,7 +1526,7 @@
     else if (page === "reports" && id) { app.innerHTML = reportDetail(id); wireReport(id); }
     else if (page === "reports") { app.innerHTML = reports(); wireReports(); }
     else app.innerHTML = dashboard();
-    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", circles: "Family circles", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
+    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", circles: "Family circles", traffic: "Traffic", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
   }
 
   Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] })).then(async d => { try { const m = await fetch("/api/projects").then(r => r.json()); const have = new Set((d.projects || []).map(p => p.slug)); d.projects = [...(d.projects || []), ...(m.projects || []).filter(p => !have.has(p.slug))]; } catch (e) { /* only projects.json */ } return d; })])

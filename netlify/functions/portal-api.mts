@@ -10,6 +10,7 @@ import type { Config, Context } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
 import { getUser } from "@netlify/identity";
 import { getStore } from "@netlify/blobs";
+import { summary } from "../lib/traffic-core.mts";
 
 const STATUSES = ["new", "visit", "verified", "approved", "declined", "project"];
 const clip = (v: unknown, max: number) => String(v ?? "").trim().slice(0, max);
@@ -118,6 +119,19 @@ export default async (req: Request, context: Context) => {
   const parts = new URL(req.url).pathname.replace(/^\/api\/portal\/?/, "").split("/").filter(Boolean);
 
   if (parts[0] === "me" && req.method === "GET") return json({ email: me.email, name: me.name, roles: me.roles, admin: me.admin });
+
+  // Traffic (16 Nov 2026): totals from the site's own visit counter for a period, with the period before it to compare.
+  //   GET /api/portal/traffic?from=YYYY-MM-DD&to=YYYY-MM-DD&tz=America/Toronto   (to is included)
+  if (parts[0] === "traffic" && req.method === "GET") {
+    const q = new URL(req.url).searchParams;
+    const dayOk = (v: string | null) => (v && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : "");
+    const to = dayOk(q.get("to")) ? new Date(dayOk(q.get("to")) + "T00:00:00Z") : new Date(new Date().toISOString().slice(0, 10) + "T00:00:00Z");
+    const end = new Date(to.getTime() + 864e5);
+    const from = dayOk(q.get("from")) ? new Date(dayOk(q.get("from")) + "T00:00:00Z") : new Date(end.getTime() - 7 * 864e5);
+    if (!(from < end) || end.getTime() - from.getTime() > 800 * 864e5) return json({ error: "Pick a period of up to two years." }, 400);
+    try { return json(await summary(db, from, end, q.get("tz") || "UTC")); }
+    catch (e) { console.log("traffic:", (e as Error).message); return json({ error: "Could not read the traffic record." }, 500); }
+  }
 
   // Evidence files, streamed part by part from Netlify Blobs (team only).
   if (parts[0] === "files" && parts[1] && req.method === "GET") {
