@@ -8,16 +8,17 @@
      circle   family and friends circles on the moment page and the family page (invites, joining, circle choice).
      vetting  people asking for a project and vouching for it (/initiate, /create, /e/<link>, "Start a project",
               "Vouched for by").
+     group    "Just me / A group" on Spark a Smile (/spark) and its group words (SURESH 16 Nov 2026: a next feature).
      reasons  the reasons shown on /moment; [] shows all twelve.
    On a draft or local preview, ?features=all shows everything for this browser tab (?features=launch goes back). */
 window.RAAV_FEATURES = (function () {
-  const F = { sponsor: false, circle: false, vetting: true, tamil: false, reasons: ["memory", "remembrance"] };
+  const F = { sponsor: false, circle: false, vetting: true, tamil: false, group: false, reasons: ["memory", "remembrance"] };
   try {
     const q = new URLSearchParams(location.search).get("features");
     const test = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) || /--charity-projects-draft\./.test(location.hostname);
     if (test && q === "all") sessionStorage.setItem("raav-features", "all");
     if (q === "launch") sessionStorage.removeItem("raav-features");
-    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = true; F.reasons = []; }
+    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = F.group = true; F.reasons = []; }
   } catch (e) { /* storage blocked: the launch switches stay */ }
   ["sponsor", "circle", "vetting", "tamil"].forEach(k => { if (!F[k]) document.documentElement.classList.add("no-" + k); });
   // Tamil hidden for now (SURESH 15 Nov 2026): no தமிழ் switch, and a /ta/ page opens the same page in English.
@@ -657,8 +658,8 @@ window.RAAV_FEATURES = (function () {
       </a>
       ${pics.length ? `<div class="sb-stack" data-sb-stack>${pics.map(({ p, n }, j) => `<a class="sb-frame s${n} ${j < 3 ? "p" + j : "off"}" href="/projects/${slugOf(p)}" data-t="${esc(p.title)}"${j ? ' tabindex="-1" aria-hidden="true"' : ""}><img src="${esc(isDrawn(p.cover) ? p.cover : "/img/project-hills.svg")}" alt="" width="300" height="225"${j > 2 ? ' loading="lazy"' : ""}><span>${STAGE_LABEL[n - 1]}</span></a>`).join("")}</div>
       <p class="sb-cap" data-sb-cap>${esc(pics[0].p.title)}</p>` : ""}
-      <p class="mb-say">Anyone can start a project: <b>one person or a whole group</b>, a family, friends, a school, a temple or a society.</p>
-      <div class="sb-ways">${SPARK_WAYS.map(w => `<a class="sb-way ${w.k}" href="/spark?way=${w.k}"><span class="sb-ic"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${w.ic}</svg></span><b>${w.t}</b><small>${w.s}</small></a>`).join("")}</div>
+      <p class="mb-say">${FEAT.group ? "Anyone can start a project: <b>one person or a whole group</b>, a family, friends, a school, a temple or a society." : "Anyone can start a project. <b>Share it</b> with the people who know it, and <b>follow every step</b> when you sign in."}</p>
+      <div class="sb-ways">${SPARK_WAYS.map(w => `<a class="sb-way ${w.k}" href="/initiate?way=${w.k}"><span class="sb-ic"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${w.ic}</svg></span><b>${w.t}</b><small>${w.s}</small><span class="sb-start">Start →</span></a>`).join("")}</div>
     </section>`;
   };
   function startSparkBand(app) {
@@ -777,9 +778,9 @@ window.RAAV_FEATURES = (function () {
     const light = document.body.hasAttribute("data-light");
     app.innerHTML = `
       ${light ? "" : momentRibbonHTML()}
-      <section class="intro">
+      ${light ? "" : `<section class="intro">
         <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
-      </section>
+      </section>`}
       <nav class="stages" aria-label="Show pictures by stage">
         ${Object.entries(STAGES).map(([slug, st], k) => `${k ? `<span class="stage-path p${k}" aria-hidden="true"><svg viewBox="0 0 60 34"><path class="sp-base" d="M6 17H50"/><path class="sp-chev c1" d="M12 9l8 8-8 8"/><path class="sp-chev c2" d="M26 9l8 8-8 8"/><path class="sp-chev c3" d="M40 9l8 8-8 8"/><circle class="sp-spark" r="3.6" cx="0" cy="0"><animateMotion dur="0.75s" begin="indefinite" fill="freeze" path="M6 17H54" calcMode="spline" keyTimes="0;1" keySplines="0.45 0 0.55 1"/></circle></svg></span>` : ""}
           <a class="stage art stat-${st.key}" href="/${slug}" data-ex="${st.label}">
@@ -788,6 +789,9 @@ window.RAAV_FEATURES = (function () {
             <span>${st.label}</span>
           </a>`).join("")}
       </nav>
+      ${light ? `<section class="intro">
+        <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
+      </section>` : ""}
       ${light ? "" : `<div class="stage-rail" aria-live="polite">
         <p class="rail-say">${STAGE_SAY.map((t, i) => `<span class="s${i + 1}${i ? "" : " on"}">${t}</span>`).join("")}</p>
       </div>`}
