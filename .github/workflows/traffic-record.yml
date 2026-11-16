@@ -1,0 +1,48 @@
+# Traffic record (SURESH, 16 Nov 2026): every night, save yesterday's visit totals from raavanaa.org into the
+# traffic-record branch of this repository, so the history is kept for good (Netlify keeps only 7 days).
+# Runs from main (GitHub only runs timed jobs from the main branch). Commits carry [skip netlify] so nothing is
+# published and no Netlify credits are used. Needs the TRAFFIC_KEY repository secret (same value as TRAFFIC_KEY in Netlify).
+# To save a missed day: Actions -> Traffic record -> Run workflow, and type the day.
+name: Traffic record
+on:
+  schedule:
+    - cron: "30 1 * * *" # 01:30 UTC, after the day has ended everywhere we have visitors
+  workflow_dispatch:
+    inputs:
+      day:
+        description: "Day to save (YYYY-MM-DD). Leave empty for yesterday."
+        required: false
+permissions:
+  contents: write
+concurrency: traffic-record
+jobs:
+  save:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: site
+          sparse-checkout: tools/traffic
+      - name: Open the traffic-record branch (made the first time)
+        run: |
+          if git ls-remote --exit-code --heads "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" traffic-record >/dev/null; then
+            git clone --depth 1 --branch traffic-record "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" record
+          else
+            mkdir record && cd record && git init -b traffic-record && git remote add origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
+          fi
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Save the day
+        env:
+          TRAFFIC_KEY: ${{ secrets.TRAFFIC_KEY }}
+        run: node site/tools/traffic/save-day.mjs record/traffic ${{ github.event.inputs.day }}
+      - name: Keep it in GitHub
+        run: |
+          cd record
+          git config user.name "raavanaa-traffic-record"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then echo "Nothing new to save."; exit 0; fi
+          git commit -m "Traffic record ${{ github.event.inputs.day || 'for yesterday' }} [skip netlify]"
+          git push origin traffic-record
