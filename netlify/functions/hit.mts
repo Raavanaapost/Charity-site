@@ -18,6 +18,8 @@ export default async (req: Request, context: Context) => {
   if (!kind) return done();
   const path = String(b.p || "/").split(/[?#]/)[0].replace(/[^\w\/.~-]/g, "").slice(0, 160) || "/";
   if (/^\/(portal|admin)/.test(path)) return done(); // team pages are not traffic
+  // A vouching link (/e/<link>) is private to the people it was sent to, so its link is never stored.
+  const page = path.replace(/^(\/ta)?\/e\/[^/]+/, "$1/e/(vouching link)");
   const visit = /^[a-z0-9]{8,24}$/.test(String(b.v)) ? String(b.v) : "";
   if (!visit) return done();
   const landing = b.l === 1 || b.l === true;
@@ -32,7 +34,7 @@ export default async (req: Request, context: Context) => {
   };
   try {
     await getDatabase().sql`INSERT INTO site_hits (kind, path, detail, visit, landing, source, ref_host, campaign, country, device, app, lang)
-      VALUES (${kind}, ${path}, ${row.detail}, ${visit}, ${landing && kind === "view"}, ${row.source}, ${row.host}, ${campaign},
+      VALUES (${kind}, ${page}, ${row.detail}, ${visit}, ${landing && kind === "view"}, ${row.source}, ${row.host}, ${campaign},
               ${row.country}, ${row.device}, ${row.app}, ${row.lang})`;
   } catch (e) { console.log("hit not saved:", (e as Error).message); }
   return done();

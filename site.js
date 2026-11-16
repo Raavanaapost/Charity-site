@@ -25,6 +25,11 @@ window.RAAV_FEATURES = (function () {
   if (!F.tamil && /^\/ta(\/|$)/.test(location.pathname)) location.replace((location.pathname.replace(/^\/ta/, "") || "/") + location.search + location.hash);
   return F;
 })();
+// The site's own visit counter (16 Nov 2026, track.js): free, no cookies, nothing personal.
+(function () {
+  if (document.querySelector('script[src^="/track.js"]')) return;
+  const t = document.createElement("script"); t.src = "/track.js?v=1"; t.defer = true; document.head.appendChild(t);
+})();
 (function () {
   let COMMENTS = [];
   const FEAT = window.RAAV_FEATURES;
