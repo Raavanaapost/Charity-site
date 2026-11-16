@@ -9,12 +9,12 @@ import path from "node:path";
 
 const dir = path.resolve(process.argv[2] || "traffic");
 const day = process.argv[3] || new Date(Date.now() - 864e5).toISOString().slice(0, 10);
-const key = process.env.TRAFFIC_KEY || "";
+const key = process.env.TRAFFIC_KEY || "", proof = process.env.GITHUB_PROOF || "";
 const site = process.env.SITE || "https://raavanaa.org";
 if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) { console.error("Day must be YYYY-MM-DD"); process.exit(1); }
-if (!key) { console.log("::notice::TRAFFIC_KEY is not set in GitHub secrets yet, so nothing was saved."); process.exit(0); }
+if (!key && !proof) { console.log("::notice::No GitHub proof token and no TRAFFIC_KEY, so nothing was saved."); process.exit(0); }
 
-const res = await fetch(`${site}/api/traffic/day?d=${day}`, { headers: { "x-traffic-key": key, "user-agent": "raavanaa-traffic-record" } });
+const res = await fetch(`${site}/api/traffic/day?d=${day}`, { headers: { ...(key ? { "x-traffic-key": key } : { authorization: `Bearer ${proof}` }), "user-agent": "raavanaa-traffic-record" } });
 if (res.status === 404) { console.log("::notice::The counter is not live on the site yet."); process.exit(0); }
 if (!res.ok) { console.error(`The site answered ${res.status}`); process.exit(1); }
 const s = await res.json();

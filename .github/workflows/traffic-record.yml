@@ -1,7 +1,8 @@
 # Traffic record (SURESH, 16 Nov 2026): every night, save yesterday's visit totals from raavanaa.org into the
 # traffic-record branch of this repository, so the history is kept for good (Netlify keeps only 7 days).
 # Runs from main (GitHub only runs timed jobs from the main branch). Commits carry [skip netlify] so nothing is
-# published and no Netlify credits are used. Needs the TRAFFIC_KEY repository secret (same value as TRAFFIC_KEY in Netlify).
+# published and no Netlify credits are used. No password needed: the job proves who it is to raavanaa.org with
+# GitHub's own signed token (id-token), which /api/traffic/day checks.
 # To save a missed day: Actions -> Traffic record -> Run workflow, and type the day.
 name: Traffic record
 on:
@@ -14,6 +15,7 @@ on:
         required: false
 permissions:
   contents: write
+  id-token: write
 concurrency: traffic-record
 jobs:
   save:
@@ -36,7 +38,9 @@ jobs:
       - name: Save the day
         env:
           TRAFFIC_KEY: ${{ secrets.TRAFFIC_KEY }}
-        run: node site/tools/traffic/save-day.mjs record/traffic ${{ github.event.inputs.day }}
+        run: |
+          export GITHUB_PROOF=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=raavanaa-traffic" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write(JSON.parse(s).value||"")}catch(e){}})')
+          node site/tools/traffic/save-day.mjs record/traffic ${{ github.event.inputs.day }}
       - name: Keep it in GitHub
         run: |
           cd record
