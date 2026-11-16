@@ -8,16 +8,17 @@
      circle   family and friends circles on the moment page and the family page (invites, joining, circle choice).
      vetting  people asking for a project and vouching for it (/initiate, /create, /e/<link>, "Start a project",
               "Vouched for by").
+     group    "Just me / A group" on Spark a Smile (/spark) and its group words (SURESH 16 Nov 2026: a next feature).
      reasons  the reasons shown on /moment; [] shows all twelve.
    On a draft or local preview, ?features=all shows everything for this browser tab (?features=launch goes back). */
 window.RAAV_FEATURES = (function () {
-  const F = { sponsor: false, circle: false, vetting: true, tamil: false, reasons: ["memory", "remembrance"] };
+  const F = { sponsor: false, circle: false, vetting: true, tamil: false, group: false, reasons: ["memory", "remembrance"] };
   try {
     const q = new URLSearchParams(location.search).get("features");
     const test = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) || /--charity-projects-draft\./.test(location.hostname);
     if (test && q === "all") sessionStorage.setItem("raav-features", "all");
     if (q === "launch") sessionStorage.removeItem("raav-features");
-    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = true; F.reasons = []; }
+    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = F.group = true; F.reasons = []; }
   } catch (e) { /* storage blocked: the launch switches stay */ }
   ["sponsor", "circle", "vetting", "tamil"].forEach(k => { if (!F[k]) document.documentElement.classList.add("no-" + k); });
   // Tamil hidden for now (SURESH 15 Nov 2026): no தமிழ் switch, and a /ta/ page opens the same page in English.
@@ -136,7 +137,7 @@ window.RAAV_FEATURES = (function () {
       const ico = d => `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
       const TABS = [
         ["Home", "/overview", /^overview$/, ico('<path d="M3.5 11.2 12 4l8.5 7.2"/><path d="M5.8 9.8V20h4.4v-5.4h3.6V20h4.4V9.8"/>')],
-        ["Projects", "/projects", /^(projects|stage|project|home|create|initiate)$/, ico('<rect x="3.5" y="4.5" width="17" height="4.6" rx="1.6"/><rect x="3.5" y="11" width="17" height="4.6" rx="1.6"/><path d="M4.5 19.5h15"/>')],
+        ["Projects", "/projects", /^(projects|stage|project|home|create|initiate|spark)$/, ico('<rect x="3.5" y="4.5" width="17" height="4.6" rx="1.6"/><rect x="3.5" y="11" width="17" height="4.6" rx="1.6"/><path d="M4.5 19.5h15"/>')],
         ["Gift", "/moment", /^(moment|together|give|fund|thanks)$/, '<span class="appbar-gift"><img src="/img/moment-mark.svg" alt="" width="34" height="34"></span>'],
         ["Map", "/smile-map", /^map2?$/, ico('<path d="M12 21s6.5-5.6 6.5-10.6A6.5 6.5 0 0 0 5.5 10.4C5.5 15.4 12 21 12 21Z"/><circle cx="12" cy="10.2" r="2.4"/>')],
         [signedIn ? "Account" : "Sign in", "/members", /^members$/, ico('<circle cx="12" cy="8.4" r="3.7"/><path d="M4.6 20c.9-3.6 3.8-5.4 7.4-5.4s6.5 1.8 7.4 5.4"/>')]
@@ -581,7 +582,7 @@ window.RAAV_FEATURES = (function () {
   const CATS = ["All", "Trips & Events", "Livelihood", "Education"];
   const STAGE_SAY = ["Smiles in the Making", "Moments on the Way", "Days of Joy, Created"];
   // "Create a Smile": a round, tappable icon with three little pictures taking turns,
-  // a title above and a line below. It opens the form to start a new project.
+  // a title above and a line below. It opens Spark a Smile (/spark, 16 Nov 2026), which leads on to the form.
   // Five slogans take turns on the Home page (SURESH, 12 Nov 2026); the kept home page (/front-4) stays on the first three.
   const CREATE = [
     // SURESH 15 Nov 2026: not only children. A moment can be for anyone: a mum, an elder, a family, a whole village.
@@ -622,7 +623,7 @@ window.RAAV_FEATURES = (function () {
   const momentRibbonHTML = () => `<a class="moment-ribbon" href="/moment"><img src="/img/moment-mark.svg" alt="" width="34" height="34"><span><b>Gift a Moment</b> <em>in their name</em></span><i aria-hidden="true">→</i></a>`;
   // Gift a Moment as a small round icon that sits with the story pictures (Home, 14 Nov 2026).
   const momentChipHTML = () => `<a class="moment-chip" href="/moment"><img src="/img/moment-mark.svg" alt="" width="40" height="40"><span><b>Gift a Moment</b> <em>in their name</em></span><i aria-hidden="true">→</i></a>`;
-  const createHTML = (list = CREATE, o = {}) => `<a class="create-cta${o.cls ? " " + o.cls : ""}" href="${o.href || "/initiate"}">
+  const createHTML = (list = CREATE, o = {}) => `<a class="create-cta${o.cls ? " " + o.cls : ""}" href="${o.href || "/spark"}">
       <span class="cc-titles">${list.map((c, i) => `<b class="${i ? "" : "on"}">${c.title}</b>`).join("")}</span>
       <span class="cc-icon" aria-hidden="true"><i class="cc-ring"></i><i class="cc-orbit"><b>✦</b><b>♥</b><b>✦</b><b>♥</b></i>${list.map((c, i) => `<img class="${i ? "" : "on"}" src="${c.img}" alt="" width="200" height="200">`).join("")}<i class="cc-plus">${o.plus || "+"}</i></span>
       <span class="cc-says">${list.map((c, i) => `<span class="${i ? "" : "on"}">${c.say}</span>`).join("")}</span>
@@ -636,6 +637,43 @@ window.RAAV_FEATURES = (function () {
     { img: "/img/create-moment.svg", title: "Be the Reason for a Smile", say: "Your gift becomes a child's happiest day." }
   ];
   const sponsorHTML = () => createHTML(SPONSOR, { cls: "sponsor-cta", href: FEAT.sponsor ? "/give" : "/moment?for=memory", plus: "♥", go: FEAT.sponsor ? "Sponsor a smile" : "Give in loving memory" });
+  // Home, 16 Nov 2026 (SURESH): the "Spark a Smile" section in the same design as the Gift a Moment band: its own
+  // heart mark and title, current projects taking turns (three in view, drawings only; a new project joins by
+  // itself), and two clear ways to start, Request a project or Submit a project, as one person or a group.
+  // Both open the Spark a Smile page (/spark) with that way chosen.
+  const SPARK_WAYS = [
+    { k: "request", t: "Request a project", s: "You know who needs a day of joy",
+      ic: '<path d="M8 11V5.5a1.5 1.5 0 0 1 3 0V10M11 9.5V4a1.5 1.5 0 0 1 3 0v6M14 9.5V5.5a1.5 1.5 0 0 1 3 0V13c0 4-2.5 7-6 7-2.6 0-4-1.3-5.4-3.4L3.8 14a1.5 1.5 0 0 1 2.4-1.8L8 14V11"/>' },
+    { k: "submit", t: "Submit a project", s: "You have a plan ready to run",
+      ic: '<path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-10z"/><path d="M14 3.5v5h5"/><path d="M12 17v-6M9.3 13.6 12 11l2.7 2.6"/>' }
+  ];
+  const sparkBandHTML = projects => {
+    const isDrawn = u => /\.svg(\?|$)/i.test(u || "") || /^\/img\/(members-bridge|project-)/.test(u || "");
+    const pics = projects.map((p, i) => ({ p, i, n: stageNum(p) })).sort((a, b) => a.n - b.n || b.i - a.i).slice(0, 9);
+    return `<section class="spark-band" aria-label="Spark a Smile, start a project">
+      <i class="mb-sparks" aria-hidden="true"></i>
+      <a class="mb-head" href="/spark">
+        <img class="mb-mark sb-mark" src="/img/spark-mark.svg" alt="" width="96" height="96">
+        <span class="mt-title sb-title"><span>Spark a</span> <b>Smile</b></span><span class="mt-ribbon sb-ribbon">start a project</span>
+      </a>
+      ${pics.length ? `<div class="sb-stack" data-sb-stack>${pics.map(({ p, n }, j) => `<a class="sb-frame s${n} ${j < 3 ? "p" + j : "off"}" href="/projects/${slugOf(p)}" data-t="${esc(p.title)}"${j ? ' tabindex="-1" aria-hidden="true"' : ""}><img src="${esc(isDrawn(p.cover) ? p.cover : "/img/project-hills.svg")}" alt="" width="300" height="225"${j > 2 ? ' loading="lazy"' : ""}><span>${STAGE_LABEL[n - 1]}</span></a>`).join("")}</div>
+      <p class="sb-cap" data-sb-cap>${esc(pics[0].p.title)}</p>` : ""}
+      <p class="mb-say">${FEAT.group ? "Anyone can start a project: <b>one person or a whole group</b>, a family, friends, a school, a temple or a society." : "Anyone can start a project. <b>Share it</b> with the people who know it, and <b>follow every step</b> when you sign in."}</p>
+      <div class="sb-ways">${SPARK_WAYS.map(w => `<a class="sb-way ${w.k}" href="/initiate?way=${w.k}"><span class="sb-ic"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${w.ic}</svg></span><b>${w.t}</b><small>${w.s}</small><span class="sb-start">Start →</span></a>`).join("")}</div>
+    </section>`;
+  };
+  function startSparkBand(app) {
+    const box = app.querySelector("[data-sb-stack]"); if (!box) return;
+    const frames = [...box.children], cap = app.querySelector("[data-sb-cap]"), n = frames.length;
+    if (n < 2 || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let k = 0;
+    rotTimers.push(setInterval(() => {
+      if (document.hidden) return;
+      k = (k + 1) % n;
+      frames.forEach((f, i) => { const pos = (i - k + n) % n; f.classList.remove("p0", "p1", "p2", "off"); f.classList.add(pos < 3 ? "p" + pos : "off"); f.tabIndex = pos ? -1 : 0; f.setAttribute("aria-hidden", pos ? "true" : "false"); });
+      if (cap) cap.textContent = frames[k].dataset.t || "";
+    }, 4500));
+  }
   // Under the stage circles: one slogan in the middle, and a fine curved line from it up to
   // its stage. The line glides from stage to stage on its own; tapping a circle keeps it there.
   const STAGE_COLOR = ["#1f7a47", "#d08e0c", "#c8381e"];
@@ -740,9 +778,9 @@ window.RAAV_FEATURES = (function () {
     const light = document.body.hasAttribute("data-light");
     app.innerHTML = `
       ${light ? "" : momentRibbonHTML()}
-      <section class="intro">
+      ${light ? "" : `<section class="intro">
         <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
-      </section>
+      </section>`}
       <nav class="stages" aria-label="Show pictures by stage">
         ${Object.entries(STAGES).map(([slug, st], k) => `${k ? `<span class="stage-path p${k}" aria-hidden="true"><svg viewBox="0 0 60 34"><path class="sp-base" d="M6 17H50"/><path class="sp-chev c1" d="M12 9l8 8-8 8"/><path class="sp-chev c2" d="M26 9l8 8-8 8"/><path class="sp-chev c3" d="M40 9l8 8-8 8"/><circle class="sp-spark" r="3.6" cx="0" cy="0"><animateMotion dur="0.75s" begin="indefinite" fill="freeze" path="M6 17H54" calcMode="spline" keyTimes="0;1" keySplines="0.45 0 0.55 1"/></circle></svg></span>` : ""}
           <a class="stage art stat-${st.key}" href="/${slug}" data-ex="${st.label}">
@@ -751,11 +789,14 @@ window.RAAV_FEATURES = (function () {
             <span>${st.label}</span>
           </a>`).join("")}
       </nav>
+      ${light ? `<section class="intro">
+        <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
+      </section>` : ""}
       ${light ? "" : `<div class="stage-rail" aria-live="polite">
         <p class="rail-say">${STAGE_SAY.map((t, i) => `<span class="s${i + 1}${i ? "" : " on"}">${t}</span>`).join("")}</p>
       </div>`}
       ${glanceHTML(projects)}
-      ${createHTML(light ? CREATE : CREATE.slice(0, 3))}
+      ${light && FEAT.vetting ? sparkBandHTML(projects) : createHTML(light ? CREATE : CREATE.slice(0, 3))}
       ${momentBandHTML()}
       ${light && FEAT.sponsor ? sponsorHTML() : ""}
       ${HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
@@ -779,6 +820,7 @@ window.RAAV_FEATURES = (function () {
     startSayings(app);
     startFollow(app);
     startCreate(app);
+    startSparkBand(app);
     startRail(app);
     if (light) startHeadlines(app, slides.map(x => x.title).filter(Boolean), start);
     // arriving from the footer's "Keep me posted" button on another page
@@ -3182,6 +3224,31 @@ window.RAAV_FEATURES = (function () {
             setTimeout(() => { i = (i + 1) % SL.length; put(i); mt.classList.remove("out"); if (sub) sub.classList.remove("rot-out"); }, 450);
           }, 5200);
         }
+        // Coming from Spark a Smile (/spark): carry the choices made there (request or submit, one person or a group,
+        // the kind of day) into the form, and show them in one line with a way back to change them.
+        {
+          const sq = new URLSearchParams(location.search), sf = document.querySelector('form[name="opportunity"]');
+          const way = sq.get("way") === "submit" ? "submit" : sq.get("way") === "request" ? "request" : "";
+          if (sf && way) {
+            const by = sq.get("by") === "group" ? "group" : sq.get("by") === "me" ? "me" : "";
+            const vals = { way: way === "submit" ? "Submit a project" : "Request a project", by: by === "group" ? "A group" : by === "me" ? "One person" : "",
+              group: by === "group" ? (sq.get("group") || "").slice(0, 60) : "", gname: by === "group" ? (sq.get("gname") || "").slice(0, 80) : "" };
+            sf.querySelectorAll("[data-spark-f]").forEach(i => { i.value = vals[i.dataset.sparkF] || ""; });
+            const kind = sf.querySelector("#o-kind"), k = sq.get("kind");
+            if (kind && k && [...kind.options].some(o => o.value === k || o.text === k)) kind.value = k;
+            const line = sf.querySelector("[data-spark]");
+            if (line) {
+              const who = by === "group" ? [vals.gname, vals.group].filter(Boolean).join(", ") || "A group" : by === "me" ? "Just me" : "";
+              line.innerHTML = `<b>${esc(vals.way)}</b>${who ? ` · ${esc(who)}` : ""} <a href="/spark?${esc(sq.toString())}">Change</a>`;
+              line.hidden = false;
+            }
+            if (way === "submit") {
+              const h = sf.querySelector(".initiate-head h2"), hp = sf.querySelector(".initiate-head p");
+              if (h) h.textContent = "Tell us about your project";
+              if (hp) hp.textContent = "Share your plan below. Our team will call or visit, and help it get funded openly.";
+            }
+          }
+        }
         // Step 1 of 2: only members can send a request (SURESH, 9 Nov 2026). Not signed in: show the sign-in card instead.
         const gate = document.querySelector("[data-gate]"), oform = document.querySelector('form[name="opportunity"]');
         if (gate && oform) {
@@ -3448,6 +3515,9 @@ window.RAAV_FEATURES = (function () {
       } else if (page === "projects") {
         document.title = `Our projects · ${site.name}`;
         await renderProjects(app, site, projects);
+      } else if (page === "spark") {
+        // "Spark a Smile" (/spark, 16 Nov 2026): spark.js draws the page itself; nothing goes in #app.
+        document.title = `Spark a Smile, start a project · ${site.name}`;
       } else if (page === "create") {
         document.title = `Make a Smile Happen · ${site.name}`;
         renderCreate(app, site, projects);
