@@ -42,6 +42,10 @@ export default async (req: Request) => {
     trusted: clip(f.trusted_contact, 200),
     additional: clipText(f.additional, 1000),
   };
+  // From the Spark a Smile page (16 Nov 2026): request or submit, and one person or a group. Kept at the top of
+  // "additional" so the team sees it in the portal without a new database column.
+  const spark = [clip(f.way, 40), clip(f.started_by, 40), clip(f.group_type, 60), clip(f.group_name, 80)].filter(Boolean);
+  if (spark.length) s.additional = clipText(`Started as: ${spark.join(" · ")}` + (s.additional ? `\n${s.additional}` : ""), 1000);
   s.location = [s.village, s.city].filter(Boolean).join(", ");
   // The public form asks four things: what kind of moment (+ optional details), where, how many, and who to call.
   // The team fills in the rest (title, category, evidence...) after calling and visiting.

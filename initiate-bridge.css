@@ -51,3 +51,7 @@ body[data-look="bridge"] .foot-bar{background:#173a1f}
 body[data-look="bridge"] .i-info{background:var(--brand-soft);border-color:#cfe0bf;color:var(--brand)}
 body[data-look="bridge"] .i-info[aria-expanded="true"]{background:var(--brand);color:var(--brand-ink)}
 body[data-look="bridge"] .i-tip{background:var(--sun-soft);border-color:var(--line)}
+/* the line that carries the choices from Spark a Smile (/spark), 16 Nov 2026 */
+.i-spark{margin:0 0 10px;padding:8px 14px;border-radius:12px;background:#eef6e6;border:1px solid #cfe3bf;color:#1f4d3a;font-size:14.5px}
+.i-spark[hidden]{display:none}
+.i-spark a{margin-left:6px;font-weight:600;color:#1f7a47}

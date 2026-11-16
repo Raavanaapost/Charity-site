@@ -3182,6 +3182,31 @@ window.RAAV_FEATURES = (function () {
             setTimeout(() => { i = (i + 1) % SL.length; put(i); mt.classList.remove("out"); if (sub) sub.classList.remove("rot-out"); }, 450);
           }, 5200);
         }
+        // Coming from Spark a Smile (/spark): carry the choices made there (request or submit, one person or a group,
+        // the kind of day) into the form, and show them in one line with a way back to change them.
+        {
+          const sq = new URLSearchParams(location.search), sf = document.querySelector('form[name="opportunity"]');
+          const way = sq.get("way") === "submit" ? "submit" : sq.get("way") === "request" ? "request" : "";
+          if (sf && way) {
+            const by = sq.get("by") === "group" ? "group" : sq.get("by") === "me" ? "me" : "";
+            const vals = { way: way === "submit" ? "Submit a project" : "Request a project", by: by === "group" ? "A group" : by === "me" ? "One person" : "",
+              group: by === "group" ? (sq.get("group") || "").slice(0, 60) : "", gname: by === "group" ? (sq.get("gname") || "").slice(0, 80) : "" };
+            sf.querySelectorAll("[data-spark-f]").forEach(i => { i.value = vals[i.dataset.sparkF] || ""; });
+            const kind = sf.querySelector("#o-kind"), k = sq.get("kind");
+            if (kind && k && [...kind.options].some(o => o.value === k || o.text === k)) kind.value = k;
+            const line = sf.querySelector("[data-spark]");
+            if (line) {
+              const who = by === "group" ? [vals.gname, vals.group].filter(Boolean).join(", ") || "A group" : by === "me" ? "Just me" : "";
+              line.innerHTML = `<b>${esc(vals.way)}</b>${who ? ` · ${esc(who)}` : ""} <a href="/spark?${esc(sq.toString())}">Change</a>`;
+              line.hidden = false;
+            }
+            if (way === "submit") {
+              const h = sf.querySelector(".initiate-head h2"), hp = sf.querySelector(".initiate-head p");
+              if (h) h.textContent = "Tell us about your project";
+              if (hp) hp.textContent = "Share your plan below. Our team will call or visit, and help it get funded openly.";
+            }
+          }
+        }
         // Step 1 of 2: only members can send a request (SURESH, 9 Nov 2026). Not signed in: show the sign-in card instead.
         const gate = document.querySelector("[data-gate]"), oform = document.querySelector('form[name="opportunity"]');
         if (gate && oform) {
