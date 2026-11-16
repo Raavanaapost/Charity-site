@@ -110,3 +110,40 @@ body[data-page="spark"] .bar{background:var(--surface)}
   .sp-way-t b{font-size:21px}
   .sp-kinds{grid-template-columns:1fr 1fr}
 }
+
+/* 16 Nov 2026 (SURESH): one picture at a time, the two ways stand out and are the one action, no group step for now */
+.sp-frame.p1,.sp-frame.p2{opacity:0;transform:scale(.96);filter:none}
+.sp-frame{transition:opacity .9s,transform .9s}
+.sp-way{overflow:hidden;border:0;color:#fff;padding:20px 18px 18px 16px;text-decoration:none;
+  background:radial-gradient(circle at 20% 0,rgba(255,255,255,.28),rgba(255,255,255,0) 55%),linear-gradient(160deg,#2a9a5c,#1f7a47 55%,#17603a);
+  box-shadow:0 18px 30px -16px rgba(31,122,71,.9),inset 0 0 0 2px rgba(255,255,255,.25)}
+.sp-way[data-way="submit"]{background:radial-gradient(circle at 20% 0,rgba(255,255,255,.3),rgba(255,255,255,0) 55%),linear-gradient(160deg,#e0a21c,#b97a06 55%,#94620a);
+  box-shadow:0 18px 30px -16px rgba(185,122,6,.95),inset 0 0 0 2px rgba(255,255,255,.25)}
+.sp-way::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,rgba(255,255,255,0),rgba(255,255,255,.35),rgba(255,255,255,0));transform:skewX(-18deg);animation:sb-shine 4.5s ease-in-out infinite;pointer-events:none}
+.sp-way[data-way="submit"]::after{animation-delay:2.2s}
+@keyframes sb-shine{0%,60%{left:-60%}100%{left:130%}}
+.sp-way .sp-way-ic{width:58px;height:58px;background:#fff;color:#1f7a47}
+.sp-way[data-way="submit"] .sp-way-ic{color:#b97a06}
+.sp-way .sp-way-t b{color:#fff;font-size:26px}
+.sp-way .sp-way-t span{color:rgba(255,255,255,.95)}
+.sp-way .sp-way-t small{color:rgba(255,255,255,.85)}
+.sp-start{justify-self:start;margin-top:8px;padding:8px 18px;border-radius:999px;background:#fff;color:#1f4d3a;font-family:var(--display,sans-serif);font-weight:700;font-size:15px}
+.sp-way[data-way="submit"] .sp-start{color:#7a4f06}
+/* what happens next: four steps in a row (two on phones) */
+.sp-after{grid-column:1/-1}
+.sp-after-h{text-align:center;font-family:var(--serif);font-weight:600;font-style:italic;font-size:clamp(26px,4vw,34px);color:var(--green);margin:0 0 16px}
+.sp-flow{list-style:none;margin:0 0 22px;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;counter-reset:f}
+.sp-flow li{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px 14px;display:grid;gap:6px;justify-items:center;text-align:center}
+.sp-flow .sp-f-ic{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#e3f1d2;color:#1f7a47}
+.sp-flow b{color:var(--green);font-size:16px}
+.sp-flow span{font-size:14px;line-height:1.4;color:#4b4a36}
+.sp-flow a{color:#1f7a47;font-weight:600}
+.spark .sp-body{display:block;max-width:1000px}
+.sp-stages{max-width:620px;margin:0 auto;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px 8px}
+@media (max-width:760px){.sp-flow{grid-template-columns:1fr 1fr}}
+@media (prefers-reduced-motion:reduce){.sp-way::after{display:none}}
+.sp-way .sp-way-t .sp-start{display:inline-block;color:#1f4d3a}
+.sp-way[data-way="submit"] .sp-way-t .sp-start{color:#7a4f06}
+.spark .mo-pick-q{font-size:19px}
+.sp-stages{margin:0 auto 26px}
+.sp-flow{margin-bottom:8px}

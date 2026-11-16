@@ -31,7 +31,7 @@
       say: "You know children, a family or a village who need a day of joy. Tell us, and our volunteers plan it with you.",
       eg: "e.g. a trip for a small school that has never had one",
       titles: ["You know who needs it. <em>Tell us.</em>", "One request <em>can start a whole day of joy.</em>", "You ask. <em>Together we make it happen.</em>"],
-      lede: "Know children, a mum, an elder or a whole village who could use a lift? One person or a whole group can ask.",
+      lede: FEAT.group ? "Know children, a mum, an elder or a whole village who could use a lift? One person or a whole group can ask." : "Know children, a mum, an elder or a whole village who could use a lift? Tell us in a few minutes, then share it and follow every step.",
       go: "Next: tell us who it is for"
     },
     submit: {
@@ -40,7 +40,7 @@
       say: "You already have a plan, a place and people to run it. Send it in: we check it and help it get funded, with every rupee shown.",
       eg: "e.g. a festival meal your temple or society will host",
       titles: ["Your plan. <em>Our open books.</em>", "You run it. <em>We help fund it.</em>", "A project ready to go? <em>Bring it here.</em>"],
-      lede: "A school, a temple, a youth club, a family or just you: send in a day you are ready to run. We check it, and show every rupee.",
+      lede: FEAT.group ? "A school, a temple, a youth club, a family or just you: send in a day you are ready to run. We check it, and show every rupee." : "Send in a day you are ready to run. We check it, help it get funded, and show every rupee.",
       go: "Next: tell us about your project"
     }
   };
@@ -64,7 +64,20 @@
   var st = { way: q.get("way") === "submit" ? "submit" : "request", by: q.get("by") === "group" ? "group" : q.get("by") === "me" ? "me" : "", group: "", gname: "", kind: "" };
   var kindIn = q.get("kind"); if (KINDS.some(function (k) { return k[0] === kindIn; })) st.kind = kindIn;
 
-  var wayCard = function (k) { var w = WAYS[k]; return '<button type="button" role="radio" class="sp-way" data-way="' + k + '"><span class="sp-way-ic">' + svg(w.icon, 30) + '</span><span class="sp-way-t"><b>' + w.title + "</b><span>" + w.say + "</span><small>" + w.eg + '</small></span><i class="sp-tick" aria-hidden="true">✓</i></button>'; };
+  // SURESH 16 Nov 2026: "just one action". With the group step off (FEAT.group, a next feature), each way is itself the
+  // button: one tap opens the form with that way chosen. With it on, the ways are a choice and the steps follow.
+  var wayCard = function (k) {
+    var w = WAYS[k], inner = '<span class="sp-way-ic">' + svg(w.icon, 30) + '</span><span class="sp-way-t"><b>' + w.title + "</b><span>" + w.say + "</span><small>" + w.eg + "</small>";
+    return FEAT.group
+      ? '<button type="button" role="radio" class="sp-way" data-way="' + k + '">' + inner + '</span><i class="sp-tick" aria-hidden="true">✓</i></button>'
+      : '<a class="sp-way" data-way="' + k + '" href="/initiate?way=' + k + '">' + inner + '<span class="sp-start">Start →</span></span></a>';
+  };
+  var FLOW = [
+    ['<path d="M21.5 2.5 2.5 10.2l6.3 2.4 1.9 6.9 3.3-4.3 4.6 3.3z"/>', "Send it in", "A few questions, in words or a voice note. You sign in once."],
+    ['<circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7l7.4-4.3M8.3 13.3l7.4 4.3"/>', "Share your project", "You get its own page to share on WhatsApp or Facebook."],
+    ['<path d="M12 21s-7-4.4-7-9.6A4.2 4.2 0 0 1 12 7.7a4.2 4.2 0 0 1 7 2.7C19 16.6 12 21 12 21z"/><path d="M9.5 12.5l1.8 1.8 3.4-3.6"/>', "People vouch, we check", "Three people who know it vouch, and a volunteer near you checks it."],
+    ['<path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>', "Follow every step", 'Sign in any time to see where it stands, under <a href="/members">My account</a>.']
+  ];
   var byCard = function (k) { var b = BY[k]; return '<button type="button" role="radio" class="sp-by" data-by="' + k + '"><span class="sp-way-ic">' + svg(b.icon, 30) + '</span><span class="sp-way-t"><b>' + b.title + "</b><span>" + b.say + '</span></span><i class="sp-tick" aria-hidden="true">✓</i></button>'; };
   var STAGES = [
     ["s1", "Initiated", "You send it in. Three people who know about it vouch for it, and a volunteer near you checks it with a call or a visit."],
@@ -89,10 +102,17 @@
           '<p class="mo-lede" data-lede></p>' +
         "</div>" +
         '<div class="mo-pick" id="sp-step-1">' +
-          '<p class="mo-pick-q"><span class="mo-num">1</span>How would you like to start?</p>' +
+          '<p class="mo-pick-q">' + (FEAT.group ? '<span class="mo-num">1</span>' : "") + "How would you like to start?</p>" +
           '<div class="sp-ways" role="radiogroup" aria-label="How would you like to start?">' + wayCard("request") + wayCard("submit") + "</div>" +
         "</div>" +
       "</div></section>" +
+    (FEAT.group ? "" :
+    '<div class="wrap sp-body"><section class="sp-after">' +
+      '<div class="sp-stages"><p class="sp-next-h">Every project, in three stages</p><ol class="sp-journey">' + STAGES.map(function (x) { return '<li class="' + x[0] + '"><b>' + x[1] + "</b><span>" + x[2] + "</span></li>"; }).join("") + "</ol></div>" +
+      '<h2 class="sp-after-h">What happens next</h2>' +
+      '<ol class="sp-flow">' + FLOW.map(function (f) { return '<li><span class="sp-f-ic">' + svg(f[0], 24) + "</span><b>" + f[1] + "</b><span>" + f[2] + "</span></li>"; }).join("") + "</ol>" +
+    "</section></div>") +
+    (!FEAT.group ? "" :
     '<div class="wrap mo-body sp-body">' +
       '<div class="sp-steps">' +
         '<section class="mo-step" id="sp-step-2"><p class="mo-num">2</p><h2>Who is starting it?</h2>' +
@@ -125,7 +145,7 @@
         '<a class="mo-go sp-go" data-go href="/initiate"></a>' +
         '<p class="mo-privacy">You sign in once, so every project is accountable. Phone numbers and places stay private with our team.</p>' +
       "</div></aside>" +
-    "</div>";
+    "</div>");
 
   // ---- the choices ----
   var titleTimer = null;
@@ -161,6 +181,7 @@
     go.textContent = w.go + " →";
   }
   root.addEventListener("click", function (e) {
+    if (!FEAT.group) return;
     var b = e.target.closest("[data-way],[data-by],[data-group-k],[data-kind]");
     if (!b) return;
     if (b.dataset.way) { var changed = st.way !== b.dataset.way; st.way = b.dataset.way; if (changed) drawTitles(); }
@@ -169,8 +190,16 @@
     else if (b.dataset.kind) st.kind = b.dataset.kind;
     draw();
   });
-  root.addEventListener("input", function (e) { if (e.target.name === "gname") { st.gname = e.target.value; draw(); } });
-  drawTitles(); draw();
+  root.addEventListener("input", function (e) { if (FEAT.group && e.target.name === "gname") { st.gname = e.target.value; draw(); } });
+  drawTitles();
+  if (FEAT.group) draw();
+  else {
+    // one tap: the headlines follow the way the finger or mouse is on, and the tap opens the form
+    $$("[data-way]").forEach(function (a) {
+      var on = function () { if (st.way !== a.dataset.way) { st.way = a.dataset.way; drawTitles(); root.classList.toggle("sp-submit", st.way === "submit"); } };
+      a.addEventListener("mouseenter", on); a.addEventListener("focus", on);
+    });
+  }
 
   // ---- the projects taking turns at the top ----
   var getJSON = function (u, d) { return fetch(u).then(function (r) { return r.ok ? r.json() : d; }).catch(function () { return d; }); };
