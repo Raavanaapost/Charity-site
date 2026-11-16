@@ -57,6 +57,8 @@
 /impact  /stage.html  200
 /give  /give.html  200
 /moment  /moment.html  200
+# Spark a Smile: start a project, as one person or a group (16 Nov 2026)
+/spark  /spark.html  200
 # The family page of a moment: people give together, in the same name
 /m/*  /together.html  200
 # The Raavanaa Fund: the team chooses the next day of joy

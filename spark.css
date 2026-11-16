@@ -1,0 +1,112 @@
+/* "Spark a Smile" (/spark), 16 Nov 2026: the Gift a Moment template (moment.css) with a green lead, because every
+   project starts at the Initiated stage (green). Always cream, even in phone dark mode. */
+body[data-page="spark"]{
+  --bg:#fbf6ea; --surface:#fffbf1; --ink:#2a3423; --muted:#6c6a52; --line:#ead7a4;
+  --green:#1f4d3a; --gold:#c9a24a; --gold-deep:#8a5c12; --marigold:#f29a1f; --flame:#e4761b;
+  --serif:"Cormorant Garamond",Georgia,"Noto Serif Tamil",serif;
+  background:var(--bg); color:var(--ink); color-scheme:light; --logo-img:normal;
+}
+body[data-page="spark"] .bar{background:var(--surface)}
+.spark{--tint:#e3f1d2;--accent:#1f7a47;--frame:#c9a24a;--petal:#f7c63a}
+.spark.sp-submit{--tint:#fbe9c2;--accent:#b97a06}
+
+/* the title: "Spark a Smile" with a green ribbon */
+.sp-title b{background:linear-gradient(100deg,#eba414 0%,#3f9a5f 55%,#1f7a47 100%);-webkit-background-clip:text;background-clip:text}
+.sp-ribbon{background:linear-gradient(180deg,#2a8a52,#1f6b40)}
+.spark .mo-mark{filter:drop-shadow(0 8px 10px rgba(31,122,71,.3))}
+/* sparks instead of petals: little gold stars */
+.sp-sparks i{width:10px;height:10px;border-radius:0;background:var(--petal);clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%)}
+.sp-sparks i:nth-child(3n){background:#3f9a5f;width:8px;height:8px}
+.sp-sparks i:nth-child(4n){background:#e5851a;opacity:.55}
+
+/* The pictures of current projects, three in view, taking turns */
+.sp-art{gap:10px;width:100%}
+.sp-stack{position:relative;width:100%;max-width:300px;aspect-ratio:4/3;margin:8px auto 4px}
+.sp-frame{position:absolute;inset:0;display:block;border-radius:16px;overflow:hidden;background:#fffbf1;
+  box-shadow:0 0 0 1px var(--line),inset 0 0 0 6px #fffbf1,0 18px 30px -18px rgba(31,77,58,.55);
+  transition:transform .8s cubic-bezier(.3,.9,.3,1),opacity .8s,filter .8s;opacity:0;transform:scale(.8)}
+.sp-frame img{width:100%;height:100%;object-fit:cover;display:block;border:6px solid #fffbf1;border-radius:16px;box-sizing:border-box}
+.sp-frame.p0{opacity:1;transform:none;z-index:3}
+.sp-frame.p1{opacity:1;transform:translate(14%,-6%) rotate(7deg) scale(.86);z-index:2;filter:saturate(.75) brightness(.97)}
+.sp-frame.p2{opacity:1;transform:translate(-14%,-6%) rotate(-7deg) scale(.86);z-index:1;filter:saturate(.75) brightness(.97)}
+.sp-frame.off{opacity:0;transform:scale(.7);z-index:0;pointer-events:none}
+.sp-frame.p1,.sp-frame.p2{pointer-events:none}
+.sp-ghost{background:linear-gradient(135deg,#f3ead2,#fbf6ea)}
+.sp-pill{position:absolute;left:12px;bottom:12px;padding:3px 10px;border-radius:999px;color:#fff;font-size:12px;font-weight:700;letter-spacing:.04em}
+.sp-frame.s1 .sp-pill{background:#1f7a47}.sp-frame.s2 .sp-pill{background:#b97a06}.sp-frame.s3 .sp-pill{background:#c8381e}
+.sp-cap{display:grid;gap:2px;text-align:center;text-decoration:none;max-width:300px;min-height:4.6em}
+.sp-cap-kick{font-family:Cinzel,serif;font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-size:11px;color:var(--gold-deep)}
+.sp-cap b{font-family:var(--serif);font-weight:600;font-size:19px;line-height:1.2;color:var(--green)}
+.sp-cap small{color:var(--muted);font-size:13px}
+.sp-cap.s1 small{color:#1f7a47}.sp-cap.s2 small{color:#b97a06}.sp-cap.s3 small{color:#c8381e}
+.sp-dots{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.sp-dots button{width:9px;height:9px;padding:0;border-radius:50%;border:0;background:#e2d3a8;cursor:pointer}
+.sp-dots button.on{background:var(--accent);transform:scale(1.25)}
+@media (prefers-reduced-motion:reduce){.sp-frame{transition:none}}
+
+/* Step 1: two big ways to start, side by side */
+.sp-ways,.sp-bys{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sp-way,.sp-by{position:relative;display:flex;gap:14px;align-items:flex-start;text-align:left;padding:16px 16px 16px 14px;border-radius:18px;border:2px solid var(--line);background:#fff;color:var(--ink);font:inherit;cursor:pointer;transition:transform .15s,border-color .3s,box-shadow .3s}
+.sp-way:hover,.sp-by:hover{transform:translateY(-1px);box-shadow:0 8px 18px -12px rgba(31,77,58,.5)}
+.sp-way-ic{flex:none;width:50px;height:50px;border-radius:50%;display:grid;place-items:center;background:#f3ead2;color:var(--green);transition:background .3s,color .3s}
+.sp-way-t{display:grid;gap:4px;min-width:0}
+.sp-way-t b{font-family:var(--serif);font-weight:700;font-size:23px;line-height:1.1;color:var(--green)}
+.sp-way-t span{font-size:15px;line-height:1.4;color:#3d4a36}
+.sp-way-t small{font-family:var(--serif);font-style:italic;font-size:15px;color:var(--muted)}
+.sp-tick{position:absolute;top:10px;right:12px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:14px;font-weight:700;color:#fff;background:var(--accent);opacity:0;transform:scale(.6);transition:opacity .2s,transform .2s}
+.sp-way.on,.sp-by.on{border-color:var(--accent);background:linear-gradient(#fff,#fff) padding-box;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent),0 12px 22px -16px var(--accent)}
+.sp-way.on .sp-way-ic,.sp-by.on .sp-way-ic{background:var(--accent);color:#fff}
+.sp-way.on .sp-tick,.sp-by.on .sp-tick{opacity:1;transform:none}
+.sp-way[data-way="submit"].on{--accent:#b97a06}
+.sp-way[data-way="request"].on{--accent:#1f7a47}
+
+/* Steps 2 and 3 */
+/* computers: the steps on the left, the card on the right that stays in view (the moment page is one column now) */
+.spark .sp-body{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:36px;max-width:1180px}
+.sp-group{margin-top:16px;padding:14px 16px 16px;border-radius:16px;background:#fbf3df;border:1px dashed var(--gold)}
+.sp-group[hidden]{display:none}
+.sp-group-q{margin:0 0 10px;font-weight:700;color:var(--green)}
+.sp-chips{display:flex;flex-wrap:wrap;gap:8px}
+.sp-chip{border:1px solid var(--line);background:#fff;color:var(--green);border-radius:999px;padding:8px 14px;font:inherit;font-size:14.5px;font-weight:600;cursor:pointer}
+.sp-chip.on{background:var(--green);color:#fffbf1;border-color:var(--green);box-shadow:inset 0 0 0 2px var(--gold)}
+.sp-kinds{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+
+/* The card on the side */
+.sp-card{text-align:left;padding:24px 24px 20px}
+.sp-card-mark{display:block;margin:0 auto 6px}
+.sp-card-way{margin:0 0 12px;text-align:center;font-family:var(--serif);font-weight:700;font-size:26px;color:var(--accent);transition:color .3s}
+.sp-card-list{margin:0;display:grid;gap:8px}
+.sp-card-list div{display:grid;grid-template-columns:96px 1fr;gap:8px;align-items:baseline}
+.sp-card-list dt{font-family:Cinzel,serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-deep)}
+.sp-card-list dd{margin:0;font-weight:600;color:var(--green)}
+.sp-ghost-t{font-weight:400;font-style:italic;color:#a69a78}
+.sp-next-h{margin:2px 0 8px;font-family:Cinzel,serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:12px;color:var(--gold-deep);text-align:center}
+.sp-journey{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.sp-journey li{position:relative;padding:0 0 12px 30px;font-size:14px;line-height:1.4;color:#3d4a36}
+.sp-journey li::before{content:"";position:absolute;left:4px;top:3px;width:14px;height:14px;border-radius:50%;background:var(--c);box-shadow:0 0 0 3px #fffbf1,0 0 0 4px var(--c)}
+.sp-journey li:not(:last-child)::after{content:"";position:absolute;left:10px;top:21px;bottom:2px;width:2px;background:linear-gradient(var(--c),#e2d3a8)}
+.sp-journey li b{display:block;color:var(--c);font-size:15px}
+.sp-journey .s1{--c:#1f7a47}.sp-journey .s2{--c:#b97a06}.sp-journey .s3{--c:#c8381e}
+.sp-go{background:#1f7a47;box-shadow:0 10px 20px -12px rgba(31,122,71,.8)}
+.sp-go:hover{background:#17603a}
+.spark.sp-submit .sp-go{background:#b97a06;box-shadow:0 10px 20px -12px rgba(185,122,6,.8)}
+.spark.sp-submit .sp-go:hover{background:#94620a}
+.sp-soon{text-align:center;padding-block:60px}
+.sp-soon h1{font-family:var(--serif);color:var(--green)}
+
+@media (max-width:900px){.spark .sp-body{display:block;max-width:820px}}
+@media (max-width:600px){
+  /* phone: the pictures at the very top (smaller), then the title, then the two ways */
+  .spark .mo-hero-in{grid-template-columns:1fr;grid-template-areas:"art" "text" "pick";row-gap:10px}
+  .sp-art{gap:4px}
+  .sp-stack{max-width:200px;margin-top:0}
+  .sp-cap{min-height:0;margin:0 auto}
+  .sp-cap b{font-size:17px}
+  .spark .mo-hero h1{font-size:29px}
+  .spark .mo-lede{font-size:17px}
+  .sp-ways,.sp-bys{grid-template-columns:1fr;gap:10px}
+  .sp-way,.sp-by{padding:14px 14px 14px 12px}
+  .sp-way-ic{width:44px;height:44px}
+  .sp-way-t b{font-size:21px}
+  .sp-kinds{grid-template-columns:1fr 1fr}
+}
