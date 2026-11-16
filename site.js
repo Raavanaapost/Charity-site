@@ -647,6 +647,15 @@ window.RAAV_FEATURES = (function () {
     { k: "submit", t: "Submit a project", s: "You have a plan ready to run",
       ic: '<path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-10z"/><path d="M14 3.5v5h5"/><path d="M12 17v-6M9.3 13.6 12 11l2.7 2.6"/>' }
   ];
+  // Five titles and lines that take turns (SURESH, 16 Nov 2026: "make it impressive, say things profound: creating a
+  // moment, be part of creating impact"). [small words, big word, ribbon, the line under it]
+  const SPARK_SAYS = [
+    ["Spark a", "Smile", "start a project", "Every great change began as one small kindness. <b>Yours can be next.</b>"],
+    ["Create a", "Moment", "they will never forget", "A day of joy ends by evening. <b>Its memory lasts a lifetime.</b>"],
+    ["Be part of", "Impact", "start where you stand", "You don't need to change the whole world. <b>Change one child's world, for one day.</b>"],
+    ["Light a", "Spark", "see it become a flame", "One person who cares is all it takes. <b>Together, we carry it the rest of the way.</b>"],
+    ["Make it", "Happen", "dream it, and we build it together", "Somewhere a child is waiting for a day like this. <b>You can be the reason it comes.</b>"]
+  ];
   const sparkBandHTML = projects => {
     const isDrawn = u => /\.svg(\?|$)/i.test(u || "") || /^\/img\/(members-bridge|project-)/.test(u || "");
     const pics = projects.map((p, i) => ({ p, i, n: stageNum(p) })).sort((a, b) => a.n - b.n || b.i - a.i).slice(0, 9);
@@ -654,15 +663,27 @@ window.RAAV_FEATURES = (function () {
       <i class="mb-sparks" aria-hidden="true"></i>
       <a class="mb-head" href="/spark">
         <img class="mb-mark sb-mark" src="/img/spark-mark.svg" alt="" width="96" height="96">
-        <span class="mt-title sb-title"><span>Spark a</span> <b>Smile</b></span><span class="mt-ribbon sb-ribbon">start a project</span>
+        <span class="sb-rot" data-sb-rot>${SPARK_SAYS.map((x, i) => `<span class="sb-slide${i ? "" : " on"}"${i ? ' aria-hidden="true"' : ""}><span class="mt-title sb-title"><span>${x[0]}</span> <b>${x[1]}</b></span><span class="mt-ribbon sb-ribbon">${x[2]}</span></span>`).join("")}</span>
       </a>
       ${pics.length ? `<div class="sb-stack" data-sb-stack>${pics.map(({ p, n }, j) => `<a class="sb-frame s${n} ${j < 3 ? "p" + j : "off"}" href="/projects/${slugOf(p)}" data-t="${esc(p.title)}"${j ? ' tabindex="-1" aria-hidden="true"' : ""}><img src="${esc(isDrawn(p.cover) ? p.cover : "/img/project-hills.svg")}" alt="" width="300" height="225"${j > 2 ? ' loading="lazy"' : ""}><span>${STAGE_LABEL[n - 1]}</span></a>`).join("")}</div>
       <p class="sb-cap" data-sb-cap>${esc(pics[0].p.title)}</p>` : ""}
-      <p class="mb-say">${FEAT.group ? "Anyone can start a project: <b>one person or a whole group</b>, a family, friends, a school, a temple or a society." : "Anyone can start a project. <b>Share it</b> with the people who know it, and <b>follow every step</b> when you sign in."}</p>
+      <p class="mb-say sb-says" data-sb-says>${SPARK_SAYS.map((x, i) => `<span class="${i ? "" : "on"}">${x[3]}</span>`).join("")}</p>
+      <p class="sb-anyone">${FEAT.group ? "Anyone can start a project: one person or a whole group." : "Anyone can start one. Share it, and follow every step when you sign in."}</p>
       <div class="sb-ways">${SPARK_WAYS.map(w => `<a class="sb-way ${w.k}" href="/initiate?way=${w.k}"><span class="sb-ic"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${w.ic}</svg></span><b>${w.t}</b><small>${w.s}</small><span class="sb-start">Start →</span></a>`).join("")}</div>
     </section>`;
   };
   function startSparkBand(app) {
+    // the titles and their lines take turns together
+    const rot = app.querySelector("[data-sb-rot]"), says = app.querySelector("[data-sb-says]");
+    if (rot && says && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const ts = [...rot.children], ss = [...says.children]; let t = 0;
+      rotTimers.push(setInterval(() => {
+        if (document.hidden) return;
+        t = (t + 1) % ts.length;
+        ts.forEach((el, i) => { el.classList.toggle("on", i === t); el.setAttribute("aria-hidden", i === t ? "false" : "true"); });
+        ss.forEach((el, i) => el.classList.toggle("on", i === t));
+      }, 5200));
+    }
     const box = app.querySelector("[data-sb-stack]"); if (!box) return;
     const frames = [...box.children], cap = app.querySelector("[data-sb-cap]"), n = frames.length;
     if (n < 2 || matchMedia("(prefers-reduced-motion: reduce)").matches) return;

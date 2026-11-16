@@ -2582,3 +2582,14 @@ body[data-page="projects"] .home-finder { margin-top: 20px; }
 .sb-way.submit .sb-start{color:#7a4f06}
 @media (max-width:600px){.sb-way{padding:16px 8px 14px}.sb-way b{font-size:16.5px}.sb-way small{font-size:12.5px}.sb-ic{width:52px;height:52px}}
 @media (prefers-reduced-motion:reduce){.sb-way::after{animation:none;display:none}}
+
+/* Home Spark a Smile: five titles and lines that take turns (16 Nov 2026) */
+.sb-rot{display:grid;justify-items:center}
+.sb-slide{grid-area:1/1;display:grid;justify-items:center;gap:6px;opacity:0;transform:translateY(10px) scale(.97);transition:opacity .8s,transform .8s;pointer-events:none}
+.sb-slide.on{opacity:1;transform:none;pointer-events:auto}
+.sb-says{display:grid;max-width:36ch;font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-size:clamp(20px,4.4vw,24px);line-height:1.35;color:#3d4a36}
+.sb-says>span{grid-area:1/1;opacity:0;transform:translateY(8px);transition:opacity .8s .15s,transform .8s .15s}
+.sb-says>span.on{opacity:1;transform:none}
+.sb-says b{display:block;font-weight:700;color:#1f7a47}
+.sb-anyone{margin:0;font-size:14.5px;color:#6c6a52}
+@media (prefers-reduced-motion:reduce){.sb-slide,.sb-says>span{transition:none}}
