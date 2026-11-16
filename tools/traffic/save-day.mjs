@@ -14,7 +14,7 @@ const site = process.env.SITE || "https://raavanaa.org";
 if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) { console.error("Day must be YYYY-MM-DD"); process.exit(1); }
 if (!key && !proof) { console.log("::notice::No GitHub proof token and no TRAFFIC_KEY, so nothing was saved."); process.exit(0); }
 
-const res = await fetch(`${site}/api/traffic/day?d=${day}`, { headers: { ...(key ? { "x-traffic-key": key } : { authorization: `Bearer ${proof}` }), "user-agent": "raavanaa-traffic-record" } });
+const res = await fetch(`${site}/api/traffic/day?d=${day}`, { headers: { ...(key ? { "x-traffic-key": key } : {}), ...(proof ? { authorization: `Bearer ${proof}` } : {}), "user-agent": "raavanaa-traffic-record" } });
 if (res.status === 404) { console.log("::notice::The counter is not live on the site yet."); process.exit(0); }
 if (!res.ok) { console.error(`The site answered ${res.status}`); process.exit(1); }
 const s = await res.json();
