@@ -636,6 +636,43 @@ window.RAAV_FEATURES = (function () {
     { img: "/img/create-moment.svg", title: "Be the Reason for a Smile", say: "Your gift becomes a child's happiest day." }
   ];
   const sponsorHTML = () => createHTML(SPONSOR, { cls: "sponsor-cta", href: FEAT.sponsor ? "/give" : "/moment?for=memory", plus: "♥", go: FEAT.sponsor ? "Sponsor a smile" : "Give in loving memory" });
+  // Home, 16 Nov 2026 (SURESH): the "Spark a Smile" section in the same design as the Gift a Moment band: its own
+  // heart mark and title, current projects taking turns (three in view, drawings only; a new project joins by
+  // itself), and two clear ways to start, Request a project or Submit a project, as one person or a group.
+  // Both open the Spark a Smile page (/spark) with that way chosen.
+  const SPARK_WAYS = [
+    { k: "request", t: "Request a project", s: "You know who needs a day of joy",
+      ic: '<path d="M8 11V5.5a1.5 1.5 0 0 1 3 0V10M11 9.5V4a1.5 1.5 0 0 1 3 0v6M14 9.5V5.5a1.5 1.5 0 0 1 3 0V13c0 4-2.5 7-6 7-2.6 0-4-1.3-5.4-3.4L3.8 14a1.5 1.5 0 0 1 2.4-1.8L8 14V11"/>' },
+    { k: "submit", t: "Submit a project", s: "You have a plan ready to run",
+      ic: '<path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-10z"/><path d="M14 3.5v5h5"/><path d="M12 17v-6M9.3 13.6 12 11l2.7 2.6"/>' }
+  ];
+  const sparkBandHTML = projects => {
+    const isDrawn = u => /\.svg(\?|$)/i.test(u || "") || /^\/img\/(members-bridge|project-)/.test(u || "");
+    const pics = projects.map((p, i) => ({ p, i, n: stageNum(p) })).sort((a, b) => a.n - b.n || b.i - a.i).slice(0, 9);
+    return `<section class="spark-band" aria-label="Spark a Smile, start a project">
+      <i class="mb-sparks" aria-hidden="true"></i>
+      <a class="mb-head" href="/spark">
+        <img class="mb-mark sb-mark" src="/img/spark-mark.svg" alt="" width="96" height="96">
+        <span class="mt-title sb-title"><span>Spark a</span> <b>Smile</b></span><span class="mt-ribbon sb-ribbon">start a project</span>
+      </a>
+      ${pics.length ? `<div class="sb-stack" data-sb-stack>${pics.map(({ p, n }, j) => `<a class="sb-frame s${n} ${j < 3 ? "p" + j : "off"}" href="/projects/${slugOf(p)}" data-t="${esc(p.title)}"${j ? ' tabindex="-1" aria-hidden="true"' : ""}><img src="${esc(isDrawn(p.cover) ? p.cover : "/img/project-hills.svg")}" alt="" width="300" height="225"${j > 2 ? ' loading="lazy"' : ""}><span>${STAGE_LABEL[n - 1]}</span></a>`).join("")}</div>
+      <p class="sb-cap" data-sb-cap>${esc(pics[0].p.title)}</p>` : ""}
+      <p class="mb-say">Anyone can start a project: <b>one person or a whole group</b>, a family, friends, a school, a temple or a society.</p>
+      <div class="sb-ways">${SPARK_WAYS.map(w => `<a class="sb-way ${w.k}" href="/spark?way=${w.k}"><span class="sb-ic"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${w.ic}</svg></span><b>${w.t}</b><small>${w.s}</small></a>`).join("")}</div>
+    </section>`;
+  };
+  function startSparkBand(app) {
+    const box = app.querySelector("[data-sb-stack]"); if (!box) return;
+    const frames = [...box.children], cap = app.querySelector("[data-sb-cap]"), n = frames.length;
+    if (n < 2 || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let k = 0;
+    rotTimers.push(setInterval(() => {
+      if (document.hidden) return;
+      k = (k + 1) % n;
+      frames.forEach((f, i) => { const pos = (i - k + n) % n; f.classList.remove("p0", "p1", "p2", "off"); f.classList.add(pos < 3 ? "p" + pos : "off"); f.tabIndex = pos ? -1 : 0; f.setAttribute("aria-hidden", pos ? "true" : "false"); });
+      if (cap) cap.textContent = frames[k].dataset.t || "";
+    }, 4500));
+  }
   // Under the stage circles: one slogan in the middle, and a fine curved line from it up to
   // its stage. The line glides from stage to stage on its own; tapping a circle keeps it there.
   const STAGE_COLOR = ["#1f7a47", "#d08e0c", "#c8381e"];
@@ -755,7 +792,7 @@ window.RAAV_FEATURES = (function () {
         <p class="rail-say">${STAGE_SAY.map((t, i) => `<span class="s${i + 1}${i ? "" : " on"}">${t}</span>`).join("")}</p>
       </div>`}
       ${glanceHTML(projects)}
-      ${createHTML(light ? CREATE : CREATE.slice(0, 3))}
+      ${light && FEAT.vetting ? sparkBandHTML(projects) : createHTML(light ? CREATE : CREATE.slice(0, 3))}
       ${momentBandHTML()}
       ${light && FEAT.sponsor ? sponsorHTML() : ""}
       ${HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
@@ -779,6 +816,7 @@ window.RAAV_FEATURES = (function () {
     startSayings(app);
     startFollow(app);
     startCreate(app);
+    startSparkBand(app);
     startRail(app);
     if (light) startHeadlines(app, slides.map(x => x.title).filter(Boolean), start);
     // arriving from the footer's "Keep me posted" button on another page
