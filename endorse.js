@@ -119,6 +119,13 @@
     $("[data-loading]").hidden = true;
     $("[data-page]").hidden = false;
     $("[data-new]").hidden = !isNew;
+    // "Share your project": the phone's own share sheet where there is one, otherwise WhatsApp.
+    const ns = document.querySelector("[data-new-share]");
+    if (ns) ns.onclick = () => {
+      const url = location.origin + location.pathname, text = (r.title ? r.title + ". " : "") + "Please have a look, and vouch for it if you know about it.";
+      if (navigator.share) navigator.share({ title: r.title || "Raavanaa", text, url }).catch(() => {});
+      else window.open("https://wa.me/?text=" + encodeURIComponent(text + " " + url), "_blank", "noopener");
+    };
     $("[data-kicker]").textContent = [t("A day of joy", "மகிழ்ச்சியான ஒரு நாள்"), r.place].filter(Boolean).join(" · ");
     $("[data-title]").textContent = r.title;
     const tagline = r.tagline || (r.description || "").split(/(?<=[.!?])\s/)[0] || "";
