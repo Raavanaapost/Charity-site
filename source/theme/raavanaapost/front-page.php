@@ -42,56 +42,39 @@ if ( ! $rp_lead ) :
 endif;
 
 /*
- * Five stories at a glance: one big picture at the top that turns between a few
- * stories (the first is the chosen lead), then two pictures, then two more.
+ * Five stories at a glance, in the raavanaa.org Home picture style (SURESH, 17 Nov 2026):
+ * one big picture that turns between three stories (the chosen lead first), then two
+ * pictures, then two more. Words sit on the picture: stage, place and headline.
  */
 $rp_not    = rp_cat( 'sports' ) ? array( rp_cat( 'sports' )->term_id ) : array(); // League news stays in Sports, not in the top five.
 $rp_slides = array_merge( $rp_lead, rp_take( array( 'numberposts' => 2, 'category__not_in' => $rp_not ) ) );
 $rp_tiles  = rp_take( array( 'numberposts' => 4, 'category__not_in' => $rp_not ) );
 ?>
 
-<section class="rp-wrap rp-top rp-top--five" aria-label="<?php esc_attr_e( 'Top stories', 'raavanaapost' ); ?>">
-	<div class="rp-top__main">
-		<div class="rp-turn" data-rp-turn aria-roledescription="carousel" aria-label="<?php esc_attr_e( 'Top stories', 'raavanaapost' ); ?>">
-			<div class="rp-turn__slides">
-				<?php foreach ( $rp_slides as $rp_i => $rp_s ) : ?>
-					<article class="rp-lead rp-turn__slide<?php echo 0 === $rp_i ? ' is-on' : ''; ?>" aria-roledescription="slide" aria-label="<?php echo esc_attr( sprintf( '%d / %d', $rp_i + 1, count( $rp_slides ) ) ); ?>"<?php echo 0 === $rp_i ? '' : ' aria-hidden="true"'; ?>>
-						<?php rp_media( $rp_s, 'rp-wide', '16-9', 0 === $rp_i ); ?>
-						<?php if ( rp_place( $rp_s ) ) : ?>
-							<p class="rp-kicker"><?php echo esc_html( rp_place( $rp_s ) ); ?></p>
-						<?php endif; ?>
-						<<?php echo 0 === $rp_i ? 'h1' : 'h2'; ?> class="rp-lead__title"><a href="<?php echo esc_url( get_permalink( $rp_s ) ); ?>"><?php echo esc_html( get_the_title( $rp_s ) ); ?></a></<?php echo 0 === $rp_i ? 'h1' : 'h2'; ?>>
-						<?php if ( has_excerpt( $rp_s ) ) : ?>
-							<p class="rp-lead__standfirst"><?php echo esc_html( get_the_excerpt( $rp_s ) ); ?></p>
-						<?php endif; ?>
-						<p class="rp-byline"><span class="rp-byline__name"><?php echo esc_html( rp_byline( $rp_s ) ); ?></span>, <?php echo rp_time_tag( $rp_s ); // phpcs:ignore WordPress.Security.EscapeOutput ?></p>
-					</article>
-				<?php endforeach; ?>
-			</div>
+<section class="rp-wrap rp-five" aria-label="<?php esc_attr_e( 'Top stories', 'raavanaapost' ); ?>">
+	<div class="rp-mosaic n<?php echo (int) min( 5, 1 + count( $rp_tiles ) ); ?>">
+		<div class="rp-mosaic__big" data-rp-turn aria-roledescription="carousel" aria-label="<?php esc_attr_e( 'Top stories', 'raavanaapost' ); ?>">
+			<?php
+			foreach ( $rp_slides as $rp_i => $rp_s ) {
+				rp_tile( $rp_s, true, 0 === $rp_i );
+			}
+			?>
 			<?php if ( count( $rp_slides ) > 1 ) : ?>
 				<div class="rp-turn__controls" hidden>
 					<?php foreach ( $rp_slides as $rp_i => $rp_s ) : ?>
 						<button type="button" class="rp-turn__dot" aria-pressed="<?php echo 0 === $rp_i ? 'true' : 'false'; ?>"><span class="screen-reader-text"><?php echo esc_html( get_the_title( $rp_s ) ); ?></span></button>
 					<?php endforeach; ?>
-					<button type="button" class="rp-turn__pause" aria-pressed="false"><svg class="rp-turn__icon-pause" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2 1h3v10H2zM7 1h3v10H7z"/></svg><svg class="rp-turn__icon-play" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2 1l9 5-9 5z"/></svg><span class="screen-reader-text"><?php esc_html_e( 'Pause the top stories', 'raavanaapost' ); ?></span></button>
+					<button type="button" class="rp-turn__pause" aria-pressed="false"><svg class="rp-turn__icon-pause" width="10" height="10" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2 1h3v10H2zM7 1h3v10H7z"/></svg><svg class="rp-turn__icon-play" width="10" height="10" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2 1l9 5-9 5z"/></svg><span class="screen-reader-text"><?php esc_html_e( 'Pause the top stories', 'raavanaapost' ); ?></span></button>
 				</div>
 			<?php endif; ?>
 		</div>
-
-		<?php if ( $rp_tiles ) : ?>
-			<div class="rp-four" aria-label="<?php esc_attr_e( 'More top stories', 'raavanaapost' ); ?>">
-				<?php
-				foreach ( $rp_tiles as $rp_p ) {
-					rp_card( $rp_p, 'grid', 'h2' );
-				}
-				?>
-			</div>
-		<?php endif; ?>
+		<?php
+		foreach ( $rp_tiles as $rp_p ) {
+			rp_tile( $rp_p );
+		}
+		?>
 	</div>
-
-	<aside class="rp-top__side">
-		<?php rp_most_read(); ?>
-	</aside>
+	<?php rp_most_read(); ?>
 </section>
 
 <?php
@@ -319,7 +302,7 @@ if ( $rp_op ) :
 			<img class="rp-involve__crown" src="<?php echo esc_url( rp_img( 'crown.png' ) ); ?>" alt="" width="330" height="207" loading="lazy">
 			<h2><?php esc_html_e( 'Know a need in your community?', 'raavanaapost' ); ?></h2>
 			<p><?php esc_html_e( 'Tell us about it. Our team will call you, check the facts and keep following it until something changes.', 'raavanaapost' ); ?></p>
-			<a class="rp-btn rp-btn--orange" href="<?php echo esc_url( rp_soon_url( $rp_report_url ) ); ?>"><?php esc_html_e( 'Report a need', 'raavanaapost' ); ?><?php echo rp_soon_tag(); // phpcs:ignore WordPress.Security.EscapeOutput ?></a>
+			<a class="rp-btn rp-btn--orange" href="<?php echo esc_url( rp_soon_url( $rp_report_url ) ); ?>"><?php esc_html_e( 'Submit a need', 'raavanaapost' ); ?><?php echo rp_soon_tag(); // phpcs:ignore WordPress.Security.EscapeOutput ?></a>
 		</div>
 	<?php endif; ?>
 	<?php if ( rp_page_url( 'brief' ) ) : ?>

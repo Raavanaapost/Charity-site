@@ -325,6 +325,47 @@ function rp_card( $post, $variant = 'grid', $heading = 'h3' ) {
 }
 
 /**
+ * A picture tile for the front page, like the raavanaa.org Home pictures: the whole
+ * tile is the link, with the stage, the place and the headline on the picture.
+ *
+ * @param WP_Post $post  Story.
+ * @param bool    $big   The big turning picture at the top.
+ * @param bool    $first The one shown first (loads at once, carries the h1).
+ */
+function rp_tile( $post, $big = false, $first = false ) {
+	$post   = get_post( $post );
+	$stage  = rp_stage( $post );
+	$stages = rp_stages();
+	$num    = array( 'reported' => 1, 'help' => 2, 'solved' => 3 );
+	$place  = rp_place( $post );
+	if ( has_post_thumbnail( $post ) ) {
+		$src = get_the_post_thumbnail_url( $post, $big ? 'rp-wide' : 'rp-card' );
+	} elseif ( rp_art( $post ) ) {
+		$src = rp_img( 'art/' . rp_art( $post ) . '.svg' );
+	} else {
+		$src = '';
+	}
+	$class = 'rp-tile' . ( $stage ? ' s' . $num[ $stage ] : ' s0' ) . ( $big ? ' rp-tile--big rp-turn__slide' : '' ) . ( $big && $first ? ' is-on' : '' );
+	$hidden = $big && ! $first ? ' aria-hidden="true" tabindex="-1"' : '';
+	printf( '<a class="%s" href="%s"%s>', esc_attr( $class ), esc_url( get_permalink( $post ) ), $hidden ); // phpcs:ignore WordPress.Security.EscapeOutput
+	if ( $src ) {
+		printf( '<img src="%s" alt="" width="800" height="600"%s>', esc_url( $src ), $first ? ' fetchpriority="high"' : ' loading="lazy"' );
+	}
+	if ( $big ) {
+		echo '<span class="rp-tile__call" data-rp-call="' . ( 'reported' === $stage ? 'make' : 'read' ) . '"><b>' . esc_html( 'reported' === $stage ? __( 'Make this happen', 'raavanaapost' ) : __( 'Read the story', 'raavanaapost' ) ) . '</b> <i aria-hidden="true">&rarr;</i></span>';
+	}
+	echo '<span class="rp-tile__text"><span class="rp-tile__eyebrow">';
+	if ( $stage ) {
+		echo '<i>' . esc_html( $stages[ $stage ] ) . '</i>';
+	}
+	if ( $place ) {
+		echo ' <span>' . esc_html( $place ) . '</span>';
+	}
+	$tag = $big && $first ? 'h1' : 'h2';
+	printf( '</span><%1$s class="rp-tile__title">%2$s</%1$s></span></a>', $tag, esc_html( get_the_title( $post ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput
+}
+
+/**
  * Fetch stories for the front page without repeating any already shown.
  */
 function rp_take( $args ) {
