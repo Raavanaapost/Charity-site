@@ -1865,7 +1865,9 @@ window.RAAV_FEATURES = (function () {
       d => d ? `We know what the day costs: ${money(b.goal)}.` : "We're working out what the day will cost: transport, food, tickets.",
       d => d >= 1 ? "Every part of the day is covered." : b.goal ? `${money(need)} still to go. This is where you come in.` : "Opens as soon as the budget is ready. Send a note and we'll tell you first."
     ];
-    const WAYS = ["Give something the day needs (a van, food, gifts)", "Help on the day", "Share it with friends"];
+    // Ways to help without money (SURESH, 17 Nov 2026: food, van, share with friends, local support...).
+    const WAYS = FEAT.pledge ? ["Food for the day", "A van or transport", "Share it with friends", "Local support in the village", "Help on the day", "Gifts or school things"]
+      : ["Give something the day needs (a van, food, gifts)", "Help on the day", "Share it with friends"];
     const ring = activatingPanelHTML(p, "").match(/<svg class="ring"[\s\S]*?<\/svg>/)[0];
     const raw = ringArcs(p).reduce((t, x) => t + Math.min(1, x.done), 0) * slice;
     return `<div class="panel activating go100 ${cls}" data-pct="${pct}" data-raw="${raw}">
@@ -1885,10 +1887,11 @@ window.RAAV_FEATURES = (function () {
           <div class="go-form go-make">
             <h3>Make this happen</h3>
             <div class="mk-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-mk="donate"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>${FEAT.sponsor ? "Donate" : "Give"}</button><button type="button" role="tab" aria-selected="false" data-mk="other">Help another way</button></div>
-            <div class="mk-pane" data-mkpane="donate"><p class="go-sub">${!FEAT.sponsor && FEAT.pledge ? "Reserve your part of this day. Your name and amount show here straight away, and we'll send you the ways to fund." : !FEAT.sponsor ? "Give towards this day in loving memory of someone dear to you. Their name goes with the gift, and a volunteer will reply to you personally." : canGive(p) ? `Give towards this day by card. Secure payment by ${GIVE_BY}.` : "Want to give towards this day? Tap Donate and tell us what you would like to give. A volunteer will reply to you personally."}</p>${DONATE_BTN}
-              <p class="go-name"${FEAT.sponsor ? "" : " hidden"}><a href="/moment?project=${encodeURIComponent(slugOf(p))}">♡ Give in someone's name, or on behalf of a family or group →</a></p></div>
+            ${!FEAT.sponsor && FEAT.pledge ? `<div class="mk-pane" data-mkpane="donate"><p class="go-sub">Reserve your part of this day, from anywhere in the world.</p>
+              <button type="button" class="mk-jump" data-jump-give><span>Be the smile</span><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>` : `<div class="mk-pane" data-mkpane="donate"><p class="go-sub">${!FEAT.sponsor ? "Give towards this day in loving memory of someone dear to you. Their name goes with the gift, and a volunteer will reply to you personally." : canGive(p) ? `Give towards this day by card. Secure payment by ${GIVE_BY}.` : "Want to give towards this day? Tap Donate and tell us what you would like to give. A volunteer will reply to you personally."}</p>${DONATE_BTN}
+              <p class="go-name"${FEAT.sponsor ? "" : " hidden"}><a href="/moment?project=${encodeURIComponent(slugOf(p))}">♡ Give in someone's name, or on behalf of a family or group →</a></p></div>`}
             <form class="mk-pane" data-mkpane="other" hidden name="make-it-happen" data-ajax data-done="Thank you! Your note is on its way. We'll be in touch soon, and you'll be part of a child's best day.">
-              <p class="go-sub">Not able to give money? There are other ways to make this day happen. Tell us how you'd like to help and we'll reach out.</p>
+              ${FEAT.pledge ? `<p class="go-sub mk-community">A day of joy is made by many hands. Someone cooks the food, someone drives the van, someone tells a friend, someone in the village makes sure every child is there. <b>Raavanaa is a community of volunteers</b>, and there is a place in it for you. Choose how you would like to help, and a volunteer will be in touch.</p>` : `<p class="go-sub">Not able to give money? There are other ways to make this day happen. Tell us how you'd like to help and we'll reach out.</p>`}
               <input type="hidden" name="form-name" value="make-it-happen">
               <input type="hidden" name="project" value="${esc(slugOf(p))}">
               <p hidden><label>Leave empty <input name="bot-field"></label></p>
@@ -1898,7 +1901,7 @@ window.RAAV_FEATURES = (function () {
               <label for="go-name-${id}">Your name<input id="go-name-${id}" name="name" required maxlength="80" autocomplete="name"></label>
               <label for="go-contact-${id}">Email or WhatsApp<input id="go-contact-${id}" name="contact" required maxlength="120"></label>
               <label for="go-note-${id}">A note for us (optional)<textarea id="go-note-${id}" name="note" maxlength="1500" rows="3"></textarea></label>
-              <button class="btn go-send" type="submit">Send my note</button>
+              <button class="btn go-send" type="submit">${FEAT.pledge ? "Be part of Raavanaa" : "Send my note"}</button>
               <p class="note" data-msg hidden></p>
             </form>
           </div>
@@ -1952,6 +1955,12 @@ window.RAAV_FEATURES = (function () {
   // Donate on a project page. While the project still needs money it opens that project's giving form; otherwise the
   // Raavanaa Fund. With card payments off (launch, SURESH 12 Nov 2026) the form is "I'd like to give": a volunteer replies.
   function wireDonate(root, slug) {
+    // The light "Be the smile ↓" in Make this happen goes down to the one giving form, by the budget (17 Nov 2026).
+    root.querySelectorAll("[data-jump-give]").forEach(j => j.addEventListener("click", () => {
+      const btn = root.querySelector(".b-give [data-donate]");
+      if (!btn) return;
+      if (!root.querySelector(".pl-inline")) btn.click(); else root.querySelector(".pl-inline").scrollIntoView({ block: "start", behavior: "smooth" });
+    }));
     root.querySelectorAll("[data-donate]").forEach(b => b.addEventListener("click", () => {
       // Memory launch (FEAT.sponsor off): every gift goes through the moment page, in someone's memory.
       // The short form opens right here, under the button (SURESH, 17 Nov 2026); /give?project= still works as a page.
@@ -2039,7 +2048,7 @@ window.RAAV_FEATURES = (function () {
           <div><dt>Still needed</dt><dd>${money(need)}</dd></div>
         </dl>
         <p class="b-ask">${b.raised ? "Help us close the gap" : "Be the first to sponsor"}${kids ? ` and give ${kids[0]} children their day` : " and make this day happen"}.</p>
-        ${!FEAT.sponsor && FEAT.pledge && GIVE_OPEN.has(slugOf(p)) ? `<div class="b-give">${DONATE_BTN}</div>` : ""}
+        ${!FEAT.sponsor && FEAT.pledge && GIVE_OPEN.has(slugOf(p)) ? `<div class="b-give" id="be-the-smile">${DONATE_BTN}</div>` : ""}
         ${funders(FEAT.pledge ? "Making it happen" : "Pledged so far")}
         ${detail ? listOf("Estimated costs", "Estimated total") : ""}`;
     }
