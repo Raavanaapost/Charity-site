@@ -2593,3 +2593,30 @@ body[data-page="projects"] .home-finder { margin-top: 20px; }
 .sb-says b{display:block;font-weight:700;color:#1f7a47}
 .sb-anyone{margin:0;font-size:14.5px;color:#6c6a52}
 @media (prefers-reduced-motion:reduce){.sb-slide,.sb-says>span{transition:none}}
+
+/* 17 Nov 2026 (SURESH): each turning title in its own stage colour, not all green.
+   1 Initiated green, 2 Activated amber, 3 Impact flame red, 4 green into amber, 5 amber into red. */
+.sb-slide.c1 .sb-title b{background-image:linear-gradient(100deg,#3f9a5f,#1f7a47)}
+.sb-slide.c2 .sb-title b{background-image:linear-gradient(100deg,#f2b21c,#eaa21c 45%,#b97a06)}
+.sb-slide.c3 .sb-title b{background-image:linear-gradient(100deg,#e5701a,#c8381e 55%,#a82c16)}
+.sb-slide.c4 .sb-title b{background-image:linear-gradient(100deg,#1f7a47,#7a9a2a 50%,#d08e0c)}
+.sb-slide.c5 .sb-title b{background-image:linear-gradient(100deg,#eaa21c,#e5701a 50%,#c8381e)}
+.sb-slide.c1 .sb-ribbon{background:linear-gradient(180deg,#2a8a52,#1f6b40)}
+.sb-slide.c2 .sb-ribbon{background:linear-gradient(180deg,#d08e0c,#a06a05)}
+.sb-slide.c3 .sb-ribbon{background:linear-gradient(180deg,#d4421f,#a82c16)}
+.sb-slide.c4 .sb-ribbon{background:linear-gradient(90deg,#1f7a47,#b97a06)}
+.sb-slide.c5 .sb-ribbon{background:linear-gradient(90deg,#d08e0c,#c8381e)}
+.sb-says .c1 b{color:#1f7a47}.sb-says .c2 b{color:#b97a06}.sb-says .c3 b{color:#c8381e}.sb-says .c4 b{color:#6f8a1f}.sb-says .c5 b{color:#d0561a}
+/* the band's glow and top line follow the colour */
+.spark-band{transition:background .9s}
+.spark-band[data-c="2"]{background:radial-gradient(700px 360px at 50% 0,#fbe9c2 0,rgba(255,255,255,0) 70%),linear-gradient(#fbf6ea,#fffbf1)}
+.spark-band[data-c="3"]{background:radial-gradient(700px 360px at 50% 0,#fbdcd0 0,rgba(255,255,255,0) 70%),linear-gradient(#fbf6ea,#fffbf1)}
+.spark-band[data-c="4"]{background:radial-gradient(700px 360px at 50% 0,#ecefcb 0,rgba(255,255,255,0) 70%),linear-gradient(#fbf6ea,#fffbf1)}
+.spark-band[data-c="5"]{background:radial-gradient(700px 360px at 50% 0,#fde2c4 0,rgba(255,255,255,0) 70%),linear-gradient(#fbf6ea,#fffbf1)}
+.spark-band::before{background:linear-gradient(90deg,#1f7a47,#eaa21c 50%,#c8381e)}
+/* 17 Nov 2026 (SURESH): Home top - the turning title close under the stage circles, the picture close under the title */
+body[data-light] .stages{margin-bottom:0}
+body[data-light] .intro{padding-top:4px;padding-bottom:0}
+body[data-light] .intro .headline{margin-top:0;margin-bottom:0}
+body[data-light] .mosaic{margin-top:8px}
+.spark-band .sb-stack{margin-top:0}.spark-band{gap:10px}

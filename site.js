@@ -659,15 +659,15 @@ window.RAAV_FEATURES = (function () {
   const sparkBandHTML = projects => {
     const isDrawn = u => /\.svg(\?|$)/i.test(u || "") || /^\/img\/(members-bridge|project-)/.test(u || "");
     const pics = projects.map((p, i) => ({ p, i, n: stageNum(p) })).sort((a, b) => a.n - b.n || b.i - a.i).slice(0, 9);
-    return `<section class="spark-band" aria-label="Spark a Smile, start a project">
+    return `<section class="spark-band" data-c="1" aria-label="Spark a Smile, start a project">
       <i class="mb-sparks" aria-hidden="true"></i>
       <a class="mb-head" href="/spark">
         <img class="mb-mark sb-mark" src="/img/spark-mark.svg" alt="" width="96" height="96">
-        <span class="sb-rot" data-sb-rot>${SPARK_SAYS.map((x, i) => `<span class="sb-slide${i ? "" : " on"}"${i ? ' aria-hidden="true"' : ""}><span class="mt-title sb-title"><span>${x[0]}</span> <b>${x[1]}</b></span><span class="mt-ribbon sb-ribbon">${x[2]}</span></span>`).join("")}</span>
+        <span class="sb-rot" data-sb-rot>${SPARK_SAYS.map((x, i) => `<span class="sb-slide c${i % 5 + 1}${i ? "" : " on"}"${i ? ' aria-hidden="true"' : ""}><span class="mt-title sb-title"><span>${x[0]}</span> <b>${x[1]}</b></span><span class="mt-ribbon sb-ribbon">${x[2]}</span></span>`).join("")}</span>
       </a>
       ${pics.length ? `<div class="sb-stack" data-sb-stack>${pics.map(({ p, n }, j) => `<a class="sb-frame s${n} ${j < 3 ? "p" + j : "off"}" href="/projects/${slugOf(p)}" data-t="${esc(p.title)}"${j ? ' tabindex="-1" aria-hidden="true"' : ""}><img src="${esc(isDrawn(p.cover) ? p.cover : "/img/project-hills.svg")}" alt="" width="300" height="225"${j > 2 ? ' loading="lazy"' : ""}><span>${STAGE_LABEL[n - 1]}</span></a>`).join("")}</div>
       <p class="sb-cap" data-sb-cap>${esc(pics[0].p.title)}</p>` : ""}
-      <p class="mb-say sb-says" data-sb-says>${SPARK_SAYS.map((x, i) => `<span class="${i ? "" : "on"}">${x[3]}</span>`).join("")}</p>
+      <p class="mb-say sb-says" data-sb-says>${SPARK_SAYS.map((x, i) => `<span class="c${i % 5 + 1}${i ? "" : " on"}">${x[3]}</span>`).join("")}</p>
       <p class="sb-anyone">${FEAT.group ? "Anyone can start a project: one person or a whole group." : "Anyone can start one. Share it, and follow every step when you sign in."}</p>
       <div class="sb-ways">${SPARK_WAYS.map(w => `<a class="sb-way ${w.k}" href="/initiate?way=${w.k}"><span class="sb-ic"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${w.ic}</svg></span><b>${w.t}</b><small>${w.s}</small><span class="sb-start">Start →</span></a>`).join("")}</div>
     </section>`;
@@ -682,6 +682,7 @@ window.RAAV_FEATURES = (function () {
         t = (t + 1) % ts.length;
         ts.forEach((el, i) => { el.classList.toggle("on", i === t); el.setAttribute("aria-hidden", i === t ? "false" : "true"); });
         ss.forEach((el, i) => el.classList.toggle("on", i === t));
+        const band = rot.closest(".spark-band"); if (band) band.dataset.c = t % 5 + 1;
       }, 5200));
     }
     const box = app.querySelector("[data-sb-stack]"); if (!box) return;
