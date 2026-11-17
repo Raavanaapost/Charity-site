@@ -277,11 +277,13 @@
     },
     {
      "name": "Shanker",
-     "amount": 150
+     "amount": 150,
+     "list": false
     },
     {
      "name": "Bala",
-     "amount": 150
+     "amount": 150,
+     "list": false
     }
    ],
    "date_set": true,

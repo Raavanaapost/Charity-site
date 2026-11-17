@@ -2881,3 +2881,14 @@ body[data-light] .mosaic{margin-top:8px}
 .sp-skills-more{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;border:1.5px dashed #c8501e;background:#fff7e8;color:#8a3510;font:700 14px/1.2 var(--display);cursor:pointer}
 .sp-skills-more i{font-style:normal;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#e0701c;color:#fff;font-size:12px;transition:transform .2s}
 .sp-skills.open .sp-skills-more i{transform:rotate(180deg)}
+
+/* Projects page title moved up, with turning words (17 Nov 2026), and the name of who asked under each stage. */
+body[data-page="projects"] .home-finder{margin-top:6px;padding-top:10px}
+.pj-says{display:grid;font-family:"Cinzel",serif;font-weight:700;font-size:clamp(26px,6vw,38px);color:#1f4d3a;margin:0!important}
+.pj-says span{grid-area:1/1;opacity:0;transform:translateY(8px);transition:opacity .45s,transform .45s}
+.pj-says span.on{opacity:1;transform:none}
+.pj-says span:nth-child(2){color:#b97a06}.pj-says span:nth-child(3){color:#c8501e}.pj-says span:nth-child(4){color:#c8381e}
+.pj-sub{margin:-4px 0 6px;color:var(--muted);font-style:italic;text-align:left;width:100%;max-width:640px}
+.home-finder .pj-says{width:100%;max-width:640px;text-align:left}
+.hm-by{font-family:var(--display);font-size:11.5px;font-weight:600;color:var(--muted);white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis}
+.hm-by{white-space:normal;max-width:92px;text-align:right;line-height:1.2;overflow:visible}
