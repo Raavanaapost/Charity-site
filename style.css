@@ -2687,3 +2687,14 @@ body[data-light] .mosaic{margin-top:8px}
 .room-foot{text-align:center}
 @media (min-width:720px){.room-card{grid-template-columns:300px 1fr}.room-pic img{height:100%;aspect-ratio:auto}.room-acts{grid-template-columns:1fr 1fr 1fr}}
 @media (prefers-reduced-motion:reduce){.room-proud.in,.room-bar i.mine{animation:none}}
+/* Give from anywhere (17 Nov 2026): any amount in the giver's own money, shown in rupees too */
+.pl-amt-row{display:grid;grid-template-columns:auto 1fr;gap:8px}
+.pl-amt-row select,.pl-amt-row input{border:1px solid var(--line);border-radius:10px;padding:12px;font:inherit;font-size:20px;font-weight:600;background:var(--surface);color:var(--ink);min-width:0}
+.pl-amt-row select{padding-right:8px;font-family:var(--display)}
+.pl-amt small{font-weight:400;color:var(--muted);font-size:13px}
+.pl-cur{display:grid;place-items:center;padding:0 10px;font-size:20px}
+.pledge-one h2{display:flex;align-items:center;gap:8px}
+.pledge-one h2 .pl-heart{color:#c8381e;width:26px;height:26px}
+.pledge-form .give-pay{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:19px}
+.room-about{color:var(--muted);font-size:14px}
+.donate-btn .pl-heart{display:none}

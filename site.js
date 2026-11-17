@@ -1819,7 +1819,7 @@ window.RAAV_FEATURES = (function () {
   const whoFunded = p => { const b = budgetOf(p); if (!b.goal || !b.funders.length) return "";
     return `<small class="who">${b.funders.map(f => `${esc(f.name)}${f.hide_amount ? "" : ` <b>${Math.round(numOf(f.amount) / b.goal * 100)}%</b>`}`).join(" · ")}</small>`; };
   // The Donate button (wireDonate): it opens the giving form.
-  const DONATE_BTN = `<button class="donate-btn" type="button" data-donate><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg><span>${FEAT.sponsor ? "Donate" : FEAT.pledge ? "Sponsor a smile" : "Give in loving memory"}</span></button>`;
+  const DONATE_BTN = `<button class="donate-btn" type="button" data-donate><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg><span>${FEAT.sponsor ? "Donate" : FEAT.pledge ? "Be the smile" : "Give in loving memory"}</span></button>`;
   // The "Activating" circle with its list of steps, as on a project page.
   function activatingPanelHTML(p, cls = "") {
     const steps = ringSteps(p), T = RING_TEXT[stageNum(p)];
@@ -2764,6 +2764,24 @@ window.RAAV_FEATURES = (function () {
     location.replace("/members" + location.hash);
   }
 
+  // Giving from anywhere (SURESH, 17 Nov 2026): the giver types any amount in their own money; the project counts in
+  // rupees. Today's rates come from /api/fx; this table (17 Nov 2026) is used until they arrive or if they can't.
+  const PL_CURS = ["LKR", "USD", "CAD", "GBP", "EUR", "AUD", "NZD", "CHF", "NOK", "SEK", "DKK", "INR", "SGD", "MYR", "AED", "QAR", "SAR", "KWD", "JPY"];
+  const PL_FX_TABLE = { LKR: 1, USD: 332.67, CAD: 232.67, GBP: 438.98, EUR: 366.17, AUD: 224.57, NZD: 183.39, CHF: 395.73, NOK: 34.42, SEK: 32.99, DKK: 48.73, INR: 3.54, SGD: 257.93, MYR: 81.29, AED: 90.59, QAR: 91.39, SAR: 88.72, KWD: 1074.11, JPY: 2.08 };
+  let PL_FX = null;
+  // A first guess at the giver's money from their phone's time zone and language; they can change it.
+  const guessCur = () => {
+    let tz = "", lang = "";
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; lang = navigator.language || ""; } catch (e) { /* none */ }
+    const byTz = [[/^Asia\/Colombo/, "LKR"], [/^America\/(Toronto|Vancouver|Edmonton|Winnipeg|Halifax|Regina|St_Johns|Montreal)/, "CAD"], [/^Europe\/London/, "GBP"], [/^Australia\//, "AUD"],
+      [/^Pacific\/Auckland/, "NZD"], [/^Europe\/Zurich/, "CHF"], [/^Europe\/Oslo/, "NOK"], [/^Europe\/Stockholm/, "SEK"], [/^Europe\/Copenhagen/, "DKK"], [/^Asia\/(Kolkata|Calcutta)/, "INR"],
+      [/^Asia\/Singapore/, "SGD"], [/^Asia\/Kuala_Lumpur/, "MYR"], [/^Asia\/Dubai/, "AED"], [/^Asia\/Qatar/, "QAR"], [/^Asia\/Riyadh/, "SAR"], [/^Asia\/Kuwait/, "KWD"], [/^Asia\/Tokyo/, "JPY"],
+      [/^Europe\//, "EUR"], [/^America\//, "USD"]];
+    const hit = byTz.find(([re]) => re.test(tz));
+    return hit ? hit[1] : /-CA$/.test(lang) ? "CAD" : /-GB$/.test(lang) ? "GBP" : /-IN$/.test(lang) ? "INR" : "LKR";
+  };
+  const HEART_SVG = `<svg class="pl-heart" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>`;
+
   // Sponsor a smile: card payments through PayHere (rupees) or Stripe Checkout (Canadian dollars).
   //   /give                  monthly Smile member, a one-time gift to Raavanaa, or pick a project
   //   /give?project=<slug>   sponsor that project (never more than what it still needs)
@@ -2883,17 +2901,25 @@ window.RAAV_FEATURES = (function () {
     // follow, send. "We'll send you the ways to fund." The pledge shows on the project at once and the % bar goes up.
     // Coming from Gift a Moment (?tribute=) still opens the full form with the name of the person remembered.
     const SIMPLE = ASK && !!p && FEAT.pledge && !q.get("tribute");
+    if (SIMPLE) load("/api/fx").then(d => { if (d && d.lkr) { PL_FX = d.lkr; app.querySelectorAll(".pledge-form").forEach(f => f.dispatchEvent(new Event("input"))); } }).catch(() => {});
     const wirePledge = (f, x) => {
       const goal = +f.dataset.goal || 0, raised = +f.dataset.raised || 0, left = +f.dataset.left || 0, cur = f.dataset.cur || "";
       const own = f.querySelector(".give-own"), ownIn = f.querySelector('[name="own"]'), reach = f.querySelector(".give-reach"), msg = f.querySelector(".give-msg"), pay = f.querySelector(".give-pay");
       const bar = app.querySelector(".pl-proj .b-bar i"), barText = app.querySelector(".pl-proj .give-proj-text > span:not(.b-bar)");
       const say = (t, bad) => { msg.hidden = false; msg.textContent = t; msg.classList.toggle("bad", !!bad); };
-      const amount = () => { const pk = (f.querySelector('[name="pick"]:checked') || {}).value; const v = pk === "other" ? parseFloat(String(ownIn.value).replace(/[^0-9.]/g, "")) : parseFloat(pk); return isFinite(v) && v > 0 ? Math.round(v) : 0; };
+      // Any amount, in the giver's own money; the project counts in rupees (today's rate from /api/fx).
+      const curSel = f.querySelector('[name="cur"]');
+      if (curSel) { let c = ""; try { c = localStorage.getItem("raav-cur") || ""; } catch (e) { /* none */ } curSel.value = PL_CURS.includes(c) ? c : guessCur(); }
+      const typed = () => { const v = parseFloat(String(ownIn.value).replace(/,/g, "").replace(/[^0-9.]/g, "")); return isFinite(v) && v > 0 ? v : 0; };
+      const rate = () => !curSel ? 1 : ((PL_FX && PL_FX[curSel.value]) || PL_FX_TABLE[curSel.value] || 0);
+      const amount = () => Math.round(typed() * rate());
+      const typedText = () => !curSel || curSel.value === "LKR" ? moneyOf(site, typed(), x) : `${curSel.value} ${typed().toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
       const pctWith = v => goal ? Math.min(100, Math.round((raised + v) / goal * 100)) : 0;
       const update = () => {
-        own.hidden = (f.querySelector('[name="pick"]:checked') || {}).value !== "other";
-        const v = amount(), pct = pctWith(v);
-        const text = !v || !goal ? "" : pct >= 100 ? "Your part completes this project: 100% of its goal." : `Your part brings this project to ${pct}% of its goal.`;
+        const v = amount(), pct = pctWith(v), foreign = curSel && curSel.value !== "LKR";
+        try { if (curSel) localStorage.setItem("raav-cur", curSel.value); } catch (e) { /* none */ }
+        const conv = foreign && v ? `That is about ${moneyOf(site, v, x)}. ` : "";
+        const text = !v ? "" : conv + (!goal ? "" : pct >= 100 ? "Your part completes this project: 100% of its goal." : `Your part brings this project to ${pct}% of its goal.`);
         if (reach.textContent !== text) reach.textContent = text;
         reach.hidden = !text;
         if (msg.classList.contains("bad")) msg.hidden = true;
@@ -2902,13 +2928,13 @@ window.RAAV_FEATURES = (function () {
       f.addEventListener("submit", async e => {
         e.preventDefault();
         const v = amount(), nameIn = f.querySelector('[name="name"]'), ct = f.querySelector('[name="contact"]');
-        if (!v) { say("Please choose an amount, or write your own.", true); ownIn.focus(); return; }
+        if (!v) { say("Please type how much you would like to give.", true); ownIn.focus(); return; }
         const name = nameIn.value.trim(), contact = ct.value.trim();
         if (!name) { say("Please add your name.", true); nameIn.focus(); return; }
         if (!(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) || contact.replace(/\D/g, "").length >= 7)) { say("Please add your email or a WhatsApp number, so we can send you the ways to fund.", true); ct.focus(); return; }
         const show = f.querySelector('[name="show"]').checked, follow = f.querySelector('[name="follow"]').checked;
         const trName = f.querySelector('[name="tribute_name"]').value.trim(), trSel = f.querySelector('[name="tribute_kind"]');
-        const amountText = moneyOf(site, Math.min(v, left || v), x), slug = f.dataset.slug;
+        const amountText = curSel && curSel.value !== "LKR" ? `${typedText()} (about ${moneyOf(site, v, x)})` : moneyOf(site, v, x), slug = f.dataset.slug;
         const body = { kind: "project", project: slug, name, contact, amount: amountText, amount_value: Math.min(v, left || v), listing: show ? "both" : "anonymous",
           follow: follow ? "yes" : "no", lang: "en", message: "", "bot-field": f.querySelector('[name="bot-field"]').value };
         if (trName) Object.assign(body, { tribute_on: "yes", tribute_kind: trSel.value, tribute_words: trSel.selectedOptions[0].textContent.trim(), tribute_name: trName, tribute_show: "yes" });
@@ -2932,6 +2958,7 @@ window.RAAV_FEATURES = (function () {
           if (trName) room.set("t", `${body.tribute_words} ${trName}`);
           if (follow) room.set("f", "1");
           room.set("c", /@/.test(contact) ? "email" : "wa");
+          if (curSel && curSel.value !== "LKR") room.set("g", typedText());
           location.href = "/room?" + room.toString();
           return;
           const isMail = /@/.test(contact), box = document.createElement("div");
@@ -2951,15 +2978,13 @@ window.RAAV_FEATURES = (function () {
       return `<section class="give-one pledge-one">
         <div class="give-proj big pl-proj">${card(x).replace(/^<a [^>]*>/, "").replace(/<\/a>$/, "")}</div>
         <div class="panel give-box">
-          <h2>Sponsor a smile</h2>
-          <p class="pl-lede">Reserve your part of the day. <b>We'll send you the ways to fund.</b></p>
+          <h2>${HEART_SVG} Be the smile</h2>
+          <p class="pl-lede">Give from anywhere, in your own money. Reserve your part of the day. <b>We'll send you the ways to fund.</b></p>
           <form class="give-form pledge-form give-ask" data-slug="${esc(slugOf(x))}" data-goal="${bp.goal}" data-raised="${bp.raised}" data-left="${left}" data-cur="${esc(cur)}" novalidate>
             <p hidden><label>Leave empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
-            <fieldset class="give-amounts"><legend>How much?</legend>
-              ${picks.map((a, i) => `<label class="give-chip${a.what ? " give-real" : ""}"><input type="radio" name="pick" value="${a.v}"${i === Math.min(1, picks.length - 1) ? " checked" : ""}><span>${a.what ? `<b>${esc(a.label)}</b><small>${esc(a.what)}</small>` : esc(a.label)}</span></label>`).join("")}
-              <label class="give-chip give-other"><input type="radio" name="pick" value="other"><span>Other amount</span></label>
-            </fieldset>
-            <label class="give-own" hidden><span>Your amount (${esc(cur)})</span><input name="own" inputmode="numeric" maxlength="12" autocomplete="off" placeholder="e.g. 3000"></label>
+            <label class="pl-amt"><span>Your gift <small>(in your own money)</small></span>
+              <span class="pl-amt-row">${isRupees(x) ? `<select name="cur" aria-label="Currency">${PL_CURS.map(c => `<option value="${c}">${c === "LKR" ? "Rs" : c}</option>`).join("")}</select>` : `<b class="pl-cur">${esc(cur)}</b>`}
+              <input name="own" inputmode="decimal" maxlength="12" autocomplete="off" placeholder="Any amount" required></span></label>
             <p class="give-reach" role="status" hidden></p>
             <label><span>Your name</span><input name="name" maxlength="80" autocomplete="name" required></label>
             <label><span>Email or WhatsApp</span><input name="contact" maxlength="120" required autocomplete="email" placeholder="you@example.com or 077 123 4567"></label>
@@ -2969,7 +2994,7 @@ window.RAAV_FEATURES = (function () {
               <label><span>This gift is</span><select name="tribute_kind">${REASONS.map(([v, t]) => `<option value="${v}">${t}</option>`).join("")}</select></label>
               <label><span>Their name</span><input name="tribute_name" maxlength="60" placeholder="e.g. Amma, Kamala Rajan"></label>
             </details>
-            <button class="btn give-pay" type="submit">Reserve my part</button>
+            <button class="btn give-pay" type="submit">${HEART_SVG}<span>Be the smile</span></button>
             ${SAFE}
             <p class="note give-msg" role="status" hidden></p>
           </form>
@@ -3258,7 +3283,7 @@ window.RAAV_FEATURES = (function () {
         <div class="room-card-text">
           <h2><a href="/projects/${esc(slug)}">${esc(p.title)}</a></h2>
           ${p.tagline ? `<p class="room-tagline">${esc(p.tagline)}</p>` : ""}
-          ${amt ? `<p class="room-mine"><span class="f-pledged">reserved</span> Your part: <b>${money(amt)}</b>${tr ? ` <small>${esc(tr)}</small>` : ""}</p>` : ""}
+          ${amt ? `<p class="room-mine"><span class="f-pledged">reserved</span> Your part: <b>${q.get("g") ? esc(q.get("g").slice(0, 30)) : money(amt)}</b>${q.get("g") ? ` <span class="room-about">about ${money(amt)}</span>` : ""}${tr ? ` <small>${esc(tr)}</small>` : ""}</p>` : ""}
           ${b.goal ? `<div class="room-bar" role="img" aria-label="${pctNow}% covered"><i style="width:${pctBefore}%"></i><i class="mine" style="width:${Math.max(0, pctNow - pctBefore)}%"></i></div>
           <p class="room-pct"><b>${pctNow}%</b> covered · ${money(Math.max(0, b.goal - before - amt))} still to go</p>` : ""}
         </div>
