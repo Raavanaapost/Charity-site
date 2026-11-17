@@ -1875,7 +1875,7 @@ window.RAAV_FEATURES = (function () {
           <div class="go-form go-make">
             <h3>Make this happen</h3>
             <div class="mk-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-mk="donate"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>${FEAT.sponsor ? "Donate" : "Give"}</button><button type="button" role="tab" aria-selected="false" data-mk="other">Help another way</button></div>
-            <div class="mk-pane" data-mkpane="donate"><p class="go-sub">${!FEAT.sponsor && FEAT.pledge ? "Pledge what you would like to give. Your name and amount show here straight away, and we'll send you the ways to fund." : !FEAT.sponsor ? "Give towards this day in loving memory of someone dear to you. Their name goes with the gift, and a volunteer will reply to you personally." : canGive(p) ? `Give towards this day by card. Secure payment by ${GIVE_BY}.` : "Want to give towards this day? Tap Donate and tell us what you would like to give. A volunteer will reply to you personally."}</p>${DONATE_BTN}
+            <div class="mk-pane" data-mkpane="donate"><p class="go-sub">${!FEAT.sponsor && FEAT.pledge ? "Reserve your part of this day. Your name and amount show here straight away, and we'll send you the ways to fund." : !FEAT.sponsor ? "Give towards this day in loving memory of someone dear to you. Their name goes with the gift, and a volunteer will reply to you personally." : canGive(p) ? `Give towards this day by card. Secure payment by ${GIVE_BY}.` : "Want to give towards this day? Tap Donate and tell us what you would like to give. A volunteer will reply to you personally."}</p>${DONATE_BTN}
               <p class="go-name"${FEAT.sponsor ? "" : " hidden"}><a href="/moment?project=${encodeURIComponent(slugOf(p))}">♡ Give in someone's name, or on behalf of a family or group →</a></p></div>
             <form class="mk-pane" data-mkpane="other" hidden name="make-it-happen" data-ajax data-done="Thank you! Your note is on its way. We'll be in touch soon, and you'll be part of a child's best day.">
               <p class="go-sub">Not able to give money? There are other ways to make this day happen. Tell us how you'd like to help and we'll reach out.</p>
@@ -2004,7 +2004,7 @@ window.RAAV_FEATURES = (function () {
     const listOf = (h, total) => b.lines.length ? `<h3 class="money-h">${h}</h3><ul class="bx-list">${b.lines.map(x => `<li><span>${esc(x.item)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>
         <p class="bx-total"><span>${total}</span><b>${money(sum)}</b></p>` : "";
     const funders = h => b.funders.length ? `<h3 class="money-h">${h}</h3>
-        <ul class="funders">${b.funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.pledged ? ` <em class="f-pledged">pledged</em>` : ""}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${numOf(f.amount) && !f.hide_amount ? `<b>${money(numOf(f.amount))}</b>` : ""}</li>`).join("")}</ul>` : "";
+        <ul class="funders">${b.funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.pledged ? ` <em class="f-pledged">reserved</em>` : ""}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${numOf(f.amount) && !f.hide_amount ? `<b>${money(numOf(f.amount))}</b>` : ""}</li>`).join("")}</ul>` : "";
     if (st === 1) {
       const need = Math.max(0, b.goal - b.raised), kids = String(p.reach || "").match(/\d+/);
       return `
@@ -2016,7 +2016,7 @@ window.RAAV_FEATURES = (function () {
         </dl>
         <p class="b-ask">${b.raised ? "Help us close the gap" : "Be the first to sponsor"}${kids ? ` and give ${kids[0]} children their day` : " and make this day happen"}.</p>
         ${!FEAT.sponsor && FEAT.pledge && GIVE_OPEN.has(slugOf(p)) ? `<div class="b-give">${DONATE_BTN}</div>` : ""}
-        ${funders("Pledged so far")}
+        ${funders(FEAT.pledge ? "Making it happen" : "Pledged so far")}
         ${detail ? listOf("Estimated costs", "Estimated total") : ""}`;
     }
     return `
@@ -2557,7 +2557,7 @@ window.RAAV_FEATURES = (function () {
       </section>` : ""}
       ${funders.length ? `<section class="money">
         <h2 class="section-title">Made possible by</h2>
-        <ul class="funders">${funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.pledged ? ` <em class="f-pledged">pledged</em>` : ""}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${num(f.amount) && !f.hide_amount ? `<b>${money(num(f.amount))}</b>` : ""}</li>`).join("")}</ul>
+        <ul class="funders">${funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.pledged ? ` <em class="f-pledged">reserved</em>` : ""}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${num(f.amount) && !f.hide_amount ? `<b>${money(num(f.amount))}</b>` : ""}</li>`).join("")}</ul>
       </section>` : ""}`;
     // Small line icons for the folder tabs: book, heart, camera, play.
     const ic = d => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -2893,7 +2893,7 @@ window.RAAV_FEATURES = (function () {
       const update = () => {
         own.hidden = (f.querySelector('[name="pick"]:checked') || {}).value !== "other";
         const v = amount(), pct = pctWith(v);
-        const text = !v || !goal ? "" : pct >= 100 ? "Your pledge completes this project: 100% of its goal." : `Your pledge brings this project to ${pct}% of its goal.`;
+        const text = !v || !goal ? "" : pct >= 100 ? "Your part completes this project: 100% of its goal." : `Your part brings this project to ${pct}% of its goal.`;
         if (reach.textContent !== text) reach.textContent = text;
         reach.hidden = !text;
         if (msg.classList.contains("bad")) msg.hidden = true;
@@ -2927,6 +2927,13 @@ window.RAAV_FEATURES = (function () {
           justPledged({ slug, ref: out.ref || "local-" + Date.now(), name: show ? name : "A friend of Raavanaa", amount: body.amount_value });
           if (bar) bar.style.width = pct + "%";
           if (barText) barText.textContent = `${moneyOf(site, Math.max(0, left - body.amount_value), x)} still needed · ${pct}% covered`;
+          // The giver's own room for this project (SURESH, 17 Nov 2026): welcome, a proud line, share, follow, the story.
+          const room = new URLSearchParams({ p: slug, r: out.ref || "", n: name.split(/\s+/)[0], a: String(body.amount_value) });
+          if (trName) room.set("t", `${body.tribute_words} ${trName}`);
+          if (follow) room.set("f", "1");
+          room.set("c", /@/.test(contact) ? "email" : "wa");
+          location.href = "/room?" + room.toString();
+          return;
           const isMail = /@/.test(contact), box = document.createElement("div");
           box.className = "give-done"; box.tabIndex = -1; box.setAttribute("role", "status");
           box.innerHTML = `<p class="give-done-heart" aria-hidden="true"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg></p>
@@ -2945,7 +2952,7 @@ window.RAAV_FEATURES = (function () {
         <div class="give-proj big pl-proj">${card(x).replace(/^<a [^>]*>/, "").replace(/<\/a>$/, "")}</div>
         <div class="panel give-box">
           <h2>Sponsor a smile</h2>
-          <p class="pl-lede">Pledge what you would like to give. <b>We'll send you the ways to fund.</b></p>
+          <p class="pl-lede">Reserve your part of the day. <b>We'll send you the ways to fund.</b></p>
           <form class="give-form pledge-form give-ask" data-slug="${esc(slugOf(x))}" data-goal="${bp.goal}" data-raised="${bp.raised}" data-left="${left}" data-cur="${esc(cur)}" novalidate>
             <p hidden><label>Leave empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
             <fieldset class="give-amounts"><legend>How much?</legend>
@@ -2962,7 +2969,7 @@ window.RAAV_FEATURES = (function () {
               <label><span>This gift is</span><select name="tribute_kind">${REASONS.map(([v, t]) => `<option value="${v}">${t}</option>`).join("")}</select></label>
               <label><span>Their name</span><input name="tribute_name" maxlength="60" placeholder="e.g. Amma, Kamala Rajan"></label>
             </details>
-            <button class="btn give-pay" type="submit">Send my pledge</button>
+            <button class="btn give-pay" type="submit">Reserve my part</button>
             ${SAFE}
             <p class="note give-msg" role="status" hidden></p>
           </form>
@@ -3195,6 +3202,102 @@ window.RAAV_FEATURES = (function () {
     });
   }
 
+  // The giver's own project room (SURESH, 17 Nov 2026): "They should feel connected with the project."
+  //   /room?p=<slug>&r=<ref>&n=<first name>&a=<amount>&t=<in someone's name>&f=1 (follow)&c=email|wa
+  // Opens after "Reserve my part". Welcome by name, a proud line for the kind of project, the project at a glance with
+  // their part on the bar, share it, follow it, what happens next (a volunteer works with them), then the project's tabs.
+  // The words change with the kind of project: a moment in someone's name, a children's day out, school funding.
+  const ROOM_KINDS = {
+    moment: { tag: "Creating a moment", proud: ["Creating a moment is something to be proud of.", "A name remembered, a day lived.", "Some gifts become memories that never fade."],
+      sub: (p, t) => `${t ? `${esc(t)}. ` : ""}On the day, these children will live a memory that carries this name with it.` },
+    dayout: { tag: "A children's day out", proud: ["Be proud. You are making these kids' memories.", "Make these children's memory live.", "A day they will remember all their lives."],
+      sub: p => `${p.reach ? esc(String(p.reach).replace(/ and \d+ (teachers?|adults?)/i, "")).replace(/^./, c => c.toUpperCase()) : "These children"} will remember this day for the rest of their lives, and you are part of it.` },
+    school: { tag: "School funding", proud: ["Be proud. You are keeping a child in school.", "Every term you help with is a door kept open.", "Learning today, a different life tomorrow."],
+      sub: p => `${p.reach ? esc(p.reach) : "These children"} keep learning because of people like you.` },
+    other: { tag: "Creating smiles", proud: ["Be proud. You are creating a moment.", "Small acts, lasting smiles.", "Together we make it happen."],
+      sub: () => "Every part reserved brings the day closer." },
+  };
+  const roomKind = (p, t) => {
+    const words = `${p.theme || ""} ${p.title || ""} ${p.summary || ""}`.toLowerCase();
+    if (t) return "moment";
+    if (/school fee|school fund|books|uniform|tuition|scholar/.test(words)) return "school";
+    if (/trip|day out|beach|outing|excursion|events/.test(words)) return "dayout";
+    return "other";
+  };
+  const SAFE_NOTE = `<p class="note give-safe room-safe"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3l7 2.6v5.6c0 4.3-2.9 7.6-7 9.3-4.1-1.7-7-5-7-9.3V5.6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12l2.2 2.2L15.2 10" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Raavanaa will only ever share bank details in a personal reply from our official email. Never pay into an account sent to you any other way.</span></p>`;
+  function renderRoom(app, site, projects) {
+    const q = new URLSearchParams(location.search), p = projects.find(x => slugOf(x) === slugify(q.get("p") || ""));
+    if (!p) { location.replace("/overview"); return; }
+    const first = (q.get("n") || "").slice(0, 40), amt = Math.max(0, parseFloat(q.get("a")) || 0), tr = (q.get("t") || "").slice(0, 90), ref = /^G-\d+$/.test(q.get("r") || "") ? q.get("r") : "";
+    const kind = roomKind(p, tr), K = ROOM_KINDS[kind], b = budgetOf(p), money = n => moneyOf(site, n, p), slug = slugOf(p);
+    const mineIn = b.funders.some(f => f.pledged && (!ref || f.ref === ref)) ? amt : 0;   // already counted in the bar?
+    const before = Math.max(0, b.raised - mineIn), pctBefore = b.goal ? Math.min(100, Math.round(before / b.goal * 100)) : 0;
+    const pctNow = b.goal ? Math.min(100, Math.round((before + amt) / b.goal * 100)) : 0;
+    const day = p.money && p.money.day ? fmtDate(p.money.day) : "";
+    const url = `${location.origin}/projects/${slug}?from=room`;
+    const shareText = `${tr ? tr + ": " : ""}I reserved my part of "${p.title}" with Raavanaa. ${p.tagline || ""} You can be part of it too:`;
+    document.title = `Your room: ${p.title} · ${site.name}`;
+    const drawing = /\.svg(\?|$)/i.test(p.cover || "") ? p.cover : "/img/project-hills.svg";
+    const exp = (p.expectations || []).filter(x => x && x.text);
+    const tabs = [
+      ["story", "Story", `<div class="room-story">${p.quote ? `<p class="pull">“${esc(p.quote)}”</p>` : ""}${md(String(p.story || p.summary || "").replace(/^##\s*Summary\s*\n+/i, ""))}</div>`],
+      ["day", "The day", `<dl class="room-glance">${[["Where", p.location], ["When", day], ["Who", p.reach]].filter(x => x[1]).map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
+        ${exp.length ? `<h3 class="money-h">What the day should achieve</h3><ul class="room-list">${exp.map(x => `<li>${esc(x.text)}</li>`).join("")}</ul>` : ""}
+        ${(p.updates || []).length ? `<h3 class="money-h">Latest news</h3>${p.updates.slice(0, 3).map(u => `<p class="room-upd"><b>${esc(u.title)}</b> <small>${fmtDate(u.date)}</small><br>${esc(u.body)}</p>`).join("")}` : ""}`],
+      ["budget", "Budget", budgetDetailHTML(p, site, true)],
+    ];
+    app.innerHTML = `<section class="room room-k-${kind}">
+      <header class="room-hero">
+        <p class="room-tag">${esc(K.tag)} · Your project room</p>
+        <h1>Welcome${first ? `, <span>${esc(first)}</span>` : ""}</h1>
+        <p class="room-proud in">${esc(K.proud[0])}</p>
+        <p class="room-sub">${K.sub(p, tr)}</p>
+      </header>
+      <article class="room-card">
+        <a class="room-pic" href="/projects/${esc(slug)}"><img src="${esc(drawing)}" alt=""></a>
+        <div class="room-card-text">
+          <h2><a href="/projects/${esc(slug)}">${esc(p.title)}</a></h2>
+          ${p.tagline ? `<p class="room-tagline">${esc(p.tagline)}</p>` : ""}
+          ${amt ? `<p class="room-mine"><span class="f-pledged">reserved</span> Your part: <b>${money(amt)}</b>${tr ? ` <small>${esc(tr)}</small>` : ""}</p>` : ""}
+          ${b.goal ? `<div class="room-bar" role="img" aria-label="${pctNow}% covered"><i style="width:${pctBefore}%"></i><i class="mine" style="width:${Math.max(0, pctNow - pctBefore)}%"></i></div>
+          <p class="room-pct"><b>${pctNow}%</b> covered · ${money(Math.max(0, b.goal - before - amt))} still to go</p>` : ""}
+        </div>
+      </article>
+      <div class="room-acts">
+        <section class="room-act share"><h3>Share it with someone</h3><p>One share can bring the next person in.</p>
+          <p class="room-btns"><a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(shareText + " " + url)}">WhatsApp</a>
+          <a class="btn ghost" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}">Facebook</a>
+          <button class="btn ghost" type="button" data-copy>Copy link</button></p></section>
+        <section class="room-act follow"><h3>Follow the project</h3><p>${q.get("f") ? "You asked to follow it. " : ""}Sign in with the same ${q.get("c") === "wa" ? "details" : "email"} and it stays in My account, with every step.</p>
+          <p class="room-btns"><a class="btn" href="/members">Follow in My account</a></p></section>
+        <section class="room-act helper"><h3>A volunteer is with you</h3><p>A Raavanaa volunteer will send you the ways to fund ${q.get("c") === "wa" ? "on WhatsApp" : "by email"}, and keep you updated as the project moves.${ref ? ` Your reference: <b>${esc(ref)}</b>.` : ""}</p></section>
+      </div>
+      <h2 class="room-h">What happens next</h2>
+      <ol class="room-steps">
+        <li class="done"><b>Your part is reserved</b><span>Your name shows on the project</span></li>
+        <li><b>Ways to fund</b><span>A volunteer writes to you personally</span></li>
+        <li><b>Gift received</b><span>Marked on the project, open for all to see</span></li>
+        <li><b>The day${day ? `: ${day}` : ""}</b><span>The children live it</span></li>
+        <li><b>Photos and the story</b><span>And where every rupee went</span></li>
+      </ol>
+      <div class="room-tabs" role="tablist">${tabs.map(([k, l], i) => `<button type="button" role="tab" data-rt="${k}" aria-selected="${i === 0}">${l}</button>`).join("")}</div>
+      ${tabs.map(([k, , h], i) => `<section class="panel room-pane" data-rp="${k}"${i ? " hidden" : ""}>${h}</section>`).join("")}
+      ${SAFE_NOTE}
+      <p class="room-foot"><a class="btn ghost" href="/projects/${esc(slug)}">Open the full project page</a></p>
+    </section>`;
+    app.querySelectorAll("[data-rt]").forEach(t => t.addEventListener("click", () => {
+      app.querySelectorAll("[data-rt]").forEach(x => x.setAttribute("aria-selected", String(x === t)));
+      app.querySelectorAll("[data-rp]").forEach(x => { x.hidden = x.dataset.rp !== t.dataset.rt; });
+    }));
+    const cp = app.querySelector("[data-copy]");
+    cp.addEventListener("click", async () => { try { await navigator.clipboard.writeText(url); cp.textContent = "Link copied"; } catch (e) { cp.textContent = url; } });
+    // The proud line turns slowly through the words for this kind of project.
+    const line = app.querySelector(".room-proud");
+    if (K.proud.length > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      let i = 0; setInterval(() => { i = (i + 1) % K.proud.length; line.classList.remove("in"); void line.offsetWidth; line.textContent = K.proud[i]; line.classList.add("in"); }, 4200);
+    }
+  }
+
   // After paying (PayHere or Stripe): thank the giver and say where their gift went.
   async function renderThanks(app, site) {
     document.title = `Thank you · ${site.name}`;
@@ -3268,6 +3371,7 @@ window.RAAV_FEATURES = (function () {
       // With card payments off, Donate still opens the project's form ("I'd like to give") while the project needs money.
       if (!GIVE_ON) projects.forEach(p => { if (p.verified && stageNum(p) === 1) { const b = budgetOf(p); if (b.goal > 0 && b.raised < b.goal) GIVE_OPEN.add(slugOf(p)); } });
       if (page === "give" || page === "fund") renderGive(app, site, projects, GIVE);
+      else if (page === "room") renderRoom(app, site, projects);
       else if (page === "thanks") renderThanks(app, site);
       else if (page === "contact" || page === "volunteer") {
         // Rotating slides at the top of the Contact and Volunteer pages; a different one comes first on each visit.

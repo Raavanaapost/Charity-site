@@ -56,6 +56,8 @@
 /activated  /stage.html  200
 /impact  /stage.html  200
 /give  /give.html  200
+# The giver's own project room, after reserving a part (17 Nov 2026)
+/room  /room.html  200
 /moment  /moment.html  200
 # Spark a Smile: start a project, as one person or a group (16 Nov 2026)
 /spark  /spark.html  200
