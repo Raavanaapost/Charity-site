@@ -45,6 +45,7 @@
     people: '<circle cx="9" cy="8" r="3"/><path d="M3 20c.5-4 2.8-6 6-6s5.5 2 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M16 14c2.7 0 4.4 1.7 5 5"/>',
     team: '<rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
     circles: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="5" r="2"/><circle cx="5.5" cy="15" r="2"/><circle cx="18.5" cy="15" r="2"/>',
+    volunteers: '<path d="M12 20s-6.5-4-6.5-9a3.6 3.6 0 0 1 6.5-2 3.6 3.6 0 0 1 6.5 2c0 5-6.5 9-6.5 9z"/><path d="M3 21h18"/>',
     champions: '<path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.6L12 16.4l-5.1 2.7 1-5.6-4.1-4 5.7-.8z"/>',
     reports: '<path d="M12 3l8 3v6c0 4.6-3.3 8-8 9-4.7-1-8-4.4-8-9V6z"/><path d="M12 8v5M12 16h.01" stroke-width="2.2"/>',
     traffic: '<path d="M4 19V11M9.3 19V6M14.6 19v-5M20 19V9"/><path d="M3 21h18"/>',
@@ -54,7 +55,7 @@
   const MENU = [
     ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true],
     ["sponsors", "Sponsors & pledges", true], ["day", "Day preparation", true], ["close", "Close the day", true],
-    ["people", "People", true], ["champions", "Champions", true], ["circles", "Family circles", true], ["traffic", "Traffic", true], ["team", "Team & logins", true]
+    ["people", "People", true], ["champions", "Champions", true], ["volunteers", "Volunteers", true], ["circles", "Family circles", true], ["traffic", "Traffic", true], ["team", "Team & logins", true]
   ];
 
   let D = null, P = [], C = { list: [], districts: [] }, chDistrict = "All", chEdit = null;
@@ -74,7 +75,7 @@
     document.getElementById("pt-tabbar").innerHTML = [["dashboard", "Home"], ["suggestions", "Suggestions"], ["projects", "Projects"], ["reports", "Reports"], ["more", "More"]].map(([k, l]) => {
       const ready = k !== "more";
       return ready ? `<a href="#/${k}" class="${cur === k ? "on" : ""}">${svg(ICON[k], 22)}<span>${l}</span>${k === "sponsors" && newAsk ? `<b class="pt-badge">${newAsk}</b>` : k === "suggestions" && newCount ? `<b class="pt-badge">${newCount}</b>` : k === "reports" && openRep ? `<b class="pt-badge">${openRep}</b>` : ""}</a>`
-        : `<button type="button" class="${["sponsors", "day", "close", "people", "champions", "circles", "traffic", "team"].includes(cur) ? "on" : ""}" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
+        : `<button type="button" class="${["sponsors", "day", "close", "people", "champions", "volunteers", "circles", "traffic", "team"].includes(cur) ? "on" : ""}" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
     }).join("");
     document.querySelectorAll("[data-soon]").forEach(b => b.onclick = () => {
       let m = document.getElementById("pt-more");
@@ -549,6 +550,46 @@
       if (!LIVE) { HOLDS = action === "release" ? HOLDS.filter(h => h.code !== code) : HOLDS.map(h => h.code === code ? { ...h, approved: true } : h); render(); toast((action === "approve" ? "Approved" : "Released") + " (demo)"); return; }
       b.disabled = true;
       try { HOLDS = (await api("/api/circle-team", { method: "POST", body: JSON.stringify({ code, action }) })).holds || []; render(); toast(action === "approve" ? "Approved: the website now shows it" : "Released: other circles can choose it"); }
+      catch (e) { b.disabled = false; toast(e.message || "Could not save."); }
+    });
+  }
+  // Volunteers (17 Nov 2026): everyone who joined through Join Raavanaa or the Volunteer form, with their contact
+  // details for the team. "On the page" = they ticked "Show me" and the team has not hidden them (/volunteers).
+  let VOLS = null;
+  function volunteers() {
+    if (VOLS === null) { loadVols(); return `<header class="pt-head"><div><p class="pt-kicker">Volunteers</p><h1>Everyone who joined</h1></div></header><p class="pt-sub">Loading…</p>`; }
+    const when = d => d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "";
+    const shown = VOLS.filter(v => v.show_public && !v.hidden);
+    return `
+      <header class="pt-head"><div><p class="pt-kicker">Volunteers</p><h1>Everyone who joined</h1>
+        <p class="pt-sub">People who joined through Join Raavanaa (/spark) or the Volunteer form. Reply to each one personally. Those who ticked “Show me” are on the public <a href="/volunteers" target="_blank" rel="noopener">Volunteers page</a> (first name, town and skills only); hide anyone who should not be there.</p></div></header>
+      <section class="pt-stats">
+        <div class="pt-stat st1"><b>${VOLS.length}</b><span>Joined</span></div>
+        <div class="pt-stat st2"><b>${shown.length}</b><span>On the page</span></div>
+        <div class="pt-stat st3"><b>${VOLS.filter(v => v.member_email).length}</b><span>Members too</span></div>
+      </section>
+      <section class="pt-champs">${VOLS.length ? VOLS.map(v => `
+        <article class="pt-card pt-champ ${v.hidden ? "off" : ""}">
+          <div><h3>${esc(v.name)} <small>${v.show_public ? (v.hidden ? "· hidden from the page" : "· on the page") : "· not listed (did not tick)"}${v.member_email ? " · member" : ""}</small></h3>
+            <p class="pt-sub">${esc(v.city || "No town given")} · joined ${when(v.created_at)} from ${v.source === "spark" ? "Join Raavanaa" : "the Volunteer form"}</p>
+            <p class="pt-champ-meta">${esc(v.contact)}${v.phone ? " · " + esc(v.phone) : ""}${v.availability ? " · free " + esc(v.availability) : ""}</p>
+            ${(v.skills || []).length ? `<p class="pt-sub">${(v.skills || []).map(esc).join(", ")}</p>` : ""}
+            ${v.message ? `<p class="pt-sub">“${esc(v.message)}”</p>` : ""}</div>
+          ${v.show_public ? `<div class="pt-actions-row"><button type="button" class="pt-btn ghost" data-vhide="${v.id}" data-on="${v.hidden ? "" : "1"}">${v.hidden ? "Show on the page" : "Hide from the page"}</button></div>` : ""}
+        </article>`).join("") : `<p class="pt-sub">Nobody has joined through the website yet.</p>`}</section>`;
+  }
+  async function loadVols() {
+    await null;
+    if (!LIVE) { VOLS = [{ id: 1, name: "Priya Sivakumar", contact: "priya@example.com", phone: "", city: "Toronto, Canada", skills: ["Social media", "Photos and video"], source: "spark", member_email: "priya@example.com", show_public: true, hidden: false, created_at: new Date().toISOString(), availability: "", message: "" }]; render(); return; }
+    try { VOLS = (await api("/api/volunteers/team")).volunteers || []; } catch (e) { VOLS = []; toast(e.message || "Could not load."); }
+    render();
+  }
+  function wireVolunteers() {
+    app.querySelectorAll("[data-vhide]").forEach(b => b.onclick = async () => {
+      const id = Number(b.dataset.vhide), hidden = !!b.dataset.on;
+      if (!LIVE) { VOLS = VOLS.map(v => v.id === id ? { ...v, hidden } : v); render(); toast((hidden ? "Hidden" : "Shown") + " (demo)"); return; }
+      b.disabled = true;
+      try { VOLS = (await api("/api/volunteers/team", { method: "PATCH", body: JSON.stringify({ id, hidden }) })).volunteers || []; render(); toast(hidden ? "Hidden from the Volunteers page" : "Back on the Volunteers page"); }
       catch (e) { b.disabled = false; toast(e.message || "Could not save."); }
     });
   }
@@ -1509,13 +1550,14 @@
 
   function render() {
     const [page, id] = route();
-    const cur = ["suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "circles", "traffic", "team"].includes(page) ? page : "dashboard";
+    const cur = ["suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "volunteers", "circles", "traffic", "team"].includes(page) ? page : "dashboard";
     drawNav(cur);
     if (page === "suggestions" && id) { app.innerHTML = detail(id); wireDetail(id); }
     else if (page === "suggestions") { app.innerHTML = suggestions(); wireSuggestions(); }
     else if (page === "people") { app.innerHTML = people(); wirePeople(); }
     else if (page === "champions") { app.innerHTML = champions(); wireChampions(); }
     else if (page === "circles") { app.innerHTML = circles(); wireCircles(); }
+    else if (page === "volunteers") { app.innerHTML = volunteers(); wireVolunteers(); }
     else if (page === "traffic") { app.innerHTML = traffic(); wireTraffic(); }
     else if (page === "team") { app.innerHTML = team(); wireTeam(); }
     else if (page === "close") { app.innerHTML = closeDay(id); wireClose(); }
@@ -1526,7 +1568,7 @@
     else if (page === "reports" && id) { app.innerHTML = reportDetail(id); wireReport(id); }
     else if (page === "reports") { app.innerHTML = reports(); wireReports(); }
     else app.innerHTML = dashboard();
-    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", circles: "Family circles", traffic: "Traffic", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
+    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", volunteers: "Volunteers", circles: "Family circles", traffic: "Traffic", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
   }
 
   Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] })).then(async d => { try { const m = await fetch("/api/projects").then(r => r.json()); const have = new Set((d.projects || []).map(p => p.slug)); d.projects = [...(d.projects || []), ...(m.projects || []).filter(p => !have.has(p.slug))]; } catch (e) { /* only projects.json */ } return d; })])

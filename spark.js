@@ -142,7 +142,7 @@
           '<label class="mo-field"><span>Town and country</span><input name="city" autocomplete="address-level2" placeholder="e.g. Jaffna, or Toronto"></label>' +
         "</div>" +
         '<input type="hidden" name="help[]" value="Joined from the Submit a need page">' +
-        '<label class="sp-join-show"><input type="checkbox" name="show" value="yes"> Show me on our <a href="/volunteers" target="_blank">Volunteers page</a> <small>(first name, town and skills only)</small></label>' +
+        '<label class="sp-join-show"><input type="checkbox" name="show" value="yes"><span>Show me on our <a href="/volunteers" target="_blank">Volunteers page</a> <small>(first name, town and skills only)</small></span></label>' +
         '<button class="mo-go sp-join-btn" type="submit">I want to join →</button>' +
         '<p class="sp-join-msg" data-join-msg hidden></p>' +
       "</form>" +
