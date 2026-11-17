@@ -50,3 +50,10 @@ The five front pictures now look like raavanaa.org's Home pictures (`rp_tile()` 
 turning green call on the big one ("Make this happen", "Own it"...). Phone: one big, two, two.
 Computer: big on the left, four on the right. A green "Submit a need" pill sits in the top bar and a
 band in the footer, both to https://raavanaa.org/spark (`rp_report_url`).
+
+## 17 Nov 2026: News by place
+
+A row of city chips ("News by place", `rp_city_strip()` in `inc/template-tags.php`) replaces the
+rolling news ticker on every page (`rp_latest_strip()` is kept, not called). Cities come from the
+stories' places, newest story first. The chips are shown only and do not filter yet; switch that
+on when there are more projects (each chip has `data-rp-city`).
