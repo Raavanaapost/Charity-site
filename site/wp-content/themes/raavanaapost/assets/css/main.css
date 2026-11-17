@@ -802,3 +802,46 @@ a:hover { color: var(--rp-orange); text-decoration: underline; text-underline-of
 @media (prefers-reduced-motion: reduce) {
 	.rp-track__steps .is-current i { animation: none; }
 }
+
+/* Front page: five stories at a glance. One big picture that turns between a
+   few stories, then two pictures, then two more. Editor's picks on the right. */
+.rp-top--five .rp-top__main { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 32px; }
+.rp-turn { position: relative; }
+.rp-turn__slides { display: grid; }
+.rp-turn__slide { grid-area: 1 / 1; transition: opacity .7s ease, visibility .7s; }
+.rp-turn__slide:not(.is-on) { opacity: 0; visibility: hidden; }
+.rp-turn__controls { display: flex; align-items: center; gap: 10px; margin-top: 16px; }
+.rp-turn__controls[hidden] { display: none; }
+.rp-turn__dot {
+	width: 34px; height: 6px; padding: 0; border: 0; border-radius: 3px;
+	background: var(--rp-gold-line); cursor: pointer; transition: background .3s, width .3s;
+	position: relative;
+}
+.rp-turn__dot::before { content: ""; position: absolute; inset: -12px -2px; }
+.rp-turn__dot[aria-pressed="true"] { width: 56px; background: var(--rp-orange); }
+.rp-turn__dot:hover { background: var(--rp-gold); }
+.rp-turn__pause {
+	display: inline-flex; align-items: center; justify-content: center; margin-left: 6px;
+	width: 32px; height: 32px; padding: 0; border: 1px solid var(--rp-gold-line); border-radius: 50%;
+	background: var(--rp-ivory); color: var(--rp-green); cursor: pointer;
+}
+.rp-turn__pause svg { fill: currentColor; }
+.rp-turn__pause:hover { background: var(--rp-gold-pale); }
+.rp-turn__icon-play, .rp-turn__pause[aria-pressed="true"] .rp-turn__icon-pause { display: none; }
+.rp-turn__pause[aria-pressed="true"] .rp-turn__icon-play { display: block; }
+.rp-four { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 28px; padding-top: 28px; border-top: 1px solid var(--rp-line); }
+.rp-four .rp-card__title { font-size: 20px; }
+.rp-top--five .rp-top__side .rp-mostread { margin-top: 0; }
+@media (max-width: 640px) {
+	.rp-top--five .rp-top__main { gap: 22px; }
+	.rp-four { gap: 20px 14px; padding-top: 20px; }
+	.rp-four .rp-card > .rp-media { margin-bottom: 4px; }
+	.rp-four .rp-kicker { font-size: 12px; }
+	.rp-four .rp-card__title { font-size: 15.5px; line-height: 1.25; }
+	.rp-four .rp-meta { font-size: 12px; }
+	.rp-turn__controls { margin-top: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.rp-turn__slide { transition: none; }
+}
+@media (min-width: 900px) { .rp-top--five .rp-top__side { align-self: flex-start; position: sticky; top: 24px; } }
