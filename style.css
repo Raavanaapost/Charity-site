@@ -2895,3 +2895,16 @@ body[data-page="projects"] .home-finder{margin-top:6px;padding-top:10px}
 /* "Show me on our Volunteers page" tick on the Volunteer form (17 Nov 2026) */
 .form .check-line{display:flex;gap:10px;align-items:flex-start;font-weight:500;font-size:15px;line-height:1.4}
 .form .check-line input{width:auto;margin-top:3px;flex:none}
+
+/* Project page stage circles made small (SURESH, 17 Nov 2026 "make the icon small"): one slim row, circle + word side by side. */
+.pjour{align-items:center;padding:8px 10px;margin:2px 0 14px;gap:2px}
+.pjour-st{display:flex;align-items:center;justify-content:center;gap:6px;grid-template-columns:none}
+.pjour-st i,.pjour-st.now i{width:28px;height:28px;margin:0;border-width:2px;box-shadow:none;flex:none}
+.pjour-st.now i{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--c)}
+.pjour-st i em{width:14px;height:14px;font-size:9px;right:-4px;bottom:-3px;border-width:1.5px}
+.pjour-st b{font-size:11px;letter-spacing:.04em}
+.pjour-st small{display:none}
+.pjour-st b{white-space:nowrap}
+.pjour-arrow{margin-top:0;font-size:18px}
+@media (max-width:380px){.pjour-st b{font-size:10px}.pjour-st i,.pjour-st.now i{width:24px;height:24px}}
+.pjour{gap:4px}.pjour-arrow{margin:0 2px;flex:none}.pjour-st{flex:1 1 auto;min-width:0}
