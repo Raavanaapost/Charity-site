@@ -1,0 +1,175 @@
+{
+  "day": "2026-11-16",
+  "from": "2026-11-16T00:00:00.000Z",
+  "to": "2026-11-17T00:00:00.000Z",
+  "tz": "UTC",
+  "now": {
+    "views": 35,
+    "visits": 10,
+    "shares": 0,
+    "give": 0,
+    "memory": 0,
+    "request": 0,
+    "vouch": 0,
+    "install": 0,
+    "app_visits": 1
+  },
+  "daily": [
+    {
+      "day": "2026-11-16",
+      "views": 35,
+      "visits": 10,
+      "actions": 0,
+      "shares": 0
+    }
+  ],
+  "sources": [
+    {
+      "key": "direct",
+      "visits": 9,
+      "acted": 0,
+      "shares": 0,
+      "pages": 3.8
+    },
+    {
+      "key": "other",
+      "visits": 1,
+      "acted": 0,
+      "shares": 0,
+      "pages": 1
+    }
+  ],
+  "campaigns": [
+    {
+      "key": "test-claude",
+      "visits": 1,
+      "acted": 0,
+      "shares": 0,
+      "pages": 1
+    }
+  ],
+  "pages": [
+    {
+      "key": "/overview",
+      "views": 15,
+      "visits": 8
+    },
+    {
+      "key": "/initiated",
+      "views": 5,
+      "visits": 2
+    },
+    {
+      "key": "/smile-map",
+      "views": 4,
+      "visits": 1
+    },
+    {
+      "key": "/about",
+      "views": 3,
+      "visits": 1
+    },
+    {
+      "key": "/impact",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/moment",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/contact",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/projects/pussellawa-kids-trip",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/projects/yogapuram-preschool-day",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/activated",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/spark",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/volunteer",
+      "views": 1,
+      "visits": 1
+    }
+  ],
+  "countries": [
+    {
+      "key": "CA",
+      "visits": 5
+    },
+    {
+      "key": "US",
+      "visits": 3
+    },
+    {
+      "key": "LK",
+      "visits": 2
+    }
+  ],
+  "devices": [
+    {
+      "key": "phone",
+      "visits": 5
+    },
+    {
+      "key": "computer",
+      "visits": 4
+    },
+    {
+      "key": "app",
+      "visits": 1
+    }
+  ],
+  "hours": [
+    {
+      "key": 11,
+      "views": 1
+    },
+    {
+      "key": 12,
+      "views": 1
+    },
+    {
+      "key": 13,
+      "views": 2
+    },
+    {
+      "key": 18,
+      "views": 3
+    },
+    {
+      "key": 22,
+      "views": 14
+    },
+    {
+      "key": 23,
+      "views": 14
+    }
+  ],
+  "weekdays": [
+    {
+      "key": 1,
+      "views": 35
+    }
+  ],
+  "shares": [],
+  "refs": []
+}
