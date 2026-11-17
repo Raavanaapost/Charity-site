@@ -257,6 +257,13 @@ window.RAAV_FEATURES = (function () {
       if (document.body.dataset.page === "members") m.setAttribute("aria-current", "page");
       navEl.appendChild(m);
     }
+    // "Volunteers" in every menu, after Projects (SURESH 17 Nov 2026: build the Volunteers page into the site).
+    if (navEl && !navEl.querySelector('a[href$="/volunteers"]')) {
+      const v = document.createElement("a"); v.href = "/volunteers"; v.textContent = "Volunteers";
+      if (document.body.dataset.page === "volunteers") v.setAttribute("aria-current", "page");
+      const after = navEl.querySelector('a[href="/initiated"], a[href="/projects"]');
+      if (after) after.after(v); else navEl.insertBefore(v, navEl.querySelector(".nav-member"));
+    }
     // "Gift a Moment": a button in every menu that opens the moment page (/moment). SURESH, 10 Nov 2026: that page
     // is very important and needs a clear way in from everywhere; the Home page itself stays as it was (/overview).
     // The title "Gift a Moment, in their name" and its heart-and-lamp mark (img/moment-mark.svg) are the same everywhere.
@@ -300,7 +307,7 @@ window.RAAV_FEATURES = (function () {
       <div class="foot-main"><div class="wrap">
         <!-- Footer kept very simple (SURESH, 17 Nov 2026): one row of links, no stages, no Gift a Moment. -->
         <nav class="foot-simple" aria-label="Footer">
-          ${[["Projects", "/projects"], ["Submit a need", "/spark"], ["Volunteer", "/volunteer"], ["About us", "/about"], ["Contact", "/contact"]].map(([t, h]) => `<a href="${h}">${t}</a>`).join("")}${APP.inApp ? "" : `<a href="#app" data-get-app>Get the app</a>`}
+          ${[["Projects", "/projects"], ["Submit a need", "/spark"], ["Volunteers", "/volunteers"], ["About us", "/about"], ["Contact", "/contact"]].map(([t, h]) => `<a href="${h}">${t}</a>`).join("")}${APP.inApp ? "" : `<a href="#app" data-get-app>Get the app</a>`}
         </nav>
         ${follow.length ? `<p class="foot-follow">${follow.map(([t, h, ext]) => `<a href="${esc(h)}"${ext ? ' target="_blank" rel="noopener"' : ""}>${esc(t)}</a>`).join("")}</p>` : ""}
       </div></div>
@@ -666,7 +673,7 @@ window.RAAV_FEATURES = (function () {
   const SPARK_WAYS = [
     { k: "request", href: "/initiate?way=need", t: "Submit a need", s: "Request a moment, share a plan, start a movement", go: "Start",
       ic: '<path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-10z"/><path d="M14 3.5v5h5"/><path d="M12 17v-6M9.3 13.6 12 11l2.7 2.6"/>' },
-    { k: "submit", href: "/spark#join", t: "Join Raavanaa", s: "Volunteer, share a skill, create moments together", go: "Join",
+    { k: "submit", href: "/volunteers#join", t: "Join Raavanaa", s: "Volunteer, share a skill, create moments together", go: "Join",
       ic: '<circle cx="8" cy="8.5" r="2.6"/><circle cx="16.5" cy="9.5" r="2.2"/><path d="M3 19c0-3.2 2.2-5.2 5-5.2s5 2 5 5.2M14 14.3c.8-.4 1.6-.6 2.5-.6 2.5 0 4.5 1.8 4.5 5.3"/>' }
   ];
   // Five titles and lines that take turns (SURESH, 16 Nov 2026: "make it impressive, say things profound: creating a
@@ -2237,7 +2244,7 @@ window.RAAV_FEATURES = (function () {
         ["Sponsor or help", "/contact", '<path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.2c0 5.6-7.5 10.2-7.5 10.2z"/>']
       ],
       heading: 'Projects we have <span class="stage-word s2">Activated</span>', empty: { text: "Nothing is in action just yet. Our first projects are getting ready to start, and you can follow them from the beginning.", btn: "See what we have initiated", href: "/initiated" },
-      cta: { title: "Want to take part?", text: "Projects move because people show up. Lend an hour, a skill or a helping hand, and be part of what's happening.", btn: "Volunteer with us", href: "/volunteer" },
+      cta: { title: "Want to take part?", text: "Projects move because people show up. Lend an hour, a skill or a helping hand, and be part of what's happening.", btn: "Volunteer with us", href: "/volunteers#join" },
       next: { slug: "impact", kicker: "Next stage", label: "Impact", text: "See the difference these projects are making." }
     },
     impact: {
@@ -2251,10 +2258,10 @@ window.RAAV_FEATURES = (function () {
       ],
       links: [
         ["How we share results", "/how-it-works#impact", '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01" stroke-width="2.2"/>'],
-        ["Be part of the next one", "/volunteer", '<circle cx="12" cy="6" r="2.4"/><circle cx="5.5" cy="9" r="2"/><circle cx="18.5" cy="9" r="2"/><path d="M7.5 20c.4-4 2-6 4.5-6s4.1 2 4.5 6M2 18c.3-2.6 1.4-4 3.5-4M22 18c-.3-2.6-1.4-4-3.5-4"/>']
+        ["Be part of the next one", "/volunteers#join", '<circle cx="12" cy="6" r="2.4"/><circle cx="5.5" cy="9" r="2"/><circle cx="18.5" cy="9" r="2"/><path d="M7.5 20c.4-4 2-6 4.5-6s4.1 2 4.5 6M2 18c.3-2.6 1.4-4 3.5-4M22 18c-.3-2.6-1.4-4-3.5-4"/>']
       ],
       heading: '<span class="stage-word s3">Impact</span> Stories', empty: { text: "Our first impact stories are on the way. As soon as a trip or event has happened, the smiles and the stories will be shared here.", btn: "See what we have initiated", href: "/initiated" },
-      cta: { title: "Be part of the next one", text: "Every smile on this page started with people who cared. Stay close and see what we create together next.", btn: "Get involved", href: "/volunteer" },
+      cta: { title: "Be part of the next one", text: "Every smile on this page started with people who cared. Stay close and see what we create together next.", btn: "Get involved", href: "/volunteers#join" },
       next: { slug: "initiated", kicker: "Back to the start", label: "Initiated", text: "See every project from where it began." }
     }
   };
@@ -2357,7 +2364,7 @@ window.RAAV_FEATURES = (function () {
         ["You tell us how it went", "The organizers get a short feedback form after the day, and anyone can report a concern at any time. Concerns go to our safeguarding lead and an independent reviewer."],
         ["The numbers are counted", "How many children, families and volunteers took part, shown on the project and on the Impact page."]
       ],
-      cta: ["Be part of the next one", "/volunteer"] }
+      cta: ["Be part of the next one", "/volunteers#join"] }
   ];
   function renderHow(app) {
     const pick = () => Math.max(0, HOW.findIndex(h => "#" + h.key === location.hash));
@@ -2395,7 +2402,7 @@ window.RAAV_FEATURES = (function () {
     const tiles = (site.impact || []).filter(x => x && x.label).map(x => ({
       label: x.label, note: x.note || "",
       value: auto[x.count] ? String(auto[x.count]()) : String(x.value == null ? "" : x.value),
-      href: x.count === "trips" || x.count === "projects" ? "/initiated" : x.count === "stories" ? "#stories" : /volunteer/i.test(x.label) ? "/volunteer" : ""
+      href: x.count === "trips" || x.count === "projects" ? "/initiated" : x.count === "stories" ? "#stories" : /volunteer/i.test(x.label) ? "/volunteers" : ""
     })).filter(x => x.value !== "" && x.value !== "0"); // nothing to show yet → no tile
     const numbers = tiles.length ? tiles.map(x => ({ x }))
       : projects.flatMap(p => (p.impact || []).filter(x => x && x.value).map(x => ({ p, x })));
