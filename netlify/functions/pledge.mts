@@ -5,7 +5,13 @@
 // to Netlify Forms ("give-request"), which keeps a copy and can email the team.
 import type { Config } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
+import { getUser } from "@netlify/identity";
 import { TRIBUTE_WORDS } from "../lib/give-core.mts";
+import { escHtml, sendMail, teamEmail } from "../lib/mail.mts";
+import data from "../../projects.json" with { type: "json" };
+
+type P = { slug?: string; title?: string; currency?: string };
+const PROJECTS = ((data as { projects?: P[] }).projects || []).filter((p) => p && p.title);
 
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
 const clip = (v: unknown, max: number) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, max).replace(/[<>]/g, "");
@@ -34,6 +40,11 @@ export default async (req: Request) => {
   // How the gift is listed in public: name and amount, name only, anonymous, or the giver's own wording.
   const words = clip(f.listing_words, 80);
   const listing = ["both", "name", "anonymous", "own"].includes(String(f.listing)) ? String(f.listing) : "both";
+  // The amount as a number in the project's own money (simple project pledge, 17 Nov 2026), so it adds to the % bar.
+  const value = Math.max(0, Math.min(10_000_000, Math.round(Number(String(f.amount_value ?? "").replace(/[^0-9.]/g, "")) || 0)));
+  const follow = f.follow === "yes" || f.follow === true;
+  const user = await getUser().catch(() => null);
+  const memberEmail = user && user.email ? user.email.toLowerCase() : "";
   const row = {
     amount: clip(f.amount, 60), message: clip(f.message ?? f.wish, 500), lang: f.lang === "ta" ? "ta" : "en",
     kind: kind === "project" && !slug ? "general" : kind,
@@ -43,17 +54,47 @@ export default async (req: Request) => {
   try {
     const db = getDatabase();
     const [saved] = await db.sql<{ ref: string }>`
-      INSERT INTO give_requests (ref, name, contact, amount, kind, project_slug, moment_code, tribute, message, lang, listing, listing_words)
+      INSERT INTO give_requests (ref, name, contact, amount, kind, project_slug, moment_code, tribute, message, lang, listing, listing_words, amount_value, member_email, follow)
       VALUES ('G-' || nextval('give_request_ref_seq'), ${name}, ${contact}, ${row.amount}, ${row.kind}, ${slug}, ${moment},
-              ${tribute ? JSON.stringify(tribute) : null}::jsonb, ${row.message}, ${row.lang}, ${row.listing}, ${row.words})
+              ${tribute ? JSON.stringify(tribute) : null}::jsonb, ${row.message}, ${row.lang}, ${row.listing}, ${row.words},
+              ${row.kind === "project" ? value : 0}, ${memberEmail}, ${follow})
       RETURNING ref`;
     await db.sql`INSERT INTO audit_log (actor, action, target) VALUES ('website', 'give_request.received', ${saved.ref})`;
+    await tell(new URL(req.url).origin, saved.ref, { name, contact, isEmail, slug, amount: row.amount, follow, message: row.message, tribute, listing: row.listing, words: row.words });
     return json({ ok: true, ref: saved.ref });
   } catch (e) {
     console.log("give request not saved:", (e as Error).message);
     return json({ ok: false, error: "We could not save that just now. Please try again." }, 503);
   }
 };
+
+// "We'll send you the ways to fund": a short note to the giver (when they gave an email) and a copy to the team.
+// Sent only when email is set up (lib/mail.mts). Never any bank details here.
+async function tell(SITE: string, ref: string, x: { name: string; contact: string; isEmail: boolean; slug: string; amount: string; follow: boolean; message: string; tribute: Record<string, string> | null; listing: string; words: string }) {
+  const p = x.slug ? PROJECTS.find((y) => y.slug === x.slug) : undefined;
+  const what = p ? `"${p.title}"` : "the Raavanaa Fund";
+  const link = p ? `${SITE}/projects/${x.slug}` : `${SITE}/overview`;
+  const team = teamEmail();
+  const jobs: Promise<boolean>[] = [];
+  if (x.isEmail) {
+    const text = [`Dear ${x.name},`, "", `Thank you for your pledge of ${x.amount} towards ${what}. It now shows on the project page:`, link, "",
+      "We will send you the ways to fund in a personal email very soon. Raavanaa only ever shares bank details in a personal reply from our official email. Never pay into an account sent to you any other way.",
+      "", x.follow ? `To follow the project, sign in at ${SITE}/members with this email and open My account.` : "", "", `Your reference: ${ref}`, "", "With thanks,", "Raavanaa"].join("\n");
+    const html = `<p>Dear ${escHtml(x.name)},</p><p>Thank you for your pledge of <b>${escHtml(x.amount)}</b> towards ${escHtml(what)}. It now shows on the <a href="${link}">project page</a>.</p>
+      <p><b>We will send you the ways to fund in a personal email very soon.</b> Raavanaa only ever shares bank details in a personal reply from our official email. Never pay into an account sent to you any other way.</p>
+      ${x.follow ? `<p>To follow the project, <a href="${SITE}/members">sign in</a> with this email and open My account.</p>` : ""}<p>Your reference: ${ref}</p><p>With thanks,<br>Raavanaa</p>`;
+    jobs.push(sendMail(x.contact, `Thank you for your pledge, ${x.name}`, text, html, team));
+  }
+  if (team) {
+    const tr = x.tribute ? `${x.tribute.words} ${x.tribute.name}` : "";
+    const lines = [["Ref", ref], ["Name", x.name], ["Contact", x.contact], ["Amount", x.amount], ["For", p ? p.title || "" : "Raavanaa Fund"], ["Listed as", x.listing === "own" ? x.words : x.listing],
+      ["Follow", x.follow ? "yes" : "no"], ["In the name of", tr], ["Message", x.message]].filter(([, v]) => v);
+    jobs.push(sendMail(team, `New pledge ${ref}: ${x.name}, ${x.amount}`, lines.map(([k, v]) => `${k}: ${v}`).join("\n") + `\n\nReply with the ways to fund, then mark it in the portal: ${SITE}/portal#/sponsors`,
+      `<table>${lines.map(([k, v]) => `<tr><td><b>${k}</b></td><td>${escHtml(v)}</td></tr>`).join("")}</table><p>Reply with the ways to fund, then mark it in the <a href="${SITE}/portal#/sponsors">portal</a>.</p>`,
+      x.isEmail ? x.contact : ""));
+  }
+  await Promise.all(jobs);
+}
 
 export const config: Config = {
   path: "/api/pledge",

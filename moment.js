@@ -581,6 +581,8 @@
       var goal = num(p.goal) || (p.budget || []).reduce(function (s, x) { return s + num(x && x.amount); }, 0);
       var raised = (p.funders || []).reduce(function (s, x) { return s + num(x && x.amount); }, 0);
       if (rupees && gifts[p.slug]) raised += (gifts[p.slug].gifts || []).reduce(function (s, x) { return s + num(x && x.amount); }, 0);
+      // Pledges from the project giving form count too (17 Nov 2026).
+      raised += ((res[3] && res[3].pledges || {})[p.slug] || []).reduce(function (s, x) { return s + num(x && x.amount); }, 0);
       var stage = /complete/i.test(p.status || "") ? 3 : goal > 0 && raised >= goal ? 2 : 1;
       var title = (TA && sh.title_ta) || sh.title || p.title;
       return { slug: p.slug, title: title, short: title, cat: p.theme || "Trips & Events", stage: stage, goal: goal, left: Math.max(0, goal - raised), pct: goal ? Math.min(100, Math.round(raised / goal * 100)) : 0,

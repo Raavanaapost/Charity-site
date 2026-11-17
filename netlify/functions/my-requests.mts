@@ -3,6 +3,8 @@
 import type { Config } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
 import { getUser } from "@netlify/identity";
+import data from "../../projects.json" with { type: "json" };
+const TITLE: Record<string, string> = Object.fromEntries(((data as { projects?: { slug?: string; title?: string }[] }).projects || []).filter((p) => p && p.slug).map((p) => [p.slug!, p.title || p.slug!]));
 
 const STEP: Record<string, string> = {
   new: "Raavanaa is checking it", visit: "A visit is planned", verified: "Visited and verified", approved: "Approved by Raavanaa",
@@ -23,7 +25,14 @@ export default async () => {
     shareOk: !!r.share_ok, vouched: r.vouched, link: r.endorse_token ? `/e/${r.endorse_token}` : "",
     project: r.project_slug ? `/projects/${r.project_slug}` : "",
   }));
-  return Response.json({ ok: true, requests }, { headers: { "Cache-Control": "no-store" } });
+  // Pledges this member made (signed in, or with the same email), so they can follow each project (17 Nov 2026).
+  const em = user.email.toLowerCase();
+  const gifts = ((await db.sql<Record<string, any>>`
+    SELECT ref, amount, project_slug, status, received_at FROM give_requests
+    WHERE (member_email = ${em} OR LOWER(contact) = ${em}) AND status <> 'closed' ORDER BY received_at DESC LIMIT 50`.catch(() => [])) as Record<string, any>[])
+    .map((g) => ({ ref: g.ref, amount: g.amount, project: g.project_slug ? `/projects/${g.project_slug}` : "", title: g.project_slug ? TITLE[g.project_slug] || g.project_slug : "The Raavanaa Fund", received: g.received_at,
+      step: g.status === "received" ? "Gift received. Thank you!" : g.status === "replied" ? "We have sent you the ways to fund" : "Pledged: we'll send you the ways to fund" }));
+  return Response.json({ ok: true, requests, gifts }, { headers: { "Cache-Control": "no-store" } });
 };
 
 export const config: Config = { path: "/api/my-requests", method: "GET" };

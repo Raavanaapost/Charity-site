@@ -198,6 +198,10 @@ async function account(app, site, msg = "") {
       <h2>My requests</h2>
       <ul class="m-req-list" data-req-list></ul>
     </section>
+    <section class="panel member-card m-requests" data-my-gifts hidden>
+      <h2>Projects I follow</h2>
+      <ul class="m-req-list" data-gift-list></ul>
+    </section>
     <div class="member-grid">
       <section class="panel member-card">
         <h2>My donations</h2>
@@ -217,6 +221,14 @@ async function account(app, site, msg = "") {
   </section>`;
   // The requests this member sent, with where each one is and its page link.
   fetch("/api/my-requests", { credentials: "same-origin" }).then(r => r.ok ? r.json() : null).then(d => {
+    const gbox = app.querySelector("[data-my-gifts]"), gifts = d && d.gifts;
+    if (gbox && gifts && gifts.length) {
+      gbox.hidden = false;
+      gbox.querySelector("[data-gift-list]").innerHTML = gifts.map(g => `<li>
+        <a href="${esc(g.project || "/overview")}"><b>${esc(g.title)}</b></a>
+        <span>${esc(g.amount)} · ${esc(g.step)}</span>
+        <small>${esc(g.ref)} · ${esc(new Date(g.received).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }))}</small></li>`).join("");
+    }
     const box = app.querySelector("[data-my-requests]"), list = d && d.requests;
     if (!box || !list || !list.length) return;
     box.hidden = false;

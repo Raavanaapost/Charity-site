@@ -2620,3 +2620,137 @@ body[data-light] .intro{padding-top:4px;padding-bottom:0}
 body[data-light] .intro .headline{margin-top:0;margin-bottom:0}
 body[data-light] .mosaic{margin-top:8px}
 .spark-band .sb-stack{margin-top:0}.spark-band{gap:10px}
+
+/* ---------- The simple project pledge (SURESH, 17 Nov 2026): one short form, the pledge shows on the project at once ---------- */
+.pl-lede{margin:-4px 0 14px;font-family:var(--display);font-size:17px;line-height:1.45;color:var(--muted)}
+.pl-lede b{color:var(--brand)}
+.pledge-form .give-check small{color:var(--muted);font-size:13px}
+.pl-tribute{border:1px dashed var(--line);border-radius:10px;padding:10px 12px}
+.pl-tribute summary{cursor:pointer;font-weight:600;color:var(--brand)}
+.pl-tribute summary small{font-weight:400;color:var(--muted)}
+.pl-tribute[open]{display:grid;gap:10px}
+.pl-tribute select,.pledge-form input[name="tribute_name"]{border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:inherit;background:var(--surface);color:var(--ink);width:100%}
+.pledge-form .give-reach{margin:0;font-weight:600;color:var(--brand)}
+.pl-shows{font-size:17px}
+.pl-proj .b-bar i{transition:width .8s ease}
+.give-done-next{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.f-pledged{font-style:normal;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#b97a06;background:color-mix(in srgb,#eaa21c 16%,transparent);border-radius:999px;padding:1px 7px;vertical-align:2px}
+.b-give{margin:4px 0 14px}.b-give .donate-btn{width:100%;justify-content:center}
+
+/* ---------- The giver's project room (/room, SURESH 17 Nov 2026): welcome, proud line, share, follow, tabs ---------- */
+.room{max-width:860px;margin-inline:auto;padding-block:14px 48px;display:grid;gap:18px}
+.room-hero{text-align:center;padding:30px 18px 26px;border-radius:22px;background:radial-gradient(120% 90% at 50% 0%,#fffaf0 0%,#fbf6ea 55%,#f4ead3 100%);border:1px solid #ecdcb6;box-shadow:0 18px 40px -28px rgba(31,77,58,.45)}
+.room-tag{margin:0 0 8px;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#b97a06}
+.room-hero h1{margin:0;font-family:"Cinzel",serif;font-weight:600;font-size:clamp(32px,8vw,52px);line-height:1.08;color:#1f4d3a}
+.room-hero h1 span{color:#c8381e}
+.room-proud{margin:12px auto 6px;max-width:560px;font-family:var(--display);font-size:clamp(19px,4.6vw,24px);font-weight:700;line-height:1.3;color:#1f4d3a;min-height:2.6em}
+.room-proud.in{animation:room-in .7s ease-out}
+@keyframes room-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.room-sub{margin:0 auto;max-width:540px;font-family:var(--serif,Literata,serif);font-size:16px;line-height:1.5;color:#5b5446}
+.room-hero::after{content:"";display:block;width:110px;height:5px;margin:16px auto 0;border-radius:3px;background:linear-gradient(90deg,#1f7a47,#eaa21c,#c8381e)}
+.room-card{display:grid;grid-template-columns:1fr;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--surface)}
+.room-pic img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+.room-card-text{padding:14px 16px 16px;display:grid;gap:8px}
+.room-card-text h2{margin:0;font-family:var(--display);font-size:22px;line-height:1.2}
+.room-card-text h2 a{color:var(--ink);text-decoration:none}
+.room-tagline{margin:0;color:var(--muted);font-family:var(--serif,Literata,serif);font-style:italic;line-height:1.45}
+.room-mine{margin:0;font-size:16px}.room-mine small{display:block;color:var(--muted)}
+.room-bar{display:flex;height:12px;border-radius:999px;background:#f6e8d2;overflow:hidden}
+.room-bar i{display:block;height:100%;background:linear-gradient(90deg,#e8891c,#f2b522)}
+.room-bar i.mine{background:#c8381e;animation:room-grow 1.2s ease-out}
+@keyframes room-grow{from{transform:scaleX(0);transform-origin:left}to{transform:scaleX(1)}}
+.room-pct{margin:0;color:var(--muted)}.room-pct b{color:var(--ink)}
+.room-acts{display:grid;gap:12px}
+.room-act{border:1px solid var(--line);border-radius:16px;padding:14px 16px;background:var(--surface)}
+.room-act h3{margin:0 0 4px;font-family:var(--display);font-size:18px;color:#1f4d3a}
+.room-act p{margin:0;line-height:1.5}
+.room-act.helper{background:#eef6f0;border-color:#cfe5d6}
+.room-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px!important}
+.room-h{margin:6px 0 0;font-family:var(--display);font-size:20px}
+.room-steps{list-style:none;margin:0;padding:0;display:grid;gap:0;counter-reset:rs}
+.room-steps li{position:relative;padding:4px 0 14px 34px;display:grid}
+.room-steps li::before{counter-increment:rs;content:counter(rs);position:absolute;left:0;top:2px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;background:#f4ead3;color:#7a5a12}
+.room-steps li:not(:last-child)::after{content:"";position:absolute;left:11px;top:28px;bottom:0;width:2px;background:#ecdcb6}
+.room-steps li.done::before{content:"✓";background:#1f7a47;color:#fff}
+.room-steps span{color:var(--muted);font-size:14px}
+.room-tabs{display:flex;gap:6px;border-bottom:3px solid #1f7a47}
+.room-tabs button{flex:1;padding:10px 6px;border:1px solid var(--line);border-bottom:0;border-radius:12px 12px 0 0;background:#f4ead3;font:inherit;font-weight:600;color:#7a5a12;cursor:pointer}
+.room-tabs button[aria-selected="true"]{background:#1f7a47;color:#fff;border-color:#1f7a47}
+.room-pane{margin-top:-18px;border-top-left-radius:0;border-top-right-radius:0}
+.room-story .pull{font-style:italic;font-size:20px;border-left:4px solid #c8381e;padding-left:12px}
+.room-glance{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:0 0 10px}
+.room-glance div{background:#fbf6ea;border-radius:12px;padding:10px 12px}
+.room-glance dt{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.room-glance dd{margin:2px 0 0;font-weight:600}
+.room-list{margin:0 0 10px;padding-left:20px}
+.room-upd small{color:var(--muted)}
+.room-foot{text-align:center}
+@media (min-width:720px){.room-card{grid-template-columns:300px 1fr}.room-pic img{height:100%;aspect-ratio:auto}.room-acts{grid-template-columns:1fr 1fr 1fr}}
+@media (prefers-reduced-motion:reduce){.room-proud.in,.room-bar i.mine{animation:none}}
+/* Give from anywhere (17 Nov 2026): any amount in the giver's own money, shown in rupees too */
+.pl-amt-row{display:grid;grid-template-columns:auto 1fr;gap:8px}
+.pl-amt-row select,.pl-amt-row input{border:1px solid var(--line);border-radius:10px;padding:12px;font:inherit;font-size:20px;font-weight:600;background:var(--surface);color:var(--ink);min-width:0}
+.pl-amt-row select{padding-right:8px;font-family:var(--display)}
+.pl-amt small{font-weight:400;color:var(--muted);font-size:13px}
+.pl-cur{display:grid;place-items:center;padding:0 10px;font-size:20px}
+.pledge-one h2{display:flex;align-items:center;gap:8px}
+.pledge-one h2 .pl-heart{color:#c8381e;width:26px;height:26px}
+.pledge-form .give-pay{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:19px}
+.room-about{color:var(--muted);font-size:14px}
+.donate-btn .pl-heart{display:none}
+/* "Complete the day": one tap fills in what is left (17 Nov 2026) */
+.pl-full{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;border-radius:14px;border:2px solid #eaa21c;background:linear-gradient(135deg,#fff8e8,#fdebc4);color:var(--ink);font:inherit;cursor:pointer}
+.pl-full b{display:block;font-family:var(--display);font-size:18px;color:#1f4d3a}
+.pl-full small{display:block;color:#7a5a12;font-size:14px}
+.pl-full-icon{display:grid;place-items:center;flex:none;width:36px;height:36px;border-radius:50%;background:#c8381e;color:#fff;font-size:18px}
+.pl-full.on{border-color:#1f7a47;background:#eef6f0}
+.pl-full.on .pl-full-icon{background:#1f7a47}
+/* 17 Nov 2026 (SURESH): turning title on the form, light-orange Complete the day with a mini ring, neat Funded / Reserved lines */
+.pl-say{display:inline-block}
+.pl-say.in{animation:room-in .5s ease-out}
+.pl-full,.pl-full.on{border-color:#eaa21c;background:linear-gradient(135deg,#fff6e3,#fde3b4)}
+.pl-full.on{box-shadow:0 0 0 3px rgba(234,162,28,.25)}
+.pl-full b{color:#b4560a}
+.pl-mini{flex:none;width:48px;height:48px}
+.pl-mini-arc{transition:stroke-dasharray .6s ease}
+.pl-mini text{font:700 11px var(--display);fill:#7a4a06}
+.ring-steps li span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ring-steps b{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.st-ic.tick{color:#1f7a47;font-weight:900}
+.st-ic.res{color:#c8381e}
+/* The short giving form opens in place on the project page (17 Nov 2026) */
+.pl-inline{position:relative;margin:12px 0 18px;scroll-margin-top:90px;animation:room-in .4s ease-out}
+.pl-inline .pledge-one{display:block}
+.pl-inline .pl-proj{display:none}
+.pl-inline .give-box{margin:0;box-shadow:0 14px 30px -20px rgba(31,77,58,.5);border:2px solid #eaa21c}
+.pl-shut{position:absolute;top:8px;right:10px;z-index:2;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--surface);font-size:22px;line-height:1;color:var(--muted);cursor:pointer}
+/* Make this happen (17 Nov 2026): a light "Be the smile ↓" that goes down to the one giving form; a warmer Help another way */
+.mk-jump{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;border:1.5px solid #eaa21c;border-radius:14px;background:#fff4dc;color:#b4560a;font-family:"Playfair Display",var(--display),serif;font-style:italic;font-weight:800;font-size:21px;cursor:pointer}
+.mk-jump svg{animation:mk-bob 1.6s ease-in-out infinite}
+@keyframes mk-bob{50%{transform:translateY(3px)}}
+@media (prefers-reduced-motion:reduce){.mk-jump svg{animation:none}}
+.mk-community{line-height:1.55}
+.mk-community b{color:#1f4d3a}
+/* 17 Nov 2026: Complete the moment stands out (stage-colour ring, bold amount) */
+.pl-full{padding:14px 16px;background:linear-gradient(135deg,#fff6e3 0%,#fde3b4 60%,#fbd0a6 100%);box-shadow:0 10px 24px -16px rgba(200,56,30,.6)}
+.pl-full b{font-size:19px;line-height:1.2;color:#a8400a}
+.pl-full small{margin-top:3px}
+.pl-full small strong{font-family:var(--display);font-size:22px;font-weight:800;color:#c8381e;letter-spacing:-.01em}
+.pl-mini{width:56px;height:56px;filter:drop-shadow(0 3px 6px rgba(200,56,30,.25))}
+.pl-mini text{fill:#1f4d3a;font-size:11.5px}
+.pl-full small strong,.pl-eq{white-space:nowrap}
+.pl-eq{font-family:var(--display);font-size:17px;font-weight:800;color:#1f4d3a}
+/* 17 Nov 2026: a small Be the smile in Make this happen; the turning words live on the budget button */
+.mk-jump{width:auto;margin:0 auto;padding:8px 16px;font-size:17px;gap:8px}
+.mk-jump svg{width:16px;height:16px}
+.mk-pane[data-mkpane="donate"]{text-align:center}
+.pl-inline .pledge-one h2{display:none}
+.b-give [data-donate] span{display:inline-block}
+.b-give [data-donate] span.in{animation:room-in .5s ease-out}
+/* 17 Nov 2026: the amount box shows its money (C$ 132 CAD, Rs 30,500) */
+.pl-money{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:0 12px;min-width:0}
+.pl-money:focus-within{outline:3px solid #eaa21c;outline-offset:1px}
+.pl-money i,.pl-money em{font-style:normal;font-family:var(--display);font-weight:800;font-size:20px;color:#1f4d3a;white-space:nowrap}
+.pl-money em{font-size:14px;color:var(--muted);font-weight:700}
+.pl-money em:empty{display:none}
+.pl-amt-row .pl-money input{border:0;padding:12px 0;outline:0;flex:1;width:100%;background:none}
