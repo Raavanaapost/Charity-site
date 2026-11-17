@@ -142,6 +142,7 @@
           '<label class="mo-field"><span>Town and country</span><input name="city" autocomplete="address-level2" placeholder="e.g. Jaffna, or Toronto"></label>' +
         "</div>" +
         '<input type="hidden" name="help[]" value="Joined from the Submit a need page">' +
+        '<label class="sp-join-show"><input type="checkbox" name="show" value="yes"> Show me on our <a href="/volunteers" target="_blank">Volunteers page</a> <small>(first name, town and skills only)</small></label>' +
         '<button class="mo-go sp-join-btn" type="submit">I want to join →</button>' +
         '<p class="sp-join-msg" data-join-msg hidden></p>' +
       "</form>" +
@@ -250,9 +251,12 @@
     var btn = jf.querySelector("button"), msg = $("[data-join-msg]"), fd = new FormData(jf);
     if (!fd.getAll("skills[]").length) { msg.hidden = false; msg.className = "sp-join-msg err"; msg.textContent = "Pick at least one thing you can bring."; return; }
     btn.disabled = true;
-    fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams(fd).toString() })
-      .then(function (r) { if (!r.ok) throw 0; [].slice.call(jf.querySelectorAll("input,button")).forEach(function (x) { x.disabled = true; });
-        msg.hidden = false; msg.className = "sp-join-msg ok"; msg.textContent = "Welcome to Raavanaa! A volunteer will be in touch soon."; })
+    // Also onto the community list (/volunteers); shown there only if they ticked "Show me".
+    var data = { source: "spark" }; fd.forEach(function (v, k) { var kk = k.replace("[]", ""); if (/\[\]$/.test(k)) (data[kk] = data[kk] || []).push(v); else data[kk] = v; });
+    var toList = fetch("/api/volunteers", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).catch(function () { return null; });
+    Promise.all([fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams(fd).toString() }).catch(function () { return null; }), toList])
+      .then(function (res) { var r = res[0], l = res[1]; if (!(r && r.ok) && !(l && l.ok)) throw 0; [].slice.call(jf.querySelectorAll("input,button")).forEach(function (x) { x.disabled = true; });
+        msg.hidden = false; msg.className = "sp-join-msg ok"; msg.innerHTML = 'Welcome to Raavanaa! A volunteer will be in touch soon. <a href="/volunteers">Meet our volunteers →</a>'; })
       .catch(function () { btn.disabled = false; msg.hidden = false; msg.className = "sp-join-msg err"; msg.textContent = "That did not send. Please try again."; });
   });
   // the words on the big button take turns: Submit a need, Request a moment, Share a plan, Start a movement

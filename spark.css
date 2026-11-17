@@ -210,3 +210,8 @@ body[data-page="spark"] .bar{background:var(--surface)}
 .sp-skills-more{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;border:1.5px dashed #c8501e;background:#fff7e8;color:#8a3510;font:700 14px/1.2 var(--display);cursor:pointer}
 .sp-skills-more i{font-style:normal;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#e0701c;color:#fff;font-size:12px;transition:transform .2s}
 .sp-skills.open .sp-skills-more i{transform:rotate(180deg)}
+/* "Show me on our Volunteers page" (17 Nov 2026) */
+.sp-join-show{display:flex;gap:10px;align-items:flex-start;margin:12px 0 4px;font-size:15px;line-height:1.4}
+.sp-join-show input{margin-top:3px;flex:none;width:18px;height:18px;accent-color:#1f7a47}
+.sp-join-show small{opacity:.75}
+.sp-join-msg a{color:inherit;text-decoration:underline}

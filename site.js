@@ -343,6 +343,11 @@ window.RAAV_FEATURES = (function () {
           if (f._evCount) data.evidence_files = f._evCount();
           toPortal = fetch("/api/suggest", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).catch(() => null);
         }
+        // People who volunteer also go on the community list (/volunteers), shown only if they ticked "Show me".
+        if (f.getAttribute("name") === "volunteer") {
+          const data = { source: "volunteer" }; for (const [k, v] of fd.entries()) { const kk = k.replace("[]", ""); if (k.endsWith("[]")) (data[kk] = data[kk] || []).push(v); else data[kk] = v; }
+          toPortal = fetch("/api/volunteers", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).catch(() => null);
+        }
         const [r, p] = await Promise.all([toForms.catch(() => null), toPortal]);
         if (p && p.status === 401) { btn.disabled = false; msg.textContent = "Please sign in first, then send it again."; msg.className = "note error"; msg.hidden = false; const g = document.querySelector("[data-gate]"); if (g) { g.hidden = false; f.hidden = true; } return; }
         if (!(r && r.ok) && !(p && p.ok)) throw new Error(r ? r.status : "offline");
