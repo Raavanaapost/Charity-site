@@ -289,7 +289,7 @@
         '<a class="mo-go" data-go href="/give"></a>' +
         '<div class="mo-extras">' +
           '<button type="button" class="mo-extra" data-more="every" aria-expanded="false"><span class="mo-extra-ic" aria-hidden="true">↻</span><span><b>' + T("Every year", "ஒவ்வோர் ஆண்டும்") + "</b><small>" + T("A reminder before their day", "அவர்களின் நாளுக்கு முன் நினைவூட்டல்") + "</small></span></button>" +
-          '<button type="button" class="mo-extra" data-more="family" aria-expanded="false"><span class="mo-extra-ic home" aria-hidden="true">' + homeSVG + "</span><span><b>" + (FEAT.circle ? T("Family page", "குடும்பப் பக்கம்") : T("A page in their memory", "அவர்கள் நினைவாக ஒரு பக்கம்")) + "</b><small>" + T("Their card on a page of their own", "அவர்களின் அட்டை, தனிப் பக்கத்தில்") + "</small></span></button>" +
+          '<button type="button" class="mo-extra" data-more="family" aria-expanded="false"><span class="mo-extra-ic home" aria-hidden="true">' + homeSVG + "</span><span><b>" + (FEAT.circle ? T("Family page", "குடும்பப் பக்கம்") : T("Their own page", "அவர்களுக்கென ஒரு பக்கம்")) + "</b><small>" + T("Their card on a page of their own", "அவர்களின் அட்டை, தனிப் பக்கத்தில்") + "</small></span></button>" +
         "</div>" +
         '<div class="mo-fold-box" data-fold="every" hidden>' +
           '<div class="mo-seg" role="radiogroup" aria-label="' + T("How often", "எத்தனை முறை") + '">' +
