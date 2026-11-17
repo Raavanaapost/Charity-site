@@ -577,3 +577,39 @@ body.home::before{opacity:.6;filter:sepia(.2) saturate(.9)}
 .tc-main strong{font-family:var(--display);color:var(--maroon)}
 .ci-head + .sub{border-top:0;padding-top:4px}
 .sent-note{padding:10px 12px;border-radius:12px;background:var(--accent-soft);border:1px solid var(--line);font-size:.92rem}
+
+/* Classes open and close; multi-select delete on Students */
+.ci-body{display:flex;flex-direction:column;gap:12px}
+.ci-body > summary.ci-toggle{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border-radius:12px;background:var(--accent-soft);border:1px solid var(--line);font-weight:800;color:var(--maroon)}
+.ci-body > summary.ci-toggle::-webkit-details-marker{display:none}
+.ci-body > summary.ci-toggle::before{content:"";width:9px;height:9px;border-right:2.5px solid currentColor;border-bottom:2.5px solid currentColor;transform:rotate(-45deg);transition:transform .15s ease;margin-right:2px}
+.ci-body[open] > summary.ci-toggle::before{transform:rotate(45deg)}
+.ci-body[open] > summary.ci-toggle{margin-bottom:12px}
+.ci-body .ci-close-t,.ci-body[open] .ci-open-t{display:none}
+.ci-body[open] .ci-close-t{display:inline}
+.ci-body > summary .hint{font-weight:600}
+.ci-body > .sub + .sub, .ci-body > .sub + details{margin-top:12px}
+.ci-all{gap:8px}
+@media (prefers-reduced-motion:reduce){.ci-body > summary.ci-toggle::before{transition:none}}
+.sel-bar{flex-wrap:wrap}
+.sel-acts{display:flex;gap:6px;flex-wrap:wrap}
+.btn.danger-solid{background:#a3201a;color:#fff}
+.sel-all{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--muted);padding:4px 0}
+.sel-all input{width:20px;height:20px}
+
+/* "Who's practising?" for families with more than one child */
+.who-head{display:flex;align-items:center;gap:14px}
+.who-head .dash-mark{width:72px}
+.who-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.who-card{font:inherit;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:18px 12px;border-radius:20px;background:var(--card);border:1.5px solid var(--line);box-shadow:0 1px 2px rgba(60,12,8,.07),0 6px 18px rgba(60,12,8,.06);transition:border-color .15s ease,transform .15s ease}
+.who-card:hover{border-color:var(--gold);transform:translateY(-1px)}
+.who-card strong{font-family:var(--display);font-size:1.3rem;color:var(--maroon)}
+.who-cls{display:flex;flex-direction:column;gap:2px;font-size:.85rem;font-weight:700;color:var(--muted)}
+.who-switch{gap:8px;justify-content:flex-start;margin-top:4px}
+table.fam{width:100%;border-collapse:collapse;font-size:.92rem}
+table.fam th,table.fam td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.fam thead th{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+table.fam tbody th{font-family:var(--display);color:var(--maroon)}
+@media (prefers-reduced-motion:reduce){.who-card{transition:none}.who-card:hover{transform:none}}
+.sel-bar .btn:not(.danger-solid):not(.ghost){background:#fff7ea;color:var(--maroon)}
+table.fam .pill,table.fam td.num{white-space:nowrap}

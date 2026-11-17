@@ -150,7 +150,7 @@ function route(){
   if (p === "/account") return viewAccount();
   if (p === "/admin" || p === "/admin/") return viewAdmin();
   if (p === "/me") return redirect(roles.teacher ? "/teacher" : roles.family ? "/practice" : "/teacher");
-  if ((m = p.match(/^\/practice(?:\/(notes|chat))?\/?$/))) return viewDesk(m[1] || "");
+  if ((m = p.match(/^\/practice(?:\/(notes|chat|who))?\/?$/))) return viewDesk(m[1] || "");
   if ((m = p.match(/^\/teacher(?:\/(students|classes|chat|page|approve)(?:\/([0-9a-f-]{36}))?)?\/?$/))) return viewTeacher(m[1] || "", m[2] || "");
   if (p === "/v2") return viewHome(2);
   if (p === "/v1") return viewHome(1);
@@ -648,6 +648,32 @@ function nextClassText(k){
 }
 const FLAME = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"/></svg>`;
 
+/* "Who's practising?" — one card per child (or adult) on this account, with each of their classes this week */
+async function whoPicker(people, enrols, ses){
+  document.title = "Who's practising? · Gurushishya";
+  const ids = enrols.map(r => r.id), t0 = today0(), tk = ymd(t0);
+  const { data: logs } = await sb.from("practice_logs").select("student_id,day,minutes").in("student_id", ids).gte("day", ymd(addDays(t0, -8)));
+  const L = logs || [];
+  const weekOf = e => { const k = e.classes, ws = weekStartFor(k.day_of_week), mine = L.filter(l => l.student_id === e.id);
+    const daysSince = Array.from({ length: 6 }, (_, i) => ymd(addDays(ws, i + 1))).filter(d => d <= tk);
+    return { n: daysSince.filter(d => mine.some(l => l.day === d)).length, m: mine.filter(l => l.day >= ymd(ws)).reduce((a, l) => a + (l.minutes || 0), 0), today: mine.some(l => l.day === tk), classDay: t0.getDay() === k.day_of_week }; };
+  $app.innerHTML = `
+    <section class="who-head"><img class="dash-mark" src="/assets/gs-emblem.png" alt="" width="240" height="134">
+      <div><span class="eyebrow">Practice</span><h1 class="page-h">Who's practising?</h1><p class="muted m0">Tap your name to start.</p></div></section>
+    <div class="who-grid">${people.map(p => `<button type="button" class="who-card" data-who="${esc(p.key)}">${avatar(p.name, 72)}<strong>${esc(p.name)}</strong>
+        <span class="who-cls">${p.enrols.map(e => { const w = weekOf(e); return `<span>${esc(e.classes.name)} · ${w.today ? "✓ done today" : w.classDay ? "class today" : "not yet today"}</span>`; }).join("")}</span></button>`).join("")}</div>
+    <section class="card"><h2>This week, for parents</h2>
+      <div class="scroll"><table class="fam"><thead><tr><th>Who</th><th>Class</th><th>Days</th><th>Minutes</th><th>Today</th></tr></thead><tbody>
+      ${people.map(p => p.enrols.map((e, i) => { const w = weekOf(e), g = e.classes.groups || {};
+        return `<tr>${i === 0 ? `<th scope="row" rowspan="${p.enrols.length}">${esc(p.name)}</th>` : ""}<td>${esc(e.classes.name)}<br><span class="hint">${esc(g.teacher_name || "")}</span></td><td class="num">${w.n} of 6</td><td class="num">${fmtMins(w.m)}</td><td>${w.today ? `<span class="pill ok">Done</span>` : w.classDay ? `<span class="pill grey">Class</span>` : `<span class="pill wait">Not yet</span>`}</td></tr>`; }).join("")).join("")}
+      </tbody></table></div>
+      <p class="hint m0">Each child's homework, notes and chat with their teacher are inside their own page.</p></section>`;
+  $app.querySelectorAll("[data-who]").forEach(b => b.onclick = () => {
+    const p = people.find(x => x.key === b.dataset.who), last = p.enrols.find(e => e.id === store.get("riyaz.enrol"));
+    store.set("riyaz.enrol", (last || p.enrols[0]).id); ses.set("gs.who", p.key); go("/practice");
+  });
+}
+
 async function viewDesk(tab = ""){
   if (!onRoot()) { location.href = siteUrl("/practice"); return; }
   if (!user) return go("/signin?next=/practice");
@@ -662,6 +688,10 @@ async function viewDesk(tab = ""){
   // One profile per first name; each profile can have several classes
   const people = [];
   enrols.forEach(r => { const key = r.first_name.trim().toLowerCase(); let p = people.find(x => x.key === key); if (!p) people.push(p = { key, name: r.first_name.trim(), enrols: [] }); p.enrols.push(r); });
+  // Families with more than one child: "Who's practising?" first, so a parent can hand the phone to a child.
+  const ses = { get: k2 => { try { return sessionStorage.getItem(k2); } catch (e) { return null; } }, set: (k2, v) => { try { sessionStorage.setItem(k2, v); } catch (e) {} } };
+  if (people.length > 1 && (tab === "who" || (tab === "" && !ses.get("gs.who")))) return whoPicker(people, enrols, ses);
+  if (tab === "who") tab = "";
   let cur = enrols.find(r => r.id === store.get("riyaz.enrol")) || enrols[0];
   const person = people.find(p => p.enrols.includes(cur));
   store.set("riyaz.enrol", cur.id);
@@ -687,7 +717,7 @@ async function viewDesk(tab = ""){
       <div class="row" style="gap:12px;flex-wrap:nowrap">${avatar(person.name, 56)}
         <div style="min-width:0"><h1 class="page-h">${esc(person.name)}</h1>
           <span class="muted">${st ? `${st}-day streak · ` : ""}${fmtMins(monthMins)} this month</span></div></div>
-      ${people.length > 1 ? `<div class="chips" role="group" aria-label="Switch student">${people.map(p => `<button type="button" class="chip" data-person="${esc(p.key)}" aria-pressed="${p === person}">${esc(p.name)}</button>`).join("")}</div>` : ""}
+      ${people.length > 1 ? `<div class="row who-switch"><span class="hint">Not ${esc(person.name)}?</span>${link("/practice/who", "Switch person", "btn small ghost")}</div>` : ""}
     </section>
     ${person.enrols.length > 1 ? `<div class="chips" role="group" aria-label="Choose a class">${person.enrols.map(e => `<button type="button" class="chip" data-enrol="${e.id}" aria-pressed="${e === cur}">${esc(e.classes.name)}</button>`).join("")}</div>` : ""}
     <p class="muted m0 cls-line"><strong>${esc(k.name)}</strong> · ${esc(g.name)} with ${esc(g.teacher_name)}</p>
@@ -1248,7 +1278,8 @@ function tStudents(pane, g, D, again){
       <div class="row"><button class="btn" type="submit">Add student</button><button class="btn ghost" type="button" id="ns-cancel">Cancel</button></div>
       <div id="ns-out" role="status"></div>
     </form>
-    <div id="sel-bar" class="sel-bar" hidden><span id="sel-n"></span><button class="btn small" type="button" id="sel-msg">Message selected</button></div>
+    <div id="sel-bar" class="sel-bar" hidden><span id="sel-n"></span><span class="sel-acts"><button class="btn small" type="button" id="sel-msg">Message</button><button class="btn small danger-solid" type="button" id="sel-del">Delete</button><button class="btn small ghost light" type="button" id="sel-clear">Clear</button></span></div>
+    <div id="sel-out" role="status"></div>
     <form id="sel-compose" class="compose" hidden><label for="sel-text">Message to <span id="sel-who"></span></label>
       <textarea id="sel-text" rows="3" maxlength="2000" required></textarea>
       <div class="row"><button class="btn small" type="submit">Send</button><button class="btn small ghost" type="button" id="sel-cancel">Cancel</button></div><div class="out" role="status"></div></form>
@@ -1274,29 +1305,48 @@ function tStudents(pane, g, D, again){
     if (g.approved) openInvite(s, adult ? "join" : "consent", g, D.classOf(s.class_id), again); else again();
   };
   const bar = document.getElementById("sel-bar"), comp = document.getElementById("sel-compose");
+  const delBtn = document.getElementById("sel-del"), msgBtn = document.getElementById("sel-msg"), selOut = document.getElementById("sel-out");
+  const activePicked = () => D.studs.filter(s => picked.has(s.id) && s.status === "active");
   const updBar = () => { bar.hidden = !picked.size; document.getElementById("sel-n").textContent = `${picked.size} selected`;
-    document.getElementById("sel-who").textContent = D.studs.filter(s => picked.has(s.id)).map(s => s.first_name).join(", "); };
+    const act = activePicked(); msgBtn.hidden = !act.length; msgBtn.textContent = act.length === picked.size ? "Message" : `Message ${act.length} registered`;
+    delBtn.dataset.sure = ""; delBtn.textContent = "Delete";
+    const all = list.querySelector("#sel-all"); if (all) all.checked = picked.size && list.querySelectorAll("[data-pick]").length === picked.size;
+    document.getElementById("sel-who").textContent = act.map(s => s.first_name).join(", "); };
+  const clearPicks = () => { picked.clear(); list.querySelectorAll("input[type=checkbox]").forEach(c => c.checked = false); updBar(); };
+  document.getElementById("sel-clear").onclick = clearPicks;
+  delBtn.onclick = async () => {
+    const names = D.studs.filter(s => picked.has(s.id)), nAct = names.filter(s => s.status === "active").length;
+    if (!delBtn.dataset.sure) { delBtn.dataset.sure = "1"; delBtn.textContent = `Tap again to delete ${picked.size}`;
+      selOut.innerHTML = `<div class="notice">This deletes ${names.map(s => esc(s.first_name)).join(", ")}${nAct ? `, including ${nAct === 1 ? "one registered student's" : nAct + " registered students'"} practice record, chat and notes` : ""}. It can't be undone.</div>`; return; }
+    delBtn.disabled = true;
+    const { error } = await sb.from("students").delete().in("id", [...picked]);
+    delBtn.disabled = false;
+    if (error) { selOut.innerHTML = `<div class="notice">${esc(friendly(error))}</div>`; return; }
+    again();
+  };
   document.getElementById("sel-msg").onclick = () => { comp.hidden = false; document.getElementById("sel-text").focus(); };
   document.getElementById("sel-cancel").onclick = () => { comp.hidden = true; };
   comp.onsubmit = async e => {
     e.preventDefault(); const out = comp.querySelector(".out"), b = comp.querySelector("button"); b.disabled = true;
-    const { data: n, error } = await sb.rpc("message_students", { student_ids: [...picked], body: val("sel-text") });
+    const { data: n, error } = await sb.rpc("message_students", { student_ids: activePicked().map(s => s.id), body: val("sel-text") });
     b.disabled = false;
     if (error) { out.innerHTML = `<div class="notice">${esc(friendly(error))}</div>`; return; }
     out.innerHTML = `<div class="notice ok">Sent to ${n} student${n === 1 ? "" : "s"}. They'll see it in their chat.</div>`;
-    document.getElementById("sel-text").value = ""; picked.clear(); list.querySelectorAll("input[type=checkbox]").forEach(c => c.checked = false); bar.hidden = true;
+    document.getElementById("sel-text").value = ""; clearPicks();
     setTimeout(() => { comp.hidden = true; out.innerHTML = ""; }, 2500);
   };
   const draw = () => {
     const rows = D.studs.filter(s => classFilter === "all" || s.class_id === classFilter);
-    list.innerHTML = rows.length ? `<ul class="slist">${rows.map(s => { const k = D.classOf(s.class_id), w = s.status === "active" ? D.weekOf(s.id, k) : null, nx = nextStep(s);
-        return `<li><input type="checkbox" data-pick="${s.id}" aria-label="Select ${esc(s.first_name)}" ${s.status === "active" ? "" : "disabled title=\"Not joined yet\""}>
+    list.innerHTML = rows.length ? `<label class="sel-all" for="sel-all"><input type="checkbox" id="sel-all"> Select all${classFilter === "all" ? "" : " in this class"}</label><ul class="slist">${rows.map(s => { const k = D.classOf(s.class_id), w = s.status === "active" ? D.weekOf(s.id, k) : null, nx = nextStep(s);
+        return `<li><input type="checkbox" data-pick="${s.id}" aria-label="Select ${esc(s.first_name)}" ${picked.has(s.id) ? "checked" : ""}>
           <a href="/teacher/students/${s.id}" data-link class="sl-main">${avatar(s.first_name, 36)}<span><strong>${esc(s.first_name)}</strong>${s.is_adult ? ` <span class="hint">adult</span>` : ""}
             <span class="hint sl-sub">${esc(k.name)}${w ? ` · ${w.n} of 6 days · ${fmtMins(w.m)}` : ""}</span></span></a>
           <span class="sl-side">${statusPill(s)}<span class="sl-acts">${nx && g.approved ? `<button class="btn tiny" type="button" data-inv="${s.id}">${nx.label}</button>` : ""}<button class="btn tiny ghost icon-only" type="button" data-mg="${s.id}" aria-label="Manage ${esc(s.first_name)}" title="Withdraw or delete">⋯</button></span></span></li>`; }).join("")}</ul>
-      <p class="hint m0">Tick students to message them together. Tap a name for their report, or ⋯ to withdraw or delete.</p>`
+      <p class="hint m0">Tick students to message or delete them together. Tap a name for their report, or ⋯ for one student.</p>`
       : `<div class="empty">No students yet. Tap "Add a student" to start.</div>`;
-    list.querySelectorAll("[data-pick]").forEach(c => c.onchange = () => { c.checked ? picked.add(c.dataset.pick) : picked.delete(c.dataset.pick); updBar(); });
+    list.querySelectorAll("[data-pick]").forEach(c => c.onchange = () => { c.checked ? picked.add(c.dataset.pick) : picked.delete(c.dataset.pick); selOut.innerHTML = ""; updBar(); });
+    const sa = document.getElementById("sel-all");
+    if (sa) sa.onchange = () => { list.querySelectorAll("[data-pick]").forEach(c => { c.checked = sa.checked; sa.checked ? picked.add(c.dataset.pick) : picked.delete(c.dataset.pick); }); selOut.innerHTML = ""; updBar(); };
     list.querySelectorAll("[data-inv]").forEach(b => b.onclick = () => { const s = D.studs.find(x => x.id === b.dataset.inv); openInvite(s, nextStep(s).which, g, D.classOf(s.class_id), again); });
     list.querySelectorAll("[data-mg]").forEach(b => b.onclick = () => openManage(D.studs.find(x => x.id === b.dataset.mg), g, D, again));
   };
@@ -1381,6 +1431,8 @@ async function tReport(pane, g, D, id, again){
 async function tClasses(pane, g, D, again){
   const { data: posts } = await sb.from("chat_messages").select("id,class_id,kind,body,created_at").eq("group_id", g.id).neq("kind", "chat").order("created_at", { ascending: false }).limit(100);
   const t0 = today0();
+  // With several classes each one starts closed (title + mini dashboard); one class starts open. Remembered per class.
+  const clsOpen = id => { const v = store.get("gs.cls.open." + id); return v ? v === "1" : D.classes.length === 1; };
   const card = k => {
     const classToday = t0.getDay() === k.day_of_week, ws = weekStartFor(k.day_of_week), cs = classToday ? addDays(ws, -7) : ws;
     const days = Array.from({ length: 6 }, (_, i) => addDays(cs, i + 1));
@@ -1400,6 +1452,7 @@ async function tClasses(pane, g, D, again){
         </div>
         ${url ? `<div class="row ci-go"><a class="btn small zoom" href="${esc(url)}" target="_blank" rel="noopener">${ICO.video}<span>Start online class</span></a></div>` : ""}
       </div>
+      <details class="ci-body" data-open="${k.id}" ${clsOpen(k.id) ? "open" : ""}><summary class="ci-toggle"><span class="ci-open-t">Open class</span><span class="ci-close-t">Close class</span><span class="hint">Practice · posts · who practised · online class</span></summary>
       <div class="sub"><strong>This week's practice</strong>
         <form data-f="task">
           <label for="pt-title-${k.id}">What to practise<input id="pt-title-${k.id}" required maxlength="200" value="${esc(cur?.title || "")}" placeholder="${esc(last?.title || "e.g. Tatta adavu 1 to 4, slow then medium speed")}"></label>
@@ -1435,9 +1488,10 @@ async function tClasses(pane, g, D, again){
       </div>
       <details class="sub"><summary>Class settings</summary>
         <div class="row" style="margin-top:10px"><button class="btn small ghost danger" type="button" data-del>Remove class</button><span class="hint" data-msg role="status"></span></div>
-      </details></li>`;
+      </details></details></li>`;
   };
   const wantAdd = /[?&]add=1/.test(location.search) || !D.classes.length;
+  const openKey = id => "gs.cls.open." + id;
   pane.innerHTML = `<section class="card"><h2>Classes</h2>
     <details id="add-class" class="add-class" ${wantAdd ? "open" : ""}><summary>+ Add a class</summary>
       <form id="nc" style="margin-top:12px">
@@ -1458,6 +1512,9 @@ async function tClasses(pane, g, D, again){
     if (error) { out.textContent = friendly(error); return; }
     again();
   };
+  pane.querySelectorAll("details[data-open]").forEach(d => d.addEventListener("toggle", () => store.set(openKey(d.dataset.open), d.open ? "1" : "0")));
+  if (D.classes.length > 1) pane.querySelector("h2").insertAdjacentHTML("afterend", `<div class="row ci-all"><button class="btn small ghost" type="button" data-allcls="1">Open all</button><button class="btn small ghost" type="button" data-allcls="0">Close all</button></div>`);
+  pane.querySelectorAll("[data-allcls]").forEach(b => b.onclick = () => pane.querySelectorAll("details[data-open]").forEach(d => d.open = b.dataset.allcls === "1"));
   pane.querySelectorAll(".class-item[data-id]").forEach(li => {
     const id = li.dataset.id, k = D.classes.find(c => c.id === id);
     li.querySelector('[data-f="task"]').onsubmit = async e => {
