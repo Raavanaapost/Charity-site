@@ -134,7 +134,8 @@
       '<p class="sp-join-lede">Create moments together. Give an hour, share a skill, or be the trusted person near a project. Pick what you can bring and a volunteer will reply.</p>' +
       '<form class="sp-join-form" name="volunteer" data-join>' +
         '<input type="hidden" name="form-name" value="volunteer"><p hidden><label>Leave empty <input name="bot-field"></label></p>' +
-        '<fieldset class="sp-skills"><legend>What can you bring? <small>(pick any)</small></legend>' + SKILLS.map(function (k) { return '<label class="sp-skill"><input type="checkbox" name="skills[]" value="' + esc(k) + '"><span>' + esc(k) + "</span></label>"; }).join("") + "</fieldset>" +
+        '<fieldset class="sp-skills"><legend>What can you bring? <small>(pick any)</small></legend>' + SKILLS.map(function (k, i) { return '<label class="sp-skill' + (i >= 6 ? " more" : "") + '"><input type="checkbox" name="skills[]" value="' + esc(k) + '"><span>' + esc(k) + "</span></label>"; }).join("") +
+          (SKILLS.length > 6 ? '<button type="button" class="sp-skills-more" data-skills-more aria-expanded="false"><span>See all ' + SKILLS.length + " skills</span><i aria-hidden=\"true\">▾</i></button>" : "") + "</fieldset>" +
         '<div class="sp-join-row">' +
           '<label class="mo-field"><span>Your name</span><input name="name" required autocomplete="name"></label>' +
           '<label class="mo-field"><span>WhatsApp or email</span><input name="email" required placeholder="+94 7... or you@example.com"></label>' +
@@ -234,6 +235,14 @@
     });
   }
 
+  // ---- Join Raavanaa: the first six skills show; the button opens the full list (SURESH, 17 Nov 2026) ----
+  var more = $("[data-skills-more]");
+  if (more) more.addEventListener("click", function () {
+    var box = more.parentNode, open = !box.classList.contains("open");
+    box.classList.toggle("open", open); more.setAttribute("aria-expanded", String(open));
+    more.querySelector("span").textContent = open ? "Show fewer" : "See all " + SKILLS.length + " skills";
+    box.appendChild(more);
+  });
   // ---- Join Raavanaa: sent to the Netlify form "volunteer" ----
   var jf = $("[data-join]");
   if (jf) jf.addEventListener("submit", function (e) {

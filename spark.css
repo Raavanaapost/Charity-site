@@ -171,3 +171,42 @@ body[data-page="spark"] .bar{background:var(--surface)}
 .sp-join-row{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-bottom:12px}
 .sp-join-btn{width:100%;border:0;cursor:pointer}
 .sp-join-msg{margin:10px 0 0;font-weight:600}.sp-join-msg.ok{color:#1f7a47}.sp-join-msg.err{color:#b42318}
+
+/* Warmer Spark a Smile and Submit a need (SURESH, 17 Nov 2026: "too greenish, change it").
+   Green stays only for the Initiated stage itself; these use the gold, amber and flame of the other stages. */
+.spark-band,.spark-band[data-c="1"],.spark-band[data-c="4"]{background:radial-gradient(700px 360px at 50% 0,#fbe6bf 0,rgba(255,255,255,0) 70%),linear-gradient(#fbf6ea,#fffbf1)}
+.sb-slide.c1 .sb-title b{background-image:linear-gradient(100deg,#f2b21c,#e5851a 50%,#c8381e)}
+.sb-slide.c1 .sb-ribbon{background:linear-gradient(180deg,#e5851a,#c25a12)}
+.sb-slide.c4 .sb-title b{background-image:linear-gradient(100deg,#d08e0c,#e5701a 55%,#c8381e)}
+.sb-slide.c4 .sb-ribbon{background:linear-gradient(90deg,#b97a06,#c8501e)}
+.sb-says .c1 b{color:#c25a12}.sb-says .c4 b{color:#b97a06}
+/* Home cards: Submit a need in sunrise orange, Join Raavanaa in gold */
+.sb-way:not(.submit){background:radial-gradient(circle at 30% 0,rgba(255,255,255,.3),rgba(255,255,255,0) 55%),linear-gradient(160deg,#f0a12a,#e0701c 55%,#c8501e);box-shadow:0 18px 30px -16px rgba(200,80,30,.9),inset 0 0 0 2px rgba(255,255,255,.25)}
+.sb-way:not(.submit) .sb-ic{color:#c8501e}
+.sb-way:not(.submit) .sb-start{color:#8a3510}
+/* /spark page */
+.spark{--tint:#fbe9c2;--accent:#c8501e}
+.sp-title b{background:linear-gradient(100deg,#f2b21c 0%,#e5851a 50%,#c8381e 100%);-webkit-background-clip:text;background-clip:text}
+.sp-ribbon{background:linear-gradient(180deg,#e5851a,#c25a12)}
+.spark .mo-mark{filter:drop-shadow(0 8px 10px rgba(200,80,30,.3))}
+.sp-sparks i:nth-child(3n){background:#e5851a}
+.sp-way{background:radial-gradient(circle at 20% 0,rgba(255,255,255,.28),rgba(255,255,255,0) 55%),linear-gradient(160deg,#f0a12a,#e0701c 55%,#c8501e);box-shadow:0 18px 30px -16px rgba(200,80,30,.9),inset 0 0 0 2px rgba(255,255,255,.25)}
+.sp-way .sp-way-ic{color:#c8501e}
+.sp-ways .sp-way .sp-way-t .sp-rot b,.sp-way .sp-way-t .sp-start{color:#8a3510}
+.sp-flow .sp-f-ic{background:#fbe9c2;color:#c25a12}
+.sp-flow b,.sp-after-h{color:#8a3510}
+.sp-flow a{color:#c25a12}
+.sp-join h2{color:#8a3510}
+.sp-skill input:checked + span{background:#e0701c;border-color:#e0701c}
+.sp-join-go b{color:#c8501e}
+/* the header button: sunrise orange with a gold plus */
+.bar-submit{background:linear-gradient(110deg,#f0a12a,#e0701c 55%,#c8501e);box-shadow:0 8px 18px -8px rgba(200,80,30,.8),0 0 0 2px #ffd76a inset}
+.bar-submit svg{stroke:#8a3510}
+.bar-submit small{color:#fff3d0}
+@keyframes barPulse{0%,100%{box-shadow:0 8px 18px -8px rgba(200,80,30,.8),0 0 0 2px #ffd76a inset}50%{box-shadow:0 8px 22px -6px rgba(200,80,30,.95),0 0 0 2px #ffd76a inset,0 0 0 5px rgba(255,215,106,.35)}}
+/* Join Raavanaa: the first skills show, the rest open with one tap */
+.sp-skill.more{display:none}
+.sp-skills.open .sp-skill.more{display:block}
+.sp-skills-more{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;border:1.5px dashed #c8501e;background:#fff7e8;color:#8a3510;font:700 14px/1.2 var(--display);cursor:pointer}
+.sp-skills-more i{font-style:normal;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#e0701c;color:#fff;font-size:12px;transition:transform .2s}
+.sp-skills.open .sp-skills-more i{transform:rotate(180deg)}
