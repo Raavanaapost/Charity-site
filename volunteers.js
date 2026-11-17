@@ -21,6 +21,7 @@
       '<h1 class="vh-title">Our volunteers</h1>' +
       '<p class="vh-turn" data-turn>' + TITLES.map(function (t, i) { return '<span class="' + (i ? "" : "on") + '">' + t + "</span>"; }).join("") + "</p>" +
       '<p class="vh-lede">Everyone here gives an hour, a skill or a visit. Many are members too, so we keep one list for all of us.</p>' +
+      '<a class="vh-join" href="#join" data-go-join><span class="vh-join-ic" aria-hidden="true">+</span><span><b>I want to join</b><small>the Raavanaa community</small></span><i aria-hidden="true">↓</i></a>' +
       '<div class="vh-stats" data-stats aria-live="polite"></div>' +
     "</header>" +
     '<div class="vf" data-filters hidden>' +
@@ -107,6 +108,14 @@
       say(data.show === "yes" ? "Welcome to Raavanaa! You are on the list above, and a volunteer will be in touch soon." : "Welcome to Raavanaa! A volunteer will be in touch soon.", true);
       if (data.show === "yes") load();
     }).catch(function () { btn.disabled = false; say("That did not send. Please try again."); });
+  });
+  // The big "I want to join" button at the top (SURESH 17 Nov 2026): one tap glides down to the form.
+  root.querySelector("[data-go-join]").addEventListener("click", function (e) {
+    e.preventDefault();
+    var j = document.getElementById("join");
+    j.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    j.classList.remove("v-flash"); void j.offsetWidth; j.classList.add("v-flash");
+    try { history.replaceState(null, "", "#join"); } catch (x) { /* ignore */ }
   });
   root.addEventListener("click", function (e) { var b = e.target.closest("[data-f]"); if (b) { F = b.dataset.f; draw(); } });
   root.querySelector("[data-skill]").addEventListener("change", function (e) { SKILL = e.target.value; draw(); });
