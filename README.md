@@ -42,3 +42,11 @@ the newest), with bars to jump and a pause button (`assets/js/main.js`, `.rp-tur
 Below it: two pictures, then two more. Sports (league) stories are kept out of these five.
 This post also takes live the photo and school-name removal (branches rp-no-school-names,
 rp-no-child-photos).
+
+## 17 Nov 2026 (later): raavanaa.org picture style and Submit a need
+
+The five front pictures now look like raavanaa.org's Home pictures (`rp_tile()` in
+`inc/template-tags.php`, `.rp-mosaic` in `main.css`): words on the picture, stage pill, place, and a
+turning green call on the big one ("Make this happen", "Own it"...). Phone: one big, two, two.
+Computer: big on the left, four on the right. A green "Submit a need" pill sits in the top bar and a
+band in the footer, both to https://raavanaa.org/spark (`rp_report_url`).
