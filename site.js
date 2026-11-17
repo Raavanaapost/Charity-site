@@ -2780,6 +2780,7 @@ window.RAAV_FEATURES = (function () {
     const hit = byTz.find(([re]) => re.test(tz));
     return hit ? hit[1] : /-CA$/.test(lang) ? "CAD" : /-GB$/.test(lang) ? "GBP" : /-IN$/.test(lang) ? "INR" : "LKR";
   };
+  const PL_SAYS = ["Be the smile", "Make the smile", "Make the moment", "Complete the day", "Light up their day"];
   const HEART_SVG = `<svg class="pl-heart" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>`;
 
   // Sponsor a smile: card payments through PayHere (rupees) or Stripe Checkout (Canadian dollars).
@@ -2915,19 +2916,29 @@ window.RAAV_FEATURES = (function () {
       const amount = () => Math.round(typed() * rate());
       // "Complete the day" (SURESH, 17 Nov 2026): one tap fills in what is left, in the giver's own money.
       const fullIn = cur => { const r = cur === "LKR" || !curSel ? 1 : ((PL_FX && PL_FX[cur]) || PL_FX_TABLE[cur] || 0); return r ? (cur === "LKR" || !curSel ? left : Math.ceil(left / r)) : 0; };
-      const fullBtn = f.querySelector("[data-full]"), fullText = f.querySelector("[data-full-text]");
-      if (fullBtn) fullBtn.addEventListener("click", () => { ownIn.value = String(fullIn(curSel ? curSel.value : "LKR")); f.dispatchEvent(new Event("input")); });
+      // Tapped once, it stays "full": choosing another currency fills in the full amount in that money again.
+      const fullBtn = f.querySelector("[data-full]"), rateEl = f.querySelector("[data-rate]");
+      let full = false;
+      const fill = () => { ownIn.value = String(fullIn(curSel ? curSel.value : "LKR")); };
+      if (fullBtn) fullBtn.addEventListener("click", () => { full = true; fill(); f.dispatchEvent(new Event("input")); ownIn.scrollIntoView({ block: "center", behavior: "smooth" }); });
+      ownIn.addEventListener("input", () => { full = false; });
+      if (curSel) curSel.addEventListener("change", () => { if (full) fill(); });
+      // The title on the button takes turns (SURESH, 17 Nov 2026).
+      const sayEl = f.querySelector("[data-full-say]");
+      if (sayEl && !matchMedia("(prefers-reduced-motion: reduce)").matches) { let k = 0; setInterval(() => { k = (k + 1) % PL_SAYS.length; sayEl.classList.remove("in"); void sayEl.offsetWidth; sayEl.textContent = PL_SAYS[k]; sayEl.classList.add("in"); }, 2600); }
       const typedText = () => !curSel || curSel.value === "LKR" ? moneyOf(site, typed(), x) : `${curSel.value} ${typed().toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
       const pctWith = v => goal ? Math.min(100, Math.round((raised + v) / goal * 100)) : 0;
       const update = () => {
         const v = amount(), pct = pctWith(v), foreign = curSel && curSel.value !== "LKR";
         try { if (curSel) localStorage.setItem("raav-cur", curSel.value); } catch (e) { /* none */ }
-        const conv = foreign && v ? `That is about ${moneyOf(site, v, x)}. ` : "";
-        if (fullText) {
-          const c = curSel ? curSel.value : "LKR", n = fullIn(c);
-          fullText.textContent = foreign ? `${moneyOf(site, left, x)} left: about ${c} ${n.toLocaleString("en-US")} in one tap` : `${moneyOf(site, left, x)} is all that's left, in one tap`;
-          fullBtn.classList.toggle("on", !!v && v >= left);
+        // Just above the amount: what it is in Sri Lankan rupees.
+        if (rateEl) {
+          const c = curSel ? curSel.value : "LKR", r = rate();
+          rateEl.hidden = !foreign;
+          if (foreign) rateEl.innerHTML = typed() ? `${esc(typedText())} = <b>about ${esc(moneyOf(site, v, x))}</b>` : `1 ${esc(c)} = <b>about ${esc(moneyOf(site, r, x))}</b>`;
         }
+        if (fullBtn) fullBtn.classList.toggle("on", !!v && v >= left);
+        const conv = "";
         const text = !v ? "" : conv + (!goal ? "" : pct >= 100 ? "Your part completes this project: 100% of its goal." : `Your part brings this project to ${pct}% of its goal.`);
         if (reach.textContent !== text) reach.textContent = text;
         reach.hidden = !text;
@@ -2991,8 +3002,9 @@ window.RAAV_FEATURES = (function () {
           <p class="pl-lede">Give from anywhere, in your own money. Reserve your part of the day. <b>We'll send you the ways to fund.</b></p>
           <form class="give-form pledge-form give-ask" data-slug="${esc(slugOf(x))}" data-goal="${bp.goal}" data-raised="${bp.raised}" data-left="${left}" data-cur="${esc(cur)}" novalidate>
             <p hidden><label>Leave empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
-            ${left > 0 ? `<button type="button" class="pl-full" data-full><span class="pl-full-icon" aria-hidden="true">✦</span><span><b>Complete the day</b><small data-full-text>${esc(moneyOf(site, left, x))} is all that's left</small></span></button>` : ""}
+            ${left > 0 ? `<button type="button" class="pl-full" data-full><span class="pl-full-icon" aria-hidden="true">✦</span><span><b class="pl-full-say" data-full-say>${PL_SAYS[0]}</b><small><strong>${esc(moneyOf(site, left, x))}</strong> · Reserve and follow</small></span></button>` : ""}
             <label class="pl-amt"><span>Or any amount <small>(in your own money)</small></span>
+              <span class="pl-rate" data-rate hidden></span>
               <span class="pl-amt-row">${isRupees(x) ? `<select name="cur" aria-label="Currency">${PL_CURS.map(c => `<option value="${c}">${c === "LKR" ? "Rs" : c}</option>`).join("")}</select>` : `<b class="pl-cur">${esc(cur)}</b>`}
               <input name="own" inputmode="decimal" maxlength="12" autocomplete="off" placeholder="Any amount" required></span></label>
             <p class="give-reach" role="status" hidden></p>
