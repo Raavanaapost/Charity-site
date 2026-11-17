@@ -1887,7 +1887,7 @@ window.RAAV_FEATURES = (function () {
           <div class="go-form go-make">
             <h3>Make this happen</h3>
             <div class="mk-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-mk="donate"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>${FEAT.sponsor ? "Donate" : "Give"}</button><button type="button" role="tab" aria-selected="false" data-mk="other">Help another way</button></div>
-            ${!FEAT.sponsor && FEAT.pledge ? `<div class="mk-pane" data-mkpane="donate"><p class="go-sub">Reserve your part of this day, from anywhere in the world.</p>
+            ${!FEAT.sponsor && FEAT.pledge ? `<div class="mk-pane" data-mkpane="donate"><p class="go-sub">Reserve your part, and a volunteer will contact you with the ways to fund. A reservation is held for 24 hours, then that part opens to everyone again.</p>
               <button type="button" class="mk-jump" data-jump-give><span>Be the smile</span><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>` : `<div class="mk-pane" data-mkpane="donate"><p class="go-sub">${!FEAT.sponsor ? "Give towards this day in loving memory of someone dear to you. Their name goes with the gift, and a volunteer will reply to you personally." : canGive(p) ? `Give towards this day by card. Secure payment by ${GIVE_BY}.` : "Want to give towards this day? Tap Donate and tell us what you would like to give. A volunteer will reply to you personally."}</p>${DONATE_BTN}
               <p class="go-name"${FEAT.sponsor ? "" : " hidden"}><a href="/moment?project=${encodeURIComponent(slugOf(p))}">♡ Give in someone's name, or on behalf of a family or group →</a></p></div>`}
             <form class="mk-pane" data-mkpane="other" hidden name="make-it-happen" data-ajax data-done="Thank you! Your note is on its way. We'll be in touch soon, and you'll be part of a child's best day.">
@@ -1955,11 +1955,19 @@ window.RAAV_FEATURES = (function () {
   // Donate on a project page. While the project still needs money it opens that project's giving form; otherwise the
   // Raavanaa Fund. With card payments off (launch, SURESH 12 Nov 2026) the form is "I'd like to give": a volunteer replies.
   function wireDonate(root, slug) {
+    // The Be the smile button by the budget: its words take turns (Be the smile, Make the moment...).
+    root.querySelectorAll(".b-give [data-donate] span").forEach(sp => {
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      let k = 0; setInterval(() => { k = (k + 1) % PL_SAYS.length; sp.classList.remove("in"); void sp.offsetWidth; sp.textContent = PL_SAYS[k]; sp.classList.add("in"); }, 2600);
+    });
     // The light "Be the smile ↓" in Make this happen goes down to the one giving form, by the budget (17 Nov 2026).
     root.querySelectorAll("[data-jump-give]").forEach(j => j.addEventListener("click", () => {
       const btn = root.querySelector(".b-give [data-donate]");
       if (!btn) return;
-      if (!root.querySelector(".pl-inline")) btn.click(); else root.querySelector(".pl-inline").scrollIntoView({ block: "start", behavior: "smooth" });
+      // The Budget panel comes into view from its top, with the form open inside it (SURESH, 17 Nov 2026).
+      if (!root.querySelector(".pl-inline")) { btn.dataset.noScroll = "1"; btn.click(); delete btn.dataset.noScroll; }
+      const panel = btn.closest(".panel") || btn;
+      panel.style.scrollMarginTop = "86px"; panel.scrollIntoView({ block: "start", behavior: "smooth" });
     }));
     root.querySelectorAll("[data-donate]").forEach(b => b.addEventListener("click", () => {
       // Memory launch (FEAT.sponsor off): every gift goes through the moment page, in someone's memory.
@@ -1974,7 +1982,7 @@ window.RAAV_FEATURES = (function () {
         renderGive(box, G_CTX.site, G_CTX.projects, G_CTX.give, { inline: true, q: new URLSearchParams({ project: slug }) });
         const shut = document.createElement("button"); shut.type = "button"; shut.className = "pl-shut"; shut.setAttribute("aria-label", "Close"); shut.textContent = "×";
         shut.addEventListener("click", () => box.remove()); box.prepend(shut);
-        box.scrollIntoView({ block: "start", behavior: "smooth" });
+        if (!b.dataset.noScroll) box.scrollIntoView({ block: "start", behavior: "smooth" });
         return;
       }
       if (!FEAT.sponsor) { location.href = (TA_PATH ? "/ta" : "") + "/moment?for=memory" + (GIVE_OPEN.has(slug) ? "&project=" + encodeURIComponent(slug) : "") + "#mo-step-2"; return; }
@@ -3040,7 +3048,7 @@ window.RAAV_FEATURES = (function () {
         <div class="give-proj big pl-proj">${card(x).replace(/^<a [^>]*>/, "").replace(/<\/a>$/, "")}</div>
         <div class="panel give-box">
           <h2>${HEART_SVG} <span class="pl-say" data-say>${PL_SAYS[0]}</span></h2>
-          <p class="pl-lede"><b>Reserve and follow.</b> Give from anywhere, in your own money. A volunteer will follow up with the ways to fund.</p>
+          <p class="pl-lede"><b>Reserve and follow.</b> Give from anywhere, in your own money. A volunteer will follow up with the ways to fund. Your part is held for 24 hours.</p>
           <form class="give-form pledge-form give-ask" data-slug="${esc(slugOf(x))}" data-goal="${bp.goal}" data-raised="${bp.raised}" data-left="${left}" data-cur="${esc(cur)}" novalidate>
             <p hidden><label>Leave empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
             ${left > 0 ? `<button type="button" class="pl-full" data-full><svg class="pl-mini" viewBox="0 0 44 44" aria-hidden="true"><defs><linearGradient id="pl-mini-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1f7a47"/><stop offset=".5" stop-color="#eaa21c"/><stop offset="1" stop-color="#c8381e"/></linearGradient></defs><circle cx="22" cy="22" r="17" fill="#fff" stroke="#f6dcae" stroke-width="6"/><circle class="pl-mini-arc" cx="22" cy="22" r="17" fill="none" stroke="url(#pl-mini-g)" stroke-width="6" stroke-linecap="round" pathLength="100" stroke-dasharray="${bp.goal ? Math.round(bp.raised / bp.goal * 100) : 0} 100" transform="rotate(-90 22 22)"/><text x="22" y="26" text-anchor="middle" data-mini-n>${bp.goal ? Math.round(bp.raised / bp.goal * 100) : 0}%</text></svg><span><b>${(m => m ? `Complete the moment for all ${m[0]} children` : "Complete the whole moment")(String(x.reach || "").match(/\d+/))}</b><small data-left-text><strong>${esc(moneyOf(site, left, x))}</strong> left</small></span></button>` : ""}
@@ -3057,7 +3065,7 @@ window.RAAV_FEATURES = (function () {
               <label><span>This gift is</span><select name="tribute_kind">${REASONS.map(([v, t]) => `<option value="${v}">${t}</option>`).join("")}</select></label>
               <label><span>Their name</span><input name="tribute_name" maxlength="60" placeholder="e.g. Amma, Kamala Rajan"></label>
             </details>
-            <button class="btn give-pay" type="submit">${HEART_SVG}<span>Be the smile</span></button>
+            <button class="btn give-pay" type="submit">${HEART_SVG}<span>Create the moment</span></button>
             ${SAFE}
             <p class="note give-msg" role="status" hidden></p>
           </form>
@@ -3363,7 +3371,7 @@ window.RAAV_FEATURES = (function () {
       </div>
       <h2 class="room-h">What happens next</h2>
       <ol class="room-steps">
-        <li class="done"><b>Your part is reserved</b><span>Your name shows on the project</span></li>
+        <li class="done"><b>Your part is reserved</b><span>Your name shows on the project, held for 24 hours</span></li>
         <li><b>Ways to fund</b><span>A volunteer writes to you personally</span></li>
         <li><b>Gift received</b><span>Marked on the project, open for all to see</span></li>
         <li><b>The day${day ? `: ${day}` : ""}</b><span>The children live it</span></li>

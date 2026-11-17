@@ -2740,3 +2740,10 @@ body[data-light] .mosaic{margin-top:8px}
 .pl-mini text{fill:#1f4d3a;font-size:11.5px}
 .pl-full small strong,.pl-eq{white-space:nowrap}
 .pl-eq{font-family:var(--display);font-size:17px;font-weight:800;color:#1f4d3a}
+/* 17 Nov 2026: a small Be the smile in Make this happen; the turning words live on the budget button */
+.mk-jump{width:auto;margin:0 auto;padding:8px 16px;font-size:17px;gap:8px}
+.mk-jump svg{width:16px;height:16px}
+.mk-pane[data-mkpane="donate"]{text-align:center}
+.pl-inline .pledge-one h2{display:none}
+.b-give [data-donate] span{display:inline-block}
+.b-give [data-donate] span.in{animation:room-in .5s ease-out}

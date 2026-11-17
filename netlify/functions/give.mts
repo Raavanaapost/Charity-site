@@ -195,7 +195,9 @@ async function pledges() {
   try {
     const rows = await getDatabase().sql<{ ref: string; project_slug: string; name: string; amount_value: number; listing: string; listing_words: string; tribute: (Tribute & { show?: boolean }) | null }>`
       SELECT ref, project_slug, name, amount_value, listing, listing_words, tribute FROM give_requests
-      WHERE kind = 'project' AND project_slug <> '' AND status IN ('new', 'replied', 'received') AND amount_value > 0 ORDER BY received_at`;
+      WHERE kind = 'project' AND project_slug <> '' AND amount_value > 0
+        -- A reservation is held for 24 hours (SURESH, 17 Nov 2026); once a volunteer has replied, or the gift came, it stays.
+        AND (status IN ('replied', 'received') OR (status = 'new' AND received_at > NOW() - INTERVAL '24 hours')) ORDER BY received_at`;
     for (const r of rows) {
       if (!find(r.project_slug)) continue;
       const name = r.listing === "anonymous" ? FRIEND : r.listing === "own" && r.listing_words ? r.listing_words : r.name;
