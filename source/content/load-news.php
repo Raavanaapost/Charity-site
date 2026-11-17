@@ -91,7 +91,7 @@ $stories = array(
 			. n_q( 'It was a wonderful day! The happiness on the children\'s faces is the greatest gift we received.', 'Sarvika, the pre-school\'s manager, the day after' )
 			. n_h( 'Where the money went' )
 			. n_p( 'The full cost of the trip, Rs 20,000, was covered by Friends of Raavanaa: the bus, food and snacks, and what the children needed for the day.' )
-			. n_p( 'This was a Raavanaa – Beyond the Lanes day of joy. See every project at <a href="https://raavanaa.org">raavanaa.org</a>.' ),
+			. n_p( 'This was a Raavanaa day of joy. See every project at <a href="https://raavanaa.org">raavanaa.org</a>.' ),
 	),
 	array(
 		'key'     => 'KT',
@@ -317,7 +317,7 @@ $stories = array(
 		'art'     => 'beyond-the-lanes',
 		'cats'    => array( 'opinion' ),
 		'place'   => '',
-		'byline'  => 'Raavanaa – Beyond the Lanes',
+		'byline'  => 'Raavanaa',
 		'excerpt' => 'Why Raavanaa does what it does.',
 		'hours'   => 15,
 		'views'   => 40,
@@ -418,11 +418,11 @@ function n_page( $key, $content, $excerpt = null ) {
 	}
 }
 n_page( 'about',
-	n_p( 'RaavanaaPost brings you the stories behind <a href="https://raavanaa.org">Raavanaa – Beyond the Lanes</a>: the needs that reach us, the days of joy they become, and the people who make them happen.' )
+	n_p( 'RaavanaaPost brings you the stories behind <a href="https://raavanaa.org">Raavanaa</a>: the needs that reach us, the days of joy they become, and the people who make them happen.' )
 	. n_p( 'Raavanaa exists for one thing: giving children a day of joy they will remember. A game, a trip, a good meal. Simple days that many children never get.' )
 	. n_h( 'Community needs. Real impact.' )
 	. n_p( 'Every story here follows a need from the moment it reaches us to the day it becomes real: Initiated, Activated, Impact. We come back with the story, the pictures and what was spent.' ),
-	'The stories behind Raavanaa – Beyond the Lanes.'
+	'The stories behind Raavanaa.'
 );
 n_page( 'promise',
 	n_p( 'We check before we publish. Every need is checked in person before a project is shared.' )
@@ -435,7 +435,7 @@ n_page( 'promise',
 n_page( 'report', n_p( 'Know children who deserve a day of joy, or a need in your community? Tell us. The Raavanaa team will call, visit and check before anything is shared.' ) );
 n_page( 'needs', n_p( 'Every need that reaches us stays here, with its stage, until the day of joy has happened.' ) );
 
-set_theme_mod( 'rp_footer_about', 'The news of Raavanaa – Beyond the Lanes: community needs, and the real impact your kindness creates.' );
+set_theme_mod( 'rp_footer_about', 'The news of Raavanaa: community needs, and the real impact your kindness creates.' );
 set_theme_mod( 'rp_needs_text', 'Every need moves through three stages: Initiated, Activated and Impact. Here is where each one stands today.' );
 
 WP_CLI::success( 'Loaded ' . count( $stories ) . ' stories.' );
