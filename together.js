@@ -90,7 +90,8 @@
     var list = (res[1].projects || []).concat(res[3] && res[3].projects || []);
     var toProj = function (p) {
       var sh = share[p.slug] || {}, goal = num(p.goal) || (p.budget || []).reduce(function (s, x) { return s + num(x && x.amount); }, 0);
-      var raised = (p.funders || []).reduce(function (s, x) { return s + num(x && x.amount); }, 0) + ((gifts[p.slug] || {}).gifts || []).reduce(function (s, x) { return s + num(x && x.amount); }, 0);
+      var raised = (p.funders || []).reduce(function (s, x) { return s + num(x && x.amount); }, 0) + ((gifts[p.slug] || {}).gifts || []).reduce(function (s, x) { return s + num(x && x.amount); }, 0)
+        + ((res[4] && res[4].pledges || {})[p.slug] || []).reduce(function (s, x) { return s + num(x && x.amount); }, 0);
       return { slug: p.slug, title: (TA && sh.title_ta) || sh.title || p.title, art: sh.art || (/\.svg$/.test(p.cover || "") ? p.cover : "/img/project-hills.svg"),
         cur: String(p.currency || "$").trim(), goal: goal, raised: raised, left: Math.max(0, goal - raised), pct: goal ? Math.min(100, Math.round(raised / goal * 100)) : 0,
         open: !/complete/i.test(p.status || "") && goal > 0 && raised < goal, held: m.held === p.slug };

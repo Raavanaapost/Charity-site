@@ -8,11 +8,13 @@
      circle   family and friends circles on the moment page and the family page (invites, joining, circle choice).
      vetting  people asking for a project and vouching for it (/initiate, /create, /e/<link>, "Start a project",
               "Vouched for by").
+     pledge   the simple project giving form (SURESH, 17 Nov 2026): Give on a project opens one short form on that
+              project (amount, name, email or WhatsApp, follow); the pledge shows on the project at once.
      group    "Just me / A group" on Spark a Smile (/spark) and its group words (SURESH 16 Nov 2026: a next feature).
      reasons  the reasons shown on /moment; [] shows all twelve.
    On a draft or local preview, ?features=all shows everything for this browser tab (?features=launch goes back). */
 window.RAAV_FEATURES = (function () {
-  const F = { sponsor: false, circle: false, vetting: true, tamil: false, group: false, reasons: [] };  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
+  const F = { sponsor: false, pledge: true, circle: false, vetting: true, tamil: false, group: false, reasons: [] };  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
   try {
     const q = new URLSearchParams(location.search).get("features");
     const test = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) || /--charity-projects-draft\./.test(location.hostname);
@@ -1817,7 +1819,7 @@ window.RAAV_FEATURES = (function () {
   const whoFunded = p => { const b = budgetOf(p); if (!b.goal || !b.funders.length) return "";
     return `<small class="who">${b.funders.map(f => `${esc(f.name)}${f.hide_amount ? "" : ` <b>${Math.round(numOf(f.amount) / b.goal * 100)}%</b>`}`).join(" · ")}</small>`; };
   // The Donate button (wireDonate): it opens the giving form.
-  const DONATE_BTN = `<button class="donate-btn" type="button" data-donate><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg><span>${FEAT.sponsor ? "Donate" : "Give in loving memory"}</span></button>`;
+  const DONATE_BTN = `<button class="donate-btn" type="button" data-donate><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg><span>${FEAT.sponsor ? "Donate" : FEAT.pledge ? "Sponsor a smile" : "Give in loving memory"}</span></button>`;
   // The "Activating" circle with its list of steps, as on a project page.
   function activatingPanelHTML(p, cls = "") {
     const steps = ringSteps(p), T = RING_TEXT[stageNum(p)];
@@ -1873,7 +1875,7 @@ window.RAAV_FEATURES = (function () {
           <div class="go-form go-make">
             <h3>Make this happen</h3>
             <div class="mk-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-mk="donate"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>${FEAT.sponsor ? "Donate" : "Give"}</button><button type="button" role="tab" aria-selected="false" data-mk="other">Help another way</button></div>
-            <div class="mk-pane" data-mkpane="donate"><p class="go-sub">${!FEAT.sponsor ? "Give towards this day in loving memory of someone dear to you. Their name goes with the gift, and a volunteer will reply to you personally." : canGive(p) ? `Give towards this day by card. Secure payment by ${GIVE_BY}.` : "Want to give towards this day? Tap Donate and tell us what you would like to give. A volunteer will reply to you personally."}</p>${DONATE_BTN}
+            <div class="mk-pane" data-mkpane="donate"><p class="go-sub">${!FEAT.sponsor && FEAT.pledge ? "Pledge what you would like to give. Your name and amount show here straight away, and we'll send you the ways to fund." : !FEAT.sponsor ? "Give towards this day in loving memory of someone dear to you. Their name goes with the gift, and a volunteer will reply to you personally." : canGive(p) ? `Give towards this day by card. Secure payment by ${GIVE_BY}.` : "Want to give towards this day? Tap Donate and tell us what you would like to give. A volunteer will reply to you personally."}</p>${DONATE_BTN}
               <p class="go-name"${FEAT.sponsor ? "" : " hidden"}><a href="/moment?project=${encodeURIComponent(slugOf(p))}">♡ Give in someone's name, or on behalf of a family or group →</a></p></div>
             <form class="mk-pane" data-mkpane="other" hidden name="make-it-happen" data-ajax data-done="Thank you! Your note is on its way. We'll be in touch soon, and you'll be part of a child's best day.">
               <p class="go-sub">Not able to give money? There are other ways to make this day happen. Tell us how you'd like to help and we'll reach out.</p>
@@ -1942,6 +1944,7 @@ window.RAAV_FEATURES = (function () {
   function wireDonate(root, slug) {
     root.querySelectorAll("[data-donate]").forEach(b => b.addEventListener("click", () => {
       // Memory launch (FEAT.sponsor off): every gift goes through the moment page, in someone's memory.
+      if (!FEAT.sponsor && FEAT.pledge && GIVE_OPEN.has(slug)) { location.href = (TA_PATH ? "/ta" : "") + "/give?project=" + encodeURIComponent(slug); return; }
       if (!FEAT.sponsor) { location.href = (TA_PATH ? "/ta" : "") + "/moment?for=memory" + (GIVE_OPEN.has(slug) ? "&project=" + encodeURIComponent(slug) : "") + "#mo-step-2"; return; }
       location.href = (TA_PATH ? "/ta" : "") + (GIVE_OPEN.has(slug) ? "/give?project=" + encodeURIComponent(slug) : "/fund");
     }));
@@ -1973,6 +1976,13 @@ window.RAAV_FEATURES = (function () {
   const canGive = p => { if (!GIVE_ON || !p || !p.verified || stageNum(p) !== 1 || !takesCards(p)) return false; const b = budgetOf(p); return b.goal > 0 && b.raised < b.goal; };
 
   // Budget figures for a project: what it costs, what supporters have given, and the share funded.
+  // Pledges this browser sent in the last hour (sessionStorage "raav-pledged"): shown on the project at once.
+  function justPledged(add) {
+    let list = [];
+    try { list = JSON.parse(sessionStorage.getItem("raav-pledged") || "[]").filter(x => x && Date.now() - x.at < 3600e3); } catch (e) { list = []; }
+    if (add) { list.push({ ...add, at: Date.now() }); try { sessionStorage.setItem("raav-pledged", JSON.stringify(list)); } catch (e) { /* storage blocked */ } }
+    return list.map(x => ({ name: x.name, amount: x.amount, pledged: true, ref: x.ref, slug: x.slug, ...(x.hide_amount ? { hide_amount: true } : {}) }));
+  }
   function budgetOf(p) {
     const lines = (p.budget || []).filter(x => x && x.item), funders = (p.funders || []).filter(x => x && x.name);
     const goal = numOf(p.goal) || lines.reduce((s, x) => s + numOf(x.amount), 0);
@@ -1994,7 +2004,7 @@ window.RAAV_FEATURES = (function () {
     const listOf = (h, total) => b.lines.length ? `<h3 class="money-h">${h}</h3><ul class="bx-list">${b.lines.map(x => `<li><span>${esc(x.item)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>
         <p class="bx-total"><span>${total}</span><b>${money(sum)}</b></p>` : "";
     const funders = h => b.funders.length ? `<h3 class="money-h">${h}</h3>
-        <ul class="funders">${b.funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${numOf(f.amount) && !f.hide_amount ? `<b>${money(numOf(f.amount))}</b>` : ""}</li>`).join("")}</ul>` : "";
+        <ul class="funders">${b.funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.pledged ? ` <em class="f-pledged">pledged</em>` : ""}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${numOf(f.amount) && !f.hide_amount ? `<b>${money(numOf(f.amount))}</b>` : ""}</li>`).join("")}</ul>` : "";
     if (st === 1) {
       const need = Math.max(0, b.goal - b.raised), kids = String(p.reach || "").match(/\d+/);
       return `
@@ -2005,6 +2015,7 @@ window.RAAV_FEATURES = (function () {
           <div><dt>Still needed</dt><dd>${money(need)}</dd></div>
         </dl>
         <p class="b-ask">${b.raised ? "Help us close the gap" : "Be the first to sponsor"}${kids ? ` and give ${kids[0]} children their day` : " and make this day happen"}.</p>
+        ${!FEAT.sponsor && FEAT.pledge && GIVE_OPEN.has(slugOf(p)) ? `<div class="b-give">${DONATE_BTN}</div>` : ""}
         ${funders("Pledged so far")}
         ${detail ? listOf("Estimated costs", "Estimated total") : ""}`;
     }
@@ -2546,7 +2557,7 @@ window.RAAV_FEATURES = (function () {
       </section>` : ""}
       ${funders.length ? `<section class="money">
         <h2 class="section-title">Made possible by</h2>
-        <ul class="funders">${funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${num(f.amount) && !f.hide_amount ? `<b>${money(num(f.amount))}</b>` : ""}</li>`).join("")}</ul>
+        <ul class="funders">${funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.pledged ? ` <em class="f-pledged">pledged</em>` : ""}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${num(f.amount) && !f.hide_amount ? `<b>${money(num(f.amount))}</b>` : ""}</li>`).join("")}</ul>
       </section>` : ""}`;
     // Small line icons for the folder tabs: book, heart, camera, play.
     const ic = d => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -2760,7 +2771,8 @@ window.RAAV_FEATURES = (function () {
     const q = new URLSearchParams(location.search);
     // Memory launch (FEAT.sponsor off): /give and /fund open only from the moment page (which sends ?tribute=).
     // Opened directly, they go to the moment page instead, keeping the project chosen.
-    if (!FEAT.sponsor && !q.get("tribute")) {
+    // The simple project pledge (FEAT.pledge) opens /give?project=<slug> straight from the project, with no detour.
+    if (!FEAT.sponsor && !q.get("tribute") && !(FEAT.pledge && q.get("project"))) {
       const pj = q.get("project");
       location.replace((TA_PATH ? "/ta" : "") + "/moment?for=memory" + (pj ? "&project=" + encodeURIComponent(pj) : ""));
       return;
@@ -2867,6 +2879,96 @@ window.RAAV_FEATURES = (function () {
     const fundPicks = ASK && LKR && (site.give_amounts || []).some(x => x && numOf(x.amount) > 0 && x.label)
       ? site.give_amounts.filter(x => x && numOf(x.amount) > 0 && x.label).map(x => ({ v: numOf(x.amount), label: dollars(numOf(x.amount)), what: x.label }))
       : (LKR ? [2500, 5000, 10000] : [25, 50, 100]).map(v => ({ v }));
+    // The simple project pledge (SURESH, 17 Nov 2026): one short form on the project. Amount, name, email or WhatsApp,
+    // follow, send. "We'll send you the ways to fund." The pledge shows on the project at once and the % bar goes up.
+    // Coming from Gift a Moment (?tribute=) still opens the full form with the name of the person remembered.
+    const SIMPLE = ASK && !!p && FEAT.pledge && !q.get("tribute");
+    const wirePledge = (f, x) => {
+      const goal = +f.dataset.goal || 0, raised = +f.dataset.raised || 0, left = +f.dataset.left || 0, cur = f.dataset.cur || "";
+      const own = f.querySelector(".give-own"), ownIn = f.querySelector('[name="own"]'), reach = f.querySelector(".give-reach"), msg = f.querySelector(".give-msg"), pay = f.querySelector(".give-pay");
+      const bar = app.querySelector(".pl-proj .b-bar i"), barText = app.querySelector(".pl-proj .give-proj-text > span:not(.b-bar)");
+      const say = (t, bad) => { msg.hidden = false; msg.textContent = t; msg.classList.toggle("bad", !!bad); };
+      const amount = () => { const pk = (f.querySelector('[name="pick"]:checked') || {}).value; const v = pk === "other" ? parseFloat(String(ownIn.value).replace(/[^0-9.]/g, "")) : parseFloat(pk); return isFinite(v) && v > 0 ? Math.round(v) : 0; };
+      const pctWith = v => goal ? Math.min(100, Math.round((raised + v) / goal * 100)) : 0;
+      const update = () => {
+        own.hidden = (f.querySelector('[name="pick"]:checked') || {}).value !== "other";
+        const v = amount(), pct = pctWith(v);
+        const text = !v || !goal ? "" : pct >= 100 ? "Your pledge completes this project: 100% of its goal." : `Your pledge brings this project to ${pct}% of its goal.`;
+        if (reach.textContent !== text) reach.textContent = text;
+        reach.hidden = !text;
+        if (msg.classList.contains("bad")) msg.hidden = true;
+      };
+      f.addEventListener("change", update); f.addEventListener("input", update); update();
+      f.addEventListener("submit", async e => {
+        e.preventDefault();
+        const v = amount(), nameIn = f.querySelector('[name="name"]'), ct = f.querySelector('[name="contact"]');
+        if (!v) { say("Please choose an amount, or write your own.", true); ownIn.focus(); return; }
+        const name = nameIn.value.trim(), contact = ct.value.trim();
+        if (!name) { say("Please add your name.", true); nameIn.focus(); return; }
+        if (!(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) || contact.replace(/\D/g, "").length >= 7)) { say("Please add your email or a WhatsApp number, so we can send you the ways to fund.", true); ct.focus(); return; }
+        const show = f.querySelector('[name="show"]').checked, follow = f.querySelector('[name="follow"]').checked;
+        const trName = f.querySelector('[name="tribute_name"]').value.trim(), trSel = f.querySelector('[name="tribute_kind"]');
+        const amountText = moneyOf(site, Math.min(v, left || v), x), slug = f.dataset.slug;
+        const body = { kind: "project", project: slug, name, contact, amount: amountText, amount_value: Math.min(v, left || v), listing: show ? "both" : "anonymous",
+          follow: follow ? "yes" : "no", lang: "en", message: "", "bot-field": f.querySelector('[name="bot-field"]').value };
+        if (trName) Object.assign(body, { tribute_on: "yes", tribute_kind: trSel.value, tribute_words: trSel.selectedOptions[0].textContent.trim(), tribute_name: trName, tribute_show: "yes" });
+        pay.disabled = true; say("Sending…");
+        const copy = new URLSearchParams({ "form-name": "give-request", name, contact, amount: amountText, kind: "project", project: slug, moment: "",
+          tribute: trName ? `${body.tribute_words} ${trName}` : "", message: follow ? "Wants to follow the project" : "", lang: "en", "bot-field": body["bot-field"], listing: show ? "Name and amount" : "Anonymous" });
+        try {
+          const [r, n] = await Promise.all([
+            fetch("/api/pledge", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).catch(() => null),
+            fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: copy.toString() }).catch(() => null)]);
+          const out = r ? await r.json().catch(() => ({})) : {};
+          if (r && r.status === 400 && out.error) { say(out.error, true); pay.disabled = false; return; }
+          if (!(r && r.ok && out.ok) && !(n && n.ok)) throw new Error("not saved");
+          // Show it at once: on this page, and on the project page (this browser) until the list catches up.
+          const pct = pctWith(body.amount_value);
+          justPledged({ slug, ref: out.ref || "local-" + Date.now(), name: show ? name : "A friend of Raavanaa", amount: body.amount_value });
+          if (bar) bar.style.width = pct + "%";
+          if (barText) barText.textContent = `${moneyOf(site, Math.max(0, left - body.amount_value), x)} still needed · ${pct}% covered`;
+          const isMail = /@/.test(contact), box = document.createElement("div");
+          box.className = "give-done"; box.tabIndex = -1; box.setAttribute("role", "status");
+          box.innerHTML = `<p class="give-done-heart" aria-hidden="true"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg></p>
+            <h3><span>Thank you,</span> <b>${esc(name)}</b></h3>
+            <p class="pl-shows"><b>${esc(amountText)}</b> pledged by <b>${esc(show ? name : "A friend of Raavanaa")}</b> now shows on the project. It is <b>${pct}%</b> covered.</p>
+            <p><b>We'll send you the ways to fund</b> ${isMail ? "by email" : "on WhatsApp"} at <b>${esc(contact)}</b>.</p>
+            ${SAFE}
+            <p class="give-done-next"><a class="btn" href="/projects/${esc(slug)}">See it on the project</a>${follow ? ` <a class="btn ghost" href="/members">Follow it in My account</a>` : ""}</p>`;
+          f.replaceWith(box); box.focus({ preventScroll: true }); box.scrollIntoView({ block: "center", behavior: "smooth" });
+        } catch (_) { say("We couldn't send that. Please check your connection and try again.", true); pay.disabled = false; }
+      });
+    };
+    const pledgeHTML = (x, picks, bp, left) => {
+      const cur = String(x.currency || site.currency || "$").trim();
+      return `<section class="give-one pledge-one">
+        <div class="give-proj big pl-proj">${card(x).replace(/^<a [^>]*>/, "").replace(/<\/a>$/, "")}</div>
+        <div class="panel give-box">
+          <h2>Sponsor a smile</h2>
+          <p class="pl-lede">Pledge what you would like to give. <b>We'll send you the ways to fund.</b></p>
+          <form class="give-form pledge-form give-ask" data-slug="${esc(slugOf(x))}" data-goal="${bp.goal}" data-raised="${bp.raised}" data-left="${left}" data-cur="${esc(cur)}" novalidate>
+            <p hidden><label>Leave empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+            <fieldset class="give-amounts"><legend>How much?</legend>
+              ${picks.map((a, i) => `<label class="give-chip${a.what ? " give-real" : ""}"><input type="radio" name="pick" value="${a.v}"${i === Math.min(1, picks.length - 1) ? " checked" : ""}><span>${a.what ? `<b>${esc(a.label)}</b><small>${esc(a.what)}</small>` : esc(a.label)}</span></label>`).join("")}
+              <label class="give-chip give-other"><input type="radio" name="pick" value="other"><span>Other amount</span></label>
+            </fieldset>
+            <label class="give-own" hidden><span>Your amount (${esc(cur)})</span><input name="own" inputmode="numeric" maxlength="12" autocomplete="off" placeholder="e.g. 3000"></label>
+            <p class="give-reach" role="status" hidden></p>
+            <label><span>Your name</span><input name="name" maxlength="80" autocomplete="name" required></label>
+            <label><span>Email or WhatsApp</span><input name="contact" maxlength="120" required autocomplete="email" placeholder="you@example.com or 077 123 4567"></label>
+            <label class="give-check"><input type="checkbox" name="show" value="yes" checked> <span>Show my name and amount on the project</span></label>
+            <label class="give-check"><input type="checkbox" name="follow" value="yes" checked> <span>Follow this project <small>(sign in with this email to see it in My account)</small></span></label>
+            <details class="pl-tribute"><summary>Give it in someone's name <small>(optional)</small></summary>
+              <label><span>This gift is</span><select name="tribute_kind">${REASONS.map(([v, t]) => `<option value="${v}">${t}</option>`).join("")}</select></label>
+              <label><span>Their name</span><input name="tribute_name" maxlength="60" placeholder="e.g. Amma, Kamala Rajan"></label>
+            </details>
+            <button class="btn give-pay" type="submit">Send my pledge</button>
+            ${SAFE}
+            <p class="note give-msg" role="status" hidden></p>
+          </form>
+        </div>
+      </section>`;
+    };
     let body;
     if (p) {
       // Until card payments are switched on, the form still shows (its button says "coming soon"), so a giver sees what is ahead.
@@ -2877,7 +2979,8 @@ window.RAAV_FEATURES = (function () {
       const real = ASK ? (p.give_amounts || []).filter(x => x && numOf(x.amount) > 0 && numOf(x.amount) < left && x.label).map(x => ({ v: numOf(x.amount), label: moneyOf(site, numOf(x.amount), p), what: x.label })) : [];
       const picks = real.length ? real : ((ASK ? isRupees(p) : LKR) ? [2500, 5000, 10000] : [25, 50, 100]).filter(v => v < left).map(v => (ASK ? { v, label: moneyOf(site, v, p) } : { v }));
       picks.push({ v: left, label: `All of it: ${ASK ? moneyOf(site, left, p) : dollars(left)}` });
-      body = `<section class="give-one">
+      if (SIMPLE && open1) body = pledgeHTML(p, picks, bp, left);
+      else body = `<section class="give-one">
         <div class="give-proj big">${card(p).replace(/^<a [^>]*>/, "").replace(/<\/a>$/, "")}</div>
         <div class="panel give-box">
           <h2>${open1 ? "Sponsor a smile" : "This project is fully covered"}</h2>
@@ -2925,9 +3028,10 @@ window.RAAV_FEATURES = (function () {
         <h1>${FUND ? "Give once. We find the smile." : p ? esc(p.title) : "Be part of the next moment"}</h1>
         <p>${FUND ? "For when you want to help and are happy for us to choose where. Volunteers decide, and every rupee in and out is shown openly." : p ? (ASK ? "Your gift goes straight to this project. You'll see it on the project page, and after the day you'll see how it went and where the money went." : "Your gift goes straight to this project. You'll see it on the project page, and after the day you'll see the photos and where every " + (LKR ? "rupee" : "dollar") + " went.") : "Raavanaa is a bridge between people who need a hand and people ready to give one. Choose how you'd like to help."}</p>
       </header>
-      ${banner}${body}${notes}</div>`;
+      ${SIMPLE ? "" : banner}${body}${SIMPLE ? "" : notes}</div>`;
 
-    app.querySelectorAll(".give-form").forEach(f => {
+    app.querySelectorAll(".pledge-form").forEach(f => wirePledge(f, p));
+    app.querySelectorAll(".give-form:not(.pledge-form)").forEach(f => {
       const own = f.querySelector(".give-own"), ownIn = f.querySelector('[name="own"]'), feeEl = f.querySelector(".give-fee"), pay = f.querySelector(".give-pay"), msg = f.querySelector(".give-msg");
       const left = +f.dataset.left || 0;
       const amount = () => { const pick = (f.querySelector('[name="pick"]:checked') || {}).value; const v = pick === "other" ? parseFloat(String(ownIn.value).replace(/[^0-9.]/g, "")) : parseFloat(pick); return isFinite(v) ? Math.min(v, left || v) : 0; };
@@ -3152,6 +3256,14 @@ window.RAAV_FEATURES = (function () {
       if ((GIVE && GIVE.provider === "payhere") || !GIVE || !GIVE.enabled) { GIVE_BY = "PayHere"; GIVE_CUR = "LKR"; }
       GIVE_RATE = (GIVE && +GIVE.rate) || +site.rate_lkr_per_cad || 0;
       if (GIVE && GIVE.projects) projects.forEach(p => { const t = GIVE.projects[slugOf(p)]; if (t && takesCards(p)) p.funders = [...(p.funders || []), ...t.gifts]; });
+      // Pledges from the project giving form show straight away (SURESH, 17 Nov 2026), marked "pledged". The one this
+      // browser just sent is added at once too, in case the list is a few seconds old.
+      const mine = justPledged();
+      projects.forEach(p => {
+        const list = ((GIVE && GIVE.pledges) || {})[slugOf(p)] || [], refs = new Set(list.map(x => x.ref));
+        const add = [...list, ...mine.filter(x => x.slug === slugOf(p) && !refs.has(x.ref))];
+        if (add.length) p.funders = [...(p.funders || []), ...add];
+      });
       projects.filter(canGive).forEach(p => GIVE_OPEN.add(slugOf(p)));
       // With card payments off, Donate still opens the project's form ("I'd like to give") while the project needs money.
       if (!GIVE_ON) projects.forEach(p => { if (p.verified && stageNum(p) === 1) { const b = budgetOf(p); if (b.goal > 0 && b.raised < b.goal) GIVE_OPEN.add(slugOf(p)); } });

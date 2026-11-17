@@ -2620,3 +2620,19 @@ body[data-light] .intro{padding-top:4px;padding-bottom:0}
 body[data-light] .intro .headline{margin-top:0;margin-bottom:0}
 body[data-light] .mosaic{margin-top:8px}
 .spark-band .sb-stack{margin-top:0}.spark-band{gap:10px}
+
+/* ---------- The simple project pledge (SURESH, 17 Nov 2026): one short form, the pledge shows on the project at once ---------- */
+.pl-lede{margin:-4px 0 14px;font-family:var(--display);font-size:17px;line-height:1.45;color:var(--muted)}
+.pl-lede b{color:var(--brand)}
+.pledge-form .give-check small{color:var(--muted);font-size:13px}
+.pl-tribute{border:1px dashed var(--line);border-radius:10px;padding:10px 12px}
+.pl-tribute summary{cursor:pointer;font-weight:600;color:var(--brand)}
+.pl-tribute summary small{font-weight:400;color:var(--muted)}
+.pl-tribute[open]{display:grid;gap:10px}
+.pl-tribute select,.pledge-form input[name="tribute_name"]{border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:inherit;background:var(--surface);color:var(--ink);width:100%}
+.pledge-form .give-reach{margin:0;font-weight:600;color:var(--brand)}
+.pl-shows{font-size:17px}
+.pl-proj .b-bar i{transition:width .8s ease}
+.give-done-next{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.f-pledged{font-style:normal;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#b97a06;background:color-mix(in srgb,#eaa21c 16%,transparent);border-radius:999px;padding:1px 7px;vertical-align:2px}
+.b-give{margin:4px 0 14px}.b-give .donate-btn{width:100%;justify-content:center}
