@@ -73,6 +73,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>
 </header>
 
-<?php rp_latest_strip(); ?>
+<?php rp_city_strip(); // City filter row in place of the rolling ticker (17 Nov 2026); rp_latest_strip() is kept for later. ?>
 
 <main id="rp-main" class="rp-main" tabindex="-1">

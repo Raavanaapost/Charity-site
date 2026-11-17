@@ -548,6 +548,44 @@ function rp_language_links() {
 }
 
 /** "Latest" line under the menu. */
+/**
+ * City filter row at the top of every page, in place of the rolling news ticker
+ * (SURESH, 17 Nov 2026). The cities come from the places on the stories, newest
+ * story first, so a newly listed request's town shows first. For now the row is only
+ * shown: it does not filter yet. Switch filtering on once there are more projects
+ * (each chip already carries data-rp-city).
+ */
+function rp_city_strip() {
+	$posts  = get_posts(
+		array(
+			'numberposts'         => 200,
+			'ignore_sticky_posts' => true,
+			'orderby'             => 'date',
+			'order'               => 'DESC',
+			'meta_key'            => 'rp_place', // phpcs:ignore WordPress.DB.SlowDBQuery
+		)
+	);
+	$cities = array();
+	foreach ( $posts as $p ) {
+		$city = trim( strtok( (string) get_post_meta( $p->ID, 'rp_place', true ), ',' ) );
+		if ( '' !== $city && ! in_array( $city, $cities, true ) ) {
+			$cities[] = $city;
+		}
+	}
+	if ( ! $cities ) {
+		return;
+	}
+	$pin = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
+	echo '<div class="rp-cities"><div class="rp-wrap rp-cities__inner">';
+	echo '<p class="rp-cities__label">' . esc_html__( 'News by place', 'raavanaapost' ) . '</p>';
+	echo '<ul class="rp-cities__list" aria-label="' . esc_attr__( 'Places in our stories', 'raavanaapost' ) . '">';
+	echo '<li><span class="rp-city is-on" data-rp-city="">' . esc_html__( 'All places', 'raavanaapost' ) . '</span></li>';
+	foreach ( $cities as $city ) {
+		echo '<li><span class="rp-city" data-rp-city="' . esc_attr( sanitize_title( $city ) ) . '">' . $pin . esc_html( $city ) . '</span></li>'; // phpcs:ignore WordPress.Security.EscapeOutput
+	}
+	echo '</ul></div></div>';
+}
+
 function rp_latest_strip() {
 	if ( ! rp_mod( 'rp_show_latest' ) ) {
 		return;
