@@ -571,7 +571,7 @@
       <section class="pt-champs">${VOLS.length ? VOLS.map(v => `
         <article class="pt-card pt-champ ${v.hidden ? "off" : ""}">
           <div><h3>${esc(v.name)} <small>${v.show_public ? (v.hidden ? "· hidden from the page" : "· on the page") : "· not listed (did not tick)"}${v.member_email ? " · member" : ""}</small></h3>
-            <p class="pt-sub">${esc(v.city || "No town given")} · joined ${when(v.created_at)} from ${v.source === "spark" ? "Join Raavanaa" : "the Volunteer form"}</p>
+            <p class="pt-sub">${esc(v.city || "No town given")} · joined ${when(v.created_at)} from ${v.source === "spark" ? "Join Raavanaa" : v.source === "volunteers" ? "the Volunteers page" : "the Volunteer form"}</p>
             <p class="pt-champ-meta">${esc(v.contact)}${v.phone ? " · " + esc(v.phone) : ""}${v.availability ? " · free " + esc(v.availability) : ""}</p>
             ${(v.skills || []).length ? `<p class="pt-sub">${(v.skills || []).map(esc).join(", ")}</p>` : ""}
             ${v.message ? `<p class="pt-sub">“${esc(v.message)}”</p>` : ""}</div>

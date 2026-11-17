@@ -120,7 +120,7 @@
         '<div class="mo-pick" id="sp-step-1">' +
           '<p class="mo-pick-q">' + (FEAT.group ? '<span class="mo-num">1</span>' : "") + (FEAT.group ? "How would you like to start?" : "One way in, for any need") + "</p>" +
           '<div class="sp-ways' + (FEAT.group ? "" : " one") + '" role="' + (FEAT.group ? "radiogroup" : "group") + '" aria-label="How would you like to start?">' + (FEAT.group ? wayCard("request") + wayCard("submit") : wayCard("need")) + "</div>" +
-          (FEAT.group ? "" : '<a class="sp-join-go" href="#join"><b>Or join Raavanaa</b> and create moments together →</a>') +
+          (FEAT.group ? "" : '<a class="sp-join-go" href="/volunteers#join"><b>Or join Raavanaa</b> and create moments together →</a>') +
         "</div>" +
       "</div></section>" +
     (FEAT.group ? "" :
