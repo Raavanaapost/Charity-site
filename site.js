@@ -299,9 +299,8 @@ window.RAAV_FEATURES = (function () {
       <svg class="foot-wave" viewBox="0 0 400 30" preserveAspectRatio="none" aria-hidden="true"><path class="w1" d="M0 16C70 2 140 4 200 12 260 20 330 4 400 10V30H0Z"/><path class="w2" d="M0 24C80 10 150 12 210 18 270 24 336 12 400 16V30H0Z"/></svg>
       <div class="foot-main"><div class="wrap">
         <!-- Footer kept very simple (SURESH, 17 Nov 2026): one row of links, no stages, no Gift a Moment. -->
-        ${FEAT.vetting ? `<p class="foot-submit"><a class="bar-submit" href="/spark"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span><b>Submit</b> <small>a need</small></span></a></p>` : ""}
         <nav class="foot-simple" aria-label="Footer">
-          ${[["Projects", "/projects"], ...(FEAT.vetting ? [] : [["Submit a need", "/spark"]]), ["Volunteer", "/volunteer"], ["About us", "/about"], ["Contact", "/contact"]].map(([t, h]) => `<a href="${h}">${t}</a>`).join("")}${APP.inApp ? "" : `<a href="#app" data-get-app>Get the app</a>`}
+          ${[["Projects", "/projects"], ["Submit a need", "/spark"], ["Volunteer", "/volunteer"], ["About us", "/about"], ["Contact", "/contact"]].map(([t, h]) => `<a href="${h}">${t}</a>`).join("")}${APP.inApp ? "" : `<a href="#app" data-get-app>Get the app</a>`}
         </nav>
         ${follow.length ? `<p class="foot-follow">${follow.map(([t, h, ext]) => `<a href="${esc(h)}"${ext ? ' target="_blank" rel="noopener"' : ""}>${esc(t)}</a>`).join("")}</p>` : ""}
       </div></div>
@@ -774,20 +773,20 @@ window.RAAV_FEATURES = (function () {
     };
     return pick.map(tile).join("");
   }
-  // Home top pictures (SURESH, 17 Nov 2026; five since 17 Nov 13:19Z): the big one is always an Initiated project, with a
+  // Home's three top pictures (SURESH, 17 Nov 2026): the big one is always an Initiated project, with a
   // turning call on it ("Make this happen", "Own it", ...); all three take turns through the listed projects.
   const MAKE_SAYS = ["Make this happen", "Own it", "Create the moment", "Be the smile", "Start it today"];
   const homeDeck = (shown, k) => {
     const init = shown.filter(p => stageNum(p) === 1), big = init.length ? init[k % init.length] : null;
     const rest = shown.filter(p => p !== big);
-    const more = rest.length ? [0, 1, 2, 3].map(j => rest[(k * 4 + j) % rest.length]).filter((p, j, a) => a.indexOf(p) === j) : [];
-    return big ? [big, ...more] : more;
+    const two = rest.length ? [0, 1].map(j => rest[(k * 2 + j) % rest.length]).filter((p, j, a) => a.indexOf(p) === j) : [];
+    return big ? [big, ...two] : two;
   };
   function glanceHTML(projects) {
     const shown = projects.filter(p => !p.hidden);
     if (!shown.length) return "";
     const first = homeDeck(shown, 0);
-    return `<div class="mosaic n${Math.min(first.length, 5)}" data-deck aria-live="polite">${mosaicTiles(first, projects, 5)}</div>`;
+    return `<div class="mosaic n${Math.min(first.length, 3)}" data-deck aria-live="polite">${mosaicTiles(first, projects)}</div>`;
   }
   // Every 6 s the pictures move on to the next projects; the call on the big picture turns every 2.8 s.
   // Stops when someone picks a stage or a category, and pauses while a finger or mouse is on the pictures.
@@ -808,7 +807,7 @@ window.RAAV_FEATURES = (function () {
       if (document.hidden || hold || !mo.hasAttribute("data-deck")) return;
       k++; const list = homeDeck(shown, k);
       mo.classList.add("turning");
-      setTimeout(() => { mo.className = `mosaic n${Math.min(list.length, 5)}`; mo.innerHTML = mosaicTiles(list, projects, 5); say(); }, 260);
+      setTimeout(() => { mo.className = `mosaic n${Math.min(list.length, 3)}`; mo.innerHTML = mosaicTiles(list, projects); say(); }, 260);
     }, 6000));
   }
   function wireExplore(app, projects) {
