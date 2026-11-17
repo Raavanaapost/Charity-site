@@ -2549,6 +2549,15 @@ window.RAAV_FEATURES = (function () {
     };
   }
 
+  // Project page: a small picture of the three stages, the same circles and words as on Home, with this
+  // project's place among them (SURESH, 17 Nov 2026: "a small graphic of which stage it has moved to").
+  // Stages already passed get a tick, the current one is full and marked "Now", later ones are faded.
+  function stageJourneyHTML(p) {
+    const n = stageNum(p), art = ["initiated", "activated", "impact"], say = STAGE_SAY;
+    return `<nav class="pjour" aria-label="Where this project stands: ${STAGE_LABEL[n - 1]}">${STAGE_LABEL.map((l, k) => `${k ? `<span class="pjour-arrow${k < n ? " past" : ""}" aria-hidden="true">›</span>` : ""}<a class="pjour-st s${k + 1}${k + 1 < n ? " past" : k + 1 === n ? " now" : " next"}" href="/${art[k]}"${k + 1 === n ? ' aria-current="step"' : ""}>
+        <i style="background-image:url(/img/stage-${art[k]}.svg)">${k + 1 < n ? `<em aria-label="done">✓</em>` : ""}</i>
+        <b>${l}</b><small>${k + 1 === n ? "Now · " + say[k] : say[k]}</small></a>`).join("")}</nav>`;
+  }
   function renderProject(app, site, projects, slug) {
     const i = projects.findIndex(p => slugOf(p) === slug);
     const p = projects[i];
@@ -2639,7 +2648,7 @@ window.RAAV_FEATURES = (function () {
             <header class="phead">
               ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
               <h1>${esc(p.title)}</h1>
-              <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>by <strong>${esc(p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Visited and verified</span>` : ""}
+              <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>Submitted by <strong>${esc(p.submitted_by || p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Visited and verified</span>` : ""}
               <div class="glance">
                 <button type="button" class="glance-btn" aria-expanded="false" aria-controls="glance-card"><span>At a glance</span><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
                 <div class="panel glance-card" id="glance-card">
@@ -2655,6 +2664,7 @@ window.RAAV_FEATURES = (function () {
               </div>
               </div>
             </header>
+            ${stageJourneyHTML(p)}
             ${p.tagline ? `<p class="psum">${esc(p.tagline)}</p>` : ""}
             <div class="hero-wrap">
               <div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.cover ? "" : "Cover photo", 1400)}</div>

@@ -2770,3 +2770,23 @@ body[data-light] .mosaic{margin-top:8px}
 .stage-lead.s3 .meaning li,.next-stage.to-impact,.nav-sub a.s3:hover,.mo-heart:hover{background:var(--sand)}
 .care-urgent{background:var(--sand)}
 .spark-band[data-c="3"]{background:radial-gradient(700px 360px at 50% 0,#f6dcb8 0,rgba(255,255,255,0) 70%),linear-gradient(#fbf6ea,#fffbf1)}
+
+/* Project page: where this project stands, in the Home stage circles (17 Nov 2026). */
+.pjour{display:flex;align-items:flex-start;justify-content:space-between;gap:4px;margin:4px 0 18px;padding:12px 10px 10px;border-radius:16px;background:linear-gradient(135deg,#fbf6ea,#fffbf1);box-shadow:inset 0 0 0 1px #eadfc6}
+.pjour-st{flex:1 1 0;min-width:0;display:grid;justify-items:center;gap:2px;text-align:center;text-decoration:none;color:var(--ink)}
+.pjour-st i{position:relative;display:block;width:54px;height:54px;border-radius:50%;background:center/cover no-repeat;border:3px solid var(--c);box-shadow:0 6px 14px -8px var(--c)}
+.pjour-st.s1{--c:#1f7a47}.pjour-st.s2{--c:#eaa21c}.pjour-st.s3{--c:#c8381e}
+.pjour-st b{font-family:"Inter",var(--display);font-weight:900;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--c)}
+.pjour-st.s2 b{color:#b97a06}
+.pjour-st small{font-family:var(--display);font-size:11.5px;line-height:1.25;color:var(--muted)}
+.pjour-st.now i{width:66px;height:66px;margin-top:-6px;box-shadow:0 0 0 4px #fff,0 0 0 7px var(--c),0 10px 20px -8px var(--c)}
+.pjour-st.now small{color:var(--c);font-weight:700}
+.pjour-st.s2.now small{color:#b97a06}
+.pjour-st.next i{filter:grayscale(.85) opacity(.55);border-color:#cfc8b8;box-shadow:none}
+.pjour-st.next b{color:#9aa39e}
+.pjour-st i em{position:absolute;right:-6px;bottom:-4px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#1f7a47;color:#fff;font-style:normal;font-weight:900;font-size:13px;border:2px solid #fff}
+.pjour-arrow{align-self:center;margin-top:-26px;font:900 26px/1 "Inter",var(--display);color:#cfc8b8}
+.pjour-arrow.past{color:#1f7a47}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pjour{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}}
+:root[data-theme="dark"] .pjour{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+@media (min-width:900px){.pjour{max-width:560px}}
