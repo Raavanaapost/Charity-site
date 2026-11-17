@@ -3953,6 +3953,9 @@ window.RAAV_FEATURES = (function () {
       } else if (page === "projects") {
         document.title = `Our projects · ${site.name}`;
         await renderProjects(app, site, projects);
+      } else if (page === "volunteers") {
+        // Our volunteers (/volunteers, 17 Nov 2026): volunteers.js draws the page itself.
+        document.title = `Our volunteers · ${site.name}`;
       } else if (page === "spark") {
         // "Spark a Smile" (/spark, 16 Nov 2026): spark.js draws the page itself; nothing goes in #app.
         document.title = `Spark a Smile, start a project · ${site.name}`;
