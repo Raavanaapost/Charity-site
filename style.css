@@ -2705,3 +2705,16 @@ body[data-light] .mosaic{margin-top:8px}
 .pl-full-icon{display:grid;place-items:center;flex:none;width:36px;height:36px;border-radius:50%;background:#c8381e;color:#fff;font-size:18px}
 .pl-full.on{border-color:#1f7a47;background:#eef6f0}
 .pl-full.on .pl-full-icon{background:#1f7a47}
+/* 17 Nov 2026 (SURESH): turning title on the form, light-orange Complete the day with a mini ring, neat Funded / Reserved lines */
+.pl-say{display:inline-block}
+.pl-say.in{animation:room-in .5s ease-out}
+.pl-full,.pl-full.on{border-color:#eaa21c;background:linear-gradient(135deg,#fff6e3,#fde3b4)}
+.pl-full.on{box-shadow:0 0 0 3px rgba(234,162,28,.25)}
+.pl-full b{color:#b4560a}
+.pl-mini{flex:none;width:48px;height:48px}
+.pl-mini-arc{transition:stroke-dasharray .6s ease}
+.pl-mini text{font:700 11px var(--display);fill:#7a4a06}
+.ring-steps li span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ring-steps b{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.st-ic.tick{color:#1f7a47;font-weight:900}
+.st-ic.res{color:#c8381e}

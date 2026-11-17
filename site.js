@@ -1779,7 +1779,13 @@ window.RAAV_FEATURES = (function () {
     if (st === 1) return [
       { name: "Visited and verified", done: p.verified ? 1 : 0, c: "#1f7a47" },
       { name: "Budgeted", done: goal > 0 ? 1 : 0, c: "#3f9a5f" },
-      { name: "Funded", done: goal > 0 ? Math.min(1, raised / goal) : 0, c: "#eaa21c", pctLabel: true }
+      // Reserved (pledged, not yet received) gets its own line (SURESH, 17 Nov 2026): one neat line each, no names.
+      ...(FEAT.pledge ? (() => {
+        const res = (p.funders || []).filter(x => x && x.name && x.pledged).reduce((s, x) => s + numOf(x.amount), 0);
+        const fun = Math.max(0, raised - res);
+        return [{ name: "Funded", done: goal > 0 ? Math.min(1, fun / goal) : 0, c: "#eaa21c", pctLabel: true, icon: "tick" },
+          ...(res > 0 ? [{ name: "Reserved", done: goal > 0 ? Math.min(1, res / goal) : 0, c: "#c8381e", pctLabel: true, icon: "res" }] : [])];
+      })() : [{ name: "Funded", done: goal > 0 ? Math.min(1, raised / goal) : 0, c: "#eaa21c", pctLabel: true }])
     ];
     if (st === 2) return [
       { name: "Date confirmed", done: p.date_set ? 1 : 0, c: "#e5851a" },
@@ -1796,8 +1802,11 @@ window.RAAV_FEATURES = (function () {
     ];
   }
   // Initiated: the % is only how much is funded so far; verified and budgeted are shown as ticks but do not count (SURESH, 6 Nov 2026).
-  const ringArcs = p => stageNum(p) === 1 ? ringSteps(p).filter(x => x.name === "Funded") : ringSteps(p);
-  const ringPercent = p => (st => Math.round(st.reduce((s, x) => s + x.done, 0) / st.length * 100))(ringArcs(p));
+  const ringArcs = p => stageNum(p) === 1 ? ringSteps(p).filter(x => x.name === "Funded" || x.name === "Reserved") : ringSteps(p);
+  const ringPercent = p => stageNum(p) === 1 ? Math.min(100, Math.round(ringArcs(p).reduce((s, x) => s + x.done, 0) * 100)) : (st => Math.round(st.reduce((s, x) => s + x.done, 0) / st.length * 100))(ringArcs(p));
+  // Small icons at the end of a step line: a tick for money funded, a little bookmark for money reserved (17 Nov 2026).
+  const STEP_ICON = { tick: `<span class="st-ic tick" aria-label="funded">✓</span>`,
+    res: `<svg class="st-ic res" viewBox="0 0 24 24" width="15" height="15" aria-label="reserved"><path d="M6.5 3.5h11v17l-5.5-4-5.5 4z" fill="currentColor"/></svg>` };
   const RING_TEXT = {
     1: { h: "Activating", l: "FUNDED", done: "ACTIVATED", aria: "funded so far" },
     2: { h: "Preparing the day", l: "PREPARING", done: "READY", aria: "of the preparations done" },
@@ -1828,7 +1837,8 @@ window.RAAV_FEATURES = (function () {
       const arcs = ringArcs(p), n = arcs.length, gap = n === 1 ? 0 : n > 5 ? 16 : 20, len = 360 / n - gap; // the rounded ends eat most of the gap
       const arc = (start, l, c, o) => l > 0.01 ? `<circle cx="60" cy="60" r="48" fill="none" stroke="${c}" stroke-opacity="${o}" stroke-width="13" stroke-linecap="round" pathLength="360" stroke-dasharray="${l.toFixed(2)} ${(360 - l).toFixed(2)}" stroke-dashoffset="${(-start).toFixed(2)}"/>` : "";
       return `<svg class="ring" viewBox="0 0 120 120" role="img" aria-label="${ringPct}% ${T.aria}">
-        <g transform="rotate(-90 60 60)">${arcs.map((x, k) => { const start = k * (len + gap) + gap / 2; return arc(start, len, x.c, .18) + arc(start, len * x.done, x.c, 1); }).join("")}</g>
+        <g transform="rotate(-90 60 60)">${stageNum(p) === 1 ? (() => { let at = 0; return arc(0, 359.9, arcs[0].c, .18) + arcs.map(x => { const l = Math.min(360 - at, 360 * x.done), o = arc(at, l, x.c, 1); at += l; return o; }).join(""); })()
+          : arcs.map((x, k) => { const start = k * (len + gap) + gap / 2; return arc(start, len, x.c, .18) + arc(start, len * x.done, x.c, 1); }).join("")}</g>
         <text x="60" y="${ringPct === 100 ? 60 : 62}" text-anchor="middle" class="ring-n">${ringPct}%</text>
         <text x="60" y="${ringPct === 100 ? 77 : 78}" text-anchor="middle" class="ring-l">${ringPct === 100 ? T.done : T.l}</text>
       </svg>`;
@@ -1838,7 +1848,7 @@ window.RAAV_FEATURES = (function () {
         <h2>${T.h}</h2>
         <div class="ring-row">
           ${ringSVG()}
-          <ul class="ring-steps">${steps.map(x => { const d = x.done; return `<li class="${d >= 1 ? "done" : d > 0 ? "part" : ""}"><i style="background:${x.c}"></i><span>${esc(x.name)}${x.name === "Funded" ? whoFunded(p) : ""}</span><b>${d >= 1 ? "✓" : x.pctLabel && d > 0 ? Math.round(d * 100) + "%" : "–"}</b></li>`; }).join("")}</ul>
+          <ul class="ring-steps">${steps.map(x => { const d = x.done; return `<li class="${d >= 1 ? "done" : d > 0 ? "part" : ""}"><i style="background:${x.c}"></i><span>${esc(x.name)}${x.name === "Funded" && !FEAT.pledge ? whoFunded(p) : ""}</span><b>${x.icon && d > 0 ? `${Math.round(d * 100)}% ${STEP_ICON[x.icon]}` : d >= 1 ? "✓" : x.pctLabel && d > 0 ? Math.round(d * 100) + "%" : "–"}</b></li>`; }).join("")}</ul>
         </div>
       </div>`;
   }
@@ -1863,7 +1873,7 @@ window.RAAV_FEATURES = (function () {
         <h2 class="go-title">Help ${kids ? kids[0] + " children" : "these children"} laugh. <span>Let's take this to 100%.</span></h2>
         <div class="ring-row">
           ${ring}
-          <ul class="ring-steps">${steps.map(x => { const d = x.done; return `<li class="${d >= 1 ? "done" : d > 0 ? "part" : ""}"><i style="background:${x.c}"></i><span>${esc(x.name)}${x.name === "Funded" ? whoFunded(p) : ""}</span><b>${d >= 1 ? "✓" : x.pctLabel && d > 0 ? Math.round(d * 100) + "%" : "–"}</b></li>`; }).join("")}</ul>
+          <ul class="ring-steps">${steps.map(x => { const d = x.done; return `<li class="${d >= 1 ? "done" : d > 0 ? "part" : ""}"><i style="background:${x.c}"></i><span>${esc(x.name)}${x.name === "Funded" && !FEAT.pledge ? whoFunded(p) : ""}</span><b>${x.icon && d > 0 ? `${Math.round(d * 100)}% ${STEP_ICON[x.icon]}` : d >= 1 ? "✓" : x.pctLabel && d > 0 ? Math.round(d * 100) + "%" : "–"}</b></li>`; }).join("")}</ul>
         </div>
         ${pct < 100 ? `<button class="go-open" type="button" aria-expanded="false" aria-controls="go-fold-${id}"><span>See what's left to reach 100%</span><i aria-hidden="true">⌄</i></button>
         <div class="go-fold" id="go-fold-${id}" hidden>
@@ -2924,7 +2934,7 @@ window.RAAV_FEATURES = (function () {
       ownIn.addEventListener("input", () => { full = false; });
       if (curSel) curSel.addEventListener("change", () => { if (full) fill(); });
       // The title on the button takes turns (SURESH, 17 Nov 2026).
-      const sayEl = f.querySelector("[data-full-say]");
+      const sayEl = app.querySelector("[data-say]");
       if (sayEl && !matchMedia("(prefers-reduced-motion: reduce)").matches) { let k = 0; setInterval(() => { k = (k + 1) % PL_SAYS.length; sayEl.classList.remove("in"); void sayEl.offsetWidth; sayEl.textContent = PL_SAYS[k]; sayEl.classList.add("in"); }, 2600); }
       const typedText = () => !curSel || curSel.value === "LKR" ? moneyOf(site, typed(), x) : `${curSel.value} ${typed().toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
       const pctWith = v => goal ? Math.min(100, Math.round((raised + v) / goal * 100)) : 0;
@@ -2937,7 +2947,14 @@ window.RAAV_FEATURES = (function () {
           rateEl.hidden = !foreign;
           if (foreign) rateEl.innerHTML = typed() ? `${esc(typedText())} = <b>about ${esc(moneyOf(site, v, x))}</b>` : `1 ${esc(c)} = <b>about ${esc(moneyOf(site, r, x))}</b>`;
         }
-        if (fullBtn) fullBtn.classList.toggle("on", !!v && v >= left);
+        // The button keeps showing what is still left, after this giver's part, and its little ring moves with it.
+        if (fullBtn) {
+          const after = Math.max(0, left - v), c = curSel ? curSel.value : "LKR", lt = f.querySelector("[data-left-text]");
+          lt.innerHTML = full && foreign ? `<strong>${esc(moneyOf(site, left, x))}</strong> = <strong>${esc(c)} ${fullIn(c).toLocaleString("en-US")}</strong>`
+            : v && after > 0 ? `<strong>${esc(moneyOf(site, after, x))}</strong> left after yours` : v ? `<strong>Fully funded</strong> with yours` : `<strong>${esc(moneyOf(site, left, x))}</strong> left`;
+          const pm = pctWith(v); f.querySelector(".pl-mini-arc").setAttribute("stroke-dasharray", `${pm} 100`); f.querySelector("[data-mini-n]").textContent = pm + "%";
+          fullBtn.classList.toggle("on", !!v && v >= left);
+        }
         const conv = "";
         const text = !v ? "" : conv + (!goal ? "" : pct >= 100 ? "Your part completes this project: 100% of its goal." : `Your part brings this project to ${pct}% of its goal.`);
         if (reach.textContent !== text) reach.textContent = text;
@@ -2998,11 +3015,11 @@ window.RAAV_FEATURES = (function () {
       return `<section class="give-one pledge-one">
         <div class="give-proj big pl-proj">${card(x).replace(/^<a [^>]*>/, "").replace(/<\/a>$/, "")}</div>
         <div class="panel give-box">
-          <h2>${HEART_SVG} Be the smile</h2>
-          <p class="pl-lede">Give from anywhere, in your own money. Reserve your part of the day. <b>We'll send you the ways to fund.</b></p>
+          <h2>${HEART_SVG} <span class="pl-say" data-say>${PL_SAYS[0]}</span></h2>
+          <p class="pl-lede"><b>Reserve and follow.</b> Give from anywhere, in your own money. A volunteer will follow up with the ways to fund.</p>
           <form class="give-form pledge-form give-ask" data-slug="${esc(slugOf(x))}" data-goal="${bp.goal}" data-raised="${bp.raised}" data-left="${left}" data-cur="${esc(cur)}" novalidate>
             <p hidden><label>Leave empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
-            ${left > 0 ? `<button type="button" class="pl-full" data-full><span class="pl-full-icon" aria-hidden="true">✦</span><span><b class="pl-full-say" data-full-say>${PL_SAYS[0]}</b><small><strong>${esc(moneyOf(site, left, x))}</strong> · Reserve and follow</small></span></button>` : ""}
+            ${left > 0 ? `<button type="button" class="pl-full" data-full><svg class="pl-mini" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="17" fill="none" stroke="#f6dcae" stroke-width="6"/><circle class="pl-mini-arc" cx="22" cy="22" r="17" fill="none" stroke="#e8891c" stroke-width="6" stroke-linecap="round" pathLength="100" stroke-dasharray="${bp.goal ? Math.round(bp.raised / bp.goal * 100) : 0} 100" transform="rotate(-90 22 22)"/><text x="22" y="26" text-anchor="middle" data-mini-n>${bp.goal ? Math.round(bp.raised / bp.goal * 100) : 0}%</text></svg><span><b>Complete the day</b><small data-left-text><strong>${esc(moneyOf(site, left, x))}</strong> left</small></span></button>` : ""}
             <label class="pl-amt"><span>Or any amount <small>(in your own money)</small></span>
               <span class="pl-rate" data-rate hidden></span>
               <span class="pl-amt-row">${isRupees(x) ? `<select name="cur" aria-label="Currency">${PL_CURS.map(c => `<option value="${c}">${c === "LKR" ? "Rs" : c}</option>`).join("")}</select>` : `<b class="pl-cur">${esc(cur)}</b>`}
@@ -3317,7 +3334,7 @@ window.RAAV_FEATURES = (function () {
           <button class="btn ghost" type="button" data-copy>Copy link</button></p></section>
         <section class="room-act follow"><h3>Follow the project</h3><p>${q.get("f") ? "You asked to follow it. " : ""}Sign in with the same ${q.get("c") === "wa" ? "details" : "email"} and it stays in My account, with every step.</p>
           <p class="room-btns"><a class="btn" href="/members">Follow in My account</a></p></section>
-        <section class="room-act helper"><h3>A volunteer is with you</h3><p>A Raavanaa volunteer will send you the ways to fund ${q.get("c") === "wa" ? "on WhatsApp" : "by email"}, and keep you updated as the project moves.${ref ? ` Your reference: <b>${esc(ref)}</b>.` : ""}</p></section>
+        <section class="room-act helper"><h3>A volunteer is with you</h3><p>A Raavanaa volunteer will follow up with the ways to fund ${q.get("c") === "wa" ? "on WhatsApp" : "by email"}, and keep you updated as the project moves.${ref ? ` Your reference: <b>${esc(ref)}</b>.` : ""}</p></section>
       </div>
       <h2 class="room-h">What happens next</h2>
       <ol class="room-steps">
