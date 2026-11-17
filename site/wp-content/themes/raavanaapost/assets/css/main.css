@@ -873,3 +873,19 @@ a:hover { color: var(--rp-orange); text-decoration: underline; text-underline-of
 .rp-footer__submit { background: linear-gradient(135deg, #0B3D22, #1f4d3a); display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px 22px; margin: 0 auto 28px; padding: 20px 24px; max-width: 760px; border-radius: 14px; border: 1px solid var(--rp-gold); text-align: center; }
 .rp-footer__submit p { margin: 0; color: #fff; font-size: 18px; font-weight: 700; }
 .rp-footer__submit .rp-submit { padding: 10px 18px 10px 10px; font-size: 17px; }
+
+/* City filter row in place of the rolling news ticker (SURESH, 17 Nov 2026).
+   Shown only for now: the chips do not filter yet. */
+.rp-cities { border-bottom: 1px solid var(--rp-line); background: #fff; }
+.rp-cities__inner { display: flex; align-items: center; gap: 14px; padding-top: 10px; padding-bottom: 10px; }
+.rp-cities__label { flex: none; margin: 0; padding: 7px 14px; border-radius: 8px; background: var(--rp-green); color: #fff; font-size: 14px; font-weight: 800; white-space: nowrap; }
+.rp-cities__list { flex: 1 1 auto; min-width: 0; display: flex; gap: 8px; margin: 0; padding: 2px; list-style: none; overflow-x: auto; scrollbar-width: none; }
+.rp-cities__list::-webkit-scrollbar { display: none; }
+.rp-city { display: inline-flex; align-items: center; gap: 5px; padding: 6px 13px; border-radius: 999px; border: 1px solid var(--rp-gold-line); background: var(--rp-ivory); color: var(--rp-green); font-size: 14px; font-weight: 700; white-space: nowrap; }
+.rp-city svg { color: var(--rp-orange); }
+.rp-city.is-on { background: var(--rp-green); border-color: var(--rp-green); color: #fff; }
+@media (max-width: 640px) {
+	.rp-cities__inner { gap: 10px; padding-top: 8px; padding-bottom: 8px; }
+	.rp-cities__label { padding: 6px 10px; font-size: 13px; }
+	.rp-city { padding: 5px 11px; font-size: 13px; }
+}
