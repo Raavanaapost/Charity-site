@@ -1,6 +1,6 @@
 # RaavanaaPost
 
-The news site of Raavanaa – Beyond the Lanes, at **https://raavanaapost.raavanaa.org**.
+The news site of Raavanaa, at **https://raavanaapost.raavanaa.org**.
 Community needs. Real impact.
 
 Netlify project: `raavanaapost` (production branch: `raavanaapost`). Every push to this
@@ -33,3 +33,12 @@ raavanaa.org: the `draft` and `main` branches are not touched by it.
 ## 15 Nov 2026: raavanaa.org is open
 
 The "Coming soon" tags are off (`rp_coming_soon` false in `source/content/live-settings.php`), so Report a need and Needs we follow open the real pages. The charity logo beside the RaavanaaPost logo is now just Raavanaa (`raavanaa-480.webp`); "Beyond the Lanes" is no longer used.
+
+## 17 Nov 2026: five stories at a glance
+
+The front page (`source/theme/raavanaapost/front-page.php`) shows one big picture that turns
+every 7 seconds between three stories (the story in `source/content/front-lead.txt` first, else
+the newest), with bars to jump and a pause button (`assets/js/main.js`, `.rp-turn` in `main.css`).
+Below it: two pictures, then two more. Sports (league) stories are kept out of these five.
+This post also takes live the photo and school-name removal (branches rp-no-school-names,
+rp-no-child-photos).
