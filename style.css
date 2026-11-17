@@ -2891,3 +2891,4 @@ body[data-page="projects"] .home-finder{margin-top:6px;padding-top:10px}
 .pj-sub{margin:-4px 0 6px;color:var(--muted);font-style:italic;text-align:left;width:100%;max-width:640px}
 .home-finder .pj-says{width:100%;max-width:640px;text-align:left}
 .hm-by{font-family:var(--display);font-size:11.5px;font-weight:600;color:var(--muted);white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis}
+.hm-by{white-space:normal;max-width:92px;text-align:right;line-height:1.2;overflow:visible}

@@ -1076,6 +1076,9 @@ window.RAAV_FEATURES = (function () {
     const st = { q: "", city: "All", by: "" };
     // Who submitted each project: an organisation or a person, by name (SURESH, 17 Nov 2026).
     const byOf = p => String(p.submitted_by || p.organization || "").trim();
+    // SURESH 17 Nov 2026: under each stage, the name of someone who has already given to that project (one picked at
+    // random on each visit), so the list feels close. Only listed givers: no reservations, no "list": false entries.
+    const giverOf = p => { const g = (p.funders || []).filter(f => f && f.name && !f.pledged && f.list !== false && !/test/i.test(f.name)); return g.length ? String(g[Math.floor(Math.random() * g.length)].name).trim() : ""; };
     const match = p => {
       if (st.city !== "All" && cityOf(p) !== st.city) return false;
       if (st.by && byOf(p) !== st.by) return false;
@@ -1123,7 +1126,7 @@ window.RAAV_FEATURES = (function () {
           <a class="hm-row-link" href="/projects/${slug}">
             <span class="hm-thumb"><img src="${esc(s.art)}" alt="" loading="lazy" width="58" height="58"></span>
             <span class="hm-main"><b>${esc(s.title)}</b><small>${meta}</small></span>
-            <span class="hm-side"><span class="hm-pill">${HOME_STAGE[n - 1]}</span>${byOf(p) ? `<small class="hm-by">by ${esc(byOf(p))}</small>` : ""}<span class="hm-pct">${ring(pct)}<b>${pct}%</b></span></span>
+            <span class="hm-side"><span class="hm-pill">${HOME_STAGE[n - 1]}</span>${(f => f ? `<small class="hm-by">with ${esc(f)}</small>` : byOf(p) ? `<small class="hm-by">by ${esc(byOf(p))}</small>` : "")(giverOf(p))}<span class="hm-pct">${ring(pct)}<b>${pct}%</b></span></span>
           </a>
           <button type="button" class="hm-i" aria-label="Project at a glance" aria-expanded="false" aria-controls="hm-pop"><span aria-hidden="true">i</span></button>
         </div>`; };
