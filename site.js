@@ -2808,6 +2808,8 @@ window.RAAV_FEATURES = (function () {
   // Giving from anywhere (SURESH, 17 Nov 2026): the giver types any amount in their own money; the project counts in
   // rupees. Today's rates come from /api/fx; this table (17 Nov 2026) is used until they arrive or if they can't.
   const PL_CURS = ["LKR", "USD", "CAD", "GBP", "EUR", "AUD", "NZD", "CHF", "NOK", "SEK", "DKK", "INR", "SGD", "MYR", "AED", "QAR", "SAR", "KWD", "JPY"];
+  // What the giver sees inside the amount box, so the number means something: C$ 132 CAD, £ 70 GBP, Rs 30,500.
+  const PL_SYM = { LKR: "Rs", USD: "$", CAD: "$", GBP: "£", EUR: "€", AUD: "$", NZD: "$", CHF: "Fr", NOK: "kr", SEK: "kr", DKK: "kr", INR: "₹", SGD: "$", MYR: "RM", AED: "AED", QAR: "QR", SAR: "SR", KWD: "KD", JPY: "¥" };
   const PL_FX_TABLE = { LKR: 1, USD: 332.67, CAD: 232.67, GBP: 438.98, EUR: 366.17, AUD: 224.57, NZD: 183.39, CHF: 395.73, NOK: 34.42, SEK: 32.99, DKK: 48.73, INR: 3.54, SGD: 257.93, MYR: 81.29, AED: 90.59, QAR: 91.39, SAR: 88.72, KWD: 1074.11, JPY: 2.08 };
   let PL_FX = null;
   // A first guess at the giver's money from their phone's time zone and language; they can change it.
@@ -2961,7 +2963,7 @@ window.RAAV_FEATURES = (function () {
       // Tapped once, it stays "full": choosing another currency fills in the full amount in that money again.
       const fullBtn = f.querySelector("[data-full]"), rateEl = f.querySelector("[data-rate]");
       let full = false;
-      const fill = () => { ownIn.value = String(fullIn(curSel ? curSel.value : "LKR")); };
+      const fill = () => { ownIn.value = fullIn(curSel ? curSel.value : "LKR").toLocaleString("en-US"); };
       if (fullBtn) fullBtn.addEventListener("click", () => { full = true; fill(); f.dispatchEvent(new Event("input")); ownIn.scrollIntoView({ block: "center", behavior: "smooth" }); });
       ownIn.addEventListener("input", () => { full = false; });
       if (curSel) curSel.addEventListener("change", () => { if (full) fill(); });
@@ -2973,6 +2975,8 @@ window.RAAV_FEATURES = (function () {
       const update = () => {
         const v = amount(), pct = pctWith(v), foreign = curSel && curSel.value !== "LKR";
         try { if (curSel) localStorage.setItem("raav-cur", curSel.value); } catch (e) { /* none */ }
+        // Inside the amount box: the currency sign before the number and its code after it.
+        if (curSel) { const c = curSel.value; f.querySelector("[data-sym]").textContent = PL_SYM[c] || c; f.querySelector("[data-code]").textContent = c === "LKR" || ["AED"].includes(c) ? "" : c; }
         // Just above the amount: what it is in Sri Lankan rupees.
         if (rateEl) {
           const c = curSel ? curSel.value : "LKR", r = rate();
@@ -3055,7 +3059,7 @@ window.RAAV_FEATURES = (function () {
             <label class="pl-amt"><span>Or any amount <small>(in your own money)</small></span>
               <span class="pl-rate" data-rate hidden></span>
               <span class="pl-amt-row">${isRupees(x) ? `<select name="cur" aria-label="Currency">${PL_CURS.map(c => `<option value="${c}">${c === "LKR" ? "Rs" : c}</option>`).join("")}</select>` : `<b class="pl-cur">${esc(cur)}</b>`}
-              <input name="own" inputmode="decimal" maxlength="12" autocomplete="off" placeholder="Any amount" required></span></label>
+              <span class="pl-money"><i data-sym aria-hidden="true">${isRupees(x) ? "Rs" : esc(cur)}</i><input name="own" inputmode="decimal" maxlength="12" autocomplete="off" placeholder="Any amount" required><em data-code aria-hidden="true"></em></span></span></label>
             <p class="give-reach" role="status" hidden></p>
             <label><span>Your name</span><input name="name" maxlength="80" autocomplete="name" required></label>
             <label><span>Email or WhatsApp</span><input name="contact" maxlength="120" required autocomplete="email" placeholder="you@example.com or 077 123 4567"></label>

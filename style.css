@@ -2747,3 +2747,10 @@ body[data-light] .mosaic{margin-top:8px}
 .pl-inline .pledge-one h2{display:none}
 .b-give [data-donate] span{display:inline-block}
 .b-give [data-donate] span.in{animation:room-in .5s ease-out}
+/* 17 Nov 2026: the amount box shows its money (C$ 132 CAD, Rs 30,500) */
+.pl-money{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:0 12px;min-width:0}
+.pl-money:focus-within{outline:3px solid #eaa21c;outline-offset:1px}
+.pl-money i,.pl-money em{font-style:normal;font-family:var(--display);font-weight:800;font-size:20px;color:#1f4d3a;white-space:nowrap}
+.pl-money em{font-size:14px;color:var(--muted);font-weight:700}
+.pl-money em:empty{display:none}
+.pl-amt-row .pl-money input{border:0;padding:12px 0;outline:0;flex:1;width:100%;background:none}
