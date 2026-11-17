@@ -1056,6 +1056,14 @@ window.RAAV_FEATURES = (function () {
   // the Projects list newest first (SURESH, 17 Nov 2026). Same month keeps the order of projects.json.
   const listedAt = p => { const raw = p.listed || p.created_at || p.started || ""; const t = Date.parse(raw) || Date.parse("1 " + raw); return isNaN(t) ? 0 : t; };
   const listedLabel = p => { const t = listedAt(p); return t ? new Date(t).toLocaleDateString(TA_PATH ? "ta-LK" : "en-GB", p.listed ? { day: "numeric", month: "short", year: "numeric" } : { month: "short", year: "numeric" }) : ""; };
+  // Turning titles over the project lists (SURESH, 17 Nov 2026): words that invite people to sponsor.
+  // Use the same LIST_SAYS wherever a list of projects is shown, so the site speaks with one voice.
+  const LIST_SAYS = ["Listed moments", "Requested needs", "Requested movements", "Requested smiles", "Moments waiting for you"];
+  function startListSays(app) {
+    const box = app.querySelector(".pj-says"); if (!box || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const w = [...box.children]; let k = 0;
+    rotTimers.push(setInterval(() => { if (document.hidden) return; w[k].classList.remove("on"); w[k].setAttribute("aria-hidden", "true"); k = (k + 1) % w.length; w[k].classList.add("on"); w[k].removeAttribute("aria-hidden"); }, 3200));
+  }
   async function renderProjects(app, site, projects) {
     projects = projects.map((p, k) => [p, k]).sort((a, b) => (listedAt(b[0]) - listedAt(a[0])) || (a[1] - b[1])).map(x => x[0]);
     const share = await load("/share.json").catch(() => null);
@@ -1078,7 +1086,8 @@ window.RAAV_FEATURES = (function () {
     let tab = 0;
     app.innerHTML = `
       <section class="finder home-finder">
-        <h1 class="section-title latest-title">Our projects</h1>
+        <h1 class="section-title latest-title pj-says" aria-live="polite">${LIST_SAYS.map((t, k) => `<span class="${k ? "" : "on"}"${k ? ' aria-hidden="true"' : ""}>${t}</span>`).join("")}</h1>
+        <p class="pj-sub">Pick one, and be the smile that makes it happen.</p>
         <form class="finder-search" role="search" action="#" onsubmit="return false">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
           <input id="find-q" type="search" placeholder="Search projects, places or ideas" aria-label="Search projects" autocomplete="off">
@@ -1114,7 +1123,7 @@ window.RAAV_FEATURES = (function () {
           <a class="hm-row-link" href="/projects/${slug}">
             <span class="hm-thumb"><img src="${esc(s.art)}" alt="" loading="lazy" width="58" height="58"></span>
             <span class="hm-main"><b>${esc(s.title)}</b><small>${meta}</small></span>
-            <span class="hm-side"><span class="hm-pill">${HOME_STAGE[n - 1]}</span><span class="hm-pct">${ring(pct)}<b>${pct}%</b></span></span>
+            <span class="hm-side"><span class="hm-pill">${HOME_STAGE[n - 1]}</span>${byOf(p) ? `<small class="hm-by">by ${esc(byOf(p))}</small>` : ""}<span class="hm-pct">${ring(pct)}<b>${pct}%</b></span></span>
           </a>
           <button type="button" class="hm-i" aria-label="Project at a glance" aria-expanded="false" aria-controls="hm-pop"><span aria-hidden="true">i</span></button>
         </div>`; };
@@ -1170,6 +1179,7 @@ window.RAAV_FEATURES = (function () {
     app.querySelector("#find-q").addEventListener("input", e => { st.q = e.target.value.trim(); closePop(); draw(); });
     const citySel = app.querySelector("#find-city");
     citySel.addEventListener("change", () => { st.city = citySel.value; citySel.closest(".finder-city").classList.toggle("on", st.city !== "All"); closePop(); draw(); });
+    startListSays(app);
     const whoBox = app.querySelector(".pj-who-list");
     if (whoBox) whoBox.addEventListener("click", e => { const b = e.target.closest(".pj-who-b"); if (!b) return;
       st.by = st.by === b.dataset.by ? "" : b.dataset.by;
