@@ -658,13 +658,13 @@ function rp_menu_icon( $key ) {
 	return '<svg class="rp-nav__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' . $icons[ $key ] . '</svg>';
 }
 
-/** The Beyond the Lanes logo, shown beside RaavanaaPost's and linking to the charity site. */
+/** The Raavanaa logo, shown beside RaavanaaPost's and linking to the charity site. */
 function rp_partner_logo() {
 	printf(
-		'<a class="rp-btl" href="%s"><img src="%s" width="480" height="127" alt="%s"></a>',
+		'<a class="rp-btl" href="%s"><img src="%s" width="480" height="159" alt="%s"></a>',
 		esc_url( 'https://raavanaa.org/' ),
-		esc_url( rp_img( 'beyond-the-lanes-480.jpg' ) ),
-		esc_attr__( 'Raavanaa – Beyond the Lanes: creating smiles (our charity site)', 'raavanaapost' )
+		esc_url( rp_img( 'raavanaa-480.webp' ) ),
+		esc_attr__( 'Raavanaa (our charity site)', 'raavanaapost' )
 	);
 }
 

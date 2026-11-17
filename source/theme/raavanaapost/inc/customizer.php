@@ -27,7 +27,7 @@ function rp_defaults() {
 		'rp_partner_text'   => __( 'Every story here began with a need. See the days that are waiting, and help make the next one happen.', 'raavanaapost' ),
 		'rp_partner_button' => __( 'See the projects', 'raavanaapost' ),
 		'rp_mostread_title' => __( 'Most read', 'raavanaapost' ),
-		'rp_coming_soon'    => true,
+		'rp_coming_soon'    => false,
 	);
 }
 

@@ -29,3 +29,7 @@ raavanaa.org: the `draft` and `main` branches are not touched by it.
 - No real photos of children (SURESH, 12 Nov 2026). A story shows a drawing (`'art'`, the SVG files in `source/theme/raavanaapost/assets/img/art/`) or an AI illustration, never a photo of a child.
 - Evidence files are private and never go here.
 - "Report a need" sends people to the Request a smile form on raavanaa.org, so there is one inbox.
+
+## 15 Nov 2026: raavanaa.org is open
+
+The "Coming soon" tags are off (`rp_coming_soon` false in `source/content/live-settings.php`), so Report a need and Needs we follow open the real pages. The charity logo beside the RaavanaaPost logo is now just Raavanaa (`raavanaa-480.webp`); "Beyond the Lanes" is no longer used.
