@@ -2974,9 +2974,9 @@ window.RAAV_FEATURES = (function () {
         // The button keeps showing what is still left, after this giver's part, and its little ring moves with it.
         if (fullBtn) {
           const after = Math.max(0, left - v), c = curSel ? curSel.value : "LKR", lt = f.querySelector("[data-left-text]");
-          lt.innerHTML = full && foreign ? `<strong>${esc(moneyOf(site, left, x))}</strong> = <strong>${esc(c)} ${fullIn(c).toLocaleString("en-US")}</strong>`
+          lt.innerHTML = full && foreign ? `<strong>${esc(moneyOf(site, left, x))}</strong> <span class="pl-eq">= ${esc(c)} ${fullIn(c).toLocaleString("en-US")}</span>`
             : v && after > 0 ? `<strong>${esc(moneyOf(site, after, x))}</strong> left after yours` : v ? `<strong>Fully funded</strong> with yours` : `<strong>${esc(moneyOf(site, left, x))}</strong> left`;
-          const pm = pctWith(v); f.querySelector(".pl-mini-arc").setAttribute("stroke-dasharray", `${pm} 100`); f.querySelector("[data-mini-n]").textContent = pm + "%";
+          const pm = pctWith(v); f.querySelector(".pl-mini-arc").setAttribute("stroke-dasharray", `${pm} 100`); f.querySelector("[data-mini-n]").textContent = pm + "%"; f.querySelector("[data-mini-n]").style.fontSize = pm >= 100 ? "9.5px" : "";
           fullBtn.classList.toggle("on", !!v && v >= left);
         }
         const conv = "";
@@ -3043,7 +3043,7 @@ window.RAAV_FEATURES = (function () {
           <p class="pl-lede"><b>Reserve and follow.</b> Give from anywhere, in your own money. A volunteer will follow up with the ways to fund.</p>
           <form class="give-form pledge-form give-ask" data-slug="${esc(slugOf(x))}" data-goal="${bp.goal}" data-raised="${bp.raised}" data-left="${left}" data-cur="${esc(cur)}" novalidate>
             <p hidden><label>Leave empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
-            ${left > 0 ? `<button type="button" class="pl-full" data-full><svg class="pl-mini" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="17" fill="none" stroke="#f6dcae" stroke-width="6"/><circle class="pl-mini-arc" cx="22" cy="22" r="17" fill="none" stroke="#e8891c" stroke-width="6" stroke-linecap="round" pathLength="100" stroke-dasharray="${bp.goal ? Math.round(bp.raised / bp.goal * 100) : 0} 100" transform="rotate(-90 22 22)"/><text x="22" y="26" text-anchor="middle" data-mini-n>${bp.goal ? Math.round(bp.raised / bp.goal * 100) : 0}%</text></svg><span><b>Complete the day</b><small data-left-text><strong>${esc(moneyOf(site, left, x))}</strong> left</small></span></button>` : ""}
+            ${left > 0 ? `<button type="button" class="pl-full" data-full><svg class="pl-mini" viewBox="0 0 44 44" aria-hidden="true"><defs><linearGradient id="pl-mini-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1f7a47"/><stop offset=".5" stop-color="#eaa21c"/><stop offset="1" stop-color="#c8381e"/></linearGradient></defs><circle cx="22" cy="22" r="17" fill="#fff" stroke="#f6dcae" stroke-width="6"/><circle class="pl-mini-arc" cx="22" cy="22" r="17" fill="none" stroke="url(#pl-mini-g)" stroke-width="6" stroke-linecap="round" pathLength="100" stroke-dasharray="${bp.goal ? Math.round(bp.raised / bp.goal * 100) : 0} 100" transform="rotate(-90 22 22)"/><text x="22" y="26" text-anchor="middle" data-mini-n>${bp.goal ? Math.round(bp.raised / bp.goal * 100) : 0}%</text></svg><span><b>${(m => m ? `Complete the moment for all ${m[0]} children` : "Complete the whole moment")(String(x.reach || "").match(/\d+/))}</b><small data-left-text><strong>${esc(moneyOf(site, left, x))}</strong> left</small></span></button>` : ""}
             <label class="pl-amt"><span>Or any amount <small>(in your own money)</small></span>
               <span class="pl-rate" data-rate hidden></span>
               <span class="pl-amt-row">${isRupees(x) ? `<select name="cur" aria-label="Currency">${PL_CURS.map(c => `<option value="${c}">${c === "LKR" ? "Rs" : c}</option>`).join("")}</select>` : `<b class="pl-cur">${esc(cur)}</b>`}
