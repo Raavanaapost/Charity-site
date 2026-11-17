@@ -13,6 +13,12 @@
      group    "Just me / A group" on Spark a Smile (/spark) and its group words (SURESH 16 Nov 2026: a next feature).
      reasons  the reasons shown on /moment; [] shows all twelve.
    On a draft or local preview, ?features=all shows everything for this browser tab (?features=launch goes back). */
+// Every skill people can bring to Raavanaa (SURESH, 17 Nov 2026: "have all the skills captured"). Shown on /spark (Join
+// Raavanaa) and /volunteer; both send the Netlify form "volunteer" (field skills[]).
+window.RAAV_SKILLS = ["Visiting and checking projects near me", "Driving and transport", "Cooking and food", "Teaching and tutoring", "Sports and games",
+  "Music, dance and art", "Photos and video", "Writing and stories", "Tamil and English translation", "Social media", "Fundraising and events",
+  "Accounts and bookkeeping", "Website and IT", "Medical and first aid", "Counselling and care", "Legal advice", "Building and repairs",
+  "Farming and livelihoods", "Organising and leading", "Something else"];
 window.RAAV_FEATURES = (function () {
   const F = { sponsor: false, pledge: true, circle: false, vetting: true, tamil: false, group: false, reasons: [] };  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
   try {
@@ -137,9 +143,10 @@ window.RAAV_FEATURES = (function () {
       document.documentElement.classList.add("in-app");
       let signedIn = false; try { signedIn = !!localStorage.getItem("gotrue.user"); } catch (e) { /* storage blocked */ }
       const ico = d => `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+      // SURESH 17 Nov 2026: in the app, Projects comes first (the app also opens on it, see manifest.json start_url).
       const TABS = [
-        ["Home", "/overview", /^overview$/, ico('<path d="M3.5 11.2 12 4l8.5 7.2"/><path d="M5.8 9.8V20h4.4v-5.4h3.6V20h4.4V9.8"/>')],
         ["Projects", "/projects", /^(projects|stage|project|home|create|initiate|spark)$/, ico('<rect x="3.5" y="4.5" width="17" height="4.6" rx="1.6"/><rect x="3.5" y="11" width="17" height="4.6" rx="1.6"/><path d="M4.5 19.5h15"/>')],
+        ["Home", "/overview", /^overview$/, ico('<path d="M3.5 11.2 12 4l8.5 7.2"/><path d="M5.8 9.8V20h4.4v-5.4h3.6V20h4.4V9.8"/>')],
         ["Gift", "/moment", /^(moment|together|give|fund|thanks)$/, '<span class="appbar-gift"><img src="/img/moment-mark.svg" alt="" width="34" height="34"></span>'],
         ["Map", "/smile-map", /^map2?$/, ico('<path d="M12 21s6.5-5.6 6.5-10.6A6.5 6.5 0 0 0 5.5 10.4C5.5 15.4 12 21 12 21Z"/><circle cx="12" cy="10.2" r="2.4"/>')],
         [signedIn ? "Account" : "Sign in", "/members", /^members$/, ico('<circle cx="12" cy="8.4" r="3.7"/><path d="M4.6 20c.9-3.6 3.8-5.4 7.4-5.4s6.5 1.8 7.4 5.4"/>')]
@@ -260,6 +267,15 @@ window.RAAV_FEATURES = (function () {
       if (/^(moment|together)$/.test(document.body.dataset.page || "")) g.setAttribute("aria-current", "page");
       navEl.insertBefore(g, navEl.querySelector(".nav-member"));
     }
+    // "Submit a need": an eye-catching button in the header of every page, beside the menu button, so the way to
+    // start a project is always in sight (SURESH, 17 Nov 2026). Hidden while starting projects is switched off.
+    const barWrap = document.querySelector(".bar .wrap");
+    if (barWrap && FEAT.vetting && !barWrap.querySelector(".bar-submit") && !/^(initiate|spark|portal|admin)$/.test(document.body.dataset.page || "")) {
+      const sb = document.createElement("a");
+      sb.className = "bar-submit"; sb.href = "/spark";
+      sb.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span><b>Submit</b> <small>a need</small></span>';
+      barWrap.insertBefore(sb, barWrap.querySelector(".menu-btn") || null);
+    }
     // Projects menu: a small drop-down with the three stages (on phones they show indented under Projects).
     const proj = document.querySelector('#site-nav a[href="/initiated"], #site-nav a[href="/ta/initiated"]');
     if (proj && !proj.closest(".nav-drop")) {
@@ -282,13 +298,11 @@ window.RAAV_FEATURES = (function () {
     foot.innerHTML = `
       <svg class="foot-wave" viewBox="0 0 400 30" preserveAspectRatio="none" aria-hidden="true"><path class="w1" d="M0 16C70 2 140 4 200 12 260 20 330 4 400 10V30H0Z"/><path class="w2" d="M0 24C80 10 150 12 210 18 270 24 336 12 400 16V30H0Z"/></svg>
       <div class="foot-main"><div class="wrap">
-        <nav class="foot-cols" aria-label="Footer">
-          ${col("Explore", [["Home", "/overview"], ["Raavanaa Post", "https://raavanaapost.raavanaa.org/"], ["Smile Map", "/smile-map"], ["About us", "/about"], ["Contact", "/contact"]])}
-          ${col("Our stages", [["Initiated", "/initiated"], ["Activated", "/activated"], ["Impact", "/impact"]])}
-          ${col("Get involved", [["Gift a Moment in their name", "/moment"], ["Volunteer with us", "/volunteer"], ["Suggest a project", "/contact?topic=suggest"], ["Partner with us", "/contact?topic=partner"]])
-            .replace("</ul>", APP.inApp ? "</ul>" : `<li><a href="#app" data-get-app>Get the app</a></li></ul>`)}
-          ${follow.length ? col("Follow us", follow) : ""}
+        <!-- Footer kept very simple (SURESH, 17 Nov 2026): one row of links, no stages, no Gift a Moment. -->
+        <nav class="foot-simple" aria-label="Footer">
+          ${[["Projects", "/projects"], ["Submit a need", "/spark"], ["Volunteer", "/volunteer"], ["About us", "/about"], ["Contact", "/contact"]].map(([t, h]) => `<a href="${h}">${t}</a>`).join("")}${APP.inApp ? "" : `<a href="#app" data-get-app>Get the app</a>`}
         </nav>
+        ${follow.length ? `<p class="foot-follow">${follow.map(([t, h, ext]) => `<a href="${esc(h)}"${ext ? ' target="_blank" rel="noopener"' : ""}>${esc(t)}</a>`).join("")}</p>` : ""}
       </div></div>
       <div class="foot-bar"><div class="wrap">
         <span>© ${new Date().getFullYear()} ${esc(site.name)}</span>
@@ -643,11 +657,12 @@ window.RAAV_FEATURES = (function () {
   // heart mark and title, current projects taking turns (three in view, drawings only; a new project joins by
   // itself), and two clear ways to start, Request a project or Submit a project, as one person or a group.
   // Both open the Spark a Smile page (/spark) with that way chosen.
+  // SURESH 17 Nov 2026: one way to start instead of Request / Submit, and a second card to join Raavanaa.
   const SPARK_WAYS = [
-    { k: "request", t: "Request a project", s: "You know who needs a day of joy",
-      ic: '<path d="M8 11V5.5a1.5 1.5 0 0 1 3 0V10M11 9.5V4a1.5 1.5 0 0 1 3 0v6M14 9.5V5.5a1.5 1.5 0 0 1 3 0V13c0 4-2.5 7-6 7-2.6 0-4-1.3-5.4-3.4L3.8 14a1.5 1.5 0 0 1 2.4-1.8L8 14V11"/>' },
-    { k: "submit", t: "Submit a project", s: "You have a plan ready to run",
-      ic: '<path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-10z"/><path d="M14 3.5v5h5"/><path d="M12 17v-6M9.3 13.6 12 11l2.7 2.6"/>' }
+    { k: "request", href: "/initiate?way=need", t: "Submit a need", s: "Request a moment, share a plan, start a movement", go: "Start",
+      ic: '<path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-10z"/><path d="M14 3.5v5h5"/><path d="M12 17v-6M9.3 13.6 12 11l2.7 2.6"/>' },
+    { k: "submit", href: "/spark#join", t: "Join Raavanaa", s: "Volunteer, share a skill, create moments together", go: "Join",
+      ic: '<circle cx="8" cy="8.5" r="2.6"/><circle cx="16.5" cy="9.5" r="2.2"/><path d="M3 19c0-3.2 2.2-5.2 5-5.2s5 2 5 5.2M14 14.3c.8-.4 1.6-.6 2.5-.6 2.5 0 4.5 1.8 4.5 5.3"/>' }
   ];
   // Five titles and lines that take turns (SURESH, 16 Nov 2026: "make it impressive, say things profound: creating a
   // moment, be part of creating impact"). [small words, big word, ribbon, the line under it]
@@ -671,7 +686,7 @@ window.RAAV_FEATURES = (function () {
       <p class="sb-cap" data-sb-cap>${esc(pics[0].p.title)}</p>` : ""}
       <p class="mb-say sb-says" data-sb-says>${SPARK_SAYS.map((x, i) => `<span class="c${i % 5 + 1}${i ? "" : " on"}">${x[3]}</span>`).join("")}</p>
       <p class="sb-anyone">${FEAT.group ? "Anyone can start a project: one person or a whole group." : "Anyone can start one. Share it, and follow every step when you sign in."}</p>
-      <div class="sb-ways">${SPARK_WAYS.map(w => `<a class="sb-way ${w.k}" href="/initiate?way=${w.k}"><span class="sb-ic"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${w.ic}</svg></span><b>${w.t}</b><small>${w.s}</small><span class="sb-start">Start →</span></a>`).join("")}</div>
+      <div class="sb-ways">${SPARK_WAYS.map(w => `<a class="sb-way ${w.k}" href="${w.href}"><span class="sb-ic"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${w.ic}</svg></span><b>${w.t}</b><small>${w.s}</small><span class="sb-start">${w.go} →</span></a>`).join("")}</div>
     </section>`;
   };
   function startSparkBand(app) {
@@ -758,12 +773,42 @@ window.RAAV_FEATURES = (function () {
     };
     return pick.map(tile).join("");
   }
+  // Home's three top pictures (SURESH, 17 Nov 2026): the big one is always an Initiated project, with a
+  // turning call on it ("Make this happen", "Own it", ...); all three take turns through the listed projects.
+  const MAKE_SAYS = ["Make this happen", "Own it", "Create the moment", "Be the smile", "Start it today"];
+  const homeDeck = (shown, k) => {
+    const init = shown.filter(p => stageNum(p) === 1), big = init.length ? init[k % init.length] : null;
+    const rest = shown.filter(p => p !== big);
+    const two = rest.length ? [0, 1].map(j => rest[(k * 2 + j) % rest.length]).filter((p, j, a) => a.indexOf(p) === j) : [];
+    return big ? [big, ...two] : two;
+  };
   function glanceHTML(projects) {
     const shown = projects.filter(p => !p.hidden);
     if (!shown.length) return "";
-    const tabs = EXPLORE.filter(([t]) => CATS.includes(t));
-    const first = EXPLORE[0][1](shown);
-    return `<div class="mosaic n${Math.min(first.length, 3)}" aria-live="polite">${mosaicTiles(first, projects)}</div>`;
+    const first = homeDeck(shown, 0);
+    return `<div class="mosaic n${Math.min(first.length, 3)}" data-deck aria-live="polite">${mosaicTiles(first, projects)}</div>`;
+  }
+  // Every 6 s the pictures move on to the next projects; the call on the big picture turns every 2.8 s.
+  // Stops when someone picks a stage or a category, and pauses while a finger or mouse is on the pictures.
+  function startDeck(app, projects) {
+    const mo = app.querySelector(".mosaic[data-deck]"); if (!mo) return;
+    const shown = projects.filter(p => !p.hidden), calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let k = 0, w = 0, hold = false;
+    const say = () => { const big = mo.querySelector(".mosaic-tile.big.s1"); if (!big) return;
+      let c = big.querySelector(".mosaic-call");
+      if (!c) { c = document.createElement("span"); c.className = "mosaic-call"; big.append(c); }
+      c.innerHTML = `<b>${MAKE_SAYS[w % MAKE_SAYS.length]}</b> <i aria-hidden="true">→</i>`; c.classList.remove("in"); void c.offsetWidth; c.classList.add("in"); };
+    say();
+    if (calm) return;
+    mo.addEventListener("pointerenter", () => hold = true); mo.addEventListener("pointerleave", () => hold = false);
+    rotTimers.push(setInterval(() => { if (document.hidden || !mo.hasAttribute("data-deck")) return; w++; say(); }, 2800));
+    if (shown.length < 2) return;
+    rotTimers.push(setInterval(() => {
+      if (document.hidden || hold || !mo.hasAttribute("data-deck")) return;
+      k++; const list = homeDeck(shown, k);
+      mo.classList.add("turning");
+      setTimeout(() => { mo.className = `mosaic n${Math.min(list.length, 3)}`; mo.innerHTML = mosaicTiles(list, projects); say(); }, 260);
+    }, 6000));
   }
   function wireExplore(app, projects) {
     const box = app.querySelector(".explore-tabs"), mo = app.querySelector(".mosaic"), circles = app.querySelector(".stages");
@@ -775,6 +820,7 @@ window.RAAV_FEATURES = (function () {
       if (circles) { circles.querySelectorAll(".stage").forEach(c => c.classList.toggle("on", c.dataset.ex === name));
         circles.classList.toggle("picking", [...circles.querySelectorAll(".stage")].some(c => c.dataset.ex === name)); }
       const list = e[1](shown);
+      mo.removeAttribute("data-deck");
       mo.className = `mosaic n${Math.min(list.length, 3)}`;
       mo.innerHTML = mosaicTiles(list, projects);
     };
@@ -841,6 +887,7 @@ window.RAAV_FEATURES = (function () {
     wireForms(app);
     fitHeadline();
     rotTimers.forEach(clearInterval); rotTimers = [];
+    startDeck(app, projects);
     startSayings(app);
     startFollow(app);
     startCreate(app);
@@ -1005,7 +1052,12 @@ window.RAAV_FEATURES = (function () {
   // Projects page (/projects, the web app's Projects tab), 15 Nov 2026 (SURESH): search box, then the stages as
   // folder tabs (All first and open), each project one line in the team portal's style, shaded in its stage
   // colour, with "Project at a glance" on hover (or the small i on a phone). Same rows as the /front-5 Home.
+  // When a project was listed: p.listed (a date), else the month in p.started ("October 2026"). Used to sort
+  // the Projects list newest first (SURESH, 17 Nov 2026). Same month keeps the order of projects.json.
+  const listedAt = p => { const raw = p.listed || p.created_at || p.started || ""; const t = Date.parse(raw) || Date.parse("1 " + raw); return isNaN(t) ? 0 : t; };
+  const listedLabel = p => { const t = listedAt(p); return t ? new Date(t).toLocaleDateString(TA_PATH ? "ta-LK" : "en-GB", p.listed ? { day: "numeric", month: "short", year: "numeric" } : { month: "short", year: "numeric" }) : ""; };
   async function renderProjects(app, site, projects) {
+    projects = projects.map((p, k) => [p, k]).sort((a, b) => (listedAt(b[0]) - listedAt(a[0])) || (a[1] - b[1])).map(x => x[0]);
     const share = await load("/share.json").catch(() => null);
     const safe = p => { const sh = (share && share.projects && share.projects[slugOf(p)]) || {};
       return { title: (TA_PATH && sh.title_ta) || sh.title || p.title,
@@ -1013,9 +1065,12 @@ window.RAAV_FEATURES = (function () {
         reach: (TA_PATH && sh.reach_ta) || sh.reach || (/TBD/i.test(p.reach || "") ? "" : p.reach || "") }; };
     const TABS = [[0, "All"], [1, "Initiated"], [2, "Activated"], [3, "Impact"]];
     const cities = [...new Set(projects.map(cityOf).filter(Boolean))].sort();
-    const st = { q: "", city: "All" };
+    const st = { q: "", city: "All", by: "" };
+    // Who submitted each project: an organisation or a person, by name (SURESH, 17 Nov 2026).
+    const byOf = p => String(p.submitted_by || p.organization || "").trim();
     const match = p => {
       if (st.city !== "All" && cityOf(p) !== st.city) return false;
+      if (st.by && byOf(p) !== st.by) return false;
       if (!st.q) return true;
       const sh = safe(p), hay = [sh.title, p.summary, p.theme, cityOf(p), (p.location || "").split(",")[0]].filter(Boolean).join(" ").toLowerCase();
       return st.q.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(w));
@@ -1038,13 +1093,23 @@ window.RAAV_FEATURES = (function () {
         </div>
         <div class="hm-folder s${tab}" id="hm-folder" role="tabpanel"></div>
         <div class="hm-pop" id="hm-pop" role="tooltip" hidden></div>
-      </section>`;
+      </section>
+      ${(() => { const who = {}; projects.forEach(p => { const b = byOf(p); if (!b) return; (who[b] = who[b] || { n: [0, 0, 0, 0], type: p.submitted_type || (b === "Raavanaa" ? "Organisation" : "") }).n[stageNum(p)]++; });
+        const names = Object.keys(who).sort((a, b) => who[b].n.reduce((x, y) => x + y) - who[a].n.reduce((x, y) => x + y) || a.localeCompare(b));
+        return names.length ? `<section class="pj-who" aria-labelledby="pj-who-h">
+          <h2 id="pj-who-h" class="section-title">Organisations and people</h2>
+          <p class="pj-who-say">Everyone who has submitted a project, with where their projects stand. Tap a name to see only theirs.</p>
+          <div class="pj-who-list">${names.map(nm => `<button type="button" class="pj-who-b" data-by="${esc(nm)}" aria-pressed="false">
+            <span class="pj-who-av">${esc(nm.split(/\s+/).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span>
+            <span class="pj-who-t"><b>${esc(nm)}</b>${who[nm].type ? `<small>${esc(who[nm].type)}</small>` : ""}</span>
+            <span class="pj-who-st">${[1, 2, 3].filter(k => who[nm].n[k]).map(k => `<i class="s${k}">${HOME_STAGE[k - 1]} ${who[nm].n[k]}</i>`).join("")}</span></button>`).join("")}</div>
+        </section>` : ""; })()}`;
     const book = app.querySelector(".hm-book"), tabsBox = app.querySelector(".hm-tabs"), folder = app.querySelector(".hm-folder"), pop = app.querySelector(".hm-pop");
     const circles = [];
     const ring = pct => `<svg class="hm-ring" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" pathLength="100" class="tr"/><circle cx="20" cy="20" r="15" pathLength="100" class="fl" stroke-dasharray="${pct} 100" transform="rotate(-90 20 20)"/></svg>`;
     const rowHTML = p => { const n = stageNum(p), s = safe(p), pct = ringPercent(p), slug = slugOf(p);
       const place = cityOf(p) || (p.location || "").split(",")[0].trim();
-      const meta = [p.theme, place].filter(Boolean).map(t => `<span>${esc(t)}</span>`).concat(`<span class="hm-next"><span>Next:</span> <span>${esc(nextStepOf(p))}</span></span>`).join('<i aria-hidden="true"> · </i>');
+      const meta = [p.theme, place].filter(Boolean).map(t => `<span>${esc(t)}</span>`).concat(`<span class="hm-next"><span>Next:</span> <span>${esc(nextStepOf(p))}</span></span>`).concat(listedLabel(p) ? `<span class="hm-listed">Listed ${esc(listedLabel(p))}</span>` : []).join('<i aria-hidden="true"> · </i>');
       return `<div class="hm-row s${n}" role="listitem" data-slug="${esc(slug)}">
           <a class="hm-row-link" href="/projects/${slug}">
             <span class="hm-thumb"><img src="${esc(s.art)}" alt="" loading="lazy" width="58" height="58"></span>
@@ -1067,7 +1132,7 @@ window.RAAV_FEATURES = (function () {
     // "Project at a glance": the same facts as on the project's own page, in a small window.
     const RING_WORD = { 1: "Funded so far", 2: "Preparations done", 3: "Results reported" };
     const popHTML = p => { const n = stageNum(p), s = safe(p), b = budgetOf(p), pct = ringPercent(p);
-      const facts = [["Where", esc(p.location || cityOf(p))], ["Who it is for", esc(s.reach)], ["Started", esc(p.started || "")], ["Cost of the day", b.goal ? moneyOf(site, b.goal, p) : ""],
+      const facts = [["Submitted by", esc(byOf(p))], ["Where", esc(p.location || cityOf(p))], ["Who it is for", esc(s.reach)], ["Started", esc(p.started || "")], ["Cost of the day", b.goal ? moneyOf(site, b.goal, p) : ""],
         [RING_WORD[n], pct + "%"], ["Next step", esc(nextStepOf(p))]].filter(x => x[1]);
       return `<p class="hm-pop-k"><span>Project at a glance</span><b class="hm-pill">${HOME_STAGE[n - 1]}</b></p>
         <b class="hm-pop-t">${esc(s.title)}</b>
@@ -1105,6 +1170,11 @@ window.RAAV_FEATURES = (function () {
     app.querySelector("#find-q").addEventListener("input", e => { st.q = e.target.value.trim(); closePop(); draw(); });
     const citySel = app.querySelector("#find-city");
     citySel.addEventListener("change", () => { st.city = citySel.value; citySel.closest(".finder-city").classList.toggle("on", st.city !== "All"); closePop(); draw(); });
+    const whoBox = app.querySelector(".pj-who-list");
+    if (whoBox) whoBox.addEventListener("click", e => { const b = e.target.closest(".pj-who-b"); if (!b) return;
+      st.by = st.by === b.dataset.by ? "" : b.dataset.by;
+      whoBox.querySelectorAll(".pj-who-b").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.by === st.by)));
+      closePop(); draw(); if (st.by) book.scrollIntoView({ behavior: "smooth", block: "start" }); });
     draw();
   }
 
@@ -1788,9 +1858,9 @@ window.RAAV_FEATURES = (function () {
       })() : [{ name: "Funded", done: goal > 0 ? Math.min(1, raised / goal) : 0, c: "#eaa21c", pctLabel: true }])
     ];
     if (st === 2) return [
-      { name: "Date confirmed", done: p.date_set ? 1 : 0, c: "#e5851a" },
-      { name: "Place and transport booked", done: p.booked ? 1 : 0, c: "#d9632b" },
-      { name: "Volunteers ready", done: p.volunteers ? 1 : 0, c: "#c8381e" },
+      { name: "Date confirmed", done: p.date_set ? 1 : 0, c: "#eaa21c" },
+      { name: "Place and transport booked", done: p.booked ? 1 : 0, c: "#d08a00" },
+      { name: "Volunteers ready", done: p.volunteers ? 1 : 0, c: "#b97a06" },
       ...(p.steps || []).filter(x => x && x.name).map((x, k) => ({ name: x.name, done: x.done ? 1 : 0, c: ["#8f6200", "#b4560a", "#0f5132"][k % 3] }))
     ];
     const ex = (p.expectations || []).filter(x => x && x.text);
@@ -2549,6 +2619,15 @@ window.RAAV_FEATURES = (function () {
     };
   }
 
+  // Project page: a small picture of the three stages, the same circles and words as on Home, with this
+  // project's place among them (SURESH, 17 Nov 2026: "a small graphic of which stage it has moved to").
+  // Stages already passed get a tick, the current one is full and marked "Now", later ones are faded.
+  function stageJourneyHTML(p) {
+    const n = stageNum(p), art = ["initiated", "activated", "impact"], say = STAGE_SAY;
+    return `<nav class="pjour" aria-label="Where this project stands: ${STAGE_LABEL[n - 1]}">${STAGE_LABEL.map((l, k) => `${k ? `<span class="pjour-arrow${k < n ? " past" : ""}" aria-hidden="true">›</span>` : ""}<a class="pjour-st s${k + 1}${k + 1 < n ? " past" : k + 1 === n ? " now" : " next"}" href="/${art[k]}"${k + 1 === n ? ' aria-current="step"' : ""}>
+        <i style="background-image:url(/img/stage-${art[k]}.svg)">${k + 1 < n ? `<em aria-label="done">✓</em>` : ""}</i>
+        <b>${l}</b><small>${k + 1 === n ? "Now · " + say[k] : say[k]}</small></a>`).join("")}</nav>`;
+  }
   function renderProject(app, site, projects, slug) {
     const i = projects.findIndex(p => slugOf(p) === slug);
     const p = projects[i];
@@ -2639,7 +2718,7 @@ window.RAAV_FEATURES = (function () {
             <header class="phead">
               ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
               <h1>${esc(p.title)}</h1>
-              <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>by <strong>${esc(p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Visited and verified</span>` : ""}
+              <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>Submitted by <strong>${esc(p.submitted_by || p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Visited and verified</span>` : ""}
               <div class="glance">
                 <button type="button" class="glance-btn" aria-expanded="false" aria-controls="glance-card"><span>At a glance</span><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
                 <div class="panel glance-card" id="glance-card">
@@ -2655,6 +2734,7 @@ window.RAAV_FEATURES = (function () {
               </div>
               </div>
             </header>
+            ${stageJourneyHTML(p)}
             ${p.tagline ? `<p class="psum">${esc(p.tagline)}</p>` : ""}
             <div class="hero-wrap">
               <div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.cover ? "" : "Cover photo", 1400)}</div>
@@ -3568,10 +3648,10 @@ window.RAAV_FEATURES = (function () {
         // the kind of day) into the form, and show them in one line with a way back to change them.
         {
           const sq = new URLSearchParams(location.search), sf = document.querySelector('form[name="opportunity"]');
-          const way = sq.get("way") === "submit" ? "submit" : sq.get("way") === "request" ? "request" : "";
+          const way = ["submit", "request", "need"].includes(sq.get("way")) ? sq.get("way") : "";
           if (sf && way) {
             const by = sq.get("by") === "group" ? "group" : sq.get("by") === "me" ? "me" : "";
-            const vals = { way: way === "submit" ? "Submit a project" : "Request a project", by: by === "group" ? "A group" : by === "me" ? "One person" : "",
+            const vals = { way: way === "submit" ? "Submit a project" : way === "need" ? "Submit a need" : "Request a project", by: by === "group" ? "A group" : by === "me" ? "One person" : "",
               group: by === "group" ? (sq.get("group") || "").slice(0, 60) : "", gname: by === "group" ? (sq.get("gname") || "").slice(0, 80) : "" };
             sf.querySelectorAll("[data-spark-f]").forEach(i => { i.value = vals[i.dataset.sparkF] || ""; });
             const kind = sf.querySelector("#o-kind"), k = sq.get("kind");
