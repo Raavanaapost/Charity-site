@@ -101,7 +101,7 @@ add_action(
 			'raavanaapost',
 			RP_URI . '/assets/js/main.js',
 			array(),
-			RP_VERSION,
+			substr( md5_file( RP_DIR . '/assets/js/main.js' ), 0, 8 ), // New name on every change, so phones load the new script at once.
 			array(
 				'in_footer' => true,
 				'strategy'  => 'defer',

@@ -162,6 +162,49 @@
 		slide();
 	}
 
+	/* Front page: the big top picture turns to the next story every 7 seconds.
+	   Dots jump to a story; hover, keyboard focus or the pause button hold it. */
+	var turn = document.querySelector('[data-rp-turn]');
+	var slides = turn ? turn.querySelectorAll('.rp-turn__slide') : [];
+	if (slides.length > 1) {
+		var tControls = turn.querySelector('.rp-turn__controls');
+		var dots = turn.querySelectorAll('.rp-turn__dot');
+		var tPause = turn.querySelector('.rp-turn__pause');
+		var tStill = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		var tAt = 0, tHeld = false, tStopped = tStill;
+		var show = function (n) {
+			tAt = (n + slides.length) % slides.length;
+			for (var i = 0; i < slides.length; i++) {
+				var on = i === tAt;
+				slides[i].classList.toggle('is-on', on);
+				if (on) { slides[i].removeAttribute('aria-hidden'); } else { slides[i].setAttribute('aria-hidden', 'true'); }
+				slides[i].querySelectorAll('a').forEach(function (a) { if (on) { a.removeAttribute('tabindex'); } else { a.setAttribute('tabindex', '-1'); } });
+				if (dots[i]) { dots[i].setAttribute('aria-pressed', on ? 'true' : 'false'); }
+			}
+			var media = slides[tAt].querySelector('.rp-media');
+			if (media) { media.setAttribute('tabindex', '-1'); }
+		};
+		show(0);
+		if (tControls) { tControls.hidden = false; }
+		dots.forEach(function (d, i) { d.addEventListener('click', function () { show(i); }); });
+		var setStopped = function (s) {
+			tStopped = s;
+			if (tPause) {
+				tPause.setAttribute('aria-pressed', s ? 'true' : 'false');
+				tPause.querySelector('.screen-reader-text').textContent = s ? 'Play the top stories' : 'Pause the top stories';
+			}
+		};
+		setStopped(tStopped);
+		if (tPause) { tPause.addEventListener('click', function () { setStopped(!tStopped); }); }
+		turn.addEventListener('mouseenter', function () { tHeld = true; });
+		turn.addEventListener('mouseleave', function () { tHeld = false; });
+		turn.addEventListener('focusin', function () { tHeld = true; });
+		turn.addEventListener('focusout', function () { tHeld = false; });
+		setInterval(function () {
+			if (!tHeld && !tStopped && !document.hidden) { show(tAt + 1); }
+		}, 7000);
+	}
+
 	var copy = document.querySelector('[data-rp-copy]');
 	if (copy) {
 		if (!navigator.clipboard) {
