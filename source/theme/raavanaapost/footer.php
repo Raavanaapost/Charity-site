@@ -21,6 +21,15 @@ $rp_brief  = rp_page_url( 'brief' );
 		<?php rp_orn_line( 'r' ); ?>
 	</div>
 
+	<?php if ( $rp_report ) : ?>
+		<div class="rp-wrap">
+			<div class="rp-footer__submit">
+				<p><?php esc_html_e( 'Know a child or a community with a need?', 'raavanaapost' ); ?></p>
+				<a class="rp-submit" href="<?php echo esc_url( $rp_report ); ?>"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14"/></svg><?php esc_html_e( 'Submit a need', 'raavanaapost' ); ?></a>
+			</div>
+		</div>
+	<?php endif; ?>
+
 	<div class="rp-wrap rp-footer__main">
 		<div class="rp-footer__brand">
 			<img class="rp-footer__king" src="<?php echo esc_url( rp_img( 'king.png' ) ); ?>" alt="" width="417" height="463" loading="lazy">
@@ -66,7 +75,7 @@ $rp_brief  = rp_page_url( 'brief' );
 					<h2 id="rp-f-involved"><?php esc_html_e( 'Get involved', 'raavanaapost' ); ?></h2>
 					<ul class="rp-footer__list">
 						<?php if ( $rp_report ) : ?>
-							<li><a href="<?php echo esc_url( rp_soon_url( $rp_report ) ); ?>"><?php esc_html_e( 'Report a need', 'raavanaapost' ); ?><?php echo rp_soon_tag(); // phpcs:ignore WordPress.Security.EscapeOutput ?></a></li>
+							<li><a href="<?php echo esc_url( rp_soon_url( $rp_report ) ); ?>"><?php esc_html_e( 'Submit a need', 'raavanaapost' ); ?><?php echo rp_soon_tag(); // phpcs:ignore WordPress.Security.EscapeOutput ?></a></li>
 						<?php endif; ?>
 						<?php if ( $rp_needs ) : ?>
 							<li><a href="<?php echo esc_url( rp_soon_url( $rp_needs ) ); ?>"><?php esc_html_e( 'Needs we are following', 'raavanaapost' ); ?><?php echo rp_soon_tag(); // phpcs:ignore WordPress.Security.EscapeOutput ?></a></li>

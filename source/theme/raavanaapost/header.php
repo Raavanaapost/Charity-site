@@ -30,7 +30,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<?php endif; ?>
 			<?php $rp_report = rp_page_url( 'report' ); ?>
 			<?php if ( $rp_report ) : ?>
-				<a href="<?php echo esc_url( rp_soon_url( $rp_report ) ); ?>"><?php esc_html_e( 'Report a need', 'raavanaapost' ); ?><?php echo rp_soon_tag(); // phpcs:ignore WordPress.Security.EscapeOutput ?></a>
+				<a class="rp-submit" href="<?php echo esc_url( $rp_report ); ?>"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14"/></svg><?php esc_html_e( 'Submit a need', 'raavanaapost' ); ?></a>
 			<?php endif; ?>
 			<?php $rp_brief = rp_page_url( 'brief' ); ?>
 			<?php if ( $rp_brief ) : ?>

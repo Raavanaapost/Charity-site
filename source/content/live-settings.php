@@ -29,7 +29,7 @@ wp_update_nav_menu_item( $menu, 0, array( 'menu-item-title' => 'Privacy and chil
 $locations['footer'] = $menu;
 set_theme_mod( 'nav_menu_locations', $locations );
 
-set_theme_mod( 'rp_report_url', 'https://raavanaa.org/initiate' );
+set_theme_mod( 'rp_report_url', 'https://raavanaa.org/spark' ); // Same place as raavanaa.org's own "Submit a need" button (17 Nov 2026).
 set_theme_mod( 'rp_coming_soon', false ); // raavanaa.org is open (15 Nov 2026): links go to the real pages, no "Coming soon" tags
 set_theme_mod( 'rp_partner_url', 'https://raavanaa.org' );
 set_theme_mod( 'rp_partner_title', 'Be part of the next day of joy' );
