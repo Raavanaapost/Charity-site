@@ -1064,9 +1064,12 @@ window.RAAV_FEATURES = (function () {
         reach: (TA_PATH && sh.reach_ta) || sh.reach || (/TBD/i.test(p.reach || "") ? "" : p.reach || "") }; };
     const TABS = [[0, "All"], [1, "Initiated"], [2, "Activated"], [3, "Impact"]];
     const cities = [...new Set(projects.map(cityOf).filter(Boolean))].sort();
-    const st = { q: "", city: "All" };
+    const st = { q: "", city: "All", by: "" };
+    // Who submitted each project: an organisation or a person, by name (SURESH, 17 Nov 2026).
+    const byOf = p => String(p.submitted_by || p.organization || "").trim();
     const match = p => {
       if (st.city !== "All" && cityOf(p) !== st.city) return false;
+      if (st.by && byOf(p) !== st.by) return false;
       if (!st.q) return true;
       const sh = safe(p), hay = [sh.title, p.summary, p.theme, cityOf(p), (p.location || "").split(",")[0]].filter(Boolean).join(" ").toLowerCase();
       return st.q.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(w));
@@ -1089,7 +1092,17 @@ window.RAAV_FEATURES = (function () {
         </div>
         <div class="hm-folder s${tab}" id="hm-folder" role="tabpanel"></div>
         <div class="hm-pop" id="hm-pop" role="tooltip" hidden></div>
-      </section>`;
+      </section>
+      ${(() => { const who = {}; projects.forEach(p => { const b = byOf(p); if (!b) return; (who[b] = who[b] || { n: [0, 0, 0, 0], type: p.submitted_type || (b === "Raavanaa" ? "Organisation" : "") }).n[stageNum(p)]++; });
+        const names = Object.keys(who).sort((a, b) => who[b].n.reduce((x, y) => x + y) - who[a].n.reduce((x, y) => x + y) || a.localeCompare(b));
+        return names.length ? `<section class="pj-who" aria-labelledby="pj-who-h">
+          <h2 id="pj-who-h" class="section-title">Organisations and people</h2>
+          <p class="pj-who-say">Everyone who has submitted a project, with where their projects stand. Tap a name to see only theirs.</p>
+          <div class="pj-who-list">${names.map(nm => `<button type="button" class="pj-who-b" data-by="${esc(nm)}" aria-pressed="false">
+            <span class="pj-who-av">${esc(nm.split(/\s+/).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span>
+            <span class="pj-who-t"><b>${esc(nm)}</b>${who[nm].type ? `<small>${esc(who[nm].type)}</small>` : ""}</span>
+            <span class="pj-who-st">${[1, 2, 3].filter(k => who[nm].n[k]).map(k => `<i class="s${k}">${HOME_STAGE[k - 1]} ${who[nm].n[k]}</i>`).join("")}</span></button>`).join("")}</div>
+        </section>` : ""; })()}`;
     const book = app.querySelector(".hm-book"), tabsBox = app.querySelector(".hm-tabs"), folder = app.querySelector(".hm-folder"), pop = app.querySelector(".hm-pop");
     const circles = [];
     const ring = pct => `<svg class="hm-ring" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" pathLength="100" class="tr"/><circle cx="20" cy="20" r="15" pathLength="100" class="fl" stroke-dasharray="${pct} 100" transform="rotate(-90 20 20)"/></svg>`;
@@ -1118,7 +1131,7 @@ window.RAAV_FEATURES = (function () {
     // "Project at a glance": the same facts as on the project's own page, in a small window.
     const RING_WORD = { 1: "Funded so far", 2: "Preparations done", 3: "Results reported" };
     const popHTML = p => { const n = stageNum(p), s = safe(p), b = budgetOf(p), pct = ringPercent(p);
-      const facts = [["Where", esc(p.location || cityOf(p))], ["Who it is for", esc(s.reach)], ["Started", esc(p.started || "")], ["Cost of the day", b.goal ? moneyOf(site, b.goal, p) : ""],
+      const facts = [["Submitted by", esc(byOf(p))], ["Where", esc(p.location || cityOf(p))], ["Who it is for", esc(s.reach)], ["Started", esc(p.started || "")], ["Cost of the day", b.goal ? moneyOf(site, b.goal, p) : ""],
         [RING_WORD[n], pct + "%"], ["Next step", esc(nextStepOf(p))]].filter(x => x[1]);
       return `<p class="hm-pop-k"><span>Project at a glance</span><b class="hm-pill">${HOME_STAGE[n - 1]}</b></p>
         <b class="hm-pop-t">${esc(s.title)}</b>
@@ -1156,6 +1169,11 @@ window.RAAV_FEATURES = (function () {
     app.querySelector("#find-q").addEventListener("input", e => { st.q = e.target.value.trim(); closePop(); draw(); });
     const citySel = app.querySelector("#find-city");
     citySel.addEventListener("change", () => { st.city = citySel.value; citySel.closest(".finder-city").classList.toggle("on", st.city !== "All"); closePop(); draw(); });
+    const whoBox = app.querySelector(".pj-who-list");
+    if (whoBox) whoBox.addEventListener("click", e => { const b = e.target.closest(".pj-who-b"); if (!b) return;
+      st.by = st.by === b.dataset.by ? "" : b.dataset.by;
+      whoBox.querySelectorAll(".pj-who-b").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.by === st.by)));
+      closePop(); draw(); if (st.by) book.scrollIntoView({ behavior: "smooth", block: "start" }); });
     draw();
   }
 
