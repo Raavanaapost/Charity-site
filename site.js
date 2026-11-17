@@ -1954,7 +1954,20 @@ window.RAAV_FEATURES = (function () {
   function wireDonate(root, slug) {
     root.querySelectorAll("[data-donate]").forEach(b => b.addEventListener("click", () => {
       // Memory launch (FEAT.sponsor off): every gift goes through the moment page, in someone's memory.
-      if (!FEAT.sponsor && FEAT.pledge && GIVE_OPEN.has(slug)) { location.href = (TA_PATH ? "/ta" : "") + "/give?project=" + encodeURIComponent(slug); return; }
+      // The short form opens right here, under the button (SURESH, 17 Nov 2026); /give?project= still works as a page.
+      if (!FEAT.sponsor && FEAT.pledge && GIVE_OPEN.has(slug)) {
+        if (!G_CTX) { location.href = (TA_PATH ? "/ta" : "") + "/give?project=" + encodeURIComponent(slug); return; }
+        const at = b.closest(".b-give, .mk-pane, .mny-need") || b, open = document.querySelector(".pl-inline");
+        if (open && open.previousElementSibling === at) { open.scrollIntoView({ block: "start", behavior: "smooth" }); return; }
+        if (open) open.remove();
+        const box = document.createElement("div"); box.className = "pl-inline";
+        at.after(box);
+        renderGive(box, G_CTX.site, G_CTX.projects, G_CTX.give, { inline: true, q: new URLSearchParams({ project: slug }) });
+        const shut = document.createElement("button"); shut.type = "button"; shut.className = "pl-shut"; shut.setAttribute("aria-label", "Close"); shut.textContent = "×";
+        shut.addEventListener("click", () => box.remove()); box.prepend(shut);
+        box.scrollIntoView({ block: "start", behavior: "smooth" });
+        return;
+      }
       if (!FEAT.sponsor) { location.href = (TA_PATH ? "/ta" : "") + "/moment?for=memory" + (GIVE_OPEN.has(slug) ? "&project=" + encodeURIComponent(slug) : "") + "#mo-step-2"; return; }
       location.href = (TA_PATH ? "/ta" : "") + (GIVE_OPEN.has(slug) ? "/give?project=" + encodeURIComponent(slug) : "/fund");
     }));
@@ -1975,6 +1988,7 @@ window.RAAV_FEATURES = (function () {
   // too, at the team's rate). Until one is switched on in Netlify, Donate shows the pilot note.
   let GIVE_ON = false;
   const GIVE_OPEN = new Set();
+  let G_CTX = null;   // site, projects and gift totals, so the giving form can open in place on a project page
   let GIVE_RATE = 0; // Sri Lankan rupees to one Canadian dollar (site.json "rate_lkr_per_cad"), Stripe only
   let GIVE_BY = "Stripe", GIVE_CUR = "CAD";
   const isRupees = p => /rs|lkr|රු|ரூ/i.test(p.currency || "");
@@ -2796,8 +2810,9 @@ window.RAAV_FEATURES = (function () {
   // Sponsor a smile: card payments through PayHere (rupees) or Stripe Checkout (Canadian dollars).
   //   /give                  monthly Smile member, a one-time gift to Raavanaa, or pick a project
   //   /give?project=<slug>   sponsor that project (never more than what it still needs)
-  function renderGive(app, site, projects, GIVE) {
-    const q = new URLSearchParams(location.search);
+  // opts.inline (SURESH, 17 Nov 2026): the short form opens in place on the project page, inside `app` (a box there).
+  function renderGive(app, site, projects, GIVE, opts = {}) {
+    const q = opts.q || new URLSearchParams(location.search);
     // Memory launch (FEAT.sponsor off): /give and /fund open only from the moment page (which sends ?tribute=).
     // Opened directly, they go to the moment page instead, keeping the project chosen.
     // The simple project pledge (FEAT.pledge) opens /give?project=<slug> straight from the project, with no detour.
@@ -2822,7 +2837,7 @@ window.RAAV_FEATURES = (function () {
     const FUND = document.body.dataset.page === "fund";
     const p = !FUND && q.get("project") ? projects.find(x => slugOf(x) === slugify(q.get("project"))) : null;
     const open = projects.filter(canGive);
-    document.title = (FUND ? "The Raavanaa Fund" : p ? `Sponsor a smile: ${p.title}` : "Sponsor a smile") + ` · ${site.name}`;
+    if (!opts.inline) document.title = (FUND ? "The Raavanaa Fund" : p ? `Sponsor a smile: ${p.title}` : "Sponsor a smile") + ` · ${site.name}`;
     const TR_EN = { memory: "In loving memory of", remembrance: "Remembering, on the anniversary of", birthday: "Celebrating the birthday of", wedding: "Celebrating the wedding anniversary of",
       newborn: "Welcoming", success: "Celebrating the success of", recovery: "Giving thanks for the recovery of", gratitude: "With gratitude for", festival: "A festival gift in the name of", honour: "In honour of" };
     const REASONS = [["memory", "In loving memory of"], ["remembrance", "Remembering, on the anniversary of"], ["birthday", "Celebrating the birthday of"], ["wedding", "Celebrating the wedding anniversary of"],
@@ -3094,7 +3109,8 @@ window.RAAV_FEATURES = (function () {
         </section>
         ${(ASK ? projects.filter(needsMoney) : open).length ? `<section class="give-list"><h2>Or sponsor a project</h2><div class="give-grid">${(ASK ? projects.filter(needsMoney) : open).map(card).join("")}</div></section>` : ""}`;
     }
-    app.innerHTML = `<div class="give-page">
+    if (opts.inline) app.innerHTML = `<div class="give-inline">${body}</div>`;
+    else app.innerHTML = `<div class="give-page">
       <header class="give-head"><p class="eyebrow">${FUND ? "The Raavanaa Fund" : "Sponsor a smile"}</p>
         <h1>${FUND ? "Give once. We find the smile." : p ? esc(p.title) : "Be part of the next moment"}</h1>
         <p>${FUND ? "For when you want to help and are happy for us to choose where. Volunteers decide, and every rupee in and out is shown openly." : p ? (ASK ? "Your gift goes straight to this project. You'll see it on the project page, and after the day you'll see how it went and where the money went." : "Your gift goes straight to this project. You'll see it on the project page, and after the day you'll see the photos and where every " + (LKR ? "rupee" : "dollar") + " went.") : "Raavanaa is a bridge between people who need a hand and people ready to give one. Choose how you'd like to help."}</p>
@@ -3434,6 +3450,7 @@ window.RAAV_FEATURES = (function () {
       projects.filter(canGive).forEach(p => GIVE_OPEN.add(slugOf(p)));
       // With card payments off, Donate still opens the project's form ("I'd like to give") while the project needs money.
       if (!GIVE_ON) projects.forEach(p => { if (p.verified && stageNum(p) === 1) { const b = budgetOf(p); if (b.goal > 0 && b.raised < b.goal) GIVE_OPEN.add(slugOf(p)); } });
+      G_CTX = { site, projects, give: GIVE };
       if (page === "give" || page === "fund") renderGive(app, site, projects, GIVE);
       else if (page === "room") renderRoom(app, site, projects);
       else if (page === "thanks") renderThanks(app, site);

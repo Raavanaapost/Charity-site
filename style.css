@@ -2718,3 +2718,9 @@ body[data-light] .mosaic{margin-top:8px}
 .ring-steps b{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .st-ic.tick{color:#1f7a47;font-weight:900}
 .st-ic.res{color:#c8381e}
+/* The short giving form opens in place on the project page (17 Nov 2026) */
+.pl-inline{position:relative;margin:12px 0 18px;scroll-margin-top:90px;animation:room-in .4s ease-out}
+.pl-inline .pledge-one{display:block}
+.pl-inline .pl-proj{display:none}
+.pl-inline .give-box{margin:0;box-shadow:0 14px 30px -20px rgba(31,77,58,.5);border:2px solid #eaa21c}
+.pl-shut{position:absolute;top:8px;right:10px;z-index:2;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--surface);font-size:22px;line-height:1;color:var(--muted);cursor:pointer}
