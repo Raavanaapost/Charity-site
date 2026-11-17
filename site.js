@@ -758,12 +758,42 @@ window.RAAV_FEATURES = (function () {
     };
     return pick.map(tile).join("");
   }
+  // Home's three top pictures (SURESH, 17 Nov 2026): the big one is always an Initiated project, with a
+  // turning call on it ("Make this happen", "Own it", ...); all three take turns through the listed projects.
+  const MAKE_SAYS = ["Make this happen", "Own it", "Create the moment", "Be the smile", "Start it today"];
+  const homeDeck = (shown, k) => {
+    const init = shown.filter(p => stageNum(p) === 1), big = init.length ? init[k % init.length] : null;
+    const rest = shown.filter(p => p !== big);
+    const two = rest.length ? [0, 1].map(j => rest[(k * 2 + j) % rest.length]).filter((p, j, a) => a.indexOf(p) === j) : [];
+    return big ? [big, ...two] : two;
+  };
   function glanceHTML(projects) {
     const shown = projects.filter(p => !p.hidden);
     if (!shown.length) return "";
-    const tabs = EXPLORE.filter(([t]) => CATS.includes(t));
-    const first = EXPLORE[0][1](shown);
-    return `<div class="mosaic n${Math.min(first.length, 3)}" aria-live="polite">${mosaicTiles(first, projects)}</div>`;
+    const first = homeDeck(shown, 0);
+    return `<div class="mosaic n${Math.min(first.length, 3)}" data-deck aria-live="polite">${mosaicTiles(first, projects)}</div>`;
+  }
+  // Every 6 s the pictures move on to the next projects; the call on the big picture turns every 2.8 s.
+  // Stops when someone picks a stage or a category, and pauses while a finger or mouse is on the pictures.
+  function startDeck(app, projects) {
+    const mo = app.querySelector(".mosaic[data-deck]"); if (!mo) return;
+    const shown = projects.filter(p => !p.hidden), calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let k = 0, w = 0, hold = false;
+    const say = () => { const big = mo.querySelector(".mosaic-tile.big.s1"); if (!big) return;
+      let c = big.querySelector(".mosaic-call");
+      if (!c) { c = document.createElement("span"); c.className = "mosaic-call"; big.append(c); }
+      c.innerHTML = `<b>${MAKE_SAYS[w % MAKE_SAYS.length]}</b> <i aria-hidden="true">→</i>`; c.classList.remove("in"); void c.offsetWidth; c.classList.add("in"); };
+    say();
+    if (calm) return;
+    mo.addEventListener("pointerenter", () => hold = true); mo.addEventListener("pointerleave", () => hold = false);
+    rotTimers.push(setInterval(() => { if (document.hidden || !mo.hasAttribute("data-deck")) return; w++; say(); }, 2800));
+    if (shown.length < 2) return;
+    rotTimers.push(setInterval(() => {
+      if (document.hidden || hold || !mo.hasAttribute("data-deck")) return;
+      k++; const list = homeDeck(shown, k);
+      mo.classList.add("turning");
+      setTimeout(() => { mo.className = `mosaic n${Math.min(list.length, 3)}`; mo.innerHTML = mosaicTiles(list, projects); say(); }, 260);
+    }, 6000));
   }
   function wireExplore(app, projects) {
     const box = app.querySelector(".explore-tabs"), mo = app.querySelector(".mosaic"), circles = app.querySelector(".stages");
@@ -775,6 +805,7 @@ window.RAAV_FEATURES = (function () {
       if (circles) { circles.querySelectorAll(".stage").forEach(c => c.classList.toggle("on", c.dataset.ex === name));
         circles.classList.toggle("picking", [...circles.querySelectorAll(".stage")].some(c => c.dataset.ex === name)); }
       const list = e[1](shown);
+      mo.removeAttribute("data-deck");
       mo.className = `mosaic n${Math.min(list.length, 3)}`;
       mo.innerHTML = mosaicTiles(list, projects);
     };
@@ -841,6 +872,7 @@ window.RAAV_FEATURES = (function () {
     wireForms(app);
     fitHeadline();
     rotTimers.forEach(clearInterval); rotTimers = [];
+    startDeck(app, projects);
     startSayings(app);
     startFollow(app);
     startCreate(app);

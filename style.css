@@ -2794,3 +2794,14 @@ body[data-light] .mosaic{margin-top:8px}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pjour{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}}
 :root[data-theme="dark"] .pjour{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
 @media (min-width:900px){.pjour{max-width:560px}}
+
+/* Home top pictures take turns (17 Nov 2026): a soft fade, and a turning call on the big Initiated picture. */
+.mosaic[data-deck] .mosaic-tile{animation:deckIn .45s ease both}
+.mosaic.turning .mosaic-tile{opacity:0;transition:opacity .25s}
+@keyframes deckIn{from{opacity:0}to{opacity:1}}
+.mosaic-call{position:absolute;top:14px;right:14px;z-index:2;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;background:linear-gradient(135deg,#1f7a47,#2f9a5c);color:#fff;font:800 14px/1 "Inter",var(--display);letter-spacing:.02em;box-shadow:0 8px 18px -8px rgba(0,0,0,.6),0 0 0 2px rgba(255,255,255,.85)}
+.mosaic-call i{font-style:normal;color:#ffd76a}
+.mosaic-call.in{animation:callIn .5s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes callIn{from{opacity:0;transform:translateY(-6px) scale(.9)}to{opacity:1;transform:none}}
+@media (min-width:760px){.mosaic-call{font-size:16px;padding:10px 18px}}
+@media (prefers-reduced-motion:reduce){.mosaic[data-deck] .mosaic-tile,.mosaic-call.in{animation:none}}
