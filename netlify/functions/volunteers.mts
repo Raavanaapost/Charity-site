@@ -87,7 +87,7 @@ export default async (req: Request) => {
     const db = getDatabase();
     await db.sql`INSERT INTO volunteers (name, contact, phone, city, skills, help, availability, message, source, member_email, show_public)
       VALUES (${name}, ${contact}, ${clip(f.phone, 40)}, ${clip(f.city, 80)}, ${list(f.skills, 20)}::text[], ${list(f.help, 10)}::text[],
-              ${clip(f.availability, 40)}, ${clip(f.message, 800)}, ${f.source === "spark" ? "spark" : "volunteer"}, ${member},
+              ${clip(f.availability, 40)}, ${clip(f.message, 800)}, ${["spark", "volunteers"].includes(String(f.source)) ? String(f.source) : "volunteer"}, ${member},
               ${f.show === "yes" || f.show === true})`;
     await db.sql`INSERT INTO audit_log (actor, action, target) VALUES ('website', 'volunteer.joined', ${name})`;
     return json({ ok: true });
