@@ -266,6 +266,15 @@ window.RAAV_FEATURES = (function () {
       if (/^(moment|together)$/.test(document.body.dataset.page || "")) g.setAttribute("aria-current", "page");
       navEl.insertBefore(g, navEl.querySelector(".nav-member"));
     }
+    // "Submit a need": an eye-catching button in the header of every page, beside the menu button, so the way to
+    // start a project is always in sight (SURESH, 17 Nov 2026). Hidden while starting projects is switched off.
+    const barWrap = document.querySelector(".bar .wrap");
+    if (barWrap && FEAT.vetting && !barWrap.querySelector(".bar-submit") && !/^(initiate|spark|portal|admin)$/.test(document.body.dataset.page || "")) {
+      const sb = document.createElement("a");
+      sb.className = "bar-submit"; sb.href = "/spark";
+      sb.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span><b>Submit</b> <small>a need</small></span>';
+      barWrap.insertBefore(sb, barWrap.querySelector(".menu-btn") || null);
+    }
     // Projects menu: a small drop-down with the three stages (on phones they show indented under Projects).
     const proj = document.querySelector('#site-nav a[href="/initiated"], #site-nav a[href="/ta/initiated"]');
     if (proj && !proj.closest(".nav-drop")) {

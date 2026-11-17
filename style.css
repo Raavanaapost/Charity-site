@@ -2069,8 +2069,8 @@ html.ev-cam-on{overflow:hidden}
   .nav .nav-moment{order:-1;justify-content:center;margin:8px 0 6px;padding:10px 14px;border-bottom:2px solid #f7c63a;color:#fff;font-size:18px}
   .nav .nav-moment img{width:30px;height:30px}
 }
-/* Tablets (641 to 880px): the menu no longer fits beside the logo, so it folds behind the menu button, as on a phone */
-@media (min-width:641px) and (max-width:880px){
+/* Tablets and small laptops (641 to 1180px; was 880 before the header Submit button, 17 Nov 2026): the menu no longer fits beside the logo, so it folds behind the menu button, as on a phone */
+@media (min-width:641px) and (max-width:1180px){
   .bar .wrap{gap:10px}
   .logo{order:0;margin-right:auto}
   .lang-switch{order:1}
@@ -2811,3 +2811,22 @@ body[data-light] .mosaic{margin-top:8px}
 .foot-simple a,.foot-follow a{color:#fff;text-decoration:none}
 .foot-simple a:hover,.foot-follow a:hover{text-decoration:underline}
 .foot-follow{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;margin:10px 0 0;font-size:14px;opacity:.85}
+
+/* Header "Submit a need" button on every page (17 Nov 2026). */
+.bar-submit{order:3;flex:none;position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:7px;padding:9px 16px 9px 11px;border-radius:999px;background:linear-gradient(110deg,#2f9a5c,#1f7a47 55%,#155f37);color:#fff;text-decoration:none;font-family:var(--display);font-weight:800;font-size:15px;line-height:1.05;box-shadow:0 8px 18px -8px rgba(31,122,71,.8),0 0 0 2px #ffd76a inset;animation:barPulse 3.2s ease-in-out infinite}
+.bar-submit svg{flex:none;width:22px;height:22px;padding:3px;border-radius:50%;background:#ffd76a;stroke:#1f4d3a;stroke-width:3.2;stroke-linecap:round;fill:none}
+.bar-submit small{font-size:inherit;font-weight:700;color:#ffe9a8}
+.bar-submit::after{content:"";position:absolute;top:0;bottom:0;left:-40%;width:30%;transform:skewX(-20deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);animation:mt-shine 4.5s ease-in-out infinite}
+.bar-submit:hover{filter:brightness(1.08);color:#fff}
+@keyframes barPulse{0%,100%{box-shadow:0 8px 18px -8px rgba(31,122,71,.8),0 0 0 2px #ffd76a inset}50%{box-shadow:0 8px 22px -6px rgba(31,122,71,.95),0 0 0 2px #ffd76a inset,0 0 0 5px rgba(255,215,106,.35)}}
+.menu-btn{order:4}
+@media (min-width:641px){.bar-submit{margin-left:14px}}
+@media (max-width:640px){
+  .bar-submit{padding:7px 10px 7px 7px;font-size:13px;gap:5px;margin-left:auto}
+  .bar-submit span{display:grid;text-align:left}
+  .bar-submit svg{width:20px;height:20px}
+  .bar .wrap:has(.bar-submit) .logo img{max-width:calc(100vw - 32px - 58px - 108px);height:auto;max-height:70px}
+}
+@media (prefers-reduced-motion:reduce){.bar-submit,.bar-submit::after{animation:none}}
+@media (min-width:1181px){.bar-submit{order:3;padding:8px 14px 8px 9px;font-size:14px}.bar-submit svg{width:19px;height:19px}.bar .nav{gap:14px}}
+@media (min-width:641px) and (max-width:1180px){.bar-submit{order:1;margin-left:auto}}
