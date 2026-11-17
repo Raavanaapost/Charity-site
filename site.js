@@ -1788,9 +1788,9 @@ window.RAAV_FEATURES = (function () {
       })() : [{ name: "Funded", done: goal > 0 ? Math.min(1, raised / goal) : 0, c: "#eaa21c", pctLabel: true }])
     ];
     if (st === 2) return [
-      { name: "Date confirmed", done: p.date_set ? 1 : 0, c: "#e5851a" },
-      { name: "Place and transport booked", done: p.booked ? 1 : 0, c: "#d9632b" },
-      { name: "Volunteers ready", done: p.volunteers ? 1 : 0, c: "#c8381e" },
+      { name: "Date confirmed", done: p.date_set ? 1 : 0, c: "#eaa21c" },
+      { name: "Place and transport booked", done: p.booked ? 1 : 0, c: "#d08a00" },
+      { name: "Volunteers ready", done: p.volunteers ? 1 : 0, c: "#b97a06" },
       ...(p.steps || []).filter(x => x && x.name).map((x, k) => ({ name: x.name, done: x.done ? 1 : 0, c: ["#8f6200", "#b4560a", "#0f5132"][k % 3] }))
     ];
     const ex = (p.expectations || []).filter(x => x && x.text);

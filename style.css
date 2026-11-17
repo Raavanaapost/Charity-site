@@ -2754,3 +2754,19 @@ body[data-light] .mosaic{margin-top:8px}
 .pl-money em{font-size:14px;color:var(--muted);font-weight:700}
 .pl-money em:empty{display:none}
 .pl-amt-row .pl-money input{border:0;padding:12px 0;outline:0;flex:1;width:100%;background:none}
+
+/* Impact without pink (SURESH, 17 Nov 2026: "change this pinkish colour, match with the stage").
+   Light tints of the Impact red looked pink, so every Impact background now uses warm sand, the
+   cream of the members pages warmed towards the red; the red itself stays on edges, titles and pills. */
+:root{--sand:#f6e4cb;--sand-2:#fdf7ee}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--sand:#2c2318;--sand-2:#1f1a14}}
+:root[data-theme="dark"]{--sand:#2c2318;--sand-2:#1f1a14}
+.home-latest.s3,body[data-light] .home-latest.s3{background:linear-gradient(135deg,var(--sand),var(--sand-2));box-shadow:inset 0 0 0 1.5px #e6c79c,inset 5px 0 0 var(--hc)}
+.stage-shade.s3{background:linear-gradient(170deg,var(--sand) 0%,var(--sand-2) 55%)}
+.home-latest.s3 .chip[aria-pressed="false"]{background:var(--sand-2)}
+.tab.t-updates:not([aria-selected="true"]){background:var(--sand)}
+.tab.t-updates:not([aria-selected="true"]):hover{background:color-mix(in srgb,var(--sand) 80%,#e0b98a)}
+.totals .stat-updates,.stage.stat-updates{--soft:var(--sand)}
+.stage-lead.s3 .meaning li,.next-stage.to-impact,.nav-sub a.s3:hover,.mo-heart:hover{background:var(--sand)}
+.care-urgent{background:var(--sand)}
+.spark-band[data-c="3"]{background:radial-gradient(700px 360px at 50% 0,#f6dcb8 0,rgba(255,255,255,0) 70%),linear-gradient(#fbf6ea,#fffbf1)}
