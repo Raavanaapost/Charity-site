@@ -143,9 +143,10 @@ window.RAAV_FEATURES = (function () {
       document.documentElement.classList.add("in-app");
       let signedIn = false; try { signedIn = !!localStorage.getItem("gotrue.user"); } catch (e) { /* storage blocked */ }
       const ico = d => `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+      // SURESH 17 Nov 2026: in the app, Projects comes first (the app also opens on it, see manifest.json start_url).
       const TABS = [
-        ["Home", "/overview", /^overview$/, ico('<path d="M3.5 11.2 12 4l8.5 7.2"/><path d="M5.8 9.8V20h4.4v-5.4h3.6V20h4.4V9.8"/>')],
         ["Projects", "/projects", /^(projects|stage|project|home|create|initiate|spark)$/, ico('<rect x="3.5" y="4.5" width="17" height="4.6" rx="1.6"/><rect x="3.5" y="11" width="17" height="4.6" rx="1.6"/><path d="M4.5 19.5h15"/>')],
+        ["Home", "/overview", /^overview$/, ico('<path d="M3.5 11.2 12 4l8.5 7.2"/><path d="M5.8 9.8V20h4.4v-5.4h3.6V20h4.4V9.8"/>')],
         ["Gift", "/moment", /^(moment|together|give|fund|thanks)$/, '<span class="appbar-gift"><img src="/img/moment-mark.svg" alt="" width="34" height="34"></span>'],
         ["Map", "/smile-map", /^map2?$/, ico('<path d="M12 21s6.5-5.6 6.5-10.6A6.5 6.5 0 0 0 5.5 10.4C5.5 15.4 12 21 12 21Z"/><circle cx="12" cy="10.2" r="2.4"/>')],
         [signedIn ? "Account" : "Sign in", "/members", /^members$/, ico('<circle cx="12" cy="8.4" r="3.7"/><path d="M4.6 20c.9-3.6 3.8-5.4 7.4-5.4s6.5 1.8 7.4 5.4"/>')]
