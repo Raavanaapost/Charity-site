@@ -2913,12 +2913,21 @@ window.RAAV_FEATURES = (function () {
       const typed = () => { const v = parseFloat(String(ownIn.value).replace(/,/g, "").replace(/[^0-9.]/g, "")); return isFinite(v) && v > 0 ? v : 0; };
       const rate = () => !curSel ? 1 : ((PL_FX && PL_FX[curSel.value]) || PL_FX_TABLE[curSel.value] || 0);
       const amount = () => Math.round(typed() * rate());
+      // "Complete the day" (SURESH, 17 Nov 2026): one tap fills in what is left, in the giver's own money.
+      const fullIn = cur => { const r = cur === "LKR" || !curSel ? 1 : ((PL_FX && PL_FX[cur]) || PL_FX_TABLE[cur] || 0); return r ? (cur === "LKR" || !curSel ? left : Math.ceil(left / r)) : 0; };
+      const fullBtn = f.querySelector("[data-full]"), fullText = f.querySelector("[data-full-text]");
+      if (fullBtn) fullBtn.addEventListener("click", () => { ownIn.value = String(fullIn(curSel ? curSel.value : "LKR")); f.dispatchEvent(new Event("input")); });
       const typedText = () => !curSel || curSel.value === "LKR" ? moneyOf(site, typed(), x) : `${curSel.value} ${typed().toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
       const pctWith = v => goal ? Math.min(100, Math.round((raised + v) / goal * 100)) : 0;
       const update = () => {
         const v = amount(), pct = pctWith(v), foreign = curSel && curSel.value !== "LKR";
         try { if (curSel) localStorage.setItem("raav-cur", curSel.value); } catch (e) { /* none */ }
         const conv = foreign && v ? `That is about ${moneyOf(site, v, x)}. ` : "";
+        if (fullText) {
+          const c = curSel ? curSel.value : "LKR", n = fullIn(c);
+          fullText.textContent = foreign ? `${moneyOf(site, left, x)} left: about ${c} ${n.toLocaleString("en-US")} in one tap` : `${moneyOf(site, left, x)} is all that's left, in one tap`;
+          fullBtn.classList.toggle("on", !!v && v >= left);
+        }
         const text = !v ? "" : conv + (!goal ? "" : pct >= 100 ? "Your part completes this project: 100% of its goal." : `Your part brings this project to ${pct}% of its goal.`);
         if (reach.textContent !== text) reach.textContent = text;
         reach.hidden = !text;
@@ -2982,7 +2991,8 @@ window.RAAV_FEATURES = (function () {
           <p class="pl-lede">Give from anywhere, in your own money. Reserve your part of the day. <b>We'll send you the ways to fund.</b></p>
           <form class="give-form pledge-form give-ask" data-slug="${esc(slugOf(x))}" data-goal="${bp.goal}" data-raised="${bp.raised}" data-left="${left}" data-cur="${esc(cur)}" novalidate>
             <p hidden><label>Leave empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
-            <label class="pl-amt"><span>Your gift <small>(in your own money)</small></span>
+            ${left > 0 ? `<button type="button" class="pl-full" data-full><span class="pl-full-icon" aria-hidden="true">✦</span><span><b>Complete the day</b><small data-full-text>${esc(moneyOf(site, left, x))} is all that's left</small></span></button>` : ""}
+            <label class="pl-amt"><span>Or any amount <small>(in your own money)</small></span>
               <span class="pl-amt-row">${isRupees(x) ? `<select name="cur" aria-label="Currency">${PL_CURS.map(c => `<option value="${c}">${c === "LKR" ? "Rs" : c}</option>`).join("")}</select>` : `<b class="pl-cur">${esc(cur)}</b>`}
               <input name="own" inputmode="decimal" maxlength="12" autocomplete="off" placeholder="Any amount" required></span></label>
             <p class="give-reach" role="status" hidden></p>

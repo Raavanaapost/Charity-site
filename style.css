@@ -2698,3 +2698,10 @@ body[data-light] .mosaic{margin-top:8px}
 .pledge-form .give-pay{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:19px}
 .room-about{color:var(--muted);font-size:14px}
 .donate-btn .pl-heart{display:none}
+/* "Complete the day": one tap fills in what is left (17 Nov 2026) */
+.pl-full{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;border-radius:14px;border:2px solid #eaa21c;background:linear-gradient(135deg,#fff8e8,#fdebc4);color:var(--ink);font:inherit;cursor:pointer}
+.pl-full b{display:block;font-family:var(--display);font-size:18px;color:#1f4d3a}
+.pl-full small{display:block;color:#7a5a12;font-size:14px}
+.pl-full-icon{display:grid;place-items:center;flex:none;width:36px;height:36px;border-radius:50%;background:#c8381e;color:#fff;font-size:18px}
+.pl-full.on{border-color:#1f7a47;background:#eef6f0}
+.pl-full.on .pl-full-icon{background:#1f7a47}
