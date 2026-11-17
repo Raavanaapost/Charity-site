@@ -875,14 +875,19 @@ function openInvite(s, which, g, k, onDone){
       ${email ? `<a class="btn ghost" data-send href="mailto:${esc(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}">Email</a>` : ""}
       <button class="btn ghost" type="button" data-copy>Copy message</button>
     </div>
+    <div class="sent-note" data-note role="status" hidden></div>
     <div class="row between"><span class="hint">${[phone, email].filter(Boolean).map(esc).join(" · ")}</span><button class="btn small ghost" type="button" data-close>Cancel</button></div>
   </div>`;
   document.body.appendChild(dlg);
   let sent = false;
   const closeBtn = dlg.querySelector("[data-close]");
   const mark = async () => { if (sent) return; sent = true; closeBtn.textContent = "Done"; closeBtn.classList.remove("ghost"); await sb.rpc("mark_invite_sent", { student: s.id, which }); };
-  dlg.querySelectorAll("[data-send]").forEach(a => a.addEventListener("click", mark));
-  dlg.querySelector("[data-copy]").onclick = e => { mark(); copy(text, e.currentTarget); };
+  const note = dlg.querySelector("[data-note]");
+  const remind = how => { note.hidden = false; note.innerHTML = how === "copy"
+    ? `<strong>Message copied.</strong> Paste it into WhatsApp, a text or an email to ${esc(s.is_adult ? s.first_name : s.contact_name || "the parent")}, and send it.`
+    : `<strong>One more step:</strong> ${how} has opened with the message ready. <strong>Press Send there</strong>, or it won't be delivered. Gurushishya doesn't send it for you.`; };
+  dlg.querySelectorAll("[data-send]").forEach(a => a.addEventListener("click", () => { mark(); remind(a.classList.contains("wa") ? "WhatsApp" : a.href.startsWith("sms:") ? "Your messages app" : "Your email"); }));
+  dlg.querySelector("[data-copy]").onclick = e => { mark(); copy(text, e.currentTarget); remind("copy"); };
   const close = () => { dlg.close(); dlg.remove(); if (onDone) onDone(); };
   dlg.querySelector("[data-close]").onclick = close;
   dlg.addEventListener("cancel", e => { e.preventDefault(); close(); });

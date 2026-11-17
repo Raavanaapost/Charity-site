@@ -576,3 +576,4 @@ body.home::before{opacity:.6;filter:sepia(.2) saturate(.9)}
 .tc-main{display:flex;flex-direction:column;min-width:0;flex:1 1 180px}
 .tc-main strong{font-family:var(--display);color:var(--maroon)}
 .ci-head + .sub{border-top:0;padding-top:4px}
+.sent-note{padding:10px 12px;border-radius:12px;background:var(--accent-soft);border:1px solid var(--line);font-size:.92rem}
