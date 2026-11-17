@@ -1005,7 +1005,12 @@ window.RAAV_FEATURES = (function () {
   // Projects page (/projects, the web app's Projects tab), 15 Nov 2026 (SURESH): search box, then the stages as
   // folder tabs (All first and open), each project one line in the team portal's style, shaded in its stage
   // colour, with "Project at a glance" on hover (or the small i on a phone). Same rows as the /front-5 Home.
+  // When a project was listed: p.listed (a date), else the month in p.started ("October 2026"). Used to sort
+  // the Projects list newest first (SURESH, 17 Nov 2026). Same month keeps the order of projects.json.
+  const listedAt = p => { const raw = p.listed || p.created_at || p.started || ""; const t = Date.parse(raw) || Date.parse("1 " + raw); return isNaN(t) ? 0 : t; };
+  const listedLabel = p => { const t = listedAt(p); return t ? new Date(t).toLocaleDateString(TA_PATH ? "ta-LK" : "en-GB", p.listed ? { day: "numeric", month: "short", year: "numeric" } : { month: "short", year: "numeric" }) : ""; };
   async function renderProjects(app, site, projects) {
+    projects = projects.map((p, k) => [p, k]).sort((a, b) => (listedAt(b[0]) - listedAt(a[0])) || (a[1] - b[1])).map(x => x[0]);
     const share = await load("/share.json").catch(() => null);
     const safe = p => { const sh = (share && share.projects && share.projects[slugOf(p)]) || {};
       return { title: (TA_PATH && sh.title_ta) || sh.title || p.title,
@@ -1044,7 +1049,7 @@ window.RAAV_FEATURES = (function () {
     const ring = pct => `<svg class="hm-ring" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" pathLength="100" class="tr"/><circle cx="20" cy="20" r="15" pathLength="100" class="fl" stroke-dasharray="${pct} 100" transform="rotate(-90 20 20)"/></svg>`;
     const rowHTML = p => { const n = stageNum(p), s = safe(p), pct = ringPercent(p), slug = slugOf(p);
       const place = cityOf(p) || (p.location || "").split(",")[0].trim();
-      const meta = [p.theme, place].filter(Boolean).map(t => `<span>${esc(t)}</span>`).concat(`<span class="hm-next"><span>Next:</span> <span>${esc(nextStepOf(p))}</span></span>`).join('<i aria-hidden="true"> · </i>');
+      const meta = [p.theme, place].filter(Boolean).map(t => `<span>${esc(t)}</span>`).concat(`<span class="hm-next"><span>Next:</span> <span>${esc(nextStepOf(p))}</span></span>`).concat(listedLabel(p) ? `<span class="hm-listed">Listed ${esc(listedLabel(p))}</span>` : []).join('<i aria-hidden="true"> · </i>');
       return `<div class="hm-row s${n}" role="listitem" data-slug="${esc(slug)}">
           <a class="hm-row-link" href="/projects/${slug}">
             <span class="hm-thumb"><img src="${esc(s.art)}" alt="" loading="lazy" width="58" height="58"></span>

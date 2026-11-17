@@ -2769,6 +2769,10 @@ body[data-light] .mosaic{margin-top:8px}
 .totals .stat-updates,.stage.stat-updates{--soft:var(--sand)}
 .stage-lead.s3 .meaning li,.next-stage.to-impact,.nav-sub a.s3:hover,.mo-heart:hover{background:var(--sand)}
 .care-urgent{background:var(--sand)}
+.hm-row.s3{background:var(--sand-2);border-color:#e6c79c;border-left-color:#c8381e}
+.hm-row.s3 .hm-ring .tr{stroke:#f0dcc0}
+.hm-folder.s3{background:var(--sand-2);border-color:#e6c79c;border-top-color:#c8381e}
+.hm-tab.s3:not([aria-selected="true"]){background:var(--sand)}
 .spark-band[data-c="3"]{background:radial-gradient(700px 360px at 50% 0,#f6dcb8 0,rgba(255,255,255,0) 70%),linear-gradient(#fbf6ea,#fffbf1)}
 
 /* Project page: where this project stands, in the Home stage circles (17 Nov 2026). */
