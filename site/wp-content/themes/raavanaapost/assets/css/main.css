@@ -803,45 +803,73 @@ a:hover { color: var(--rp-orange); text-decoration: underline; text-underline-of
 	.rp-track__steps .is-current i { animation: none; }
 }
 
-/* Front page: five stories at a glance. One big picture that turns between a
-   few stories, then two pictures, then two more. Editor's picks on the right. */
-.rp-top--five .rp-top__main { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 32px; }
-.rp-turn { position: relative; }
-.rp-turn__slides { display: grid; }
-.rp-turn__slide { grid-area: 1 / 1; transition: opacity .7s ease, visibility .7s; }
-.rp-turn__slide:not(.is-on) { opacity: 0; visibility: hidden; }
-.rp-turn__controls { display: flex; align-items: center; gap: 10px; margin-top: 16px; }
+
+/* Front page: five stories at a glance, in the raavanaa.org Home picture style
+   (SURESH, 17 Nov 2026). Phone: one big picture, then two, then two more.
+   Computer: the big one on the left, four on the right. Words sit on the pictures. */
+.rp-five { padding-top: 24px; padding-bottom: 48px; display: grid; gap: 28px; }
+.rp-mosaic { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; border-radius: 14px; overflow: hidden; }
+.rp-mosaic__big { grid-column: 1 / -1; display: grid; position: relative; aspect-ratio: 4 / 3; background: #1b3a2a; }
+.rp-tile { position: relative; display: block; aspect-ratio: 1 / 1; overflow: hidden; color: #fff; text-decoration: none; background: #1b3a2a; }
+.rp-tile:hover, .rp-tile:focus { color: #fff; text-decoration: none; }
+.rp-tile--big { grid-area: 1 / 1; aspect-ratio: auto; transition: opacity .7s ease, visibility .7s; }
+.rp-tile--big:not(.is-on) { opacity: 0; visibility: hidden; }
+.rp-tile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
+.rp-tile:hover img { transform: scale(1.04); }
+.rp-tile::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10, 20, 15, 0) 22%, rgba(10, 20, 15, .5) 55%, rgba(10, 20, 15, .88) 100%); }
+.rp-tile__text { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; padding: 12px 14px 14px; display: grid; gap: 6px; }
+.rp-tile--big .rp-tile__text { padding: 18px 20px 24px; }
+.rp-tile__eyebrow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-family: var(--rp-text); font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.rp-tile__eyebrow i { font-style: normal; padding: 3px 10px; border-radius: 999px; background: #1f7a47; }
+.rp-tile.s2 .rp-tile__eyebrow i { background: #eaa21c; color: #3b2400; }
+.rp-tile.s3 .rp-tile__eyebrow i { background: #c8381e; }
+.rp-tile__title { margin: 0; color: #fff; font-family: var(--rp-text); font-size: 16px; font-weight: 800; line-height: 1.2; text-shadow: 0 1px 3px rgba(0, 0, 0, .5); }
+.rp-tile--big .rp-tile__title { font-size: clamp(24px, 4.5vw, 38px); line-height: 1.12; }
+.rp-tile__call {
+	position: absolute; top: 14px; right: 14px; z-index: 2; display: inline-flex; align-items: center; gap: 6px;
+	padding: 8px 14px; border-radius: 999px; background: linear-gradient(135deg, #1f7a47, #2f9a5c); color: #fff;
+	font: 800 14px/1 var(--rp-text); letter-spacing: .02em; box-shadow: 0 8px 18px -8px rgba(0, 0, 0, .6), 0 0 0 2px rgba(255, 255, 255, .85);
+}
+.rp-tile__call i { font-style: normal; color: #ffd76a; }
+.rp-tile__call.in { animation: rpCallIn .5s cubic-bezier(.2, 1.4, .4, 1) both; }
+@keyframes rpCallIn { from { opacity: 0; transform: translateY(-6px) scale(.92); } to { opacity: 1; transform: none; } }
+.rp-turn__controls { position: absolute; top: 16px; left: 16px; z-index: 3; display: flex; align-items: center; gap: 6px; padding: 5px 6px 5px 10px; border-radius: 999px; background: rgba(10, 20, 15, .45); }
 .rp-turn__controls[hidden] { display: none; }
-.rp-turn__dot {
-	width: 34px; height: 6px; padding: 0; border: 0; border-radius: 3px;
-	background: var(--rp-gold-line); cursor: pointer; transition: background .3s, width .3s;
-	position: relative;
-}
-.rp-turn__dot::before { content: ""; position: absolute; inset: -12px -2px; }
-.rp-turn__dot[aria-pressed="true"] { width: 56px; background: var(--rp-orange); }
-.rp-turn__dot:hover { background: var(--rp-gold); }
-.rp-turn__pause {
-	display: inline-flex; align-items: center; justify-content: center; margin-left: 6px;
-	width: 32px; height: 32px; padding: 0; border: 1px solid var(--rp-gold-line); border-radius: 50%;
-	background: var(--rp-ivory); color: var(--rp-green); cursor: pointer;
-}
+.rp-turn__dot { position: relative; width: 18px; height: 5px; padding: 0; border: 0; border-radius: 3px; background: rgba(255, 255, 255, .55); cursor: pointer; transition: width .3s, background .3s; }
+.rp-turn__dot::before { content: ""; position: absolute; inset: -12px -3px; }
+.rp-turn__dot[aria-pressed="true"] { width: 30px; background: #ffd76a; }
+.rp-turn__pause { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; margin-left: 2px; padding: 0; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .9); color: var(--rp-green); cursor: pointer; }
 .rp-turn__pause svg { fill: currentColor; }
-.rp-turn__pause:hover { background: var(--rp-gold-pale); }
 .rp-turn__icon-play, .rp-turn__pause[aria-pressed="true"] .rp-turn__icon-pause { display: none; }
 .rp-turn__pause[aria-pressed="true"] .rp-turn__icon-play { display: block; }
-.rp-four { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 28px; padding-top: 28px; border-top: 1px solid var(--rp-line); }
-.rp-four .rp-card__title { font-size: 20px; }
-.rp-top--five .rp-top__side .rp-mostread { margin-top: 0; }
-@media (max-width: 640px) {
-	.rp-top--five .rp-top__main { gap: 22px; }
-	.rp-four { gap: 20px 14px; padding-top: 20px; }
-	.rp-four .rp-card > .rp-media { margin-bottom: 4px; }
-	.rp-four .rp-kicker { font-size: 12px; }
-	.rp-four .rp-card__title { font-size: 15.5px; line-height: 1.25; }
-	.rp-four .rp-meta { font-size: 12px; }
-	.rp-turn__controls { margin-top: 12px; }
+@media (min-width: 760px) {
+	.rp-tile { aspect-ratio: 16 / 9; }
+	.rp-mosaic__big { aspect-ratio: 5 / 2; }
+	.rp-tile__title { font-size: 20px; }
+	.rp-tile__call { font-size: 16px; padding: 10px 18px; }
 }
-@media (prefers-reduced-motion: reduce) {
-	.rp-turn__slide { transition: none; }
+@media (min-width: 900px) {
+	.rp-mosaic { grid-template-columns: 2fr 1fr 1fr; grid-template-rows: repeat(2, 240px); }
+	.rp-mosaic__big { grid-column: 1; grid-row: 1 / 3; aspect-ratio: auto; }
+	.rp-tile { aspect-ratio: auto; }
+	.rp-tile__title { font-size: 18px; }
+	.rp-tile--big .rp-tile__title { font-size: 32px; }
+	.rp-mosaic.n1 .rp-mosaic__big { grid-column: 1 / -1; }
+	.rp-five .rp-mostread ol { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0 24px; }
 }
-@media (min-width: 900px) { .rp-top--five .rp-top__side { align-self: flex-start; position: sticky; top: 24px; } }
+@media (min-width: 1200px) { .rp-mosaic { grid-template-rows: repeat(2, 270px); } }
+@media (prefers-reduced-motion: reduce) { .rp-tile--big, .rp-tile img { transition: none; } .rp-tile__call.in { animation: none; } }
+
+/* "Submit a need": a bright pill in the top bar of every page and a band in the footer,
+   so the way to raavanaa.org's Submit a need is always in sight (SURESH, 17 Nov 2026). */
+.rp-submit {
+	display: inline-flex; align-items: center; gap: 7px; padding: 6px 14px 6px 7px; border-radius: 999px;
+	background: linear-gradient(110deg, #2f9a5c, #1f7a47 55%, #155f37); color: #fff !important; text-decoration: none !important;
+	font-weight: 800; line-height: 1.05; white-space: nowrap; box-shadow: 0 6px 14px -8px rgba(31, 122, 71, .8), 0 0 0 2px #ffd76a inset;
+}
+.rp-submit svg { flex: none; width: 20px; height: 20px; padding: 3px; border-radius: 50%; background: #ffd76a; stroke: #1f4d3a; stroke-width: 3.2; stroke-linecap: round; fill: none; }
+.rp-submit:hover { filter: brightness(1.08); }
+.rp-topbar__links a.rp-submit { min-height: 0; flex-direction: row; }
+.rp-footer__submit { background: linear-gradient(135deg, #0B3D22, #1f4d3a); display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px 22px; margin: 0 auto 28px; padding: 20px 24px; max-width: 760px; border-radius: 14px; border: 1px solid var(--rp-gold); text-align: center; }
+.rp-footer__submit p { margin: 0; color: #fff; font-size: 18px; font-weight: 700; }
+.rp-footer__submit .rp-submit { padding: 10px 18px 10px 10px; font-size: 17px; }

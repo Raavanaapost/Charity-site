@@ -162,29 +162,39 @@
 		slide();
 	}
 
-	/* Front page: the big top picture turns to the next story every 7 seconds.
-	   Dots jump to a story; hover, keyboard focus or the pause button hold it. */
+	/* Front page: the big top picture turns to the next story every 7 seconds and the
+	   green call on it changes every 2.8 seconds, like raavanaa.org's Home. Dots jump to
+	   a story; hover, keyboard focus or the pause button hold it. */
 	var turn = document.querySelector('[data-rp-turn]');
 	var slides = turn ? turn.querySelectorAll('.rp-turn__slide') : [];
+	var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	if (turn) {
+		var SAYS = { make: ['Make this happen', 'Own it', 'Create the moment', 'Be the smile', 'Start it today'], read: ['Read the story'] };
+		var w = 0;
+		var say = function () {
+			var on = turn.querySelector('.rp-turn__slide.is-on .rp-tile__call');
+			if (!on) { return; }
+			var list = SAYS[on.getAttribute('data-rp-call')] || SAYS.read;
+			on.querySelector('b').textContent = list[w % list.length];
+			on.classList.remove('in'); void on.offsetWidth; on.classList.add('in');
+		};
+		if (!calm) { setInterval(function () { if (!document.hidden) { w++; say(); } }, 2800); }
+	}
 	if (slides.length > 1) {
 		var tControls = turn.querySelector('.rp-turn__controls');
 		var dots = turn.querySelectorAll('.rp-turn__dot');
 		var tPause = turn.querySelector('.rp-turn__pause');
-		var tStill = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-		var tAt = 0, tHeld = false, tStopped = tStill;
+		var tAt = 0, tHeld = false, tStopped = calm;
 		var show = function (n) {
 			tAt = (n + slides.length) % slides.length;
 			for (var i = 0; i < slides.length; i++) {
 				var on = i === tAt;
 				slides[i].classList.toggle('is-on', on);
-				if (on) { slides[i].removeAttribute('aria-hidden'); } else { slides[i].setAttribute('aria-hidden', 'true'); }
-				slides[i].querySelectorAll('a').forEach(function (a) { if (on) { a.removeAttribute('tabindex'); } else { a.setAttribute('tabindex', '-1'); } });
+				if (on) { slides[i].removeAttribute('aria-hidden'); slides[i].removeAttribute('tabindex'); } else { slides[i].setAttribute('aria-hidden', 'true'); slides[i].setAttribute('tabindex', '-1'); }
 				if (dots[i]) { dots[i].setAttribute('aria-pressed', on ? 'true' : 'false'); }
 			}
-			var media = slides[tAt].querySelector('.rp-media');
-			if (media) { media.setAttribute('tabindex', '-1'); }
+			w = 0; say();
 		};
-		show(0);
 		if (tControls) { tControls.hidden = false; }
 		dots.forEach(function (d, i) { d.addEventListener('click', function () { show(i); }); });
 		var setStopped = function (s) {
