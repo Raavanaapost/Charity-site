@@ -147,3 +147,27 @@ body[data-page="spark"] .bar{background:var(--surface)}
 .spark .mo-pick-q{font-size:19px}
 .sp-stages{margin:0 auto 26px}
 .sp-flow{margin-bottom:8px}
+
+/* One way in (17 Nov 2026): "Submit a need", plus Join Raavanaa with every skill. */
+.sp-ways.one{grid-template-columns:1fr}
+.sp-ways.one .sp-way{padding:20px 18px}
+.sp-ways.one .sp-way-t > b{font-size:22px}
+.sp-rot{display:inline-grid;vertical-align:bottom}
+.sp-ways .sp-way .sp-way-t .sp-rot b{color:#1f4d3a;font-size:15px;font-family:var(--display,sans-serif);font-weight:800;grid-area:1/1;opacity:0;transform:translateY(6px);transition:opacity .35s,transform .35s;white-space:nowrap}
+.sp-ways .sp-way .sp-way-t .sp-rot b.on{opacity:1;transform:none}
+.sp-join-go{display:inline-block;margin-top:12px;color:#1f4d3a;font-family:var(--display);font-size:15px;text-decoration:none}
+.sp-join-go b{color:#b97a06}
+.sp-join{margin:34px 0 10px;padding:22px 18px;border-radius:20px;background:linear-gradient(135deg,#fbf6ea,#fffbf1);box-shadow:inset 0 0 0 1.5px #eadfc6;scroll-margin-top:110px}
+.sp-join h2{font-family:"Cinzel",serif;font-size:clamp(22px,4.5vw,30px);color:#1f4d3a;margin:0 0 6px}
+.sp-join-lede{margin:0 0 14px;color:var(--muted)}
+.sp-skills{border:0;margin:0 0 14px;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.sp-skills legend{font-family:var(--display);font-weight:700;margin-bottom:8px;padding:0}
+.sp-skills legend small{font-weight:500;color:var(--muted)}
+.sp-skill{position:relative;cursor:pointer}
+.sp-skill input{position:absolute;opacity:0;pointer-events:none}
+.sp-skill span{display:inline-block;padding:8px 13px;border-radius:999px;border:1.5px solid #dccfb1;background:#fff;font-family:var(--display);font-size:14px;font-weight:600;transition:background .15s,border-color .15s}
+.sp-skill input:checked + span{background:#1f7a47;border-color:#1f7a47;color:#fff}
+.sp-skill input:focus-visible + span{outline:3px solid #eaa21c;outline-offset:2px}
+.sp-join-row{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-bottom:12px}
+.sp-join-btn{width:100%;border:0;cursor:pointer}
+.sp-join-msg{margin:10px 0 0;font-weight:600}.sp-join-msg.ok{color:#1f7a47}.sp-join-msg.err{color:#b42318}

@@ -44,6 +44,22 @@
       go: "Next: tell us about your project"
     }
   };
+  // SURESH 17 Nov 2026: Request and Submit were hard to tell apart, so (with the group step off) there is one
+  // way in: "Submit a need". It covers asking for a moment for someone and sending in a plan you will run, and it is
+  // not only for children: a meal for elders, a clean-up, a festival, any movement for good.
+  WAYS.need = {
+    icon: WAYS.submit.icon,
+    title: "Submit a need", short: "Submit",
+    say: "Someone who could use a lift, or a plan you are ready to run. Tell us in a few minutes, in words or a voice note.",
+    eg: "A trip, a good meal, a festival, a clean-up, help with learning, or any movement for good",
+    rot: ["Submit a need", "Request a moment", "Share a plan", "Start a movement"],
+    titles: ["Every movement <em>starts with one need.</em>", "You see the need. <em>Together we meet it.</em>", "Ask for a moment, <em>or bring your own plan.</em>"],
+    lede: "For a child, a mum, an elder, a family or a whole village. One person or an organisation can start it. We check it, help it get funded and show every rupee.",
+    go: "Next: tell us about the need"
+  };
+  // "Join Raavanaa": every skill people can bring (SURESH, 17 Nov 2026: "have all the skills captured").
+  // The same list is on /volunteer; both send the Netlify form "volunteer" (skills[] and city are in volunteer.html).
+  var SKILLS = window.RAAV_SKILLS || [];
   // Who is starting it
   var BY = {
     me: { icon: '<circle cx="12" cy="8" r="3.6"/><path d="M5 20c.8-3.8 3.5-5.8 7-5.8s6.2 2 7 5.8"/>', title: "Just me", say: "One person can start a project." },
@@ -61,7 +77,7 @@
   ];
 
   var q = new URLSearchParams(location.search);
-  var st = { way: q.get("way") === "submit" ? "submit" : "request", by: q.get("by") === "group" ? "group" : q.get("by") === "me" ? "me" : "", group: "", gname: "", kind: "" };
+  var st = { way: !FEAT.group ? "need" : q.get("way") === "submit" ? "submit" : "request", by: q.get("by") === "group" ? "group" : q.get("by") === "me" ? "me" : "", group: "", gname: "", kind: "" };
   var kindIn = q.get("kind"); if (KINDS.some(function (k) { return k[0] === kindIn; })) st.kind = kindIn;
 
   // SURESH 16 Nov 2026: "just one action". With the group step off (FEAT.group, a next feature), each way is itself the
@@ -70,7 +86,7 @@
     var w = WAYS[k], inner = '<span class="sp-way-ic">' + svg(w.icon, 30) + '</span><span class="sp-way-t"><b>' + w.title + "</b><span>" + w.say + "</span><small>" + w.eg + "</small>";
     return FEAT.group
       ? '<button type="button" role="radio" class="sp-way" data-way="' + k + '">' + inner + '</span><i class="sp-tick" aria-hidden="true">✓</i></button>'
-      : '<a class="sp-way" data-way="' + k + '" href="/initiate?way=' + k + '">' + inner + '<span class="sp-start">Start →</span></span></a>';
+      : '<a class="sp-way" data-way="' + k + '" href="/initiate?way=' + k + '">' + inner + '<span class="sp-start">' + (w.rot ? '<span class="sp-rot" data-rot>' + w.rot.map(function (t, i) { return '<b class="' + (i ? "" : "on") + '">' + t + "</b>"; }).join("") + "</span>" : "Start") + ' →</span></span></a>';
   };
   var FLOW = [
     ['<path d="M21.5 2.5 2.5 10.2l6.3 2.4 1.9 6.9 3.3-4.3 4.6 3.3z"/>', "Send it in", "A few questions, in words or a voice note. You sign in once."],
@@ -102,8 +118,9 @@
           '<p class="mo-lede" data-lede></p>' +
         "</div>" +
         '<div class="mo-pick" id="sp-step-1">' +
-          '<p class="mo-pick-q">' + (FEAT.group ? '<span class="mo-num">1</span>' : "") + "How would you like to start?</p>" +
-          '<div class="sp-ways" role="radiogroup" aria-label="How would you like to start?">' + wayCard("request") + wayCard("submit") + "</div>" +
+          '<p class="mo-pick-q">' + (FEAT.group ? '<span class="mo-num">1</span>' : "") + (FEAT.group ? "How would you like to start?" : "One way in, for any need") + "</p>" +
+          '<div class="sp-ways' + (FEAT.group ? "" : " one") + '" role="' + (FEAT.group ? "radiogroup" : "group") + '" aria-label="How would you like to start?">' + (FEAT.group ? wayCard("request") + wayCard("submit") : wayCard("need")) + "</div>" +
+          (FEAT.group ? "" : '<a class="sp-join-go" href="#join"><b>Or join Raavanaa</b> and create moments together →</a>') +
         "</div>" +
       "</div></section>" +
     (FEAT.group ? "" :
@@ -111,6 +128,22 @@
       '<div class="sp-stages"><p class="sp-next-h">Every project, in three stages</p><ol class="sp-journey">' + STAGES.map(function (x) { return '<li class="' + x[0] + '"><b>' + x[1] + "</b><span>" + x[2] + "</span></li>"; }).join("") + "</ol></div>" +
       '<h2 class="sp-after-h">What happens next</h2>' +
       '<ol class="sp-flow">' + FLOW.map(function (f) { return '<li><span class="sp-f-ic">' + svg(f[0], 24) + "</span><b>" + f[1] + "</b><span>" + f[2] + "</span></li>"; }).join("") + "</ol>" +
+    "</section>" +
+    '<section class="sp-join" id="join" aria-labelledby="join-h">' +
+      '<h2 id="join-h">Join the Raavanaa movement</h2>' +
+      '<p class="sp-join-lede">Create moments together. Give an hour, share a skill, or be the trusted person near a project. Pick what you can bring and a volunteer will reply.</p>' +
+      '<form class="sp-join-form" name="volunteer" data-join>' +
+        '<input type="hidden" name="form-name" value="volunteer"><p hidden><label>Leave empty <input name="bot-field"></label></p>' +
+        '<fieldset class="sp-skills"><legend>What can you bring? <small>(pick any)</small></legend>' + SKILLS.map(function (k) { return '<label class="sp-skill"><input type="checkbox" name="skills[]" value="' + esc(k) + '"><span>' + esc(k) + "</span></label>"; }).join("") + "</fieldset>" +
+        '<div class="sp-join-row">' +
+          '<label class="mo-field"><span>Your name</span><input name="name" required autocomplete="name"></label>' +
+          '<label class="mo-field"><span>WhatsApp or email</span><input name="email" required placeholder="+94 7... or you@example.com"></label>' +
+          '<label class="mo-field"><span>Town and country</span><input name="city" autocomplete="address-level2" placeholder="e.g. Jaffna, or Toronto"></label>' +
+        "</div>" +
+        '<input type="hidden" name="help[]" value="Joined from the Submit a need page">' +
+        '<button class="mo-go sp-join-btn" type="submit">I want to join →</button>' +
+        '<p class="sp-join-msg" data-join-msg hidden></p>' +
+      "</form>" +
     "</section></div>") +
     (!FEAT.group ? "" :
     '<div class="wrap mo-body sp-body">' +
@@ -200,6 +233,24 @@
       a.addEventListener("mouseenter", on); a.addEventListener("focus", on);
     });
   }
+
+  // ---- Join Raavanaa: sent to the Netlify form "volunteer" ----
+  var jf = $("[data-join]");
+  if (jf) jf.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var btn = jf.querySelector("button"), msg = $("[data-join-msg]"), fd = new FormData(jf);
+    if (!fd.getAll("skills[]").length) { msg.hidden = false; msg.className = "sp-join-msg err"; msg.textContent = "Pick at least one thing you can bring."; return; }
+    btn.disabled = true;
+    fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams(fd).toString() })
+      .then(function (r) { if (!r.ok) throw 0; [].slice.call(jf.querySelectorAll("input,button")).forEach(function (x) { x.disabled = true; });
+        msg.hidden = false; msg.className = "sp-join-msg ok"; msg.textContent = "Welcome to Raavanaa! A volunteer will be in touch soon."; })
+      .catch(function () { btn.disabled = false; msg.hidden = false; msg.className = "sp-join-msg err"; msg.textContent = "That did not send. Please try again."; });
+  });
+  // the words on the big button take turns: Submit a need, Request a moment, Share a plan, Start a movement
+  $$("[data-rot]").forEach(function (r) {
+    var w = [].slice.call(r.children), i = 0; if (reduce || w.length < 2) return;
+    setInterval(function () { if (document.hidden) return; w[i].classList.remove("on"); i = (i + 1) % w.length; w[i].classList.add("on"); }, 2600);
+  });
 
   // ---- the projects taking turns at the top ----
   var getJSON = function (u, d) { return fetch(u).then(function (r) { return r.ok ? r.json() : d; }).catch(function () { return d; }); };

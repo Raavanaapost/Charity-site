@@ -13,6 +13,12 @@
      group    "Just me / A group" on Spark a Smile (/spark) and its group words (SURESH 16 Nov 2026: a next feature).
      reasons  the reasons shown on /moment; [] shows all twelve.
    On a draft or local preview, ?features=all shows everything for this browser tab (?features=launch goes back). */
+// Every skill people can bring to Raavanaa (SURESH, 17 Nov 2026: "have all the skills captured"). Shown on /spark (Join
+// Raavanaa) and /volunteer; both send the Netlify form "volunteer" (field skills[]).
+window.RAAV_SKILLS = ["Visiting and checking projects near me", "Driving and transport", "Cooking and food", "Teaching and tutoring", "Sports and games",
+  "Music, dance and art", "Photos and video", "Writing and stories", "Tamil and English translation", "Social media", "Fundraising and events",
+  "Accounts and bookkeeping", "Website and IT", "Medical and first aid", "Counselling and care", "Legal advice", "Building and repairs",
+  "Farming and livelihoods", "Organising and leading", "Something else"];
 window.RAAV_FEATURES = (function () {
   const F = { sponsor: false, pledge: true, circle: false, vetting: true, tamil: false, group: false, reasons: [] };  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
   try {
@@ -641,11 +647,12 @@ window.RAAV_FEATURES = (function () {
   // heart mark and title, current projects taking turns (three in view, drawings only; a new project joins by
   // itself), and two clear ways to start, Request a project or Submit a project, as one person or a group.
   // Both open the Spark a Smile page (/spark) with that way chosen.
+  // SURESH 17 Nov 2026: one way to start instead of Request / Submit, and a second card to join Raavanaa.
   const SPARK_WAYS = [
-    { k: "request", t: "Request a project", s: "You know who needs a day of joy",
-      ic: '<path d="M8 11V5.5a1.5 1.5 0 0 1 3 0V10M11 9.5V4a1.5 1.5 0 0 1 3 0v6M14 9.5V5.5a1.5 1.5 0 0 1 3 0V13c0 4-2.5 7-6 7-2.6 0-4-1.3-5.4-3.4L3.8 14a1.5 1.5 0 0 1 2.4-1.8L8 14V11"/>' },
-    { k: "submit", t: "Submit a project", s: "You have a plan ready to run",
-      ic: '<path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-10z"/><path d="M14 3.5v5h5"/><path d="M12 17v-6M9.3 13.6 12 11l2.7 2.6"/>' }
+    { k: "request", href: "/initiate?way=need", t: "Submit a need", s: "Request a moment, share a plan, start a movement", go: "Start",
+      ic: '<path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-10z"/><path d="M14 3.5v5h5"/><path d="M12 17v-6M9.3 13.6 12 11l2.7 2.6"/>' },
+    { k: "submit", href: "/spark#join", t: "Join Raavanaa", s: "Volunteer, share a skill, create moments together", go: "Join",
+      ic: '<circle cx="8" cy="8.5" r="2.6"/><circle cx="16.5" cy="9.5" r="2.2"/><path d="M3 19c0-3.2 2.2-5.2 5-5.2s5 2 5 5.2M14 14.3c.8-.4 1.6-.6 2.5-.6 2.5 0 4.5 1.8 4.5 5.3"/>' }
   ];
   // Five titles and lines that take turns (SURESH, 16 Nov 2026: "make it impressive, say things profound: creating a
   // moment, be part of creating impact"). [small words, big word, ribbon, the line under it]
@@ -669,7 +676,7 @@ window.RAAV_FEATURES = (function () {
       <p class="sb-cap" data-sb-cap>${esc(pics[0].p.title)}</p>` : ""}
       <p class="mb-say sb-says" data-sb-says>${SPARK_SAYS.map((x, i) => `<span class="c${i % 5 + 1}${i ? "" : " on"}">${x[3]}</span>`).join("")}</p>
       <p class="sb-anyone">${FEAT.group ? "Anyone can start a project: one person or a whole group." : "Anyone can start one. Share it, and follow every step when you sign in."}</p>
-      <div class="sb-ways">${SPARK_WAYS.map(w => `<a class="sb-way ${w.k}" href="/initiate?way=${w.k}"><span class="sb-ic"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${w.ic}</svg></span><b>${w.t}</b><small>${w.s}</small><span class="sb-start">Start →</span></a>`).join("")}</div>
+      <div class="sb-ways">${SPARK_WAYS.map(w => `<a class="sb-way ${w.k}" href="${w.href}"><span class="sb-ic"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${w.ic}</svg></span><b>${w.t}</b><small>${w.s}</small><span class="sb-start">${w.go} →</span></a>`).join("")}</div>
     </section>`;
   };
   function startSparkBand(app) {
@@ -3613,10 +3620,10 @@ window.RAAV_FEATURES = (function () {
         // the kind of day) into the form, and show them in one line with a way back to change them.
         {
           const sq = new URLSearchParams(location.search), sf = document.querySelector('form[name="opportunity"]');
-          const way = sq.get("way") === "submit" ? "submit" : sq.get("way") === "request" ? "request" : "";
+          const way = ["submit", "request", "need"].includes(sq.get("way")) ? sq.get("way") : "";
           if (sf && way) {
             const by = sq.get("by") === "group" ? "group" : sq.get("by") === "me" ? "me" : "";
-            const vals = { way: way === "submit" ? "Submit a project" : "Request a project", by: by === "group" ? "A group" : by === "me" ? "One person" : "",
+            const vals = { way: way === "submit" ? "Submit a project" : way === "need" ? "Submit a need" : "Request a project", by: by === "group" ? "A group" : by === "me" ? "One person" : "",
               group: by === "group" ? (sq.get("group") || "").slice(0, 60) : "", gname: by === "group" ? (sq.get("gname") || "").slice(0, 80) : "" };
             sf.querySelectorAll("[data-spark-f]").forEach(i => { i.value = vals[i.dataset.sparkF] || ""; });
             const kind = sf.querySelector("#o-kind"), k = sq.get("kind");
