@@ -282,13 +282,11 @@ window.RAAV_FEATURES = (function () {
     foot.innerHTML = `
       <svg class="foot-wave" viewBox="0 0 400 30" preserveAspectRatio="none" aria-hidden="true"><path class="w1" d="M0 16C70 2 140 4 200 12 260 20 330 4 400 10V30H0Z"/><path class="w2" d="M0 24C80 10 150 12 210 18 270 24 336 12 400 16V30H0Z"/></svg>
       <div class="foot-main"><div class="wrap">
-        <nav class="foot-cols" aria-label="Footer">
-          ${col("Explore", [["Home", "/overview"], ["Raavanaa Post", "https://raavanaapost.raavanaa.org/"], ["Smile Map", "/smile-map"], ["About us", "/about"], ["Contact", "/contact"]])}
-          ${col("Our stages", [["Initiated", "/initiated"], ["Activated", "/activated"], ["Impact", "/impact"]])}
-          ${col("Get involved", [["Gift a Moment in their name", "/moment"], ["Volunteer with us", "/volunteer"], ["Suggest a project", "/contact?topic=suggest"], ["Partner with us", "/contact?topic=partner"]])
-            .replace("</ul>", APP.inApp ? "</ul>" : `<li><a href="#app" data-get-app>Get the app</a></li></ul>`)}
-          ${follow.length ? col("Follow us", follow) : ""}
+        <!-- Footer kept very simple (SURESH, 17 Nov 2026): one row of links, no stages, no Gift a Moment. -->
+        <nav class="foot-simple" aria-label="Footer">
+          ${[["Projects", "/projects"], ["Submit a need", "/spark"], ["Volunteer", "/volunteer"], ["About us", "/about"], ["Contact", "/contact"]].map(([t, h]) => `<a href="${h}">${t}</a>`).join("")}${APP.inApp ? "" : `<a href="#app" data-get-app>Get the app</a>`}
         </nav>
+        ${follow.length ? `<p class="foot-follow">${follow.map(([t, h, ext]) => `<a href="${esc(h)}"${ext ? ' target="_blank" rel="noopener"' : ""}>${esc(t)}</a>`).join("")}</p>` : ""}
       </div></div>
       <div class="foot-bar"><div class="wrap">
         <span>© ${new Date().getFullYear()} ${esc(site.name)}</span>

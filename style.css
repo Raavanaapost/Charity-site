@@ -2805,3 +2805,9 @@ body[data-light] .mosaic{margin-top:8px}
 @keyframes callIn{from{opacity:0;transform:translateY(-6px) scale(.9)}to{opacity:1;transform:none}}
 @media (min-width:760px){.mosaic-call{font-size:16px;padding:10px 18px}}
 @media (prefers-reduced-motion:reduce){.mosaic[data-deck] .mosaic-tile,.mosaic-call.in{animation:none}}
+
+/* Simple footer (17 Nov 2026): one row of links, then the contact line. */
+.foot-simple{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 22px;padding-block:6px 4px;font-family:var(--display);font-weight:700;font-size:15px}
+.foot-simple a,.foot-follow a{color:#fff;text-decoration:none}
+.foot-simple a:hover,.foot-follow a:hover{text-decoration:underline}
+.foot-follow{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;margin:10px 0 0;font-size:14px;opacity:.85}
