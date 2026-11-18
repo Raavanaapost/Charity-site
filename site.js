@@ -1134,11 +1134,18 @@ window.RAAV_FEATURES = (function () {
       return `<div class="hm-row s${n}" role="listitem" data-slug="${esc(slug)}">
           <a class="hm-row-link" href="/projects/${slug}">
             <span class="hm-thumb"><img src="${esc(s.art)}" alt="" loading="lazy" width="58" height="58"></span>
-            <span class="hm-main"><b>${esc(s.title)}</b><small>${meta}</small></span>
+            <span class="hm-main"><b>${esc(s.title)}</b><small>${meta}</small>${moreHTML(p, s)}</span>
             <span class="hm-side"><span class="hm-pill">${HOME_STAGE[n - 1]}</span>${(f => f ? `<small class="hm-by">with ${esc(f)}</small>` : byOf(p) ? `<small class="hm-by">by ${esc(byOf(p))}</small>` : "")(giverOf(p))}<span class="hm-pct">${ring(pct)}<b>${pct}%</b></span></span>
           </a>
           <button type="button" class="hm-i" aria-label="Project at a glance" aria-expanded="false" aria-controls="hm-pop"><span aria-hidden="true">i</span></button>
         </div>`; };
+    // SURESH 18 Nov 2026: on computers each row also tells a little more (the short story, who it is for, the cost
+    // and what is raised), to fill the space; hidden on phones by CSS so the phone list stays as it is.
+    const moreHTML = (p, s) => { const desc = String((TA_PATH && "") || p.summary || "").trim(), b = budgetOf(p);
+      const facts = [s.reach ? `<span><span>For:</span> ${esc(s.reach)}</span>` : "",
+        b.goal ? `<span><span>Cost of the day:</span> ${moneyOf(site, b.goal, p)}</span>` : "",
+        b.goal && b.raised ? `<span><span>${stageNum(p) === 3 ? "Given:" : "Raised so far:"}</span> ${moneyOf(site, b.raised, p)}</span>` : ""].filter(Boolean);
+      return desc || facts.length ? `<span class="hm-more">${desc ? `<span class="hm-desc">${esc(desc)}</span>` : ""}${facts.length ? `<span class="hm-facts-line">${facts.join('<i aria-hidden="true"> · </i>')}</span>` : ""}</span>` : ""; };
     const EMPTY = { 0: "No projects yet." };
     const draw = () => {
       const list = projects.filter(match);

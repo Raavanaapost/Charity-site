@@ -2944,3 +2944,16 @@ body[data-page="projects"] .finder-search { padding-right: 20px; }
   body[data-page="projects"] .hm-side .hm-pct { order: 3; min-width: 78px; justify-content: flex-end; }
   body[data-page="projects"] .pj-who { margin-top: 24px; }
 }
+
+/* Projects page: more words in each row on computers only (SURESH 18 Nov 2026); phones never show them. */
+.hm-more { display: none; }
+@media (min-width: 700px) {
+  body[data-page="projects"] .hm-more { display: grid; gap: 3px; margin-top: 3px; }
+  body[data-page="projects"] .hm-desc { font-family: var(--body); font-size: 14px; line-height: 1.45; color: #3d4a44; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+  body[data-page="projects"] .hm-facts-line { font-family: var(--display); font-size: 13px; color: var(--ink); }
+  body[data-page="projects"] .hm-facts-line > span { white-space: nowrap; }
+  body[data-page="projects"] .hm-facts-line > span > span { color: var(--muted); }
+  body[data-page="projects"] .hm-facts-line i { font-style: normal; color: var(--muted); }
+  body[data-page="projects"] .hm-row-link { padding-block: 11px; align-items: center; }
+  body[data-page="projects"] .hm-thumb { width: 64px; height: 64px; }
+}
