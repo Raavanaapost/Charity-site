@@ -2973,3 +2973,20 @@ body[data-page="projects"] .finder-search { padding-right: 20px; }
   .spark-band > .sb-anyone { grid-area: any; margin: 0; }
   .spark-band > .sb-ways { grid-area: ways; }
 }
+
+/* Footer as thin as possible (SURESH 18 Nov 2026): curved hills kept on top, links and the email in one thin strip, the
+   small print in a second thin strip under it. Same links as before. */
+footer.foot { margin-top: 18px; }
+footer.foot .foot-wave { display: block; height: 22px; } /* SURESH 18 Nov: keep the curved hills on top */
+footer.foot .foot-main .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 18px; padding-block: 9px; font-size: 14px; }
+footer.foot .foot-simple { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 4px 18px; margin: 0; padding: 0; }
+footer.foot .foot-simple a { font-size: 14px; padding: 0; }
+footer.foot .foot-follow { margin: 0; font-size: 13px; }
+footer.foot .foot-bar .wrap { padding-block: 5px; font-size: 12px; gap: 2px 14px; }
+footer.foot .foot-links { display: inline-flex; flex-wrap: wrap; gap: 2px 14px; }
+@media (max-width: 600px) {
+  footer.foot .foot-main .wrap { justify-content: center; padding-block: 8px; gap: 4px 14px; }
+  footer.foot .foot-simple { justify-content: center; gap: 4px 14px; }
+  footer.foot .foot-simple a { font-size: 13.5px; }
+  footer.foot .foot-bar .wrap { justify-content: center; text-align: center; }
+}
