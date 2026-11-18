@@ -2923,3 +2923,24 @@ body[data-page="projects"] .finder-search { padding-right: 20px; }
 .pj-place:focus-visible { outline: 3px solid color-mix(in srgb, #f2b21c 60%, transparent); outline-offset: 2px; }
 .pj-book .hm-folder.pj-nofolder { border-radius: 16px; border-top-width: 1.5px; border-top-color: color-mix(in srgb, var(--c) 18%, var(--surface)); }
 @media (max-width: 560px) { .pj-place { padding: 6px 11px; font-size: 13px; } }
+
+/* Projects page on computers (SURESH 18 Nov 2026: "so wide, lots of gaps, make it packed"): one narrow column,
+   everything lined up on the same left edge, no outer box around the rows, and each row's stage, giver and ring
+   sit side by side so rows are short. */
+@media (min-width: 700px) {
+  body[data-page="projects"] #app { max-width: 980px; }
+  body[data-page="projects"] .home-finder { justify-items: stretch; gap: 10px; padding-bottom: 8px; }
+  body[data-page="projects"] .home-finder .pj-says, body[data-page="projects"] .pj-sub, body[data-page="projects"] .finder-search { max-width: none; }
+  body[data-page="projects"] .pj-sub { margin: -2px 0 2px; }
+  body[data-page="projects"] .pj-book { margin-top: 6px; }
+  body[data-page="projects"] .pj-places { margin-bottom: 10px; }
+  body[data-page="projects"] .hm-folder.pj-nofolder { background: none; border: 0; padding: 0; min-height: 0; }
+  body[data-page="projects"] .hm-list { gap: 7px; }
+  body[data-page="projects"] .hm-row-link { padding: 8px 12px 8px 10px; gap: 14px; }
+  body[data-page="projects"] .hm-thumb { width: 50px; height: 50px; }
+  body[data-page="projects"] .hm-side { display: flex; align-items: center; gap: 12px; }
+  body[data-page="projects"] .hm-side .hm-pill { order: 2; min-width: 86px; text-align: center; }
+  body[data-page="projects"] .hm-side .hm-by { order: 1; width: 140px; max-width: 140px; }
+  body[data-page="projects"] .hm-side .hm-pct { order: 3; min-width: 78px; justify-content: flex-end; }
+  body[data-page="projects"] .pj-who { margin-top: 24px; }
+}
