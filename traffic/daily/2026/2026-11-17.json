@@ -1,0 +1,135 @@
+{
+  "day": "2026-11-17",
+  "from": "2026-11-17T00:00:00.000Z",
+  "to": "2026-11-18T00:00:00.000Z",
+  "tz": "UTC",
+  "now": {
+    "views": 15,
+    "visits": 13,
+    "shares": 0,
+    "give": 0,
+    "memory": 0,
+    "request": 0,
+    "vouch": 0,
+    "install": 2,
+    "app_visits": 2
+  },
+  "daily": [
+    {
+      "day": "2026-11-17",
+      "views": 15,
+      "visits": 13,
+      "actions": 0,
+      "shares": 0
+    }
+  ],
+  "sources": [
+    {
+      "key": "direct",
+      "visits": 13,
+      "acted": 0,
+      "shares": 0,
+      "pages": 1.2
+    }
+  ],
+  "campaigns": [],
+  "pages": [
+    {
+      "key": "/overview",
+      "views": 7,
+      "visits": 7
+    },
+    {
+      "key": "/initiated",
+      "views": 3,
+      "visits": 3
+    },
+    {
+      "key": "/moment",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/about",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/projects/bowling-day",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/projects/pussellawa-kandy-trip",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/volunteers",
+      "views": 1,
+      "visits": 1
+    }
+  ],
+  "countries": [
+    {
+      "key": "LK",
+      "visits": 5
+    },
+    {
+      "key": "US",
+      "visits": 5
+    },
+    {
+      "key": "CA",
+      "visits": 3
+    }
+  ],
+  "devices": [
+    {
+      "key": "phone",
+      "visits": 7
+    },
+    {
+      "key": "computer",
+      "visits": 4
+    },
+    {
+      "key": "app",
+      "visits": 2
+    }
+  ],
+  "hours": [
+    {
+      "key": 2,
+      "views": 3
+    },
+    {
+      "key": 6,
+      "views": 5
+    },
+    {
+      "key": 7,
+      "views": 2
+    },
+    {
+      "key": 10,
+      "views": 2
+    },
+    {
+      "key": 15,
+      "views": 2
+    },
+    {
+      "key": 23,
+      "views": 1
+    }
+  ],
+  "weekdays": [
+    {
+      "key": 2,
+      "views": 15
+    }
+  ],
+  "shares": [],
+  "refs": []
+}
