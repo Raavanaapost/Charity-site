@@ -577,12 +577,12 @@ function rp_city_strip() {
 	}
 	$pin = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
 	echo '<div class="rp-cities"><div class="rp-wrap rp-cities__inner">';
-	echo '<p class="rp-cities__label">' . esc_html__( 'News by place', 'raavanaapost' ) . '</p>';
 	echo '<ul class="rp-cities__list" aria-label="' . esc_attr__( 'Places in our stories', 'raavanaapost' ) . '">';
-	echo '<li><span class="rp-city is-on" data-rp-city="">' . esc_html__( 'All places', 'raavanaapost' ) . '</span></li>';
 	foreach ( $cities as $city ) {
 		echo '<li><span class="rp-city" data-rp-city="' . esc_attr( sanitize_title( $city ) ) . '">' . $pin . esc_html( $city ) . '</span></li>'; // phpcs:ignore WordPress.Security.EscapeOutput
 	}
+	// SURESH 18 Nov 2026: no "News by place" words, and "All places" sits at the end of the row.
+	echo '<li><span class="rp-city is-on" data-rp-city="">' . esc_html__( 'All places', 'raavanaapost' ) . '</span></li>';
 	echo '</ul></div></div>';
 }
 
