@@ -2050,6 +2050,13 @@ window.RAAV_FEATURES = (function () {
   // Donate on a project page. While the project still needs money it opens that project's giving form; otherwise the
   // Raavanaa Fund. With card payments off (launch, SURESH 12 Nov 2026) the form is "I'd like to give": a volunteer replies.
   function wireDonate(root, slug) {
+    // "Fund it fully" by the budget: opens the form there with the whole amount left already filled in (18 Nov 2026).
+    root.querySelectorAll("[data-fullfund]").forEach(fb => fb.addEventListener("click", () => {
+      const btn = fb.parentElement.querySelector("[data-donate]");
+      if (!root.querySelector(".pl-inline")) { btn.dataset.noScroll = "1"; btn.click(); delete btn.dataset.noScroll; }
+      const fl = root.querySelector(".pl-inline [data-fill]"); if (fl) fl.click();
+      const own = root.querySelector('.pl-inline [name="own"]'); if (own) own.scrollIntoView({ block: "center", behavior: "smooth" });
+    }));
     // The Be the smile button by the budget: its words take turns (Be the smile, Make the moment...).
     root.querySelectorAll(".b-give [data-donate] span").forEach(sp => {
       if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -2151,7 +2158,7 @@ window.RAAV_FEATURES = (function () {
           <div><dt>Still needed</dt><dd>${money(need)}</dd></div>
         </dl>
         <p class="b-ask">${b.raised ? "Help us close the gap" : "Be the first to sponsor"}${kids ? ` and give ${kids[0]} children their day` : " and make this day happen"}.</p>
-        ${!FEAT.sponsor && FEAT.pledge && GIVE_OPEN.has(slugOf(p)) ? `<div class="b-give" id="be-the-smile">${DONATE_BTN}</div>` : ""}
+        ${!FEAT.sponsor && FEAT.pledge && GIVE_OPEN.has(slugOf(p)) ? `<div class="b-give" id="be-the-smile">${DONATE_BTN}<button type="button" class="b-full" data-fullfund><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M8 12.3l2.6 2.6L16.2 9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Fund it fully</button></div>` : ""}
         ${funders(FEAT.pledge ? "Making it happen" : "Pledged so far")}
         ${detail ? listOf("Estimated costs", "Estimated total") : ""}`;
     }
@@ -3069,12 +3076,16 @@ window.RAAV_FEATURES = (function () {
       const fullBtn = f.querySelector("[data-full]"), rateEl = f.querySelector("[data-rate]");
       let full = false;
       const fill = () => { ownIn.value = fullIn(curSel ? curSel.value : "LKR").toLocaleString("en-US"); };
+      const fillBtn = f.querySelector("[data-fill]");
+      if (fillBtn) fillBtn.addEventListener("click", () => { full = true; fill(); f.dispatchEvent(new Event("input")); });
       if (fullBtn) fullBtn.addEventListener("click", () => { full = true; fill(); f.dispatchEvent(new Event("input")); ownIn.scrollIntoView({ block: "center", behavior: "smooth" }); });
       ownIn.addEventListener("input", () => { full = false; });
       if (curSel) curSel.addEventListener("change", () => { if (full) fill(); });
       // The title on the button takes turns (SURESH, 17 Nov 2026).
       const sayEl = app.querySelector("[data-say]");
       if (sayEl && !matchMedia("(prefers-reduced-motion: reduce)").matches) { let k = 0; setInterval(() => { k = (k + 1) % PL_SAYS.length; sayEl.classList.remove("in"); void sayEl.offsetWidth; sayEl.textContent = PL_SAYS[k]; sayEl.classList.add("in"); }, 2600); }
+      // An amount of rupees, said in the giver's chosen money (rounded up): "$131 CAD", "£70 GBP", "Rs 30,500".
+      const inTheirs = rs => { const c = curSel ? curSel.value : "LKR"; if (!curSel || c === "LKR") return moneyOf(site, rs, x); const r = (PL_FX && PL_FX[c]) || PL_FX_TABLE[c] || 0; return r ? `${PL_SYM[c] && PL_SYM[c].length <= 2 ? PL_SYM[c] : ""}${Math.ceil(rs / r).toLocaleString("en-US")} ${c}` : moneyOf(site, rs, x); };
       const typedText = () => !curSel || curSel.value === "LKR" ? moneyOf(site, typed(), x) : `${curSel.value} ${typed().toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
       const pctWith = v => goal ? Math.min(100, Math.round((raised + v) / goal * 100)) : 0;
       const update = () => {
@@ -3085,19 +3096,20 @@ window.RAAV_FEATURES = (function () {
         // Just above the amount: what it is in Sri Lankan rupees.
         if (rateEl) {
           const c = curSel ? curSel.value : "LKR", r = rate();
-          rateEl.hidden = !foreign;
-          if (foreign) rateEl.innerHTML = typed() ? `${esc(typedText())} = <b>about ${esc(moneyOf(site, v, x))}</b>` : `1 ${esc(c)} = <b>about ${esc(moneyOf(site, r, x))}</b>`;
+          rateEl.hidden = true;   // no exchange line (SURESH, 18 Nov 2026): the amounts left are shown in their money instead
         }
         // The button keeps showing what is still left, after this giver's part, and its little ring moves with it.
         if (fullBtn) {
           const after = Math.max(0, left - v), c = curSel ? curSel.value : "LKR", lt = f.querySelector("[data-left-text]");
-          lt.innerHTML = full && foreign ? `<strong>${esc(moneyOf(site, left, x))}</strong> <span class="pl-eq">= ${esc(c)} ${fullIn(c).toLocaleString("en-US")}</span>`
-            : v && after > 0 ? `<strong>${esc(moneyOf(site, after, x))}</strong> left after yours` : v ? `<strong>Fully funded</strong> with yours` : `<strong>${esc(moneyOf(site, left, x))}</strong> left`;
+          // What is left, in the giver's own money (SURESH, 18 Nov 2026).
+          lt.innerHTML = v && v >= left ? `<strong>Fully funded</strong> with yours` : `<strong>${esc(inTheirs(left))}</strong> left${foreign ? ` <span class="pl-eq-s">(${esc(moneyOf(site, left, x))})</span>` : ""}`;
           const pm = pctWith(v); f.querySelector(".pl-mini-arc").setAttribute("stroke-dasharray", `${pm} 100`); f.querySelector("[data-mini-n]").textContent = pm + "%"; f.querySelector("[data-mini-n]").style.fontSize = pm >= 100 ? "9.5px" : "";
           fullBtn.classList.toggle("on", !!v && v >= left);
         }
         const conv = "";
-        const text = !v ? "" : conv + (!goal ? "" : pct >= 100 ? "Your part completes this project: 100% of its goal." : `Your part brings this project to ${pct}% of its goal.`);
+        // Under the amount: what would still be left after their part, in their money.
+        const after = Math.max(0, left - v);
+        const text = !v ? "" : conv + (after <= 0 ? "Your part completes this project: 100% of its goal." : `Still left after yours: ${inTheirs(after)}${foreign ? ` (${moneyOf(site, after, x)})` : ""}. The project reaches ${pct}%.`);
         if (reach.textContent !== text) reach.textContent = text;
         reach.hidden = !text;
         if (msg.classList.contains("bad")) msg.hidden = true;
@@ -3146,7 +3158,7 @@ window.RAAV_FEATURES = (function () {
             <p class="pl-shows"><b>${esc(amountText)}</b> pledged by <b>${esc(show ? name : "A friend of Raavanaa")}</b> now shows on the project. It is <b>${pct}%</b> covered.</p>
             <p><b>We'll send you the ways to fund</b> ${isMail ? "by email" : "on WhatsApp"} at <b>${esc(contact)}</b>.</p>
             ${SAFE}
-            <p class="give-done-next"><a class="btn" href="/projects/${esc(slug)}">See it on the project</a>${follow ? ` <a class="btn ghost" href="/members">Follow it in My account</a>` : ""}</p>`;
+            <p class="give-done-next"><a class="btn" href="/projects/${esc(slug)}">See it on the project</a>${follow ? ` <span class="pl-following">✓ You're following it</span>` : ""}</p>`;
           f.replaceWith(box); box.focus({ preventScroll: true }); box.scrollIntoView({ block: "center", behavior: "smooth" });
         } catch (_) { say("We couldn't send that. Please check your connection and try again.", true); pay.disabled = false; }
       });
@@ -3164,7 +3176,7 @@ window.RAAV_FEATURES = (function () {
             <label class="pl-amt"><span>Or any amount <small>(in your own money)</small></span>
               <span class="pl-rate" data-rate hidden></span>
               <span class="pl-amt-row">${isRupees(x) ? `<select name="cur" aria-label="Currency">${PL_CURS.map(c => `<option value="${c}">${c === "LKR" ? "Rs" : c}</option>`).join("")}</select>` : `<b class="pl-cur">${esc(cur)}</b>`}
-              <span class="pl-money"><i data-sym aria-hidden="true">${isRupees(x) ? "Rs" : esc(cur)}</i><input name="own" inputmode="decimal" maxlength="12" autocomplete="off" placeholder="Any amount" required><em data-code aria-hidden="true"></em></span></span></label>
+              <span class="pl-money"><i data-sym aria-hidden="true">${isRupees(x) ? "Rs" : esc(cur)}</i><input name="own" inputmode="decimal" maxlength="12" autocomplete="off" placeholder="Any amount" required><em data-code aria-hidden="true"></em><button type="button" class="pl-fill" data-fill title="Fund it fully" aria-label="Fund it fully"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M8 12.3l2.6 2.6L16.2 9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Full</span></button></span></span></label>
             <p class="give-reach" role="status" hidden></p>
             <label><span>Your name</span><input name="name" maxlength="80" autocomplete="name" required></label>
             <label><span>Email or WhatsApp</span><input name="contact" maxlength="120" required autocomplete="email" placeholder="you@example.com or 077 123 4567"></label>
@@ -3474,8 +3486,15 @@ window.RAAV_FEATURES = (function () {
           <p class="room-btns"><a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(shareText + " " + url)}">WhatsApp</a>
           <a class="btn ghost" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}">Facebook</a>
           <button class="btn ghost" type="button" data-copy>Copy link</button></p></section>
-        <section class="room-act follow"><h3>Follow the project</h3><p>${q.get("f") ? "You asked to follow it. " : ""}Sign in with the same ${q.get("c") === "wa" ? "details" : "email"} and it stays in My account, with every step.</p>
-          <p class="room-btns"><a class="btn" href="/members">Follow in My account</a></p></section>
+        ${(() => { // Following needs no sign-in (SURESH 18 Nov: it asked him to log in again). The tick on the form already saved it.
+          let signedIn = false; try { signedIn = !!localStorage.getItem("gotrue.user"); } catch (e) { /* storage blocked */ }
+          const how = q.get("c") === "wa" ? "on WhatsApp" : "by email", same = q.get("c") === "wa" ? "the same details" : "the same email";
+          return q.get("f")
+            ? `<section class="room-act follow"><h3><span class="room-tick" aria-hidden="true">✓</span> You're following it</h3><p>Nothing more to do. We will keep you updated ${how} as the project moves.${signedIn ? " It is also in My account." : ""}</p>
+              <p class="room-btns">${signedIn ? `<a class="btn ghost" href="/members">Open My account</a>` : `<a class="btn ghost" href="/members">Optional: make a free account</a>`}</p>${signedIn ? "" : `<p class="room-small">An account with ${same} keeps all your projects in one place. You can skip it.</p>`}</section>`
+            : `<section class="room-act follow"><h3>Follow the project</h3><p>The volunteer who writes to you will keep you updated ${how}.${signedIn ? " It is also in My account." : ""}</p>
+              <p class="room-btns"><a class="btn ghost" href="/members">${signedIn ? "Open My account" : "Optional: make a free account"}</a></p></section>`;
+        })()}
         <section class="room-act helper"><h3>A volunteer is with you</h3><p>A Raavanaa volunteer will follow up with the ways to fund ${q.get("c") === "wa" ? "on WhatsApp" : "by email"}, and keep you updated as the project moves.${ref ? ` Your reference: <b>${esc(ref)}</b>.` : ""}</p></section>
       </div>
       <h2 class="room-h">What happens next</h2>

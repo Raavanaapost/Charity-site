@@ -55,7 +55,7 @@ export async function render(app, site) {
   }
   const me = await getMember();
   if (me) return account(app, site);
-  return signedOut(app, site, new URLSearchParams(location.search).get("join") !== null ? "join" : "login");
+  return signedOut(app, site, new URLSearchParams(location.search).get("signin") !== null ? "login" : "join"); // Sign up first (SURESH 18 Nov); /members?signin opens Sign in
 }
 
 const header = (eyebrow, title, sub) => `<div class="m-head"><span class="m-ribbon">${esc(eyebrow)}</span>
@@ -102,8 +102,8 @@ async function signedOut(app, site, mode = "login", msg = "") {
     <div class="member-grid">
       <form class="panel form member-card" id="m-form" novalidate>
         <div class="member-tabs" role="tablist">
-          <button type="button" role="tab" aria-selected="${!join}" data-mode="login">Sign in</button>
-          <button type="button" role="tab" aria-selected="${join}" data-mode="join">Join</button></div>
+          <button type="button" role="tab" aria-selected="${join}" data-mode="join">Sign up</button>
+          <button type="button" role="tab" aria-selected="${!join}" data-mode="login">Sign in</button></div>
         ${ask ? `<p class="member-flash">Joining is by invite while we get ready. Leave your name and email and we will send you an invite.</p>` : ""}
         ${google && !ask ? `<button type="button" class="btn ghost member-google" data-google>Continue with Google</button>
           <p class="member-or"><span>or with email</span></p>` : ""}

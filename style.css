@@ -2990,3 +2990,15 @@ footer.foot .foot-links { display: inline-flex; flex-wrap: wrap; gap: 2px 14px; 
   footer.foot .foot-simple a { font-size: 13.5px; }
   footer.foot .foot-bar .wrap { justify-content: center; text-align: center; }
 }
+/* 18 Nov 2026: no exchange line; what is left in the giver's money; mini "Full" icon in the amount box; Fund it fully by the budget */
+.pl-fill{display:inline-flex;align-items:center;gap:4px;flex:none;padding:6px 9px;border-radius:999px;border:1.5px solid #eaa21c;background:#fff4dc;color:#b4560a;font:700 12.5px var(--display);cursor:pointer}
+.pl-eq-s{font-size:14px;color:#7a5a12;font-weight:600}
+.b-give{display:grid;gap:8px}
+.b-full{display:inline-flex;align-items:center;justify-content:center;gap:7px;justify-self:center;padding:7px 14px;border-radius:999px;border:1.5px solid #eaa21c;background:#fff4dc;color:#b4560a;font:700 14.5px var(--display);cursor:pointer}
+/* Give 15: keep the typed amount readable in the narrow desktop side panel */
+.pl-amt-row{display:flex;flex-wrap:wrap}
+.pl-amt-row select{flex:0 0 auto}
+.pl-amt-row .pl-money{flex:1 1 190px}
+.room-tick{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#1f6a43;color:#fff;font-size:14px;margin-right:6px;vertical-align:2px}
+.room-small{font-size:13px;color:var(--muted);margin-top:6px}
+.pl-following{font-weight:700;color:#1f6a43;margin-left:10px}
