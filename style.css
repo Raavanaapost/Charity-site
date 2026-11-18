@@ -2957,3 +2957,19 @@ body[data-page="projects"] .finder-search { padding-right: 20px; }
   body[data-page="projects"] .hm-row-link { padding-block: 11px; align-items: center; }
   body[data-page="projects"] .hm-thumb { width: 64px; height: 64px; }
 }
+
+/* Home on computers (SURESH 18 Nov 2026: "Spark a smile / Create a moment doesn't align"): both bands now use the
+   full width of the pictures and lists above and below them, and Spark a Smile uses the same two-column layout as
+   Gift a Moment (words on the left, pictures on the right). Phones unchanged. */
+@media (min-width: 821px) {
+  .spark-band, .moment-band { max-width: none; margin-left: 0; margin-right: 0; }
+  .moment-band { padding: 34px 40px 32px; }
+  .spark-band { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); grid-template-areas: "head pic" "say pic" "any cap" "ways cap";
+    align-items: center; column-gap: 34px; row-gap: 10px; padding: 34px 40px 32px; }
+  .spark-band > .mb-head { grid-area: head; }
+  .spark-band > .sb-stack { grid-area: pic; width: min(400px, 100%); align-self: end; }
+  .spark-band > .sb-cap { grid-area: cap; align-self: start; }
+  .spark-band > .mb-say { grid-area: say; }
+  .spark-band > .sb-anyone { grid-area: any; margin: 0; }
+  .spark-band > .sb-ways { grid-area: ways; }
+}
