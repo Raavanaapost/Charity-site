@@ -1083,8 +1083,10 @@ window.RAAV_FEATURES = (function () {
       return { title: (TA_PATH && sh.title_ta) || sh.title || p.title,
         art: sh.art || (/\.svg$/i.test(p.cover || "") ? p.cover : "/img/project-hills.svg"),
         reach: (TA_PATH && sh.reach_ta) || sh.reach || (/TBD/i.test(p.reach || "") ? "" : p.reach || "") }; };
-    const TABS = [[0, "All"], [1, "Initiated"], [2, "Activated"], [3, "Impact"]];
-    const cities = [...new Set(projects.map(cityOf).filter(Boolean))].sort();
+    // SURESH 18 Nov 2026: no stage tabs (each row already shows its stage in its colour); instead one row of
+    // place chips from the projects we have, newest listed first, that filter the list, with "All" at the end.
+    const cities = [...new Set(projects.map(cityOf).filter(Boolean))];
+    const PIN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>';
     const st = { q: "", city: "All", by: "" };
     // Who submitted each project: an organisation or a person, by name (SURESH, 17 Nov 2026).
     const byOf = p => String(p.submitted_by || p.organization || "").trim();
@@ -1098,7 +1100,6 @@ window.RAAV_FEATURES = (function () {
       const sh = safe(p), hay = [sh.title, p.summary, p.theme, cityOf(p), (p.location || "").split(",")[0]].filter(Boolean).join(" ").toLowerCase();
       return st.q.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(w));
     };
-    let tab = 0;
     app.innerHTML = `
       <section class="finder home-finder">
         <h1 class="section-title latest-title pj-says" aria-live="polite">${LIST_SAYS.map((t, k) => `<span class="${k ? "" : "on"}"${k ? ' aria-hidden="true"' : ""}>${t}</span>`).join("")}</h1>
@@ -1106,16 +1107,13 @@ window.RAAV_FEATURES = (function () {
         <form class="finder-search" role="search" action="#" onsubmit="return false">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
           <input id="find-q" type="search" placeholder="Search projects, places or ideas" aria-label="Search projects" autocomplete="off">
-          <label class="finder-city"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
-            <select id="find-city" aria-label="City"><option value="All">All</option>${cities.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("")}</select></label>
         </form>
       </section>
       <section class="hm-book pj-book" aria-label="Projects">
-        <p class="pj-stages-k">Stages</p>
-        <div class="hm-tabs" role="tablist" aria-label="Stages">
-          ${TABS.map(([n, name]) => `<button type="button" role="tab" class="hm-tab s${n}" data-n="${n}" aria-selected="${tab === n}" aria-controls="hm-folder"><span>${name}</span><b></b></button>`).join("")}
-        </div>
-        <div class="hm-folder s${tab}" id="hm-folder" role="tabpanel"></div>
+        ${cities.length ? `<div class="pj-places" role="group" aria-label="Places">
+          ${cities.concat("All").map(c => `<button type="button" class="pj-place${c === "All" ? " all" : ""}" data-city="${esc(c)}" aria-pressed="${c === st.city}">${c === "All" ? "" : PIN}<span>${esc(c)}</span><b></b></button>`).join("")}
+        </div>` : ""}
+        <div class="hm-folder s0 pj-nofolder" id="hm-folder"></div>
         <div class="hm-pop" id="hm-pop" role="tooltip" hidden></div>
       </section>
       ${(() => { const who = {}; projects.forEach(p => { const b = byOf(p); if (!b) return; (who[b] = who[b] || { n: [0, 0, 0, 0], type: p.submitted_type || (b === "Raavanaa" ? "Organisation" : "") }).n[stageNum(p)]++; });
@@ -1128,8 +1126,7 @@ window.RAAV_FEATURES = (function () {
             <span class="pj-who-t"><b>${esc(nm)}</b>${who[nm].type ? `<small>${esc(who[nm].type)}</small>` : ""}</span>
             <span class="pj-who-st">${[1, 2, 3].filter(k => who[nm].n[k]).map(k => `<i class="s${k}">${HOME_STAGE[k - 1]} ${who[nm].n[k]}</i>`).join("")}</span></button>`).join("")}</div>
         </section>` : ""; })()}`;
-    const book = app.querySelector(".hm-book"), tabsBox = app.querySelector(".hm-tabs"), folder = app.querySelector(".hm-folder"), pop = app.querySelector(".hm-pop");
-    const circles = [];
+    const book = app.querySelector(".hm-book"), placesBox = app.querySelector(".pj-places"), folder = app.querySelector(".hm-folder"), pop = app.querySelector(".hm-pop");
     const ring = pct => `<svg class="hm-ring" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" pathLength="100" class="tr"/><circle cx="20" cy="20" r="15" pathLength="100" class="fl" stroke-dasharray="${pct} 100" transform="rotate(-90 20 20)"/></svg>`;
     const rowHTML = p => { const n = stageNum(p), s = safe(p), pct = ringPercent(p), slug = slugOf(p);
       const place = cityOf(p) || (p.location || "").split(",")[0].trim();
@@ -1144,13 +1141,12 @@ window.RAAV_FEATURES = (function () {
         </div>`; };
     const EMPTY = { 0: "No projects yet." };
     const draw = () => {
-      const found = projects.filter(match), list = tab ? found.filter(p => stageNum(p) === tab) : found;
-      tabsBox.querySelectorAll(".hm-tab").forEach(b => { const n = +b.dataset.n; b.querySelector("b").textContent = n ? found.filter(p => stageNum(p) === n).length : found.length; });
-      folder.className = `hm-folder s${tab}`;
+      const list = projects.filter(match);
+      if (placesBox) placesBox.querySelectorAll(".pj-place").forEach(b => { const c = b.dataset.city, keep = st.city;
+        st.city = c; b.querySelector("b").textContent = projects.filter(match).length; st.city = keep;
+        b.setAttribute("aria-pressed", String(c === st.city)); });
       folder.innerHTML = list.length ? `<div class="hm-list" role="list">${list.map(rowHTML).join("")}</div>`
-        : `<p class="hm-empty">${st.q || st.city !== "All" ? "No projects match your search." : tab ? HOME_ROWS[tab - 1].empty : EMPTY[0]}</p>${tab > 1 ? "" : `<p class="hm-empty-go"><a class="btn" href="/initiate">Suggest one</a></p>`}`;
-      tabsBox.querySelectorAll(".hm-tab").forEach(b => b.setAttribute("aria-selected", String(+b.dataset.n === tab)));
-      circles.forEach((c, k) => c.classList.toggle("on", k + 1 === tab));
+        : `<p class="hm-empty">${st.q || st.city !== "All" ? "No projects match your search." : EMPTY[0]}</p><p class="hm-empty-go"><a class="btn" href="/initiate">Suggest one</a></p>`;
     };
 
     // "Project at a glance": the same facts as on the project's own page, in a small window.
@@ -1189,11 +1185,8 @@ window.RAAV_FEATURES = (function () {
     document.addEventListener("keydown", e => { if (e.key === "Escape") closePop(); });
     addEventListener("scroll", () => { if (popRow && pop.classList.contains("by-hover")) closePop(); }, { passive: true });
 
-    const setTab = n => { closePop(); tab = n; draw(); };
-    tabsBox.addEventListener("click", e => { const b = e.target.closest(".hm-tab"); if (b) setTab(+b.dataset.n); });
+    if (placesBox) placesBox.addEventListener("click", e => { const b = e.target.closest(".pj-place"); if (!b) return; st.city = b.dataset.city; closePop(); draw(); });
     app.querySelector("#find-q").addEventListener("input", e => { st.q = e.target.value.trim(); closePop(); draw(); });
-    const citySel = app.querySelector("#find-city");
-    citySel.addEventListener("change", () => { st.city = citySel.value; citySel.closest(".finder-city").classList.toggle("on", st.city !== "All"); closePop(); draw(); });
     startListSays(app);
     const whoBox = app.querySelector(".pj-who-list");
     if (whoBox) whoBox.addEventListener("click", e => { const b = e.target.closest(".pj-who-b"); if (!b) return;

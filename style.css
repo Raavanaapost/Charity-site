@@ -2908,3 +2908,18 @@ body[data-page="projects"] .home-finder{margin-top:6px;padding-top:10px}
 .pjour-arrow{margin-top:0;font-size:18px}
 @media (max-width:380px){.pjour-st b{font-size:10px}.pjour-st i,.pjour-st.now i{width:24px;height:24px}}
 .pjour{gap:4px}.pjour-arrow{margin:0 2px;flex:none}.pjour-st{flex:1 1 auto;min-width:0}
+
+/* Projects page (SURESH 18 Nov 2026): no stage tabs; one row of place chips that filter the list, "All" at the end. */
+body[data-page="projects"] .finder-search { padding-right: 20px; }
+.pj-places { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; padding: 2px; }
+.pj-places::-webkit-scrollbar { display: none; }
+.pj-place { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px; border: 1px solid #e3cf9a; background: #fbf6ea; color: #1f4d3a; font: 700 14px/1.1 var(--display); white-space: nowrap; cursor: pointer; transition: background .15s, border-color .15s, color .15s; }
+.pj-place svg { width: 14px; height: 14px; fill: none; stroke: #e5851a; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.pj-place b { min-width: 20px; padding: 2px 6px; border-radius: 999px; background: rgba(31, 77, 58, .1); font-size: 12px; text-align: center; }
+.pj-place:hover { border-color: #c9a64a; }
+.pj-place[aria-pressed="true"] { background: #1f4d3a; border-color: #1f4d3a; color: #fff; }
+.pj-place[aria-pressed="true"] svg { stroke: #f2b21c; }
+.pj-place[aria-pressed="true"] b { background: rgba(255, 255, 255, .2); }
+.pj-place:focus-visible { outline: 3px solid color-mix(in srgb, #f2b21c 60%, transparent); outline-offset: 2px; }
+.pj-book .hm-folder.pj-nofolder { border-radius: 16px; border-top-width: 1.5px; border-top-color: color-mix(in srgb, var(--c) 18%, var(--surface)); }
+@media (max-width: 560px) { .pj-place { padding: 6px 11px; font-size: 13px; } }
