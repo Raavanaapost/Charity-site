@@ -79,10 +79,10 @@ async function tell(SITE: string, ref: string, x: { name: string; contact: strin
   if (x.isEmail) {
     const text = [`Dear ${x.name},`, "", `Thank you for your pledge of ${x.amount} towards ${what}. It now shows on the project page:`, link, "",
       "We will send you the ways to fund in a personal email very soon. Raavanaa only ever shares bank details in a personal reply from our official email. Never pay into an account sent to you any other way.",
-      "", x.follow ? `To follow the project, sign in at ${SITE}/members with this email and open My account.` : "", "", `Your reference: ${ref}`, "", "With thanks,", "Raavanaa"].join("\n");
+      "", x.follow ? `You are following the project: we will send you every step. (Optional: make a free account at ${SITE}/members with this email to keep it in My account.)` : "", "", `Your reference: ${ref}`, "", "With thanks,", "Raavanaa"].join("\n");
     const html = `<p>Dear ${escHtml(x.name)},</p><p>Thank you for your pledge of <b>${escHtml(x.amount)}</b> towards ${escHtml(what)}. It now shows on the <a href="${link}">project page</a>.</p>
       <p><b>We will send you the ways to fund in a personal email very soon.</b> Raavanaa only ever shares bank details in a personal reply from our official email. Never pay into an account sent to you any other way.</p>
-      ${x.follow ? `<p>To follow the project, <a href="${SITE}/members">sign in</a> with this email and open My account.</p>` : ""}<p>Your reference: ${ref}</p><p>With thanks,<br>Raavanaa</p>`;
+      ${x.follow ? `<p>You are following the project: we will send you every step. (Optional: <a href="${SITE}/members">make a free account</a> with this email to keep it in My account.)</p>` : ""}<p>Your reference: ${ref}</p><p>With thanks,<br>Raavanaa</p>`;
     jobs.push(sendMail(x.contact, `Thank you for your pledge, ${x.name}`, text, html, team));
   }
   if (team) {

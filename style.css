@@ -2999,3 +2999,6 @@ footer.foot .foot-links { display: inline-flex; flex-wrap: wrap; gap: 2px 14px; 
 .pl-amt-row{display:flex;flex-wrap:wrap}
 .pl-amt-row select{flex:0 0 auto}
 .pl-amt-row .pl-money{flex:1 1 190px}
+.room-tick{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#1f6a43;color:#fff;font-size:14px;margin-right:6px;vertical-align:2px}
+.room-small{font-size:13px;color:var(--muted);margin-top:6px}
+.pl-following{font-weight:700;color:#1f6a43;margin-left:10px}

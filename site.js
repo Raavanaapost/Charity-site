@@ -3158,7 +3158,7 @@ window.RAAV_FEATURES = (function () {
             <p class="pl-shows"><b>${esc(amountText)}</b> pledged by <b>${esc(show ? name : "A friend of Raavanaa")}</b> now shows on the project. It is <b>${pct}%</b> covered.</p>
             <p><b>We'll send you the ways to fund</b> ${isMail ? "by email" : "on WhatsApp"} at <b>${esc(contact)}</b>.</p>
             ${SAFE}
-            <p class="give-done-next"><a class="btn" href="/projects/${esc(slug)}">See it on the project</a>${follow ? ` <a class="btn ghost" href="/members">Follow it in My account</a>` : ""}</p>`;
+            <p class="give-done-next"><a class="btn" href="/projects/${esc(slug)}">See it on the project</a>${follow ? ` <span class="pl-following">✓ You're following it</span>` : ""}</p>`;
           f.replaceWith(box); box.focus({ preventScroll: true }); box.scrollIntoView({ block: "center", behavior: "smooth" });
         } catch (_) { say("We couldn't send that. Please check your connection and try again.", true); pay.disabled = false; }
       });
@@ -3486,8 +3486,15 @@ window.RAAV_FEATURES = (function () {
           <p class="room-btns"><a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(shareText + " " + url)}">WhatsApp</a>
           <a class="btn ghost" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}">Facebook</a>
           <button class="btn ghost" type="button" data-copy>Copy link</button></p></section>
-        <section class="room-act follow"><h3>Follow the project</h3><p>${q.get("f") ? "You asked to follow it. " : ""}Sign in with the same ${q.get("c") === "wa" ? "details" : "email"} and it stays in My account, with every step.</p>
-          <p class="room-btns"><a class="btn" href="/members">Follow in My account</a></p></section>
+        ${(() => { // Following needs no sign-in (SURESH 18 Nov: it asked him to log in again). The tick on the form already saved it.
+          let signedIn = false; try { signedIn = !!localStorage.getItem("gotrue.user"); } catch (e) { /* storage blocked */ }
+          const how = q.get("c") === "wa" ? "on WhatsApp" : "by email", same = q.get("c") === "wa" ? "the same details" : "the same email";
+          return q.get("f")
+            ? `<section class="room-act follow"><h3><span class="room-tick" aria-hidden="true">✓</span> You're following it</h3><p>Nothing more to do. We will keep you updated ${how} as the project moves.${signedIn ? " It is also in My account." : ""}</p>
+              <p class="room-btns">${signedIn ? `<a class="btn ghost" href="/members">Open My account</a>` : `<a class="btn ghost" href="/members">Optional: make a free account</a>`}</p>${signedIn ? "" : `<p class="room-small">An account with ${same} keeps all your projects in one place. You can skip it.</p>`}</section>`
+            : `<section class="room-act follow"><h3>Follow the project</h3><p>The volunteer who writes to you will keep you updated ${how}.${signedIn ? " It is also in My account." : ""}</p>
+              <p class="room-btns"><a class="btn ghost" href="/members">${signedIn ? "Open My account" : "Optional: make a free account"}</a></p></section>`;
+        })()}
         <section class="room-act helper"><h3>A volunteer is with you</h3><p>A Raavanaa volunteer will follow up with the ways to fund ${q.get("c") === "wa" ? "on WhatsApp" : "by email"}, and keep you updated as the project moves.${ref ? ` Your reference: <b>${esc(ref)}</b>.` : ""}</p></section>
       </div>
       <h2 class="room-h">What happens next</h2>
