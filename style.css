@@ -3020,7 +3020,7 @@ footer.foot .foot-links { display: inline-flex; flex-wrap: wrap; gap: 2px 14px; 
 .send-in label{display:grid;gap:5px;font-size:14px;font-weight:600}
 .send-in label small{font-weight:400;color:#6b7c72}
 .send-in input,.send-in textarea{width:100%;box-sizing:border-box;border:1px solid #d9ccab;border-radius:12px;background:#fff;color:#1d2622;padding:10px 12px;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
-.send-in textarea{resize:vertical;min-height:min(270px,38dvh);font-size:15px;line-height:1.45}
+.send-in textarea{resize:vertical;min-height:min(200px,32dvh);font-size:15px;line-height:1.45}
 .send-in input:focus,.send-in textarea:focus{outline:2px solid #c9a24a;outline-offset:1px;border-color:#c9a24a}
 .send-reset{justify-self:start;border:0;background:none;color:#1f4d3a;text-decoration:underline;font:500 13px var(--display);padding:0;cursor:pointer}
 .send-reset[hidden]{display:none}
@@ -3034,4 +3034,4 @@ footer.foot .foot-links { display: inline-flex; flex-wrap: wrap; gap: 2px 14px; 
 .send-tip{margin:0;min-height:1.2em;font-size:14px;font-weight:600;color:#1f4d3a}
 .send-tip:empty{display:none}
 .send-note{margin:0;font-size:12.5px;color:#6b7c72}
-@media (max-width:480px){.send-in{padding:18px 14px 14px;gap:10px}.send-in textarea{min-height:190px;font-size:14.5px}.send-in input{padding:9px 11px}.send-one-top{width:100%}}
+@media (max-width:480px){.send-in{padding:18px 14px 14px;gap:10px}.send-in textarea{min-height:170px;font-size:15px}.send-in input{padding:9px 11px}.send-one-top{width:100%}}

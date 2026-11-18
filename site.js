@@ -2674,7 +2674,7 @@ window.RAAV_FEATURES = (function () {
           <label><span>Your name <small>(optional)</small></span><input name="from" autocomplete="given-name" placeholder="e.g. Suresh"></label>
         </div>
         <label class="send-msg-l"><span>Your message <small>you can change any word</small></span>
-          <textarea name="msg" rows="9"></textarea></label>
+          <textarea name="msg" rows="7"></textarea></label>
         <button type="button" class="send-reset" hidden>Start the message again</button>
         <div class="send-go">
           <a class="sg sg-wa" data-go="wa" target="_blank" rel="noopener">${SHARE_ICONS.wa}<span>WhatsApp</span></a>
@@ -2703,13 +2703,11 @@ window.RAAV_FEATURES = (function () {
     };
     const f = dlg.querySelector("form"), msg = f.elements.msg, tip = dlg.querySelector(".send-tip"), reset = dlg.querySelector(".send-reset");
     let w = null, edited = false;
-    const first = s => s.trim().split(/\s+/)[0] || "";
     const build = () => {
       const to = f.elements.to.value.trim(), from = f.elements.from.value.trim();
-      const close = stageNum(p) === 3
-        ? "I thought you would like to see it."
-        : "Every rupee is shown openly on the page. No pressure at all, I just thought you would like to see it.";
-      return `${to ? `Hi ${to},` : "Hi,"}\n\nI came across this and thought of you.\n\n${w.about}\n\n${url}\n\n${close}${from ? `\n\n${from}` : ""}`;
+      // Like a text to a friend or family (SURESH, 18 Nov 2026: the first version "look so spam"):
+      // a greeting, one line about the project, the link, and their own name. No pitch, no closing line.
+      return `${to ? `Hi ${to}, saw` : "Saw"} this and thought of you.\n\n${w.about}\n\n${url}${from ? `\n\n${from}` : ""}`;
     };
     const update = () => {
       if (!edited) msg.value = build();
@@ -2721,7 +2719,7 @@ window.RAAV_FEATURES = (function () {
     f.elements.to.oninput = f.elements.from.oninput = () => {
       if (edited) { // keep their own words, but follow the names in the greeting and the sign-off
         const to = f.elements.to.value.trim();
-        msg.value = msg.value.replace(/^Hi[^\n]*,/, to ? `Hi ${to},` : "Hi,");
+        msg.value = msg.value.replace(/^(?:Hi [^,\n]*, s|S)aw /, to ? `Hi ${to}, saw ` : "Saw ");
       }
       try { localStorage.setItem("raav-send-from", f.elements.from.value.trim()); } catch (_) {}
       update();
