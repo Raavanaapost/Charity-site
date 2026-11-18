@@ -2705,9 +2705,9 @@ window.RAAV_FEATURES = (function () {
     let w = null, edited = false;
     const build = () => {
       const to = f.elements.to.value.trim(), from = f.elements.from.value.trim();
-      // Like a text to a friend or family (SURESH, 18 Nov 2026: the first version "look so spam"):
-      // a greeting, one line about the project, the link, and their own name. No pitch, no closing line.
-      return `${to ? `Hi ${to}, saw` : "Saw"} this and thought of you.\n\n${w.about}\n\n${url}${from ? `\n\n${from}` : ""}`;
+      // Plain and personal (SURESH, 18 Nov 2026: no pitch, and no "saw this and thought of you", which reads as spam):
+      // his own opening line, one line about the project, the link, and the sender's name.
+      return `${to ? `Hi ${to},` : "Hi,"} this is a project from raavanaa.org. I think you will be interested in this.\n\n${w.about}\n\n${url}${from ? `\n\n${from}` : ""}`;
     };
     const update = () => {
       if (!edited) msg.value = build();
@@ -2719,7 +2719,7 @@ window.RAAV_FEATURES = (function () {
     f.elements.to.oninput = f.elements.from.oninput = () => {
       if (edited) { // keep their own words, but follow the names in the greeting and the sign-off
         const to = f.elements.to.value.trim();
-        msg.value = msg.value.replace(/^(?:Hi [^,\n]*, s|S)aw /, to ? `Hi ${to}, saw ` : "Saw ");
+        msg.value = msg.value.replace(/^Hi[^,\n]*,/, to ? `Hi ${to},` : "Hi,");
       }
       try { localStorage.setItem("raav-send-from", f.elements.from.value.trim()); } catch (_) {}
       update();
