@@ -2862,7 +2862,6 @@ window.RAAV_FEATURES = (function () {
             </header>
             ${stageJourneyHTML(p)}
             ${p.tagline ? `<p class="psum">${esc(p.tagline)}</p>` : ""}
-            ${sendButtonHTML(p, "top")}
             <div class="hero-wrap">
               <div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.cover ? "" : "Cover photo", 1400)}</div>
             </div>
