@@ -2974,10 +2974,10 @@ body[data-page="projects"] .finder-search { padding-right: 20px; }
   .spark-band > .sb-ways { grid-area: ways; }
 }
 
-/* Footer as thin as possible (SURESH 18 Nov 2026): no green hills, links and the email in one thin strip, the
+/* Footer as thin as possible (SURESH 18 Nov 2026): curved hills kept on top, links and the email in one thin strip, the
    small print in a second thin strip under it. Same links as before. */
 footer.foot { margin-top: 18px; }
-footer.foot .foot-wave { display: none; }
+footer.foot .foot-wave { display: block; height: 22px; } /* SURESH 18 Nov: keep the curved hills on top */
 footer.foot .foot-main .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 18px; padding-block: 9px; font-size: 14px; }
 footer.foot .foot-simple { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 4px 18px; margin: 0; padding: 0; }
 footer.foot .foot-simple a { font-size: 14px; padding: 0; }
