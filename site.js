@@ -2582,7 +2582,8 @@ window.RAAV_FEATURES = (function () {
   const shareHTML = p => `
     <div class="panel share-box" data-share="${esc(slugOf(p))}">
       <h2>Share this moment</h2>
-      <p class="note">One share can bring the next sponsor. Every rupee is shown openly.</p>
+      ${sendButtonHTML(p, "box")}
+      <p class="note">Or share it more widely. One share can bring the next sponsor. Every rupee is shown openly.</p>
       <div class="share-row">
         <a class="sh sh-wa" data-sh="wa" target="_blank" rel="noopener">${SHARE_ICONS.wa}<span>WhatsApp</span></a>
         <a class="sh sh-fb" data-sh="fb" target="_blank" rel="noopener">${SHARE_ICONS.fb}<span>Facebook</span></a>
@@ -2649,6 +2650,101 @@ window.RAAV_FEATURES = (function () {
         say("Story picture saved. Post it to your Instagram story and add this page's link with the link sticker.");
       } catch (_) { say("Could not get the picture. Please try again."); }
     };
+  }
+
+  // "Send to someone": a reader thinks of one person while reading a project (SURESH, 18 Nov 2026:
+  // "a very professional neat message that he won't feel as spam"). A short, calm, personal message:
+  // their name, "I thought of you", one or two lines on the project (share.json "personal"), one link,
+  // no pressure, the sender's name. The reader can change every word before it goes. Nothing is sent
+  // by Raavanaa: it goes from the reader's own WhatsApp, email or phone.
+  const SEND_ICONS = {
+    send: shareIcon('<path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M3.5 11.2L20.5 4l-6.7 16.5-2.6-6.9z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11.2 13.6l3.6-3.6"/>'),
+    mail: shareIcon('<rect x="3" y="5.5" width="18" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.8 7l8.2 6 8.2-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>'),
+    copy: shareIcon('<rect x="8" y="8" width="12" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" fill="none" stroke="currentColor" stroke-width="2"/>')
+  };
+  const sendButtonHTML = (p, where) => p.sample ? "" : `<button type="button" class="send-one send-one-${where}" data-send-open>${SEND_ICONS.send}<span>${stageNum(p) === 1 ? "Thought of someone? Send it to them" : "Send this to someone you know"}</span></button>`;
+  const sendDialogHTML = () => `
+    <dialog class="send-dlg" aria-labelledby="send-h">
+      <form method="dialog" class="send-in">
+        <button type="submit" class="send-x" aria-label="Close">✕</button>
+        <p class="send-kick">A personal note, from you</p>
+        <h2 id="send-h">Send this to someone you have in mind</h2>
+        <div class="send-names">
+          <label>Their name <small>(optional)</small><input name="to" autocomplete="off" placeholder="e.g. Priya"></label>
+          <label>Your name <small>(optional)</small><input name="from" autocomplete="given-name" placeholder="e.g. Suresh"></label>
+        </div>
+        <label class="send-msg-l">Your message <small>you can change any word</small>
+          <textarea name="msg" rows="11"></textarea></label>
+        <button type="button" class="send-reset" hidden>Start the message again</button>
+        <div class="send-go">
+          <a class="sg sg-wa" data-go="wa" target="_blank" rel="noopener">${SHARE_ICONS.wa}<span>WhatsApp</span></a>
+          <a class="sg sg-mail" data-go="mail">${SEND_ICONS.mail}<span>Email</span></a>
+          <button type="button" class="sg sg-copy" data-go="copy">${SEND_ICONS.copy}<span>Copy message</span></button>
+          <button type="button" class="sg sg-more" data-go="more" hidden>${SHARE_ICONS.more}<span>Other apps</span></button>
+        </div>
+        <p class="send-tip" role="status"></p>
+        <p class="send-note">Raavanaa never sends anything or keeps their name. It goes from your phone, to them.</p>
+      </form>
+    </dialog>`;
+  async function wireSend(root, p) {
+    const opens = root.querySelectorAll("[data-send-open]");
+    if (!opens.length) return;
+    let dlg = document.querySelector(".send-dlg");
+    if (!dlg) { document.body.insertAdjacentHTML("beforeend", sendDialogHTML()); dlg = document.querySelector(".send-dlg"); }
+    const slug = slugOf(p), url = `${location.origin}/projects/${slug}`;
+    let data = null;
+    const words = async () => {
+      if (!data) { try { data = await (await fetch("/share.json")).json(); } catch (_) { data = {}; } }
+      const own = (data.projects || {})[slug] || {};
+      return {
+        about: own.personal || p.tagline || `${p.title}. ${(data.default || {}).personal || ""}`.trim(),
+        subject: own.subject || (data.default || {}).subject || "Thought you might like to see this"
+      };
+    };
+    const f = dlg.querySelector("form"), msg = f.elements.msg, tip = dlg.querySelector(".send-tip"), reset = dlg.querySelector(".send-reset");
+    let w = null, edited = false;
+    const first = s => s.trim().split(/\s+/)[0] || "";
+    const build = () => {
+      const to = f.elements.to.value.trim(), from = f.elements.from.value.trim();
+      const close = stageNum(p) === 3
+        ? "I thought you would like to see it."
+        : "It is run by volunteers and every rupee is shown openly. No pressure at all, I just thought you would like to see it.";
+      return `${to ? `Hi ${to},` : "Hi,"}\n\nI came across this and thought of you.\n\n${w.about}\n\n${url}\n\n${close}${from ? `\n\n${from}` : ""}`;
+    };
+    const update = () => {
+      if (!edited) msg.value = build();
+      const enc = encodeURIComponent, text = msg.value;
+      dlg.querySelector('[data-go="wa"]').href = `https://wa.me/?text=${enc(text)}`;
+      dlg.querySelector('[data-go="mail"]').href = `mailto:?subject=${enc(w.subject)}&body=${enc(text)}`;
+    };
+    const say = t => { tip.textContent = t; };
+    f.elements.to.oninput = f.elements.from.oninput = () => {
+      if (edited) { // keep their own words, but follow the names in the greeting and the sign-off
+        const to = f.elements.to.value.trim();
+        msg.value = msg.value.replace(/^Hi[^\n]*,/, to ? `Hi ${to},` : "Hi,");
+      }
+      try { localStorage.setItem("raav-send-from", f.elements.from.value.trim()); } catch (_) {}
+      update();
+    };
+    msg.oninput = () => { edited = true; reset.hidden = false; update(); };
+    reset.onclick = () => { edited = false; reset.hidden = true; update(); msg.focus(); };
+    const more = dlg.querySelector('[data-go="more"]');
+    if (navigator.share) { more.hidden = false; more.onclick = () => navigator.share({ text: msg.value }).catch(() => {}); }
+    dlg.querySelector('[data-go="copy"]').onclick = async () => {
+      try { await navigator.clipboard.writeText(msg.value); say("Message copied. Paste it into any chat or email."); }
+      catch (_) { msg.select(); say("Select the message and copy it."); }
+    };
+    dlg.querySelector('[data-go="wa"]').onclick = () => say("WhatsApp opens: pick the person, and the message is ready to send.");
+    dlg.querySelector('[data-go="mail"]').onclick = () => say("Your email app opens with the message. Add their email address and send.");
+    dlg.onclick = e => { if (e.target === dlg) dlg.close(); };
+    opens.forEach(b => b.onclick = async () => {
+      w = await words();
+      edited = false; reset.hidden = true; say("");
+      try { if (!f.elements.from.value) f.elements.from.value = localStorage.getItem("raav-send-from") || ""; } catch (_) {}
+      update();
+      dlg.showModal();
+      if (!matchMedia("(pointer:coarse)").matches) f.elements.to.focus();
+    });
   }
 
   // Project page: a small picture of the three stages, the same circles and words as on Home, with this
@@ -2768,6 +2864,7 @@ window.RAAV_FEATURES = (function () {
             </header>
             ${stageJourneyHTML(p)}
             ${p.tagline ? `<p class="psum">${esc(p.tagline)}</p>` : ""}
+            ${sendButtonHTML(p, "top")}
             <div class="hero-wrap">
               <div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.cover ? "" : "Cover photo", 1400)}</div>
             </div>
@@ -2795,6 +2892,7 @@ window.RAAV_FEATURES = (function () {
       wireDonate(app, slugOf(p));
       wireGlance(app);
       wireShare(app);
+      wireSend(app, p);
       app.querySelectorAll("[data-fund]").forEach(b => b.addEventListener("click", () => {
         const g = [...app.querySelectorAll(".go100")].find(x => x.offsetParent !== null); if (!g) return;
         const open = g.querySelector(".go-open"); if (open && open.getAttribute("aria-expanded") !== "true") open.click();
