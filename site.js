@@ -2670,11 +2670,11 @@ window.RAAV_FEATURES = (function () {
         <p class="send-kick">A personal note, from you</p>
         <h2 id="send-h">Send this to someone you have in mind</h2>
         <div class="send-names">
-          <label>Their name <small>(optional)</small><input name="to" autocomplete="off" placeholder="e.g. Priya"></label>
-          <label>Your name <small>(optional)</small><input name="from" autocomplete="given-name" placeholder="e.g. Suresh"></label>
+          <label><span>Their name <small>(optional)</small></span><input name="to" autocomplete="off" placeholder="e.g. Priya"></label>
+          <label><span>Your name <small>(optional)</small></span><input name="from" autocomplete="given-name" placeholder="e.g. Suresh"></label>
         </div>
-        <label class="send-msg-l">Your message <small>you can change any word</small>
-          <textarea name="msg" rows="11"></textarea></label>
+        <label class="send-msg-l"><span>Your message <small>you can change any word</small></span>
+          <textarea name="msg" rows="9"></textarea></label>
         <button type="button" class="send-reset" hidden>Start the message again</button>
         <div class="send-go">
           <a class="sg sg-wa" data-go="wa" target="_blank" rel="noopener">${SHARE_ICONS.wa}<span>WhatsApp</span></a>
@@ -2683,7 +2683,7 @@ window.RAAV_FEATURES = (function () {
           <button type="button" class="sg sg-more" data-go="more" hidden>${SHARE_ICONS.more}<span>Other apps</span></button>
         </div>
         <p class="send-tip" role="status"></p>
-        <p class="send-note">Raavanaa never sends anything or keeps their name. It goes from your phone, to them.</p>
+        <p class="send-note">Raavanaa never sends anything or keeps their name. It goes from you, to them.</p>
       </form>
     </dialog>`;
   async function wireSend(root, p) {
@@ -2708,7 +2708,7 @@ window.RAAV_FEATURES = (function () {
       const to = f.elements.to.value.trim(), from = f.elements.from.value.trim();
       const close = stageNum(p) === 3
         ? "I thought you would like to see it."
-        : "It is run by volunteers and every rupee is shown openly. No pressure at all, I just thought you would like to see it.";
+        : "Every rupee is shown openly on the page. No pressure at all, I just thought you would like to see it.";
       return `${to ? `Hi ${to},` : "Hi,"}\n\nI came across this and thought of you.\n\n${w.about}\n\n${url}\n\n${close}${from ? `\n\n${from}` : ""}`;
     };
     const update = () => {
