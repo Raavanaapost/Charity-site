@@ -1,11 +1,13 @@
 {
- "_about": "Words and pictures used when a project page is shared on WhatsApp, Facebook, Instagram or X. No children's names, no school or home names (SURESH, 9 Nov 2026). \"reach\" (optional) is who the day is for, without the name of a school or home, for the project list on /moment. A project not listed here shares with the default words. Share pictures are made by: node tools/share-cards.mjs",
+ "_about": "Words and pictures used when a project page is shared on WhatsApp, Facebook, Instagram or X. No children's names, no school or home names (SURESH, 9 Nov 2026). \"reach\" (optional) is who the day is for, without the name of a school or home, for the project list on /moment. A project not listed here shares with the default words. Share pictures are made by: node tools/share-cards.mjs \"personal\" and \"subject\" are the words for the personal message a reader sends to one person they have in mind (Send to someone, 18 Nov 2026): what the project is, in one plain line (no pitch). The message opens \"Hi <name>, this is a project from raavanaa.org. I think you will be interested in this.\" (SURESH, 18 Nov 2026).",
  "default": {
   "title": "Make a moment happen for children in Sri Lanka",
   "text": "A day of joy for children, made to happen from your phone. Every rupee is shown openly.",
   "title_ta": "இலங்கைக் குழந்தைகளுக்கு ஒரு மகிழ்ச்சியான நாளை உருவாக்குங்கள்",
   "text_ta": "உங்கள் கைபேசியிலிருந்தே குழந்தைகளுக்கு ஒரு மகிழ்ச்சியான நாள். ஒவ்வொரு ரூபாயும் வெளிப்படையாகக் காட்டப்படும்.",
-  "art": "/img/project-hills.svg"
+  "art": "/img/project-hills.svg",
+  "personal": "Volunteers make days out happen for children in Sri Lanka.",
+  "subject": "A project on raavanaa.org"
  },
  "projects": {
   "pussellawa-kandy-trip": {
@@ -13,21 +15,27 @@
    "text": "They have never been on a school trip. On Friday 27 November they hope to visit the Temple of the Tooth and the Peradeniya Gardens. Help make it happen.",
    "title_ta": "முதல் பள்ளிச் சுற்றுலா: புசல்லாவையின் 52 குழந்தைகள் கண்டியைப் பார்க்க ஆசைப்படுகிறார்கள்",
    "text_ta": "இவர்கள் இதுவரை ஒரு பள்ளிச் சுற்றுலாவும் சென்றதில்லை. நவம்பர் 27 வெள்ளிக்கிழமை தலதா மாளிகையையும் பேராதனைப் பூங்காவையும் பார்க்க ஆசைப்படுகிறார்கள். இதை நடத்த உதவுங்கள்.",
-   "art": "/img/project-kandy.svg"
+   "art": "/img/project-kandy.svg",
+   "personal": "52 children at a small school in the hills of Sri Lanka have never been on a school trip. They hope to visit Kandy on 27 November.",
+   "subject": "A project on raavanaa.org"
   },
   "pussellawa-kids-trip": {
    "title": "A day at Hanuman Kovil for the children of Pussellawa",
    "text": "Running on the lawn, dancing together and looking out over the hills. Every rupee went to the day: Rs 19,250 for transport and food.",
    "title_ta": "புசல்லாவைக் குழந்தைகளுக்கு அனுமான் கோவிலில் ஒரு நாள்",
    "text_ta": "புல்வெளியில் ஓடி, ஒன்றாக ஆடி, மலைகளைப் பார்த்து மகிழ்ந்த நாள். ஒவ்வொரு ரூபாயும் அந்த நாளுக்கே: போக்குவரத்துக்கும் உணவுக்கும் ரூ 19,250.",
-   "art": "/img/project-hills.svg"
+   "art": "/img/project-hills.svg",
+   "personal": "Children from the hills of Sri Lanka had a day out at Hanuman Kovil. The page shows where every rupee went.",
+   "subject": "A project on raavanaa.org"
   },
   "yogapuram-preschool-day": {
    "title": "17 little ones from Yogapuram see the Black Bridge",
    "text": "A pre-school day out by bus: the old Black Bridge, a temple visit, ice cream, dancing and playing in the river.",
    "title_ta": "யோகபுரத்தின் 17 சிறுவர்கள் கறுப்புப் பாலத்தைப் பார்த்த நாள்",
    "text_ta": "பேருந்தில் ஒரு முன்பள்ளிச் சுற்றுலா: பழைய கறுப்புப் பாலம், கோவில் தரிசனம், ஐஸ்கிரீம், ஆட்டம், ஆற்றில் விளையாட்டு.",
-   "art": "/img/members-bridge-thumb.webp"
+   "art": "/img/members-bridge-thumb.webp",
+   "personal": "17 pre-school children from Yogapuram had a day out at the old Black Bridge.",
+   "subject": "A project on raavanaa.org"
   },
   "bowling-day": {
    "title": "A bowling day out for special-needs children",
@@ -36,7 +44,18 @@
    "text_ta": "விசேட தேவையுடைய குழந்தைகளுக்கு பௌலிங் அரங்கில் முதல் நாள்: ஒன்றாக ஆரவாரித்து, சிரித்து, பந்தை உருட்டி மகிழும் நாள்.",
    "art": "/img/project-bowling.svg",
    "reach": "Special-needs children",
-   "reach_ta": "விசேட தேவையுடைய குழந்தைகள்"
+   "reach_ta": "விசேட தேவையுடைய குழந்தைகள்",
+   "personal": "A group of children with special needs in Sri Lanka hope to have a day out together.",
+   "subject": "A project on raavanaa.org"
+  },
+  "arcade-trip": {
+   "title": "An afternoon of games for children who rarely get a day of fun",
+   "text": "Games, lights and little prizes: an afternoon at the arcade for children growing up in a children's home in Sri Lanka.",
+   "title_ta": "அரிதாகவே மகிழ்ச்சி நாள் காணும் குழந்தைகளுக்கு ஒரு விளையாட்டு மதியம்",
+   "text_ta": "விளையாட்டுகள், விளக்குகள், சிறு பரிசுகள்: இலங்கையில் ஒரு சிறுவர் இல்லத்தில் வளரும் குழந்தைகளுக்கு ஆர்கேட்டில் ஒரு மதியம்.",
+   "art": "/img/project-arcade.svg",
+   "personal": "Children growing up in a children's home in Sri Lanka hope to have an afternoon of games at the arcade.",
+   "subject": "A project on raavanaa.org"
   }
  },
  "vouch": {
