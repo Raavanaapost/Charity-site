@@ -39,6 +39,7 @@ const $app = document.getElementById("app"), $nav = document.getElementById("top
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const val = id => document.getElementById(id).value.trim();
 const LOADING = `<p class="muted loading-msg">Loading…</p>`;
+const KM = window.KidMode || null;
 let sb = null, user = null, roles = { teacher:false, family:false, admin:false };
 
 /* ---------- addresses ---------- */
@@ -103,6 +104,12 @@ async function init(){
   const { data } = await sb.auth.getSession();
   user = data.session?.user || null;
   await loadRoles();
+  // Kid mode (kidmode.js): a parent hands the phone to a child; only that child's practice and notes stay open.
+  KM?.init({ appName: "Gurushishya", storageKey: "gs.kid", home: "/practice",
+    allow: p => /^\/practice(\/notes)?\/?$/.test(p) || (!user && /^\/signin\/?$/.test(p)),
+    navigate: p => go(p), onChange: () => go("/practice"),
+    verifyParent: async pw => !!user?.email && !(await sb.auth.signInWithPassword({ email: user.email, password: pw })).error,
+    hide: ["#topnav", ".foot-brand"] });
   // Run our follow-up work after the sign-in library has finished its own step (Supabase's advice, avoids stalls).
   sb.auth.onAuthStateChange((e, s) => setTimeout(async () => {
     const was = user?.id; user = s?.user || null;
@@ -139,6 +146,7 @@ const isHome = () => onRoot() && !/^\/(g|join|consent|register|signin|me|teacher
 
 function route(){
   if (!sb) return;
+  if (KM?.active() && !KM.guard()) return;
   clearInterval(poll); setTheme(isHome()); document.title = "Gurushishya";
   renderNav(); scrollTo(0,0);
   const p = location.pathname, hs = hostSlug();
@@ -659,7 +667,7 @@ async function whoPicker(people, enrols, ses){
     return { n: daysSince.filter(d => mine.some(l => l.day === d)).length, m: mine.filter(l => l.day >= ymd(ws)).reduce((a, l) => a + (l.minutes || 0), 0), today: mine.some(l => l.day === tk), classDay: t0.getDay() === k.day_of_week }; };
   $app.innerHTML = `
     <section class="who-head"><img class="dash-mark" src="/assets/gs-emblem.png" alt="" width="240" height="134">
-      <div><span class="eyebrow">Practice</span><h1 class="page-h">Who's practising?</h1><p class="muted m0">Tap your name to start.</p></div></section>
+      <div><span class="eyebrow">Practice</span><h1 class="page-h">Who's practising?</h1><p class="muted m0">Tap your name to start. Handing the phone to a child? Tap their name, then <strong>Kid mode</strong>.</p></div></section>
     <div class="who-grid">${people.map(p => `<button type="button" class="who-card" data-who="${esc(p.key)}">${avatar(p.name, 72)}<strong>${esc(p.name)}</strong>
         <span class="who-cls">${p.enrols.map(e => { const w = weekOf(e); return `<span>${esc(e.classes.name)} · ${w.today ? "✓ done today" : w.classDay ? "class today" : "not yet today"}</span>`; }).join("")}</span></button>`).join("")}</div>
     <section class="card"><h2>This week, for parents</h2>
@@ -690,9 +698,11 @@ async function viewDesk(tab = ""){
   enrols.forEach(r => { const key = r.first_name.trim().toLowerCase(); let p = people.find(x => x.key === key); if (!p) people.push(p = { key, name: r.first_name.trim(), enrols: [] }); p.enrols.push(r); });
   // Families with more than one child: "Who's practising?" first, so a parent can hand the phone to a child.
   const ses = { get: k2 => { try { return sessionStorage.getItem(k2); } catch (e) { return null; } }, set: (k2, v) => { try { sessionStorage.setItem(k2, v); } catch (e) {} } };
-  if (people.length > 1 && (tab === "who" || (tab === "" && !ses.get("gs.who")))) return whoPicker(people, enrols, ses);
-  if (tab === "who") tab = "";
+  const kid = KM?.active() ? people.find(p => p.key === KM.who().key) || null : null;
+  if (!kid && people.length > 1 && (tab === "who" || (tab === "" && !ses.get("gs.who")))) return whoPicker(people, enrols, ses);
+  if (tab === "who" || (kid && tab === "chat")) tab = "";
   let cur = enrols.find(r => r.id === store.get("riyaz.enrol")) || enrols[0];
+  if (kid && !kid.enrols.includes(cur)) cur = kid.enrols[0];
   const person = people.find(p => p.enrols.includes(cur));
   store.set("riyaz.enrol", cur.id);
   const k = cur.classes, g = k.groups || {};
@@ -717,14 +727,16 @@ async function viewDesk(tab = ""){
       <div class="row" style="gap:12px;flex-wrap:nowrap">${avatar(person.name, 56)}
         <div style="min-width:0"><h1 class="page-h">${esc(person.name)}</h1>
           <span class="muted">${st ? `${st}-day streak · ` : ""}${fmtMins(monthMins)} this month</span></div></div>
-      ${people.length > 1 ? `<div class="row who-switch"><span class="hint">Not ${esc(person.name)}?</span>${link("/practice/who", "Switch person", "btn small ghost")}</div>` : ""}
+      <div class="row who-switch" data-kid-hide>${people.length > 1 ? `<span class="hint">Not ${esc(person.name)}?</span>${link("/practice/who", "Switch person", "btn small ghost")}` : ""}
+        ${KM ? `<button class="btn small" type="button" id="kid-go">${ICO.lock}<span>Kid mode</span></button>` : ""}</div>
     </section>
     ${person.enrols.length > 1 ? `<div class="chips" role="group" aria-label="Choose a class">${person.enrols.map(e => `<button type="button" class="chip" data-enrol="${e.id}" aria-pressed="${e === cur}">${esc(e.classes.name)}</button>`).join("")}</div>` : ""}
     <p class="muted m0 cls-line"><strong>${esc(k.name)}</strong> · ${esc(g.name)} with ${esc(g.teacher_name)}</p>
-    ${tabsNav([["/practice", "Practice"], ["/practice/notes", "Homework & notes", newPosts], ["/practice/chat", "Chat", unread]], "/practice" + (tab ? "/" + tab : ""), "Student menu")}
+    ${tabsNav([["/practice", "Practice"], ["/practice/notes", "Homework & notes", newPosts]].concat(kid ? [] : [["/practice/chat", "Chat", unread]]), "/practice" + (tab ? "/" + tab : ""), "Student menu")}
     <div id="pane"></div>`;
   $app.querySelectorAll("[data-person]").forEach(b => b.onclick = () => { const p = people.find(x => x.key === b.dataset.person); store.set("riyaz.enrol", p.enrols[0].id); viewDesk(tab); });
   $app.querySelectorAll("[data-enrol]").forEach(b => b.onclick = () => { store.set("riyaz.enrol", b.dataset.enrol); viewDesk(tab); });
+  const kg = document.getElementById("kid-go"); if (kg) kg.onclick = () => KM.start({ name: person.name, key: person.key });
   const pane = document.getElementById("pane");
 
   if (tab === "notes") {
@@ -756,7 +768,7 @@ async function viewDesk(tab = ""){
     <section class="practice">
       <span class="eyebrow light">This week's practice · goal ${goal} min a day</span>
       <p class="task-title">${task ? esc(task.title) : "Practise what you learned in class."}</p>
-      ${task?.demo_url ? `<a class="demo" href="${esc(task.demo_url)}" target="_blank" rel="noopener">Watch the demo</a>` : ""}
+      ${task?.demo_url ? `<a class="demo" data-kid-hide href="${esc(task.demo_url)}" target="_blank" rel="noopener">Watch the demo</a>` : ""}
       <div class="ring-wrap">
         <svg class="ring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" class="ring-bg"/><circle cx="60" cy="60" r="52" class="ring-fg" id="ring" stroke-dasharray="326.7" stroke-dashoffset="326.7" transform="rotate(-90 60 60)"/></svg>
         <div class="ring-text"><span class="clock" id="clock">0:00</span><span class="hint light" id="goal-txt">of ${goal} min</span></div>
@@ -769,15 +781,15 @@ async function viewDesk(tab = ""){
       <div class="week">${days.map((d, i) => { const key = ymd(d), on = done.has(key), m = minsOn(key);
         if (i === 0) return `<div class="day class"><span>${SHORT[d.getDay()]}</span><b>${d.getDate()}</b><small>Class</small></div>`;
         return `<button type="button" class="day${on ? " done" : ""}${+d === +t0 ? " today" : ""}" data-day="${key}" ${d > t0 ? "disabled" : ""} aria-pressed="${on}" aria-label="${DAYS[d.getDay()]} ${d.getDate()}${on ? `, practised ${m} minutes` : ""}"><span>${SHORT[d.getDay()]}</span><b>${d.getDate()}</b><small>${on ? (m ? m + "m" : "✓") : ""}</small></button>`; }).join("")}</div>
-      <p class="hint m0">${todayLog ? `Today: ${fmtMins(todayLog.minutes || 0)}${todayLog.sessions > 1 ? ` in ${todayLog.sessions} sessions` : ""}.` : "Not practised yet today."} Forgot to time it? Tap a day to tick it.</p>
-      <details><summary>Add time I practised without the timer</summary>
+      <p class="hint m0">${todayLog ? `Today: ${fmtMins(todayLog.minutes || 0)}${todayLog.sessions > 1 ? ` in ${todayLog.sessions} sessions` : ""}.` : "Not practised yet today."} <span data-kid-hide>Forgot to time it? Tap a day to tick it.</span></p>
+      <details data-kid-hide><summary>Add time I practised without the timer</summary>
         <form id="addm" class="row" style="margin-top:10px;align-items:flex-end">
           <label for="addm-day">Day<select id="addm-day">${Array.from({ length: 7 }, (_, i) => addDays(t0, -i)).map((d, i) => `<option value="${ymd(d)}">${i === 0 ? "Today" : i === 1 ? "Yesterday" : shortDate(d)}</option>`).join("")}</select></label>
           <label for="addm-min">Minutes<input id="addm-min" type="number" min="1" max="300" value="${goal}" required style="width:110px"></label>
           <button class="btn small" type="submit">Add</button></form></details>
     </section>
     ${latestHw ? `<section class="card"><div class="row between"><h2>Latest homework</h2>${link("/practice/notes", "All notes", "btn small ghost")}</div><p class="m0" style="white-space:pre-line">${esc(latestHw.body)}</p></section>` : ""}
-    <section class="card">${url && classOpenNow(k) ? `<a class="btn big teal" href="${esc(url)}" target="_blank" rel="noopener">Join online class now</a>`
+    <section class="card">${url && classOpenNow(k) ? `<a class="btn big teal" data-kid-allow href="${esc(url)}" target="_blank" rel="noopener">Join online class now</a>`
       : `<p class="m0"><strong>Next class:</strong> ${nextClassText(k)}${url ? `<br><span class="hint">The Join button appears here 10 minutes before class.</span>` : ""}</p>`}</section>`;
 
   const out = document.getElementById("p-out"), goBtn = document.getElementById("go"), cancel = document.getElementById("cancel");
@@ -843,6 +855,7 @@ async function viewDesk(tab = ""){
   document.addEventListener("visibilitychange", onVis); window.addEventListener("blur", away); window.addEventListener("pagehide", away);
   paint();
   pane.querySelectorAll("[data-day]").forEach(b => b.onclick = async () => {
+    if (KM?.active()) return;                      // in Kid mode only the timer counts
     const key = b.dataset.day;
     const r = done.has(key) ? await sb.from("practice_logs").delete().eq("student_id", cur.id).eq("day", key)
                             : await sb.rpc("add_practice", { student: cur.id, mins: 0, on_day: key });
@@ -1051,6 +1064,7 @@ const ICO = {
   door: svg(`<path d="M5 20.5V9a7 7 0 0 1 14 0v11.5"/><path d="M3 20.5h18M12 13v3"/>`),
   note: svg(`<path d="M5 4.5h14v11l-4.5 4H5z"/><path d="M14.5 19.5v-4H19M8.5 9h7M8.5 12.5h4"/>`),
   lotus: svg(`<path d="M12 5c2.4 2.8 2.4 6.6 0 9.6-2.4-3-2.4-6.8 0-9.6z"/><path d="M12 14.6c-3.8 0-7-1.9-8.7-5.2 3.8 0 7 1.9 8.7 5.2zm0 0c3.8 0 7-1.9 8.7-5.2-3.8 0-7 1.9-8.7 5.2zM5 18h14"/>`),
+  lock: svg(`<rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2.5"/>`),
   video: svg(`<rect x="2.5" y="6.5" width="13" height="11" rx="2.5"/><path d="m15.5 10.5 6-3.5v10l-6-3.5"/>`),
   people: IC.people, calendar: IC.calendar
 };

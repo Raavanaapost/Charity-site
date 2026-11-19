@@ -26,6 +26,7 @@
 - [ ] Parents need Google sign-in or the email service switched on (see Switch on) before they can finish registering
 
 ## Next features
+- [x] Kid mode: parent PIN locks the app to one child's practice and notes (plugin: kidmode.js, notes in KIDMODE.md, branch kid-mode)
 - [x] Practice timer only runs while the practice screen is open (pauses when the student leaves)
 - [ ] Gurushishya sends consent and join requests itself (email first, then text/WhatsApp), instead of from the teacher's phone
 - [ ] Photos or PDFs on class notes and homework
