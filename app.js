@@ -193,22 +193,22 @@ function viewSetup(){
    Everything else is inside after sign-in. */
 const LOTUS = `<svg class="gs-lotus" viewBox="0 0 48 22" aria-hidden="true"><path d="M24 2c4.2 5 4.2 11.5 0 17-4.2-5.5-4.2-12 0-17zM24 19c-6.5 0-12-3.2-15-9 6.5 0 12 3.2 15 9zm0 0c6.5 0 12-3.2 15-9-6.5 0-12 3.2-15 9z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
 const GS_WAYS = [
-  ["Learn", "Your guru shares lessons, class notes and homework in one place.",
+  ["Learn", "Your teacher shares lessons, class notes and homework in one place.",
     `<path d="M3 5.5C6 4 9 4 12 6c3-2 6-2 9-.5V19c-3-1.5-6-1.5-9 .5-3-2-6-2-9-.5z"/><path d="M12 6v13.5"/>`],
   ["Practise Daily", "A few minutes every day. Press Start, practise, press Stop.",
     `<path d="M12 3c2.2 2.6 2.2 4.8 0 6.6-2.2-1.8-2.2-4 0-6.6z"/><path d="M3.5 12.5h17c-.9 4.3-4.3 7-8.5 7s-7.6-2.7-8.5-7z"/><path d="M20.5 12.5 22 11"/>`],
-  ["Progress", "Gurus and families watch the practice add up, week by week.",
+  ["Progress", "Teachers and families see the improvement, week by week.",
     `<path d="M3 20h5v-5h5v-5h5V5h3"/><path d="M17.5 5H21v3.5"/>`]
 ];
 function viewHomeSimple(){
-  document.title = "Gurushishya · Connecting gurus and students";
+  document.title = "Gurushishya · Learn, practise and improve";
   const studentHref = roles.family ? "/practice" : "/signin?next=/practice";
   $app.innerHTML = `
   <section class="gs2-hero" aria-labelledby="h-title">
     <div class="wrap gs2-hero-in">
       <div class="gs2-intro">
         <h1 id="h-title" class="gs2-logo"><img src="/assets/gs-logo.png" alt="Gurushishya" width="880" height="520"></h1>
-        <p class="gs2-tag">Connecting Gurus and Students</p>
+        <p class="gs2-tag">A simple way to learn, practise and improve</p>
         <div class="gs2-orn">${LOTUS}</div>
         <p class="gs2-lead">One simple platform for teachers and students.</p>
         <div class="gs2-ctas">${link("/teacher", `${IC.teacher}<span>I'm a Teacher</span>${IC.chev}`, "gs2-btn maroon")}${link(studentHref, `${IC.student}<span>I'm a Student</span>${IC.chev}`, "gs2-btn ivory")}</div>
@@ -222,7 +222,7 @@ function viewHomeSimple(){
     <img class="gs2-about-glow" src="/assets/gs-glow.jpg" alt="" width="540" height="281">
     <span class="gs2-eyebrow">About us</span>
     <h2 class="gs2-motto">A Digital Kalai Koodam for the Modern Learner</h2>
-    <p>Gurushishya brings the timeless bond between guru and student online. Gurus guide, students practise a little every day, and both can see the progress.</p>
+    <p>Gurushishya is a simple system for learning and steady improvement. Teachers guide, students practise a little every day, and everyone can see the progress.</p>
     <p>Teachers and students sign in to find their classes, practice, notes and messages.</p>
   </div></section>`;
 }
@@ -461,10 +461,15 @@ function viewSignIn(){
   const next = safeNext();
   if (user) return redirect(next);
   const b = signInBlock(next);
-  $app.innerHTML = `<section class="card narrow"><span class="eyebrow">Welcome to Gurushishya</span><h1 class="page-h">Sign in</h1>
-    <p class="muted m0">Teachers sign in or create an account here. Students and families use the link their teacher sends.</p>${b.html}
-    <p class="hint m0">No password yet? Use "Email me a sign-in link" once, then set a password under Account.</p></section>`;
+  const student = /^\/practice/.test(next), teacher = /^\/(teacher|admin)/.test(next);
+  $app.innerHTML = `<section class="card narrow"><span class="eyebrow">Welcome to Gurushishya</span><h1 class="page-h">${student ? "Student sign in" : teacher ? "Teacher sign in" : "Sign in"}</h1>
+    <p class="muted m0">${student
+      ? "Students and parents sign in here with the email and password they chose when registering. Not registered yet? Open the registration link your teacher sent you."
+      : teacher ? "Teachers sign in or create an account here."
+      : "Sign in with your email and password. Teachers can create an account here. Students and parents register with the link their teacher sent."}</p>${b.html}
+    <p class="hint m0">${student ? `Are you a teacher? ${link("/signin?next=/teacher", "Teacher sign in", "inline-link")}` : `Are you a student or parent? ${link("/signin?next=/practice", "Student sign in", "inline-link")}`}</p></section>`;
   b.wire();
+  if (student) { const su = document.querySelector('#si-alt [data-m="signup"]'); if (su) su.hidden = true; }
 }
 /* Account: set or change the password (also where "Forgot password?" links land) */
 function viewAccount(){

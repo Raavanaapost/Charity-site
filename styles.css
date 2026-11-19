@@ -620,3 +620,4 @@ table.fam .pill,table.fam td.num{white-space:nowrap}
 .t-chip.paused{background:#5f5048}.t-chip.paused .t-dot{animation:none;background:#cfc4b6}
 @keyframes tpulse{50%{opacity:.35}}
 @media (prefers-reduced-motion:reduce){.t-dot{animation:none}}
+.inline-link{color:var(--maroon);font-weight:700}
