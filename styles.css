@@ -613,3 +613,10 @@ table.fam tbody th{font-family:var(--display);color:var(--maroon)}
 @media (prefers-reduced-motion:reduce){.who-card{transition:none}.who-card:hover{transform:none}}
 .sel-bar .btn:not(.danger-solid):not(.ghost){background:#fff7ea;color:var(--maroon)}
 table.fam .pill,table.fam td.num{white-space:nowrap}
+.t-chip{position:sticky;top:8px;z-index:5;display:flex;align-items:center;gap:10px;padding:8px 8px 8px 14px;border-radius:999px;background:var(--maroon);color:#fff7ea;font-weight:700;box-shadow:0 6px 18px rgba(60,12,8,.25)}
+.t-chip > span:nth-child(2){flex:1;min-width:0}
+.t-chip .btn{margin:0;background:#fff7ea;color:var(--maroon)}
+.t-dot{width:10px;height:10px;border-radius:50%;background:var(--gold-l);animation:tpulse 1.4s ease-in-out infinite}
+.t-chip.paused{background:#5f5048}.t-chip.paused .t-dot{animation:none;background:#cfc4b6}
+@keyframes tpulse{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.t-dot{animation:none}}

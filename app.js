@@ -656,6 +656,36 @@ function nextClassText(k){
 }
 const FLAME = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"/></svg>`;
 
+/* A running practice timer stays alive while the student moves between Practice, Homework & notes and Chat.
+   It still pauses when they leave Gurushishya (another app, tab or window) or go to a page outside /practice. */
+let liveTK = null, liveInt = null;
+const tGet = TK => { try { const t = JSON.parse(store.get(TK) || "null"); return t && typeof t === "object" ? t : null; } catch (e) { return null; } };
+const tSecs = t => !t ? 0 : Math.floor((t.acc + (t.start ? Date.now() - t.start : 0)) / 1000);
+function livePause(TK){ const t = tGet(TK); if (t && t.start) { t.acc += Date.now() - t.start; t.start = null; t.paused = true; store.set(TK, JSON.stringify(t)); try { wake?.release(); } catch (e) {} } }
+function liveTimer(TK){
+  liveTK = TK; clearInterval(liveInt);
+  liveInt = setInterval(() => {
+    const t = tGet(TK); if (!t || !t.start) { clearInterval(liveInt); return; }
+    if (!/^\/practice(\/|$)/.test(location.pathname)) { livePause(TK); clearInterval(liveInt); return; }
+    t.beat = Date.now(); store.set(TK, JSON.stringify(t));
+  }, 1000);
+}
+const liveAway = () => { if (liveTK && !document.getElementById("clock")) { livePause(liveTK); const c = document.getElementById("t-chip"); if (c) c.dispatchEvent(new Event("repaint")); } };
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") liveAway(); });
+addEventListener("blur", liveAway); addEventListener("pagehide", liveAway);
+/* The small timer strip shown on the notes and chat tabs */
+function timerChip(pane, TK){
+  let t = tGet(TK); if (!t) return;
+  if (t.start && Date.now() - (t.beat || t.start) > 5000) { t.acc += Math.max(0, (t.beat || t.start) - t.start); t.start = null; t.paused = true; store.set(TK, JSON.stringify(t)); }
+  const el = document.createElement("div"); el.id = "t-chip"; el.className = "t-chip"; el.setAttribute("role", "status"); pane.before(el);
+  const paint = () => { t = tGet(TK); if (!t) { el.remove(); return; }
+    el.classList.toggle("paused", !t.start);
+    el.innerHTML = `<span class="t-dot" aria-hidden="true"></span><span>${t.start ? "Practising" : "Timer paused"} · <strong>${mmss(tSecs(t))}</strong></span>${link("/practice", t.start ? "Back to timer" : "Resume on timer", "btn tiny")}`; };
+  el.addEventListener("repaint", paint);
+  if (t.start) { liveTimer(TK); keepAwake(); }
+  const iv = setInterval(() => { if (!el.isConnected) { clearInterval(iv); return; } paint(); }, 1000); paint();
+}
+
 /* "Who's practising?" — one card per child (or adult) on this account, with each of their classes this week */
 async function whoPicker(people, enrols, ses){
   document.title = "Who's practising? · Gurushishya";
@@ -738,6 +768,9 @@ async function viewDesk(tab = ""){
   $app.querySelectorAll("[data-enrol]").forEach(b => b.onclick = () => { store.set("riyaz.enrol", b.dataset.enrol); viewDesk(tab); });
   const kg = document.getElementById("kid-go"); if (kg) kg.onclick = () => KM.start({ name: person.name, key: person.key });
   const pane = document.getElementById("pane");
+  const TKc = "riyaz.timer." + cur.id;
+  if (liveTK && liveTK !== TKc) livePause(liveTK);          // switched class or person: the other timer pauses
+  if (tab) timerChip(pane, TKc);
 
   if (tab === "notes") {
     let filter = "all";
@@ -805,14 +838,14 @@ async function viewDesk(tab = ""){
   const elapsed = t => !t ? 0 : t.acc + (t.start ? Date.now() - t.start : 0);
   let T = read();
   if (T && T.acc0 != null) { T = { acc: 0, start: null, beat: 0, paused: true }; write(T); }          // can't tell how long an old timer really ran
-  if (T && T.start) { T.acc += Math.max(0, (T.beat || T.start) - T.start); T.start = null; T.paused = true; write(T); }  // the page was closed while running
+  if (T && T.start && Date.now() - (T.beat || T.start) > 5000) { T.acc += Math.max(0, (T.beat || T.start) - T.start); T.start = null; T.paused = true; write(T); }  // the page was closed while running
   const pause = () => {
     if (!T || !T.start) return;
     T.acc += Date.now() - T.start; T.start = null; T.paused = true; write(T); clearInterval(tick);
     try { wake?.release(); } catch (e) {}
     paint();
   };
-  const resume = () => { T.start = Date.now(); T.beat = T.start; T.paused = false; write(T); out.innerHTML = ""; keepAwake(); run(); };
+  const resume = () => { T.start = Date.now(); T.beat = T.start; T.paused = false; write(T); out.innerHTML = ""; keepAwake(); run(); liveTimer(TK); };
   const paint = () => {
     const secs = Math.floor(elapsed(T) / 1000), running = !!(T && T.start), paused = !!(T && !T.start);
     clock.textContent = mmss(secs);
@@ -820,7 +853,7 @@ async function viewDesk(tab = ""){
     ring.classList.toggle("paused", paused);
     goalTxt.textContent = paused ? "Paused" : `of ${goal} min`;
     if (running && !chimed && secs >= goal * 60) { chimed = true; chime(); out.innerHTML = `<div class="notice ok">Goal reached! Keep going or press Stop to save.</div>`; }
-    if (paused && !out.innerHTML) out.innerHTML = `<div class="notice">Paused. The timer only runs while this screen is open. Tap <strong>Resume</strong> to carry on, or <strong>Save</strong> to keep the time so far.</div>`;
+    if (paused && !out.innerHTML) out.innerHTML = `<div class="notice">Paused. The timer runs while Gurushishya is open on your practice or notes. Tap <strong>Resume</strong> to carry on, or <strong>Save</strong> to keep the time so far.</div>`;
     goBtn.textContent = running ? "Stop" : paused ? "Resume" : "Start";
     goBtn.classList.toggle("stop", running);
     cancel.hidden = !T; save.hidden = !paused;
@@ -842,7 +875,7 @@ async function viewDesk(tab = ""){
     viewDesk(""); setTimeout(() => { const o = document.getElementById("p-out"); if (o) o.innerHTML = `<div class="notice ok">Saved ${fmtMins(mins)}. Well done, ${esc(person.name)}! ${esc(g.teacher_name)} will see it.</div>`; }, 400);
   };
   goBtn.onclick = () => {
-    if (!T) { T = { acc: 0, start: Date.now(), beat: Date.now(), paused: false }; write(T); chimed = false; out.innerHTML = ""; keepAwake(); run(); return; }
+    if (!T) { T = { acc: 0, start: Date.now(), beat: Date.now(), paused: false }; write(T); chimed = false; out.innerHTML = ""; keepAwake(); run(); liveTimer(TK); return; }
     if (!T.start) return resume();
     pause(); out.innerHTML = ""; finish();
   };
@@ -853,7 +886,7 @@ async function viewDesk(tab = ""){
   const away = () => { if (!clock.isConnected) { document.removeEventListener("visibilitychange", onVis); window.removeEventListener("blur", away); window.removeEventListener("pagehide", away); return; } pause(); };
   const onVis = () => { if (document.visibilityState === "hidden") away(); };
   document.addEventListener("visibilitychange", onVis); window.addEventListener("blur", away); window.addEventListener("pagehide", away);
-  paint();
+  if (T && T.start) { keepAwake(); liveTimer(TK); run(); } else paint();   // still running: came back from notes or chat
   pane.querySelectorAll("[data-day]").forEach(b => b.onclick = async () => {
     if (KM?.active()) return;                      // in Kid mode only the timer counts
     const key = b.dataset.day;
