@@ -14,6 +14,7 @@ import { getDatabase } from "@netlify/database";
 import { getStore } from "@netlify/blobs";
 import { summary } from "../lib/traffic-core.mts";
 import { teamAccess, ownerEmails, type TeamMember } from "../lib/team-access.mts";
+import { makeProject, VOUCHES_NEEDED, VOUCH_NEEDS_ROLE } from "../lib/request-project.mts";
 
 const STATUSES = ["new", "visit", "verified", "approved", "declined", "project"];
 const clip = (v: unknown, max: number) => String(v ?? "").trim().slice(0, max);
@@ -99,7 +100,9 @@ function shape(r: Record<string, any>, notes: unknown[], files: unknown[] = [], 
     ai: stuck(r)
       ? { status: "failed", error: "The AI check stopped without an answer. Press Run the AI check again.", at: r.ai_at, draft: r.ai_draft || {} }
       : { status: r.ai_status || "", error: r.ai_error || "", at: r.ai_at, draft: r.ai_draft || {} },
-    profile: r.profile || {}, vouchOkBy: r.vouch_ok_by || "", vouchOkAt: r.vouch_ok_at || null, shareOk: !!r.share_ok, shareOkBy: r.share_ok_by || "", shareOkAt: r.share_ok_at,
+    profile: r.profile || {}, requestType: r.request_type || "open", incharge: { name: r.incharge_name || "", phone: r.incharge_phone || "", email: r.incharge_email || "" },
+    projectSlug: r.project_slug || "", vouchesNeeded: VOUCHES_NEEDED, vouchNeedsRole: VOUCH_NEEDS_ROLE,
+    vouchOkBy: r.vouch_ok_by || "", vouchOkAt: r.vouch_ok_at || null, shareOk: !!r.share_ok, shareOkBy: r.share_ok_by || "", shareOkAt: r.share_ok_at,
   };
 }
 
@@ -271,42 +274,26 @@ export default async (req: Request, context: Context) => {
       return json({ ok: true, started: true }, 202);
     }
 
+    // Publish now (SURESH 20 Nov 2026): an admin puts a request live once its page is made and approved for sharing.
+    // For open requests nobody needs to vouch; no visit or approve steps for now.
+    if (parts[2] === "publish" && req.method === "POST") {
+      if (!me.admin) return json({ error: "Only an admin can publish." }, 403);
+      const [r] = await db.sql<Record<string, any>>`SELECT status, project_slug, share_ok, profile FROM suggestions WHERE id = ${row.id}`;
+      if (r.status === "project" && r.project_slug) return json({ ok: true, slug: r.project_slug });
+      if (!r.share_ok || !(r.profile || {}).title) return json({ error: "Make the page first (Approve page for sharing)." }, 400);
+      const slug = await makeProject(db, row.id, { email: me.email, name: me.name }, "publish");
+      return json({ ok: true, slug });
+    }
+
     // Step 6: create the Initiated project from the request. It shows on the website straight away (next to projects.json).
     if (parts[2] === "project" && req.method === "POST") {
       const [r] = await db.sql<Record<string, any>>`SELECT * FROM suggestions WHERE id = ${row.id}`;
       if (r.status === "project" && r.project_slug) return json({ ok: true, slug: r.project_slug });
       if (r.status !== "approved") return json({ error: "It needs to be approved first." }, 400);
-      const d = r.details || {}, q = r.plan || {}, pf = r.profile || {};
+      const q = r.plan || {};
       const budget = (q.lines || []).filter((x: any) => x.item && x.amount > 0);
       if (!budget.length || !(q.expect || []).length) return json({ error: "Add the budget and what the organisers hope for first." }, 400);
-      const title = pf.title || d.title || r.title;
-      const story = String(d.story || pf.summary || r.description || "").trim();
-      let slug = slugify(title);
-      const taken = await db.sql<{ slug: string }>`SELECT slug FROM site_projects WHERE slug LIKE ${slug + "%"}`;
-      if ((taken as any[]).some((x) => x.slug === slug)) slug = `${slug}-${r.ref.toLowerCase()}`;
-      const vouched = await db.sql<Record<string, any>>`SELECT name, relation, role FROM endorsements WHERE suggestion_id = ${row.id} AND NOT hidden ORDER BY created_at`;
-      const place = pf.place || [r.village, r.city].filter(Boolean).join(", ") || r.location;
-      const data = {
-        title, slug, hidden: false, featured: false, theme: "Trips & Events", status: "Planning",
-        location: place, city: r.city || String(place).split(",").pop()!.trim(), organization: d.org || "Raavanaa",
-        started: new Date().toLocaleDateString("en-GB", { month: "long", year: "numeric" }),
-        reach: String(pf.children || r.children || "").replace(/\s*\([^)]*not (stated|given|known|mentioned)[^)]*\)/gi, "").trim(), verified: true, currency: "Rs ",
-        budget, goal: budget.reduce((a: number, x: any) => a + x.amount, 0), funders: [],
-        date_set: false, booked: false, volunteers: false, steps: [],
-        tagline: pf.tagline || "", summary: pf.summary ? String(pf.summary).split("\n")[0] : story.split("\n")[0],
-        story: `## The need and the plan\n\n${story}`, cover: artFor([title, pf.activity, story].join(" ")),
-        expectations: q.expect.map((text: string) => ({ text, result: "", note: "" })), impact: [], updates: [], photos: [], media: [],
-        vouched: (vouched as any[]).map((v) => ({ name: v.name, role: v.role || (v.relation === "know" ? "Knows the person who asked" : "Has seen the need") })),
-        people: {
-          requested_by: String(r.contact || "").split(/[,(]/)[0].trim(), requested_on: day(r.received_at),
-          verified_by: r.verified_by, verified_on: day(r.verified_at), approved_by: r.approved_by, approved_on: day(r.approved_at),
-        },
-        from_request: r.ref,
-      };
-      await db.sql`INSERT INTO site_projects (slug, suggestion_id, data, created_by) VALUES (${slug}, ${row.id}, ${JSON.stringify(data)}::jsonb, ${me.email})`;
-      await db.sql`UPDATE suggestions SET status = 'project', project_slug = ${slug}, updated_at = NOW() WHERE id = ${row.id}`;
-      await db.sql`INSERT INTO suggestion_notes (suggestion_id, by_email, by_name, body) VALUES (${row.id}, ${me.email}, ${me.name}, ${"Turned into an Initiated project: /projects/" + slug})`;
-      await db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES (${me.email}, 'suggestion.project', ${ref}, ${JSON.stringify({ slug })}::jsonb)`;
+      const slug = await makeProject(db, row.id, { email: me.email, name: me.name }, "portal");
       return json({ ok: true, slug });
     }
 

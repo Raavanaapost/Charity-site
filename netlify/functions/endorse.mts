@@ -5,8 +5,11 @@
 // person who sent the request cannot vouch for their own.
 import type { Config } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
+import { getUser } from "@netlify/identity";
+import { makeProject, VOUCHES_NEEDED, VOUCH_NEEDS_ROLE, LIVE_ON_VOUCH } from "../lib/request-project.mts";
 
-const NEEDED = 3; // endorsements to become community-backed, at least one of them from someone in a role
+// Vouches needed to be backed: 1 for now (SURESH 20 Nov 2026), 3 with someone in a role later. See request-project.mts.
+const NEEDED = VOUCHES_NEEDED;
 const clip = (v: unknown, max: number) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, max);
 const json = (data: unknown, status = 200) => Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
 const phoneKey = (v: unknown) => String(v ?? "").replace(/\D/g, "").slice(-9);
@@ -33,7 +36,7 @@ async function view(db: ReturnType<typeof getDatabase>, s: Row) {
   const hasRole = endorsements.some((e) => e.relation === "role");
   // An admin can say one vouch is enough for this request (SURESH 20 Nov 2026).
   const override = !!s.vouch_ok_by && endorsements.length >= 1;
-  const backed = (endorsements.length >= NEEDED && hasRole) || override;
+  const backed = (endorsements.length >= NEEDED && (hasRole || !VOUCH_NEEDS_ROLE)) || override;
   const verified = ["verified", "project"].includes(s.status);
   const p = (s.profile || {}) as Record<string, string>;
   // Until the team approves the page, people only see that it is being checked (SURESH, 9 Nov 2026).
@@ -59,7 +62,9 @@ async function view(db: ReturnType<typeof getDatabase>, s: Row) {
     closed: s.status === "declined",
     needed: NEEDED,
     endorsements,
-    ladder: { submitted: true, backed, hasRole, override, verified, project: s.status === "project" },
+    ladder: { submitted: true, backed, hasRole, needsRole: VOUCH_NEEDS_ROLE, override, verified, project: s.status === "project" },
+    live: s.status === "project" && s.project_slug ? `/projects/${s.project_slug}` : "",
+    incharge: s.request_type === "referred" ? firstName(String(s.incharge_name || "").split(" ")[0]) : "",
     visitor,
   };
 }
@@ -94,15 +99,27 @@ export default async (req: Request) => {
   if (f.agree !== true && f.agree !== "on" && f.agree !== "yes") return json({ ok: false, error: "Please tick the box to confirm." }, 400);
   if (key === phoneKey(s.reach)) return json({ ok: false, error: "This is the number that sent the request. Please ask other people to vouch for it." }, 409);
 
+  // Signed in? Keep their email so My account can list the projects they vouched for.
+  const user = await getUser().catch(() => null);
+  const memberEmail = user && user.email ? user.email.toLowerCase() : "";
   const added = await db.sql<{ id: number }>`
-    INSERT INTO endorsements (suggestion_id, name, relation, role, phone, phone_key)
-    VALUES (${s.id}, ${e.name}, ${e.relation}, ${e.role}, ${e.phone}, ${key})
+    INSERT INTO endorsements (suggestion_id, name, relation, role, phone, phone_key, member_email)
+    VALUES (${s.id}, ${e.name}, ${e.relation}, ${e.role}, ${e.phone}, ${key}, ${memberEmail})
     ON CONFLICT (suggestion_id, phone_key) DO NOTHING
     RETURNING id`;
   if (!(added as unknown[]).length) return json({ ok: false, error: "This phone number has already vouched for this request." }, 409);
   await db.sql`INSERT INTO audit_log (actor, action, target, details)
     VALUES ('website', 'suggestion.endorsed', ${s.ref}, ${JSON.stringify({ name: e.name, relation: e.relation, role: e.role })}::jsonb)`;
-  return json({ ok: true, request: await view(db, s) });
+  // Enough vouches: it goes live on Projects straight away (SURESH 20 Nov 2026).
+  let fresh = s;
+  if (LIVE_ON_VOUCH && s.status !== "declined" && s.status !== "project") {
+    const v = await view(db, s);
+    if (v.ladder && (v.ladder as Row).backed) {
+      try { await makeProject(db, s.id, { email: memberEmail || "website", name: e.name }, "vouch"); } catch (err) { console.error("live on vouch", err); }
+      fresh = (await load(db, token)) || s;
+    }
+  }
+  return json({ ok: true, request: await view(db, fresh) });
 };
 
 export const config: Config = {
