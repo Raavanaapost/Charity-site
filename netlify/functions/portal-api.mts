@@ -290,7 +290,7 @@ export default async (req: Request, context: Context) => {
         title, slug, hidden: false, featured: false, theme: "Trips & Events", status: "Planning",
         location: place, city: r.city || String(place).split(",").pop()!.trim(), organization: d.org || "Raavanaa",
         started: new Date().toLocaleDateString("en-GB", { month: "long", year: "numeric" }),
-        reach: pf.children || r.children, verified: true, currency: "Rs ",
+        reach: String(pf.children || r.children || "").replace(/\s*\([^)]*not (stated|given|known|mentioned)[^)]*\)/gi, "").trim(), verified: true, currency: "Rs ",
         budget, goal: budget.reduce((a: number, x: any) => a + x.amount, 0), funders: [],
         date_set: false, booked: false, volunteers: false, steps: [],
         tagline: pf.tagline || "", summary: pf.summary ? String(pf.summary).split("\n")[0] : story.split("\n")[0],

@@ -43,7 +43,7 @@ const SCHEMA = {
     summary: { type: "STRING" },
     activity: { type: "STRING", description: "What the day is" },
     place: { type: "STRING", description: "Village or town, district" },
-    children: { type: "STRING", description: "How many children and their ages, as stated" },
+    children: { type: "STRING", description: "How many children and their ages, only as stated. If ages are not given, give the number only; never write notes like (ages not stated)" },
     when: { type: "STRING", description: "Date or time of year wanted, as stated" },
     budget_items: { type: "ARRAY", items: { type: "OBJECT", properties: { item: { type: "STRING" }, amount: { type: "STRING" } }, required: ["item", "amount"] } },
     budget_total: { type: "STRING" },

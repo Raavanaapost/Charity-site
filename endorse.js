@@ -137,6 +137,8 @@
     $("[data-stage]").classList.toggle("check", !!r.pending);
     $("[data-art]").src = artFor([r.title, r.kind, r.place, r.description].join(" "));
 
+    // No notes about missing details on a public page, like "(ages not stated)" (SURESH 20 Nov 2026).
+    if (r.children) r.children = String(r.children).replace(/\s*\([^)]*not (stated|given|known|mentioned)[^)]*\)/gi, "").trim();
     const glance = [["day", t("The day", "நாள்"), r.kind], ["place", t("Where", "எங்கே"), r.place], ["kids", t("Children", "குழந்தைகள்"), r.children ? (/child|kid|pupil|student|குழந்தை|மாணவ/i.test(r.children) ? r.children : r.children + t(" children", " குழந்தைகள்")) : ""], ["when", t("When", "எப்போது"), r.when]].filter((g) => g[2]);
     $("[data-glance]").innerHTML = glance.map(([i, l, v]) => `<li><small>${ICON[i]}${esc(l)}</small><b>${esc(v)}</b></li>`).join("");
     $("[data-glance]").hidden = !glance.length || r.pending;
