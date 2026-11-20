@@ -674,7 +674,10 @@ window.RAAV_FEATURES = (function () {
     { k: "request", href: "/initiate?way=need", t: "Submit a need", s: "Request a moment, share a plan, start a movement", go: "Start",
       ic: '<path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-10z"/><path d="M14 3.5v5h5"/><path d="M12 17v-6M9.3 13.6 12 11l2.7 2.6"/>' },
     { k: "submit", href: "/volunteers#join", t: "Join Raavanaa", s: "Volunteer, share a skill, create moments together", go: "Join",
-      ic: '<circle cx="8" cy="8.5" r="2.6"/><circle cx="16.5" cy="9.5" r="2.2"/><path d="M3 19c0-3.2 2.2-5.2 5-5.2s5 2 5 5.2M14 14.3c.8-.4 1.6-.6 2.5-.6 2.5 0 4.5 1.8 4.5 5.3"/>' }
+      ic: '<circle cx="8" cy="8.5" r="2.6"/><circle cx="16.5" cy="9.5" r="2.2"/><path d="M3 19c0-3.2 2.2-5.2 5-5.2s5 2 5 5.2M14 14.3c.8-.4 1.6-.6 2.5-.6 2.5 0 4.5 1.8 4.5 5.3"/>' },
+    // SURESH 20 Nov 2026: in place of Join Raavanaa, a card to see the projects; its title turns View projects / moments / smiles.
+    { k: "view", cls: "submit", href: "/projects", t: "View projects", turn: ["View projects", "View moments", "View smiles"], s: "Days of joy waiting for you", go: "View",
+      ic: '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>' }
   ];
   // Five titles and lines that take turns (SURESH, 16 Nov 2026: "make it impressive, say things profound: creating a
   // moment, be part of creating impact"). [small words, big word, ribbon, the line under it]
@@ -698,10 +701,13 @@ window.RAAV_FEATURES = (function () {
       <p class="sb-cap" data-sb-cap>${esc(pics[0].p.title)}</p>` : ""}
       <p class="mb-say sb-says" data-sb-says>${SPARK_SAYS.map((x, i) => `<span class="c${i % 5 + 1}${i ? "" : " on"}">${x[3]}</span>`).join("")}</p>
       <p class="sb-anyone">${FEAT.group ? "Anyone can start a project: one person or a whole group." : "Anyone can start one. Share it, and follow every step when you sign in."}</p>
-      <div class="sb-ways${FEAT.join ? "" : " one"}">${SPARK_WAYS.filter(w => FEAT.join || w.k !== "submit").map(w => `<a class="sb-way ${w.k}" href="${w.href}"><span class="sb-ic"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${w.ic}</svg></span><b>${w.t}</b><small>${w.s}</small><span class="sb-start">${w.go} →</span></a>`).join("")}</div>
+      <div class="sb-ways">${SPARK_WAYS.filter(w => w.k === "request" || (FEAT.join ? w.k === "submit" : w.k === "view")).map(w => `<a class="sb-way ${w.cls || w.k}" href="${w.href}"><span class="sb-ic"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${w.ic}</svg></span><b${w.turn ? ` data-sb-turn="${esc(w.turn.join("|"))}" aria-live="off"` : ""}>${w.t}</b><small>${w.s}</small><span class="sb-start">${w.go} →</span></a>`).join("")}</div>
     </section>`;
   };
   function startSparkBand(app) {
+    // the View projects card: its title turns through its words
+    app.querySelectorAll("[data-sb-turn]").forEach(b => { const w = b.dataset.sbTurn.split("|"); let i = 0;
+      if (w.length > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) rotTimers.push(setInterval(() => { if (document.hidden) return; i = (i + 1) % w.length; b.textContent = w[i]; }, 2600)); });
     // the titles and their lines take turns together
     const rot = app.querySelector("[data-sb-rot]"), says = app.querySelector("[data-sb-says]");
     if (rot && says && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
