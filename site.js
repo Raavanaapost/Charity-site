@@ -454,6 +454,8 @@ window.RAAV_FEATURES = (function () {
   // Home (/home): a search page like Google's front page. Title, slogan, one long search box,
   // city and category buttons, then every project in tabs by stage.
   const CITIES = ["Kilinochchi", "Batticaloa", "Jaffna", "Kandy"];
+  // A project not visited yet can say how it was checked instead, e.g. "Checked and approved by Raavanaa" (projects.json "verified_label", SURESH 20 Nov 2026).
+  const vLabel = p => (p && p.verified_label) || "Visited and verified";
   const CATEGORIES = ["Livelihood", "Education", "Trips & Events"];
   const cityOf = p => p.city || CITIES.find(c => new RegExp(c, "i").test(p.location || "")) || "";
   // Search page: one picture per stage, taking turns. The stage's slogan and sentence sit on the
@@ -1459,7 +1461,7 @@ window.RAAV_FEATURES = (function () {
     return `<article class="wait-card">
         <a class="wait-pic" href="${href}" tabindex="-1" aria-hidden="true" style="${coverStyle(p, projects.indexOf(p))}">${p.cover ? `<img src="${esc(imgUrl(p.cover, 900))}" alt=""${i ? ' loading="lazy"' : ""}>` : ""}</a>
         <div class="wait-body">
-          <span class="wait-ok">${VERIFIED_TICK} <span>Visited and verified</span></span>
+          <span class="wait-ok">${VERIFIED_TICK} <span>${esc(vLabel(p))}</span></span>
           <h3><a href="${href}">${esc(p.title)}</a></h3>
           ${town || p.reach ? `<p class="wait-meta">${[town, p.reach].filter(Boolean).map(esc).join(" · ")}</p>` : ""}
           ${goal ? `<div class="wait-money">
@@ -1968,7 +1970,7 @@ window.RAAV_FEATURES = (function () {
     const raised = (p.funders || []).filter(x => x && x.name).reduce((s, x) => s + numOf(x.amount), 0);
     const st = stageNum(p);
     if (st === 1) return [
-      { name: "Visited and verified", done: p.verified ? 1 : 0, c: "#1f7a47" },
+      { name: vLabel(p), done: p.verified ? 1 : 0, c: "#1f7a47" },
       { name: "Budgeted", done: goal > 0 ? 1 : 0, c: "#3f9a5f" },
       // Reserved (pledged, not yet received) gets its own line (SURESH, 17 Nov 2026): one neat line each, no names.
       ...(FEAT.pledge ? (() => {
@@ -2642,7 +2644,7 @@ window.RAAV_FEATURES = (function () {
     const funders = (p.funders || []).filter(x => x && x.name);
     const S = [
       { g: 1, label: "Requested", who: w.requested_by, when: w.requested_on, done: true },
-      { g: 1, label: "Visited and verified", who: w.verified_by, when: w.verified_on, done: !!p.verified },
+      { g: 1, label: vLabel(p), who: w.verified_by, when: w.verified_on, done: !!p.verified },
       { g: 1, label: "Approved", who: w.approved_by, when: w.approved_on, done: !!(w.approved_by || w.approved_on) || st > 1 },
       { g: 1, label: "Fully funded", who: funders.length ? `${funders.length} sponsor${funders.length > 1 ? "s" : ""}` : "", when: w.funded_on, done: full || st > 1 },
       { g: 2, label: "Day prepared", who: w.day_lead ? `Led by ${w.day_lead}` : "", when: "", done: st > 2 || !!(p.date_set && p.booked && p.volunteers) },
@@ -2941,7 +2943,7 @@ window.RAAV_FEATURES = (function () {
             <header class="phead">
               ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
               <h1>${esc(p.title)}</h1>
-              <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>Submitted by <strong>${esc(p.submitted_by || p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Visited and verified</span>` : ""}
+              <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>Submitted by <strong>${esc(p.submitted_by || p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> ${esc(vLabel(p))}</span>` : ""}
               <div class="glance">
                 <button type="button" class="glance-btn" aria-expanded="false" aria-controls="glance-card"><span>At a glance</span><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
                 <div class="panel glance-card" id="glance-card">
