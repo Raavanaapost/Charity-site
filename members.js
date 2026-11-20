@@ -222,7 +222,7 @@ async function account(app, site, msg = "") {
         <h2>My donations</h2>
         <p>Card payments are not open yet. When they are, every gift you make while signed in will show here, with a receipt you can download.</p>
         <p class="note">You can already help by suggesting a project or volunteering.</p>
-        <p class="member-actions"><a class="btn" href="${onTa ? "/ta" : ""}/initiated">See projects</a><a class="btn ghost" href="${onTa ? "/ta" : ""}/volunteer">Volunteer</a></p>
+        <p class="member-actions"><a class="btn" href="${onTa ? "/ta" : ""}/initiated">See projects</a>${(window.RAAV_FEATURES || {}).volunteers === false ? "" : `<a class="btn ghost" href="${onTa ? "/ta" : ""}/volunteer">Volunteer</a>`}</p>
       </section>
       <form class="panel form member-card" id="m-me">
         <h2>My details</h2>
