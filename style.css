@@ -3082,3 +3082,14 @@ body:has(.ch-on-page) footer{padding-bottom:84px}
 .pl-moment-t b{font-family:var(--display);color:#1f4d3a;font-size:16px}
 .pl-moment-t i{color:#5b4a1f;font-size:14px}
 .pl-moment-x{flex:none;font-weight:800;color:#c8381e;text-decoration:underline;text-underline-offset:3px}
+
+/* Request form: who is in charge (SURESH 20 Nov 2026) */
+.i-way{border:0;margin:0 0 16px;padding:0;display:grid;gap:10px}
+.i-way legend{font-family:var(--display);font-weight:700;font-size:17px;color:#0f2f24;margin-bottom:8px;padding:0}
+.i-way-opt{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1.5px solid #d9d6cf;border-radius:14px;background:var(--ifield,#fff);cursor:pointer}
+.i-way-opt input{margin-top:4px;width:20px;height:20px;accent-color:#1f7a47;flex:none}
+.i-way-opt span{display:grid;gap:2px}.i-way-opt b{font-size:16px;color:#17231d}.i-way-opt small{color:#5d6b64;font-size:14px}
+.i-way-opt:has(input:checked){border-color:#1f7a47;box-shadow:0 0 0 2px rgba(31,122,71,.18)}
+.i-incharge{margin:0 0 18px;padding:14px 16px 16px;border-radius:16px;background:#f3f8f2;border:1.5px solid #cfe3d3;display:grid;gap:10px}
+.i-incharge-h{margin:0;font-family:var(--display);font-weight:700;font-size:16px;color:#1f4d3a}
+.i-incharge .i-note{margin:0}

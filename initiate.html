@@ -134,8 +134,28 @@
         </li>
 
         <li class="i-q">
+          <!-- Two ways in (SURESH 20 Nov 2026): an open request from anyone, or one sent for someone who asked,
+               with that person's details. Raavanaa makes the page and sends it to them; their vouch puts it live. -->
+          <fieldset class="i-way" data-way-in>
+            <legend><b class="i-n">4</b>Who is in charge of this need? <b class="req" aria-hidden="true">*</b></legend>
+            <label class="i-way-opt"><input type="radio" name="request_type" value="open" checked><span><b>Me</b><small>I'm sending it myself, or I don't know anyone there</small></span></label>
+            <label class="i-way-opt"><input type="radio" name="request_type" value="referred"><span><b>Someone asked me to send it</b><small>I'll add their name, phone and email</small></span></label>
+          </fieldset>
+          <div class="i-incharge" data-incharge hidden>
+            <p class="i-incharge-h">The person in charge</p>
+            <p class="i-note">We make the project page and send it to them. They check it and vouch for it, and then it goes live.</p>
+            <div class="i-row">
+              <label class="i-field" for="o-ic-name"><span class="i-sub">Their name <b class="req" aria-hidden="true">*</b></span>
+                <input id="o-ic-name" name="incharge_name" maxlength="120" autocomplete="off" placeholder="e.g. the principal, or a parent"></label>
+              <label class="i-field" for="o-ic-phone"><span class="i-sub">Their phone or WhatsApp</span>
+                <input id="o-ic-phone" name="incharge_phone" type="tel" maxlength="40" autocomplete="off" inputmode="tel" placeholder="+94 77 123 4567"></label>
+              <label class="i-field" for="o-ic-email"><span class="i-sub">Their email</span>
+                <input id="o-ic-email" name="incharge_email" type="email" maxlength="120" autocomplete="off" placeholder="name@example.com"></label>
+            </div>
+            <small class="i-note">A phone number, an email, or both.</small>
+          </div>
           <div class="i-row">
-            <label class="i-field" for="o-contact"><span><b class="i-n">4</b>Your name <b class="req" aria-hidden="true">*</b></span>
+            <label class="i-field" for="o-contact"><span>Your name <b class="req" aria-hidden="true">*</b></span>
               <input id="o-contact" name="contact" required maxlength="120" autocomplete="name" placeholder="Your name, and organisation if any" aria-describedby="o-contact-note">
               <small class="i-note" id="o-contact-note">It may be shown on the project page. A nickname is fine.</small></label>
             <label class="i-field" for="o-reach"><span class="i-sub">Phone, WhatsApp or email <b class="req" aria-hidden="true">*</b></span>
@@ -147,8 +167,8 @@
       <div class="i-next" aria-label="What happens next">
         <p class="i-next-h">What happens next</p>
         <ul>
-          <li><b>You get a link to share.</b> Ask 3 people who know about it to vouch, at least one in a role such as the principal, a teacher or the Grama Niladhari.</li>
-          <li><b>A volunteer near you checks it</b> with a call or a visit, before it becomes a project that can take any money.</li>
+          <li><b>Raavanaa reads it and makes the project page,</b> and may call you with a few questions.</li>
+          <li><b>The person in charge checks the page and vouches for it.</b> Then it goes live on Projects. Anything to change? They tell us first.</li>
           <li><b>Everything is recorded,</b> so every project is checked and accountable.</li>
         </ul>
       </div>

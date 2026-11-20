@@ -344,11 +344,27 @@ window.RAAV_FEATURES = (function () {
       <p class="note" data-msg hidden></p>
     </form>`;
 
+  // Request form: show the "person in charge" boxes only when someone asked you to send it.
+  function wireWayIn(root) {
+    const box = root.querySelector("[data-incharge]"); if (!box) return;
+    const sync = () => { const on = !!root.querySelector("[name=request_type][value=referred]:checked"); box.hidden = !on; root.querySelector("#o-ic-name") && (root.querySelector("#o-ic-name").required = on); };
+    root.querySelectorAll("[name=request_type]").forEach(r => r.addEventListener("change", sync)); sync();
+  }
   function wireForms(root) {
+    wireWayIn(root);
     root.querySelectorAll("form[data-ajax]").forEach(f => f.addEventListener("submit", async e => {
       e.preventDefault();
       const btn = f.querySelector("button[type=submit]"), msg = f.querySelector("[data-msg]");
       if (f._check && !f._check()) return; // e.g. evidence missing
+      // Sent for someone else: their name and a phone or email are needed (SURESH 20 Nov 2026).
+      if (f.getAttribute("name") === "opportunity" && f.querySelector('[name=request_type][value=referred]:checked')) {
+        const v = n => (f.querySelector(`[name=${n}]`) || {}).value?.trim() || "";
+        const m = f.querySelector("[data-msg]");
+        if (!v("incharge_name") || (!v("incharge_phone") && !v("incharge_email"))) {
+          if (m) { m.hidden = false; m.textContent = "Please add the name of the person in charge, and their phone or email."; }
+          f.querySelector("[data-incharge]")?.scrollIntoView({ behavior: "smooth", block: "center" }); return;
+        }
+      }
       btn.disabled = true;
       const fd = new FormData(f); // read the entries before the fields are disabled
       try {
