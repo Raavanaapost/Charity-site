@@ -19,6 +19,6 @@
   "shortcuts": [
     { "name": "Gift a Moment", "short_name": "Gift a Moment", "url": "/moment?from=app", "icons": [{ "src": "/img/app/icon-96.png", "sizes": "96x96", "type": "image/png" }] },
     { "name": "See the projects", "short_name": "Projects", "url": "/projects?from=app", "icons": [{ "src": "/img/app/icon-96.png", "sizes": "96x96", "type": "image/png" }] },
-    { "name": "Submit a need", "short_name": "Submit a need", "url": "/spark?from=app", "icons": [{ "src": "/img/app/icon-96.png", "sizes": "96x96", "type": "image/png" }] }
+    { "name": "Submit a need", "short_name": "Submit a need", "url": "/initiate?way=need&from=app", "icons": [{ "src": "/img/app/icon-96.png", "sizes": "96x96", "type": "image/png" }] }
   ]
 }
