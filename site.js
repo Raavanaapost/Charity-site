@@ -279,7 +279,7 @@ window.RAAV_FEATURES = (function () {
     const barWrap = document.querySelector(".bar .wrap");
     if (barWrap && FEAT.vetting && !barWrap.querySelector(".bar-submit") && !/^(initiate|spark|portal|admin)$/.test(document.body.dataset.page || "")) {
       const sb = document.createElement("a");
-      sb.className = "bar-submit"; sb.href = "/spark";
+      sb.className = "bar-submit"; sb.href = "/initiate?way=need";  // straight to the form (SURESH 20 Nov 2026); /spark stays the how-it-works page
       sb.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span><b>Submit</b> <small>a need</small></span>';
       barWrap.insertBefore(sb, barWrap.querySelector(".menu-btn") || null);
     }
@@ -307,7 +307,7 @@ window.RAAV_FEATURES = (function () {
       <div class="foot-main"><div class="wrap">
         <!-- Footer kept very simple (SURESH, 17 Nov 2026): one row of links, no stages, no Gift a Moment. -->
         <nav class="foot-simple" aria-label="Footer">
-          ${[["Projects", "/projects"], ["Submit a need", "/spark"], ["Volunteers", "/volunteers"], ["About us", "/about"], ["Contact", "/contact"]].map(([t, h]) => `<a href="${h}">${t}</a>`).join("")}${APP.inApp ? "" : `<a href="#app" data-get-app>Get the app</a>`}
+          ${[["Projects", "/projects"], ["Submit a need", "/initiate?way=need"], ["Volunteers", "/volunteers"], ["About us", "/about"], ["Contact", "/contact"]].map(([t, h]) => `<a href="${h}">${t}</a>`).join("")}${APP.inApp ? "" : `<a href="#app" data-get-app>Get the app</a>`}
         </nav>
         ${follow.length ? `<p class="foot-follow">${follow.map(([t, h, ext]) => `<a href="${esc(h)}"${ext ? ' target="_blank" rel="noopener"' : ""}>${esc(t)}</a>`).join("")}</p>` : ""}
       </div></div>
@@ -3895,7 +3895,7 @@ window.RAAV_FEATURES = (function () {
             const line = sf.querySelector("[data-spark]");
             if (line) {
               const who = by === "group" ? [vals.gname, vals.group].filter(Boolean).join(", ") || "A group" : by === "me" ? "Just me" : "";
-              line.innerHTML = `<b>${esc(vals.way)}</b>${who ? ` · ${esc(who)}` : ""} <a href="/spark?${esc(sq.toString())}">Change</a>`;
+              line.innerHTML = `<b>${esc(vals.way)}</b>${who ? ` · ${esc(who)}` : ""} ${way === "need" ? `<a href="/spark">How it works</a>` : `<a href="/spark?${esc(sq.toString())}">Change</a>`}`;
               line.hidden = false;
             }
             if (way === "submit") {
