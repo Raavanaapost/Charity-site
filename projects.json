@@ -385,7 +385,7 @@
   {
    "title": "Sample project: a day at the zoo",
    "slug": "sample-zoo-day",
-   "hidden": false,
+   "hidden": true,
    "featured": false,
    "theme": "Trips & Events",
    "status": "Planning",
