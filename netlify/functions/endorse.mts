@@ -10,7 +10,8 @@ const NEEDED = 3; // endorsements to become community-backed, at least one of th
 const clip = (v: unknown, max: number) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, max);
 const json = (data: unknown, status = 200) => Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
 const phoneKey = (v: unknown) => String(v ?? "").replace(/\D/g, "").slice(-9);
-const firstName = (v: string) => clip(v.split(/[,(]/)[0], 40);
+// First name only on public pages (SURESH 20 Nov 2026), e.g. "Prabakaran Karuppaiyah, +94..." -> "Prabakaran".
+const firstName = (v: string) => clip(v.split(/[,(]/)[0].trim().split(/\s+/)[0] || "", 40);
 
 type Row = Record<string, any>;
 
