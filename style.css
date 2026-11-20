@@ -1145,6 +1145,9 @@ body[data-variant="royal"] .vm-end{background:linear-gradient(180deg,#fbf3dc,#f6
   .moment-sprout{display:none}
 }
 @media (min-width:900px){.moment-hero{margin-inline:0}}
+/* No picture: the title sits at the top in the normal flow (request form, SURESH 20 Nov 2026) */
+.moment-hero.no-pic{margin-inline:0}
+.moment-hero.no-pic .moment-text{position:static;padding:8px 0 0}
 @media (prefers-reduced-motion:reduce){.moment-title{transition:none}}
 
 /* Initiate form: "Add more details (optional)" fold */
