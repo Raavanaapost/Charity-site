@@ -20,19 +20,22 @@ window.RAAV_SKILLS = ["Visiting and checking projects near me", "Driving and tra
   "Accounts and bookkeeping", "Website and IT", "Medical and first aid", "Counselling and care", "Legal advice", "Building and repairs",
   "Farming and livelihoods", "Organising and leading", "Something else"];
 window.RAAV_FEATURES = (function () {
-  const F = { sponsor: false, pledge: true, circle: false, vetting: true, tamil: false, group: false, join: false, volunteers: false, reasons: [] };  // join: "Join Raavanaa" cards and links (off, SURESH 20 Nov 2026: "take join raavanaa out")  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
+  const F = { sponsor: false, pledge: true, circle: false, vetting: true, tamil: false, group: false, join: false, volunteers: false, moment: false, reasons: [] };  // join: "Join Raavanaa" cards and links (off, SURESH 20 Nov 2026: "take join raavanaa out")  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
   try {
     const q = new URLSearchParams(location.search).get("features");
     const test = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) || /--charity-projects-draft\./.test(location.hostname);
     if (test && q === "all") sessionStorage.setItem("raav-features", "all");
     if (q === "launch") sessionStorage.removeItem("raav-features");
-    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = F.group = F.join = F.volunteers = true; F.reasons = []; }
+    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = F.group = F.join = F.volunteers = F.moment = true; F.reasons = []; }
   } catch (e) { /* storage blocked: the launch switches stay */ }
   ["sponsor", "circle", "vetting", "tamil"].forEach(k => { if (!F[k]) document.documentElement.classList.add("no-" + k); });
   // Tamil hidden for now (SURESH 15 Nov 2026): no தமிழ் switch, and a /ta/ page opens the same page in English.
   // The Tamil pages and ta.js stay; set tamil: true to bring them back.
   // Volunteers pages taken out (SURESH, 20 Nov 2026: "take join volunteer page out"); set volunteers: true to bring them back.
   if (!F.volunteers && /^\/(ta\/)?volunteers?(\.html)?\/?$/.test(location.pathname)) location.replace("/projects");
+  // Gift a Moment taken out for this release (SURESH, 20 Nov 2026: "we do it in phases, next release"). The page, its
+  // project list and the moment cards stay in the code; set moment: true to bring them all back. Family pages /m/ still open.
+  if (!F.moment && /^\/(ta\/)?moment(\.html)?\/?$/.test(location.pathname)) location.replace("/projects");
   if (!F.tamil && /^\/ta(\/|$)/.test(location.pathname)) location.replace((location.pathname.replace(/^\/ta/, "") || "/") + location.search + location.hash);
   return F;
 })();
@@ -149,13 +152,14 @@ window.RAAV_FEATURES = (function () {
       const TABS = [
         ["Projects", "/projects", /^(projects|stage|project|home|create|initiate|spark)$/, ico('<rect x="3.5" y="4.5" width="17" height="4.6" rx="1.6"/><rect x="3.5" y="11" width="17" height="4.6" rx="1.6"/><path d="M4.5 19.5h15"/>')],
         ["Home", "/overview", /^overview$/, ico('<path d="M3.5 11.2 12 4l8.5 7.2"/><path d="M5.8 9.8V20h4.4v-5.4h3.6V20h4.4V9.8"/>')],
-        ["Gift", "/moment", /^(moment|together|give|fund|thanks)$/, '<span class="appbar-gift"><img src="/img/moment-mark.svg" alt="" width="34" height="34"></span>'],
+        FEAT.moment ? ["Gift", "/moment", /^(moment|together|give|fund|thanks)$/, '<span class="appbar-gift"><img src="/img/moment-mark.svg" alt="" width="34" height="34"></span>']
+          : ["Submit", "/initiate?way=need", /^(initiate|spark)$/, ico('<path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-10z"/><path d="M14 3.5v5h5"/><path d="M12 17v-6M9.3 13.6 12 11l2.7 2.6"/>')],
         ["Map", "/smile-map", /^map2?$/, ico('<path d="M12 21s6.5-5.6 6.5-10.6A6.5 6.5 0 0 0 5.5 10.4C5.5 15.4 12 21 12 21Z"/><circle cx="12" cy="10.2" r="2.4"/>')],
         [signedIn ? "Account" : "Sign in", "/members", /^members$/, ico('<circle cx="12" cy="8.4" r="3.7"/><path d="M4.6 20c.9-3.6 3.8-5.4 7.4-5.4s6.5 1.8 7.4 5.4"/>')]
       ];
       const nav = document.createElement("nav");
       nav.className = "appbar"; nav.setAttribute("aria-label", "App");
-      nav.innerHTML = TABS.map(([t, h, on, pic], i) => `<a class="appbar-tab${i === 2 ? " gift" : ""}" href="${h}"${on.test(page) ? ' aria-current="page"' : ""}>${pic}<span>${t}</span></a>`).join("");
+      nav.innerHTML = TABS.map(([t, h, on, pic], i) => `<a class="appbar-tab${h === "/moment" ? " gift" : ""}" href="${h}"${on.test(page) ? ' aria-current="page"' : ""}>${pic}<span>${t}</span></a>`).join("");
       document.body.appendChild(nav);
     }
 
@@ -269,7 +273,7 @@ window.RAAV_FEATURES = (function () {
     // "Gift a Moment": a button in every menu that opens the moment page (/moment). SURESH, 10 Nov 2026: that page
     // is very important and needs a clear way in from everywhere; the Home page itself stays as it was (/overview).
     // The title "Gift a Moment, in their name" and its heart-and-lamp mark (img/moment-mark.svg) are the same everywhere.
-    if (navEl && !navEl.querySelector(".nav-moment")) {
+    if (navEl && FEAT.moment && !navEl.querySelector(".nav-moment")) {
       const g = document.createElement("a");
       g.className = "nav-moment"; g.href = (/^\/ta(\/|$)/.test(location.pathname) ? "/ta" : "") + "/moment";
       g.innerHTML = '<img src="/img/moment-mark.svg" alt="" width="26" height="26"><span>Gift a Moment</span>';
@@ -867,7 +871,7 @@ window.RAAV_FEATURES = (function () {
     // /front-4 (no data-light) keeps the page exactly as it was.
     const light = document.body.hasAttribute("data-light");
     app.innerHTML = `
-      ${light ? "" : momentRibbonHTML()}
+      ${light || !FEAT.moment ? "" : momentRibbonHTML()}
       ${light ? "" : `<section class="intro">
         <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
       </section>`}
@@ -889,7 +893,7 @@ window.RAAV_FEATURES = (function () {
       ${light && FEAT.vetting ? sparkBandHTML(projects) : createHTML(light ? CREATE : CREATE.slice(0, 3))}
       ${light && FEAT.sponsor ? sponsorHTML() : ""}
       ${HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
-      ${/* Gift a Moment after the three stage sections (SURESH, 20 Nov 2026) */ ""}${momentBandHTML()}
+      ${/* Gift a Moment after the three stage sections (SURESH, 20 Nov 2026) */ ""}${FEAT.moment ? momentBandHTML() : ""}
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
       <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
     app.querySelectorAll(".home-latest").forEach(sec => {
@@ -926,7 +930,7 @@ window.RAAV_FEATURES = (function () {
   // the picture does the same. This page shows drawings only and the titles from share.json: never a
   // child's photo, never the name of a school or a home. The home page as it was is kept at /front-4.
   const HOME_ACTS = [
-    { k: "moment", href: "/moment", says: ["Gift a Moment", "In their name", "For a birthday", "In loving memory", "For a festival"] },
+    FEAT.moment && { k: "moment", href: "/moment", says: ["Gift a Moment", "In their name", "For a birthday", "In loving memory", "For a festival"] },
     FEAT.sponsor && { k: "sponsor", href: "/give", says: ["Sponsor a Smile", "Fund a Smile", "Give a Day of Joy", "Be the Reason for a Smile", "Sponsor a Moment"] },
     FEAT.sponsor && { k: "donate", href: "/fund", says: ["Donate", "Any amount helps", "Every rupee is shown", "To the Raavanaa Fund", "Give what you can"] }
   ].filter(Boolean);
@@ -2175,7 +2179,7 @@ window.RAAV_FEATURES = (function () {
         if (!b.dataset.noScroll) box.scrollIntoView({ block: "start", behavior: "smooth" });
         return;
       }
-      if (!FEAT.sponsor) { location.href = (TA_PATH ? "/ta" : "") + "/moment?for=memory" + (GIVE_OPEN.has(slug) ? "&project=" + encodeURIComponent(slug) : "") + "#mo-step-2"; return; }
+      if (!FEAT.sponsor && FEAT.moment) { location.href = (TA_PATH ? "/ta" : "") + "/moment?for=memory" + (GIVE_OPEN.has(slug) ? "&project=" + encodeURIComponent(slug) : "") + "#mo-step-2"; return; }
       location.href = (TA_PATH ? "/ta" : "") + (GIVE_OPEN.has(slug) ? "/give?project=" + encodeURIComponent(slug) : "/fund");
     }));
   }
@@ -3135,7 +3139,7 @@ window.RAAV_FEATURES = (function () {
     // The simple project pledge (FEAT.pledge) opens /give?project=<slug> straight from the project, with no detour.
     if (!FEAT.sponsor && !q.get("tribute") && !(FEAT.pledge && q.get("project"))) {
       const pj = q.get("project");
-      location.replace((TA_PATH ? "/ta" : "") + "/moment?for=memory" + (pj ? "&project=" + encodeURIComponent(pj) : ""));
+      location.replace(FEAT.moment ? (TA_PATH ? "/ta" : "") + "/moment?for=memory" + (pj ? "&project=" + encodeURIComponent(pj) : "") : "/projects");
       return;
     }
     const on = !!(GIVE && GIVE.enabled);
@@ -3198,7 +3202,7 @@ window.RAAV_FEATURES = (function () {
           ${kind === "project" ? `<label class="give-check"><input type="checkbox" name="tribute_show" value="yes" checked> <span>Show this name on the project page</span></label>` : ""}
           ${kind === "member" ? "" : `<label class="give-check"><input type="checkbox" name="remind" value="yes"> <span>Remind me every year, a week before the day</span></label>
           <label class="give-remind-day" hidden><span>The day <small>(a birthday, a remembrance day...)</small></span><input type="date" name="remind_day"></label>`}
-          <p class="note give-moment-link"><a href="/moment">More reasons, and a card to keep →</a></p>
+          <p class="note give-moment-link"${FEAT.moment ? "" : " hidden"}><a href="/moment">More reasons, and a card to keep →</a></p>
         </div>
         <fieldset class="give-amounts"><legend>${ASK ? (kind === "member" ? "Roughly how much each month?" : "Roughly how much?") : `${kind === "member" ? "Each month" : "Amount"} (${LKR ? "Sri Lankan rupees" : "CAD"})`}</legend>
           ${amounts.map((a, i) => `<label class="give-chip${a.what ? " give-real" : ""}"><input type="radio" name="pick" value="${a.v}" data-label="${esc(a.label || dollars(a.v))}"${i === (opts.pick || 0) ? " checked" : ""}><span>${a.what ? `<b>${esc(a.label || dollars(a.v))}</b><small>${esc(a.what)}</small>` : esc(a.label || dollars(a.v))}</span></label>`).join("")}
@@ -3418,7 +3422,7 @@ window.RAAV_FEATURES = (function () {
             <li><b>Everyone can see.</b> What comes into the fund and where it goes is shown openly, down to the rupee.</li>
           </ol>
           <p class="note">Have something specific in mind? Write your wish in the form, and a volunteer will contact you.</p>
-          <p class="note"><a href="/moment">Give in someone's name →</a> &nbsp; <a href="/moment#projects">Or choose a project yourself →</a></p>
+          <p class="note"${FEAT.moment ? "" : " hidden"}><a href="/moment">Give in someone's name →</a> &nbsp; <a href="/moment#projects">Or choose a project yourself →</a></p>
         </div>
         <div class="panel give-box">
           <h2>Give to the Raavanaa Fund</h2>
@@ -3728,7 +3732,7 @@ window.RAAV_FEATURES = (function () {
     const by = s && s.provider === "payhere" ? "PayHere" : GIVE_BY;
     const dollars = n => cash(Number(n), (s && s.currency) || GIVE_CUR);
     const TAp = location.pathname.startsWith("/ta/");
-    let h = "Thank you", t = `Your gift is on its way. ${by} will email you a receipt.`, link = FEAT.sponsor ? `<a class="btn" href="/give">Back to Sponsor a smile</a>` : `<a class="btn" href="/moment">Back to Gift a Moment</a>`;
+    let h = "Thank you", t = `Your gift is on its way. ${by} will email you a receipt.`, link = FEAT.sponsor ? `<a class="btn" href="/give">Back to Sponsor a smile</a>` : (FEAT.moment ? `<a class="btn" href="/moment">Back to Gift a Moment</a>` : `<a class="btn" href="/projects">See the projects</a>`);
     if (s && s.ok) {
       if (s.kind === "project" && s.project) { h = "Thank you for sponsoring a smile"; t = TAp ? `உங்கள் ${dollars(s.amount)} “${esc(s.project.title)}” நடக்க உதவுகிறது. ${s.status === "pending" ? "உங்கள் வங்கி உறுதிப்படுத்தியதும், " : ""}ஒரு நிமிடத்துக்குள் இது திட்டப் பக்கத்தில் காட்டப்படும்; அந்த நாளுக்குப் பின் படங்களையும் பணம் எங்கே சென்றது என்பதையும் பார்ப்பீர்கள்.`
         : `Your ${dollars(s.amount)} is helping make “${esc(s.project.title)}” happen. It will show on the project page within a minute${s.status === "pending" ? " once your bank confirms it" : ""}, and after the day you'll see the photos and where the money went.`; link = `<a class="btn" href="/projects/${esc(s.project.slug)}">See the project</a>`; }
