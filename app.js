@@ -172,7 +172,8 @@ function renderNav(){
     <a href="#students" data-scroll="students" class="navlink">For Students</a><a href="#about" data-scroll="about" class="navlink">About</a></span>`);
   if (user) {
     if (roles.family) items.push(link("/practice", "Practice", "btn small ghost"));
-    if (roles.teacher || !roles.family) items.push(link("/teacher", "Dashboard", "btn small ghost"));
+    if (roles.teacher || (!roles.family && !roles.admin)) items.push(link("/teacher", "Dashboard", "btn small ghost"));
+    if (roles.admin && !roles.teacher) items.push(link("/admin", "Admin", "btn small ghost"));
     items.push(`<button class="btn small ghost icon" id="signout" type="button" aria-label="Sign out" title="Sign out"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>`);
   } else {
     items.push(link("/signin", "Sign in", "btn small ghost"));
