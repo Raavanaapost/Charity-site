@@ -20,17 +20,19 @@ window.RAAV_SKILLS = ["Visiting and checking projects near me", "Driving and tra
   "Accounts and bookkeeping", "Website and IT", "Medical and first aid", "Counselling and care", "Legal advice", "Building and repairs",
   "Farming and livelihoods", "Organising and leading", "Something else"];
 window.RAAV_FEATURES = (function () {
-  const F = { sponsor: false, pledge: true, circle: false, vetting: true, tamil: false, group: false, join: false, reasons: [] };  // join: "Join Raavanaa" cards and links (off, SURESH 20 Nov 2026: "take join raavanaa out")  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
+  const F = { sponsor: false, pledge: true, circle: false, vetting: true, tamil: false, group: false, join: false, volunteers: false, reasons: [] };  // join: "Join Raavanaa" cards and links (off, SURESH 20 Nov 2026: "take join raavanaa out")  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
   try {
     const q = new URLSearchParams(location.search).get("features");
     const test = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) || /--charity-projects-draft\./.test(location.hostname);
     if (test && q === "all") sessionStorage.setItem("raav-features", "all");
     if (q === "launch") sessionStorage.removeItem("raav-features");
-    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = F.group = F.join = true; F.reasons = []; }
+    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = F.group = F.join = F.volunteers = true; F.reasons = []; }
   } catch (e) { /* storage blocked: the launch switches stay */ }
   ["sponsor", "circle", "vetting", "tamil"].forEach(k => { if (!F[k]) document.documentElement.classList.add("no-" + k); });
   // Tamil hidden for now (SURESH 15 Nov 2026): no தமிழ் switch, and a /ta/ page opens the same page in English.
   // The Tamil pages and ta.js stay; set tamil: true to bring them back.
+  // Volunteers pages taken out (SURESH, 20 Nov 2026: "take join volunteer page out"); set volunteers: true to bring them back.
+  if (!F.volunteers && /^\/(ta\/)?volunteers?(\.html)?\/?$/.test(location.pathname)) location.replace("/projects");
   if (!F.tamil && /^\/ta(\/|$)/.test(location.pathname)) location.replace((location.pathname.replace(/^\/ta/, "") || "/") + location.search + location.hash);
   return F;
 })();
@@ -258,7 +260,7 @@ window.RAAV_FEATURES = (function () {
       navEl.appendChild(m);
     }
     // "Volunteers" in every menu, after Projects (SURESH 17 Nov 2026: build the Volunteers page into the site).
-    if (navEl && !navEl.querySelector('a[href$="/volunteers"]')) {
+    if (navEl && FEAT.volunteers && !navEl.querySelector('a[href$="/volunteers"]')) {
       const v = document.createElement("a"); v.href = "/volunteers"; v.textContent = "Volunteers";
       if (document.body.dataset.page === "volunteers") v.setAttribute("aria-current", "page");
       const after = navEl.querySelector('a[href="/initiated"], a[href="/projects"]');
@@ -307,7 +309,7 @@ window.RAAV_FEATURES = (function () {
       <div class="foot-main"><div class="wrap">
         <!-- Footer kept very simple (SURESH, 17 Nov 2026): one row of links, no stages, no Gift a Moment. -->
         <nav class="foot-simple" aria-label="Footer">
-          ${[["Projects", "/projects"], ["Submit a need", "/initiate?way=need"], ["Volunteers", "/volunteers"], ["About us", "/about"], ["Contact", "/contact"]].map(([t, h]) => `<a href="${h}">${t}</a>`).join("")}${APP.inApp ? "" : `<a href="#app" data-get-app>Get the app</a>`}
+          ${[["Projects", "/projects"], ["Submit a need", "/initiate?way=need"], ...(FEAT.volunteers ? [["Volunteers", "/volunteers"]] : []), ["About us", "/about"], ["Contact", "/contact"]].map(([t, h]) => `<a href="${h}">${t}</a>`).join("")}${APP.inApp ? "" : `<a href="#app" data-get-app>Get the app</a>`}
         </nav>
         ${follow.length ? `<p class="foot-follow">${follow.map(([t, h, ext]) => `<a href="${esc(h)}"${ext ? ' target="_blank" rel="noopener"' : ""}>${esc(t)}</a>`).join("")}</p>` : ""}
       </div></div>
@@ -2337,7 +2339,7 @@ window.RAAV_FEATURES = (function () {
         ["Sponsor or help", "/contact", '<path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.2c0 5.6-7.5 10.2-7.5 10.2z"/>']
       ],
       heading: 'Projects we have <span class="stage-word s2">Activated</span>', empty: { text: "Nothing is in action just yet. Our first projects are getting ready to start, and you can follow them from the beginning.", btn: "See what we have initiated", href: "/initiated" },
-      cta: { title: "Want to take part?", text: "Projects move because people show up. Lend an hour, a skill or a helping hand, and be part of what's happening.", btn: "Volunteer with us", href: "/volunteers#join" },
+      cta: { title: "Want to take part?", text: "Projects move because people show up. Lend an hour, a skill or a helping hand, and be part of what's happening.", btn: FEAT.volunteers ? "Volunteer with us" : "Get in touch", href: FEAT.volunteers ? "/volunteers#join" : "/contact" },
       next: { slug: "impact", kicker: "Next stage", label: "Impact", text: "See the difference these projects are making." }
     },
     impact: {
@@ -2351,10 +2353,10 @@ window.RAAV_FEATURES = (function () {
       ],
       links: [
         ["How we share results", "/how-it-works#impact", '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01" stroke-width="2.2"/>'],
-        ["Be part of the next one", "/volunteers#join", '<circle cx="12" cy="6" r="2.4"/><circle cx="5.5" cy="9" r="2"/><circle cx="18.5" cy="9" r="2"/><path d="M7.5 20c.4-4 2-6 4.5-6s4.1 2 4.5 6M2 18c.3-2.6 1.4-4 3.5-4M22 18c-.3-2.6-1.4-4-3.5-4"/>']
+        ["Be part of the next one", FEAT.volunteers ? "/volunteers#join" : "/contact", '<circle cx="12" cy="6" r="2.4"/><circle cx="5.5" cy="9" r="2"/><circle cx="18.5" cy="9" r="2"/><path d="M7.5 20c.4-4 2-6 4.5-6s4.1 2 4.5 6M2 18c.3-2.6 1.4-4 3.5-4M22 18c-.3-2.6-1.4-4-3.5-4"/>']
       ],
       heading: '<span class="stage-word s3">Impact</span> Stories', empty: { text: "Our first impact stories are on the way. As soon as a trip or event has happened, the smiles and the stories will be shared here.", btn: "See what we have initiated", href: "/initiated" },
-      cta: { title: "Be part of the next one", text: "Every smile on this page started with people who cared. Stay close and see what we create together next.", btn: "Get involved", href: "/volunteers#join" },
+      cta: { title: "Be part of the next one", text: "Every smile on this page started with people who cared. Stay close and see what we create together next.", btn: "Get involved", href: FEAT.volunteers ? "/volunteers#join" : "/contact" },
       next: { slug: "initiated", kicker: "Back to the start", label: "Initiated", text: "See every project from where it began." }
     }
   };
@@ -2457,7 +2459,7 @@ window.RAAV_FEATURES = (function () {
         ["You tell us how it went", "The organizers get a short feedback form after the day, and anyone can report a concern at any time. Concerns go to our safeguarding lead and an independent reviewer."],
         ["The numbers are counted", "How many children, families and volunteers took part, shown on the project and on the Impact page."]
       ],
-      cta: ["Be part of the next one", "/volunteers#join"] }
+      cta: ["Be part of the next one", FEAT.volunteers ? "/volunteers#join" : "/contact"] }
   ];
   function renderHow(app) {
     const pick = () => Math.max(0, HOW.findIndex(h => "#" + h.key === location.hash));
@@ -2495,7 +2497,7 @@ window.RAAV_FEATURES = (function () {
     const tiles = (site.impact || []).filter(x => x && x.label).map(x => ({
       label: x.label, note: x.note || "",
       value: auto[x.count] ? String(auto[x.count]()) : String(x.value == null ? "" : x.value),
-      href: x.count === "trips" || x.count === "projects" ? "/initiated" : x.count === "stories" ? "#stories" : /volunteer/i.test(x.label) ? "/volunteers" : ""
+      href: x.count === "trips" || x.count === "projects" ? "/initiated" : x.count === "stories" ? "#stories" : /volunteer/i.test(x.label) && FEAT.volunteers ? "/volunteers" : ""
     })).filter(x => x.value !== "" && x.value !== "0"); // nothing to show yet → no tile
     const numbers = tiles.length ? tiles.map(x => ({ x }))
       : projects.flatMap(p => (p.impact || []).filter(x => x && x.value).map(x => ({ p, x })));
@@ -3078,7 +3080,9 @@ window.RAAV_FEATURES = (function () {
 
   function renderAbout(app, site) {
     const org = site.name.charAt(0).toUpperCase() + site.name.slice(1).toLowerCase();
-    app.innerHTML = `<section class="intro about-page"><span class="eyebrow">About us</span><h1 class="follow-title"><span class="initial">${esc(org.charAt(0))}</span><span class="org">${esc(org.slice(1))}</span> Community</h1><div class="story">${md(site.about)}</div><p><a href="/initiated">See our projects</a></p></section>`;
+    // New About us words from SURESH (20 Nov 2026); the earlier About us is kept at /about-before (on the to-revisit list).
+    const OLD = /^\/about-before/.test(location.pathname) && !!site.about_old;
+    app.innerHTML = `<section class="intro about-page"><span class="eyebrow">About us</span>${OLD || !site.about_title ? `<h1 class="follow-title"><span class="initial">${esc(org.charAt(0))}</span><span class="org">${esc(org.slice(1))}</span> Community</h1>` : `<h1 class="follow-title about-title">${esc(site.about_title)}</h1>`}<div class="story">${md(OLD ? site.about_old : site.about)}</div><p><a href="/initiated">See our projects</a></p></section>`;
   }
 
   // Phone menu button
