@@ -335,8 +335,24 @@ body.pt-signedout .pt-shell{display:block}
 .pt-login form{display:grid;gap:4px;text-align:left}
 .pt-login .pt-field input{width:100%;box-sizing:border-box}
 .pt-login-msg{min-height:1.3em;margin:6px 0 0;color:#a12d17;font-size:14px}
-.pt-signout{border:0;background:none;text-align:left;cursor:pointer;font:inherit;font-size:13.5px;font-weight:600;color:var(--muted)}
-@media (min-width:900px){.pt-signout{display:block;margin-top:0!important}}
+.pt-sidefoot{display:none}
+@media (min-width:900px){
+  .pt-side{overflow-y:auto;gap:14px}
+  .pt-nav a,.pt-nav .soon{padding:7px 10px}
+  .pt-sidefoot{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 4px;margin-top:auto;padding-top:10px;border-top:1px solid var(--line)}
+  .pt-sidefoot .pt-who{grid-column:1;grid-row:1;min-width:0}
+  .pt-sidefoot .pt-signout{grid-column:2;grid-row:1}
+  .pt-sidefoot a.pt-site{grid-column:1/-1;grid-row:2}
+  .pt-sidefoot .pt-site{margin-top:0;display:flex;align-items:center;gap:6px;box-sizing:border-box;padding:6px 10px;border-radius:9px;font-size:13.5px;line-height:1.3;white-space:nowrap}
+  .pt-sidefoot .pt-signout{border:1px solid var(--line);background:var(--surface)}
+  .pt-sidefoot .pt-site:hover{background:var(--bg);color:var(--ink)}
+  .pt-who{display:grid;padding:4px 10px 6px;font-weight:700;font-size:14px;color:var(--ink);overflow:hidden;text-overflow:ellipsis}
+  .pt-who small{font-weight:600;font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+}
+.pt-signout{border:0;background:none;text-align:left;cursor:pointer;font:inherit;font-weight:600;color:var(--muted)}
+/* Team & logins: how they get in; Google on the team sign-in */
+.pt-howto{margin:0 0 12px;padding-left:20px;display:grid;gap:6px}
+.pt-google{margin-top:8px}
 body.pt-signedout .pt-demo{display:none}
 .pt-paste{display:grid;gap:6px;text-align:left}.pt-paste input{width:100%;box-sizing:border-box}
 
