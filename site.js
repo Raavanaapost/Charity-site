@@ -3232,8 +3232,12 @@ window.RAAV_FEATURES = (function () {
       : (LKR ? [2500, 5000, 10000] : [25, 50, 100]).map(v => ({ v }));
     // The simple project pledge (SURESH, 17 Nov 2026): one short form on the project. Amount, name, email or WhatsApp,
     // follow, send. "We'll send you the ways to fund." The pledge shows on the project at once and the % bar goes up.
-    // Coming from Gift a Moment (?tribute=) still opens the full form with the name of the person remembered.
-    const SIMPLE = ASK && !!p && FEAT.pledge && !q.get("tribute");
+    // Coming from Gift a Moment (?tribute=&tn=) it is the same short form (SURESH, 20 Nov 2026: "after you said give in
+    // their name, why this page with all the details?"): the moment is shown as one line with Change, not asked again.
+    const MOMENT = q.get("tribute") && q.get("tn") ? { k: String(q.get("tribute")).replace(/[^a-z]/g, ""), words: (q.get("tw") || "").slice(0, 60), name: q.get("tn").slice(0, 60),
+      note: (q.get("tnote") || "").slice(0, 140), code: /^[a-z0-9]{6,16}$/.test(q.get("m") || "") ? q.get("m") : "",
+      day: q.get("every") === "year" && q.get("remind") && /^\d{4}-\d{2}-\d{2}$/.test(q.get("day") || "") ? q.get("day") : "" } : null;
+    const SIMPLE = ASK && !!p && FEAT.pledge && (!q.get("tribute") || !!MOMENT);
     if (SIMPLE) load("/api/fx").then(d => { if (d && d.lkr) { PL_FX = d.lkr; app.querySelectorAll(".pledge-form").forEach(f => f.dispatchEvent(new Event("input"))); } }).catch(() => {});
     const wirePledge = (f, x) => {
       const goal = +f.dataset.goal || 0, raised = +f.dataset.raised || 0, left = +f.dataset.left || 0, cur = f.dataset.cur || "";
@@ -3300,12 +3304,14 @@ window.RAAV_FEATURES = (function () {
         if (!(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) || contact.replace(/\D/g, "").length >= 7)) { say("Please add your email or a WhatsApp number, so we can send you the ways to fund.", true); ct.focus(); return; }
         const show = f.querySelector('[name="show"]').checked, follow = f.querySelector('[name="follow"]').checked;
         const trName = f.querySelector('[name="tribute_name"]').value.trim(), trSel = f.querySelector('[name="tribute_kind"]');
+        const trWords = trSel.dataset.words || (trSel.selectedOptions && trSel.selectedOptions[0] ? trSel.selectedOptions[0].textContent.trim() : "");
         const amountText = curSel && curSel.value !== "LKR" ? `${typedText()} (about ${moneyOf(site, v, x)})` : moneyOf(site, v, x), slug = f.dataset.slug;
         const body = { kind: "project", project: slug, name, contact, amount: amountText, amount_value: Math.min(v, left || v), listing: show ? "both" : "anonymous",
           follow: follow ? "yes" : "no", lang: "en", message: "", "bot-field": f.querySelector('[name="bot-field"]').value };
-        if (trName) Object.assign(body, { tribute_on: "yes", tribute_kind: trSel.value, tribute_words: trSel.selectedOptions[0].textContent.trim(), tribute_name: trName, tribute_show: "yes" });
+        if (trName) Object.assign(body, { tribute_on: "yes", tribute_kind: trSel.value, tribute_words: trWords, tribute_name: trName, tribute_show: "yes" });
+        if (trName && MOMENT) { if (MOMENT.note) body.tribute_note = MOMENT.note; if (MOMENT.code) body.moment = MOMENT.code; if (MOMENT.day) Object.assign(body, { remind: "yes", remind_day: MOMENT.day }); }
         pay.disabled = true; say("Sending…");
-        const copy = new URLSearchParams({ "form-name": "give-request", name, contact, amount: amountText, kind: "project", project: slug, moment: "",
+        const copy = new URLSearchParams({ "form-name": "give-request", name, contact, amount: amountText, kind: "project", project: slug, moment: body.moment || "",
           tribute: trName ? `${body.tribute_words} ${trName}` : "", message: follow ? "Wants to follow the project" : "", lang: "en", "bot-field": body["bot-field"], listing: show ? "Name and amount" : "Anonymous" });
         try {
           const [r, n] = await Promise.all([
@@ -3348,6 +3354,10 @@ window.RAAV_FEATURES = (function () {
           <p class="pl-lede"><b>Reserve and follow.</b> Give from anywhere, in your own money. A volunteer will follow up with the ways to fund. Your part is held for 24 hours.</p>
           <form class="give-form pledge-form give-ask" data-slug="${esc(slugOf(x))}" data-goal="${bp.goal}" data-raised="${bp.raised}" data-left="${left}" data-cur="${esc(cur)}" novalidate>
             <p hidden><label>Leave empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+            ${MOMENT ? `<div class="pl-moment"><span class="pl-moment-ic" aria-hidden="true">♡</span>
+              <span class="pl-moment-t"><small>Your moment</small><b>${esc(MOMENT.k === "behalf" ? "On behalf of" : MOMENT.words)} ${esc(MOMENT.name)}</b>${MOMENT.note ? `<i>“${esc(MOMENT.note)}”</i>` : ""}</span>
+              <a class="pl-moment-x" href="/moment?for=${esc(MOMENT.k)}&project=${esc(slugOf(x))}&from=pick#mo-step-2">Change</a>
+              <input type="hidden" name="tribute_kind" value="${esc(MOMENT.k)}" data-words="${esc(MOMENT.k === "behalf" ? "Given on behalf of" : MOMENT.words)}"><input type="hidden" name="tribute_name" value="${esc(MOMENT.name)}"></div>` : ""}
             ${left > 0 ? `<button type="button" class="pl-full" data-full><svg class="pl-mini" viewBox="0 0 44 44" aria-hidden="true"><defs><linearGradient id="pl-mini-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1f7a47"/><stop offset=".5" stop-color="#eaa21c"/><stop offset="1" stop-color="#c8381e"/></linearGradient></defs><circle cx="22" cy="22" r="17" fill="#fff" stroke="#f6dcae" stroke-width="6"/><circle class="pl-mini-arc" cx="22" cy="22" r="17" fill="none" stroke="url(#pl-mini-g)" stroke-width="6" stroke-linecap="round" pathLength="100" stroke-dasharray="${bp.goal ? Math.round(bp.raised / bp.goal * 100) : 0} 100" transform="rotate(-90 22 22)"/><text x="22" y="26" text-anchor="middle" data-mini-n>${bp.goal ? Math.round(bp.raised / bp.goal * 100) : 0}%</text></svg><span><b>${(m => m ? `Complete the moment for all ${m[0]} children` : "Complete the whole moment")(String(x.reach || "").match(/\d+/))}</b><small data-left-text><strong>${esc(moneyOf(site, left, x))}</strong> left</small></span></button>` : ""}
             <label class="pl-amt"><span>Or any amount <small>(in your own money)</small></span>
               <span class="pl-rate" data-rate hidden></span>
@@ -3358,10 +3368,10 @@ window.RAAV_FEATURES = (function () {
             <label><span>Email or WhatsApp</span><input name="contact" maxlength="120" required autocomplete="email" placeholder="you@example.com or 077 123 4567"></label>
             <label class="give-check"><input type="checkbox" name="show" value="yes" checked> <span>Show my name and amount on the project</span></label>
             <label class="give-check"><input type="checkbox" name="follow" value="yes" checked> <span>Follow this project <small>(sign in with this email to see it in My account)</small></span></label>
-            <details class="pl-tribute"><summary>Give it in someone's name <small>(optional)</small></summary>
+            ${MOMENT ? "" : `<details class="pl-tribute"><summary>Give it in someone's name <small>(optional)</small></summary>
               <label><span>This gift is</span><select name="tribute_kind">${REASONS.map(([v, t]) => `<option value="${v}">${t}</option>`).join("")}</select></label>
               <label><span>Their name</span><input name="tribute_name" maxlength="60" placeholder="e.g. Amma, Kamala Rajan"></label>
-            </details>
+            </details>`}
             <button class="btn give-pay" type="submit">${HEART_SVG}<span>Create the moment</span></button>
             ${SAFE}
             <p class="note give-msg" role="status" hidden></p>
