@@ -3093,3 +3093,9 @@ body:has(.ch-on-page) footer{padding-bottom:84px}
 .i-incharge{margin:0 0 18px;padding:14px 16px 16px;border-radius:16px;background:#f3f8f2;border:1.5px solid #cfe3d3;display:grid;gap:10px}
 .i-incharge-h{margin:0;font-family:var(--display);font-weight:700;font-size:16px;color:#1f4d3a}
 .i-incharge .i-note{margin:0}
+
+/* App bar: Submit a need as the big round middle button (SURESH, 20 Nov 2026), in the header button's sunrise orange */
+.appbar-gift.appbar-submit{background:linear-gradient(140deg,#f4a52c,#e57b1c 55%,#c8561a);box-shadow:0 10px 18px -8px rgba(200,86,26,.75),0 0 0 4px var(--surface)}
+.appbar-tab.gift[aria-current="page"] .appbar-submit{box-shadow:0 10px 18px -8px rgba(200,86,26,.75),0 0 0 4px var(--surface),0 0 0 6px #f7c63a}
+html.in-app .appbar{grid-template-columns:none;grid-auto-columns:minmax(0,1fr);grid-auto-flow:column}
+.appbar-tab.gift:has(.appbar-submit){color:#c8561a}
