@@ -232,12 +232,26 @@
           "</div>" +
           '<div class="mo-occ mo-occ-more" data-fold="reasons" hidden>' + OCCASIONS.filter(function (o) { return MAIN.indexOf(o.k) < 0; }).map(chip).join("") + "</div>" +
           (OCCASIONS.length > MAIN.length ? '<div class="mo-more-row">' : '<div class="mo-more-row" hidden>') + moreBtn("reasons", OCCASIONS.length - MAIN.length).replace(T("More", "மேலும்"), T("More reasons", "மேலும் காரணங்கள்")) + "</div>" +
+          '<a class="mo-next" data-next href="' + L + '/projects?choose=memory">' + T("Next: choose a project", "அடுத்து: ஒரு திட்டத்தைத் தேர்ந்தெடுங்கள்") + ' <i aria-hidden="true">→</i></a>' +
           '<label class="mo-field mo-custom" hidden><span>' + T("Your own words, before their name", "அவர்கள் பெயருக்கு முன் வர வேண்டிய உங்கள் வார்த்தைகள்") + '</span><input name="custom" maxlength="60" placeholder="' + T("e.g. With love from the whole family, for", "எ.கா. முழுக் குடும்பத்தின் அன்புடன்,") + '"></label>' +
         "</div>" +
       "</div></section>" +
     '<div class="wrap mo-body">' +
+      // 2. the project (SURESH, 20 Nov 2026): chosen on the list at /projects?choose=<reason>; shown here with Change
+      '<section class="mo-step mo-where" id="projects"><p class="mo-num">2</p><h2>' + T("Your project", "உங்கள் திட்டம்") + "</h2>" +
+        '<p class="mo-note" data-where-note></p>' +
+        '<div class="mo-tabs" role="tablist" data-tabs></div>' +
+        '<ul class="mo-list" data-list><li class="mo-note">' + T("Loading the days that need you…", "உங்களுக்காகக் காத்திருக்கும் நாட்கள் ஏற்றப்படுகின்றன…") + "</li></ul>" +
+        '<div class="mo-other">' +
+          '<button type="button" class="mo-alt" data-goes="fund" aria-pressed="false"><span class="mo-alt-ic" aria-hidden="true">❀</span><span><b>' + T("Let Raavanaa choose", "ராவணா தேர்ந்தெடுக்கட்டும்") + "</b><small>" + T("The Raavanaa Fund: the next day of joy that needs it", "ராவணா நிதியம்: தேவையுள்ள அடுத்த மகிழ்ச்சியான நாள்") + "</small></span></button>" +
+          '<button type="button" class="mo-alt" data-goes="wish" aria-pressed="false"><span class="mo-alt-ic" aria-hidden="true">✎</span><span><b>' + T("A wish of my own", "என் சொந்த விருப்பம்") + "</b><small>" + T("Something specific you would love your gift to do", "உங்கள் அன்பளிப்பு செய்ய வேண்டுமென நீங்கள் விரும்புவது") + "</small></span></button>" +
+        "</div>" +
+        '<label class="mo-field mo-wish" data-wish-field hidden><span>' + T("Tell us your wish", "உங்கள் விருப்பத்தைச் சொல்லுங்கள்") + '</span><textarea name="wish" maxlength="300" rows="3" placeholder="' + T("e.g. school shoes for a class, a meal at an elders' home, books for a village library", "எ.கா. ஒரு வகுப்புக்குப் பாடசாலைக் காலணிகள், முதியோர் இல்லத்தில் ஒரு உணவு, கிராம நூலகத்துக்குப் புத்தகங்கள்") + '"></textarea>' +
+          '<small>' + T("Your gift waits safely in the Raavanaa Fund. A volunteer will write to you, and we will show you the day it made happen.", "உங்கள் அன்பளிப்பு ராவணா நிதியத்தில் பாதுகாப்பாகக் காத்திருக்கும். ஒரு தன்னார்வலர் உங்களுக்கு எழுதுவார்; அது உருவாக்கிய நாளை நாம் உங்களுக்குக் காட்டுவோம்.") + "</small></label>" +
+      "</section>" +
+
       // 2. who it is for: a shaded section with a title in the words of the reason
-      '<section class="mo-step mo-who" id="mo-step-2"><p class="mo-num">2</p><h2 data-who-h></h2>' +
+      '<section class="mo-step mo-who" id="mo-step-2"><p class="mo-num">3</p><h2 data-who-h></h2>' +
         '<label class="mo-field"><span data-name-l></span><input name="name" maxlength="60" autocomplete="off"></label>' +
         '<div class="mo-quick" data-who-quick></div>' +
         '<div class="mo-quick" data-fold="who" hidden data-who-more></div>' +
@@ -255,7 +269,7 @@
       "</section>" +
       // 3. the Moment Card
       '<section class="mo-cardsec" id="mo-card">' +
-        '<p class="mo-kicker"><span class="mo-num">3</span>' + T("Your Moment Card", "உங்கள் தருண அட்டை") + "</p>" +
+        '<p class="mo-kicker"><span class="mo-num">4</span>' + T("Your Moment Card", "உங்கள் தருண அட்டை") + "</p>" +
         '<h2 class="mo-card-h">' + T("A moment, created in their name", "அவர்கள் பெயரில் உருவான ஒரு தருணம்") + "</h2>" +
         '<figure class="mo-card" data-card>' +
           '<span class="mo-card-c tl" aria-hidden="true"></span><span class="mo-card-c tr" aria-hidden="true"></span><span class="mo-card-c bl" aria-hidden="true"></span><span class="mo-card-c br" aria-hidden="true"></span>' +
@@ -270,18 +284,6 @@
           '<img class="mo-card-logo" src="/img/logo-450.webp?v=6" alt="Raavanaa" width="450" height="149">' +
         "</figure>" +
         '<div class="mo-card-actions"><button type="button" data-save>' + T("Save the card", "அட்டையைச் சேமி") + '</button><button type="button" data-share>' + T("Share the card", "அட்டையைப் பகிர்") + "</button></div>" +
-      "</section>" +
-      // 4. where the joy goes: the projects at a glance, tap the heart to choose (one or more)
-      '<section class="mo-step mo-where" id="projects"><p class="mo-num">4</p><h2>' + T("Where should the joy go?", "மகிழ்ச்சி எங்கே செல்ல வேண்டும்?") + "</h2>" +
-        '<p class="mo-note">' + T("Tap the heart on one or more projects. Every rupee is shown openly.", "ஒன்று அல்லது பல திட்டங்களில் இதயத்தைத் தொடுங்கள். ஒவ்வொரு ரூபாயும் வெளிப்படையாகக் காட்டப்படும்.") + "</p>" +
-        '<div class="mo-tabs" role="tablist" data-tabs></div>' +
-        '<ul class="mo-list" data-list><li class="mo-note">' + T("Loading the days that need you…", "உங்களுக்காகக் காத்திருக்கும் நாட்கள் ஏற்றப்படுகின்றன…") + "</li></ul>" +
-        '<div class="mo-other">' +
-          '<button type="button" class="mo-alt" data-goes="fund" aria-pressed="false"><span class="mo-alt-ic" aria-hidden="true">❀</span><span><b>' + T("Let Raavanaa choose", "ராவணா தேர்ந்தெடுக்கட்டும்") + "</b><small>" + T("The Raavanaa Fund: the next day of joy that needs it", "ராவணா நிதியம்: தேவையுள்ள அடுத்த மகிழ்ச்சியான நாள்") + "</small></span></button>" +
-          '<button type="button" class="mo-alt" data-goes="wish" aria-pressed="false"><span class="mo-alt-ic" aria-hidden="true">✎</span><span><b>' + T("A wish of my own", "என் சொந்த விருப்பம்") + "</b><small>" + T("Something specific you would love your gift to do", "உங்கள் அன்பளிப்பு செய்ய வேண்டுமென நீங்கள் விரும்புவது") + "</small></span></button>" +
-        "</div>" +
-        '<label class="mo-field mo-wish" data-wish-field hidden><span>' + T("Tell us your wish", "உங்கள் விருப்பத்தைச் சொல்லுங்கள்") + '</span><textarea name="wish" maxlength="300" rows="3" placeholder="' + T("e.g. school shoes for a class, a meal at an elders' home, books for a village library", "எ.கா. ஒரு வகுப்புக்குப் பாடசாலைக் காலணிகள், முதியோர் இல்லத்தில் ஒரு உணவு, கிராம நூலகத்துக்குப் புத்தகங்கள்") + '"></textarea>' +
-          '<small>' + T("Your gift waits safely in the Raavanaa Fund. A volunteer will write to you, and we will show you the day it made happen.", "உங்கள் அன்பளிப்பு ராவணா நிதியத்தில் பாதுகாப்பாகக் காத்திருக்கும். ஒரு தன்னார்வலர் உங்களுக்கு எழுதுவார்; அது உருவாக்கிய நாளை நாம் உங்களுக்குக் காட்டுவோம்.") + "</small></label>" +
       "</section>" +
       // 5. give, with two small extras folded away: every year, and a family page
       '<section class="mo-final">' +
@@ -325,7 +327,19 @@
   var input = function (n) { return root.querySelector('[name="' + n + '"]'); };
   var projects = [];   // the days that still need sponsors
   var all = [];        // every public project (the explorer)
+  // Coming back from the project list (?from=pick): what was typed before is put back (kept in this tab only).
+  var KEEP = ["custom", "name", "note", "from", "others", "wish", "every", "day", "remind"];
+  function keepState() { try { var o = { k: st.k }; KEEP.forEach(function (n) { o[n] = st[n]; }); sessionStorage.setItem("raav-moment", JSON.stringify(o)); } catch (e) { /* fine without it */ } }
+  if (q.get("from") === "pick") {
+    try {
+      var kept = JSON.parse(sessionStorage.getItem("raav-moment") || "null");
+      if (kept && kept.k === st.k) KEEP.forEach(function (n) { if (kept[n] != null) st[n] = kept[n]; });
+    } catch (e) { /* start fresh */ }
+    ["custom", "name", "note", "from", "others", "wish"].forEach(function (n) { if (st[n] && input(n)) input(n).value = st[n]; });
+    input("remind").checked = !!st.remind;
+  }
   input("day").value = st.day;
+  var pickUrl = function () { return L + "/projects?choose=" + st.k + (st.picks[0] && st.goes === "pick" ? "&project=" + encodeURIComponent(st.picks[0]) : ""); };
   var chosen = function () { return st.goes === "pick" ? st.picks.filter(function (s) { return projects.some(function (p) { return p.slug === s; }); }) : []; };
   var fromLine = function () { return [st.from, st.others].filter(Boolean).join(", "); };
 
@@ -421,6 +435,9 @@
     root.querySelectorAll("[data-goes]").forEach(function (b) { var on = b.dataset.goes === st.goes || (b.dataset.goes === "fund" && st.goes === "pick" && !c.length && projects.length === 0); b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); });
     $("[data-wish-field]").hidden = st.goes !== "wish";
     $("[data-go]").href = giveUrl();
+    root.querySelectorAll("[data-next], [data-change]").forEach(function (a) { a.href = pickUrl(); });
+    var nx = $("[data-next]"); if (nx) nx.hidden = !!(chosen().length && q.get("from") === "pick");
+    try { sessionStorage.setItem("raav-pick", JSON.stringify({ k: st.k, slug: chosen()[0] || "" })); } catch (e) { /* fine */ }
     $("[data-go]").textContent = st.name ? T("Give in " + st.name + "'s name", st.name + " பெயரில் கொடுங்கள்") : T("Give in their name", "அவர்கள் பெயரில் கொடுங்கள்");
     $("[data-final-sum]").textContent = st.name ? (w ? w + " " : "") + st.name : "";
     $("[data-final-sum]").hidden = !st.name;
@@ -495,7 +512,7 @@
       if (!st.picks.length) st.goes = "fund";
       stale(); draw();
     }
-    else if (t.dataset.goes) { st.goes = t.dataset.goes; st.picks = []; stale(); draw(); if (st.goes === "wish") input("wish").focus(); }
+    else if (t.dataset.goes) { st.goes = t.dataset.goes; st.picks = []; stale(); drawList(); draw(); if (st.goes === "wish") input("wish").focus(); }
     else if (t.dataset.every) { st.every = t.dataset.every; draw(); }
     else if (t.dataset.circle) { st.circle = t.dataset.circle; draw(); }
     else if (t.hasAttribute("data-together")) makeTogether();
@@ -505,6 +522,10 @@
     else if (t.hasAttribute("data-together-share")) shareOut(shareText(pageUrl()));
     else if (t.hasAttribute("data-share")) shareOut(shareText(location.origin + L + "/moment"));
     else if (t.dataset.cat) { st.cat = t.dataset.cat; drawList(); draw(); }
+    else if (t.hasAttribute("data-next") || t.hasAttribute("data-change") || (t.hasAttribute("data-act") && !chosen().length)) {
+      // SURESH 20 Nov 2026: after the reason, the giver goes to the list of projects to choose one
+      e.preventDefault(); keepState(); location.href = pickUrl();
+    }
     else if (t.hasAttribute("data-act")) {
       // the link under the picture: on to "Who is it for?", ready to type
       e.preventDefault();
@@ -538,35 +559,30 @@
   var CAT_TA = { "All": "அனைத்தும்", "Needs you": "உங்களுக்காக", "Trips & Events": "பயணங்களும் நிகழ்வுகளும்", "Education": "கல்வி", "Livelihood": "வாழ்வாதாரம்" };
   var catName = function (c) { return TA && CAT_TA[c] ? CAT_TA[c] : c; };
 
+  // Step 2 (SURESH, 20 Nov 2026): the project chosen on the list, with Change; or one clear button to the list.
+  // The old explorer (tabs, every project, hearts) is no longer drawn here; the list page does that job now.
   function drawList() {
-    var cats = ["All"].concat(CATS, all.map(function (p) { return p.cat; })).filter(function (c, i, a) { return c && a.indexOf(c) === i; })
-      .filter(function (c) { return c === "All" || all.some(function (p) { return p.cat === c; }); });
-    $("[data-tabs]").innerHTML = cats.length < 3 ? "" : cats.map(function (c) {
-      var n = c === "All" ? all.length : all.filter(function (p) { return p.cat === c; }).length;
-      return '<button type="button" role="tab" data-cat="' + esc(c) + '" aria-selected="' + (c === st.cat) + '"' + (c === st.cat ? ' class="on"' : "") + ">" + esc(catName(c)) + " <i>" + n + "</i></button>";
-    }).join("");
-    var rows = all.filter(function (p) { return st.cat === "All" || p.cat === st.cat; });
-    // the days that still need sponsors first; the funded and finished ones under "More"
-    var openN = rows.filter(function (p) { return p.open; }).length, restN = rows.length - openN;
+    $("[data-tabs]").innerHTML = "";
+    var c = chosen().map(function (s) { return projects.filter(function (x) { return x.slug === s; })[0]; }).filter(Boolean);
+    $("[data-where-note]").textContent = c.length ? T("Your moment makes this day happen. Every rupee is shown openly.", "உங்கள் தருணம் இந்த நாளை நிகழ்த்துகிறது. ஒவ்வொரு ரூபாயும் வெளிப்படையாகக் காட்டப்படும்.")
+      : projects.length ? T("Choose the project your moment will make happen, from the list of days that need you.", "உங்கள் தருணம் நிகழ்த்தும் திட்டத்தை, உங்களுக்காகக் காத்திருக்கும் நாட்களின் பட்டியலில் இருந்து தேர்ந்தெடுங்கள்.")
+      : T("Every project is funded right now. Let Raavanaa choose the next one that needs it.", "இப்போது எல்லாத் திட்டங்களுக்கும் நிதி கிடைத்துவிட்டது. தேவையுள்ள அடுத்ததை ராவணா தேர்ந்தெடுக்கட்டும்.");
     var row = function (p) {
-      var need = p.stage === 1 && p.goal > 0
-        ? esc(p.cur) + " " + Math.round(p.left).toLocaleString("en-US") + T(" still needed", " இன்னும் தேவை")
-        : p.stage === 2 ? T("Fully funded, getting ready", "முழு நிதியும் கிடைத்தது, தயாராகிறது") : p.stage === 3 ? T("Done: see the day", "நிறைவு: அந்த நாளைப் பாருங்கள்") : T("Budget being prepared", "வரவுசெலவு தயாராகிறது");
-      return '<li class="mo-row s' + p.stage + (p.open ? " can" : "") + '">' +
-        '<a class="mo-row-main" href="' + L + "/projects/" + esc(p.slug) + '" target="_blank" rel="noopener">' +
+      var need = p.goal > 0 ? esc(p.cur) + " " + Math.round(p.left).toLocaleString("en-US") + T(" still needed", " இன்னும் தேவை") : "";
+      return '<li class="mo-row s' + p.stage + ' can picked">' +
+        '<a class="mo-row-main" href="' + L + "/projects/" + esc(p.slug) + "?choose=" + st.k + '">' +
           '<span class="mo-row-pic" style="background-image:url(\'' + esc(p.art) + '\')"></span>' +
           '<span class="mo-row-text"><b>' + esc(p.title) + "</b>" +
             "<small>" + esc([p.place, p.reach].filter(Boolean).join(" · ")) + "</small>" +
             '<span class="mo-row-meta"><span class="mo-pill">' + esc(STAGE[p.stage - 1]) + "</span><span>" + need + "</span></span>" +
-            (p.stage === 1 && p.goal > 0 ? '<span class="mo-bar"><i style="width:' + p.pct + '%"></i></span>' : "") +
+            (p.goal > 0 ? '<span class="mo-bar"><i style="width:' + p.pct + '%"></i></span>' : "") +
           "</span></a>" +
-        (p.open ? '<button type="button" class="mo-heart" data-heart="' + esc(p.slug) + '" aria-pressed="false" aria-label="' + esc(p.title) + '">' + heartSVG + "<span>" + T("Choose", "தேர்ந்தெடு") + "</span></button>" : "") +
+        '<a class="mo-heart mo-change" data-change href="' + pickUrl() + '">' + heartSVG + "<span>" + T("Change", "மாற்று") + "</span></a>" +
         "</li>";
     };
-    $("[data-list]").innerHTML = rows.length ? rows.filter(function (p) { return p.open; }).map(row).join("") +
-      (restN ? '<li class="mo-list-more">' + moreBtn("done", 0).replace(T("More", "மேலும்"), openN ? T("More projects, funded or done", "மேலும் திட்டங்கள், நிதி பெற்றவை அல்லது நிறைவானவை") + " (" + restN + ")" : T("See the projects", "திட்டங்களைப் பாருங்கள்") + " (" + restN + ")") + "</li>" +
-        '<li class="mo-list-rest" data-fold="done"' + (st.open.done ? "" : " hidden") + '><ul class="mo-list">' + rows.filter(function (p) { return !p.open; }).map(row).join("") + "</ul></li>" : "")
-      : '<li class="mo-empty">' + T("No " + st.cat + " projects yet. ", "இன்னும் " + catName(st.cat) + " திட்டங்கள் இல்லை. ") + '<a href="' + L + '/initiate">' + T("Know of one? Start it here", "ஒன்றைத் தெரியுமா? இங்கே தொடங்குங்கள்") + " →</a></li>";
+    $("[data-list]").innerHTML = c.length ? c.map(row).join("")
+      : projects.length ? '<li class="mo-choose-li"><a class="mo-choose" data-change href="' + pickUrl() + '"><span class="mo-choose-ic" aria-hidden="true">' + heartSVG + "</span><span><b>" + T("Choose a project", "ஒரு திட்டத்தைத் தேர்ந்தெடுங்கள்") + "</b><small>" + T(projects.length + (projects.length === 1 ? " day is" : " days are") + " waiting for you", projects.length + " நாட்கள் உங்களுக்காகக் காத்திருக்கின்றன") + "</small></span><i aria-hidden=\"true\">→</i></a></li>"
+      : "";
   }
 
   Promise.all([
@@ -593,11 +609,11 @@
     }).sort(function (a, b) { return (b.open - a.open) || a.stage - b.stage || b.pct - a.pct; });
     // The days that still need sponsors: Initiated projects, visited and verified, not fully funded.
     projects = all.filter(function (p) { return p.open; });
-    if (projects.length && !q.get("any")) st.picks = [projects[0].slug];
     var want = q.get("project"); if (want && projects.some(function (p) { return p.slug === want; })) st.picks = [want];
     if (!st.picks.length) st.goes = "fund";
     if (q.get("wish") != null) st.goes = "wish";
     drawList(); draw();
+    if (q.get("from") === "pick" && location.hash === "#projects") { var w = document.getElementById("projects"); if (w) w.scrollIntoView({ block: "start" }); }
   });
 
 
