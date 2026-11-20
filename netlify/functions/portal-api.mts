@@ -5,31 +5,22 @@
 //   POST  /api/portal/suggestions/:ref/notes      add a team note
 //   GET   /api/portal/pledges                     people who asked to give ("I'd like to give")
 //   PATCH /api/portal/pledges/:ref                mark one replied, received or closed (+ a team note)
-// Access: a user with the Identity role "admin" or "team", or whose email is listed in the PORTAL_ADMINS environment variable.
+//   GET    /api/portal/access                     people who can open the portal (Team & logins)
+//   POST   /api/portal/access                     admin only: add someone by email {email, name, role: admin|team}
+//   DELETE /api/portal/access/:email              admin only: take someone's access away
+// Access: see ../lib/team-access.mts (Identity role admin/team, PORTAL_ADMINS, or added in the portal).
 import type { Config, Context } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
-import { getUser } from "@netlify/identity";
 import { getStore } from "@netlify/blobs";
 import { summary } from "../lib/traffic-core.mts";
+import { teamAccess, ownerEmails, type TeamMember } from "../lib/team-access.mts";
 
 const STATUSES = ["new", "visit", "verified", "approved", "declined", "project"];
 const clip = (v: unknown, max: number) => String(v ?? "").trim().slice(0, max);
 const json = (data: unknown, status = 200) => Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
 
-type Member = { email: string; name: string; roles: string[]; admin: boolean };
-
-async function member(): Promise<Member | null> {
-  const user = await getUser();
-  if (!user || !user.email) return null;
-  const email = user.email.toLowerCase();
-  const admins = (Netlify.env.get("PORTAL_ADMINS") || "").toLowerCase().split(",").map((x) => x.trim()).filter(Boolean);
-  const roles: string[] = Array.isArray(user.roles) ? user.roles : [];
-  const admin = roles.includes("admin") || admins.includes(email);
-  if (!admin && !roles.includes("team")) return null;
-  const meta = (user as { user_metadata?: { full_name?: string }; userMetadata?: { full_name?: string } });
-  const name = meta.user_metadata?.full_name || meta.userMetadata?.full_name || email.split("@")[0];
-  return { email, name, roles, admin };
-}
+type Member = TeamMember;
+const member = teamAccess;
 
 const evidenceStore = (context: Context) =>
   getStore({ name: context.deploy?.context === "production" ? "evidence" : "evidence-preview", consistency: "strong" });
@@ -118,7 +109,38 @@ export default async (req: Request, context: Context) => {
   const db = getDatabase();
   const parts = new URL(req.url).pathname.replace(/^\/api\/portal\/?/, "").split("/").filter(Boolean);
 
-  if (parts[0] === "me" && req.method === "GET") return json({ email: me.email, name: me.name, roles: me.roles, admin: me.admin });
+  if (parts[0] === "me" && req.method === "GET") return json({ email: me.email, name: me.name, roles: me.roles, admin: me.admin, owner: me.owner });
+
+  // Team & logins (SURESH, 20 Nov 2026): admins add cousins and friends by email, so they can see the dashboard.
+  if (parts[0] === "access") {
+    if (req.method === "GET") {
+      const rows = await db.sql<Record<string, any>>`SELECT email, name, role, added_by, added_at FROM portal_access ORDER BY added_at`;
+      const owners = ownerEmails().map((email) => ({ email, name: "", role: "admin", owner: true }));
+      const listed = (rows as Record<string, any>[]).filter((r) => !ownerEmails().includes(r.email))
+        .map((r) => ({ email: r.email, name: r.name, role: r.role, addedBy: r.added_by, addedAt: r.added_at, owner: false }));
+      return json({ people: [...owners, ...listed], me: me.email, canEdit: me.admin });
+    }
+    if (!me.admin) return json({ error: "Only an admin can add or remove people." }, 403);
+    if (req.method === "POST") {
+      const b = await req.json().catch(() => ({}));
+      const email = clip(b.email, 200).toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: "That email does not look right." }, 400);
+      const role = b.role === "team" ? "team" : "admin";
+      const name = clip(b.name, 80);
+      await db.sql`INSERT INTO portal_access (email, name, role, added_by) VALUES (${email}, ${name}, ${role}, ${me.email})
+        ON CONFLICT (email) DO UPDATE SET name = COALESCE(NULLIF(EXCLUDED.name, ''), portal_access.name), role = EXCLUDED.role`;
+      await db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES (${me.email}, 'access.add', ${email}, ${JSON.stringify({ role })}::jsonb)`;
+      return json({ ok: true });
+    }
+    if (req.method === "DELETE" && parts[1]) {
+      const email = decodeURIComponent(parts[1]).toLowerCase();
+      if (ownerEmails().includes(email)) return json({ error: "The owner cannot be removed here." }, 400);
+      if (email === me.email) return json({ error: "You cannot remove yourself. Ask another admin." }, 400);
+      await db.sql`DELETE FROM portal_access WHERE email = ${email}`;
+      await db.sql`INSERT INTO audit_log (actor, action, target) VALUES (${me.email}, 'access.remove', ${email})`;
+      return json({ ok: true });
+    }
+  }
 
   // Traffic (16 Nov 2026): totals from the site's own visit counter for a period, with the period before it to compare.
   //   GET /api/portal/traffic?from=YYYY-MM-DD&to=YYYY-MM-DD&tz=America/Toronto   (to is included)

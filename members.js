@@ -1,6 +1,7 @@
 // Members area (/members): sign in, join, password reset and "My account".
 // Uses Netlify Identity, the same login the team portal uses. Only raavanaa.org has it; RaavanaaPost stays open.
-// Team access is still decided by roles (admin / team) on the server, so a member who joins here cannot open the portal.
+// Team access is decided on the server (/api/portal/me): Identity role, PORTAL_ADMINS, or added by an admin in the portal
+// (Team & logins, 20 Nov 2026). Team members who sign in here go straight to the team dashboard.
 const ID_URL = "https://esm.sh/@netlify/identity@2.0.0";
 let ID = null;
 const identity = async () => (ID ||= await import(ID_URL));
@@ -28,6 +29,16 @@ export async function getMember() {
 const NEXT_KEY = "raav-next";
 const nextFromUrl = new URLSearchParams(location.search).get("next") || "";
 if (/^\/[a-z0-9\/-]*$/i.test(nextFromUrl) && !nextFromUrl.startsWith("//")) { try { localStorage.setItem(NEXT_KEY, JSON.stringify({ to: nextFromUrl, at: Date.now() })); } catch (e) {} }
+// Is this person on the team (can open the dashboard)? Asks the server, which knows who an admin added.
+async function isTeam() {
+  try { const r = await fetch("/api/portal/me", { credentials: "same-origin" }); return r.ok; } catch (e) { return false; }
+}
+// Right after signing in, team members land on the team dashboard (SURESH, 20 Nov 2026: "once signed in I need the admin page").
+async function toDashboard() {
+  try { if (JSON.parse(localStorage.getItem(NEXT_KEY) || "null")) return false; } catch (e) {}
+  if (!(await isTeam())) return false;
+  location.replace("/portal#/dashboard"); return true;
+}
 function goNext() {
   try {
     const n = JSON.parse(localStorage.getItem(NEXT_KEY) || "null");
@@ -50,8 +61,10 @@ export async function render(app, site) {
     catch (e) { return signedOut(app, site, "login", "That confirmation link has expired or was already used. Try signing in."); }
   }
   if (/access_token=|error=/.test(h)) { // coming back from "Continue with Google"
-    try { const id = await identity(); await id.handleAuthCallback(); } catch (e) { /* show the sign-in form below */ }
+    let ok = false;
+    try { const id = await identity(); await id.handleAuthCallback(); ok = true; } catch (e) { /* show the sign-in form below */ }
     clean();
+    if (ok && await toDashboard()) return;
   }
   const me = await getMember();
   if (me) return account(app, site);
@@ -151,6 +164,7 @@ async function signedOut(app, site, mode = "login", msg = "") {
         return;
       }
       await id.login(email, pw);
+      if (await toDashboard()) return;
       account(app, site);
     } catch (err) {
       out.textContent = niceError(err, join ? "We could not create the account. Please try again." : "That did not work. Check the email and password.");
@@ -188,12 +202,13 @@ async function account(app, site, msg = "") {
   if (goNext()) return;
   const name = me.name || (me.email || "").split("@")[0];
   const roles = [].concat(me.roles || [], me.role ? [me.role] : []);
-  const team = roles.some(r => r === "admin" || r === "team");
+  const team = roles.some(r => r === "admin" || r === "team") || await isTeam();
   const since = me.createdAt ? new Date(me.createdAt).toLocaleDateString("en-GB", { month: "long", year: "numeric" }) : "";
   app.innerHTML = `<section class="intro about-page member-page">
     ${header("My account", `Welcome, <span class="org">${esc(name)}</span>`, since ? `Member since ${since}.` : "")}
     ${hero(true)}
     ${msg ? `<p class="member-flash" role="status">${esc(msg)}</p>` : ""}
+    ${team ? `<p class="member-actions m-dash"><a class="btn" href="/portal#/dashboard">Open the team dashboard</a></p>` : ""}
     <section class="panel member-card m-requests" data-my-requests hidden>
       <h2>My requests</h2>
       <ul class="m-req-list" data-req-list></ul>
@@ -217,7 +232,7 @@ async function account(app, site, msg = "") {
         <p class="note member-msg" role="status"></p>
       </form>
     </div>
-    <p class="member-foot">${team ? `<a href="/portal">Open the team portal</a> · ` : ""}<button type="button" class="member-link" data-signout>Sign out</button></p>
+    <p class="member-foot">${team ? `<a href="/portal#/dashboard">Open the team dashboard</a> · ` : ""}<button type="button" class="member-link" data-signout>Sign out</button></p>
   </section>`;
   // The requests this member sent, with where each one is and its page link.
   fetch("/api/my-requests", { credentials: "same-origin" }).then(r => r.ok ? r.json() : null).then(d => {
