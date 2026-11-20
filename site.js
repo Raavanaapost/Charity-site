@@ -885,9 +885,9 @@ window.RAAV_FEATURES = (function () {
       </div>`}
       ${glanceHTML(projects)}
       ${light && FEAT.vetting ? sparkBandHTML(projects) : createHTML(light ? CREATE : CREATE.slice(0, 3))}
-      ${momentBandHTML()}
       ${light && FEAT.sponsor ? sponsorHTML() : ""}
       ${HOME_ROWS.map(r => homeRowHTML(r, projects)).join("")}
+      ${/* Gift a Moment after the three stage sections (SURESH, 20 Nov 2026) */ ""}${momentBandHTML()}
       ${extras.length ? `<div class="stage-extras">${extras.map(h => `<div><b>${esc(h.value)}</b> ${esc(h.label)}</div>`).join("")}</div>` : ""}
       <section class="signup-band" id="keep-posted">${follow.length ? followHTML(site, follow, fstart) : signupHTML("home")}</section>`;
     app.querySelectorAll(".home-latest").forEach(sec => {
