@@ -199,6 +199,8 @@
       $("[data-journey]").innerHTML = st2.map((s2, i) => `<li class="${i <= at2 && (i < at2 || L.backed) ? "done" : i === at2 ? "now" : ""}"><i aria-hidden="true">${i < at2 || (L.backed && i === at2) ? "✓" : ["✓", "📝", "🤝", "🌱"][i]}</i><span>${s2}</span></li>`).join("");
       $("[data-journey-note]").innerHTML = L.backed ? t("<b>Live.</b> It is on the Projects page now.", "<b>நேரலையில்.</b> இது இப்போது திட்டங்கள் பக்கத்தில் உள்ளது.") : t("<b>Waiting for the vouch.</b> The person in charge checks the page; their vouch puts it live.", "<b>உறுதிப்படுத்தலுக்காகக் காத்திருக்கிறது.</b> பொறுப்பாளரின் உறுதிப்படுத்தல் இதை நேரலைக்குக் கொண்டுவரும்.");
       const pn = document.querySelector('[data-t="peoplenote"]'); if (pn) pn.textContent = t("One vouch from the person in charge is enough. Not the person who sent the request.", "பொறுப்பாளரின் ஒரு உறுதிப்படுத்தல் போதும்.");
+      const bn = document.querySelector('[data-t="budgetnote"]'); if (bn) bn.textContent = t("No money is taken until the project is live and Raavanaa has replied to you personally. We pay for things directly where we can.", "திட்டம் நேரலைக்கு வந்து, ராவணா உங்களுக்கு நேரில் பதில் அளிக்கும் வரை பணம் எடுக்கப்படாது.");
+      $("[data-bars]").style.gridTemplateColumns = "1fr";
       const tp = document.querySelector('[data-t="thxp"]'); if (tp) tp.textContent = t("Your name now stands behind this project.", "உங்கள் பெயர் இப்போது இந்தத் திட்டத்தின் பின்னால் நிற்கிறது.");
       $("[data-share-card]").hidden = true;
       $("[data-change]").hidden = !!(L.backed || r.live);
