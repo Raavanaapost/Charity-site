@@ -187,6 +187,26 @@
     const full = L.backed ? r.needed : n;
     $("[data-count]").textContent = L.backed && n < r.needed ? t("Vouched", "உறுதிப்படுத்தப்பட்டது") : t(`${Math.min(n, r.needed)} of ${r.needed}`, `${r.needed}-இல் ${Math.min(n, r.needed)}`);
     $("[data-bars]").innerHTML = Array.from({ length: r.needed }, (_, i) => `<span class="${i < full ? "on" : ""}"></span>`).join("");
+    // One vouch from the person in charge puts it live (SURESH 20 Nov 2026). Simpler words while no role is needed.
+    if (!r.pending && L.needsRole === false) {
+      const who = r.incharge || "";
+      $("[data-ladder]").innerHTML =
+        step(true, 1, t("Request sent", "கோரிக்கை அனுப்பப்பட்டது"), r.by ? t(`${r.by} told us about the need.`, `${r.by} இந்தத் தேவை பற்றி எங்களிடம் சொன்னார்.`) : t("Someone told us about the need.", "ஒருவர் இந்தத் தேவை பற்றி எங்களிடம் சொன்னார்.")) +
+        step(true, 2, t("Page made by Raavanaa", "ராவணா பக்கத்தை உருவாக்கியது"), t("The team read it and made this page.", "குழு அதைப் படித்து இந்தப் பக்கத்தை உருவாக்கியது.")) +
+        step(L.backed, 3, L.backed ? t("Vouched for, and live", "உறுதிப்படுத்தப்பட்டது, இப்போது நேரலையில்") : t("Waiting for the vouch", "உறுதிப்படுத்தலுக்காகக் காத்திருக்கிறது"),
+          L.backed ? t("Someone who knows it vouched, so it is on the Projects page.", "தெரிந்த ஒருவர் உறுதிப்படுத்தினார், எனவே இது திட்டங்கள் பக்கத்தில் உள்ளது.") : t(who ? `${who}, the person in charge, checks this page and vouches for it. Then it goes live.` : "The person in charge checks this page and vouches for it. Then it goes live.", "பொறுப்பாளர் இந்தப் பக்கத்தைச் சரிபார்த்து உறுதிப்படுத்துவார். பிறகு இது நேரலைக்கு வரும்."));
+      const at2 = L.backed ? 3 : 2, st2 = TA ? ["கோரிக்கை", "பக்கம்", "உறுதி", "நேரலை"] : ["Requested", "Page made", "Vouched", "Live"];
+      $("[data-journey]").innerHTML = st2.map((s2, i) => `<li class="${i <= at2 && (i < at2 || L.backed) ? "done" : i === at2 ? "now" : ""}"><i aria-hidden="true">${i < at2 || (L.backed && i === at2) ? "✓" : ["✓", "📝", "🤝", "🌱"][i]}</i><span>${s2}</span></li>`).join("");
+      $("[data-journey-note]").innerHTML = L.backed ? t("<b>Live.</b> It is on the Projects page now.", "<b>நேரலையில்.</b> இது இப்போது திட்டங்கள் பக்கத்தில் உள்ளது.") : t("<b>Waiting for the vouch.</b> The person in charge checks the page; their vouch puts it live.", "<b>உறுதிப்படுத்தலுக்காகக் காத்திருக்கிறது.</b> பொறுப்பாளரின் உறுதிப்படுத்தல் இதை நேரலைக்குக் கொண்டுவரும்.");
+      const pn = document.querySelector('[data-t="peoplenote"]'); if (pn) pn.textContent = t("One vouch from the person in charge is enough. Not the person who sent the request.", "பொறுப்பாளரின் ஒரு உறுதிப்படுத்தல் போதும்.");
+      const tp = document.querySelector('[data-t="thxp"]'); if (tp) tp.textContent = t("Your name now stands behind this project.", "உங்கள் பெயர் இப்போது இந்தத் திட்டத்தின் பின்னால் நிற்கிறது.");
+      $("[data-share-card]").hidden = true;
+      $("[data-change]").hidden = !!(L.backed || r.live);
+    }
+    if (r.live) {
+      $("[data-live]").hidden = false; $("[data-live-link]").href = r.live;
+      $("[data-form-card]").hidden = true; $("[data-change]").hidden = true;
+    }
     if (r.pending) { $("[data-form-card]").hidden = true; $("[data-thanks]").hidden = true; return; }
     $("[data-people]").innerHTML = n
       ? r.endorsements.map((e) => `<li><span class="dot" aria-hidden="true">${esc((e.name || "?").trim().charAt(0).toUpperCase())}</span><span class="who"><b>${esc(e.name)}</b><small>${esc(e.role || RELATION[e.relation] || "")}</small></span>${e.relation === "role" ? '<span class="tag">' + t("ROLE", "பொறுப்பு") + '</span>' : ""}</li>`).join("")
@@ -198,8 +218,8 @@
 
     const already = (() => { try { return localStorage.getItem(doneKey) === "1"; } catch (_) { return false; } })();
     const closed = r.closed || L.verified || r.pending || isPreview;
-    $("[data-form-card]").hidden = isNew || already || closed;
-    $("[data-thanks]").hidden = !already;
+    $("[data-form-card]").hidden = isNew || already || closed || !!r.live;
+    $("[data-thanks]").hidden = !already || !!r.live;
   }
 
   async function load() {
