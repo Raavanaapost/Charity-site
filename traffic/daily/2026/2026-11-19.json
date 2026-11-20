@@ -1,0 +1,69 @@
+{
+  "day": "2026-11-19",
+  "from": "2026-11-19T00:00:00.000Z",
+  "to": "2026-11-20T00:00:00.000Z",
+  "tz": "UTC",
+  "now": {
+    "views": 3,
+    "visits": 3,
+    "shares": 0,
+    "give": 0,
+    "memory": 0,
+    "request": 0,
+    "vouch": 0,
+    "install": 0,
+    "app_visits": 0
+  },
+  "daily": [
+    {
+      "day": "2026-11-19",
+      "views": 3,
+      "visits": 3,
+      "actions": 0,
+      "shares": 0
+    }
+  ],
+  "sources": [
+    {
+      "key": "direct",
+      "visits": 3,
+      "acted": 0,
+      "shares": 0,
+      "pages": 1
+    }
+  ],
+  "campaigns": [],
+  "pages": [
+    {
+      "key": "/overview",
+      "views": 3,
+      "visits": 3
+    }
+  ],
+  "countries": [
+    {
+      "key": "US",
+      "visits": 3
+    }
+  ],
+  "devices": [
+    {
+      "key": "computer",
+      "visits": 3
+    }
+  ],
+  "hours": [
+    {
+      "key": 3,
+      "views": 3
+    }
+  ],
+  "weekdays": [
+    {
+      "key": 4,
+      "views": 3
+    }
+  ],
+  "shares": [],
+  "refs": []
+}
