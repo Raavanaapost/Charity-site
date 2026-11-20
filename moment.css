@@ -441,3 +441,19 @@ html[lang="ta"] .mo-card-h{font-family:"Noto Serif Tamil",serif;font-style:norma
 .tg-fund .tg-proj+.tg-proj{margin-top:8px}
 html[lang="ta"] .mo-cardsec .mo-kicker{letter-spacing:0;text-transform:none;font-family:"Noto Serif Tamil",serif;font-size:15px}
 .mo-seg[hidden],.mo-together-q[hidden]{display:none}
+
+/* Choose a project on its own list (SURESH, 20 Nov 2026): Next under the reasons, step 2 shows the chosen one */
+.mo-next{display:flex;justify-content:center;align-items:center;gap:8px;margin:14px auto 0;max-width:420px;padding:14px 18px;border-radius:999px;background:#c8381e;color:#fff;text-decoration:none;font-weight:800;font-size:17px;box-shadow:0 12px 22px -12px rgba(200,56,30,.75)}
+.mo-next[hidden]{display:none}
+.mo-next i{font-style:normal}
+.mo-where .mo-row.picked{box-shadow:0 0 0 2.5px var(--stage,#1f7a47)}
+a.mo-heart{text-decoration:none}
+.mo-change svg path{fill:#c8381e}
+.mo-choose-li{list-style:none}
+.mo-choose{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:16px;background:#fff;border:2px solid #c8381e;color:var(--ink);text-decoration:none;box-shadow:0 12px 22px -16px #c8381e}
+.mo-choose b{display:block;font-family:Cinzel,serif;font-size:18px;color:#c8381e}
+.mo-choose small{color:var(--muted);font-size:14px}
+.mo-choose>span:nth-child(2){flex:1}
+.mo-choose i{font-style:normal;font-size:22px;color:#c8381e;font-weight:800}
+.mo-choose-ic{flex:none;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:#fdece6}
+.mo-choose-ic svg path{fill:#c8381e}
