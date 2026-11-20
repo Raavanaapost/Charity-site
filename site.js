@@ -1076,7 +1076,30 @@ window.RAAV_FEATURES = (function () {
     const w = [...box.children]; let k = 0;
     rotTimers.push(setInterval(() => { if (document.hidden) return; w[k].classList.remove("on"); w[k].setAttribute("aria-hidden", "true"); k = (k + 1) % w.length; w[k].classList.add("on"); w[k].removeAttribute("aria-hidden"); }, 3200));
   }
+  // The project the giver ticked on the choose list: from the address (?project=) or kept from earlier in this visit.
+  function choosePicked() {
+    const q = new URLSearchParams(location.search).get("project");
+    if (q) return q;
+    try { const o = JSON.parse(sessionStorage.getItem("raav-pick") || "null"); return (o && o.slug) || ""; } catch (e) { return ""; }
+  }
+  // On a project page opened from the choose list (?choose=<reason>): a bar to go back to the list, or choose this one.
+  function chooseBarHTML(slug) {
+    const k = (new URLSearchParams(location.search).get("choose") || "").replace(/[^a-z]/g, "");
+    if (!k) return "";
+    const can = GIVE_OPEN.has(slug);
+    return `<div class="ch-bar ch-on-page" role="region" aria-label="Choosing a project for your moment">
+      <a class="ch-back" href="/projects?choose=${k}">← Back to the list</a>
+      <span class="ch-now"><small>Gift a Moment</small><b>${can ? "This one?" : "Already funded"}</b></span>
+      ${can ? `<a class="ch-go" href="/moment?for=${k}&project=${encodeURIComponent(slug)}&from=pick#projects">✓ Choose it</a>` : ""}
+    </div>`;
+  }
   async function renderProjects(app, site, projects) {
+    // Gift a Moment, choose a project (SURESH, 20 Nov 2026): /projects?choose=<reason> is the same list, showing only the
+    // Initiated projects that still need money. Tap a line to tick it, "Glance" for the facts, "Read the story" opens
+    // the project page with a bar to come back here; Continue goes back to /moment with that project chosen.
+    const CHOOSE = (() => { const k = new URLSearchParams(location.search).get("choose"); return k == null ? null : (k.replace(/[^a-z]/g, "") || "memory"); })();
+    if (CHOOSE) projects = projects.filter(p => GIVE_OPEN.has(slugOf(p)));
+    const storyHref = slug => `/projects/${slug}${CHOOSE ? `?choose=${CHOOSE}` : ""}`;
     projects = projects.map((p, k) => [p, k]).sort((a, b) => (listedAt(b[0]) - listedAt(a[0])) || (a[1] - b[1])).map(x => x[0]);
     const share = await load("/share.json").catch(() => null);
     const safe = p => { const sh = (share && share.projects && share.projects[slugOf(p)]) || {};
@@ -1100,7 +1123,27 @@ window.RAAV_FEATURES = (function () {
       const sh = safe(p), hay = [sh.title, p.summary, p.theme, cityOf(p), (p.location || "").split(",")[0]].filter(Boolean).join(" ").toLowerCase();
       return st.q.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(w));
     };
-    app.innerHTML = `
+    const picked = { slug: CHOOSE ? choosePicked() : "" };
+    if (picked.slug && !projects.some(p => slugOf(p) === picked.slug)) picked.slug = "";
+    app.innerHTML = CHOOSE ? `
+      <section class="finder home-finder ch-head">
+        <p class="ch-step"><span>Gift a Moment</span> Step 2 of 4</p>
+        <h1 class="section-title latest-title">Choose a project</h1>
+        <p class="pj-sub">Tick the one you would like your moment to make happen. Tap <b>Glance</b> for a quick look, or read its story and come back.</p>
+      </section>
+      <section class="hm-book pj-book ch-book" aria-label="Projects you can choose">
+        ${cities.length > 1 ? `<div class="pj-places" role="group" aria-label="Places">
+          ${cities.concat("All").map(c => `<button type="button" class="pj-place${c === "All" ? " all" : ""}" data-city="${esc(c)}" aria-pressed="${c === st.city}">${c === "All" ? "" : PIN}<span>${esc(c)}</span><b></b></button>`).join("")}
+        </div>` : ""}
+        <div class="hm-folder s0 pj-nofolder" id="hm-folder" role="radiogroup" aria-label="Choose a project"></div>
+        <div class="hm-pop" id="hm-pop" role="tooltip" hidden></div>
+        <a class="ch-fund" href="/moment?for=${CHOOSE}&any=1&from=pick#projects">Not sure? <b>Let Raavanaa choose</b> the next day that needs it →</a>
+      </section>
+      <div class="ch-bar" role="region" aria-label="Your choice">
+        <a class="ch-back" href="/moment?for=${CHOOSE}&from=pick">← Back</a>
+        <span class="ch-now" data-ch-now></span>
+        <a class="ch-go" data-ch-go href="#" aria-disabled="true">Continue →</a>
+      </div>` : `
       <section class="finder home-finder">
         <h1 class="section-title latest-title pj-says" aria-live="polite">${LIST_SAYS.map((t, k) => `<span class="${k ? "" : "on"}"${k ? ' aria-hidden="true"' : ""}>${t}</span>`).join("")}</h1>
         <p class="pj-sub">Pick one, and be the smile that makes it happen.</p>
@@ -1128,7 +1171,24 @@ window.RAAV_FEATURES = (function () {
         </section>` : ""; })()}`;
     const book = app.querySelector(".hm-book"), placesBox = app.querySelector(".pj-places"), folder = app.querySelector(".hm-folder"), pop = app.querySelector(".hm-pop");
     const ring = pct => `<svg class="hm-ring" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" pathLength="100" class="tr"/><circle cx="20" cy="20" r="15" pathLength="100" class="fl" stroke-dasharray="${pct} 100" transform="rotate(-90 20 20)"/></svg>`;
-    const rowHTML = p => { const n = stageNum(p), s = safe(p), pct = ringPercent(p), slug = slugOf(p);
+    const TICK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+    const pickRowHTML = p => { const n = stageNum(p), s = safe(p), pct = ringPercent(p), slug = slugOf(p), on = slug === picked.slug, b = budgetOf(p);
+      const place = cityOf(p) || (p.location || "").split(",")[0].trim();
+      const left = b.goal > b.raised ? `<span class="ch-left">${moneyOf(site, b.goal - b.raised, p)} still needed</span>` : "";
+      return `<div class="hm-row s${n} ch-row${on ? " on" : ""}" data-slug="${esc(slug)}">
+          <button type="button" class="hm-row-link ch-pick" role="radio" aria-checked="${on}" data-pick="${esc(slug)}">
+            <span class="ch-tick">${TICK}</span>
+            <span class="hm-thumb"><img src="${esc(s.art)}" alt="" loading="lazy" width="58" height="58"></span>
+            <span class="hm-main"><b>${esc(s.title)}</b><small>${[p.theme, place].filter(Boolean).map(t => esc(t)).join(" · ")}</small>${left}</span>
+            <span class="hm-side"><span class="hm-pct">${ring(pct)}<b>${pct}%</b></span></span>
+          </button>
+          <div class="ch-acts">
+            <button type="button" class="hm-i ch-glance" aria-expanded="false" aria-controls="hm-pop"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.8"/></svg><span>Glance</span></button>
+            <a class="ch-story" href="${storyHref(slug)}">Read the story →</a>
+            <span class="ch-chosen" aria-hidden="true">${on ? "Chosen" : ""}</span>
+          </div>
+        </div>`; };
+    const rowHTML = p => { if (CHOOSE) return pickRowHTML(p); const n = stageNum(p), s = safe(p), pct = ringPercent(p), slug = slugOf(p);
       const place = cityOf(p) || (p.location || "").split(",")[0].trim();
       const meta = [p.theme, place].filter(Boolean).map(t => `<span>${esc(t)}</span>`).concat(`<span class="hm-next"><span>Next:</span> <span>${esc(nextStepOf(p))}</span></span>`).concat(listedLabel(p) ? `<span class="hm-listed">Listed ${esc(listedLabel(p))}</span>` : []).join('<i aria-hidden="true"> · </i>');
       return `<div class="hm-row s${n}" role="listitem" data-slug="${esc(slug)}">
@@ -1147,13 +1207,13 @@ window.RAAV_FEATURES = (function () {
         b.goal && b.raised ? `<span><span>${stageNum(p) === 3 ? "Given:" : "Raised so far:"}</span> ${moneyOf(site, b.raised, p)}</span>` : ""].filter(Boolean);
       return desc || facts.length ? `<span class="hm-more">${desc ? `<span class="hm-desc">${esc(desc)}</span>` : ""}${facts.length ? `<span class="hm-facts-line">${facts.join('<i aria-hidden="true"> · </i>')}</span>` : ""}</span>` : ""; };
     const EMPTY = { 0: "No projects yet." };
-    const draw = () => {
+    let draw = () => {
       const list = projects.filter(match);
       if (placesBox) placesBox.querySelectorAll(".pj-place").forEach(b => { const c = b.dataset.city, keep = st.city;
         st.city = c; b.querySelector("b").textContent = projects.filter(match).length; st.city = keep;
         b.setAttribute("aria-pressed", String(c === st.city)); });
-      folder.innerHTML = list.length ? `<div class="hm-list" role="list">${list.map(rowHTML).join("")}</div>`
-        : `<p class="hm-empty">${st.q || st.city !== "All" ? "No projects match your search." : EMPTY[0]}</p><p class="hm-empty-go"><a class="btn" href="/initiate">Suggest one</a></p>`;
+      folder.innerHTML = list.length ? `<div class="hm-list"${CHOOSE ? "" : ' role="list"'}>${list.map(rowHTML).join("")}</div>`
+        : CHOOSE ? `<p class="hm-empty">Every project is funded right now. Let Raavanaa choose the next one that needs it.</p>` : `<p class="hm-empty">${st.q || st.city !== "All" ? "No projects match your search." : EMPTY[0]}</p><p class="hm-empty-go"><a class="btn" href="/initiate">Suggest one</a></p>`;
     };
 
     // "Project at a glance": the same facts as on the project's own page, in a small window.
@@ -1165,7 +1225,7 @@ window.RAAV_FEATURES = (function () {
         <b class="hm-pop-t">${esc(s.title)}</b>
         <dl class="hm-facts">${facts.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
         ${n === 3 && (p.impact || []).length ? `<p class="hm-pop-stats">${p.impact.slice(0, 3).map(x => `<span><b>${esc(x.value)}</b> ${esc(x.label)}</span>`).join("")}</p>` : ""}
-        <a class="hm-pop-go" href="/projects/${slugOf(p)}">Open the project →</a>`; };
+        <a class="hm-pop-go" href="${storyHref(slugOf(p))}">${CHOOSE ? "Read the story" : "Open the project"} →</a>`; };
     let popRow = null, tIn = 0, tOut = 0;
     const closePop = () => { clearTimeout(tIn); if (!popRow) return; popRow.classList.remove("peek"); const b = popRow.querySelector(".hm-i"); if (b) b.setAttribute("aria-expanded", "false"); popRow = null; pop.hidden = true; };
     // by: "hover" (a pointer over the line; the window follows it and never gets in the way) or "tap" (the small i).
@@ -1181,7 +1241,7 @@ window.RAAV_FEATURES = (function () {
       const want = by === "hover" && x != null ? x - br.left + 14 : rr.left - br.left + 12;
       pop.style.left = Math.round(Math.max(8, Math.min(want, br.width - pw - 8))) + "px";
     };
-    const canHover = matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const canHover = !CHOOSE && matchMedia("(hover: hover) and (pointer: fine)").matches;
     folder.addEventListener("mouseover", e => { if (!canHover) return; const row = e.target.closest(".hm-row"); if (!row) return; clearTimeout(tOut);
       if (row === popRow) return; clearTimeout(tIn); const x = e.clientX; tIn = setTimeout(() => openPop(row, "hover", x), popRow ? 60 : 220); });
     folder.addEventListener("mouseout", e => { if (!canHover) return; const row = e.target.closest(".hm-row"); if (!row || row.contains(e.relatedTarget)) return; clearTimeout(tIn); tOut = setTimeout(closePop, 160); });
@@ -1193,6 +1253,26 @@ window.RAAV_FEATURES = (function () {
     addEventListener("scroll", () => { if (popRow && pop.classList.contains("by-hover")) closePop(); }, { passive: true });
 
     if (placesBox) placesBox.addEventListener("click", e => { const b = e.target.closest(".pj-place"); if (!b) return; st.city = b.dataset.city; closePop(); draw(); });
+    if (CHOOSE) {
+      // ticking one: only one project at a time; tapping it again takes the tick off
+      const now = app.querySelector("[data-ch-now]"), go = app.querySelector("[data-ch-go]");
+      const show = () => {
+        const p = projects.find(x => slugOf(x) === picked.slug);
+        folder.querySelectorAll(".ch-row").forEach(r => { const on = r.dataset.slug === picked.slug; r.classList.toggle("on", on);
+          r.querySelector(".ch-pick").setAttribute("aria-checked", String(on)); r.querySelector(".ch-chosen").textContent = on ? "Chosen" : ""; });
+        now.innerHTML = p ? `<small>Your project</small><b>${esc(safe(p).title)}</b>` : "<small>Tick a project above</small>";
+        go.setAttribute("aria-disabled", String(!p));
+        go.href = p ? `/moment?for=${CHOOSE}&project=${encodeURIComponent(picked.slug)}&from=pick#projects` : "#";
+        app.querySelector(".ch-bar .ch-back").href = `/moment?for=${CHOOSE}${p ? `&project=${encodeURIComponent(picked.slug)}` : ""}&from=pick${p ? "#projects" : ""}`;
+        try { sessionStorage.setItem("raav-pick", JSON.stringify({ k: CHOOSE, slug: picked.slug })); } catch (e) { /* fine without it */ }
+      };
+      folder.addEventListener("click", e => { const b = e.target.closest("[data-pick]"); if (!b) return; picked.slug = picked.slug === b.dataset.pick ? "" : b.dataset.pick; show(); });
+      go.addEventListener("click", e => { if (go.getAttribute("aria-disabled") === "true") { e.preventDefault(); now.classList.remove("nudge"); void now.offsetWidth; now.classList.add("nudge"); } });
+      const redraw = draw; draw = () => { redraw(); show(); };
+            draw();
+      if (picked.slug) { const r = folder.querySelector(`.ch-row[data-slug="${CSS.escape(picked.slug)}"]`); if (r) r.scrollIntoView({ block: "center" }); }
+      return;
+    }
     app.querySelector("#find-q").addEventListener("input", e => { st.q = e.target.value.trim(); closePop(); draw(); });
     startListSays(app);
     const whoBox = app.querySelector(".pj-who-list");
@@ -2837,6 +2917,7 @@ window.RAAV_FEATURES = (function () {
     let taleOpen = false;
     const draw = tab => {
       app.innerHTML = `
+        ${chooseBarHTML(slugOf(p))}
         ${p.sample ? `<p class="sample-note"><b>Sample page.</b> This shows how a project page looks once it is filled in. The project, the figures and the names are examples, not real.</p>` : ""}
         <nav class="crumbs"><a href="/projects">Projects</a>${p.theme ? ` / ${esc(p.theme)}` : ""}</nav>
         <div class="layout">
