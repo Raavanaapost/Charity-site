@@ -64,6 +64,7 @@ async function view(db: ReturnType<typeof getDatabase>, s: Row) {
     endorsements,
     ladder: { submitted: true, backed, hasRole, needsRole: VOUCH_NEEDS_ROLE, override, verified, project: s.status === "project" },
     live: s.status === "project" && s.project_slug ? `/projects/${s.project_slug}` : "",
+    open: s.request_type !== "referred",
     incharge: s.request_type === "referred" ? firstName(String(s.incharge_name || "").split(" ")[0]) : "",
     visitor,
   };
