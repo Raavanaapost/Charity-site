@@ -220,6 +220,14 @@ async function account(app, site, msg = "") {
       <h2>My requests</h2>
       <ul class="m-req-list" data-req-list></ul>
     </section>
+    <section class="panel member-card m-requests" data-my-incharge hidden>
+      <h2>Projects I'm in charge of</h2>
+      <ul class="m-req-list" data-incharge-list></ul>
+    </section>
+    <section class="panel member-card m-requests" data-my-vouched hidden>
+      <h2>Projects I vouched for</h2>
+      <ul class="m-req-list" data-vouched-list></ul>
+    </section>
     <section class="panel member-card m-requests" data-my-gifts hidden>
       <h2>Projects I follow</h2>
       <ul class="m-req-list" data-gift-list></ul>
@@ -251,12 +259,29 @@ async function account(app, site, msg = "") {
         <span>${esc(g.amount)} · ${esc(g.step)}</span>
         <small>${esc(g.ref)} · ${esc(new Date(g.received).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }))}</small></li>`).join("");
     }
+    const when = v => new Date(v).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+    const ibox = app.querySelector("[data-my-incharge]"), ic = d && d.inCharge;
+    if (ibox && ic && ic.length) {
+      ibox.hidden = false;
+      ibox.querySelector("[data-incharge-list]").innerHTML = ic.map(r => `<li>
+        ${r.project || r.link ? `<a href="${esc(r.project || r.link)}"><b>${esc(r.title)}</b></a>` : `<b>${esc(r.title)}</b>`}
+        <span>${esc(r.step)}</span>
+        <small>${esc(r.ref)}${r.by ? ` · sent for you by ${esc(r.by)}` : ""} · ${esc(when(r.received))}</small></li>`).join("");
+    }
+    const vbox = app.querySelector("[data-my-vouched]"), vf = d && d.vouchedFor;
+    if (vbox && vf && vf.length) {
+      vbox.hidden = false;
+      vbox.querySelector("[data-vouched-list]").innerHTML = vf.map(r => `<li>
+        <a href="${esc(r.link)}"><b>${esc(r.title)}</b></a>
+        <span>${esc(r.step)}</span>
+        <small>You vouched ${esc(when(r.at))}${r.role ? ` as ${esc(r.role)}` : ""}</small></li>`).join("");
+    }
     const box = app.querySelector("[data-my-requests]"), list = d && d.requests;
     if (!box || !list || !list.length) return;
     box.hidden = false;
     box.querySelector("[data-req-list]").innerHTML = list.map(r => `<li>
       <a href="${esc(r.project || r.link)}"><b>${esc(r.title)}</b></a>
-      <span>${esc(r.step)}${r.shareOk ? ` · vouched ${r.vouched} of 3` : ""}</span>
+      <span>${esc(r.step)}${r.shareOk && !r.project ? ` · vouched ${r.vouched}` : ""}</span>
       <small>${esc(r.ref)} · sent ${esc(new Date(r.received).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }))}</small></li>`).join("");
   }).catch(() => {});
   const f = app.querySelector("#m-me"), out = f.querySelector(".member-msg");
