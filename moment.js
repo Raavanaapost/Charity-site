@@ -495,6 +495,7 @@
   root.addEventListener("click", function (e) {
     var t = e.target.closest("button, a");
     if (!t || !root.contains(t)) return;
+    if (t.hasAttribute("data-go")) keepState();   // so "Change" on the giving form brings everything back
     if (t.classList.contains("mo-chip")) {
       st.k = t.dataset.k; stale();
       // a reason picked from "More" moves up beside the main four, and "More" closes again
