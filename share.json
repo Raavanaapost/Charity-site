@@ -37,15 +37,12 @@
    "personal": "17 pre-school children from Yogapuram had a day out at the old Black Bridge.",
    "subject": "A project on raavanaa.org"
   },
-  "bowling-day": {
-   "title": "A bowling day out for special-needs children",
-   "text": "A first day at the bowling lanes for children with special needs: cheering, laughing and rolling the ball together.",
-   "title_ta": "விசேட தேவையுடைய குழந்தைகளுக்கு ஒரு பௌலிங் நாள்",
-   "text_ta": "விசேட தேவையுடைய குழந்தைகளுக்கு பௌலிங் அரங்கில் முதல் நாள்: ஒன்றாக ஆரவாரித்து, சிரித்து, பந்தை உருட்டி மகிழும் நாள்.",
-   "art": "/img/project-bowling.svg",
-   "reach": "Special-needs children",
-   "reach_ta": "விசேட தேவையுடைய குழந்தைகள்",
-   "personal": "A group of children with special needs in Sri Lanka hope to have a day out together.",
+  "sample-zoo-day": {
+   "title": "Sample project: a day at the zoo",
+   "text": "A sample project that shows how a project looks on Raavanaa. A real project will take its place soon.",
+   "art": "/img/project-zoo.svg",
+   "reach": "A group of children (example)",
+   "personal": "This is a sample project on raavanaa.org.",
    "subject": "A project on raavanaa.org"
   },
   "arcade-trip": {
