@@ -32,7 +32,22 @@ export default async () => {
     WHERE (member_email = ${em} OR LOWER(contact) = ${em}) AND status <> 'closed' ORDER BY received_at DESC LIMIT 50`.catch(() => [])) as Record<string, any>[])
     .map((g) => ({ ref: g.ref, amount: g.amount, project: g.project_slug ? `/projects/${g.project_slug}` : "", title: g.project_slug ? TITLE[g.project_slug] || g.project_slug : "The Raavanaa Fund", received: g.received_at,
       step: g.status === "received" ? "Gift received. Thank you!" : g.status === "replied" ? "We have sent you the ways to fund" : "Pledged: we'll send you the ways to fund" }));
-  return Response.json({ ok: true, requests, gifts }, { headers: { "Cache-Control": "no-store" } });
+  // The person in charge of a request (sent for them by someone else, with this email), and what this member vouched
+  // for while signed in (SURESH 20 Nov 2026: "under his profile he will see this voucher project and all his activities").
+  const live = (r: Record<string, any>) => r.project_slug ? `/projects/${r.project_slug}` : "";
+  const inCharge = ((await db.sql<Record<string, any>>`
+    SELECT s.ref, s.title, s.received_at, s.status, s.share_ok, s.endorse_token, s.profile, s.project_slug, s.contact
+    FROM suggestions s WHERE LOWER(s.incharge_email) = ${em} AND s.member_email <> ${em} ORDER BY s.received_at DESC LIMIT 50`.catch(() => [])) as Record<string, any>[])
+    .map((r) => ({ ref: r.ref, title: (r.profile || {}).title || r.title, received: r.received_at, by: String(r.contact || "").split(/[,(]/)[0].trim(),
+      step: live(r) ? "Live on Projects" : r.share_ok ? "Your page is ready: check it and vouch" : "Raavanaa is making the page",
+      link: r.share_ok && r.endorse_token ? `/e/${r.endorse_token}` : "", project: live(r) }));
+  const vouchedFor = ((await db.sql<Record<string, any>>`
+    SELECT s.ref, s.title, s.profile, s.project_slug, s.endorse_token, e.created_at, e.role
+    FROM endorsements e JOIN suggestions s ON s.id = e.suggestion_id
+    WHERE e.member_email = ${em} AND NOT e.hidden ORDER BY e.created_at DESC LIMIT 50`.catch(() => [])) as Record<string, any>[])
+    .map((r) => ({ ref: r.ref, title: (r.profile || {}).title || r.title, at: r.created_at, role: r.role || "",
+      step: live(r) ? "Live on Projects" : "Waiting to go live", link: live(r) || (r.endorse_token ? `/e/${r.endorse_token}` : "") }));
+  return Response.json({ ok: true, requests, gifts, inCharge, vouchedFor }, { headers: { "Cache-Control": "no-store" } });
 };
 
 export const config: Config = { path: "/api/my-requests", method: "GET" };
