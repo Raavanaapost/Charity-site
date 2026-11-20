@@ -27,7 +27,8 @@ KidMode.init({
   navigate: path => router.go(path),    // default: location.href = path
   onChange: active => router.refresh(), // redraw when Kid mode starts or ends
   verifyParent: async password => checkPassword(password),   // optional, for "Forgot PIN?"
-  hide: ["#menu", ".footer-links"]      // extra things to hide
+  hide: ["#menu", ".footer-links"],     // extra things to hide
+  confirm: true                         // false = no explanation box; start at once
 });
 ```
 3. Add a button for parents: `button.onclick = () => KidMode.start({ name: "Anika", key: "anika" })`.
@@ -39,5 +40,5 @@ Other calls: `KidMode.active()`, `KidMode.who()` (`{name, key}`), `KidMode.allow
 Colours follow these CSS variables if you set them: `--km-accent`, `--km-accent-fg`, `--km-bar-bg`, `--km-bar-fg`, `--km-bg`, `--km-fg`, `--km-line`, `--km-key`, `--km-muted`, `--km-warn`.
 
 ## In Gurushishya
-Parents tap **Kid mode** on a child's practice page. The child gets Practice and Homework & notes for their own classes.
+Parents tap **Kid mode** on a child's practice page; it starts at once (`confirm: false`), asking for a PIN only the first time. The child gets Practice and Homework & notes for their own classes.
 Hidden: the top menu, Switch person, Chat, adding time by hand and ticking days (only the timer counts), and the demo video link. The Join online class button still works.

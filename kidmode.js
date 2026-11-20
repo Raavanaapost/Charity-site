@@ -2,14 +2,15 @@
    A parent hands the device to a child; the app stays on the pages you allow until the parent's PIN is entered.
    See KIDMODE.md for how to use it in another project.
 
-   KidMode.init({ appName, storageKey, home, allow(path), navigate(path), verifyParent(password), onChange(active), hide: [css selectors] })
+   KidMode.init({ appName, storageKey, home, allow(path), navigate(path), verifyParent(password), onChange(active), hide: [css selectors], confirm: true })
+   confirm: false skips the explanation box: the first time it goes straight to choosing the PIN, after that it locks at once.
    KidMode.start({ name, key })  -> Promise<boolean>   asks for / sets the PIN, then locks
    KidMode.requestExit()         -> Promise<boolean>   asks for the PIN, then unlocks
    KidMode.active() / KidMode.who() / KidMode.allowed(path) / KidMode.clear()
 */
 (function () {
   "use strict";
-  const O = { appName: "this app", storageKey: "kidmode", home: "/", allow: () => true, navigate: p => { location.href = p; }, verifyParent: null, onChange: null, hide: [] };
+  const O = { appName: "this app", storageKey: "kidmode", home: "/", allow: () => true, navigate: p => { location.href = p; }, verifyParent: null, onChange: null, hide: [], confirm: true };
   const LS = {
     get(k) { try { return JSON.parse(localStorage.getItem(O.storageKey + "." + k) || "null"); } catch (e) { return null; } },
     set(k, v) { try { v == null ? localStorage.removeItem(O.storageKey + "." + k) : localStorage.setItem(O.storageKey + "." + k, JSON.stringify(v)); } catch (e) {} }
@@ -143,7 +144,7 @@ body.kid-mode{padding-bottom:calc(58px + env(safe-area-inset-bottom,0px))}
   }
   async function start(who) {
     injectCss(); who = who || {};
-    const ok = await new Promise(resolve => {
+    const ok = !O.confirm || await new Promise(resolve => {
       const d = dialog(`<h2>Hand the phone to ${esc(who.name || "your child")}</h2>
         <p>Kid mode shows only ${esc(who.name ? who.name + "'s" : "your child's")} own pages. Menus, sign-out and links that leave ${esc(O.appName)} are hidden until you enter your parent PIN.</p>
         ${hasPin() ? `<p class="km-muted">You'll use the parent PIN you already chose on this device.</p>` : `<p class="km-muted">First you'll choose a 4-digit parent PIN.</p>`}
@@ -209,5 +210,5 @@ body.kid-mode{padding-bottom:calc(58px + env(safe-area-inset-bottom,0px))}
     window.addEventListener("storage", e => { if (e.key && e.key.startsWith(O.storageKey + ".")) paintBar(); });
     if (document.body) paintBar(); else document.addEventListener("DOMContentLoaded", paintBar);
   }
-  window.KidMode = { init, start, requestExit, active, who: state, allowed, guard: guardNow, clear: () => clear(true), hasPin, version: "1.0.0" };
+  window.KidMode = { init, start, requestExit, active, who: state, allowed, guard: guardNow, clear: () => clear(true), hasPin, version: "1.1.0" };
 })();

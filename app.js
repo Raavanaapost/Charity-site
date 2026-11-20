@@ -109,7 +109,7 @@ async function init(){
     allow: p => /^\/practice(\/notes)?\/?$/.test(p) || (!user && /^\/signin\/?$/.test(p)),
     navigate: p => go(p), onChange: () => go("/practice"),
     verifyParent: async pw => !!user?.email && !(await sb.auth.signInWithPassword({ email: user.email, password: pw })).error,
-    hide: ["#topnav", ".foot-brand"] });
+    hide: ["#topnav", ".foot-brand"], confirm: false });
   // Run our follow-up work after the sign-in library has finished its own step (Supabase's advice, avoids stalls).
   sb.auth.onAuthStateChange((e, s) => setTimeout(async () => {
     const was = user?.id; user = s?.user || null;
@@ -476,15 +476,20 @@ function viewAccount(){
   if (!user) return go("/signin?next=/account");
   document.title = "Account · Gurushishya";
   const reset = /reset=1/.test(location.search), has = !!user.user_metadata?.has_password;
-  $app.innerHTML = `<section class="card narrow"><span class="eyebrow">Account</span><h1 class="page-h">${reset ? "Choose a new password" : has ? "Change your password" : "Set a password"}</h1>
-    <p class="muted m0">Signed in as <strong>${esc(user.email || "")}</strong>. ${has || reset ? "" : "With a password you can sign in any time, without waiting for an email."}</p>
+  const open = reset || !has;
+  const kinds = [roles.admin && "Admin", roles.teacher && "Teacher", roles.family && "Student / parent"].filter(Boolean).join(" · ");
+  $app.innerHTML = `<section class="card narrow"><span class="eyebrow">Account</span><h1 class="page-h">${reset ? "Choose a new password" : "Your account"}</h1>
+    <dl class="acct"><div><dt>Signed in as</dt><dd>${esc(user.email || "")}</dd></div>${kinds ? `<div><dt>You are</dt><dd>${kinds}</dd></div>` : ""}</dl>
+    <details class="acct-pw" ${open ? "open" : ""}><summary>${has ? "Change password" : "Set a password"}</summary>
+    ${has || reset ? "" : `<p class="hint m0">With a password you can sign in any time, without waiting for an email.</p>`}
     <form id="pw" novalidate>
       <label for="pw-1">New password (8 or more characters)<input id="pw-1" type="password" autocomplete="new-password" minlength="8" maxlength="72" required></label>
       <label for="pw-2">Type it again<input id="pw-2" type="password" autocomplete="new-password" minlength="8" maxlength="72" required></label>
       <button class="btn" type="submit">Save password</button>
       <div id="pw-out" role="status"></div>
-    </form>
-    <div class="row">${roles.admin ? link("/admin", "Admin", "btn small ghost") : ""}${roles.teacher || !roles.family ? link("/teacher", "Dashboard", "btn small ghost") : ""}${roles.family ? link("/practice", "Practice", "btn small ghost") : ""}</div></section>`;
+    </form></details>
+    <div class="row"><button class="btn small ghost" type="button" id="acct-out">Sign out</button></div></section>`;
+  document.getElementById("acct-out").onclick = () => document.getElementById("signout")?.click();
   const out = document.getElementById("pw-out");
   document.getElementById("pw").onsubmit = async e => {
     e.preventDefault();
