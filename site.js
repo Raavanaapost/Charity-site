@@ -155,13 +155,14 @@ window.RAAV_FEATURES = (function () {
         ["Projects", "/projects", /^(projects|stage|project|home|create|initiate|spark)$/, ico('<rect x="3.5" y="4.5" width="17" height="4.6" rx="1.6"/><rect x="3.5" y="11" width="17" height="4.6" rx="1.6"/><path d="M4.5 19.5h15"/>')],
         ["Home", "/overview", /^overview$/, ico('<path d="M3.5 11.2 12 4l8.5 7.2"/><path d="M5.8 9.8V20h4.4v-5.4h3.6V20h4.4V9.8"/>')],
         FEAT.moment ? ["Gift", "/moment", /^(moment|together|give|fund|thanks)$/, '<span class="appbar-gift"><img src="/img/moment-mark.svg" alt="" width="34" height="34"></span>']
-          : ["Submit", "/initiate?way=need", /^(initiate|spark)$/, ico('<path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-10z"/><path d="M14 3.5v5h5"/><path d="M12 17v-6M9.3 13.6 12 11l2.7 2.6"/>')],
+          // SURESH 20 Nov 2026: Submit a need is the big round button in the middle, as Gift a Moment was.
+          : ["Submit", "/initiate?way=need", /^(initiate|spark)$/, '<span class="appbar-gift appbar-submit"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>'],
         FEAT.map && ["Map", "/smile-map", /^map2?$/, ico('<path d="M12 21s6.5-5.6 6.5-10.6A6.5 6.5 0 0 0 5.5 10.4C5.5 15.4 12 21 12 21Z"/><circle cx="12" cy="10.2" r="2.4"/>')],
         [signedIn ? "Sign out" : "Sign in", signedIn ? "/members?signout" : "/members", /^members$/, ico('<circle cx="12" cy="8.4" r="3.7"/><path d="M4.6 20c.9-3.6 3.8-5.4 7.4-5.4s6.5 1.8 7.4 5.4"/>')]
       ].filter(Boolean);
       const nav = document.createElement("nav");
       nav.className = "appbar"; nav.setAttribute("aria-label", "App");
-      nav.innerHTML = TABS.map(([t, h, on, pic], i) => `<a class="appbar-tab${h === "/moment" ? " gift" : ""}" href="${h}"${on.test(page) ? ' aria-current="page"' : ""}>${pic}<span>${t}</span></a>`).join("");
+      nav.innerHTML = TABS.map(([t, h, on, pic], i) => `<a class="appbar-tab${h === "/moment" || h === "/initiate?way=need" ? " gift" : ""}" href="${h}"${on.test(page) ? ' aria-current="page"' : ""}>${pic}<span>${t}</span></a>`).join("");
       document.body.appendChild(nav);
     }
 
