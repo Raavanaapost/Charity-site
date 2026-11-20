@@ -60,7 +60,8 @@ export async function makeProject(db: DB, id: number, by: By, how: "portal" | "p
     budget, goal: budget.reduce((a: number, x: any) => a + x.amount, 0), funders: [],
     date_set: false, booked: false, volunteers: false, steps: [],
     tagline: pf.tagline || "", summary: story.split("\n")[0],
-    story: `## The need and the plan\n\n${story}`, cover: artFor([title, pf.activity, story].join(" ")),
+    // Each saved line is its own paragraph on the page.
+    story: `## The need and the plan\n\n${story.split("\n").filter(Boolean).join("\n\n")}` + (pf.impact ? `\n\n## The impact it will make\n\n${String(pf.impact).split("\n").filter(Boolean).join("\n\n")}` : ""), cover: artFor([title, pf.activity, story].join(" ")),
     expectations: (q.expect || []).map((text: string) => ({ text, result: "", note: "" })), impact: [], updates: [], photos: [], media: [],
     vouched: (vouched as any[]).map((v) => ({ name: v.name, role: v.role || (v.relation === "know" ? "Knows the person who asked" : "Has seen the need") })),
     submitted_by: r.request_type === "referred" && r.incharge_name ? r.incharge_name : String(r.contact || "").split(/[,(]/)[0].trim(),

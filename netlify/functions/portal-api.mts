@@ -395,7 +395,7 @@ export default async (req: Request, context: Context) => {
         const ok = body.share === true;
         const p = (body.profile && typeof body.profile === "object") ? body.profile : {};
         const profile = {
-          title: clip(p.title, 120), tagline: clip(p.tagline, 200), summary: lines(p.summary, 2000), place: clip(p.place, 120), children: clip(p.children, 60),
+          title: clip(p.title, 120), tagline: clip(p.tagline, 200), summary: lines(p.summary, 4000), impact: lines(p.impact, 1200), place: clip(p.place, 120), children: clip(p.children, 60),
           when: clip(p.when, 80), activity: clip(p.activity, 300), budget: lines(p.budget, 1000), budget_total: clip(p.budget_total, 60),
         };
         if (ok && !profile.title) return json({ error: "Give the page a title first." }, 400);
