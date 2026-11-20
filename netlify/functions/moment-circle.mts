@@ -12,6 +12,7 @@ import type { Config } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
 import { getUser } from "@netlify/identity";
 import data from "../../projects.json" with { type: "json" };
+import { teamAccess } from "../lib/team-access.mts";
 
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
 const clip = (v: unknown, max: number) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, max).replace(/[<>]/g, "");
@@ -125,12 +126,8 @@ async function openProject(slug: string) {
 
 // Team members only: the same rule as the team portal (role admin or team, or listed in PORTAL_ADMINS).
 async function teamMember() {
-  const u = await getUser().catch(() => null);
-  if (!u || !u.email) return null;
-  const email = u.email.toLowerCase();
-  const admins = (Netlify.env.get("PORTAL_ADMINS") || "").toLowerCase().split(",").map((x) => x.trim()).filter(Boolean);
-  const roles: string[] = Array.isArray((u as any).roles) ? (u as any).roles : [];
-  return roles.includes("admin") || roles.includes("team") || admins.includes(email) ? email : null;
+  const m = await teamAccess();
+  return m ? m.email : null;
 }
 
 async function team(req: Request) {

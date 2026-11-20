@@ -10,6 +10,7 @@
 import type { Config } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
 import { getUser } from "@netlify/identity";
+import { teamAccess } from "../lib/team-access.mts";
 
 type Row = Record<string, any>;
 const json = (body: unknown, status = 200, cache = "no-store") => Response.json(body, { status, headers: { "Cache-Control": cache } });
@@ -25,12 +26,8 @@ const shortName = (n: string) => {
 };
 
 async function teamMember() {
-  const u = await getUser().catch(() => null);
-  if (!u || !u.email) return null;
-  const email = u.email.toLowerCase();
-  const admins = (Netlify.env.get("PORTAL_ADMINS") || "").toLowerCase().split(",").map((x) => x.trim()).filter(Boolean);
-  const roles: string[] = Array.isArray((u as any).roles) ? (u as any).roles : [];
-  return roles.includes("admin") || roles.includes("team") || admins.includes(email) ? email : null;
+  const m = await teamAccess();
+  return m ? m.email : null;
 }
 
 async function publicList() {
