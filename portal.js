@@ -68,7 +68,13 @@
     const newCount = D.suggestions.filter(s => s.status === "new").length, openRep = D.reports.filter(r => r.status !== "closed").length;
     const newAsk = ASKS ? ASKS.filter(x => x.status === "new").length : 0;
     const so = document.querySelector(".pt-site");
-    if (so && LIVE && !document.getElementById("pt-signout")) { const b = document.createElement("button"); b.id = "pt-signout"; b.type = "button"; b.className = "pt-site pt-signout"; b.textContent = "Sign out"; b.onclick = signOut; so.after(b); }
+    // Laptop sidebar foot (20 Nov 2026): who is signed in, View the website and Sign out kept together and lined up.
+    if (so && LIVE && !document.getElementById("pt-signout")) {
+      const foot = document.createElement("div"); foot.className = "pt-sidefoot";
+      foot.innerHTML = `<span class="pt-who">${esc(ME.name)}<small>${ME.admin ? "Admin" : "Team"}</small></span>`;
+      so.replaceWith(foot); foot.appendChild(so);
+      const b = document.createElement("button"); b.id = "pt-signout"; b.type = "button"; b.className = "pt-site pt-signout"; b.innerHTML = `${svg('<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h10"/>', 16)}<span>Sign out</span>`; b.onclick = signOut; foot.appendChild(b);
+    }
     document.getElementById("pt-nav").innerHTML = MENU.map(([k, l, ready]) => ready
       ? `<a href="#/${k}" class="${cur === k ? "on" : ""}" ${cur === k ? 'aria-current="page"' : ""}>${svg(ICON[k])}<span>${l}</span>${k === "sponsors" && newAsk ? `<b class="pt-badge">${newAsk}</b>` : k === "suggestions" && newCount ? `<b class="pt-badge">${newCount}</b>` : k === "reports" && openRep ? `<b class="pt-badge">${openRep}</b>` : ""}</a>`
       : `<span class="soon" title="Designed next">${svg(ICON[k])}<span>${l}</span><small>Next</small></span>`).join("");
@@ -702,10 +708,11 @@
         ${mode === "login" ? `<label class="pt-field">Email<input name="email" type="email" autocomplete="username" required></label>` : ""}
         <label class="pt-field">Password<input name="password" type="password" autocomplete="${mode === "login" ? "current-password" : "new-password"}" minlength="8" required></label>
         <button class="pt-btn" type="submit">${mode === "login" ? "Sign in" : "Save password"}</button>
+        ${mode === "login" ? `<button class="pt-btn ghost pt-google" type="button" data-google>Continue with Google</button>` : ""}
         <p class="pt-login-msg" role="status">${esc(msg)}</p>
       </form>
       ${mode === "login" ? `<form class="pt-card pt-paste" id="pt-paste" hidden>
-        <p class="pt-join-note">Team places are by invitation. When an admin invites you, you get an email: tap its button, or paste its link here.</p>
+        <p class="pt-join-note">An admin adds your email in the portal. Then make your account at <a href="/members">raavanaa.org/members</a> with that same email (or Continue with Google) and come back here. Got an invite email instead? Paste its link here.</p>
         <label class="pt-field">Invite or password email link<input name="link" placeholder="Long-press the button in the email, Copy link, paste" autocomplete="off"></label>
         <button class="pt-btn ghost" type="submit">Continue</button>
       </form>
@@ -745,6 +752,9 @@
       else if (rec) signIn("", "recovery", decodeURIComponent(rec[1]));
       else out.textContent = "That link has no invite or reset code. Copy the link from the button in the email.";
     };
+    // Google sign-in (20 Nov 2026): cousins and friends who joined with Google have no password.
+    const gg = app.querySelector("[data-google]");
+    if (gg) gg.onclick = async () => { try { const id = await identity(); id.oauthLogin("google"); } catch (err) { if (!/Redirecting/i.test(String(err && err.message))) out.textContent = "Google sign-in is not available right now."; } };
     const fg = app.querySelector("[data-forgot]");
     if (fg) fg.onclick = async () => {
       const email = f.querySelector("[name=email]").value.trim(); if (!email) { out.textContent = "Type your email first, then tap Forgot."; return; }
@@ -758,6 +768,10 @@
     const h = location.hash;
     const inv = h.match(/invite_token=([^&]+)/); if (inv) { history.replaceState(null, "", "/portal"); signIn("", "invite", decodeURIComponent(inv[1])); return true; }
     const rec = h.match(/recovery_token=([^&]+)/); if (rec) { history.replaceState(null, "", "/portal"); signIn("", "recovery", decodeURIComponent(rec[1])); return true; }
+    if (/access_token=|error=/.test(h)) { // back from "Continue with Google"
+      try { const id = await identity(); await id.handleAuthCallback(); } catch (e) { /* the sign-in form shows below */ }
+      history.replaceState(null, "", "/portal#/dashboard"); return false;
+    }
     if (/(confirmation_token|email_change_token)=/.test(h)) {
       try { const id = await identity(); const res = await id.handleAuthCallback(); history.replaceState(null, "", "/portal");
         void res; }
@@ -823,7 +837,7 @@
       <a class="pt-back" href="#/reports">‹ Reports &amp; feedback</a>
       <header class="pt-head"><div><p class="pt-kicker">${r.type === "concern" ? "Concern" : "Feedback"} ${esc(r.id)} · received ${ago(r.received)}</p>
         <h1>${r.type === "concern" ? esc(r.about) : "Feedback after a visit"}</h1></div></header>
-      <ol class="pt-steps">${steps}</ol>
+      <ol class="pt-howto">${steps}</ol>
       ${(r.named || []).length ? `<p class="pt-private">${svg(ICON.team, 16)} Hidden from ${esc(r.named.join(", "))}, who ${r.named.length > 1 ? "are" : "is"} named in this.</p>` : ""}
       <div class="pt-detail">
         <section class="pt-card ${fbWorry(r) || serious ? "pt-warn" : ""}">${what}</section>
@@ -935,7 +949,7 @@
       <header class="pt-head"><div><p class="pt-kicker">${p.isNew ? "New project · from suggestion " + esc(p.fromSuggestion) : "Project editor"}</p><h1>${esc(p.title)}</h1>
         <p><span class="pt-pill ${STAGE[n][1]}">${STAGE[n][0]}</span> <span class="pt-sub">${p.published === false || p.isNew ? "Draft · not on the website yet" : "On the website"}</span></p></div>
         <div class="pt-actions-row"><a class="pt-btn ghost" href="/projects/${esc(p.slug)}" target="_blank" rel="noopener">View ↗</a><button type="button" class="pt-btn" data-publish>${p.isNew ? "Publish" : "Save changes"}</button></div></header>
-      <ol class="pt-steps">${[1, 2, 3].map(k => `<li class="${k < n ? "done" : k === n ? "now" : ""}"><i></i><span>${STAGE[k][0]}</span></li>`).join("")}</ol>
+      <ol class="pt-howto">${[1, 2, 3].map(k => `<li class="${k < n ? "done" : k === n ? "now" : ""}"><i></i><span>${STAGE[k][0]}</span></li>`).join("")}</ol>
       <div class="pt-edit">
         <div>
           <div class="pt-etabs" role="tablist">${tabs.map(([k, l]) => `<button type="button" role="tab" aria-selected="${etab === k}" data-et="${k}">${l}</button>`).join("")}</div>
@@ -1359,6 +1373,45 @@
         <tbody>${PERMS.map(([l, a, t, r]) => `<tr><td>${l}</td>${[a, t, r].map(v => `<td class="${v ? "y" : "n"}">${v ? "✓" : "–"}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
         <p class="pt-sub">Anyone named in a report can never open it, whatever their role. Every change in the portal is logged with who made it.</p></section>`;
   }
+  // Live Team & logins (SURESH, 20 Nov 2026): add cousins and friends by email so they can see the dashboard.
+  let ACCESS = null;
+  const ROLE_NAME = { admin: "Admin", team: "Team" };
+  function liveTeam() {
+    if (!ACCESS) { api("/api/portal/access").then(a => { ACCESS = a; render(); }).catch(e => { ACCESS = { people: [], canEdit: false, error: e.message }; render(); }); return `<p class="pt-loading">Loading…</p>`; }
+    const A = ACCESS, invite = "I've added you to the Raavanaa team dashboard. Open https://raavanaa.org/members, tap Join and use this email (or Continue with Google). Once you're signed in, it opens the dashboard.";
+    return `
+      <header class="pt-head"><div><p class="pt-kicker">Team &amp; logins</p><h1>Who can open the dashboard</h1>
+        <p class="pt-sub">Add someone's email here. When they sign in on raavanaa.org with that email, they see this dashboard.</p></div></header>
+      ${A.error ? `<p class="pt-private">${esc(A.error)}</p>` : ""}
+      <div class="pt-grid">
+        <section class="pt-card"><h2>People with access <span class="pt-count">${A.people.length}</span></h2>
+          <ul class="pt-list">${A.people.map(m => `<li class="pt-pl"><span class="pt-av">${esc(initials(m.name || m.email))}</span>
+            <span class="pt-row-main"><b>${m.email === A.me ? "You" : esc(m.name || m.email.split("@")[0])}</b><small>${esc(m.email)} · ${m.owner ? "Owner" : ROLE_NAME[m.role] || "Team"}${m.addedBy ? " · added by " + esc(m.addedBy.split("@")[0]) : ""}</small></span>
+            <span class="pt-row-side">${A.canEdit && !m.owner && m.email !== A.me ? `<select class="pt-sel sm" data-arole="${esc(m.email)}" aria-label="Role"><option value="admin" ${m.role === "admin" ? "selected" : ""}>Admin</option><option value="team" ${m.role === "team" ? "selected" : ""}>Team</option></select>
+              <button type="button" class="pt-link" data-adel="${esc(m.email)}">Remove</button>` : ""}</span></li>`).join("") || `<li class="pt-empty">Only people given a role in Netlify so far.</li>`}</ul>
+          ${A.canEdit ? `<form class="pt-invite" data-addaccess><input name="name" placeholder="Name" aria-label="Name"><input name="email" type="email" placeholder="Their email" required aria-label="Email">
+            <select name="role" aria-label="Role"><option value="admin">Admin</option><option value="team">Team</option></select><button class="pt-btn" type="submit">Add</button></form>` : `<p class="pt-sub">Only an admin can add people.</p>`}
+        </section>
+        <section class="pt-card"><h2>How they get in</h2>
+          <ol class="pt-howto"><li>Add their email here.</li><li>They open <b>raavanaa.org/members</b>, tap <b>Join</b> with that email, or <b>Continue with Google</b>.</li><li>Once signed in, they land on this dashboard. Next time they can also use <b>raavanaa.org/portal</b>.</li></ol>
+          <p class="pt-sub">Send them this message:</p>
+          <p class="pt-private" style="background:#f4efe2;color:#3b3226">${esc(invite)}</p>
+          <p><button type="button" class="pt-btn ghost" data-copyinvite>Copy message</button> <a class="pt-btn ghost" href="https://wa.me/?text=${encodeURIComponent(invite)}" target="_blank" rel="noopener">Send on WhatsApp</a></p>
+        </section>
+      </div>
+      <section class="pt-card" style="margin-top:14px"><h2>What each role can do</h2>
+        <div class="pt-tablewrap"><table class="pt-perms"><thead><tr><th></th><th>Admin</th><th>Team</th></tr></thead>
+        <tbody>${[["See the dashboard, suggestions, projects and traffic", 1, 1], ["Plan visits, add notes, mark pledges", 1, 1], ["Approve a verified request", 1, 0], ["Add or remove people here", 1, 0]].map(([l, a, t]) => `<tr><td>${l}</td>${[a, t].map(v => `<td class="${v ? "y" : "n"}">${v ? "✓" : "–"}</td>`).join("")}</tr>`).join("")}</tbody></table></div></section>`;
+  }
+  function wireLiveTeam() {
+    const send = async (method, url, body, done) => { try { await api(url, { method, body: body ? JSON.stringify(body) : undefined }); ACCESS = null; render(); toast(done); } catch (e) { toast(e.message); } };
+    const f = app.querySelector("[data-addaccess]");
+    if (f) f.onsubmit = e => { e.preventDefault(); const d = new FormData(f); send("POST", "/api/portal/access", { name: d.get("name"), email: d.get("email"), role: d.get("role") }, "Added. Send them the message."); };
+    app.querySelectorAll("[data-arole]").forEach(s2 => s2.onchange = () => { const m = ACCESS.people.find(x => x.email === s2.dataset.arole); send("POST", "/api/portal/access", { email: m.email, name: m.name, role: s2.value }, "Role changed"); });
+    app.querySelectorAll("[data-adel]").forEach(b => b.onclick = () => { const em = b.dataset.adel; if (!confirm(`Take dashboard access away from ${em}?`)) return; send("DELETE", "/api/portal/access/" + encodeURIComponent(em), null, "Access removed"); });
+    const c = app.querySelector("[data-copyinvite]");
+    if (c) c.onclick = () => { const t = c.closest("section").querySelector(".pt-private").textContent; (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast("Message copied"), () => toast(t)); };
+  }
   function wireTeam() {
     app.querySelectorAll("[data-mrole]").forEach(s2 => s2.onchange = () => { D.members[+s2.dataset.mrole].role = s2.value; render(); toast("Role changed (demo)"); });
     app.querySelectorAll("[data-mdel]").forEach(b => b.onclick = () => { const m = D.members[+b.dataset.mdel]; if (!confirm(`Remove ${m.name}'s access?`)) return; D.members.splice(+b.dataset.mdel, 1); render(); toast("Access removed (demo)"); });
@@ -1559,6 +1612,7 @@
     else if (page === "circles") { app.innerHTML = circles(); wireCircles(); }
     else if (page === "volunteers") { app.innerHTML = volunteers(); wireVolunteers(); }
     else if (page === "traffic") { app.innerHTML = traffic(); wireTraffic(); }
+    else if (page === "team" && LIVE) { app.innerHTML = liveTeam(); if (ACCESS) wireLiveTeam(); }
     else if (page === "team") { app.innerHTML = team(); wireTeam(); }
     else if (page === "close") { app.innerHTML = closeDay(id); wireClose(); }
     else if (page === "day") { app.innerHTML = dayPrep(id); wireDay(); }
@@ -1593,7 +1647,7 @@
       if (!LIVE) C = { list: [{ id: 1, name: "Kumar Selvam", phone: "077 123 4567", email: "", district: "Nuwara Eliya", areas: "Pussellawa, Gampola", note: "Knows the estate schools.", active: true, visits: 2 }, { id: 2, name: "Nadeesha Perera", phone: "071 555 0101", email: "", district: "Kandy", areas: "Gampola, Peradeniya", note: "", active: true, visits: 0 }],
         districts: ["Ampara", "Anuradhapura", "Badulla", "Batticaloa", "Colombo", "Galle", "Gampaha", "Hambantota", "Jaffna", "Kalutara", "Kandy", "Kegalle", "Kilinochchi", "Kurunegala", "Mannar", "Matale", "Matara", "Monaragala", "Mullaitivu", "Nuwara Eliya", "Polonnaruwa", "Puttalam", "Ratnapura", "Trincomalee", "Vavuniya"] };
       const banner = document.querySelector(".pt-demo");
-      if (LIVE) { banner.textContent = `Signed in as ${ME.email} · Suggestions, “I'd like to give” requests and Traffic are live · other screens are still a demo`; banner.classList.add("live"); }
+      if (LIVE) { banner.textContent = `Signed in as ${ME.email} · Suggestions, “I'd like to give” requests, Traffic and Team & logins are live · other screens are still a demo`; banner.classList.add("live"); }
       window.addEventListener("hashchange", () => { render(); window.scrollTo(0, 0); });
       render();
     })
