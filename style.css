@@ -3041,3 +3041,35 @@ footer.foot .foot-links { display: inline-flex; flex-wrap: wrap; gap: 2px 14px; 
 
 /* Join Raavanaa taken out (SURESH, 20 Nov 2026): the Home Spark band keeps one card, centred */
 .sb-ways.one{grid-template-columns:1fr;max-width:300px}
+
+/* Gift a Moment, choose a project (SURESH, 20 Nov 2026): /projects?choose=<reason>, and the bar on a project page */
+.ch-head{padding-bottom:6px}
+.ch-step{margin:0 0 4px;font:700 12.5px/1.4 var(--ui,Inter,system-ui,sans-serif);letter-spacing:.06em;text-transform:uppercase;color:#8a6a1f}
+.ch-step span{display:inline-block;margin-right:8px;padding:2px 10px;border-radius:999px;background:#c8381e;color:#fff;letter-spacing:.02em;text-transform:none}
+.ch-book{padding-bottom:110px}
+.ch-row .ch-pick{width:100%;border:0;background:none;font:inherit;text-align:left;cursor:pointer;padding-left:12px}
+.ch-tick{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;border:2.5px solid var(--c);background:#fff;color:transparent;transition:background .15s,color .15s,transform .15s}
+.ch-row.on{box-shadow:0 0 0 3px var(--c),0 14px 26px -16px var(--c);background:color-mix(in srgb,var(--c) 18%,var(--surface))}
+.ch-row.on .ch-tick{background:var(--c);color:#fff;transform:scale(1.08)}
+.ch-left{display:block;margin-top:3px;font-size:13px;font-weight:700;color:#1f7a47}
+.ch-acts{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:0 12px 11px 54px}
+.hm-i.ch-glance{position:static;display:inline-flex;align-items:center;gap:5px;width:auto;height:auto;padding:5px 12px;border-radius:999px;font:700 13px/1.2 var(--ui,Inter,system-ui,sans-serif);font-style:normal;color:#1f4d3a}
+.hm-i.ch-glance::after{display:none}
+.hm-i.ch-glance[aria-expanded="true"]{color:#fff}
+.ch-story{font-weight:700;font-size:13.5px;color:#1f4d3a;text-decoration:underline;text-underline-offset:3px}
+.ch-chosen{margin-left:auto;font-weight:800;font-size:13px;color:var(--c)}
+.ch-fund{display:block;margin:18px auto 0;max-width:560px;padding:14px 16px;border-radius:14px;border:1.5px dashed #c9a24a;background:#fffaf0;color:#5b4a1f;text-align:center;text-decoration:none;font-size:14.5px}
+.ch-bar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;align-items:center;gap:10px;padding:10px max(14px,env(safe-area-inset-left)) calc(10px + env(safe-area-inset-bottom));background:#fffaf0;border-top:2px solid #c9a24a;box-shadow:0 -10px 24px -14px rgba(31,77,58,.45)}
+.ch-bar .ch-back{flex:none;color:#1f4d3a;font-weight:700;text-decoration:none;font-size:14.5px;padding:8px 4px}
+.ch-now{flex:1;min-width:0;display:grid;line-height:1.25}
+.ch-now small{font-size:12px;color:#6c6a52}
+.ch-now b{font-family:var(--display);font-size:15px;color:#1f4d3a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-now.nudge{animation:ch-nudge .45s}
+@keyframes ch-nudge{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.ch-go{flex:none;padding:11px 18px;border-radius:999px;background:#c8381e;color:#fff;font-weight:800;text-decoration:none;font-size:15px;box-shadow:0 8px 18px -10px #c8381e}
+.ch-go[aria-disabled="true"]{background:#d8d2c0;color:#6c6a52;box-shadow:none}
+body:has(.ch-bar) .appbar{display:none!important}
+body:has(.ch-on-page) footer{padding-bottom:84px}
+@media (max-width:600px){.ch-acts{padding-left:12px}.ch-go{padding:10px 14px}.ch-bar .ch-back{font-size:13.5px}}
+@media (prefers-reduced-motion:reduce){.ch-now.nudge{animation:none}.ch-tick{transition:none}}
+@media (min-width:900px){.ch-bar{padding-inline:calc((100% - 900px) / 2)}}
