@@ -298,7 +298,7 @@ export default async (req: Request, context: Context) => {
         expectations: q.expect.map((text: string) => ({ text, result: "", note: "" })), impact: [], updates: [], photos: [], media: [],
         vouched: (vouched as any[]).map((v) => ({ name: v.name, role: v.role || (v.relation === "know" ? "Knows the person who asked" : "Has seen the need") })),
         people: {
-          requested_by: String(r.contact || "").split(/[,(]/)[0].trim().split(/\s+/)[0] || "", // first name only (SURESH 20 Nov 2026) requested_on: day(r.received_at),
+          requested_by: String(r.contact || "").split(/[,(]/)[0].trim(), requested_on: day(r.received_at),
           verified_by: r.verified_by, verified_on: day(r.verified_at), approved_by: r.approved_by, approved_on: day(r.approved_at),
         },
         from_request: r.ref,
