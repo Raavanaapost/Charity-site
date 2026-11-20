@@ -513,3 +513,10 @@ body.pt-signedout .pt-main,body.pt-signedout .pt-shell{padding-top:0}body.pt-sig
 .tr-link code{background:var(--bg);padding:3px 6px;border-radius:6px}
 .tr-opt{display:flex;gap:8px;align-items:flex-start;font-weight:600;font-size:14px;cursor:pointer}
 .tr-opt input{margin-top:3px}
+
+/* The simple path: person in charge, send the page, Publish now (SURESH 20 Nov 2026) */
+.pt-golive{margin-top:14px;padding:12px 14px;border-radius:14px;background:#f3f8f2;border:1px solid #cfe3d3}
+.pt-golive h3{margin:0 0 4px}
+.pt-golive-btns{display:flex;flex-wrap:wrap;gap:8px}
+.pt-live{margin-top:14px;padding:12px 14px;border-radius:14px;background:#e7f4ea;color:#1f4d3a}
+.pt-live a{margin-left:8px;font-weight:600}
