@@ -215,3 +215,6 @@ body[data-page="spark"] .bar{background:var(--surface)}
 .sp-join-show input{margin-top:3px;flex:none;width:18px;height:18px;accent-color:#1f7a47}
 .sp-join-show small{opacity:.75}
 .sp-join-msg a{color:inherit;text-decoration:underline}
+
+/* Join Raavanaa taken out (SURESH, 20 Nov 2026); comes back with RAAV_FEATURES.join */
+.sp-join[hidden]{display:none!important}
