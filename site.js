@@ -20,13 +20,13 @@ window.RAAV_SKILLS = ["Visiting and checking projects near me", "Driving and tra
   "Accounts and bookkeeping", "Website and IT", "Medical and first aid", "Counselling and care", "Legal advice", "Building and repairs",
   "Farming and livelihoods", "Organising and leading", "Something else"];
 window.RAAV_FEATURES = (function () {
-  const F = { sponsor: false, pledge: true, circle: false, vetting: true, tamil: false, group: false, join: false, volunteers: false, moment: false, reasons: [] };  // join: "Join Raavanaa" cards and links (off, SURESH 20 Nov 2026: "take join raavanaa out")  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
+  const F = { sponsor: false, pledge: true, circle: false, vetting: true, tamil: false, group: false, join: false, volunteers: false, moment: false, map: false, reasons: [] };  // join: "Join Raavanaa" cards and links (off, SURESH 20 Nov 2026: "take join raavanaa out")  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
   try {
     const q = new URLSearchParams(location.search).get("features");
     const test = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) || /--charity-projects-draft\./.test(location.hostname);
     if (test && q === "all") sessionStorage.setItem("raav-features", "all");
     if (q === "launch") sessionStorage.removeItem("raav-features");
-    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = F.group = F.join = F.volunteers = F.moment = true; F.reasons = []; }
+    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = F.group = F.join = F.volunteers = F.moment = F.map = true; F.reasons = []; }
   } catch (e) { /* storage blocked: the launch switches stay */ }
   ["sponsor", "circle", "vetting", "tamil"].forEach(k => { if (!F[k]) document.documentElement.classList.add("no-" + k); });
   // Tamil hidden for now (SURESH 15 Nov 2026): no தமிழ் switch, and a /ta/ page opens the same page in English.
@@ -35,6 +35,8 @@ window.RAAV_FEATURES = (function () {
   if (!F.volunteers && /^\/(ta\/)?volunteers?(\.html)?\/?$/.test(location.pathname)) location.replace("/projects");
   // Gift a Moment taken out for this release (SURESH, 20 Nov 2026: "we do it in phases, next release"). The page, its
   // project list and the moment cards stay in the code; set moment: true to bring them all back. Family pages /m/ still open.
+  // Smile Map taken out for this release (SURESH, 20 Nov 2026: "another release"); set map: true to bring it back.
+  if (!F.map && /^\/(ta\/)?smile-map(-v2)?(\.html)?\/?$/.test(location.pathname)) location.replace("/projects");
   if (!F.moment && /^\/(ta\/)?moment(\.html)?\/?$/.test(location.pathname)) location.replace("/projects");
   if (!F.tamil && /^\/ta(\/|$)/.test(location.pathname)) location.replace((location.pathname.replace(/^\/ta/, "") || "/") + location.search + location.hash);
   return F;
@@ -154,9 +156,9 @@ window.RAAV_FEATURES = (function () {
         ["Home", "/overview", /^overview$/, ico('<path d="M3.5 11.2 12 4l8.5 7.2"/><path d="M5.8 9.8V20h4.4v-5.4h3.6V20h4.4V9.8"/>')],
         FEAT.moment ? ["Gift", "/moment", /^(moment|together|give|fund|thanks)$/, '<span class="appbar-gift"><img src="/img/moment-mark.svg" alt="" width="34" height="34"></span>']
           : ["Submit", "/initiate?way=need", /^(initiate|spark)$/, ico('<path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-10z"/><path d="M14 3.5v5h5"/><path d="M12 17v-6M9.3 13.6 12 11l2.7 2.6"/>')],
-        ["Map", "/smile-map", /^map2?$/, ico('<path d="M12 21s6.5-5.6 6.5-10.6A6.5 6.5 0 0 0 5.5 10.4C5.5 15.4 12 21 12 21Z"/><circle cx="12" cy="10.2" r="2.4"/>')],
+        FEAT.map && ["Map", "/smile-map", /^map2?$/, ico('<path d="M12 21s6.5-5.6 6.5-10.6A6.5 6.5 0 0 0 5.5 10.4C5.5 15.4 12 21 12 21Z"/><circle cx="12" cy="10.2" r="2.4"/>')],
         [signedIn ? "Sign out" : "Sign in", signedIn ? "/members?signout" : "/members", /^members$/, ico('<circle cx="12" cy="8.4" r="3.7"/><path d="M4.6 20c.9-3.6 3.8-5.4 7.4-5.4s6.5 1.8 7.4 5.4"/>')]
-      ];
+      ].filter(Boolean);
       const nav = document.createElement("nav");
       nav.className = "appbar"; nav.setAttribute("aria-label", "App");
       nav.innerHTML = TABS.map(([t, h, on, pic], i) => `<a class="appbar-tab${h === "/moment" ? " gift" : ""}" href="${h}"${on.test(page) ? ' aria-current="page"' : ""}>${pic}<span>${t}</span></a>`).join("");
@@ -255,6 +257,7 @@ window.RAAV_FEATURES = (function () {
     }
     // Members link at the end of the menu: "Sign in", or "My account" once signed in (Netlify Identity keeps the session in localStorage).
     const navEl = document.getElementById("site-nav");
+    if (navEl && !FEAT.map) navEl.querySelectorAll('a[href="/smile-map"], a[href="/ta/smile-map"]').forEach(a => a.remove());
     if (navEl && !navEl.querySelector(".nav-member")) {
       let signedIn = false; try { signedIn = !!localStorage.getItem("gotrue.user"); } catch (e) { /* storage blocked */ }
       const m = document.createElement("a");
