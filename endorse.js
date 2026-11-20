@@ -163,7 +163,7 @@
       step(true, 1, t("Request sent", "கோரிக்கை அனுப்பப்பட்டது"), r.by ? t(`${r.by} told us about the children and the day.`, `${r.by} குழந்தைகள் பற்றியும் அந்த நாள் பற்றியும் எங்களிடம் சொன்னார்.`) : t("Someone told us about the children and the day.", "ஒருவர் குழந்தைகள் பற்றியும் அந்த நாள் பற்றியும் எங்களிடம் சொன்னார்.")) +
       step(!r.pending, 2, r.pending ? t("Raavanaa is checking it", "ராவணா சரிபார்க்கிறது") : t("Checked and approved by Raavanaa", "ராவணா சரிபார்த்து அனுமதித்தது"), r.pending ? t("The team reads it and may call with a few questions.", "குழு அதைப் படித்து, சில கேள்விகளுடன் அழைக்கலாம்.") : t("The team read it and approved this page for sharing.", "குழு அதைப் படித்து, இந்தப் பக்கத்தைப் பகிர அனுமதித்தது.")) +
       step(L.backed, 3, L.backed ? t("Backed by the community", "சமூகத்தின் ஆதரவு கிடைத்தது") : t("Waiting for people to vouch", "உறுதிப்படுத்துபவர்களுக்காகக் காத்திருக்கிறது"),
-        L.backed ? t(`${n} people vouched, including someone in a role.`, `${n} பேர் உறுதிப்படுத்தினர், பொறுப்பில் உள்ள ஒருவர் உட்பட.`)
+        L.backed ? (L.override && !(n >= r.needed && L.hasRole) ? t(n === 1 ? "Vouched for by someone who knows it, and accepted by the Raavanaa team." : `${n} people vouched, and the Raavanaa team accepted it.`, `${n} பேர் உறுதிப்படுத்தினர், ராவணா குழு ஏற்றுக்கொண்டது.`) : t(`${n} people vouched, including someone in a role.`, `${n} பேர் உறுதிப்படுத்தினர், பொறுப்பில் உள்ள ஒருவர் உட்பட.`))
           : t(`${n} of ${r.needed} so far`, `இதுவரை ${r.needed}-இல் ${n}`) + (n >= r.needed && !L.hasRole ? t(". Still needs someone in a role, like a principal or teacher.", ". இன்னும் அதிபர் அல்லது ஆசிரியர் போன்ற பொறுப்பில் உள்ள ஒருவர் தேவை.") : ".")) +
       step(L.verified, 4, L.verified ? t("Visited by a Raavanaa volunteer", "ராவணா தன்னார்வலர் நேரில் பார்த்தார்") : t("A Raavanaa volunteer visits", "ராவணா தன்னார்வலர் ஒருவர் வருவார்"),
         L.verified ? t("A volunteer called or visited and confirmed it. It can now take gifts.", "தன்னார்வலர் ஒருவர் அழைத்து அல்லது நேரில் வந்து உறுதிப்படுத்தினார். இப்போது இது அன்பளிப்புகளைப் பெறலாம்.") : t("A volunteer near the children calls or visits. Only then can it take any money.", "குழந்தைகளுக்கு அருகில் உள்ள தன்னார்வலர் ஒருவர் அழைப்பார் அல்லது வருவார். அதன் பிறகுதான் பணம் பெற முடியும்."));
@@ -183,8 +183,10 @@
       : !L.verified ? (r.visitor ? `<b>Backed by the community.</b> Next, ${esc(r.visitor.name)}, a Raavanaa Champion from ${esc(r.visitor.district)}, calls or visits.` : "<b>Backed by the community.</b> Next, a Raavanaa volunteer near the children calls or visits.")
       : `<b>Visited and verified.</b> ${r.visitor ? esc(r.visitor.name) + ", a Raavanaa Champion from " + esc(r.visitor.district) + "," : "A Raavanaa volunteer"} has confirmed it. It can now take gifts.`;
 
-    $("[data-count]").textContent = t(`${Math.min(n, r.needed)} of ${r.needed}`, `${r.needed}-இல் ${Math.min(n, r.needed)}`);
-    $("[data-bars]").innerHTML = Array.from({ length: r.needed }, (_, i) => `<span class="${i < n ? "on" : ""}"></span>`).join("");
+    // When an admin accepted fewer vouches, the counter just says Vouched (SURESH 20 Nov 2026).
+    const full = L.backed ? r.needed : n;
+    $("[data-count]").textContent = L.backed && n < r.needed ? t("Vouched", "உறுதிப்படுத்தப்பட்டது") : t(`${Math.min(n, r.needed)} of ${r.needed}`, `${r.needed}-இல் ${Math.min(n, r.needed)}`);
+    $("[data-bars]").innerHTML = Array.from({ length: r.needed }, (_, i) => `<span class="${i < full ? "on" : ""}"></span>`).join("");
     if (r.pending) { $("[data-form-card]").hidden = true; $("[data-thanks]").hidden = true; return; }
     $("[data-people]").innerHTML = n
       ? r.endorsements.map((e) => `<li><span class="dot" aria-hidden="true">${esc((e.name || "?").trim().charAt(0).toUpperCase())}</span><span class="who"><b>${esc(e.name)}</b><small>${esc(e.role || RELATION[e.relation] || "")}</small></span>${e.relation === "role" ? '<span class="tag">' + t("ROLE", "பொறுப்பு") + '</span>' : ""}</li>`).join("")

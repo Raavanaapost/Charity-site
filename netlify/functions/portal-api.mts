@@ -99,7 +99,7 @@ function shape(r: Record<string, any>, notes: unknown[], files: unknown[] = [], 
     ai: stuck(r)
       ? { status: "failed", error: "The AI check stopped without an answer. Press Run the AI check again.", at: r.ai_at, draft: r.ai_draft || {} }
       : { status: r.ai_status || "", error: r.ai_error || "", at: r.ai_at, draft: r.ai_draft || {} },
-    profile: r.profile || {}, shareOk: !!r.share_ok, shareOkBy: r.share_ok_by || "", shareOkAt: r.share_ok_at,
+    profile: r.profile || {}, vouchOkBy: r.vouch_ok_by || "", vouchOkAt: r.vouch_ok_at || null, shareOk: !!r.share_ok, shareOkBy: r.share_ok_by || "", shareOkAt: r.share_ok_at,
   };
 }
 
@@ -390,6 +390,18 @@ export default async (req: Request, context: Context) => {
         }
         changes.status = body.status;
         await db.sql`UPDATE suggestions SET status = ${body.status}, updated_at = NOW() WHERE id = ${row.id}`;
+      }
+      // One vouch is enough: admins only, and only once someone has vouched (SURESH 20 Nov 2026).
+      if (body.vouchOk !== undefined) {
+        if (!me.admin) return json({ error: "Only an admin can say one vouch is enough." }, 403);
+        if (body.vouchOk === true) {
+          const [c] = await db.sql<{ n: number }>`SELECT COUNT(*)::int AS n FROM endorsements WHERE suggestion_id = ${row.id} AND NOT hidden`;
+          if (!c || c.n < 1) return json({ error: "Someone needs to vouch first." }, 400);
+          await db.sql`UPDATE suggestions SET vouch_ok_by = ${me.name}, vouch_ok_at = NOW(), updated_at = NOW() WHERE id = ${row.id}`;
+        } else {
+          await db.sql`UPDATE suggestions SET vouch_ok_by = '', vouch_ok_at = NULL, updated_at = NOW() WHERE id = ${row.id}`;
+        }
+        changes.vouchOk = body.vouchOk === true;
       }
       // Approve the request's page for sharing and vouching, with the profile the team checked.
       if (body.share !== undefined) {
