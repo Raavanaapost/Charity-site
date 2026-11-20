@@ -153,7 +153,7 @@
   const rowHTML = s => { const d = callDue(s), m = s.status === "new" && s.called ? callMissing(s) : [];
     return `<li><a class="pt-row" href="#/suggestions/${s.id}">
       <span class="pt-row-main"><b>${esc(det(s).title || s.title)}</b><small>${esc(s.category || s.kind || "")} · ${esc(s.village || s.location.split(",")[0])} · ${esc(howMany(s.children))}</small>
-        ${d ? `<em class="pt-due ${d.late ? "late" : ""}">${d.text}</em>` : ""}${m.length ? `<em class="pt-miss">Missing ${m.length}</em>` : ""}${(s.endorsements || []).length ? `<em class="pt-due">${vouch(s).backed ? "Community-backed" : `Vouched ${s.endorsements.length} of 3`}</em>` : ""}</span>
+        ${d ? `<em class="pt-due ${d.late ? "late" : ""}">${d.text}</em>` : ""}${m.length ? `<em class="pt-miss">Missing ${m.length}</em>` : ""}${(s.endorsements || []).length ? `<em class="pt-due">${vouch(s).backed ? "Community-backed" : `Vouched ${s.endorsements.length} of ${s.vouchesNeeded || 3}`}</em>` : ""}</span>
       <span class="pt-row-side"><span class="pt-pill ${STATUS[s.status].c}">${STATUS[s.status].label}</span><time>${ago(s.received)}</time></span></a></li>`; };
   let filter = "new", query = "";
   function suggestions() {
@@ -213,11 +213,40 @@
         ? `<p class="pt-sub">Approved by ${esc(s.shareOkBy || "the team")}${s.shareOkAt ? ` ${ago(s.shareOkAt)}` : ""}. The requester can share it now.</p>
            <p><button type="button" class="pt-btn" data-share="save">Save changes</button> <button type="button" class="pt-btn ghost" data-share="stop">Stop sharing</button></p>`
         : `<p><button type="button" class="pt-btn" data-share="yes">Approve page for sharing</button></p>`}
+      ${goLiveHTML(s)}
       ${s.endorseLink ? `<p><button type="button" class="pt-btn ghost" data-preview>Preview the page</button></p>
         <p class="pt-sub">Page: <a href="${esc(s.endorseLink)}" target="_blank" rel="noopener">raavanaa.org${esc(s.endorseLink)}</a></p>` : ""}
     </section>`;
   };
+  // The simple path (SURESH 20 Nov 2026): make the page, send it to the person in charge, their vouch puts it live.
+  // Open requests (nobody to vouch): an admin presses Publish now.
+  const digits = v => String(v || "").replace(/\D/g, "").replace(/^0(?=7\d{8}$)/, "94");
+  function goLiveHTML(s) {
+    if (s.projectSlug || s.status === "project") return `<div class="pt-live"><b>✓ Live on Projects</b> <a href="/projects/${esc(s.projectSlug || "")}" target="_blank" rel="noopener">Open the project page →</a></div>`;
+    const ic = s.incharge || {}, ref = s.requestType === "referred" && ic.name;
+    const who = ref ? ic.name : (s.contact || "").split(/[,(]/)[0].trim();
+    const phone = ref ? ic.phone : ((s.reach || "").match(/\+?[\d][\d\s-]{7,}/) || [""])[0];
+    const email = ref ? ic.email : ((s.reach || "").match(/[^\s,]+@[^\s,]+/) || [""])[0];
+    const link = s.endorseLink ? location.origin + s.endorseLink : "";
+    const msg = `Hello ${who.split(" ")[0]}, Raavanaa has made the page for the need you told us about: ${link} Please check it. If anything needs changing, reply to this message. If it is right, press Vouch, and it goes live on raavanaa.org.`;
+    const admin = /admin/i.test(D.user.role || "");
+    return `<div class="pt-golive">
+      <h3>${ref ? "Person in charge" : "Open request"}</h3>
+      <p class="pt-sub">${ref ? `Sent for <b>${esc(ic.name)}</b>${ic.phone ? ` · <a href="tel:${esc(digits(ic.phone))}">${esc(ic.phone)}</a>` : ""}${ic.email ? ` · <a href="mailto:${esc(ic.email)}">${esc(ic.email)}</a>` : ""}. When the page is ready, send it to them. Their vouch puts it live.` : "Sent by the person in charge, or by someone who doesn't know anyone there. No vouch needed: an admin publishes it."}</p>
+      ${s.shareOk && link ? `<p class="pt-golive-btns">${phone ? `<a class="pt-btn ghost" target="_blank" rel="noopener" href="https://wa.me/${digits(phone)}?text=${encodeURIComponent(msg)}">Send on WhatsApp</a>` : ""}${email ? ` <a class="pt-btn ghost" href="mailto:${esc(email)}?subject=${encodeURIComponent("Your Raavanaa project page")}&body=${encodeURIComponent(msg)}">Send by email</a>` : ""}</p>` : `<p class="pt-sub">First make the page above and press Approve page for sharing.</p>`}
+      ${admin && s.shareOk ? `<p><button type="button" class="pt-btn" data-publish>Publish now</button> <span class="pt-sub">${ref ? "Or wait for their vouch." : "It goes on Projects as an Initiated project."}</span></p>` : ""}
+    </div>`;
+  }
   function wireReview(s) {
+    const pub = app.querySelector("[data-publish]");
+    if (pub) pub.onclick = async () => {
+      if (!LIVE) { toast("Publishing works on the real portal only"); return; }
+      pub.disabled = true;
+      try {
+        const r = await api(`/api/portal/suggestions/${encodeURIComponent(s.id)}/publish`, { method: "POST", body: "{}" });
+        Object.assign(s, { status: "project", projectSlug: r.slug }); render(); toast("Live on Projects");
+      } catch (e) { pub.disabled = false; toast(e.message || "Could not publish"); }
+    };
     const aiBtn = app.querySelector("[data-ai]");
     if (aiBtn) aiBtn.onclick = async () => {
       if (!LIVE) { toast("The AI check works on the real portal only"); return; }
@@ -267,13 +296,13 @@
   }
 
   // Community endorsement: people who vouched through the request's share link. 3, one of them in a role = backed.
-  const vouch = s => { const e = s.endorsements || [], over = !!s.vouchOkBy && e.length >= 1; return { n: e.length, role: e.some(x => x.relation === "role"), over, backed: over || (e.length >= 3 && e.some(x => x.relation === "role")) }; };
+  const vouch = s => { const e = s.endorsements || [], need = s.vouchesNeeded || 3, roleOk = !s.vouchNeedsRole && s.vouchesNeeded ? true : e.some(x => x.relation === "role"), over = !!s.vouchOkBy && e.length >= 1; return { n: e.length, need, role: e.some(x => x.relation === "role"), over, backed: over || (e.length >= need && roleOk) }; };
   const REL = { role: "Role", know: "Knows them", seen: "Seen the need" };
   const vouchHTML = s => {
     const e = s.endorsements || [], v = vouch(s);
     if (!e.length && !s.endorseLink) return "";
     return `<section class="pt-card">
-      <h2>Vouched for by <span class="pt-count">${e.length} of 3</span></h2>
+      <h2>Vouched for by <span class="pt-count">${e.length} of ${v.need}</span></h2>
       <p class="pt-sub">${v.over ? `Vouched. ${esc(s.vouchOkBy)} (admin) said ${e.length === 1 ? "one vouch is" : "these vouches are"} enough.` : v.backed ? "Backed by the community. Call one of them before the visit." : e.length >= 3 ? "Still needs someone in a role (principal, teacher, Grama Niladhari…)." : "Waiting for people to vouch through the share link."}</p>
       <ul class="pt-notes">${e.map(x => `<li><span class="pt-av">${esc(initials(x.name))}</span><div><b>${esc(x.name)}</b> <time>${ago(x.at)}</time><p>${esc(x.role || REL[x.relation] || "")} · <a href="tel:${esc(String(x.phone).replace(/\s/g, ""))}">${esc(x.phone)}</a> <small>(private)</small></p></div></li>`).join("") || `<li class="pt-empty">Nobody yet.</li>`}</ul>
       ${/admin/i.test(D.user.role || "") && e.length && (v.over || !v.backed) ? `<p><button type="button" class="pt-btn ${v.over ? "ghost" : ""}" data-vouch-ok="${v.over ? "no" : "yes"}">${v.over ? "Undo: wait for 3 vouches again" : `Mark as vouched (${e.length === 1 ? "one vouch is" : "these are"} enough)`}</button></p><p class="pt-sub">Admins only. The page then shows Vouched.</p>` : ""}
