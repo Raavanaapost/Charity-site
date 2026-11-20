@@ -207,8 +207,8 @@
         ${(d.transcripts || []).map(t => `<details class="pt-tr"><summary>Voice note: ${esc(t.file)} (${esc(t.language)})</summary><p>${esc(t.english)}</p>${t.original && t.original !== t.english ? `<p class="pt-sub">${esc(t.original)}</p>` : ""}</details>`).join("")}
         ${(d.people || []).length ? `<h3>People named</h3><p class="pt-sub">${d.people.map(x => `${esc(x.name)} (${esc(x.role)})`).join(" · ")}</p>` : ""}` : ""}
       <h3>The page people will see</h3>
-      <p class="pt-sub">Check every line. No children's names. A school is named only if you have agreed it.</p>
-      <div class="pt-pfs">${inp("title", "Title")}${inp("tagline", "One line under the title")}${inp("summary", "The story: everything they wrote, without school or children's names (a blank line starts a new paragraph)", true)}${inp("impact", "The impact it will make (2 to 4 sentences, from what they wrote)", true)}${inp("activity", "The day")}${inp("place", "Place")}${inp("children", "Children")}${inp("when", "When")}${inp("budget", "Budget, one item per line, e.g. Bus: Rs 30,000", true)}${inp("budget_total", "Total, e.g. Rs 61,000")}</div>
+      <p class="pt-sub">Check every line. No children's names. The school's name is fine.</p>
+      <div class="pt-pfs">${inp("title", "Title")}${inp("tagline", "One line under the title")}${inp("summary", "The story: everything they wrote, without children's names (a blank line starts a new paragraph)", true)}${inp("impact", "The impact it will make (2 to 4 sentences, from what they wrote)", true)}${inp("activity", "The day")}${inp("place", "Place")}${inp("children", "Children")}${inp("when", "When")}${inp("budget", "Budget, one item per line, e.g. Bus: Rs 30,000", true)}${inp("budget_total", "Total, e.g. Rs 61,000")}</div>
       ${s.shareOk
         ? `<p class="pt-sub">Approved by ${esc(s.shareOkBy || "the team")}${s.shareOkAt ? ` ${ago(s.shareOkAt)}` : ""}. The requester can share it now.</p>
            <p><button type="button" class="pt-btn" data-share="save">Save changes</button> <button type="button" class="pt-btn ghost" data-share="stop">Stop sharing</button></p>`

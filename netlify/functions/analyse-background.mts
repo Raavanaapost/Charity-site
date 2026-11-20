@@ -26,11 +26,11 @@ Sinhala: transcribe them and translate to English. Then reply ONLY with JSON in 
 Rules:
 - Use only what is in the form and the files. Never guess or invent a figure, name, date or place. If something is
   not there, leave it empty and list it under "missing".
-- "summary" is for a public page: 2 to 4 warm, plain sentences. Never name a child. Never name a school or home unless
-  the requester clearly is that school or home. The town or village is fine.
+- "summary" is for a public page: 2 to 4 warm, plain sentences. Never name a child. Naming the school or home is fine
+  (SURESH 20 Nov 2026). The town or village is fine.
 - "full_story" is also for the public page (SURESH 20 Nov 2026: "post everything he writes"): EVERYTHING the requester
-  wrote, in clear paragraphs, keeping every fact, figure, reason and detail. Only take out children's names and the
-  name of a school or home; say "the school" instead. Do not shorten it into a summary.
+  wrote, in clear paragraphs, keeping every fact, figure, reason and detail. Only take out children's names. School and
+  home names may stay (SURESH 20 Nov 2026). Do not shorten it into a summary.
 - "impact" is 2 to 4 sentences on the impact this project will make, written only from what the requester wrote:
   who benefits, how many, and what changes for them. No promises beyond what they said.
 - "missing" lists what the team still needs before the page can be approved. Always check: who the children are and
