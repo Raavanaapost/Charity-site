@@ -66,6 +66,13 @@ export async function render(app, site) {
     clean();
     if (ok && await toDashboard()) return;
   }
+  // "Sign out" in the menu or the app bar (SURESH, 20 Nov 2026): /members?signout signs out, then shows Sign in.
+  if (new URLSearchParams(location.search).get("signout") !== null) {
+    try { const id = await identity(); await id.logout(); } catch (e) { /* ignore */ }
+    try { localStorage.removeItem("gotrue.user"); } catch (e) { /* none */ }
+    history.replaceState(null, "", location.pathname);
+    markNav(false); return signedOut(app, site, "login", "You are signed out.");
+  }
   const me = await getMember();
   if (me) return account(app, site);
   return signedOut(app, site, new URLSearchParams(location.search).get("signin") !== null ? "login" : "join"); // Sign up first (SURESH 18 Nov); /members?signin opens Sign in
@@ -267,5 +274,6 @@ async function account(app, site, msg = "") {
 
 function markNav(signedIn) {
   const a = document.querySelector("#site-nav .nav-member");
-  if (a) a.textContent = signedIn ? "My account" : "Sign in";
+  if (a) { a.textContent = signedIn ? "Sign out" : "Sign in"; a.href = (/^\/ta(\/|$)/.test(location.pathname) ? "/ta" : "") + "/members" + (signedIn ? "?signout" : ""); }
+  document.querySelectorAll('.appbar a[href^="/members"]').forEach(t => { t.href = "/members" + (signedIn ? "?signout" : ""); const l = t.querySelector("span:last-child"); if (l) l.textContent = signedIn ? "Sign out" : "Sign in"; });
 }

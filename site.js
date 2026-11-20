@@ -155,7 +155,7 @@ window.RAAV_FEATURES = (function () {
         FEAT.moment ? ["Gift", "/moment", /^(moment|together|give|fund|thanks)$/, '<span class="appbar-gift"><img src="/img/moment-mark.svg" alt="" width="34" height="34"></span>']
           : ["Submit", "/initiate?way=need", /^(initiate|spark)$/, ico('<path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-10z"/><path d="M14 3.5v5h5"/><path d="M12 17v-6M9.3 13.6 12 11l2.7 2.6"/>')],
         ["Map", "/smile-map", /^map2?$/, ico('<path d="M12 21s6.5-5.6 6.5-10.6A6.5 6.5 0 0 0 5.5 10.4C5.5 15.4 12 21 12 21Z"/><circle cx="12" cy="10.2" r="2.4"/>')],
-        [signedIn ? "Account" : "Sign in", "/members", /^members$/, ico('<circle cx="12" cy="8.4" r="3.7"/><path d="M4.6 20c.9-3.6 3.8-5.4 7.4-5.4s6.5 1.8 7.4 5.4"/>')]
+        [signedIn ? "Sign out" : "Sign in", signedIn ? "/members?signout" : "/members", /^members$/, ico('<circle cx="12" cy="8.4" r="3.7"/><path d="M4.6 20c.9-3.6 3.8-5.4 7.4-5.4s6.5 1.8 7.4 5.4"/>')]
       ];
       const nav = document.createElement("nav");
       nav.className = "appbar"; nav.setAttribute("aria-label", "App");
@@ -258,8 +258,9 @@ window.RAAV_FEATURES = (function () {
     if (navEl && !navEl.querySelector(".nav-member")) {
       let signedIn = false; try { signedIn = !!localStorage.getItem("gotrue.user"); } catch (e) { /* storage blocked */ }
       const m = document.createElement("a");
-      m.className = "nav-member"; m.href = (/^\/ta(\/|$)/.test(location.pathname) ? "/ta" : "") + "/members";
-      m.textContent = signedIn ? "My account" : "Sign in";
+      // SURESH 20 Nov 2026: once signed in, the menu says "Sign out" (was "My account").
+      m.className = "nav-member"; m.href = (/^\/ta(\/|$)/.test(location.pathname) ? "/ta" : "") + "/members" + (signedIn ? "?signout" : "");
+      m.textContent = signedIn ? "Sign out" : "Sign in";
       if (document.body.dataset.page === "members") m.setAttribute("aria-current", "page");
       navEl.appendChild(m);
     }
@@ -4161,7 +4162,7 @@ window.RAAV_FEATURES = (function () {
         }
         renderStage(app, site, projects, stage, example);
       } else if (page === "overview") {
-        document.title = site.name;
+        document.title = "Raavanaa · Creating moments";   // Google showed the old "Coming soon" title (SURESH, 20 Nov 2026)
         if (document.body.dataset.variant === "classic") renderOverviewClassic(app, site, projects);
         else await renderOverview(app, site, projects);
       } else if (page === "welcome") {
