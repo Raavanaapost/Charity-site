@@ -1,0 +1,7 @@
+# raavanaa.org (20 Nov 2026)
+User-agent: *
+Disallow: /portal
+Disallow: /admin
+Disallow: /api/
+Disallow: /members
+Sitemap: https://raavanaa.org/sitemap.xml
