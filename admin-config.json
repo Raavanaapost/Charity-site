@@ -138,7 +138,7 @@
                   "widget": "list",
                   "required": false,
                   "summary": "{{fields.amount}} – {{fields.item}}",
-                  "hint": "One line for each cost, for example: 250 – Bowling lanes for 20 children. The total is added up for you.",
+                  "hint": "One line for each cost, for example: 250 – Zoo tickets for 20 children. The total is added up for you.",
                   "fields": [
                     {
                       "name": "amount",
