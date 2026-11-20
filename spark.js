@@ -120,7 +120,7 @@
         '<div class="mo-pick" id="sp-step-1">' +
           '<p class="mo-pick-q">' + (FEAT.group ? '<span class="mo-num">1</span>' : "") + (FEAT.group ? "How would you like to start?" : "One way in, for any need") + "</p>" +
           '<div class="sp-ways' + (FEAT.group ? "" : " one") + '" role="' + (FEAT.group ? "radiogroup" : "group") + '" aria-label="How would you like to start?">' + (FEAT.group ? wayCard("request") + wayCard("submit") : wayCard("need")) + "</div>" +
-          (FEAT.group ? "" : '<a class="sp-join-go" href="/volunteers#join"><b>Or join Raavanaa</b> and create moments together →</a>') +
+          (FEAT.group || !FEAT.join ? "" : '<a class="sp-join-go" href="/volunteers#join"><b>Or join Raavanaa</b> and create moments together →</a>') +
         "</div>" +
       "</div></section>" +
     (FEAT.group ? "" :
@@ -129,7 +129,7 @@
       '<h2 class="sp-after-h">What happens next</h2>' +
       '<ol class="sp-flow">' + FLOW.map(function (f) { return '<li><span class="sp-f-ic">' + svg(f[0], 24) + "</span><b>" + f[1] + "</b><span>" + f[2] + "</span></li>"; }).join("") + "</ol>" +
     "</section>" +
-    '<section class="sp-join" id="join" aria-labelledby="join-h">' +
+    '<section class="sp-join" id="join" aria-labelledby="join-h"' + (FEAT.join ? "" : " hidden") + ">" +
       '<h2 id="join-h">Join the Raavanaa movement</h2>' +
       '<p class="sp-join-lede">Create moments together. Give an hour, share a skill, or be the trusted person near a project. Pick what you can bring and a volunteer will reply.</p>' +
       '<form class="sp-join-form" name="volunteer" data-join>' +

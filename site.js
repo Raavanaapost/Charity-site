@@ -20,13 +20,13 @@ window.RAAV_SKILLS = ["Visiting and checking projects near me", "Driving and tra
   "Accounts and bookkeeping", "Website and IT", "Medical and first aid", "Counselling and care", "Legal advice", "Building and repairs",
   "Farming and livelihoods", "Organising and leading", "Something else"];
 window.RAAV_FEATURES = (function () {
-  const F = { sponsor: false, pledge: true, circle: false, vetting: true, tamil: false, group: false, reasons: [] };  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
+  const F = { sponsor: false, pledge: true, circle: false, vetting: true, tamil: false, group: false, join: false, reasons: [] };  // join: "Join Raavanaa" cards and links (off, SURESH 20 Nov 2026: "take join raavanaa out")  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
   try {
     const q = new URLSearchParams(location.search).get("features");
     const test = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) || /--charity-projects-draft\./.test(location.hostname);
     if (test && q === "all") sessionStorage.setItem("raav-features", "all");
     if (q === "launch") sessionStorage.removeItem("raav-features");
-    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = F.group = true; F.reasons = []; }
+    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = F.group = F.join = true; F.reasons = []; }
   } catch (e) { /* storage blocked: the launch switches stay */ }
   ["sponsor", "circle", "vetting", "tamil"].forEach(k => { if (!F[k]) document.documentElement.classList.add("no-" + k); });
   // Tamil hidden for now (SURESH 15 Nov 2026): no தமிழ் switch, and a /ta/ page opens the same page in English.
@@ -698,7 +698,7 @@ window.RAAV_FEATURES = (function () {
       <p class="sb-cap" data-sb-cap>${esc(pics[0].p.title)}</p>` : ""}
       <p class="mb-say sb-says" data-sb-says>${SPARK_SAYS.map((x, i) => `<span class="c${i % 5 + 1}${i ? "" : " on"}">${x[3]}</span>`).join("")}</p>
       <p class="sb-anyone">${FEAT.group ? "Anyone can start a project: one person or a whole group." : "Anyone can start one. Share it, and follow every step when you sign in."}</p>
-      <div class="sb-ways">${SPARK_WAYS.map(w => `<a class="sb-way ${w.k}" href="${w.href}"><span class="sb-ic"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${w.ic}</svg></span><b>${w.t}</b><small>${w.s}</small><span class="sb-start">${w.go} →</span></a>`).join("")}</div>
+      <div class="sb-ways${FEAT.join ? "" : " one"}">${SPARK_WAYS.filter(w => FEAT.join || w.k !== "submit").map(w => `<a class="sb-way ${w.k}" href="${w.href}"><span class="sb-ic"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${w.ic}</svg></span><b>${w.t}</b><small>${w.s}</small><span class="sb-start">${w.go} →</span></a>`).join("")}</div>
     </section>`;
   };
   function startSparkBand(app) {

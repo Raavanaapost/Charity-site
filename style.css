@@ -3038,3 +3038,6 @@ footer.foot .foot-links { display: inline-flex; flex-wrap: wrap; gap: 2px 14px; 
 .send-tip:empty{display:none}
 .send-note{margin:0;font-size:12.5px;color:#6b7c72}
 @media (max-width:480px){.send-in{padding:18px 14px 14px;gap:10px}.send-in textarea{min-height:170px;font-size:15px}.send-in input{padding:9px 11px}.send-one-top{width:100%}}
+
+/* Join Raavanaa taken out (SURESH, 20 Nov 2026): the Home Spark band keeps one card, centred */
+.sb-ways.one{grid-template-columns:1fr;max-width:300px}
