@@ -1,50 +1,6 @@
 {
  "projects": [
   {
-   "title": "Prefect uniforms for a fishing village school",
-   "slug": "poonakary-prefect-uniforms",
-   "hidden": false,
-   "featured": false,
-   "theme": "Education",
-   "status": "Planning",
-   "location": "Valaippadu, Poonakary, Kilinochchi",
-   "city": "Kilinochchi",
-   "organization": "Raavanaa",
-   "started": "November 2026",
-   "reach": "25 to 50 student prefects",
-   "verified": true,
-   "verified_label": "Checked and approved by Raavanaa",
-   "submitted_by": "Prabakaran Karuppaiyah",
-   "currency": "Rs ",
-   "tagline": "Student leaders in a fishing village, standing as proud as any in town",
-   "budget": [
-    {
-     "item": "Special prefect uniforms (estimate from the request)",
-     "amount": 150000
-    }
-   ],
-   "goal": 150000,
-   "funders": [],
-   "date_set": false,
-   "booked": false,
-   "volunteers": false,
-   "steps": [],
-   "summary": "Special prefect uniforms for 25 to 50 student leaders at a rural school in Valaippadu, Poonakary, where most families live by fishing.",
-   "cover": "/img/hero-initiated.svg",
-   "quote": "",
-   "story": "## The need\n\nIn the fishing community of Valaippadu in Poonakary, about 50 km west of Kilinochchi, most families depend on fishing for their living. Times are hard, and parents cannot meet the extra cost of special uniforms for the school's prefects, like the ones prefects wear in town schools.\n\n## The plan\n\nA new principal has started lifting the school's standards. Special prefect uniforms for 25 to 50 student leaders would build discipline, leadership, responsibility and confidence, and give rural students the same chance as students in town. It also takes an extra cost off families during difficult times.\n\nThe project has been **initiated**. The request came to Raavanaa from the community on 20 November 2026 and has been vouched for. Once the exact number of prefects and a quote are confirmed, the budget on this page will be updated.",
-   "impact": [],
-   "updates": [],
-   "photos": [],
-   "media": [],
-   "people": {
-    "requested_by": "Prabakaran Karuppaiyah",
-    "requested_on": "20 November 2026",
-    "approved_by": "SURESH",
-    "approved_on": "20 November 2026"
-   }
-  },
-  {
    "title": "Pussellawa kids' trip to Hanuman Kovil",
    "slug": "pussellawa-kids-trip",
    "hidden": false,
