@@ -221,6 +221,9 @@
   // The simple path (SURESH 20 Nov 2026): make the page, send it to the person in charge, their vouch puts it live.
   // Open requests (nobody to vouch): an admin presses Publish now.
   const digits = v => String(v || "").replace(/\D/g, "").replace(/^0(?=7\d{8}$)/, "94");
+  // While one vouch is enough (request-project.mts switch), the old six steps and, for open requests, the vouch card
+  // are hidden: make the page, then Publish now or wait for the person in charge (SURESH 20 Nov 2026).
+  const simpleFlow = s => s.vouchesNeeded === 1 && !s.vouchNeedsRole;
   function goLiveHTML(s) {
     if (s.projectSlug || s.status === "project") return `<div class="pt-live"><b>✓ Live on Projects</b> <a href="/projects/${esc(s.projectSlug || "")}" target="_blank" rel="noopener">Open the project page →</a></div>`;
     const ic = s.incharge || {}, ref = s.requestType === "referred" && ic.name;
@@ -354,8 +357,8 @@
         </section>
         <div class="pt-col">
           ${reviewHTML(s)}
-          ${vouchHTML(s)}
-          ${flowHTML(s, F, cur)}
+          ${simpleFlow(s) && s.requestType !== "referred" ? "" : vouchHTML(s)}
+          ${simpleFlow(s) ? "" : flowHTML(s, F, cur)}
           ${visitFeedbackHTML(s)}
           <section class="pt-card">
             <h2>Team notes <span class="pt-count">${s.notes.length}</span></h2>

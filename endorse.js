@@ -204,6 +204,19 @@
       const tp = document.querySelector('[data-t="thxp"]'); if (tp) tp.textContent = t("Your name now stands behind this project.", "உங்கள் பெயர் இப்போது இந்தத் திட்டத்தின் பின்னால் நிற்கிறது.");
       $("[data-share-card]").hidden = true;
       $("[data-change]").hidden = !!(L.backed || r.live);
+      // Open request: nobody needs to vouch; Raavanaa checks it and puts it live (SURESH 20 Nov 2026).
+      if (r.open) {
+        $("[data-ladder]").innerHTML =
+          step(true, 1, t("Request sent", "கோரிக்கை அனுப்பப்பட்டது"), r.by ? t(`${r.by} told us about the need.`, `${r.by} இந்தத் தேவை பற்றி எங்களிடம் சொன்னார்.`) : t("Someone told us about the need.", "ஒருவர் இந்தத் தேவை பற்றி எங்களிடம் சொன்னார்.")) +
+          step(true, 2, t("Page made by Raavanaa", "ராவணா பக்கத்தை உருவாக்கியது"), t("The team read it and made this page.", "குழு அதைப் படித்து இந்தப் பக்கத்தை உருவாக்கியது.")) +
+          step(!!r.live, 3, r.live ? t("Live on Projects", "திட்டங்கள் பக்கத்தில் நேரலையில்") : t("Raavanaa puts it live", "ராவணா இதை நேரலைக்குக் கொண்டுவரும்"), r.live ? t("It is on the Projects page now.", "இது இப்போது திட்டங்கள் பக்கத்தில் உள்ளது.") : t("The team checks it and publishes it. No vouch is needed.", "குழு சரிபார்த்து வெளியிடும். உறுதிப்படுத்தல் தேவையில்லை."));
+        const at3 = r.live ? 3 : 2, st3 = TA ? ["கோரிக்கை", "பக்கம்", "சரிபார்ப்பு", "நேரலை"] : ["Requested", "Page made", "Checked", "Live"];
+        $("[data-journey]").innerHTML = st3.map((s3, i) => `<li class="${i < at3 || (r.live && i === at3) ? "done" : i === at3 ? "now" : ""}"><i aria-hidden="true">${i < at3 || (r.live && i === at3) ? "✓" : ["✓", "📝", "🔍", "🌱"][i]}</i><span>${s3}</span></li>`).join("");
+        $("[data-journey-note]").innerHTML = r.live ? t("<b>Live.</b> It is on the Projects page now.", "<b>நேரலையில்.</b>") : t("<b>Being checked.</b> Raavanaa publishes it on the Projects page. Anything to change? Tell us.", "<b>சரிபார்க்கப்படுகிறது.</b>");
+        $("[data-people-card]").hidden = true;
+        $("[data-change]").hidden = !!r.live;
+        const ch = document.querySelector('[data-t="changep"]'); if (ch) ch.textContent = t("If anything on this page needs changing, write to us and we'll fix it before it goes live.", "இந்தப் பக்கத்தில் ஏதாவது மாற்ற வேண்டுமானால், எங்களுக்கு எழுதுங்கள்.");
+      }
     }
     if (r.live) {
       $("[data-live]").hidden = false; $("[data-live-link]").href = r.live;
@@ -220,7 +233,7 @@
 
     const already = (() => { try { return localStorage.getItem(doneKey) === "1"; } catch (_) { return false; } })();
     const closed = r.closed || L.verified || r.pending || isPreview;
-    $("[data-form-card]").hidden = isNew || already || closed || !!r.live;
+    $("[data-form-card]").hidden = isNew || already || closed || !!r.live || (r.open && L.needsRole === false);
     $("[data-thanks]").hidden = !already || !!r.live;
   }
 
