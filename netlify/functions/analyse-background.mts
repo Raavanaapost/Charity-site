@@ -28,6 +28,11 @@ Rules:
   not there, leave it empty and list it under "missing".
 - "summary" is for a public page: 2 to 4 warm, plain sentences. Never name a child. Never name a school or home unless
   the requester clearly is that school or home. The town or village is fine.
+- "full_story" is also for the public page (SURESH 20 Nov 2026: "post everything he writes"): EVERYTHING the requester
+  wrote, in clear paragraphs, keeping every fact, figure, reason and detail. Only take out children's names and the
+  name of a school or home; say "the school" instead. Do not shorten it into a summary.
+- "impact" is 2 to 4 sentences on the impact this project will make, written only from what the requester wrote:
+  who benefits, how many, and what changes for them. No promises beyond what they said.
 - "missing" lists what the team still needs before the page can be approved. Always check: who the children are and
   how many; exact village or place; what the day is; when; a rough budget; who the requester is and how they know the
   children; someone in a role (principal, teacher, Grama Niladhari, temple, organisation) who can vouch.
@@ -41,6 +46,8 @@ const SCHEMA = {
     title: { type: "STRING", description: "A short page title, under 70 characters" },
     tagline: { type: "STRING", description: "One warm sentence under the title, under 160 characters, no child or school names" },
     summary: { type: "STRING" },
+    full_story: { type: "STRING" },
+    impact: { type: "STRING" },
     activity: { type: "STRING", description: "What the day is" },
     place: { type: "STRING", description: "Village or town, district" },
     children: { type: "STRING", description: "How many children and their ages, only as stated. If ages are not given, give the number only; never write notes like (ages not stated)" },
