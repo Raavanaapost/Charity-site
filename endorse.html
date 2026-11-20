@@ -104,6 +104,9 @@
   .art{margin:0;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#fdf3dc;aspect-ratio:16/9}
   .art img{display:block;width:100%;height:100%;object-fit:cover}
   .art figcaption{position:absolute;left:-9999px}
+  .live-card{border:2px solid #1f7a47;background:#eef7f0}
+  .live-card h2{color:#1f4d3a}
+  .change-card{border:1.5px solid #e6d6ad;background:#fffaf0}
   .glance{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none}
   .glance li{background:linear-gradient(180deg,#fffdf6,#fbf3df);border:1px solid #e6d6ad;border-top:4px solid #1f7a47;border-radius:14px;padding:14px 14px 16px;display:grid;gap:6px;min-width:0;align-content:start;box-shadow:0 6px 18px rgba(31,77,58,.10)}
   .glance small{font:700 11.5px/1 Inter,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#1f7a47;display:flex;gap:6px;align-items:center}
@@ -196,6 +199,18 @@
         <span data-t="wa">Share on WhatsApp</span></a>
       <button class="btn ghost" type="button" data-copy data-t="copy">Copy link</button>
       <p class="link-text" data-link></p>
+    </section>
+
+    <section class="card live-card" data-live hidden>
+      <h2>✓ <span data-t="livenow">It's live on Raavanaa</span></h2>
+      <p class="note" style="font-size:15px" data-t="livep">Thank you for vouching. The project is now on the Projects page, where people can follow it and help.</p>
+      <a class="btn" data-live-link href="/projects"><span data-t="livebtn">See the project</span></a>
+    </section>
+
+    <section class="card change-card" data-change hidden>
+      <h2 data-t="changeh">Is everything right?</h2>
+      <p class="note" style="font-size:15px" data-t="changep">Read the page above first. If anything needs changing, don't vouch yet: reply to the message Raavanaa sent you, or write to us, and we'll fix it. When it's right, vouch below and it goes live.</p>
+      <a class="btn ghost" href="/contact" data-t="changebtn">Ask Raavanaa for a change</a>
     </section>
 
     <section class="card" aria-labelledby="h-form" data-form-card>
