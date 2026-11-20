@@ -1,6 +1,60 @@
 {
  "projects": [
   {
+   "city": "Kilinochchi",
+   "goal": 150000,
+   "slug": "prefect-uniforms-for-students-in-valaippadu",
+   "cover": "/img/hero-initiated.svg",
+   "media": [],
+   "reach": "25 to 50",
+   "steps": [],
+   "story": "## The need\n\nValaippadu is a fishing village in Poonakary, about 50 km west of Kilinochchi. Most families here depend on fishing for their living. Because of today's economic difficulties, parents cannot bear the extra cost of special uniforms for the school's prefects, like the ones prefects wear in urban schools.\n\n## The plan\n\nThe school's newly appointed principal has taken several commendable steps to raise its educational standards and improve its buildings and facilities. Special uniforms for the prefects would strengthen discipline, leadership, responsibility and the students' confidence, and give rural students the same opportunities as students in town.\n\nThe request asks for about **Rs 150,000** for special uniforms for the prefect students (25 to 50 students), to support the school's continued development. It will also take an extra cost off families during difficult times.",
+   "theme": "Education",
+   "title": "Prefect Uniforms for Students in Valaippadu",
+   "booked": false,
+   "budget": [
+    {
+     "item": "Special uniforms for prefect students",
+     "amount": 150000
+    }
+   ],
+   "hidden": false,
+   "impact": [],
+   "people": {
+    "approved_by": "suresh ganeshan",
+    "approved_on": "2026-11-20",
+    "verified_by": "suresh ganeshan",
+    "verified_on": "2026-11-20",
+    "requested_by": "Prabakaran Karuppaiyah",
+    "requested_on": "2026-11-20"
+   },
+   "photos": [],
+   "status": "Planning",
+   "funders": [],
+   "started": "November 2026",
+   "summary": "In the fishing community of Valaippadu in Poonakary, student prefects are stepping forward to build discipline and lead their peers. Support is requested to provide them with special prefect uniforms, helping them feel equal pride and confidence alongside students in urban schools. This assistance will also relieve their families of an extra financial expense during difficult economic times.",
+   "tagline": "Providing special uniforms for dedicated young student leaders in a coastal village.",
+   "updates": [],
+   "vouched": [
+    {
+     "name": "Suresh Ganeshan",
+     "role": "Knows the person who asked"
+    }
+   ],
+   "currency": "Rs ",
+   "date_set": false,
+   "featured": false,
+   "location": "Valaippadu, Poonakary, Kilinochchi",
+   "verified": true,
+   "volunteers": false,
+   "expectations": [],
+   "from_request": "S-1004",
+   "organization": "Raavanaa",
+   "submitted_by": "Prabakaran Karuppaiyah",
+   "verified_label": "Checked by Raavanaa and vouched for",
+   "_note": "Copied from the portal-made project (request S-1004) so the full request text shows in the story; projects.json wins on the same slug (SURESH 20 Nov 2026). No school name."
+  },
+  {
    "title": "Pussellawa kids' trip to Hanuman Kovil",
    "slug": "pussellawa-kids-trip",
    "hidden": false,
