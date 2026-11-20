@@ -41,7 +41,15 @@ export default async (req: Request) => {
     reach: clip(f.reach, 120),
     trusted: clip(f.trusted_contact, 200),
     additional: clipText(f.additional, 1000),
+    requestType: f.request_type === "referred" ? "referred" : "open",
+    inName: clip(f.incharge_name, 120),
+    inPhone: clip(f.incharge_phone, 40),
+    inEmail: clip(f.incharge_email, 120).toLowerCase(),
   };
+  if (s.requestType === "open") { s.inName = ""; s.inPhone = ""; s.inEmail = ""; }
+  else if (!s.inName || (!s.inPhone && !s.inEmail)) {
+    return Response.json({ ok: false, error: "Please add the name of the person in charge, and their phone or email." }, { status: 400 });
+  }
   // From the Spark a Smile page (16 Nov 2026): request or submit, and one person or a group. Kept at the top of
   // "additional" so the team sees it in the portal without a new database column.
   const spark = [clip(f.way, 40), clip(f.started_by, 40), clip(f.group_type, 60), clip(f.group_name, 80)].filter(Boolean);
@@ -67,9 +75,9 @@ export default async (req: Request) => {
 
   const db = getDatabase();
   const [row] = await db.sql<{ ref: string }>`
-    INSERT INTO suggestions (ref, title, category, focus, description, city, village, location, children, contact, reach, trusted, additional, upload_nonce, no_evidence, endorse_token, member_email)
+    INSERT INTO suggestions (ref, title, category, focus, description, city, village, location, children, contact, reach, trusted, additional, upload_nonce, no_evidence, endorse_token, member_email, request_type, incharge_name, incharge_phone, incharge_email)
     VALUES ('S-' || nextval('suggestion_ref_seq'), ${s.title}, ${s.category}, ${s.focus}, ${s.description}, ${s.city}, ${s.village}, ${s.location},
-            ${s.children}, ${s.contact}, ${s.reach}, ${s.trusted}, ${s.additional}, ${nonce}, ${noEvidence && !files}, ${endorse}, ${memberEmail})
+            ${s.children}, ${s.contact}, ${s.reach}, ${s.trusted}, ${s.additional}, ${nonce}, ${noEvidence && !files}, ${endorse}, ${memberEmail}, ${s.requestType}, ${s.inName}, ${s.inPhone}, ${s.inEmail})
     RETURNING ref`;
   await db.sql`INSERT INTO audit_log (actor, action, target) VALUES ('website', 'suggestion.received', ${row.ref})`;
   return Response.json({ ok: true, ref: row.ref, upload: nonce, endorse });
