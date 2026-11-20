@@ -255,18 +255,28 @@
         Object.assign(s, r.suggestion); render(); toast(share ? "Saved. The requester can share the page." : "Sharing stopped");
       } catch (e) { b.disabled = false; toast(e.message || "Could not save"); }
     });
+    app.querySelectorAll("[data-vouch-ok]").forEach(b => b.onclick = async () => {
+      const ok = b.dataset.vouchOk === "yes";
+      if (!LIVE) { Object.assign(s, { vouchOkBy: ok ? D.user.name : "" }); render(); toast((ok ? "Marked as vouched" : "Undone") + " (demo)"); return; }
+      b.disabled = true;
+      try {
+        const r = await api(`/api/portal/suggestions/${encodeURIComponent(s.id)}`, { method: "PATCH", body: JSON.stringify({ vouchOk: ok, note: ok ? "Admin: one vouch is enough. Marked as vouched." : "Vouched mark taken off; waiting for 3 vouches again." }) });
+        Object.assign(s, r.suggestion); render(); toast(ok ? "Marked as vouched" : "Undone");
+      } catch (e) { b.disabled = false; toast(e.message || "Could not save"); }
+    });
   }
 
   // Community endorsement: people who vouched through the request's share link. 3, one of them in a role = backed.
-  const vouch = s => { const e = s.endorsements || []; return { n: e.length, role: e.some(x => x.relation === "role"), backed: e.length >= 3 && e.some(x => x.relation === "role") }; };
+  const vouch = s => { const e = s.endorsements || [], over = !!s.vouchOkBy && e.length >= 1; return { n: e.length, role: e.some(x => x.relation === "role"), over, backed: over || (e.length >= 3 && e.some(x => x.relation === "role")) }; };
   const REL = { role: "Role", know: "Knows them", seen: "Seen the need" };
   const vouchHTML = s => {
     const e = s.endorsements || [], v = vouch(s);
     if (!e.length && !s.endorseLink) return "";
     return `<section class="pt-card">
       <h2>Vouched for by <span class="pt-count">${e.length} of 3</span></h2>
-      <p class="pt-sub">${v.backed ? "Backed by the community. Call one of them before the visit." : e.length >= 3 ? "Still needs someone in a role (principal, teacher, Grama Niladhari…)." : "Waiting for people to vouch through the share link."}</p>
+      <p class="pt-sub">${v.over ? `Vouched. ${esc(s.vouchOkBy)} (admin) said ${e.length === 1 ? "one vouch is" : "these vouches are"} enough.` : v.backed ? "Backed by the community. Call one of them before the visit." : e.length >= 3 ? "Still needs someone in a role (principal, teacher, Grama Niladhari…)." : "Waiting for people to vouch through the share link."}</p>
       <ul class="pt-notes">${e.map(x => `<li><span class="pt-av">${esc(initials(x.name))}</span><div><b>${esc(x.name)}</b> <time>${ago(x.at)}</time><p>${esc(x.role || REL[x.relation] || "")} · <a href="tel:${esc(String(x.phone).replace(/\s/g, ""))}">${esc(x.phone)}</a> <small>(private)</small></p></div></li>`).join("") || `<li class="pt-empty">Nobody yet.</li>`}</ul>
+      ${/admin/i.test(D.user.role || "") && e.length && (v.over || !v.backed) ? `<p><button type="button" class="pt-btn ${v.over ? "ghost" : ""}" data-vouch-ok="${v.over ? "no" : "yes"}">${v.over ? "Undo: wait for 3 vouches again" : `Mark as vouched (${e.length === 1 ? "one vouch is" : "these are"} enough)`}</button></p><p class="pt-sub">Admins only. The page then shows Vouched.</p>` : ""}
       ${s.endorseLink ? `<p class="pt-sub">Share link: <a href="${esc(s.endorseLink)}" target="_blank" rel="noopener">raavanaa.org${esc(s.endorseLink)}</a></p>` : ""}
     </section>`;
   };

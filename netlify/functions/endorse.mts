@@ -31,7 +31,9 @@ async function view(db: ReturnType<typeof getDatabase>, s: Row) {
     SELECT name, relation, role, created_at FROM endorsements WHERE suggestion_id = ${s.id} AND NOT hidden ORDER BY created_at`;
   const endorsements = (rows as Row[]).map((e) => ({ name: e.name, relation: e.relation, role: e.role, at: e.created_at }));
   const hasRole = endorsements.some((e) => e.relation === "role");
-  const backed = endorsements.length >= NEEDED && hasRole;
+  // An admin can say one vouch is enough for this request (SURESH 20 Nov 2026).
+  const override = !!s.vouch_ok_by && endorsements.length >= 1;
+  const backed = (endorsements.length >= NEEDED && hasRole) || override;
   const verified = ["verified", "project"].includes(s.status);
   const p = (s.profile || {}) as Record<string, string>;
   // Until the team approves the page, people only see that it is being checked (SURESH, 9 Nov 2026).
@@ -57,7 +59,7 @@ async function view(db: ReturnType<typeof getDatabase>, s: Row) {
     closed: s.status === "declined",
     needed: NEEDED,
     endorsements,
-    ladder: { submitted: true, backed, hasRole, verified, project: s.status === "project" },
+    ladder: { submitted: true, backed, hasRole, override, verified, project: s.status === "project" },
     visitor,
   };
 }
