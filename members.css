@@ -82,3 +82,24 @@ body[data-page="members"] .foot-bar{background:#173a1f}
 .m-req-list a{color:var(--brand);text-decoration:none}.m-req-list a:hover b{text-decoration:underline}
 .m-req-list span{font-size:14px;color:var(--ink)}
 .m-req-list small{font-size:12.5px;color:var(--muted)}
+
+/* Sign in / Sign up on laptops (SURESH 21 Nov 2026: "make the form fit in the first page"): on computers the big bridge
+   picture moves out of the way, so the form is on the first screen; the same picture sits small at the top of
+   "How it works for members" beside the form. Phones unchanged. */
+@media (min-width: 900px) {
+  .member-page:has(#m-form) { padding-top: 14px; }
+  .member-page:has(#m-form) .m-head { gap: 6px; }
+  .member-page:has(#m-form) .m-title { font-size: clamp(30px, 2.6vw, 40px); max-width: none; }
+  .member-page:has(#m-form) .m-title br { display: none; }
+  .member-page:has(#m-form) .lede { max-width: 80ch; }
+  .member-page:has(#m-form) .lede { font-size: 16px; }
+  .member-page:has(#m-form) > .m-hero { display: none; }
+  .member-page:has(#m-form) .member-grid { margin-top: 14px; }
+  .member-page:has(#m-form) .m-ribbon { display: none; }
+  .member-page:has(#m-form) #m-form { gap: 10px; padding-block: 18px; }
+  .member-page:has(#m-form) #m-form input { padding-block: 9px; }
+  .member-page:has(#m-form) #m-form label { gap: 4px; }
+  .member-page:has(#m-form) .member-google { padding-block: 9px; }
+  .member-page:has(#m-form) .member-why::before { content: ""; display: block; aspect-ratio: 941 / 330; margin-bottom: 14px; border-radius: 14px;
+    background: url(/img/members-bridge.webp) 50% 60% / cover, #f3ead2; box-shadow: 0 0 0 2px var(--line); }
+}
