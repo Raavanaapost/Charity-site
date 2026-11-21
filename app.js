@@ -171,8 +171,14 @@ function renderNav(){
     <a href="#classes" data-scroll="classes" class="navlink">Classes</a><a href="#teachers" data-scroll="teachers" class="navlink">For Teachers</a>
     <a href="#students" data-scroll="students" class="navlink">For Students</a><a href="#about" data-scroll="about" class="navlink">About</a></span>`);
   if (user) {
-    if (roles.family) items.push(link("/practice", "Practice", "btn small ghost"));
-    if (roles.teacher || (!roles.family && !roles.admin)) items.push(link("/teacher", "Dashboard", "btn small ghost"));
+    if (roles.family && roles.teacher) {   // both: one clear switch that shows which side you are on
+      const side = /^\/practice/.test(location.pathname) ? "s" : /^\/teacher/.test(location.pathname) ? "t" : "";
+      const seg = (href, text, on) => `<a href="${href}" data-link class="seg-b${on ? " on" : ""}"${on ? ' aria-current="true"' : ""}>${text}</a>`;
+      items.push(`<span class="seg" role="group" aria-label="You are in">${seg("/teacher", "Teacher", side === "t")}${seg("/practice", "Student", side === "s")}</span>`);
+    } else {
+      if (roles.family) items.push(link("/practice", "Practice", "btn small ghost"));
+      if (roles.teacher || (!roles.family && !roles.admin)) items.push(link("/teacher", "Dashboard", "btn small ghost"));
+    }
     if (roles.admin && !roles.teacher) items.push(link("/admin", "Admin", "btn small ghost"));
     items.push(`<button class="btn small ghost icon" id="signout" type="button" aria-label="Sign out" title="Sign out"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>`);
   } else {

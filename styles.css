@@ -705,3 +705,9 @@ table.fam td{overflow-wrap:anywhere}
 .si-pick{display:grid;gap:14px}
 .si-choice{display:flex;align-items:center;gap:14px;padding:18px;border-radius:16px;text-decoration:none;font-family:"Playfair Display",Georgia,serif;font-weight:700;font-size:1.25rem;color:var(--ink);background:var(--card);border:2px solid var(--maroon)}
 .si-choice.student{border-color:var(--gold)}
+
+/* teacher / student switch for people who are both */
+.seg{display:inline-flex;border:1.5px solid var(--gold);border-radius:999px;overflow:hidden;background:var(--card)}
+.seg-b{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;font-weight:800;font-size:.92rem;text-decoration:none;color:var(--ink)}
+.seg-b.on{background:var(--maroon);color:#fff5df}
+@media (max-width:400px){.seg-b{padding:0 11px}}
