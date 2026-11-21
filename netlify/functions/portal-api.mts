@@ -15,6 +15,8 @@ import { getStore } from "@netlify/blobs";
 import { summary } from "../lib/traffic-core.mts";
 import { teamAccess, ownerEmails, type TeamMember } from "../lib/team-access.mts";
 import { makeProject, VOUCHES_NEEDED, VOUCH_NEEDS_ROLE } from "../lib/request-project.mts";
+import { peopleFor, message } from "../lib/notify.mts";
+import { mailOn } from "../lib/mail.mts";
 
 const STATUSES = ["new", "visit", "verified", "approved", "declined", "project"];
 const clip = (v: unknown, max: number) => String(v ?? "").trim().slice(0, max);
@@ -102,6 +104,12 @@ function shape(r: Record<string, any>, notes: unknown[], files: unknown[] = [], 
       : { status: r.ai_status || "", error: r.ai_error || "", at: r.ai_at, draft: r.ai_draft || {} },
     profile: r.profile || {}, requestType: r.request_type || "open", incharge: { name: r.incharge_name || "", phone: r.incharge_phone || "", email: r.incharge_email || "" },
     projectSlug: r.project_slug || "", vouchesNeeded: VOUCHES_NEEDED, vouchNeedsRole: VOUCH_NEEDS_ROLE,
+    // The two messages to the people behind the request, so a volunteer can send them on WhatsApp (SURESH 21 Nov 2026).
+    messages: {
+      emailOn: mailOn(),
+      received: peopleFor(r, [], "received").map((p) => message("received", r, p)),
+      listed: r.project_slug ? peopleFor(r, endorsements as Record<string, any>[], "listed").map((p) => message("listed", r, p, r.project_slug)) : [],
+    },
     vouchOkBy: r.vouch_ok_by || "", vouchOkAt: r.vouch_ok_at || null, shareOk: !!r.share_ok, shareOkBy: r.share_ok_by || "", shareOkAt: r.share_ok_at,
   };
 }
