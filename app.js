@@ -384,7 +384,7 @@ function loadGis(){
 }
 async function sha256hex(t){ const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
 
-function signInBlock(next, startMode = "password"){
+function signInBlock(next, startMode = "password", extra = null){
   const gHtml = C.googleClientId ? `<div class="g-wrap"><div id="si-google" class="g-btn"></div></div>` : "";
   const fbHtml = C.facebookLogin ? `<button type="button" class="btn fb" id="si-fb">${FB_ICON}<span>Continue with Facebook</span></button>` : "";
   const social = !!(gHtml || fbHtml);
@@ -425,9 +425,9 @@ function signInBlock(next, startMode = "password"){
       const b = document.getElementById("si-go"); b.disabled = true;
       let r;
       if (mode === "password") r = await sb.auth.signInWithPassword({ email, password: pass });
-      else if (mode === "signup") r = await sb.auth.signUp({ email, password: pass, options: { emailRedirectTo: siteUrl(next), data: { has_password: true } } });
+      else if (mode === "signup") r = await sb.auth.signUp({ email, password: pass, options: { emailRedirectTo: siteUrl(next), data: { has_password: true, ...(extra || {}) } } });
       else if (mode === "forgot") r = await sb.auth.resetPasswordForEmail(email, { redirectTo: siteUrl("/account") });
-      else r = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: siteUrl(next) } });
+      else r = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: siteUrl(next), ...(extra ? { data: extra } : {}) } });
       b.disabled = false;
       if (r.error) return fail(friendly(r.error));
       if (mode === "password") return;                       // signed in: the page moves on by itself
@@ -542,10 +542,13 @@ async function viewRegister(token){
   if (k.status === "declined") return say(`You said no, so ${esc(first)} won't be added. If you change your mind, ask ${esc(k.teacher_name)} for a new link.`, true);
   if (k.status === "active") return say("This link has already been used. If that wasn't you, please ask the teacher for a new one.");
   let saved = null; try { saved = JSON.parse(store.get(KEY) || "null"); } catch (e) {}
+  const carried = user?.user_metadata?.reg;
+  if (!saved && carried && carried.token === token && carried.name) saved = { name: carried.name, email: carried.email || user.email, phone: carried.phone || "", ok: true };
   const finish = async v => {
     const { data: sid, error } = await sb.rpc("register_student", { token, student_name: v.name, email: v.email, phone: v.phone, agree: true });
     if (error) return form(v, friendly(error));
     store.del(KEY); roles.family = true; store.set("riyaz.enrol", sid);
+    if (user?.user_metadata?.reg) sb.auth.updateUser({ data: { reg: null } }).catch(() => {});
     $app.innerHTML = `<section class="card narrow reg">${head}${steps(2)}
       <div class="notice ok"><strong>Thank you. ${adult ? "You're registered." : `${esc(v.name)} is registered.`}</strong><br>
         ${adult ? "Your" : `${esc(v.name)}'s`} practice page is ready. ${esc(k.teacher_name)} will see the practice each day.</div>
@@ -593,7 +596,8 @@ async function viewRegister(token){
     };
   }
   function signInStep(v){
-    const b = signInBlock("/register/" + token, "signup");
+    // The details travel with the new account too, so confirming from another browser (the Gmail app) still finishes the registration.
+    const b = signInBlock("/register/" + token, "signup", { reg: { token, name: v.name, email: v.email, phone: v.phone } });
     $app.innerHTML = `<section class="card narrow reg">${head}${steps(1)}
       <p class="m0"><strong>Last step: create your account</strong> so you can open ${adult ? "your" : esc(v.name) + "'s"} practice page. Choose a password, then tap the link we email you once to confirm. Already have an account? Sign in instead.</p>
       ${b.html}
