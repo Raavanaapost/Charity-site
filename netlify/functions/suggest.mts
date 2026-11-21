@@ -3,6 +3,7 @@
 import type { Config } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
 import { getUser } from "@netlify/identity";
+import { notify } from "../lib/notify.mts";
 
 const clip = (v: unknown, max: number) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, max);
 const clipText = (v: unknown, max: number) => String(v ?? "").replace(/\r\n/g, "\n").trim().slice(0, max);
@@ -74,12 +75,14 @@ export default async (req: Request) => {
   const endorse = endorseToken();
 
   const db = getDatabase();
-  const [row] = await db.sql<{ ref: string }>`
+  const [row] = await db.sql<{ id: number; ref: string }>`
     INSERT INTO suggestions (ref, title, category, focus, description, city, village, location, children, contact, reach, trusted, additional, upload_nonce, no_evidence, endorse_token, member_email, request_type, incharge_name, incharge_phone, incharge_email)
     VALUES ('S-' || nextval('suggestion_ref_seq'), ${s.title}, ${s.category}, ${s.focus}, ${s.description}, ${s.city}, ${s.village}, ${s.location},
             ${s.children}, ${s.contact}, ${s.reach}, ${s.trusted}, ${s.additional}, ${nonce}, ${noEvidence && !files}, ${endorse}, ${memberEmail}, ${s.requestType}, ${s.inName}, ${s.inPhone}, ${s.inEmail})
-    RETURNING ref`;
+    RETURNING id, ref`;
   await db.sql`INSERT INTO audit_log (actor, action, target) VALUES ('website', 'suggestion.received', ${row.ref})`;
+  // "We received your request" to the sender and the person in charge, right away (SURESH 21 Nov 2026).
+  await notify(db, row.id, "received");
   return Response.json({ ok: true, ref: row.ref, upload: nonce, endorse });
 };
 

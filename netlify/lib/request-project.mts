@@ -2,6 +2,7 @@
 // Used by the portal's "Create the Initiated project" and "Publish now", and by the vouch page when the person in
 // charge vouches (SURESH 20 Nov 2026: their one vouch puts it live).
 import { getDatabase } from "@netlify/database";
+import { notify } from "./notify.mts";
 
 type DB = ReturnType<typeof getDatabase>;
 
@@ -76,5 +77,7 @@ export async function makeProject(db: DB, id: number, by: By, how: "portal" | "p
   const why = how === "vouch" ? "Vouched for, so it went live as an Initiated project" : how === "publish" ? "Published by an admin as an Initiated project" : "Turned into an Initiated project";
   await db.sql`INSERT INTO suggestion_notes (suggestion_id, by_email, by_name, body) VALUES (${id}, ${by.email}, ${by.name}, ${why + ": /projects/" + slug})`;
   await db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES (${by.email}, ${"suggestion.project." + how}, ${r.ref}, ${JSON.stringify({ slug })}::jsonb)`;
+  // "Your project is listed" with the link, to the sender, the person in charge and who vouched (SURESH 21 Nov 2026).
+  await notify(db, id, "listed", slug, data);
   return slug;
 }
