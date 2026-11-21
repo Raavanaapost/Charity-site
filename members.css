@@ -103,3 +103,8 @@ body[data-page="members"] .foot-bar{background:#173a1f}
   .member-page:has(#m-form) .member-why::before { content: ""; display: block; aspect-ratio: 941 / 330; margin-bottom: 14px; border-radius: 14px;
     background: url(/img/members-bridge.webp) 50% 60% / cover, #f3ead2; box-shadow: 0 0 0 2px var(--line); }
 }
+/* SURESH 21 Nov 2026: no text under the title on the sign-in page, and the picture moved up to the very top of its panel */
+.member-page:has(#m-form) .m-head .lede { display: none; }
+@media (min-width: 900px) {
+  .member-page:has(#m-form) .member-why::before { margin: -22px -22px 14px; border-radius: var(--r) var(--r) 0 0; box-shadow: none; aspect-ratio: 941 / 360; }
+}
