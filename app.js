@@ -74,7 +74,7 @@ async function copy(text, btn){
 function friendly(err){
   const m = (err && (err.message || err.error_description)) || "Something went wrong. Please try again.";
   if (/duplicate key|groups_slug_key/i.test(m)) return "That web address is already taken. Please try another.";
-  if (/email rate limit/i.test(m)) return "Too many emails for now. If you've set a password, sign in with it. Otherwise please try the email link again in an hour.";
+  if (/email rate limit/i.test(m)) return "We can't send the confirmation email right now, because too many were sent this hour. Your account has not been created yet. Please try again in about an hour.";
   if (/rate limit/i.test(m)) return "Too many tries. Please wait a minute and try again.";
   if (/invalid login credentials/i.test(m)) return "Email or password doesn't match. If you haven't set a password yet, use \"Email me a sign-in link\" once, then set one under Account.";
   if (/email not confirmed/i.test(m)) return "Please confirm your email first: tap the link we emailed you, then sign in.";
@@ -594,7 +594,7 @@ async function viewRegister(token){
     <div><span class="eyebrow">${adult ? "Registration" : "Registration and consent"}</span>
     <h1 class="page-h">${adult ? `Join ${esc(k.class_name)}` : `Register ${esc(first)} for ${esc(k.class_name)}`}</h1>
     <p class="muted m0">${esc(k.group_name)} with ${esc(k.teacher_name)} · ${DAYS[k.day_of_week]}s at ${fmtTime(k.start_time)}</p></div></div>`;
-  const steps = n => `<ol class="reg-steps">${["Details and consent", "Sign in", "Start practising"].map((t, i) =>
+  const steps = n => `<ol class="reg-steps">${["Details and password", "Confirm", "Start practising"].map((t, i) =>
     `<li class="${i < n ? "done" : i === n ? "now" : ""}"${i === n ? ' aria-current="step"' : ""}><b>${i < n ? "✓" : i + 1}</b><span>${t}</span></li>`).join("")}</ol>`;
   const say = (t, ok) => { $app.innerHTML = `<section class="card narrow reg">${head}<div class="notice${ok ? " ok" : ""}">${t}</div></section>`; };
   if (k.status === "declined") return say(`You said no, so ${esc(first)} won't be added. If you change your mind, ask ${esc(k.teacher_name)} for a new link.`, true);
@@ -621,6 +621,10 @@ async function viewRegister(token){
           <label for="rf-email">${adult ? "Your email" : "Parent's email"}<input id="rf-email" type="email" required maxlength="120" autocomplete="email" value="${esc(v.email)}"></label>
           <label for="rf-phone">${adult ? "Your mobile" : "Parent's mobile"} <span class="opt">(optional)</span><input id="rf-phone" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" placeholder="416 555 0100" value="${esc(v.phone)}"></label>
         </div>
+        ${user ? "" : `<div class="two">
+          <label for="rf-pass">Create a password<input id="rf-pass" type="password" required minlength="8" maxlength="72" autocomplete="new-password"></label>
+          <label for="rf-pass2">Confirm password<input id="rf-pass2" type="password" required minlength="8" maxlength="72" autocomplete="new-password"></label>
+        </div>`}
         <div class="facts">
           <div><strong>What Gurushishya keeps</strong><span>${adult ? "Your" : "The student's"} first name, the days and minutes of practice, and messages with ${esc(k.teacher_name)}.</span></div>
           <div><strong>Who can see it</strong><span>Only ${adult ? "you" : "your family"} and ${esc(k.teacher_name)}. Other students can't.</span></div>
@@ -628,7 +632,7 @@ async function viewRegister(token){
         <label class="check" for="rf-ok"><input id="rf-ok" type="checkbox" ${v.ok ? "checked" : ""}><span>${adult
           ? `I agree to Gurushishya keeping my first name, practice and messages as described above.`
           : `I am the student's parent or guardian. I give consent for them to join ${esc(k.class_name)} and for Gurushishya to keep their first name, practice and messages as described above.`}</span></label>
-        <div class="row"><button class="btn" type="submit">${user ? "Register and start" : "Agree and continue"}</button>
+        <div class="row"><button class="btn" type="submit">Register and start</button>
           ${!adult && k.step === "consent" ? `<button class="btn ghost" type="button" id="rf-no">No, thank you</button>` : ""}</div>
         <div id="rf-out" role="status">${err ? `<div class="notice">${esc(err)}</div>` : ""}</div>
       </form></section>`;
@@ -641,9 +645,29 @@ async function viewRegister(token){
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(nv.email)) return bad("Please check the email address.", "rf-email");
       if (nv.phone && !/^\+?[0-9 ().-]{7,20}$/.test(nv.phone)) return bad("Please check the mobile number, or leave it empty.", "rf-phone");
       if (!nv.ok) return bad("Please tick the box to give consent.", "rf-ok");
-      e.target.querySelector("button[type=submit]").disabled = true;
-      if (user) return finish(nv);
-      store.set(KEY, JSON.stringify(nv)); signInStep(nv);
+      const go2 = e.target.querySelector("button[type=submit]");
+      if (user) { go2.disabled = true; return finish(nv); }
+      // Not signed in yet: the same form creates the account, so there is one step, not two.
+      const pass = document.getElementById("rf-pass").value;
+      if (pass.length < 8) return bad("Please choose a password with at least 8 characters.", "rf-pass");
+      if (document.getElementById("rf-pass2").value !== pass) return bad("The two passwords don't match. Please type them again.", "rf-pass2");
+      go2.disabled = true; out.innerHTML = "";
+      store.set(KEY, JSON.stringify(nv));
+      const r = await sb.auth.signUp({ email: nv.email, password: pass, options: { emailRedirectTo: siteUrl("/register/" + token),
+        data: { has_password: true, reg: { token, name: nv.name, email: nv.email, phone: nv.phone } } } });
+      if (r.error) { go2.disabled = false; return bad(friendly(r.error)); }
+      if (r.data?.session) return;   // signed in: the page finishes the registration by itself
+      if (r.data?.user && Array.isArray(r.data.user.identities) && r.data.user.identities.length === 0) {
+        // This email already has an account (a parent adding another child): the right password signs them in.
+        const again = await sb.auth.signInWithPassword({ email: nv.email, password: pass });
+        if (!again.error) return;
+        go2.disabled = false;
+        out.innerHTML = `<div class="notice">This email already has a Gurushishya account. Type that account's password in both boxes, or <button class="link-btn" type="button" id="rf-have">sign in or reset the password</button>.</div>`;
+        document.getElementById("rf-have").onclick = () => signInStep(nv, "password");
+        return;
+      }
+      $app.innerHTML = `<section class="card narrow reg">${head}${steps(1)}
+        <div class="notice ok"><strong>Almost done. Check your email.</strong><br>We sent a message to ${esc(nv.email)}. Tap the link in it once and ${adult ? "your" : esc(nv.name) + "'s"} practice page opens.</div></section>`;
     };
     const no = document.getElementById("rf-no");
     if (no) no.onclick = async () => {
@@ -653,11 +677,11 @@ async function viewRegister(token){
       store.del(KEY); say(`Thanks for letting us know. ${esc(first)} won't be added to the class.`, true);
     };
   }
-  function signInStep(v){
+  function signInStep(v, startMode = "signup"){
     // The details travel with the new account too, so confirming from another browser (the Gmail app) still finishes the registration.
-    const b = signInBlock("/register/" + token, "signup", { reg: { token, name: v.name, email: v.email, phone: v.phone } });
+    const b = signInBlock("/register/" + token, startMode, { reg: { token, name: v.name, email: v.email, phone: v.phone } });
     $app.innerHTML = `<section class="card narrow reg">${head}${steps(1)}
-      <p class="m0"><strong>Last step: create your account</strong> so you can open ${adult ? "your" : esc(v.name) + "'s"} practice page. Choose a password, then tap the link we email you once to confirm. Already have an account? Sign in instead.</p>
+      <p class="m0"><strong>Sign in</strong> to open ${adult ? "your" : esc(v.name) + "'s"} practice page.</p>
       ${b.html}
       <p class="hint m0">Details: ${[v.name, v.email, v.phone].filter(Boolean).map(esc).join(" · ")} <button class="link-btn" type="button" id="rf-edit">Change</button></p></section>`;
     b.wire();
@@ -665,7 +689,7 @@ async function viewRegister(token){
     document.getElementById("rf-edit").onclick = () => form(v);
   }
   if (user && saved && saved.ok) { $app.innerHTML = `<section class="card narrow reg">${head}<p class="muted m0">Finishing your registration…</p></section>`; return finish(saved); }
-  if (!user && saved && saved.ok) return signInStep(saved);
+  if (!user && saved && saved.ok) return linkError ? signInStep(saved, "password") : form(saved);
   form(saved || { name: first, email: user?.email || "", phone: "", ok: false });
 }
 
