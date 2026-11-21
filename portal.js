@@ -214,6 +214,7 @@
            <p><button type="button" class="pt-btn" data-share="save">Save changes</button> <button type="button" class="pt-btn ghost" data-share="stop">Stop sharing</button></p>`
         : `<p><button type="button" class="pt-btn" data-share="yes">Approve page for sharing</button></p>`}
       ${goLiveHTML(s)}
+      ${messagesHTML(s)}
       ${s.endorseLink ? `<p><button type="button" class="pt-btn ghost" data-preview>Preview the page</button></p>
         <p class="pt-sub">Page: <a href="${esc(s.endorseLink)}" target="_blank" rel="noopener">raavanaa.org${esc(s.endorseLink)}</a></p>` : ""}
     </section>`;
@@ -224,6 +225,19 @@
   // While one vouch is enough (request-project.mts switch), the old six steps and, for open requests, the vouch card
   // are hidden: make the page, then Publish now or wait for the person in charge (SURESH 20 Nov 2026).
   const simpleFlow = s => s.vouchesNeeded === 1 && !s.vouchNeedsRole;
+  // "We received your request" and "Your project is listed" (SURESH 21 Nov 2026). Email goes by itself once email
+  // sending is on; WhatsApp is a tap here until there is an automatic WhatsApp sender.
+  function messagesHTML(s) {
+    const m = s.messages || {}; if (!m.received) return "";
+    const row = x => `<li><b>${esc(x.to.name || x.to.who)}</b> <small>${esc(x.to.who)}</small>
+      <span class="pt-golive-btns">${x.to.phone ? `<a class="pt-btn ghost sm" target="_blank" rel="noopener" href="https://wa.me/${digits(x.to.phone)}?text=${encodeURIComponent(x.text)}">WhatsApp</a>` : ""}
+      ${x.to.email ? ` <a class="pt-btn ghost sm" href="mailto:${esc(x.to.email)}?subject=${encodeURIComponent(x.subject)}&body=${encodeURIComponent(x.text)}">Email</a>` : ""}</span>
+      <details class="pt-tr"><summary>Read the message</summary><p style="white-space:pre-line">${esc(x.text)}</p></details></li>`;
+    const block = (h, list) => list.length ? `<h3>${h}</h3><ul class="pt-what">${list.map(row).join("")}</ul>` : "";
+    return `<div class="pt-golive"><h3>Messages to them</h3>
+      <p class="pt-sub">${m.emailOn ? "Emails go out by themselves. " : "Automatic email is off for now, so use the Email button. "}WhatsApp: tap the button and press send. The notes below show what has gone out.</p>
+      ${block("1. We received your request", m.received)}${block("2. Your project is listed", m.listed)}</div>`;
+  }
   function goLiveHTML(s) {
     if (s.projectSlug || s.status === "project") return `<div class="pt-live"><b>✓ Live on Projects</b> <a href="/projects/${esc(s.projectSlug || "")}" target="_blank" rel="noopener">Open the project page →</a></div>`;
     const ic = s.incharge || {}, ref = s.requestType === "referred" && ic.name;
