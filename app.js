@@ -382,6 +382,8 @@ async function viewGroup(slug){
 }
 
 /* ======================= SIGN IN (Google, Facebook, email) ======================= */
+const FOLDER_ADD = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 11v5M9.5 13.5h5"/></svg>`;
+const SCHOOL_ICON = `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-6 9 6"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-5h4v5M12 4V2h3"/></svg>`;
 const ADD_ICON = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-3.9 3.1-7 7-7s7 3.1 7 7M19 8v6M16 11h6"/></svg>`;
 const FB_ICON = `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#fff"/><path fill="#1877F2" d="M13.4 24v-8.4h2.8l.4-3.3h-3.2v-2.1c0-.9.3-1.6 1.6-1.6h1.7V5.7c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.4H7.2v3.3H10V24z"/></svg>`;
 let gisPromise = null;
@@ -1129,10 +1131,9 @@ async function viewTeacher(sub = "", id = ""){
       <div class="dash-title"><span class="eyebrow">Dashboard</span><h1 class="page-h">${first ? `Welcome, ${esc(first)}` : esc(g.name)}</h1>
         <p class="muted m0">${esc(g.name)} · ${today0().toLocaleDateString(undefined, { weekday:"long", day:"numeric", month:"long" })}</p></div>
       <div class="row dash-tools">${groups.length > 1 ? `<label class="sr" for="grp">Choose group</label><select id="grp" class="grp">${groups.map(x => `<option value="${x.id}" ${x.id === g.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select>` : ""}
-      ${link("/teacher/classes?add=1", "+ Add a class", "btn small")}${link("/account", "Account", "btn ghost small")}</div></section>
+      ${link("/teacher/classes?add=1", `${FOLDER_ADD}<span>Add a class</span>`, "btn small with-ico")}${link("/account", "Account", "btn ghost small")}</div></section>
     ${user.user_metadata?.has_password ? "" : `<div class="pw-tip"><span>Set a password so you can sign in any time without waiting for an email.</span>${link("/account", "Set password", "btn small ghost")}</div>`}
     ${D.waitingTeachers && sub !== "approve" ? `<div class="ap-banner">${ICO.bell}<span><strong>${D.waitingTeachers} new teacher${D.waitingTeachers === 1 ? " is" : "s are"} waiting for your approval</strong></span>${link("/teacher/approve", "Review", "btn small")}</div>` : ""}
-    ${g.approved ? "" : `<p class="notice m0">Gurushishya is checking your page. You can add classes and students now. The registration links you send start working once it's approved.</p>`}
     ${tabsNav(tabs.map(([h, t]) => [h, t, h === "/teacher/chat" ? D.unread : h === "/teacher/approve" ? D.waitingTeachers : 0]), active, "Dashboard menu")}
     <div id="pane" class="stack"></div>`;
   const cur = $app.querySelector('.tab[aria-current="page"]');
@@ -1630,7 +1631,7 @@ async function tClasses(pane, g, D, again){
   const wantAdd = /[?&]add=1/.test(location.search) || !D.classes.length;
   const openKey = id => "gs.cls.open." + id;
   pane.innerHTML = `<section class="card"><h2>Classes</h2>
-    <details id="add-class" class="add-class" ${wantAdd ? "open" : ""}><summary>+ Add a class</summary>
+    <details id="add-class" class="add-class" ${wantAdd ? "open" : ""}><summary class="with-ico">${FOLDER_ADD}<span>Add a class</span></summary>
       <form id="nc" style="margin-top:12px">
         <label for="nc-name">Class name<input id="nc-name" required minlength="2" maxlength="80" placeholder="Beginners"></label>
         <div class="two"><label for="nc-day">Day<select id="nc-day">${DAYS.map((d, i) => `<option value="${i}" ${i === 6 ? "selected" : ""}>${d}</option>`).join("")}</select></label>
@@ -1767,26 +1768,24 @@ document.addEventListener("click", e => {
 
 function groupForm(g = {}){
   return `
-    <div class="two"><label for="gf-name">Group name<input id="gf-name" required minlength="2" maxlength="80" value="${esc(g.name)}" placeholder="Priya's Bharatanatyam School"></label>
+    <div class="two"><label for="gf-name">School name<input id="gf-name" required minlength="2" maxlength="80" value="${esc(g.name)}" placeholder="Priya's Bharatanatyam School"></label>
     <label for="gf-teacher">Teacher name shown on the page<input id="gf-teacher" required maxlength="80" value="${esc(g.teacher_name)}"></label></div>
     <div class="two"><label for="gf-art">Type of class<select id="gf-art">${Object.entries(ARTS).map(([k, a]) => `<option value="${k}" ${g.art_type === k ? "selected" : ""}>${a.label}</option>`).join("")}</select></label>
     <div class="loc-wrap"><label for="gf-loc">City or town<input id="gf-loc" maxlength="120" value="${esc(g.location)}" placeholder="Start typing, e.g. Chennai" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="gf-loc-list"></label>
-      <ul id="gf-loc-list" class="loc-list" role="listbox" hidden></ul>
-      <span class="hint">Pick your city from the list, anywhere in the world. Shown on your page; no street address.</span></div></div>
+      <ul id="gf-loc-list" class="loc-list" role="listbox" hidden></ul></div></div>
     <label class="check" for="gf-online"><input id="gf-online" type="checkbox" ${g.is_online ? "checked" : ""}>Classes are offered online</label>
-    <label for="gf-bio">About the group<textarea id="gf-bio" maxlength="1500" placeholder="Your training, style, and who the classes are for.">${esc(g.bio)}</textarea></label>`;
+    <label for="gf-bio">About your school<textarea id="gf-bio" maxlength="1500" placeholder="Your training, style, and who the classes are for.">${esc(g.bio)}</textarea></label>`;
 }
 const groupValues = () => ({ name: val("gf-name"), teacher_name: val("gf-teacher"), art_type: val("gf-art"), location: val("gf-loc") || null, is_online: document.getElementById("gf-online").checked, bio: val("gf-bio") || null });
 
 function viewNewGroup(more = false){
   $app.innerHTML = `<section class="card narrow wide">
-    <span class="eyebrow">${more ? "New group" : "Welcome, teacher"}</span><h1 class="page-h">Set up your group</h1>
-    <p class="muted m0">This becomes your class page and your teacher dashboard. Gurushishya checks each new teacher before the page goes public.</p>
+    <h1 class="page-h setup-h"><span class="si-ico setup-ico">${SCHOOL_ICON}</span><span>Set up your school</span></h1>
     <form id="ng">${groupForm()}
       <label for="gf-slug">Web address<input id="gf-slug" required pattern="[a-z0-9][a-z0-9\\-]{1,38}[a-z0-9]" maxlength="40">
       <span class="hint" id="slug-prev"></span></label>
       <label class="check" for="gf-agree"><input id="gf-agree" type="checkbox" required><span>I will keep my students' details private, use Gurushishya only for my own classes, and only add children with a parent's consent.</span></label>
-      <div class="row"><button class="btn" type="submit">Create my group</button>${more ? link("/teacher", "Cancel", "btn ghost") : ""}</div>
+      <div class="row"><button class="btn" type="submit">Create my school</button>${more ? link("/teacher", "Cancel", "btn ghost") : ""}</div>
       <div id="ng-out" role="status"></div></form></section>`;
   const name = document.getElementById("gf-name"), slug = document.getElementById("gf-slug"), prev = document.getElementById("slug-prev");
   let touched = false;

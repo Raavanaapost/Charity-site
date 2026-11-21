@@ -738,3 +738,10 @@ table.fam td{overflow-wrap:anywhere}
 .seg-b{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;font-weight:800;font-size:.92rem;text-decoration:none;color:var(--ink)}
 .seg-b.on{background:var(--maroon);color:#fff5df}
 @media (max-width:400px){.seg-b{padding:0 11px}}
+
+/* setup title and small icons on buttons */
+.setup-h{display:flex;align-items:center;gap:12px;font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-weight:700;font-size:clamp(1.9rem,7.5vw,2.8rem);line-height:1.05;color:var(--maroon)}
+.setup-ico{background:var(--maroon);color:#fff5df}
+.with-ico{display:inline-flex;align-items:center;gap:8px}
+.add-class summary.with-ico{display:flex;list-style:none}
+.add-class summary.with-ico::-webkit-details-marker{display:none}
