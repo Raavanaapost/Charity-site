@@ -3119,3 +3119,43 @@ html.in-app .appbar{grid-template-columns:none;grid-auto-columns:minmax(0,1fr);g
   body[data-light][data-page="overview"] .spark-band { margin-top: 18px; padding: 24px 32px 24px; row-gap: 6px; }
   body[data-light][data-page="overview"] .spark-band > .sb-stack { width: min(300px, 100%); }
 }
+
+/* Calm 21 Nov 2026 (SURESH): nothing blinks or pulses. Submit a need button still, Home stage circles still,
+   slow title changes, the Spark line types itself out, a still centred "Requested Projects" title. */
+.bar-submit,.bar-submit::after,.sb-way::after{animation:none!important}
+.sb-way::after{display:none}
+body[data-light][data-page="overview"] .stage::before,
+body[data-light][data-page="overview"] .stages .stage,
+body[data-light][data-page="overview"] .stage-path *{animation:none!important}
+body[data-light][data-page="overview"] .stages .stage.lit{box-shadow:none}
+.mosaic[data-deck] .mosaic-tile{animation-duration:1.2s}
+.mosaic.turning .mosaic-tile{transition:opacity .7s ease}
+.mosaic-call.in{animation:callSoft 1.2s ease both}
+@keyframes callSoft{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+/* Home title: comes in from a soft blur and rises a little, slowly */
+.headline.hl-slow{transition:none}
+.headline.hl-in{animation:hlIn 1.8s cubic-bezier(.22,.61,.36,1) both}
+.headline.hl-out{animation:hlOut 1.5s ease both}
+@keyframes hlIn{from{opacity:0;filter:blur(14px);transform:translateY(14px);letter-spacing:.12em}to{opacity:1;filter:blur(0);transform:none}}
+@keyframes hlOut{from{opacity:1;filter:blur(0)}to{opacity:0;filter:blur(12px);transform:translateY(-10px)}}
+/* Spark band: slower slides, the line under the pictures typed letter by letter */
+.sb-slide{transition-duration:1.2s!important}
+.sb-says>span{transition:opacity 1s,transform 1s}
+.sb-says .tch{opacity:0}
+.sb-says .typing .tch{animation:tchIn .35s ease forwards;animation-delay:calc(var(--i) * 70ms + .4s)}
+.sb-says>span:not(.on) .tch{animation:none;opacity:0}
+@keyframes tchIn{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
+@media (prefers-reduced-motion:reduce){.sb-says .tch{opacity:1}.headline.hl-in,.headline.hl-out{animation:none}}
+/* Projects: one still, centred title */
+.pj-title{margin:6px auto 10px;text-align:center;line-height:1;font-weight:400}
+.pj-title span{display:block;font-family:"Anton",Impact,sans-serif;text-transform:uppercase;letter-spacing:.04em;color:#1f4d3a;font-size:clamp(40px,11vw,72px)}
+.pj-title em{display:block;font-style:normal;font-family:"Kaushan Script",cursive;font-size:clamp(34px,9vw,58px);margin-top:-.08em;padding:0 .15em .1em;background:linear-gradient(100deg,#c8381e 5%,#e5851a 55%,#f2b21c 95%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;transform:rotate(-2deg)}
+body[data-page="projects"] .home-finder{align-items:center}
+/* Places on one line; the rest behind "More" */
+.pj-places{flex-wrap:nowrap;overflow:hidden}
+.pj-places.open{flex-wrap:wrap}
+.pj-place[hidden]{display:none}
+.pj-more{flex:none;display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:999px;border:1px dashed #c9a64a;background:#fff;color:#1f4d3a;font:700 14px/1.1 var(--display);white-space:nowrap;cursor:pointer}
+.pj-more span{color:#b97a06}
+.pj-more[hidden]{display:none}
+@media (max-width:560px){.pj-more{padding:6px 11px;font-size:13px}}
