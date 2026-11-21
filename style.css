@@ -3159,3 +3159,11 @@ body[data-page="projects"] .home-finder{align-items:center}
 .pj-more span{color:#b97a06}
 .pj-more[hidden]{display:none}
 @media (max-width:560px){.pj-more{padding:6px 11px;font-size:13px}}
+/* Calm 3: smaller place buttons on phones so two places fit on the line (SURESH 21 Nov) */
+@media (max-width:560px){
+  .pj-places{gap:6px}
+  .pj-place{padding:5px 9px;gap:4px;font-size:12.5px}
+  .pj-place svg{width:12px;height:12px}
+  .pj-place b{min-width:16px;padding:1px 5px;font-size:11px}
+  .pj-more{padding:5px 9px;font-size:12.5px;gap:3px}
+}

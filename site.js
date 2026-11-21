@@ -1318,7 +1318,7 @@ window.RAAV_FEATURES = (function () {
       placesBox.classList.toggle("open", placesOpen);
       const cities = chips.filter(b => b !== all);
       if (placesOpen) { more.hidden = false; more.innerHTML = 'Less <i aria-hidden="true">▴</i>'; more.setAttribute("aria-expanded", "true"); return; }
-      const gap = 8, W = placesBox.clientWidth - 4, w = b => b.getBoundingClientRect().width;
+      const gap = parseFloat(getComputedStyle(placesBox).columnGap) || 8, W = placesBox.clientWidth - 4, w = b => b.getBoundingClientRect().width;
       const total = chips.reduce((a, b) => a + w(b) + gap, -gap);
       if (total <= W) return;
       more.hidden = false; more.innerHTML = 'More <i aria-hidden="true">▾</i>'; more.setAttribute("aria-expanded", "false");
