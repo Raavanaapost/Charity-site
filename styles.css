@@ -715,10 +715,10 @@ table.fam td{overflow-wrap:anywhere}
 .si-wash{position:absolute!important;inset:0;z-index:0!important;pointer-events:none;background:var(--si);opacity:0;clip-path:circle(0 at var(--x,50%) var(--y,0))}
 .si-wash.go{animation:siWash .8s cubic-bezier(.2,.7,.2,1)}
 /* the two titles have their own lettering */
-.si-h .si-t{font-size:clamp(1.9rem,7.2vw,2.5rem);line-height:1.05;letter-spacing:-.01em;background-clip:text;-webkit-background-clip:text}
+.si-h .si-t{white-space:nowrap;font-size:clamp(1.3rem,7.2vw,2.5rem);line-height:1.05;letter-spacing:-.01em;background-clip:text;-webkit-background-clip:text}
 .si-w{display:inline-block;white-space:nowrap}.si-l{display:inline-block}
 .si-card.teacher .si-t{font-family:"Playfair Display",Georgia,serif;font-weight:900;color:var(--maroon);text-shadow:0 2px 0 rgba(200,144,39,.28)}
-.si-card.student .si-t{font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-weight:700;font-size:clamp(2.2rem,8.4vw,2.9rem);color:#8a5a06;text-shadow:0 2px 0 rgba(110,15,12,.12)}
+.si-card.student .si-t{font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-weight:700;font-size:clamp(1.5rem,8.4vw,2.9rem);color:#8a5a06;text-shadow:0 2px 0 rgba(110,15,12,.12)}
 .si-h.swap .si-l{animation:siLetter .6s cubic-bezier(.2,.9,.25,1.2) both;animation-delay:calc(var(--i)*28ms)}
 .si-alt{align-items:center}
 .si-create{flex-basis:100%;display:flex;align-items:center;justify-content:center;gap:10px;min-height:48px;margin-top:6px;border:1.5px dashed var(--maroon);transition:max-height .4s ease,opacity .3s ease,margin .4s ease,transform .2s ease,background-color .2s ease}

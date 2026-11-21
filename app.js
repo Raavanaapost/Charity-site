@@ -497,7 +497,7 @@ function viewSignIn(){
     <h1 class="page-h si-h" id="si-h"></h1>${b.html}</section>`;
   const card = document.getElementById("si-card"), h = document.getElementById("si-h");
   let mode = "password";
-  const title = () => mode === "signup" ? (kind === "student" ? "Create student account" : "Create teacher account")
+  const title = () => mode === "signup" ? (kind === "student" ? "Create Student" : "Create Teacher")
     : mode === "forgot" ? "Reset password" : kind === "student" ? "Student sign in" : "Teacher sign in";
   const letters = t => t.split(" ").map((w, wi, all) => { const off = all.slice(0, wi).join(" ").length;
     return `<span class="si-w">${[...w].map((c, i) => `<span class="si-l" style="--i:${off + i}">${esc(c)}</span>`).join("")}</span>`; }).join(" ");
