@@ -736,18 +736,21 @@ window.RAAV_FEATURES = (function () {
   function startSparkBand(app) {
     // the View projects card: its title turns through its words
     app.querySelectorAll("[data-sb-turn]").forEach(b => { const w = b.dataset.sbTurn.split("|"); let i = 0;
-      if (w.length > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) rotTimers.push(setInterval(() => { if (document.hidden) return; i = (i + 1) % w.length; b.textContent = w[i]; }, 2600)); });
+      if (w.length > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) rotTimers.push(setInterval(() => { if (document.hidden) return; i = (i + 1) % w.length; b.textContent = w[i]; }, 9000)); });
     // the titles and their lines take turns together
+    // SURESH 21 Nov 2026: slower, and the line under the pictures types itself out letter by letter (no blinking).
     const rot = app.querySelector("[data-sb-rot]"), says = app.querySelector("[data-sb-says]");
     if (rot && says && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
       const ts = [...rot.children], ss = [...says.children]; let t = 0;
+      ss.forEach(typeReady); typeOut(ss[0]);
       rotTimers.push(setInterval(() => {
         if (document.hidden) return;
         t = (t + 1) % ts.length;
         ts.forEach((el, i) => { el.classList.toggle("on", i === t); el.setAttribute("aria-hidden", i === t ? "false" : "true"); });
         ss.forEach((el, i) => el.classList.toggle("on", i === t));
+        typeOut(ss[t]);
         const band = rot.closest(".spark-band"); if (band) band.dataset.c = t % 5 + 1;
-      }, 5200));
+      }, 14000));
     }
     const box = app.querySelector("[data-sb-stack]"); if (!box) return;
     const frames = [...box.children], cap = app.querySelector("[data-sb-cap]"), n = frames.length;
@@ -758,8 +761,20 @@ window.RAAV_FEATURES = (function () {
       k = (k + 1) % n;
       frames.forEach((f, i) => { const pos = (i - k + n) % n; f.classList.remove("p0", "p1", "p2", "off"); f.classList.add(pos < 3 ? "p" + pos : "off"); f.tabIndex = pos ? -1 : 0; f.setAttribute("aria-hidden", pos ? "true" : "false"); });
       if (cap) cap.textContent = frames[k].dataset.t || "";
-    }, 4500));
+    }, 7000));
   }
+  // Typing effect (SURESH 21 Nov 2026): every letter of a line gets its own span (keeping <b> parts), so the line
+  // keeps its size and the letters simply appear one after another, slowly. No cursor, nothing blinks.
+  function typeReady(el) {
+    if (el.dataset.typed) return; el.dataset.typed = "1"; let n = 0;
+    const walk = node => [...node.childNodes].forEach(c => {
+      if (c.nodeType === 3) { const frag = document.createDocumentFragment();
+        [...c.textContent].forEach(ch => { const s = document.createElement("span"); s.className = "tch"; s.style.setProperty("--i", n++); s.textContent = ch; frag.append(s); });
+        c.replaceWith(frag); }
+      else if (c.nodeType === 1) walk(c); });
+    walk(el); el.style.setProperty("--n", n);
+  }
+  function typeOut(el) { if (!el) return; el.classList.remove("typing"); void el.offsetWidth; el.classList.add("typing"); }
   // Under the stage circles: one slogan in the middle, and a fine curved line from it up to
   // its stage. The line glides from stage to stage on its own; tapping a circle keeps it there.
   const STAGE_COLOR = ["#1f7a47", "#d08e0c", "#c8381e"];
@@ -823,8 +838,11 @@ window.RAAV_FEATURES = (function () {
   // Home's three top pictures (SURESH, 17 Nov 2026): the big one is always an Initiated project, with a
   // turning call on it ("Make this happen", "Own it", ...); all three take turns through the listed projects.
   const MAKE_SAYS = ["Make this happen", "Own it", "Create the moment", "Be the smile", "Start it today"];
+  // SURESH 21 Nov 2026: the top pictures show Initiated projects only (the days still waiting to happen).
   const homeDeck = (shown, k) => {
-    const init = shown.filter(p => stageNum(p) === 1), big = init.length ? init[k % init.length] : null;
+    const init = shown.filter(p => stageNum(p) === 1);
+    if (init.length) return [0, 1, 2].map(j => init[(k + j) % init.length]).filter((p, j, a) => a.indexOf(p) === j);
+    const big = null;
     const rest = shown.filter(p => p !== big);
     const two = rest.length ? [0, 1].map(j => rest[(k * 2 + j) % rest.length]).filter((p, j, a) => a.indexOf(p) === j) : [];
     return big ? [big, ...two] : two;
@@ -848,14 +866,14 @@ window.RAAV_FEATURES = (function () {
     say();
     if (calm) return;
     mo.addEventListener("pointerenter", () => hold = true); mo.addEventListener("pointerleave", () => hold = false);
-    rotTimers.push(setInterval(() => { if (document.hidden || !mo.hasAttribute("data-deck")) return; w++; say(); }, 2800));
+    rotTimers.push(setInterval(() => { if (document.hidden || !mo.hasAttribute("data-deck")) return; w++; say(); }, 9000));
     if (shown.length < 2) return;
     rotTimers.push(setInterval(() => {
       if (document.hidden || hold || !mo.hasAttribute("data-deck")) return;
       k++; const list = homeDeck(shown, k);
       mo.classList.add("turning");
-      setTimeout(() => { mo.className = `mosaic n${Math.min(list.length, 3)}`; mo.innerHTML = mosaicTiles(list, projects); say(); }, 260);
-    }, 6000));
+      setTimeout(() => { mo.className = `mosaic n${Math.min(list.length, 3)}`; mo.innerHTML = mosaicTiles(list, projects); say(); }, 700);
+    }, 10000));
   }
   function wireExplore(app, projects) {
     const box = app.querySelector(".explore-tabs"), mo = app.querySelector(".mosaic"), circles = app.querySelector(".stages");
@@ -939,7 +957,7 @@ window.RAAV_FEATURES = (function () {
     startFollow(app);
     startCreate(app);
     startSparkBand(app);
-    startRail(app);
+    if (!light) startRail(app); // SURESH 21 Nov 2026: the Home stage circles stay still, no blinking
     if (light) startHeadlines(app, slides.map(x => x.title).filter(Boolean), start);
     // arriving from the footer's "Keep me posted" button on another page
     if (location.hash === "#keep-posted") { const t = document.getElementById("keep-posted"); if (t) t.scrollIntoView(); }
@@ -1180,8 +1198,8 @@ window.RAAV_FEATURES = (function () {
         <a class="ch-go" data-ch-go href="#" aria-disabled="true">Continue →</a>
       </div>` : `
       <section class="finder home-finder">
-        <h1 class="section-title latest-title pj-says" aria-live="polite">${LIST_SAYS.map((t, k) => `<span class="${k ? "" : "on"}"${k ? ' aria-hidden="true"' : ""}>${t}</span>`).join("")}</h1>
-        <p class="pj-sub">Pick one, and be the smile that makes it happen.</p>
+        ${/* SURESH 21 Nov 2026: one still, centred title in the Home headline's display style; no line under it */ ""}
+        <h1 class="pj-title"><span>Requested</span> <em>Projects</em></h1>
         <form class="finder-search" role="search" action="#" onsubmit="return false">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
           <input id="find-q" type="search" placeholder="Search projects, places or ideas" aria-label="Search projects" autocomplete="off">
@@ -1287,7 +1305,28 @@ window.RAAV_FEATURES = (function () {
     document.addEventListener("keydown", e => { if (e.key === "Escape") closePop(); });
     addEventListener("scroll", () => { if (popRow && pop.classList.contains("by-hover")) closePop(); }, { passive: true });
 
-    if (placesBox) placesBox.addEventListener("click", e => { const b = e.target.closest(".pj-place"); if (!b) return; st.city = b.dataset.city; closePop(); draw(); });
+    if (placesBox) placesBox.addEventListener("click", e => { if (e.target.closest(".pj-more")) return; const b = e.target.closest(".pj-place"); if (!b) return; st.city = b.dataset.city; closePop(); draw(); fitPlaces(); });
+    // SURESH 21 Nov 2026: the places fit on one line; the rest open with "More".
+    let placesOpen = false;
+    const fitPlaces = () => {
+      if (!placesBox) return;
+      const chips = [...placesBox.querySelectorAll(".pj-place")], all = chips.find(b => b.classList.contains("all"));
+      let more = placesBox.querySelector(".pj-more");
+      if (!more) { more = document.createElement("button"); more.type = "button"; more.className = "pj-more";
+        more.addEventListener("click", () => { placesOpen = !placesOpen; fitPlaces(); }); placesBox.append(more); }
+      chips.forEach(b => b.hidden = false); more.hidden = true;
+      placesBox.classList.toggle("open", placesOpen);
+      const cities = chips.filter(b => b !== all);
+      if (placesOpen) { more.hidden = false; more.innerHTML = 'Less <i aria-hidden="true">▴</i>'; more.setAttribute("aria-expanded", "true"); return; }
+      const gap = 8, W = placesBox.clientWidth - 4, w = b => b.getBoundingClientRect().width;
+      const total = chips.reduce((a, b) => a + w(b) + gap, -gap);
+      if (total <= W) return;
+      more.hidden = false; more.innerHTML = 'More <i aria-hidden="true">▾</i>'; more.setAttribute("aria-expanded", "false");
+      let used = w(all) + gap + w(more) + gap, shown = 0;
+      cities.forEach(b => { const keep = b.getAttribute("aria-pressed") === "true"; if (!keep && used + w(b) > W && shown) { b.hidden = true; return; } used += w(b) + gap; shown++; });
+      more.innerHTML = `More <span>+${cities.filter(b => b.hidden).length}</span> <i aria-hidden="true">▾</i>`;
+    };
+    addEventListener("resize", () => fitPlaces());
     if (CHOOSE) {
       // ticking one: only one project at a time; tapping it again takes the tick off
       const now = app.querySelector("[data-ch-now]"), go = app.querySelector("[data-ch-go]");
@@ -1304,18 +1343,18 @@ window.RAAV_FEATURES = (function () {
       folder.addEventListener("click", e => { const b = e.target.closest("[data-pick]"); if (!b) return; picked.slug = picked.slug === b.dataset.pick ? "" : b.dataset.pick; show(); });
       go.addEventListener("click", e => { if (go.getAttribute("aria-disabled") === "true") { e.preventDefault(); now.classList.remove("nudge"); void now.offsetWidth; now.classList.add("nudge"); } });
       const redraw = draw; draw = () => { redraw(); show(); };
-            draw();
+      draw(); fitPlaces();
       if (picked.slug) { const r = folder.querySelector(`.ch-row[data-slug="${CSS.escape(picked.slug)}"]`); if (r) r.scrollIntoView({ block: "center" }); }
       return;
     }
     app.querySelector("#find-q").addEventListener("input", e => { st.q = e.target.value.trim(); closePop(); draw(); });
-    startListSays(app);
     const whoBox = app.querySelector(".pj-who-list");
     if (whoBox) whoBox.addEventListener("click", e => { const b = e.target.closest(".pj-who-b"); if (!b) return;
       st.by = st.by === b.dataset.by ? "" : b.dataset.by;
       whoBox.querySelectorAll(".pj-who-b").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.by === st.by)));
       closePop(); draw(); if (st.by) book.scrollIntoView({ behavior: "smooth", block: "start" }); });
     draw();
+    fitPlaces(); if (document.fonts) document.fonts.ready.then(fitPlaces);
   }
 
   // Front page (raavanaa.org): arched title, picture slideshow, and one button into the site.
@@ -1669,11 +1708,18 @@ window.RAAV_FEATURES = (function () {
   }
 
   // Home headline turns through the sayings' titles ("Together – Real Change", "Small Steps – Big Smiles"...).
+  // SURESH 21 Nov 2026: a new title on every visit (picked at random), coming in slowly from a soft blur, and
+  // changing only very slowly after that (every 16 s, a 1.6 s blur-and-rise), never a quick flick.
   function startHeadlines(root, titles, start) {
     const head = root.querySelector(".headline");
-    if (!head || titles.length < 2 || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!head || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    head.classList.add("hl-slow", "hl-in");
+    if (titles.length < 2) return;
     let k = start;
-    rotTimers.push(setInterval(() => { if (document.hidden) return; k = (k + 1) % titles.length; fadeText(head, headline(titles[k]), () => { fitHeadline(); setTimeout(fitHeadline, 80); }); }, 4200)); // fit again once the Tamil words are in
+    rotTimers.push(setInterval(() => { if (document.hidden) return; k = (k + 1) % titles.length;
+      head.classList.remove("hl-in"); head.classList.add("hl-out");
+      setTimeout(() => { head.innerHTML = headline(titles[k]); fitHeadline(); setTimeout(fitHeadline, 80);
+        head.classList.remove("hl-out"); void head.offsetWidth; head.classList.add("hl-in"); }, 1500); }, 16000));
   }
   function startSayings(root) {
     const box = root.querySelector(".sayings");
