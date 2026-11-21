@@ -657,3 +657,22 @@ table.fam .pill,table.fam td.num{white-space:nowrap}
 .ci-ico{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:rgba(255,253,248,.9);border:1px solid rgba(200,144,39,.45);color:var(--maroon)}
 .ci-ico svg{width:20px;height:20px}
 .class-item + .class-item{margin-top:-4px}
+
+/* File-explorer tree: folder icon opens and closes; sections are child rows under a guide line */
+.ci-ico{background:none;border:0;width:30px;height:30px;color:var(--gold-d)}
+.ci-ico svg{width:28px;height:28px;fill:rgba(200,144,39,.22)}
+.ci-ico .f-open,.ci-body[open] > summary .ci-ico .f-closed{display:none}
+.ci-body[open] > summary .ci-ico .f-open{display:block}
+.ci-body > .sub.node{margin:0 0 0 14px;padding:0 0 0 12px;border:0;border-left:2px solid var(--line-2)}
+.ci-body > .sub.node + .sub.node{margin-top:0}
+.ci-body > .ci-dash + .sub.node{margin-top:10px}
+.sub.node > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 8px;border-radius:10px;font-weight:700;color:var(--ink)}
+.sub.node > summary::-webkit-details-marker{display:none}
+.sub.node > summary:hover{background:var(--accent-soft)}
+.sub.node > summary > svg{width:18px;height:18px;flex:none;color:var(--gold-d)}
+.sub.node > summary .nd-t{flex:1;min-width:0}
+.nd-chev{flex:none;width:0;height:0;border-left:7px solid var(--muted);border-top:5px solid transparent;border-bottom:5px solid transparent}
+.sub.node[open] > summary .nd-chev{transform:rotate(90deg)}
+.sub.node[open] > summary{color:var(--maroon)}
+.nd-body{display:flex;flex-direction:column;gap:10px;padding:4px 8px 14px 23px}
+.sub.node > .row{padding:0 8px 12px 23px}

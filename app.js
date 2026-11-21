@@ -1103,6 +1103,9 @@ const ICO = {
   note: svg(`<path d="M5 4.5h14v11l-4.5 4H5z"/><path d="M14.5 19.5v-4H19M8.5 9h7M8.5 12.5h4"/>`),
   lotus: svg(`<path d="M12 5c2.4 2.8 2.4 6.6 0 9.6-2.4-3-2.4-6.8 0-9.6z"/><path d="M12 14.6c-3.8 0-7-1.9-8.7-5.2 3.8 0 7 1.9 8.7 5.2zm0 0c3.8 0 7-1.9 8.7-5.2-3.8 0-7 1.9-8.7 5.2zM5 18h14"/>`),
   lock: svg(`<rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2.5"/>`),
+  folder: svg(`<path d="M3 7.5a2 2 0 0 1 2-2h4l2 2.2h8a2 2 0 0 1 2 2V17.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>`, ' class="f-closed"'),
+  folderOpen: svg(`<path d="M3 17.5V7.5a2 2 0 0 1 2-2h4l2 2.2h7a2 2 0 0 1 2 2v1.3"/><path d="M3 18.5l2.4-6.6a1.4 1.4 0 0 1 1.3-.9h13.6a1 1 0 0 1 .95 1.3L19.4 18.5a1.4 1.4 0 0 1-1.3 1H4a1 1 0 0 1-1-1z"/>`, ' class="f-open"'),
+  gear: svg(`<circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/>`),
   video: svg(`<rect x="2.5" y="6.5" width="13" height="11" rx="2.5"/><path d="m15.5 10.5 6-3.5v10l-6-3.5"/>`),
   people: IC.people, calendar: IC.calendar
 };
@@ -1496,7 +1499,7 @@ async function tClasses(pane, g, D, again){
     return `<li class="class-item" data-id="${k.id}">
       <details class="ci-body" data-open="${k.id}" ${clsOpen(k.id) ? "open" : ""}>
       <summary class="ci-head ci-sum">
-        <span class="ci-chev" aria-hidden="true"></span><span class="ci-ico" aria-hidden="true">${artIcon(g.art_type)}</span>
+        <span class="ci-chev" aria-hidden="true"></span><span class="ci-ico" aria-hidden="true">${ICO.folder}${ICO.folderOpen}</span>
         <div class="ci-title"><h3>${esc(k.name)}</h3><span class="ci-when">${DAYS[k.day_of_week]}s · ${fmtTime(k.start_time)} · ${act.length} student${act.length === 1 ? "" : "s"}${classToday ? ` · <strong>today${startsIn(k) ? ", " + startsIn(k) : ""}</strong>` : ""}</span></div></summary>
       <div class="ci-dash">
         <div class="ci-stats">
@@ -1507,31 +1510,31 @@ async function tClasses(pane, g, D, again){
         </div>
         ${url ? `<div class="row ci-go"><a class="btn small zoom" href="${esc(url)}" target="_blank" rel="noopener">${ICO.video}<span>Start online class</span></a></div>` : ""}
       </div>
-      <div class="sub"><strong>This week's practice</strong>
+      <details class="sub node"><summary><span class="nd-chev" aria-hidden="true"></span>${ICO.note}<span class="nd-t">This week's practice</span></summary><div class="nd-body">
         <form data-f="task">
           <label for="pt-title-${k.id}">What to practise<input id="pt-title-${k.id}" required maxlength="200" value="${esc(cur?.title || "")}" placeholder="${esc(last?.title || "e.g. Tatta adavu 1 to 4, slow then medium speed")}"></label>
           <div class="two"><label for="pt-min-${k.id}">Goal: minutes a day<input id="pt-min-${k.id}" type="number" min="1" max="180" required value="${cur?.minutes || last?.minutes || 10}"></label>
             <label for="pt-demo-${k.id}">Demo video link (optional)<input id="pt-demo-${k.id}" type="url" pattern="https://.*" value="${esc(cur?.demo_url || "")}" placeholder="https://youtu.be/…"></label></div>
           <div class="row"><button class="btn small" type="submit">${cur ? "Update practice" : "Set practice"}</button>
             ${cur && g.approved ? `<a class="btn small wa" target="_blank" rel="noopener" href="${shareTask}">Share on WhatsApp</a>` : ""}<span class="hint" data-out role="status"></span></div>
-        </form></div>
-      <div class="sub"><strong>Post to the class</strong><span class="hint">Everyone in ${esc(k.name)} sees it under Homework &amp; notes.</span>
+        </form></div></details>
+      <details class="sub node"><summary><span class="nd-chev" aria-hidden="true"></span>${ICO.bell}<span class="nd-t">Post to the class</span></summary><div class="nd-body"><span class="hint">Everyone in ${esc(k.name)} sees it under Homework &amp; notes.</span>
         <form data-f="post">
           <div class="two"><label for="pk-${k.id}">Type<select id="pk-${k.id}"><option value="homework">Homework</option><option value="class_note">Class notes</option><option value="post">Announcement</option></select></label></div>
           <label for="pb-${k.id}" class="sr">Post</label><textarea id="pb-${k.id}" rows="3" maxlength="2000" required placeholder="e.g. Today we learned… / Homework for next class…"></textarea>
           <div class="row"><button class="btn small" type="submit">Post</button><span class="hint" data-out role="status"></span></div>
         </form>
         ${kp.length ? `<ul class="posts">${kp.map(p => `<li><div class="row between"><span class="pill ${POST_KINDS[p.kind].cls}">${POST_KINDS[p.kind].label}</span><span class="hint">${timeAgo(p.created_at)} <button class="link-btn" type="button" data-delpost="${p.id}">Delete</button></span></div><p>${esc(p.body)}</p></li>`).join("")}</ul>` : ""}
-      </div>
-      <div class="sub"><div class="row between"><strong>${classToday ? "How last week went" : "Who practised this week"}</strong><span class="hint">Minutes each day</span></div>
+      </div></details>
+      <details class="sub node"><summary><span class="nd-chev" aria-hidden="true"></span>${ICO.check}<span class="nd-t">${classToday ? "How last week went" : "Who practised this week"}</span></summary><div class="nd-body"><span class="hint">Minutes each day</span>
         ${act.length ? `<div class="scroll"><table class="chart"><thead><tr><th>Student</th>${days.map(d => `<th scope="col">${SHORT[d.getDay()].slice(0, 2)}</th>`).join("")}<th>Total</th></tr></thead><tbody>
           ${act.map(s => { const ds = D.done(s.id); let tot = 0;
             const cells = days.map(d => { const key = ymd(d), on = ds.has(key), m = D.mins(s.id, key); tot += m;
               return `<td><span class="sq${on ? " on" : d > t0 ? " fut" : ""}" title="${DAYS[d.getDay()]}: ${on ? (m ? m + " min" : "practised") : "no practice"}">${on ? (m || "✓") : ""}</span></td>`; }).join("");
             return `<tr><td><a href="/teacher/students/${s.id}" data-link class="who">${esc(s.first_name)}</a>${needsNudge(s, ds, k.day_of_week) ? `<br><span class="pill wait">Needs a nudge</span>` : ""}</td>${cells}<td class="num">${fmtMins(tot)}</td></tr>`; }).join("")}
         </tbody></table></div>` : `<div class="empty">No active students yet. Add students from the Students tab.</div>`}
-      </div>
-      <div class="sub zoom-sub"><div class="row between"><strong class="with-ico">${ICO.video}Online class</strong>${url ? `<span class="pill ok">${esc(kind)} link saved</span>` : `<span class="pill grey">Not set</span>`}</div>
+      </div></details>
+      <details class="sub node zoom-sub"><summary><span class="nd-chev" aria-hidden="true"></span>${ICO.video}<span class="nd-t">Online class</span>${url ? `<span class="pill ok">${esc(kind)} link saved</span>` : `<span class="pill grey">Not set</span>`}</summary><div class="nd-body">
         ${url ? `<div class="row"><a class="btn small zoom" href="${esc(url)}" target="_blank" rel="noopener">${ICO.video}<span>Start online class</span></a>
             <button class="btn small ghost" type="button" data-copylink>Copy link</button>
             <a class="btn small wa" target="_blank" rel="noopener" href="${wa(`${k.name} online class, ${DAYS[k.day_of_week]}s at ${fmtTime(k.start_time)}\nJoin here: ${url}`)}">Share on WhatsApp</a></div>
@@ -1539,8 +1542,8 @@ async function tClasses(pane, g, D, again){
         : `<p class="hint m0">Teaching on Zoom, Google Meet or Teams? Paste the meeting link, or the whole invitation, and save. Your students then get a <strong>Join online class</strong> button 10 minutes before class.</p>`}
         <form data-f="link"><label for="ml-${k.id}">${url ? "Change the link" : "Meeting link or invitation"}<textarea id="ml-${k.id}" rows="2" maxlength="3000" placeholder="https://us05web.zoom.us/j/123456789?pwd=…">${esc(url)}</textarea></label>
           <div class="row"><button class="btn small" type="submit">Save link</button>${url ? `<button class="btn small ghost" type="button" data-rmlink>Remove link</button>` : ""}<span class="hint" data-lmsg role="status"></span></div></form>
-      </div>
-      <details class="sub"><summary>Class settings</summary>
+      </div></details>
+      <details class="sub node"><summary><span class="nd-chev" aria-hidden="true"></span>${ICO.gear}<span class="nd-t">Class settings</span></summary>
         <div class="row" style="margin-top:10px"><button class="btn small ghost danger" type="button" data-del>Remove class</button><span class="hint" data-msg role="status"></span></div>
       </details></details></li>`;
   };
