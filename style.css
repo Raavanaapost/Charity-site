@@ -3168,3 +3168,15 @@ body[data-page="projects"] .home-finder{align-items:center}
   .pj-more{padding:5px 9px;font-size:12.5px;gap:3px}
 }
 @media (max-width:560px){.pj-place svg{display:none}.pj-place,.pj-more{padding:5px 8px}}
+
+/* Calm 5 (SURESH 21 Nov): the Home title just fades softly, no blur, no movement */
+@keyframes hlIn{from{opacity:0}to{opacity:1}}
+@keyframes hlOut{from{opacity:1}to{opacity:0}}
+.headline.hl-in{animation:hlIn 2.2s ease-in-out both}
+.headline.hl-out{animation:hlOut 1.5s ease-in-out both}
+
+/* Header 21 Nov (SURESH): the header takes the page's own colour instead of white, and a smaller logo */
+body:not([data-variant="royal"]):not([data-page="home"]) header.bar{background:var(--bg)}
+header.bar .logo img{width:216px!important;height:auto!important;aspect-ratio:254/66;max-width:none!important;max-height:none!important}
+@media (max-width:640px){header.bar .logo img{width:min(180px,calc(100vw - 32px - 58px - 118px))!important}.bar .wrap{min-height:60px}}
+@media (min-width:1000px){header.bar .logo img{width:290px!important}.bar .wrap{min-height:92px}}
