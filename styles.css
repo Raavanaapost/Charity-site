@@ -628,3 +628,17 @@ table.fam .pill,table.fam td.num{white-space:nowrap}
 .acct-pw{border:1px solid var(--line);border-radius:14px;padding:10px 14px}
 .acct-pw summary{cursor:pointer;font-weight:800;color:var(--maroon)}
 .acct-pw form{margin-top:10px}
+
+/* Classes as an accordion: closed = just the gold title; tap it to open */
+.ci-body > summary.ci-sum{list-style:none;cursor:pointer;flex-direction:row;align-items:center;justify-content:space-between;gap:12px;margin:-16px;padding:14px 16px;border-bottom:0}
+.ci-body > summary.ci-sum::-webkit-details-marker{display:none}
+.ci-body[open] > summary.ci-sum{margin-bottom:0;border-bottom:2px solid var(--gold)}
+.ci-chev{flex:none;width:12px;height:12px;margin-right:6px;border-right:3px solid var(--maroon);border-bottom:3px solid var(--maroon);transform:rotate(45deg);transition:transform .15s ease}
+.ci-body[open] > summary .ci-chev{transform:rotate(-135deg)}
+.ci-dash{display:flex;flex-direction:column;gap:12px;margin:0 -16px;padding:14px 16px;background:linear-gradient(135deg,#fbf0dc 0%,#f6e3bd 100%)}
+.ci-body > .ci-dash + .sub{border-top:0}
+@media (max-width:480px){.class-item .ci-body > summary.ci-sum{margin:-12px;padding:12px}.class-item .ci-body[open] > summary.ci-sum{margin-bottom:0}.ci-dash{margin:0 -12px;padding:12px}}
+@media (prefers-reduced-motion:reduce){.ci-chev{transition:none}}
+.class-item:has(> .ci-body:not([open])){padding-bottom:0}
+.class-item .ci-body:not([open]) > summary.ci-sum{margin-bottom:0}
+.class-item .ci-body:not([open]){display:block}

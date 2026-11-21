@@ -784,16 +784,10 @@ async function viewDesk(tab = ""){
   if (tab) timerChip(pane, TKc);
 
   if (tab === "notes") {
-    let filter = "all";
-    const draw = () => {
-      const list = posts.filter(p => filter === "all" || p.kind === filter);
-      pane.innerHTML = `<div class="chips" role="group" aria-label="Show">${[["all","All"],["homework","Homework"],["class_note","Class notes"],["post","Announcements"]].map(([v,t]) => `<button type="button" class="chip" data-f="${v}" aria-pressed="${v===filter}">${t}</button>`).join("")}</div>
-        <div class="stack" style="gap:12px;margin-top:12px">${list.length ? list.map(p => `<article class="post ${POST_KINDS[p.kind].cls}${p.created_at > seen ? " new" : ""}">
+    pane.innerHTML = `<div class="stack" style="gap:12px">${posts.length ? posts.map(p => `<article class="post ${POST_KINDS[p.kind].cls}${p.created_at > seen ? " new" : ""}">
           <div class="row between"><span class="pill ${POST_KINDS[p.kind].cls}">${POST_KINDS[p.kind].label}</span><span class="hint">${timeAgo(p.created_at)}${p.created_at > seen ? " · New" : ""}</span></div>
           <p>${esc(p.body)}</p></article>`).join("") : `<div class="empty">Nothing here yet. Your teacher's homework and class notes will appear here.</div>`}</div>`;
-      pane.querySelectorAll("[data-f]").forEach(b => b.onclick = () => { filter = b.dataset.f; draw(); });
-    };
-    draw(); if (posts[0]) store.set(seenKey, posts[0].created_at);
+    if (posts[0]) store.set(seenKey, posts[0].created_at);
     return;
   }
   if (tab === "chat") {
@@ -1500,8 +1494,11 @@ async function tClasses(pane, g, D, again){
     const waiting = D.studs.filter(s => s.class_id === k.id && PENDING.includes(s.status)).length;
     const doneToday = act.filter(s => D.done(s.id).has(ymd(t0))).length, url = D.linkOf(k.id), kind = url ? meetingKind(url) : "";
     return `<li class="class-item" data-id="${k.id}">
-      <div class="ci-head">
-        <div class="ci-title"><h3>${esc(k.name)}</h3><span class="ci-when">${DAYS[k.day_of_week]}s · ${fmtTime(k.start_time)}${classToday ? ` · <strong>today${startsIn(k) ? ", " + startsIn(k) : ""}</strong>` : ""}</span></div>
+      <details class="ci-body" data-open="${k.id}" ${clsOpen(k.id) ? "open" : ""}>
+      <summary class="ci-head ci-sum">
+        <div class="ci-title"><h3>${esc(k.name)}</h3><span class="ci-when">${DAYS[k.day_of_week]}s · ${fmtTime(k.start_time)} · ${act.length} student${act.length === 1 ? "" : "s"}${classToday ? ` · <strong>today${startsIn(k) ? ", " + startsIn(k) : ""}</strong>` : ""}</span></div>
+        <span class="ci-chev" aria-hidden="true"></span></summary>
+      <div class="ci-dash">
         <div class="ci-stats">
           <div class="ci-stat">${ICO.people}<b>${act.length}</b><span>student${act.length === 1 ? "" : "s"}${waiting ? ` · ${waiting} waiting` : ""}</span></div>
           <div class="ci-stat">${ICO.check}<b>${doneToday}<small>/${act.length}</small></b><span>practised today</span></div>
@@ -1510,7 +1507,6 @@ async function tClasses(pane, g, D, again){
         </div>
         ${url ? `<div class="row ci-go"><a class="btn small zoom" href="${esc(url)}" target="_blank" rel="noopener">${ICO.video}<span>Start online class</span></a></div>` : ""}
       </div>
-      <details class="ci-body" data-open="${k.id}" ${clsOpen(k.id) ? "open" : ""}><summary class="ci-toggle"><span class="ci-open-t">Open class</span><span class="ci-close-t">Close class</span><span class="hint">Practice · posts · who practised · online class</span></summary>
       <div class="sub"><strong>This week's practice</strong>
         <form data-f="task">
           <label for="pt-title-${k.id}">What to practise<input id="pt-title-${k.id}" required maxlength="200" value="${esc(cur?.title || "")}" placeholder="${esc(last?.title || "e.g. Tatta adavu 1 to 4, slow then medium speed")}"></label>
