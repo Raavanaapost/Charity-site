@@ -1496,8 +1496,8 @@ async function tClasses(pane, g, D, again){
     return `<li class="class-item" data-id="${k.id}">
       <details class="ci-body" data-open="${k.id}" ${clsOpen(k.id) ? "open" : ""}>
       <summary class="ci-head ci-sum">
-        <div class="ci-title"><h3>${esc(k.name)}</h3><span class="ci-when">${DAYS[k.day_of_week]}s · ${fmtTime(k.start_time)} · ${act.length} student${act.length === 1 ? "" : "s"}${classToday ? ` · <strong>today${startsIn(k) ? ", " + startsIn(k) : ""}</strong>` : ""}</span></div>
-        <span class="ci-chev" aria-hidden="true"></span></summary>
+        <span class="ci-chev" aria-hidden="true"></span><span class="ci-ico" aria-hidden="true">${artIcon(g.art_type)}</span>
+        <div class="ci-title"><h3>${esc(k.name)}</h3><span class="ci-when">${DAYS[k.day_of_week]}s · ${fmtTime(k.start_time)} · ${act.length} student${act.length === 1 ? "" : "s"}${classToday ? ` · <strong>today${startsIn(k) ? ", " + startsIn(k) : ""}</strong>` : ""}</span></div></summary>
       <div class="ci-dash">
         <div class="ci-stats">
           <div class="ci-stat">${ICO.people}<b>${act.length}</b><span>student${act.length === 1 ? "" : "s"}${waiting ? ` · ${waiting} waiting` : ""}</span></div>
@@ -1655,6 +1655,7 @@ function tPage(pane, g, again){
   };
 }
 
+const artIcon = t => ({ dance: IC.dance, karlakattai: IC.clubs, yoga: IC.yoga, art: IC.palette, other: IC.more })[t] || IC.music;
 /* City search for the group form: suggestions from OpenStreetMap (Photon). If the search can't be reached, typing still works. */
 let locT = null, locSeq = 0;
 const locLabel = f => { const p = f.properties || {}; return [p.name, p.state && p.state !== p.name ? p.state : "", p.country].filter(Boolean).join(", "); };
