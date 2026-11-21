@@ -676,3 +676,16 @@ table.fam .pill,table.fam td.num{white-space:nowrap}
 .sub.node[open] > summary{color:var(--maroon)}
 .nd-body{display:flex;flex-direction:column;gap:10px;padding:4px 8px 14px 23px}
 .sub.node > .row{padding:0 8px 12px 23px}
+
+/* Overview: three expandable groups */
+.ov-card{gap:6px}
+.ov-node{border:0;border-top:1px solid var(--line);padding:0;margin:0}
+.ov-node > summary{padding:12px 6px;font-size:1.05rem}
+.ov-node > summary > svg{width:20px;height:20px}
+.ov-n{flex:none;min-width:28px;text-align:center;padding:2px 9px;border-radius:999px;background:#efe5d4;color:var(--muted);font-weight:800;font-size:.9rem}
+.ov-missed .ov-n.has{background:var(--accent-soft);color:#7a520c}
+.ov-remind .ov-n.has{background:var(--warn-soft);color:var(--warn)}
+.ov-wait .ov-n.has{background:#f6e0dc;color:var(--maroon)}
+.ov-node .nd-body{padding:0 4px 12px 8px}
+.ov-node .ps-list{border-top:0}
+.ps-wait .ps-state{background:#f3ece0;color:var(--ink)}

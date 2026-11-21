@@ -1191,65 +1191,52 @@ function tOverview(pane, g, D, again){
     else if (s.status === "invited" && old(s.join_sent_at)) todo.push({ s, which: "join", text: `${s.first_name} hasn't registered yet`, label: "Send again" });
     else if (s.status === "declined") todo.push({ text: `${s.first_name}'s parent said no`, btn: link("/teacher/students/" + s.id, "View", "btn small ghost") });
   });
-  const FILTERS = [["all", "All"], ["done", "Practised"], ["notyet", "Not yet"], ["remind", "Need a reminder"]];
   const todays = D.classes.filter(k => k.day_of_week === today0().getDay());
-  pane.innerHTML = `
+  const other = todo.filter(t => !t.s);                                  // messages, set practice, first class or student
+  const pending = D.studs.filter(s => PENDING.includes(s.status));
+  const group = f => act.filter(s => is(s, f)).sort((x, y) => x.first_name.localeCompare(y.first_name));
+  const expect = act.filter(s => st.get(s.id).key !== "class").length, doneN = act.filter(s => is(s, "done")).length;
+  const isOpen = key => store.get("gs.ov.open." + key) === "1";
+  const pRow = s => { const k = D.classOf(s.class_id), x = st.get(s.id);
+    return `<li class="ps-row ps-${x.key}">
+      <a class="ps-who" href="/teacher/students/${s.id}" data-link>${avatar(s.first_name, 40)}<span class="ps-name"><strong>${esc(s.first_name)}</strong><span class="hint">${esc(k.name)}</span></span></a>
+      ${weekDots(s, D)}
+      <span class="ps-state">${x.icon}<span>${esc(x.label)}</span></span>
+      <span class="ps-acts">${remindedToday(s) ? `<span class="hint ps-sent">Reminded today</span>` : ""}
+        <button class="btn tiny ghost" type="button" data-note="${s.id}" aria-label="Send a note to ${esc(s.first_name)}">${ICO.note}<span>Note</span></button>
+        <button class="btn tiny" type="button" data-remind="${s.id}">${ICO.bell}<span>Remind</span></button></span></li>`; };
+  const wRow = s => { const k = D.classOf(s.class_id), nx = nextStep(s);
+    return `<li class="ps-row ps-wait">
+      <a class="ps-who" href="/teacher/students/${s.id}" data-link>${avatar(s.first_name, 40)}<span class="ps-name"><strong>${esc(s.first_name)}</strong><span class="hint">${esc(k.name)}</span></span></a>
+      <span></span><span class="ps-state">${ICO.door}<span>${s.consent_sent_at || s.join_sent_at ? "Link sent" : "Not sent yet"}</span></span>
+      <span class="ps-acts">${nx && g.approved ? `<button class="btn tiny" type="button" data-inv="${s.id}">${s.consent_sent_at || s.join_sent_at ? "Send again" : "Send link"}</button>` : g.approved ? "" : `<span class="hint">After approval</span>`}
+        <button class="btn tiny ghost icon-only" type="button" data-mg="${s.id}" aria-label="Manage ${esc(s.first_name)}" title="Withdraw or delete">⋯</button></span></li>`; };
+  const node = (key, icon, title, list, row, empty, bulk) => `<details class="sub node ov-node ov-${key}" data-ov="${key}" ${isOpen(key) ? "open" : ""}>
+      <summary><span class="nd-chev" aria-hidden="true"></span>${icon}<span class="nd-t">${title}</span><span class="ov-n${list.length ? " has" : ""}">${list.length}</span></summary>
+      <div class="nd-body">${list.length ? `${bulk || ""}<ul class="ps-list">${list.map(row).join("")}</ul>` : `<p class="muted m0">${empty}</p>`}</div></details>`;
+  const draw = () => {
+    const missed = group("notyet"), remind = group("remind");
+    pane.innerHTML = `
     ${todays.length ? `<section class="card today-cls"><h2 class="with-ico">${ICO.calendar}Today's class${todays.length > 1 ? "es" : ""}</h2>
       <ul class="tc-list">${todays.map(k => { const u = D.linkOf(k.id), n = D.studs.filter(s => s.class_id === k.id && s.status === "active").length;
         return `<li><div class="tc-main"><strong>${esc(k.name)}</strong><span class="hint">${fmtTime(k.start_time)} · ${k.duration_min} min · ${n} student${n === 1 ? "" : "s"}${startsIn(k) ? " · " + startsIn(k) : ""}</span></div>
           ${u ? `<a class="btn small zoom" href="${esc(u)}" target="_blank" rel="noopener">${ICO.video}<span>Start ${esc(meetingKind(u))} class</span></a>` : link("/teacher/classes", "Add online link", "btn small ghost")}</li>`; }).join("")}</ul></section>` : ""}
-    <div class="tiles dash-tiles">
-      <button type="button" class="tile t-done" data-f="done">${ICO.check}<b id="n-done"></b><span>Practised today</span></button>
-      <button type="button" class="tile t-notyet" data-f="notyet">${ICO.clock}<b id="n-notyet"></b><span>Not yet today</span></button>
-      <button type="button" class="tile t-remind" data-f="remind">${ICO.bell}<b id="n-remind"></b><span>Need a reminder</span></button>
-      <a class="tile t-wait" href="/teacher/students" data-link>${ICO.door}<b>${waiting}</b><span>Waiting to join</span></a>
-    </div>
-    <section class="card ps-card">
-      <div class="row between ps-top"><div><h2>Today's practice</h2><p class="hint m0">${act.length ? "Tap a name for the full report." : ""}</p></div>
-        ${D.classes.length > 1 ? `<label class="sr" for="ps-class">Show class</label><select id="ps-class" class="grp"><option value="all">All classes</option>${D.classes.map(k => `<option value="${k.id}">${esc(k.name)}</option>`).join("")}</select>` : ""}</div>
-      ${act.length ? `<div class="chips ps-chips" role="group" aria-label="Show">${FILTERS.map(([f, t]) => `<button type="button" class="chip" data-chip="${f}" aria-pressed="${f === filter}">${t} <span class="chip-n" data-cn="${f}"></span></button>`).join("")}</div>
-      <div class="ps-bulk"><button class="btn small" type="button" id="remind-all">${ICO.bell}<span id="remind-all-t"></span></button>
-        <button class="btn small ghost" type="button" id="note-all">${ICO.note}<span>Note to everyone</span></button></div>
-      <ul class="ps-list" id="ps-list"></ul>`
-      : `<div class="empty">${ICO.lotus}<p class="m0">When your students join, you'll see here who practised today and who hasn't.</p>${link("/teacher/students", "Add students", "btn small")}</div>`}
+    <section class="card ov-card"><div class="row between"><h2>Students</h2><span class="hint">${act.length ? `${doneN} of ${expect} practised today` : ""}</span></div>
+      ${D.studs.length ? `
+      ${node("missed", ICO.clock, "Missed practice", missed, pRow, "Everyone has practised today.", `<div class="ps-bulk"><button class="btn small" type="button" data-all="notyet">${ICO.bell}<span>Remind all ${missed.length}</span></button></div>`)}
+      ${node("remind", ICO.bell, "Send a reminder", remind, pRow, "No one has gone 3 days without practice.", `<p class="hint m0">No practice for 3 days or more.</p><div class="ps-bulk"><button class="btn small" type="button" data-all="remind">${ICO.bell}<span>Remind all ${remind.length}</span></button></div>`)}
+      ${node("wait", ICO.door, "Waiting to join", pending, wRow, "No one is waiting.", "")}`
+      : `<div class="empty">${ICO.lotus}<p class="m0">When you add students, you'll see here who missed practice and who is waiting to join.</p>${link("/teacher/students", "Add students", "btn small")}</div>`}
     </section>
-    <section class="card"><h2>To do</h2>
-      ${todo.length ? `<ul class="todo">${todo.map((t, i) => `<li class="${t.hot ? "hot" : ""}"><span>${esc(t.text)}</span>${t.btn || (g.approved ? `<button class="btn small" type="button" data-i="${i}">${t.label}</button>` : `<span class="hint">After approval</span>`)}</li>`).join("")}</ul>`
-        : `<div class="empty">All caught up. Nice work!</div>`}
-    </section>`;
-  pane.querySelectorAll("[data-i]").forEach(b => b.onclick = () => { const t = todo[+b.dataset.i]; openInvite(t.s, t.which, g, D.classOf(t.s.class_id), again); });
-  if (!act.length) { ["done", "notyet", "remind"].forEach(f => document.getElementById("n-" + f).textContent = "0"); return; }
-  const list = document.getElementById("ps-list");
-  const notYet = () => act.filter(s => inClass(s) && is(s, "notyet"));
-  const draw = () => {
-    ["done", "notyet", "remind"].forEach(f => { const n = count(f), exp = act.filter(s => inClass(s) && st.get(s.id).key !== "class").length;
-      document.getElementById("n-" + f).innerHTML = f === "done" ? `${n}<small> of ${exp}</small>` : String(n); });
-    pane.querySelectorAll("[data-cn]").forEach(e => e.textContent = count(e.dataset.cn));
-    pane.querySelectorAll("[data-chip]").forEach(c => c.setAttribute("aria-pressed", String(c.dataset.chip === filter)));
-    const ny = notYet().length, ra = document.getElementById("remind-all");
-    ra.disabled = !ny; document.getElementById("remind-all-t").textContent = ny ? `Remind all not yet (${ny})` : "Everyone has practised";
-    const rows = act.filter(s => inClass(s) && is(s, filter));
-    const order = { remind: 0, notyet: 1, class: 2, done: 3 };
-    rows.sort((a, b) => order[st.get(a.id).key] - order[st.get(b.id).key] || a.first_name.localeCompare(b.first_name));
-    list.innerHTML = rows.length ? rows.map(s => { const k = D.classOf(s.class_id), x = st.get(s.id), w = D.weekOf(s.id, k), canRemind = x.key === "notyet" || x.key === "remind";
-      return `<li class="ps-row ps-${x.key}">
-        <a class="ps-who" href="/teacher/students/${s.id}" data-link>${avatar(s.first_name, 40)}<span class="ps-name"><strong>${esc(s.first_name)}</strong>
-          <span class="hint">${esc(k.name)}<span class="ps-wk"> · ${w.n} of 6 days</span></span></span></a>
-        ${weekDots(s, D)}
-        <span class="ps-state">${x.icon}<span>${esc(x.label)}</span></span>
-        <span class="ps-acts">${canRemind && remindedToday(s) ? `<span class="hint ps-sent">Reminded today</span>` : ""}
-          <button class="btn tiny ghost" type="button" data-note="${s.id}" aria-label="Send a note to ${esc(s.first_name)}">${ICO.note}<span>Note</span></button>
-          ${canRemind ? `<button class="btn tiny" type="button" data-remind="${s.id}">${ICO.bell}<span>Remind</span></button>` : ""}</span>
-      </li>`; }).join("")
-      : `<li class="ps-none">${filter === "done" ? "No one has practised yet today." : filter === "remind" ? "No one needs a reminder. Lovely!" : "Everyone here has practised today."}</li>`;
-    list.querySelectorAll("[data-note]").forEach(b => b.onclick = () => openMessage([act.find(s => s.id === b.dataset.note)], "note", g, D, draw));
-    list.querySelectorAll("[data-remind]").forEach(b => b.onclick = () => openMessage([act.find(s => s.id === b.dataset.remind)], "remind", g, D, draw));
+    ${other.length ? `<section class="card"><h2>To do</h2><ul class="todo">${other.map(t => `<li class="${t.hot ? "hot" : ""}"><span>${esc(t.text)}</span>${t.btn}</li>`).join("")}</ul></section>` : ""}`;
+    pane.querySelectorAll("details[data-ov]").forEach(d => d.addEventListener("toggle", () => store.set("gs.ov.open." + d.dataset.ov, d.open ? "1" : "0")));
+    const find = id => D.studs.find(s => s.id === id);
+    pane.querySelectorAll("[data-note]").forEach(b => b.onclick = () => openMessage([find(b.dataset.note)], "note", g, D, draw));
+    pane.querySelectorAll("[data-remind]").forEach(b => b.onclick = () => openMessage([find(b.dataset.remind)], "remind", g, D, draw));
+    pane.querySelectorAll("[data-all]").forEach(b => b.onclick = () => { const l = group(b.dataset.all); if (l.length) openMessage(l, "remind", g, D, draw); });
+    pane.querySelectorAll("[data-inv]").forEach(b => b.onclick = () => { const s = find(b.dataset.inv); openInvite(s, nextStep(s).which, g, D.classOf(s.class_id), again); });
+    pane.querySelectorAll("[data-mg]").forEach(b => b.onclick = () => openManage(find(b.dataset.mg), g, D, again));
   };
-  pane.querySelectorAll("[data-chip]").forEach(c => c.onclick = () => { filter = c.dataset.chip; draw(); });
-  pane.querySelectorAll(".tile[data-f]").forEach(t => t.onclick = () => { filter = t.dataset.f; draw(); list.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" }); });
-  const pc = document.getElementById("ps-class"); if (pc) pc.onchange = () => { classFilter = pc.value; draw(); };
-  document.getElementById("remind-all").onclick = () => { const l = notYet(); if (l.length) openMessage(l, "remind", g, D, draw); };
-  document.getElementById("note-all").onclick = () => openMessage(act.filter(inClass), "note", g, D, draw);
   draw();
 }
 
