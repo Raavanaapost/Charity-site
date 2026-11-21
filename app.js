@@ -378,6 +378,7 @@ async function viewGroup(slug){
 }
 
 /* ======================= SIGN IN (Google, Facebook, email) ======================= */
+const ADD_ICON = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-3.9 3.1-7 7-7s7 3.1 7 7M19 8v6M16 11h6"/></svg>`;
 const FB_ICON = `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#fff"/><path fill="#1877F2" d="M13.4 24v-8.4h2.8l.4-3.3h-3.2v-2.1c0-.9.3-1.6 1.6-1.6h1.7V5.7c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.4H7.2v3.3H10V24z"/></svg>`;
 let gisPromise = null;
 function loadGis(){
@@ -390,7 +391,8 @@ function loadGis(){
 }
 async function sha256hex(t){ const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
 
-function signInBlock(next, startMode = "password", extra = null){
+function signInBlock(nextArg, startMode = "password", extra = null){
+  const nx = () => typeof nextArg === "function" ? nextArg() : nextArg;
   const gHtml = C.googleClientId ? `<div class="g-wrap"><div id="si-google" class="g-btn"></div></div>` : "";
   const fbHtml = C.facebookLogin ? `<button type="button" class="btn fb" id="si-fb">${FB_ICON}<span>Continue with Facebook</span></button>` : "";
   const social = !!(gHtml || fbHtml);
@@ -413,12 +415,13 @@ function signInBlock(next, startMode = "password", extra = null){
     go_.textContent = { password: "Sign in", link: "Email me a sign-in link", signup: "Create account", forgot: "Email me a reset link" }[m];
     const a = (id, t) => `<button type="button" class="link-btn" data-m="${id}">${t}</button>`;
     document.getElementById("si-alt").innerHTML = {
-      password: `${a("forgot", "Forgot password?")}${a("link", "Email me a sign-in link instead")}${a("signup", "New here? Create an account")}`,
-      link: `${a("password", "Sign in with a password instead")}`,
-      signup: `${a("password", "Already have an account? Sign in")}`,
+      password: `${a("forgot", "Forgot password?")}<button type="button" class="btn ghost si-create" data-m="signup">${ADD_ICON}<span>Create an account</span></button>`,
+      link: `${a("password", "Back to sign in")}`,
+      signup: `${a("password", "Back to sign in")}`,
       forgot: `${a("password", "Back to sign in")}`
     }[m];
     document.querySelectorAll("#si-alt [data-m]").forEach(b => b.onclick = () => { document.getElementById("si-out").innerHTML = ""; setMode(b.dataset.m); });
+    const box = document.querySelector(".signin"); if (box) { box.classList.remove("swap"); void box.offsetWidth; box.classList.add("swap"); }
   }
   async function wire(){
     const out = document.getElementById("si-out"), fail = m => out.innerHTML = `<div class="notice">${esc(m)}</div>`, ok = m => out.innerHTML = `<div class="notice ok">${esc(m)}</div>`;
@@ -431,9 +434,9 @@ function signInBlock(next, startMode = "password", extra = null){
       const b = document.getElementById("si-go"); b.disabled = true;
       let r;
       if (mode === "password") r = await sb.auth.signInWithPassword({ email, password: pass });
-      else if (mode === "signup") r = await sb.auth.signUp({ email, password: pass, options: { emailRedirectTo: siteUrl(next), data: { has_password: true, ...(extra || {}) } } });
+      else if (mode === "signup") r = await sb.auth.signUp({ email, password: pass, options: { emailRedirectTo: siteUrl(nx()), data: { has_password: true, ...(extra || {}) } } });
       else if (mode === "forgot") r = await sb.auth.resetPasswordForEmail(email, { redirectTo: siteUrl("/account") });
-      else r = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: siteUrl(next), ...(extra ? { data: extra } : {}) } });
+      else r = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: siteUrl(nx()), ...(extra ? { data: extra } : {}) } });
       b.disabled = false;
       if (r.error) return fail(friendly(r.error));
       if (mode === "password") return;                       // signed in: the page moves on by itself
@@ -450,7 +453,7 @@ function signInBlock(next, startMode = "password", extra = null){
       ok("Check your email and tap the link to continue. It may be in your spam folder.");
     };
     const fb = document.getElementById("si-fb");
-    if (fb) fb.onclick = async () => { const { error } = await sb.auth.signInWithOAuth({ provider: "facebook", options: { redirectTo: siteUrl(next) } }); if (error) fail(friendly(error)); };
+    if (fb) fb.onclick = async () => { const { error } = await sb.auth.signInWithOAuth({ provider: "facebook", options: { redirectTo: siteUrl(nx()) } }); if (error) fail(friendly(error)); };
     const gEl = document.getElementById("si-google");
     if (gEl) {
       try {
@@ -462,28 +465,44 @@ function signInBlock(next, startMode = "password", extra = null){
       } catch (e) { gEl.closest(".g-wrap").hidden = true; }
     }
   }
-  return { html, wire };
+  return { html, wire, setMode };
 }
 function viewSignIn(){
   const next = safeNext();
   if (user) return redirect(next);
-  const hasNext = new URLSearchParams(location.search).has("next");
-  const student = /^\/practice/.test(next), teacher = /^\/(teacher|admin)/.test(next);
+  const q = new URLSearchParams(location.search);
   const T_ICO = `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8M7 8h6M7 11h4"/></svg>`;
   const S_ICO = `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.5M22 9v5"/></svg>`;
-  if (!hasNext) {   // plain "Sign in": first choose which one
-    document.title = "Sign in · Gurushishya";
-    $app.innerHTML = `<section class="card narrow si-pick">
-      ${link("/signin?next=/teacher", `<span class="si-ico">${T_ICO}</span><span>Teacher sign in</span>`, "si-choice teacher")}
-      ${link("/signin?next=/practice", `<span class="si-ico">${S_ICO}</span><span>Student sign in</span>`, "si-choice student")}</section>`;
-    return;
+  // Only Teacher and Student have a tab. Other places (Account, a registration link) keep a plain "Sign in".
+  const other = q.has("next") && !/^\/(practice|teacher|admin)/.test(next);
+  let kind = /^\/practice/.test(next) ? "student" : "teacher";
+  const anon = q.has("anon") ? "&anon" : "";
+  const b = signInBlock(() => safeNext());
+  document.title = "Sign in · Gurushishya";
+  if (other) {
+    $app.innerHTML = `<section class="card narrow si-card"><h1 class="page-h si-h">Sign in</h1>${b.html}</section>`;
+    b.wire(); return;
   }
-  const b = signInBlock(next);
-  const kind = student ? "student" : teacher ? "teacher" : "";
-  $app.innerHTML = `<section class="card narrow si-card ${kind}"><h1 class="page-h si-h">${kind ? `<span class="si-ico">${student ? S_ICO : T_ICO}</span>` : ""}${student ? "Student sign in" : teacher ? "Teacher sign in" : "Sign in"}</h1>${b.html}
-    ${kind ? `<p class="hint m0 si-switch">${student ? link("/signin?next=/teacher", "Teacher sign in", "inline-link") : link("/signin?next=/practice", "Student sign in", "inline-link")}</p>` : ""}</section>`;
+  $app.innerHTML = `<section class="card narrow si-card ${kind}" id="si-card">
+    <div class="si-tabs" role="tablist" aria-label="Who is signing in"><span class="si-pill" aria-hidden="true"></span>
+      <button type="button" role="tab" class="si-tab" data-k="teacher">${T_ICO}<span>Teacher</span></button>
+      <button type="button" role="tab" class="si-tab" data-k="student">${S_ICO}<span>Student</span></button></div>
+    <h1 class="page-h si-h" id="si-h"></h1>${b.html}</section>`;
   b.wire();
-  if (student) { const su = document.querySelector('#si-alt [data-m="signup"]'); if (su) su.hidden = true; }
+  const card = document.getElementById("si-card"), h = document.getElementById("si-h");
+  const show = (k, first) => {
+    kind = k;
+    card.classList.toggle("teacher", k === "teacher"); card.classList.toggle("student", k === "student");
+    card.querySelectorAll(".si-tab").forEach(t => t.setAttribute("aria-selected", t.dataset.k === k ? "true" : "false"));
+    h.innerHTML = `<span class="si-ico">${k === "student" ? S_ICO : T_ICO}</span><span>${k === "student" ? "Student sign in" : "Teacher sign in"}</span>`;
+    if (!first) {
+      h.classList.remove("swap"); void h.offsetWidth; h.classList.add("swap");
+      history.replaceState(null, "", "/signin?next=" + (k === "student" ? "/practice" : next.startsWith("/admin") ? next : "/teacher") + anon);
+      document.getElementById("si-out").innerHTML = ""; b.setMode("password");
+    }
+  };
+  card.querySelectorAll(".si-tab").forEach(t => t.onclick = () => { if (t.dataset.k !== kind) show(t.dataset.k); });
+  show(kind, true);
 }
 /* Account: set or change the password (also where "Forgot password?" links land) */
 function viewAccount(){
