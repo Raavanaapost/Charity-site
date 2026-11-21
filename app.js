@@ -458,6 +458,9 @@ function signInBlock(nextArg, startMode = "password", extra = null){
         if (r.data?.session) return;
         // Supabase answers "ok" for an email that already has an account, but sends nothing. Spot that and say so.
         if (r.data?.user && Array.isArray(r.data.user.identities) && r.data.user.identities.length === 0) {
+          // They already have an account (for example a parent adding a second child): if the password is right, just sign them in.
+          const again = await sb.auth.signInWithPassword({ email, password: pass });
+          if (!again.error) return;
           setMode("password"); document.getElementById("si-pass").value = "";
           return fail("You already have a Gurushishya account with this email. Sign in with your password below. No password yet, or forgotten it? Tap \"Forgot password?\".");
         }
