@@ -2,3 +2,4 @@ day,visits,pages,led_to_something,give_requests,memory_pages,project_requests,vo
 2026-11-16,10,35,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,1,test-claude,CA,/overview
 2026-11-17,13,15,0,0,0,0,0,0,2,13,0,0,0,0,0,0,0,0,0,,LK,/overview
 2026-11-19,3,3,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,,US,/overview
+2026-11-20,11,73,2,0,0,1,1,0,0,11,0,0,0,0,0,0,0,0,0,,CA,/members

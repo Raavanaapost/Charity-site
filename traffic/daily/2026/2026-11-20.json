@@ -1,0 +1,179 @@
+{
+  "day": "2026-11-20",
+  "from": "2026-11-20T00:00:00.000Z",
+  "to": "2026-11-21T00:00:00.000Z",
+  "tz": "UTC",
+  "now": {
+    "views": 73,
+    "visits": 11,
+    "shares": 0,
+    "give": 0,
+    "memory": 0,
+    "request": 1,
+    "vouch": 1,
+    "install": 0,
+    "app_visits": 0
+  },
+  "daily": [
+    {
+      "day": "2026-11-20",
+      "views": 73,
+      "visits": 11,
+      "actions": 2,
+      "shares": 0
+    }
+  ],
+  "sources": [
+    {
+      "key": "direct",
+      "visits": 11,
+      "acted": 2,
+      "shares": 0,
+      "pages": 6.6
+    }
+  ],
+  "campaigns": [],
+  "pages": [
+    {
+      "key": "/members",
+      "views": 22,
+      "visits": 4
+    },
+    {
+      "key": "/overview",
+      "views": 11,
+      "visits": 7
+    },
+    {
+      "key": "/initiate",
+      "views": 8,
+      "visits": 4
+    },
+    {
+      "key": "/initiated",
+      "views": 8,
+      "visits": 3
+    },
+    {
+      "key": "/spark",
+      "views": 6,
+      "visits": 3
+    },
+    {
+      "key": "/e/(vouching link)",
+      "views": 6,
+      "visits": 3
+    },
+    {
+      "key": "/contact",
+      "views": 3,
+      "visits": 3
+    },
+    {
+      "key": "/about",
+      "views": 2,
+      "visits": 1
+    },
+    {
+      "key": "/volunteers",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/impact",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/moment",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/projects",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/projects/bowling-day",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/projects/pussellawa-kandy-trip",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/smile-map",
+      "views": 1,
+      "visits": 1
+    }
+  ],
+  "countries": [
+    {
+      "key": "CA",
+      "visits": 7
+    },
+    {
+      "key": "LK",
+      "visits": 3
+    },
+    {
+      "key": "US",
+      "visits": 1
+    }
+  ],
+  "devices": [
+    {
+      "key": "computer",
+      "visits": 8
+    },
+    {
+      "key": "phone",
+      "visits": 3
+    }
+  ],
+  "hours": [
+    {
+      "key": 4,
+      "views": 1
+    },
+    {
+      "key": 6,
+      "views": 8
+    },
+    {
+      "key": 10,
+      "views": 1
+    },
+    {
+      "key": 12,
+      "views": 50
+    },
+    {
+      "key": 13,
+      "views": 10
+    },
+    {
+      "key": 15,
+      "views": 1
+    },
+    {
+      "key": 19,
+      "views": 1
+    },
+    {
+      "key": 20,
+      "views": 1
+    }
+  ],
+  "weekdays": [
+    {
+      "key": 5,
+      "views": 73
+    }
+  ],
+  "shares": [],
+  "refs": []
+}
