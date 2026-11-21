@@ -100,6 +100,10 @@ async function loadRoles(){
 async function init(){
   if (!C.supabaseUrl || !C.supabaseAnonKey || !window.supabase) return viewSetup();
   // No cross-tab lock: on phones a sign-in link often opens a second tab, and a paused tab could hold the lock and stall this one.
+  // An email link that was already used (or is too old) comes back with an error in the address. Remember it so the sign-in box can explain.
+  try { const h = new URLSearchParams(location.hash.slice(1)), q = new URLSearchParams(location.search);
+    linkError = h.get("error_code") || q.get("error_code") || (h.get("error") || q.get("error") ? "link" : "");
+    if (linkError && location.hash.includes("error")) history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
   sb = window.supabase.createClient(C.supabaseUrl, C.supabaseAnonKey, { auth: { lock: async (_name, _wait, fn) => await fn() } });
   const { data } = await sb.auth.getSession();
   user = data.session?.user || null;
@@ -391,6 +395,7 @@ function loadGis(){
 }
 async function sha256hex(t){ const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
 
+let linkError = "";
 function signInBlock(nextArg, startMode = "password", extra = null){
   const nx = () => typeof nextArg === "function" ? nextArg() : nextArg;
   const gHtml = C.googleClientId ? `<div class="g-wrap"><div id="si-google" class="g-btn"></div></div>` : "";
@@ -430,6 +435,8 @@ function signInBlock(nextArg, startMode = "password", extra = null){
   async function wire(){
     const out = document.getElementById("si-out"), fail = m => out.innerHTML = `<div class="notice">${esc(m)}</div>`, ok = m => out.innerHTML = `<div class="notice ok">${esc(m)}</div>`;
     setMode(mode);
+    if (linkError) { linkError = ""; setMode("password");
+      out.innerHTML = `<div class="notice"><strong>That email link has already been used, or it is too old.</strong> Each link works only once. If you already confirmed your email, just sign in here with your email and password.</div>`; }
     document.getElementById("si").onsubmit = async e => {
       e.preventDefault();
       const email = val("si-email"), pass = document.getElementById("si-pass").value;
