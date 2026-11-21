@@ -693,3 +693,15 @@ table.fam td{overflow-wrap:anywhere}
 .ad-list{list-style:none;margin:0;padding:0}
 .ad-list li{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
 .ad-list li:last-child{border-bottom:0}
+
+/* sign-in: teacher and student look different */
+.si-h{display:flex;align-items:center;gap:12px}
+.si-ico{display:inline-grid;place-items:center;width:46px;height:46px;border-radius:50%;flex:none}
+.si-card.teacher{border-top:5px solid var(--maroon)}
+.si-card.student{border-top:5px solid var(--gold)}
+.si-card.teacher .si-ico,.si-choice.teacher .si-ico{background:var(--maroon);color:#fff5df}
+.si-card.student .si-ico,.si-choice.student .si-ico{background:var(--gold);color:#3a1a05}
+.si-switch{text-align:center}
+.si-pick{display:grid;gap:14px}
+.si-choice{display:flex;align-items:center;gap:14px;padding:18px;border-radius:16px;text-decoration:none;font-family:"Playfair Display",Georgia,serif;font-weight:700;font-size:1.25rem;color:var(--ink);background:var(--card);border:2px solid var(--maroon)}
+.si-choice.student{border-color:var(--gold)}

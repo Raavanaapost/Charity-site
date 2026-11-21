@@ -461,14 +461,21 @@ function signInBlock(next, startMode = "password"){
 function viewSignIn(){
   const next = safeNext();
   if (user) return redirect(next);
-  const b = signInBlock(next);
+  const hasNext = new URLSearchParams(location.search).has("next");
   const student = /^\/practice/.test(next), teacher = /^\/(teacher|admin)/.test(next);
-  $app.innerHTML = `<section class="card narrow"><span class="eyebrow">Welcome to Gurushishya</span><h1 class="page-h">${student ? "Student sign in" : teacher ? "Teacher sign in" : "Sign in"}</h1>
-    <p class="muted m0">${student
-      ? "Students and parents sign in here with the email and password they chose when registering. Not registered yet? Open the registration link your teacher sent you."
-      : teacher ? "Teachers sign in or create an account here."
-      : "Sign in with your email and password. Teachers can create an account here. Students and parents register with the link their teacher sent."}</p>${b.html}
-    <p class="hint m0">${student ? `Are you a teacher? ${link("/signin?next=/teacher", "Teacher sign in", "inline-link")}` : `Are you a student or parent? ${link("/signin?next=/practice", "Student sign in", "inline-link")}`}</p></section>`;
+  const T_ICO = `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8M7 8h6M7 11h4"/></svg>`;
+  const S_ICO = `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.5M22 9v5"/></svg>`;
+  if (!hasNext) {   // plain "Sign in": first choose which one
+    document.title = "Sign in · Gurushishya";
+    $app.innerHTML = `<section class="card narrow si-pick">
+      ${link("/signin?next=/teacher", `<span class="si-ico">${T_ICO}</span><span>Teacher sign in</span>`, "si-choice teacher")}
+      ${link("/signin?next=/practice", `<span class="si-ico">${S_ICO}</span><span>Student sign in</span>`, "si-choice student")}</section>`;
+    return;
+  }
+  const b = signInBlock(next);
+  const kind = student ? "student" : teacher ? "teacher" : "";
+  $app.innerHTML = `<section class="card narrow si-card ${kind}"><h1 class="page-h si-h">${kind ? `<span class="si-ico">${student ? S_ICO : T_ICO}</span>` : ""}${student ? "Student sign in" : teacher ? "Teacher sign in" : "Sign in"}</h1>${b.html}
+    ${kind ? `<p class="hint m0 si-switch">${student ? link("/signin?next=/teacher", "Teacher sign in", "inline-link") : link("/signin?next=/practice", "Student sign in", "inline-link")}</p>` : ""}</section>`;
   b.wire();
   if (student) { const su = document.querySelector('#si-alt [data-m="signup"]'); if (su) su.hidden = true; }
 }
