@@ -707,9 +707,19 @@ table.fam td{overflow-wrap:anywhere}
 .si-tab:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .si-h{display:flex;align-items:center;gap:12px}
 .si-ico{display:inline-grid;place-items:center;width:46px;height:46px;border-radius:50%;flex:none;background:var(--si);color:var(--si-ink);transition:background-color .45s ease,color .45s ease}
-.si-h.swap>span:last-child{animation:siSlide .45s cubic-bezier(.2,.8,.2,1)}
-.si-h.swap .si-ico{animation:siPop .5s cubic-bezier(.34,1.56,.64,1)}
-.signin.swap #si,.signin.swap .si-alt{animation:siRise .4s cubic-bezier(.2,.8,.2,1)}
+.si-h.swap .si-ico{animation:siFlip .7s cubic-bezier(.34,1.4,.64,1)}
+.signin.swap #si>*,.signin.swap .si-alt{animation:siIn .55s cubic-bezier(.2,.8,.2,1) both}
+.signin.swap #si>*:nth-child(2){animation-delay:.06s}.signin.swap #si>*:nth-child(3){animation-delay:.12s}.signin.swap #si>*:nth-child(4){animation-delay:.18s}.signin.swap .si-alt{animation-delay:.24s}
+.si-card{--dx:-26px;position:relative}.si-card.student{--dx:26px}
+.si-card>*{position:relative;z-index:1}
+.si-wash{position:absolute!important;inset:0;z-index:0!important;pointer-events:none;background:var(--si);opacity:0;clip-path:circle(0 at var(--x,50%) var(--y,0))}
+.si-wash.go{animation:siWash .8s cubic-bezier(.2,.7,.2,1)}
+/* the two titles have their own lettering */
+.si-h .si-t{font-size:clamp(1.9rem,7.2vw,2.5rem);line-height:1.05;letter-spacing:-.01em;background-clip:text;-webkit-background-clip:text}
+.si-w{display:inline-block;white-space:nowrap}.si-l{display:inline-block}
+.si-card.teacher .si-t{font-family:"Playfair Display",Georgia,serif;font-weight:900;color:var(--maroon);text-shadow:0 2px 0 rgba(200,144,39,.28)}
+.si-card.student .si-t{font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-weight:700;font-size:clamp(2.2rem,8.4vw,2.9rem);color:#8a5a06;text-shadow:0 2px 0 rgba(110,15,12,.12)}
+.si-h.swap .si-l{animation:siLetter .6s cubic-bezier(.2,.9,.25,1.2) both;animation-delay:calc(var(--i)*28ms)}
 .si-alt{align-items:center}
 .si-create{flex-basis:100%;display:flex;align-items:center;justify-content:center;gap:10px;min-height:48px;margin-top:6px;border:1.5px dashed var(--maroon);transition:max-height .4s ease,opacity .3s ease,margin .4s ease,transform .2s ease,background-color .2s ease}
 .si-create svg{transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
@@ -717,9 +727,12 @@ table.fam td{overflow-wrap:anywhere}
 .si-create:active{transform:scale(.98)}
 .si-card.student .si-create{display:none}
 @keyframes siSlide{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
-@keyframes siPop{0%{transform:scale(.5) rotate(-25deg)}100%{transform:none}}
+@keyframes siFlip{0%{transform:perspective(300px) rotateY(-180deg) scale(.6)}100%{transform:none}}
+@keyframes siLetter{0%{opacity:0;filter:blur(8px);transform:translateY(.55em) rotate(8deg) scale(.9)}100%{opacity:1;filter:none;transform:none}}
+@keyframes siIn{from{opacity:0;filter:blur(4px);transform:translateX(var(--dx)) scale(.98)}to{opacity:1;filter:none;transform:none}}
+@keyframes siWash{0%{opacity:.22;clip-path:circle(0 at var(--x) var(--y))}60%{opacity:.12}100%{opacity:0;clip-path:circle(150% at var(--x) var(--y))}}
 @keyframes siRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){.si-pill,.si-tab,.si-tab svg,.si-ico,.si-create,.si-create svg{transition:none}.si-h.swap>span:last-child,.si-h.swap .si-ico,.signin.swap #si,.signin.swap .si-alt{animation:none}}
+@media (prefers-reduced-motion:reduce){.si-pill,.si-tab,.si-tab svg,.si-ico,.si-create,.si-create svg{transition:none}.si-h.swap .si-l,.si-h.swap .si-ico,.signin.swap #si>*,.signin.swap .si-alt,.si-wash.go{animation:none}}
 /* teacher / student switch for people who are both */
 .seg{display:inline-flex;border:1.5px solid var(--gold);border-radius:999px;overflow:hidden;background:var(--card)}
 .seg-b{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;font-weight:800;font-size:.92rem;text-decoration:none;color:var(--ink)}

@@ -39,3 +39,7 @@
 - [x] Online classes: each class can hold a Zoom / Meet / Teams link (paste the invitation); Start button for the teacher, Join button for students 10 minutes before
 - [ ] Connect a teacher's Zoom account so Gurushishya creates the meetings itself (needs a Zoom Marketplace app)
 - [ ] Events calendar, fees and receipts
+
+## Look and colours (to decide)
+- New colour blend the owner likes: navy (titles, Teacher), gold (Student, outlines), teal (buttons, links), cream fading to pale blue-grey background, pale blue input boxes. Taken from the Mentor.ai sale page. Previewed on the sign-in page only; not live.
+- If adopted: needs a navy version of the logo, and the front page and Dashboard in the same colours.

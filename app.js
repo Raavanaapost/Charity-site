@@ -401,15 +401,19 @@ function signInBlock(nextArg, startMode = "password", extra = null){
     <form id="si" novalidate>
       <label for="si-email">Email<input id="si-email" type="email" required autocomplete="email" maxlength="120"></label>
       <label for="si-pass" id="si-pass-wrap">Password<input id="si-pass" type="password" autocomplete="current-password" minlength="8" maxlength="72"></label>
+      <label for="si-pass2" id="si-pass2-wrap" hidden>Confirm password<input id="si-pass2" type="password" autocomplete="new-password" minlength="8" maxlength="72"></label>
       <button class="btn" type="submit" id="si-go">Sign in</button>
     </form>
     <div class="si-alt" id="si-alt"></div>
     <div id="si-out" role="status"></div></div>`;
   let mode = startMode;
+  const api = {};
   function setMode(m){
     mode = m;
     const pw = document.getElementById("si-pass"), wrap = document.getElementById("si-pass-wrap"), go_ = document.getElementById("si-go");
     wrap.hidden = m === "link" || m === "forgot";
+    const w2 = document.getElementById("si-pass2-wrap"); w2.hidden = m !== "signup"; document.getElementById("si-pass2").value = "";
+    if (api.onMode) api.onMode(m);
     pw.autocomplete = m === "signup" ? "new-password" : "current-password";
     wrap.firstChild.textContent = m === "signup" ? "Choose a password (8 or more characters)" : "Password";
     go_.textContent = { password: "Sign in", link: "Email me a sign-in link", signup: "Create account", forgot: "Email me a reset link" }[m];
@@ -431,6 +435,7 @@ function signInBlock(nextArg, startMode = "password", extra = null){
       const email = val("si-email"), pass = document.getElementById("si-pass").value;
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return fail("Please check the email address.");
       if ((mode === "password" || mode === "signup") && pass.length < 8) return fail(mode === "signup" ? "Please choose a password with at least 8 characters." : "Please type your password.");
+      if (mode === "signup" && document.getElementById("si-pass2").value !== pass) { document.getElementById("si-pass2").focus(); return fail("The two passwords don't match. Please type them again."); }
       const b = document.getElementById("si-go"); b.disabled = true;
       let r;
       if (mode === "password") r = await sb.auth.signInWithPassword({ email, password: pass });
@@ -465,7 +470,8 @@ function signInBlock(nextArg, startMode = "password", extra = null){
       } catch (e) { gEl.closest(".g-wrap").hidden = true; }
     }
   }
-  return { html, wire, setMode };
+  api.html = html; api.wire = wire; api.setMode = setMode;
+  return api;
 }
 function viewSignIn(){
   const next = safeNext();
@@ -480,28 +486,43 @@ function viewSignIn(){
   const b = signInBlock(() => safeNext());
   document.title = "Sign in · Gurushishya";
   if (other) {
-    $app.innerHTML = `<section class="card narrow si-card"><h1 class="page-h si-h">Sign in</h1>${b.html}</section>`;
+    $app.innerHTML = `<section class="card narrow si-card"><h1 class="page-h si-h" id="si-h">Sign in</h1>${b.html}</section>`;
+    b.onMode = m => { document.getElementById("si-h").textContent = m === "signup" ? "Create an account" : m === "forgot" ? "Reset password" : "Sign in"; };
     b.wire(); return;
   }
-  $app.innerHTML = `<section class="card narrow si-card ${kind}" id="si-card">
+  $app.innerHTML = `<section class="card narrow si-card ${kind}" id="si-card"><span class="si-wash" id="si-wash" aria-hidden="true"></span>
     <div class="si-tabs" role="tablist" aria-label="Who is signing in"><span class="si-pill" aria-hidden="true"></span>
       <button type="button" role="tab" class="si-tab" data-k="teacher">${T_ICO}<span>Teacher</span></button>
       <button type="button" role="tab" class="si-tab" data-k="student">${S_ICO}<span>Student</span></button></div>
     <h1 class="page-h si-h" id="si-h"></h1>${b.html}</section>`;
-  b.wire();
   const card = document.getElementById("si-card"), h = document.getElementById("si-h");
-  const show = (k, first) => {
+  let mode = "password";
+  const title = () => mode === "signup" ? (kind === "student" ? "Create student account" : "Create teacher account")
+    : mode === "forgot" ? "Reset password" : kind === "student" ? "Student sign in" : "Teacher sign in";
+  const letters = t => t.split(" ").map((w, wi, all) => { const off = all.slice(0, wi).join(" ").length;
+    return `<span class="si-w">${[...w].map((c, i) => `<span class="si-l" style="--i:${off + i}">${esc(c)}</span>`).join("")}</span>`; }).join(" ");
+  const paint = animate => {
+    h.innerHTML = `<span class="si-ico">${kind === "student" ? S_ICO : T_ICO}</span><span class="si-t" aria-label="${title()}">${letters(title())}</span>`;
+    if (animate) { h.classList.remove("swap"); void h.offsetWidth; h.classList.add("swap"); }
+  };
+  b.onMode = m => { const changed = m !== mode; mode = m; paint(changed); };
+  b.wire();
+  const wash = document.getElementById("si-wash");
+  const show = (k, first, tab) => {
     kind = k;
     card.classList.toggle("teacher", k === "teacher"); card.classList.toggle("student", k === "student");
     card.querySelectorAll(".si-tab").forEach(t => t.setAttribute("aria-selected", t.dataset.k === k ? "true" : "false"));
-    h.innerHTML = `<span class="si-ico">${k === "student" ? S_ICO : T_ICO}</span><span>${k === "student" ? "Student sign in" : "Teacher sign in"}</span>`;
-    if (!first) {
-      h.classList.remove("swap"); void h.offsetWidth; h.classList.add("swap");
-      history.replaceState(null, "", "/signin?next=" + (k === "student" ? "/practice" : next.startsWith("/admin") ? next : "/teacher") + anon);
-      document.getElementById("si-out").innerHTML = ""; b.setMode("password");
+    if (first) return paint(false);
+    if (tab && wash) {   // colour washes out from the tab that was tapped
+      const r = tab.getBoundingClientRect(), c = card.getBoundingClientRect();
+      wash.style.setProperty("--x", (r.left + r.width / 2 - c.left) + "px"); wash.style.setProperty("--y", (r.top + r.height / 2 - c.top) + "px");
+      wash.classList.remove("go"); void wash.offsetWidth; wash.classList.add("go");
     }
+    history.replaceState(null, "", "/signin?next=" + (k === "student" ? "/practice" : next.startsWith("/admin") ? next : "/teacher") + anon);
+    document.getElementById("si-out").innerHTML = "";
+    mode = "password"; paint(true); b.setMode("password");
   };
-  card.querySelectorAll(".si-tab").forEach(t => t.onclick = () => { if (t.dataset.k !== kind) show(t.dataset.k); });
+  card.querySelectorAll(".si-tab").forEach(t => t.onclick = () => { if (t.dataset.k !== kind) show(t.dataset.k, false, t); });
   show(kind, true);
 }
 /* Account: set or change the password (also where "Forgot password?" links land) */
