@@ -642,3 +642,7 @@ table.fam .pill,table.fam td.num{white-space:nowrap}
 .class-item:has(> .ci-body:not([open])){padding-bottom:0}
 .class-item .ci-body:not([open]) > summary.ci-sum{margin-bottom:0}
 .class-item .ci-body:not([open]){display:block}
+.loc-wrap{position:relative;display:flex;flex-direction:column;gap:4px;min-width:0}
+.loc-list{position:absolute;left:0;right:0;top:74px;z-index:20;list-style:none;margin:0;padding:6px;background:var(--card);border:1.5px solid var(--line-2);border-radius:14px;box-shadow:0 12px 30px rgba(60,12,8,.18)}
+.loc-list button{display:block;width:100%;text-align:left;font:inherit;font-weight:600;color:var(--ink);background:none;border:0;border-radius:10px;padding:10px 12px;cursor:pointer}
+.loc-list button:hover,.loc-list button:focus-visible{background:var(--accent-soft)}

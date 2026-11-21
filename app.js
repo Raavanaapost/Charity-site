@@ -1655,12 +1655,40 @@ function tPage(pane, g, again){
   };
 }
 
+/* City search for the group form: suggestions from OpenStreetMap (Photon). If the search can't be reached, typing still works. */
+let locT = null, locSeq = 0;
+const locLabel = f => { const p = f.properties || {}; return [p.name, p.state && p.state !== p.name ? p.state : "", p.country].filter(Boolean).join(", "); };
+async function locSearch(inp){
+  const list = document.getElementById("gf-loc-list"); if (!list) return;
+  const q = inp.value.trim(), seq = ++locSeq, hide = () => { list.hidden = true; list.innerHTML = ""; inp.setAttribute("aria-expanded", "false"); };
+  if (q.length < 2) return hide();
+  let items = [];
+  try {
+    const lang = ["en", "de", "fr"].includes((navigator.language || "en").slice(0, 2)) ? navigator.language.slice(0, 2) : "en";
+    const r = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=8&lang=${lang}&layer=city&layer=district&layer=locality`);
+    if (!r.ok) throw 0;
+    items = [...new Set(((await r.json()).features || []).map(locLabel).filter(t => t && t.length <= 120))].slice(0, 6);
+  } catch (e) { return hide(); }
+  if (seq !== locSeq || !inp.isConnected) return;
+  if (!items.length) return hide();
+  list.innerHTML = items.map(t => `<li role="option"><button type="button" data-loc="${esc(t)}">${esc(t)}</button></li>`).join("");
+  list.hidden = false; inp.setAttribute("aria-expanded", "true");
+}
+document.addEventListener("input", e => { if (e.target.id === "gf-loc") { clearTimeout(locT); locT = setTimeout(() => locSearch(e.target), 300); } });
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-loc]"), list = document.getElementById("gf-loc-list"); if (!list) return;
+  if (b) { const inp = document.getElementById("gf-loc"); inp.value = b.dataset.loc; inp.focus(); }
+  if (b || !e.target.closest(".loc-wrap")) { locSeq++; list.hidden = true; list.innerHTML = ""; document.getElementById("gf-loc")?.setAttribute("aria-expanded", "false"); }
+});
+
 function groupForm(g = {}){
   return `
     <div class="two"><label for="gf-name">Group name<input id="gf-name" required minlength="2" maxlength="80" value="${esc(g.name)}" placeholder="Priya's Bharatanatyam School"></label>
     <label for="gf-teacher">Teacher name shown on the page<input id="gf-teacher" required maxlength="80" value="${esc(g.teacher_name)}"></label></div>
     <div class="two"><label for="gf-art">Type of class<select id="gf-art">${Object.entries(ARTS).map(([k, a]) => `<option value="${k}" ${g.art_type === k ? "selected" : ""}>${a.label}</option>`).join("")}</select></label>
-    <label for="gf-loc">Area<input id="gf-loc" maxlength="120" value="${esc(g.location)}" placeholder="Scarborough, ON"></label></div>
+    <div class="loc-wrap"><label for="gf-loc">City or town<input id="gf-loc" maxlength="120" value="${esc(g.location)}" placeholder="Start typing, e.g. Chennai" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="gf-loc-list"></label>
+      <ul id="gf-loc-list" class="loc-list" role="listbox" hidden></ul>
+      <span class="hint">Pick your city from the list, anywhere in the world. Shown on your page; no street address.</span></div></div>
     <label class="check" for="gf-online"><input id="gf-online" type="checkbox" ${g.is_online ? "checked" : ""}>Classes are offered online</label>
     <label for="gf-bio">About the group<textarea id="gf-bio" maxlength="1500" placeholder="Your training, style, and who the classes are for.">${esc(g.bio)}</textarea></label>`;
 }
