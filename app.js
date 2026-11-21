@@ -1290,11 +1290,40 @@ async function viewAdmin(){
   if (error) { $app.innerHTML = `<p class="notice">${esc(friendly(error))}</p>`; return; }
   $app.innerHTML = `<section class="dash-head">
       <img class="dash-mark" src="/assets/gs-emblem.png" alt="" width="240" height="134">
-      <div class="dash-title"><span class="eyebrow">Admin</span><h1 class="page-h">Approve teachers</h1>
+      <div class="dash-title"><span class="eyebrow">Admin</span><h1 class="page-h">Gurushishya admin</h1>
         <p class="muted m0">Signed in as ${esc(user.email || "")}</p></div>
       <div class="row dash-tools">${link("/account", user.user_metadata?.has_password ? "Change password" : "Set password", "btn ghost small")}</div></section>
     <div id="pane" class="stack"></div>`;
   tApprove(document.getElementById("pane"), data || [], viewAdmin);
+  // Who has signed up: totals, every account, every student
+  const [accR, stuR] = await Promise.all([sb.rpc("admin_accounts"), sb.rpc("admin_students")]);
+  const pane = document.getElementById("pane"); if (!pane || accR.error || stuR.error) return;
+  const acc = accR.data || [], stu = stuR.data || [], groups = data || [];
+  const day = d => d ? new Date(d).toLocaleDateString(undefined, { day:"numeric", month:"short", year:"numeric" }) : "";
+  const reg = stu.filter(x => x.status === "active"), wait = stu.filter(x => PENDING.includes(x.status));
+  const kind = a => [a.groups ? "Teacher" : "", a.students ? `Parent / student (${a.students})` : ""].filter(Boolean).join(" · ") || "Signed up only";
+  const csv = rows => rows.map(r => r.map(c => `"${String(c == null ? "" : c).replace(/"/g, '""')}"`).join(",")).join("\n");
+  const tiles = document.createElement("div"); tiles.className = "tiles";
+  tiles.innerHTML = `<div class="tile"><b>${acc.length}</b><span>Accounts</span></div>
+      <div class="tile"><b>${acc.filter(a => a.groups).length}</b><span>Teachers</span></div>
+      <div class="tile"><b>${reg.length}</b><span>Students registered</span></div>
+      <div class="tile"><b>${wait.length}</b><span>Students waiting</span></div>`;
+  pane.before(tiles);
+  const sec = document.createElement("section"); sec.className = "card";
+  sec.innerHTML = `<h2>Who has signed up</h2>
+    <details class="sub node ov-node"><summary><span class="nd-chev" aria-hidden="true"></span>${ICO.people}<span class="nd-t">Accounts</span><span class="ov-n has">${acc.length}</span></summary>
+      <div class="nd-body"><div class="row"><button class="btn small ghost" type="button" id="ad-copy-acc">Copy as a list</button></div>
+      <ul class="ad-list">${acc.map(a => `<li><strong>${esc(a.email)}</strong>
+        <span>${kind(a)}${a.groups ? ` · ${groups.filter(x => x.owner_email === a.email).map(x => esc(x.name)).join(", ")}` : ""}${a.confirmed ? "" : ` <span class="pill wait">Email not confirmed</span>`}</span>
+        <span class="hint">Signed up ${day(a.created_at)} · last sign-in ${day(a.last_sign_in_at) || "never"}</span></li>`).join("")}</ul></div></details>
+    <details class="sub node ov-node"><summary><span class="nd-chev" aria-hidden="true"></span>${ICO.check}<span class="nd-t">Students</span><span class="ov-n has">${stu.length}</span></summary>
+      <div class="nd-body"><div class="row"><button class="btn small ghost" type="button" id="ad-copy-stu">Copy as a list</button></div>
+      <ul class="ad-list">${stu.map(x => `<li><strong>${esc(x.first_name)} <span class="pill ${STATUS[x.status]?.cls || "grey"}">${STATUS[x.status]?.label || esc(x.status)}</span></strong>
+        <span>${esc(x.class_name)} · ${esc(x.group_name)} · ${esc(x.teacher_name)}</span>
+        <span class="hint">${x.is_adult ? "Adult" : "Child"}${x.email ? " · " + esc(x.email) : ""} · added ${day(x.created_at)}</span></li>`).join("") || `<li>No students yet.</li>`}</ul></div></details>`;
+  pane.after(sec);
+  document.getElementById("ad-copy-acc").onclick = e => copy(csv([["Email", "Who", "Signed up", "Last sign-in"], ...acc.map(a => [a.email, kind(a), day(a.created_at), day(a.last_sign_in_at)])]), e.currentTarget);
+  document.getElementById("ad-copy-stu").onclick = e => copy(csv([["Student", "Adult or child", "Class", "Group", "Teacher", "Status", "Email", "Added"], ...stu.map(x => [x.first_name, x.is_adult ? "Adult" : "Child", x.class_name, x.group_name, x.teacher_name, STATUS[x.status]?.label || x.status, x.email, day(x.created_at)])]), e.currentTarget);
 }
 
 /* ---- Students ---- */
