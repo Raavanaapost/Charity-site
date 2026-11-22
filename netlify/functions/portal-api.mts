@@ -71,11 +71,11 @@ async function filesFor(db: ReturnType<typeof getDatabase>, ids: number[]) {
 async function endorsementsFor(db: ReturnType<typeof getDatabase>, ids: number[]) {
   const by = new Map<number, unknown[]>();
   if (!ids.length) return by;
-  const rows = await db.sql`SELECT suggestion_id, name, relation, role, phone, created_at FROM endorsements
+  const rows = await db.sql`SELECT suggestion_id, name, relation, role, phone, member_email, created_at FROM endorsements
     WHERE NOT hidden AND suggestion_id = ANY(${ids}::int[]) ORDER BY created_at`;
   for (const e of rows as Record<string, any>[]) {
     const list = by.get(e.suggestion_id) || [];
-    list.push({ name: e.name, relation: e.relation, role: e.role, phone: e.phone, at: e.created_at });
+    list.push({ name: e.name, relation: e.relation, role: e.role, phone: e.phone, email: e.member_email || "", at: e.created_at });
     by.set(e.suggestion_id, list);
   }
   return by;
@@ -168,10 +168,10 @@ export default async (req: Request, context: Context) => {
   // hide anything false or unkind. Phones are here so a volunteer can call and check.
   if (parts[0] === "voices") {
     const list = async () => ((await db.sql`
-      SELECT id, slug, kind, name, relation, role, stars, comment, comment_ok, phone, hidden, checked_by, created_at, updated_at
-      FROM project_voices ORDER BY (kind = 'rating' AND comment <> '' AND NOT comment_ok AND NOT hidden) DESC, updated_at DESC LIMIT 500`) as Record<string, any>[]).map((r) => ({
+      SELECT id, slug, kind, name, relation, role, stars, comment, comment_ok, phone, member_email, hidden, checked_by, created_at, updated_at
+      FROM project_voices ORDER BY updated_at DESC LIMIT 500`) as Record<string, any>[]).map((r) => ({
       id: r.id, slug: r.slug, kind: r.kind, name: r.name, relation: r.relation, role: r.role, stars: r.stars, comment: r.comment, commentOk: r.comment_ok,
-      phone: r.phone, hidden: r.hidden, checkedBy: r.checked_by, at: r.updated_at || r.created_at,
+      phone: r.phone, email: r.member_email, hidden: r.hidden, checkedBy: r.checked_by, at: r.updated_at || r.created_at,
     }));
     if (req.method === "GET") return json({ voices: await list() });
     if (req.method === "PATCH" && parts[1]) {

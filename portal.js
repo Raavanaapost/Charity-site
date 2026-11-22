@@ -70,7 +70,7 @@
   function drawNav(cur) {
     const newCount = D.suggestions.filter(s => s.status === "new").length, openRep = D.reports.filter(r => r.status !== "closed").length;
     const newAsk = ASKS ? ASKS.filter(x => x.status === "new").length : 0;
-    const waitV = VOICES_P ? VOICES_P.filter(v => v.kind === "rating" && v.comment && !v.commentOk && !v.hidden).length : 0;
+    const waitV = 0; // words show at once since 22 Nov 2026 (signed-in accounts); nothing waits to be read
     const so = document.querySelector(".pt-site");
     // Laptop sidebar foot (20 Nov 2026): who is signed in, View the website and Sign out kept together and lined up.
     if (so && LIVE && !document.getElementById("pt-signout")) {
@@ -361,8 +361,8 @@
     if (!e.length && !s.endorseLink) return "";
     return `<section class="pt-card">
       <h2>Vouched for by <span class="pt-count">${e.length}</span></h2>
-      <p class="pt-sub">Anyone who knows about it can vouch. There is no limit. Call one of them if you want to check. Vouches made on the live project page are under Vouches &amp; ratings.</p>
-      <ul class="pt-notes">${e.map(x => `<li><span class="pt-av">${esc(initials(x.name))}</span><div><b>${esc(x.name)}</b> <time>${ago(x.at)}</time><p>${esc(x.role || REL[x.relation] || "")} · <a href="tel:${esc(String(x.phone).replace(/\s/g, ""))}">${esc(x.phone)}</a> <small>(private)</small></p></div></li>`).join("") || `<li class="pt-empty">Nobody yet.</li>`}</ul>
+      <p class="pt-sub">Anyone who knows about it can vouch, signed in with their account. There is no limit. Write to one of them if you want to check. Vouches made on the live project page are under Vouches &amp; ratings.</p>
+      <ul class="pt-notes">${e.map(x => `<li><span class="pt-av">${esc(initials(x.name))}</span><div><b>${esc(x.name)}</b> <time>${ago(x.at)}</time><p>${esc(x.role || REL[x.relation] || "")}${x.phone ? ` · <a href="tel:${esc(String(x.phone).replace(/\s/g, ""))}">${esc(x.phone)}</a> <small>(private)</small>` : x.email ? ` · <a href="mailto:${esc(x.email)}">${esc(x.email)}</a> <small>(private)</small>` : ""}</p></div></li>`).join("") || `<li class="pt-empty">Nobody yet.</li>`}</ul>
       ${s.endorseLink ? `<p class="pt-sub">Share link: <a href="${esc(s.endorseLink)}" target="_blank" rel="noopener">raavanaa.org${esc(s.endorseLink)}</a></p>` : ""}
     </section>`;
   };
@@ -1715,22 +1715,18 @@
   const starLine = n => "★★★★★".slice(0, n) + "☆☆☆☆☆".slice(0, 5 - n);
   function voices() {
     if (!LIVE) return `<header class="pt-head"><div><h1>Vouches &amp; ratings</h1><p class="pt-sub">This screen works on the real portal once you are signed in.</p></div></header>`;
-    const L = VOICES_P || [], wait = L.filter(v => v.kind === "rating" && v.comment && !v.commentOk && !v.hidden);
+    const L = VOICES_P || [];
+    const what = v => v.kind === "vouch" ? "vouched" : v.kind === "comment" ? "commented" : `rated <span style="color:#c9901a">${starLine(v.stars)}</span>`;
     const row = v => `<li class="${v.hidden ? "pt-hid" : ""}"><span class="pt-av">${esc(initials(v.name))}</span><div>
-        <b>${esc(v.name)}</b> <small>${v.kind === "vouch" ? "vouched" : `rated <span style="color:#c9901a">${starLine(v.stars)}</span>`}</small> <time>${ago(v.at)}</time>
-        <p><a href="/projects/${esc(v.slug)}" target="_blank" rel="noopener">${esc(v.slug)}</a> · ${esc(v.role || REL_V[v.relation] || "")}${v.role || v.relation ? " · " : ""}<a href="tel:${esc(String(v.phone).replace(/\s/g, ""))}">${esc(v.phone)}</a> <small>(private)</small></p>
+        <b>${esc(v.name)}</b> <small>${what(v)}</small> <time>${ago(v.at)}</time>
+        <p><a href="/projects/${esc(v.slug)}" target="_blank" rel="noopener">${esc(v.slug)}</a>${v.role || v.relation ? ` · ${esc(v.role || REL_V[v.relation] || "")}` : ""}${v.email ? ` · <a href="mailto:${esc(v.email)}">${esc(v.email)}</a> <small>(private)</small>` : v.phone ? ` · <a href="tel:${esc(String(v.phone).replace(/\s/g, ""))}">${esc(v.phone)}</a> <small>(private)</small>` : ""}</p>
         ${v.comment ? `<p class="pt-desc" style="margin:6px 0">“${esc(v.comment)}”</p>` : ""}
-        <p class="pt-golive-btns">
-          ${v.kind === "rating" && v.comment && !v.hidden ? `<button type="button" class="pt-btn ${v.commentOk ? "ghost" : ""} sm" data-vok="${v.id}" data-on="${v.commentOk ? "no" : "yes"}">${v.commentOk ? "Take words off the page" : "Show words on the page"}</button>` : ""}
-          <button type="button" class="pt-btn ghost sm" data-vhide="${v.id}" data-on="${v.hidden ? "no" : "yes"}">${v.hidden ? "Show again" : "Hide"}</button>
-          ${v.hidden ? `<small>Hidden${v.checkedBy ? ` by ${esc(v.checkedBy)}` : ""}</small>` : v.commentOk && v.checkedBy ? `<small>Read by ${esc(v.checkedBy)}</small>` : ""}
-        </p></div></li>`;
+        <p class="pt-golive-btns"><button type="button" class="pt-btn ghost sm" data-vhide="${v.id}" data-on="${v.hidden ? "no" : "yes"}">${v.hidden ? "Show again" : "Hide"}</button>
+          ${v.hidden ? `<small>Hidden${v.checkedBy ? ` by ${esc(v.checkedBy)}` : ""}</small>` : ""}</p></div></li>`;
     return `<header class="pt-head"><div><h1>Vouches &amp; ratings</h1>
-      <p class="pt-sub">From project pages. Anyone can vouch. Once the day has happened (Impact), the people involved can give 1 to 5 stars. Stars count at once; written words show only after you press Show words on the page. Check there is no child's name or phone number in them.</p></div></header>
-      <section class="pt-card"><h2>Words waiting to be read <span class="pt-count">${wait.length}</span></h2>
-        <ul class="pt-notes">${wait.map(row).join("") || `<li class="pt-empty">Nothing waiting.</li>`}</ul></section>
+      <p class="pt-sub">From project pages, newest first. People sign in to vouch, comment, or (after the day) give 1 to 5 stars; no phone is asked. Everything shows at once. Press Hide on anything false or unkind, or that names a child.</p></div></header>
       <section class="pt-card"><h2>Everything <span class="pt-count">${L.length}</span></h2>
-        <ul class="pt-notes">${L.filter(v => !wait.includes(v)).map(row).join("") || `<li class="pt-empty">No vouches or ratings yet.</li>`}</ul></section>`;
+        <ul class="pt-notes">${L.map(row).join("") || `<li class="pt-empty">No vouches, ratings or comments yet.</li>`}</ul></section>`;
   }
   function wireVoices() {
     const send = async (b, body) => {

@@ -2712,6 +2712,9 @@ window.RAAV_FEATURES = (function () {
   const starsHTML = (v, cls = "") => `<span class="stars ${cls}" aria-label="${v} out of 5 stars">${[1, 2, 3, 4, 5].map(n => `<i class="${v >= n - 0.25 ? "on" : v >= n - 0.75 ? "half" : ""}">${STAR}</i>`).join("")}</span>`;
   function voicesHTML(p) {
     const seed = (Array.isArray(p.vouched) ? p.vouched : []).filter(v => v && v.name);
+    const impact = stageNum(p) === 3;
+    // Signed in = the account is who they are (SURESH, 22 Nov 2026: no phone or other personal details).
+    const signin = what => `<a class="btn v-signin" data-v-signin href="/members?next=${encodeURIComponent(location.pathname + "#voices-h")}">Sign in to ${what}</a>`;
     return `<section class="panel voices" aria-labelledby="voices-h" data-voices>
       <h2 id="voices-h">Vouched for by <b class="v-count" data-v-count>${seed.length || ""}</b></h2>
       <ul class="v-list" data-v-list>${seed.map(v => `<li><b>${esc(v.name)}</b>${v.role ? `<span>${esc(v.role)}</span>` : ""}</li>`).join("") || `<li class="v-none">Nobody yet. Do you know this project? Be the first.</li>`}</ul>
@@ -2725,16 +2728,13 @@ window.RAAV_FEATURES = (function () {
         </fieldset>
         <label>In a few words <small>Shown, for example "Teacher at the school" or "Friend of the organiser"</small><input name="how" maxlength="120"></label>
         <label>Your name <small>Shown on the page</small><input name="name" maxlength="80" autocomplete="name" required></label>
-        <label>Your mobile number <small>Never shown. Raavanaa may call to check.</small><input name="phone" type="tel" maxlength="40" autocomplete="tel" required></label>
-        <label class="v-agree"><input type="checkbox" name="agree"> I know about this project and believe it is real.</label>
-        <button class="btn" type="submit">Vouch</button>
+        <button class="btn" type="submit">Vouch</button>${signin("vouch")}
         <p class="v-err" data-v-err hidden></p>
       </form>
-      ${stageNum(p) !== 3 ? `<p class="v-note v-later">Once the day has happened, the people involved can rate it with stars.</p>` : `<div class="v-rate">
+      ${impact ? `<div class="v-rate">
         <h2>How did the day go?</h2>
         <p class="v-avg" data-v-avg><span class="v-none">No ratings yet.</span></p>
-        <ul class="v-comments" data-v-comments></ul>
-        <button type="button" class="btn ghost v-open" data-v-open="rating">Rate this project</button>
+        <button type="button" class="btn ghost v-open" data-v-open="rating">Rate the day</button>
         <form class="v-form" data-v-form="rating" hidden novalidate>
           <p hidden><label>Leave empty <input name="bot-field"></label></p>
           <fieldset class="v-pick"><legend>Your stars</legend>
@@ -2742,17 +2742,35 @@ window.RAAV_FEATURES = (function () {
           </fieldset>
           <label>How were you involved?<select name="involved" required><option value="">Choose one</option><option value="day">I was there on the day</option><option value="parent">Parent or teacher</option><option value="organised">I helped organise it</option><option value="gave">I gave to it</option><option value="community">From the community there</option></select></label>
           <label>A few words <small>Optional. How did the day go? Please don't name any child.</small><textarea name="comment" maxlength="1000" rows="3"></textarea></label>
-          <label>Your name <small>Shown with your words</small><input name="name" maxlength="80" autocomplete="name" required></label>
-          <label>Your mobile number <small>Never shown. One rating per phone.</small><input name="phone" type="tel" maxlength="40" autocomplete="tel" required></label>
-          <label class="v-agree"><input type="checkbox" name="agree"> My rating is honest and fair.</label>
-          <button class="btn" type="submit">Send my rating</button>
+          <label>Your name <small>Shown with your stars</small><input name="name" maxlength="80" autocomplete="name" required></label>
+          <button class="btn" type="submit">Send my rating</button>${signin("rate")}
           <p class="v-err" data-v-err hidden></p>
         </form>
-        <p class="v-note">For the people involved. Stars count straight away. Your words show once the Raavanaa team has read them.</p>
-      </div>`}
+      </div>` : `<p class="v-note v-later">Once the day has happened, the people involved can rate it with stars.</p>`}
+      <div class="v-talk">
+        <h2>Comments <b class="v-count" data-c-count></b></h2>
+        <ul class="v-comments" data-v-comments><li class="v-none">No comments yet.</li></ul>
+        <form class="v-form v-say" data-v-form="comment" novalidate>
+          <p hidden><label>Leave empty <input name="bot-field"></label></p>
+          <input type="hidden" name="name">
+          <label class="sr" for="v-say-${esc(slugOf(p))}">Write a comment</label>
+          <textarea id="v-say-${esc(slugOf(p))}" name="comment" maxlength="1000" rows="2" placeholder="Write a comment… (please don't name any child)"></textarea>
+          <button class="btn" type="submit">Post</button>${signin("comment")}
+          <p class="v-err" data-v-err hidden></p>
+        </form>
+      </div>
     </section>`;
   }
   const VOICES = {};
+  // Who is signed in on this browser (Netlify Identity keeps it in localStorage).
+  function account() {
+    try {
+      const u = JSON.parse(localStorage.getItem("gotrue.user") || "null");
+      if (!u || !u.email) return null;
+      const m = u.user_metadata || {};
+      return { email: u.email, name: m.full_name || m.name || u.email.split("@")[0] };
+    } catch (e) { return null; }
+  }
   function fillVoices(root, d) {
     const box = root.querySelector("[data-voices]"); if (!box || !d) return;
     const seen = new Set(), list = [];
@@ -2761,49 +2779,54 @@ window.RAAV_FEATURES = (function () {
       box.querySelector("[data-v-list]").innerHTML = list.map(v => `<li><b>${esc(v.name)}</b>${v.role ? `<span>${esc(v.role)}</span>` : ""}</li>`).join("");
       box.querySelector("[data-v-count]").textContent = list.length;
     }
-    const r = d.rating || {};
-    if (!box.querySelector("[data-v-avg]")) return; // ratings only on Impact projects
-    box.querySelector("[data-v-avg]").innerHTML = r.count
+    const cm = d.comments || [];
+    box.querySelector("[data-c-count]").textContent = cm.length || "";
+    box.querySelector("[data-v-comments]").innerHTML = cm.length ? cm.slice(0, 50).map(c => `<li>${c.stars ? starsHTML(c.stars, "sm") : ""}<p>${esc(c.comment)}</p><small>${esc(c.name)}${c.involved ? `, ${esc(c.involved)}` : ""} · ${fmtDate(c.at)}</small></li>`).join("") : `<li class="v-none">No comments yet. Be the first.</li>`;
+    const r = d.rating || {}, avg = box.querySelector("[data-v-avg]");
+    if (avg) avg.innerHTML = r.count
       ? `${starsHTML(r.average)} <b>${r.average.toFixed(1)}</b> <span>from ${r.count} rating${r.count > 1 ? "s" : ""}</span>`
       : `<span class="v-none">No ratings yet. Be the first.</span>`;
-    box.querySelector("[data-v-comments]").innerHTML = (d.comments || []).slice(0, 20).map(c => `<li>${starsHTML(c.stars, "sm")}<p>${esc(c.comment)}</p><small>${esc(c.name)}${c.involved ? `, ${esc(c.involved)}` : ""} · ${fmtDate(c.at)}</small></li>`).join("");
     const chip = root.querySelector("[data-rate-chip]");
     if (chip && r.count) { chip.hidden = false; chip.innerHTML = `${starsHTML(r.average, "sm")} ${r.average.toFixed(1)} <span>(${r.count})</span>`; }
   }
   async function wireVoices(root, p) {
     const box = root.querySelector("[data-voices]"); if (!box) return;
-    const slug = slugOf(p), api = `/api/voices/${encodeURIComponent(slug)}`;
+    const slug = slugOf(p), api = `/api/voices/${encodeURIComponent(slug)}`, me = account();
+    box.classList.toggle("signed-in", !!me);
+    box.querySelectorAll("input[name=name]").forEach(i => { if (me && !i.value) i.value = me.name; });
     if (VOICES[slug]) fillVoices(root, VOICES[slug]);
     else fetch(api).then(r => r.ok ? r.json() : null).then(d => { if (d && d.ok) { VOICES[slug] = d; fillVoices(root, d); } }).catch(() => { });
     box.querySelectorAll("[data-v-open]").forEach(b => b.onclick = () => {
       const f = box.querySelector(`[data-v-form="${b.dataset.vOpen}"]`); f.hidden = !f.hidden; b.setAttribute("aria-expanded", String(!f.hidden));
-      if (!f.hidden) f.querySelector("input:not([type=hidden]):not([name=bot-field])").focus();
+      const first = f.querySelector("input[type=radio], select, textarea, input[name=how]"); if (!f.hidden && first && me) first.focus();
     });
     const doneKey = k => `raav-${k}-${slug}`;
     box.querySelectorAll("[data-v-form]").forEach(f => {
       const kind = f.dataset.vForm, err = f.querySelector("[data-v-err]");
-      try { if (localStorage.getItem(doneKey(kind))) { const b = box.querySelector(`[data-v-open="${kind}"]`); b.textContent = kind === "vouch" ? "✓ You vouched for it" : "✓ Thank you for rating. Change my rating"; if (kind === "vouch") b.disabled = true; } } catch (e) { }
+      try { if (kind !== "comment" && localStorage.getItem(doneKey(kind))) { const b = box.querySelector(`[data-v-open="${kind}"]`); b.textContent = kind === "vouch" ? "✓ You vouched for it" : "✓ Thank you for rating. Change my rating"; if (kind === "vouch") b.disabled = true; } } catch (e) { }
       f.onsubmit = async e => {
         e.preventDefault();
-        const fd = new FormData(f), data = Object.fromEntries(fd.entries()); data.kind = kind; data.agree = !!fd.get("agree");
-        if (kind === "vouch" && data.relation === "role") data.role = data.how;
+        if (!account()) { location.href = "/members?next=" + encodeURIComponent(location.pathname + "#voices-h"); return; }
+        const fd = new FormData(f), data = Object.fromEntries(fd.entries()); data.kind = kind;
+        if (kind === "comment") data.name = account().name;
         const fail = m => { err.textContent = m; err.hidden = false; };
         err.hidden = true;
         if (kind === "rating" && !data.stars) return fail("Please choose 1 to 5 stars.");
         if (kind === "rating" && !data.involved) return fail("Please say how you were involved.");
-        if (String(data.name || "").trim().length < 2) return fail("Please add your name.");
-        if (String(data.phone || "").replace(/\D/g, "").length < 9) return fail("Please add a mobile number we can call.");
-        if (!data.agree) return fail("Please tick the box to confirm.");
+        if (kind === "comment" && String(data.comment || "").trim().length < 2) return fail("Please write your comment.");
+        if (kind !== "comment" && String(data.name || "").trim().length < 2) return fail("Please add your name.");
         const btn = f.querySelector("button[type=submit]"); btn.disabled = true;
         try {
-          const res = await fetch(api, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+          const res = await fetch(api, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
           const out = await res.json().catch(() => ({}));
+          if (out.signin) { location.href = "/members?next=" + encodeURIComponent(location.pathname + "#voices-h"); return; }
           if (!res.ok || !out.ok) { btn.disabled = false; return fail(out.error || "That didn't go through. Please try again."); }
+          VOICES[slug] = out; fillVoices(root, out); btn.disabled = false;
+          if (kind === "comment") { f.reset(); return; }
           try { localStorage.setItem(doneKey(kind), "1"); } catch (e2) { }
-          VOICES[slug] = out; fillVoices(root, out);
-          f.hidden = true; f.reset(); btn.disabled = false;
+          f.hidden = true;
           const b = box.querySelector(`[data-v-open="${kind}"]`);
-          b.textContent = kind === "vouch" ? "✓ Thank you. Your name is on the list" : (data.comment ? "✓ Thank you. Your words show once the team has read them" : "✓ Thank you for rating");
+          b.textContent = kind === "vouch" ? "✓ Thank you. Your name is on the list" : "✓ Thank you for rating";
           if (kind === "vouch") b.disabled = true;
         } catch (e3) { btn.disabled = false; fail("That didn't go through. Check your connection and try again."); }
       };
@@ -3265,9 +3288,14 @@ window.RAAV_FEATURES = (function () {
 
   function renderAbout(app, site) {
     const org = site.name.charAt(0).toUpperCase() + site.name.slice(1).toLowerCase();
-    // New About us words from SURESH (20 Nov 2026); the earlier About us is kept at /about-before (on the to-revisit list).
-    const OLD = /^\/about-before/.test(location.pathname) && !!site.about_old;
-    app.innerHTML = `<section class="intro about-page"><span class="eyebrow">About us</span>${OLD || !site.about_title ? `<h1 class="follow-title"><span class="initial">${esc(org.charAt(0))}</span><span class="org">${esc(org.slice(1))}</span> Community</h1>` : `<h1 class="follow-title about-title">${esc(site.about_title)}</h1>`}<div class="story">${md(OLD ? site.about_old : site.about)}</div><p><a href="/initiated">See our projects</a></p></section>`;
+    // /about = site.about (+ about_title if set). Kept versions: /about-before = the first About us (about_old),
+    // /about-letter = SURESH's "To everyone who wants to change a life" words (live 20-22 Nov 2026, about_letter).
+    const path = location.pathname;
+    const OLD = /^\/about-before/.test(path) && !!site.about_old;
+    const LETTER = /^\/about-letter/.test(path) && !!site.about_letter;
+    const title = LETTER ? site.about_letter_title : OLD ? "" : site.about_title;
+    const body = LETTER ? site.about_letter : OLD ? site.about_old : site.about;
+    app.innerHTML = `<section class="intro about-page"><span class="eyebrow">About us</span>${!title ? `<h1 class="follow-title"><span class="initial">${esc(org.charAt(0))}</span><span class="org">${esc(org.slice(1))}</span> Community</h1>` : `<h1 class="follow-title about-title">${esc(title)}</h1>`}<div class="story">${md(body)}</div><p><a href="/initiated">See our projects</a></p></section>`;
   }
 
   // Phone menu button

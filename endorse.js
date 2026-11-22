@@ -271,6 +271,27 @@
     const closed = r.closed || r.pending || isPreview;
     $("[data-form-card]").hidden = isNew || already || closed;
     $("[data-thanks]").hidden = !already;
+    // Signed-in account instead of a phone number (SURESH 22 Nov 2026: "we don't need their personal information").
+    OPENV = true;
+    const ph = form.querySelector("input[name=phone]"); if (ph) { ph.required = false; ph.closest("label").hidden = true; }
+    const me = account();
+    const nm = form.querySelector("input[name=name]"); if (nm && me && !nm.value) nm.value = me.name;
+    let go = form.querySelector("[data-signin]");
+    const sub = form.querySelector("button[type=submit]");
+    if (!me) {
+      if (!go) { go = document.createElement("a"); go.className = "btn"; go.dataset.signin = ""; go.href = "/members?next=" + encodeURIComponent(location.pathname); go.textContent = "Sign in to vouch"; sub.after(go);
+        const tip = document.createElement("p"); tip.className = "note"; tip.dataset.signinTip = ""; tip.textContent = "Free and quick, with Google or your email. No phone number needed."; go.after(tip); }
+      sub.hidden = true;
+    } else { sub.hidden = false; if (go) { go.remove(); const tip = form.querySelector("[data-signin-tip]"); if (tip) tip.remove(); } }
+  }
+  let OPENV = false;
+  function account() {
+    try {
+      const u = JSON.parse(localStorage.getItem("gotrue.user") || "null");
+      if (!u || !u.email) return null;
+      const m = u.user_metadata || {};
+      return { email: u.email, name: m.full_name || m.name || "" };
+    } catch (_) { return null; }
   }
 
   async function load() {
@@ -301,12 +322,13 @@
     err.hidden = true;
     if (!String(data.name || "").trim()) return fail(t("Please add your name.", "உங்கள் பெயரைச் சேர்க்கவும்."));
     if (data.relation === "role" && !String(data.role || "").trim()) return fail(t("Please add your role, for example Principal of the school.", "உங்கள் பொறுப்பைச் சேர்க்கவும், உதாரணமாக பாடசாலை அதிபர்."));
-    if (String(data.phone || "").replace(/\D/g, "").length < 9) return fail(t("Please add a mobile number we can call.", "நாங்கள் அழைக்கக்கூடிய கைபேசி எண்ணைச் சேர்க்கவும்."));
+    if (!OPENV && String(data.phone || "").replace(/\D/g, "").length < 9) return fail(t("Please add a mobile number we can call.", "நாங்கள் அழைக்கக்கூடிய கைபேசி எண்ணைச் சேர்க்கவும்."));
     if (!fd.get("agree")) return fail(t("Please tick the box to confirm.", "உறுதிப்படுத்த பெட்டியில் டிக் செய்யவும்."));
     btn.disabled = true;
     try {
-      const res = await fetch(api, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+      const res = await fetch(api, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
       const out = await res.json().catch(() => ({}));
+      if (out.signin) { location.href = "/members?next=" + encodeURIComponent(location.pathname); return; }
       if (!res.ok || !out.ok) { btn.disabled = false; return fail(out.error || t("That didn't go through. Please try again.", "அது சேரவில்லை. மீண்டும் முயற்சிக்கவும்.")); }
       try { localStorage.setItem(doneKey, "1"); } catch (_) { /* private mode */ }
       render(out.request);

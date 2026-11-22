@@ -93,6 +93,27 @@ export default async (req: Request) => {
     phone: clip(f.phone, 40),
   };
   if (!["role", "know", "seen"].includes(e.relation)) return json({ ok: false, error: "Please say how you know about this project." }, 400);
+  // Open vouching (SURESH 22 Nov 2026: "we don't need their personal information"): the signed-in account is the
+  // identity, with no phone. One vouch per account. The old phone path below stays for OPEN_VOUCH = false.
+  if (OPEN_VOUCH) {
+    const user = await getUser().catch(() => null);
+    if (!user || !user.email) return json({ ok: false, error: "Please sign in first.", signin: true }, 401);
+    const email = user.email.toLowerCase(), meta = ((user as Row).user_metadata || (user as Row).metadata || {}) as Row;
+    if (e.relation !== "role") e.role = clip(f.how, 120);
+    if (e.relation === "role" && !e.role) return json({ ok: false, error: "Please add your role, for example Principal of the school." }, 400);
+    e.name = e.name || clip(meta.full_name || meta.name, 80) || email.split("@")[0];
+    if (s.member_email && String(s.member_email).toLowerCase() === email) return json({ ok: false, error: "You sent this request, so please ask other people to vouch for it." }, 409);
+    const [dup] = await db.sql<Row>`SELECT id FROM endorsements WHERE suggestion_id = ${s.id} AND member_email = ${email}`;
+    if (dup) return json({ ok: false, error: "You have already vouched for this project." }, 409);
+    const added = await db.sql<{ id: number }>`
+      INSERT INTO endorsements (suggestion_id, name, relation, role, phone, phone_key, member_email)
+      VALUES (${s.id}, ${e.name}, ${e.relation}, ${e.role}, '', ${"acct:" + email}, ${email})
+      ON CONFLICT (suggestion_id, phone_key) DO NOTHING RETURNING id`;
+    if (!(added as unknown[]).length) return json({ ok: false, error: "You have already vouched for this project." }, 409);
+    await db.sql`INSERT INTO audit_log (actor, action, target, details)
+      VALUES (${email}, 'suggestion.endorsed', ${s.ref}, ${JSON.stringify({ name: e.name, relation: e.relation, role: e.role })}::jsonb)`;
+    return json({ ok: true, request: await view(db, s) });
+  }
   if (e.relation !== "role") e.role = clip(f.how, 120); // optional few words, e.g. "Friend of the organiser"
   if (!e.name || e.name.length < 2) return json({ ok: false, error: "Please add your name." }, 400);
   if (e.relation === "role" && !e.role) return json({ ok: false, error: "Please add your role, for example Principal of the school." }, 400);
