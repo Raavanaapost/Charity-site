@@ -3180,3 +3180,46 @@ body:not([data-variant="royal"]):not([data-page="home"]) header.bar{background:v
 header.bar .logo img{width:216px!important;height:auto!important;aspect-ratio:254/66;max-width:none!important;max-height:none!important}
 @media (max-width:640px){header.bar .logo img{width:min(180px,calc(100vw - 32px - 58px - 118px))!important}.bar .wrap{min-height:60px}}
 @media (min-width:1000px){header.bar .logo img{width:290px!important}.bar .wrap{min-height:92px}}
+
+/* Vouches and ratings on project pages (SURESH, 22 Nov 2026): open vouching + 1-5 stars, comments read by the team first. */
+.voices h2{margin:0 0 8px;font-size:18px;display:flex;align-items:center;gap:8px}
+.voices .v-count{font-size:13px;background:var(--brand);color:#fff;border-radius:999px;padding:1px 9px;font-weight:700}
+.voices .v-count:empty{display:none}
+.voices .v-list{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:8px;max-height:260px;overflow:auto}
+.voices .v-list li{display:flex;justify-content:space-between;gap:10px;font-size:14px}
+.voices .v-list li span{color:var(--muted);text-align:right}
+.voices .v-none{color:var(--muted);font-size:14px}
+.voices .v-open{width:100%;justify-content:center}
+.voices .v-open[disabled]{opacity:1;cursor:default;border-style:dashed}
+.voices .v-rate{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.voices .v-avg{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 10px;font-size:14px}
+.voices .v-avg b{font-size:18px}
+.voices .v-avg span{color:var(--muted)}
+.stars{display:inline-flex;gap:1px;color:#d9d2c3;vertical-align:middle}
+.stars i{display:inline-flex}
+.stars i.on{color:#e0a526}
+.stars i.half{color:#e0a526;opacity:.55}
+.stars.sm svg{width:14px;height:14px}
+.voices .v-comments{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:10px}
+.voices .v-comments li{background:rgba(224,165,38,.08);border-radius:10px;padding:10px 12px}
+.voices .v-comments p{margin:4px 0;font-size:14px;line-height:1.5}
+.voices .v-comments small{color:var(--muted)}
+.voices .v-form{display:grid;gap:10px;margin:12px 0 0}
+.voices .v-form label{display:grid;gap:4px;font-size:14px;font-weight:600}
+.voices .v-form label small{font-weight:400;color:var(--muted)}
+.voices .v-form input:not([type=radio]):not([type=checkbox]),.voices .v-form textarea{font:inherit;padding:10px;border:1px solid var(--line);border-radius:10px;width:100%;box-sizing:border-box;background:var(--surface,#fff);color:inherit}
+.voices .v-form fieldset{border:0;margin:0;padding:0;display:grid;gap:6px}
+.voices .v-form legend{font-weight:600;font-size:14px;margin-bottom:4px}
+.voices .v-choice,.voices .v-agree{display:flex !important;gap:8px;align-items:flex-start;font-weight:400 !important}
+.voices .v-pick{display:flex !important;gap:4px;flex-direction:row}
+.voices .v-pick legend{width:100%}
+.voices .v-pick label{cursor:pointer;color:#d9d2c3}
+.voices .v-pick input{position:absolute;opacity:0;width:1px;height:1px}
+.voices .v-pick svg{width:36px;height:36px}
+.voices .v-pick label:has(~ label input:checked), .voices .v-pick label:has(input:checked){color:#e0a526}
+.voices .v-pick input:focus-visible + i{outline:2px solid var(--brand);border-radius:6px}
+.voices .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.voices .v-err{color:#b3261e;font-size:14px;margin:0}
+.voices .v-note{font-size:12.5px;color:var(--muted);margin:8px 0 0}
+.rate-chip{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:700;color:inherit;text-decoration:none}
+.rate-chip span{color:var(--muted);font-weight:500}
