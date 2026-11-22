@@ -3226,3 +3226,11 @@ header.bar .logo img{width:216px!important;height:auto!important;aspect-ratio:25
 .voices .v-form[hidden]{display:none}
 .voices .v-form select{font:inherit;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface,#fff);color:inherit}
 .voices .v-later{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+/* Signed-in accounts instead of phone numbers (SURESH, 22 Nov 2026). */
+.voices:not(.signed-in) .v-form button[type=submit], .voices:not(.signed-in) .v-say textarea{display:none}
+.voices.signed-in .v-signin{display:none}
+.voices .v-signin{justify-content:center;text-align:center}
+.voices .v-talk{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.voices .v-say{margin-top:4px}
+.voices .v-say button{justify-self:end}
+.voices .v-comments li.v-none{background:none;padding:0}
