@@ -8,6 +8,7 @@
 //   GET    /api/portal/access                     people who can open the portal (Team & logins)
 //   POST   /api/portal/access                     admin only: add someone by email {email, name, role: admin|team}
 //   DELETE /api/portal/access/:email              admin only: take someone's access away
+//   GET/POST/DELETE /api/portal/funders           sponsors added by hand, taken off a project (admin) or put back
 // Access: see ../lib/team-access.mts (Identity role admin/team, PORTAL_ADMINS, or added in the portal).
 import type { Config, Context } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
@@ -280,6 +281,33 @@ export default async (req: Request, context: Context) => {
       if (b.note !== undefined) await db.sql`UPDATE give_requests SET team_note = ${clip(b.note, 1000)} WHERE id = ${row.id}`;
       await db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES (${me.email}, 'give_request.update', ${ref}, ${JSON.stringify({ status: b.status, note: b.note !== undefined })}::jsonb)`;
       return json({ pledges: await list() });
+    }
+    return json({ error: "Not allowed" }, 405);
+  }
+
+  // Sponsors added by hand (projects.json "funders") taken off a project (SURESH, 22 Nov 2026).
+  //   GET    /api/portal/funders           the ones taken off
+  //   POST   /api/portal/funders           { slug, name, amount }  take one off (admin)
+  //   DELETE /api/portal/funders/:id       put it back (admin)
+  if (parts[0] === "funders") {
+    const list = async () => ((await db.sql`SELECT id, slug, name, amount, removed_by, removed_at FROM funder_removals ORDER BY removed_at DESC`) as Record<string, any>[])
+      .map((r) => ({ id: r.id, slug: r.slug, name: r.name, amount: Number(r.amount), by: r.removed_by, at: r.removed_at }));
+    if (req.method === "GET" && !parts[1]) return json({ removed: await list() });
+    if (!me.admin) return json({ error: "Only an admin can change sponsors." }, 403);
+    if (req.method === "POST" && !parts[1]) {
+      let b: Record<string, any> = {};
+      try { b = await req.json(); } catch { /* empty */ }
+      const slug = clip(b.slug, 80), name = clip(b.name, 120), amt = Number(b.amount) || 0;
+      if (!slug || !name) return json({ error: "Missing project or name" }, 400);
+      await db.sql`INSERT INTO funder_removals (slug, name, amount, removed_by) VALUES (${slug}, ${name}, ${amt}, ${me.name || me.email}) ON CONFLICT (slug, name, amount) DO NOTHING`;
+      await db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES (${me.email}, 'funder.remove', ${slug}, ${JSON.stringify({ name, amount: amt })}::jsonb)`;
+      return json({ removed: await list() });
+    }
+    if (req.method === "DELETE" && parts[1]) {
+      const id = Number(parts[1]) || 0;
+      const [r] = await db.sql<{ slug: string; name: string; amount: number }>`DELETE FROM funder_removals WHERE id = ${id} RETURNING slug, name, amount`;
+      if (r) await db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES (${me.email}, 'funder.restore', ${r.slug}, ${JSON.stringify({ name: r.name, amount: Number(r.amount) })}::jsonb)`;
+      return json({ removed: await list() });
     }
     return json({ error: "Not allowed" }, 405);
   }

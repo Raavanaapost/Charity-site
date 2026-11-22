@@ -208,10 +208,20 @@ async function pledges() {
   return out;
 }
 
+// Sponsors added by hand that the team took off in the portal (funder_removals, SURESH 22 Nov 2026).
+async function removed() {
+  const out: Record<string, { name: string; amount: number }[]> = {};
+  try {
+    const rows = await getDatabase().sql<{ slug: string; name: string; amount: number }>`SELECT slug, name, amount FROM funder_removals`;
+    for (const r of rows) (out[r.slug] ||= []).push({ name: r.name, amount: Number(r.amount) });
+  } catch (e) { console.log("removals not read:", (e as Error).message); }
+  return out;
+}
+
 async function totals(context: Context) {
   const provider = providerOf();
   // Short cache, so a new pledge shows within seconds for everyone.
-  if (!provider) return json({ enabled: false, projects: {}, members: 0, pledges: await pledges() }, 200, "public, max-age=5");
+  if (!provider) return json({ enabled: false, projects: {}, members: 0, pledges: await pledges(), removed: await removed() }, 200, "public, max-age=5");
   const db = getDatabase();
   const live = liveSite(context, provider);
   const rows = await db.sql<{ project_slug: string; amount_cents: number; currency: string; display_name: string; show_name: boolean; tribute: Tribute | null }>`
@@ -230,7 +240,7 @@ async function totals(context: Context) {
     const tr = r.tribute && r.tribute.show && trWords ? `${trWords} ${r.tribute.name}` : "";
     t.gifts.push({ name: r.show_name && r.display_name ? r.display_name : FRIEND, amount: Math.round(units * 100) / 100, ...(tr ? { tribute: tr } : {}) });
   }
-  return json({ enabled: true, provider, currency: currencyOf(provider).toUpperCase(), test: !live, rate: RATE, projects: out, members: m ? Number(m.n) : 0, pledges: await pledges() }, 200, "public, max-age=5");
+  return json({ enabled: true, provider, currency: currencyOf(provider).toUpperCase(), test: !live, rate: RATE, projects: out, members: m ? Number(m.n) : 0, pledges: await pledges(), removed: await removed() }, 200, "public, max-age=5");
 }
 
 async function session(req: Request) {
