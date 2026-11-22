@@ -3992,6 +3992,9 @@ window.RAAV_FEATURES = (function () {
       // PayHere (rupees) is the card service chosen for launch, so the forms show rupees even before it is switched on.
       if ((GIVE && GIVE.provider === "payhere") || !GIVE || !GIVE.enabled) { GIVE_BY = "PayHere"; GIVE_CUR = "LKR"; }
       GIVE_RATE = (GIVE && +GIVE.rate) || +site.rate_lkr_per_cad || 0;
+      // Sponsors added by hand that the team took off in the portal (SURESH, 22 Nov 2026) no longer count or show.
+      if (GIVE && GIVE.removed) projects.forEach(p => { const off = (GIVE.removed[slugOf(p)] || []).slice(); if (!off.length || !p.funders) return;
+        p.funders = p.funders.filter(f => { const i = off.findIndex(x => x.name === String(f && f.name || "").trim() && +x.amount === numOf(f.amount)); if (i < 0) return true; off.splice(i, 1); return false; }); });
       if (GIVE && GIVE.projects) projects.forEach(p => { const t = GIVE.projects[slugOf(p)]; if (t && takesCards(p)) p.funders = [...(p.funders || []), ...t.gifts]; });
       // Pledges from the project giving form show straight away (SURESH, 17 Nov 2026), marked "pledged". The one this
       // browser just sent is added at once too, in case the list is a few seconds old.
