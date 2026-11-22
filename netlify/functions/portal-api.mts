@@ -164,6 +164,30 @@ export default async (req: Request, context: Context) => {
 
   // Traffic (16 Nov 2026): totals from the site's own visit counter for a period, with the period before it to compare.
   //   GET /api/portal/traffic?from=YYYY-MM-DD&to=YYYY-MM-DD&tz=America/Toronto   (to is included)
+  // Vouches and ratings from project pages (SURESH 22 Nov 2026). The team reads written words before they show, and can
+  // hide anything false or unkind. Phones are here so a volunteer can call and check.
+  if (parts[0] === "voices") {
+    const list = async () => ((await db.sql`
+      SELECT id, slug, kind, name, relation, role, stars, comment, comment_ok, phone, hidden, checked_by, created_at, updated_at
+      FROM project_voices ORDER BY (kind = 'rating' AND comment <> '' AND NOT comment_ok AND NOT hidden) DESC, updated_at DESC LIMIT 500`) as Record<string, any>[]).map((r) => ({
+      id: r.id, slug: r.slug, kind: r.kind, name: r.name, relation: r.relation, role: r.role, stars: r.stars, comment: r.comment, commentOk: r.comment_ok,
+      phone: r.phone, hidden: r.hidden, checkedBy: r.checked_by, at: r.updated_at || r.created_at,
+    }));
+    if (req.method === "GET") return json({ voices: await list() });
+    if (req.method === "PATCH" && parts[1]) {
+      let b: Record<string, any> = {};
+      try { b = await req.json(); } catch { /* empty */ }
+      const id = Number(parts[1]);
+      if (!Number.isInteger(id)) return json({ error: "Not found" }, 404);
+      if (b.hidden !== undefined) await db.sql`UPDATE project_voices SET hidden = ${b.hidden === true}, checked_by = ${me.name} WHERE id = ${id}`;
+      if (b.commentOk !== undefined) await db.sql`UPDATE project_voices SET comment_ok = ${b.commentOk === true}, checked_by = ${me.name} WHERE id = ${id}`;
+      if (typeof b.comment === "string") await db.sql`UPDATE project_voices SET comment = ${String(b.comment).trim().slice(0, 1000)}, checked_by = ${me.name} WHERE id = ${id}`;
+      await db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES (${me.email}, 'voice.update', ${String(id)}, ${JSON.stringify({ hidden: b.hidden, commentOk: b.commentOk, edited: typeof b.comment === "string" })}::jsonb)`;
+      return json({ voices: await list() });
+    }
+    return json({ error: "Not allowed" }, 405);
+  }
+
   if (parts[0] === "traffic" && req.method === "GET") {
     const q = new URL(req.url).searchParams;
     const dayOk = (v: string | null) => (v && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : "");

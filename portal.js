@@ -47,13 +47,14 @@
     circles: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="5" r="2"/><circle cx="5.5" cy="15" r="2"/><circle cx="18.5" cy="15" r="2"/>',
     volunteers: '<path d="M12 20s-6.5-4-6.5-9a3.6 3.6 0 0 1 6.5-2 3.6 3.6 0 0 1 6.5 2c0 5-6.5 9-6.5 9z"/><path d="M3 21h18"/>',
     champions: '<path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.6L12 16.4l-5.1 2.7 1-5.6-4.1-4 5.7-.8z"/>',
+    voices: '<path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.6L12 16.4l-5.1 2.7 1-5.6-4.1-4 5.7-.8z"/><path d="M4 21h16"/>',
     reports: '<path d="M12 3l8 3v6c0 4.6-3.3 8-8 9-4.7-1-8-4.4-8-9V6z"/><path d="M12 8v5M12 16h.01" stroke-width="2.2"/>',
     traffic: '<path d="M4 19V11M9.3 19V6M14.6 19v-5M20 19V9"/><path d="M3 21h18"/>',
     more: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'
   };
   const svg = (d, s = 20) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
   const MENU = [
-    ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true],
+    ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true], ["voices", "Vouches & ratings", true],
     ["sponsors", "Sponsors & pledges", true], ["day", "Day preparation", true], ["close", "Close the day", true],
     ["people", "People", true], ["champions", "Champions", true], ["volunteers", "Volunteers", true], ["circles", "Family circles", true], ["traffic", "Traffic", true], ["team", "Team & logins", true]
   ];
@@ -61,12 +62,15 @@
   let D = null, P = [], C = { list: [], districts: [] }, chDistrict = "All", chEdit = null;
   // People who filled in "I'd like to give" on the website (live only; null in the demo).
   let ASKS = null;
+  // Vouches and ratings from project pages (live only).
+  let VOICES_P = null;
   const toast = msg => { const t = document.getElementById("pt-toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("on"), 2600); };
   const route = () => (location.hash.replace(/^#\/?/, "") || "dashboard").split("/");
 
   function drawNav(cur) {
     const newCount = D.suggestions.filter(s => s.status === "new").length, openRep = D.reports.filter(r => r.status !== "closed").length;
     const newAsk = ASKS ? ASKS.filter(x => x.status === "new").length : 0;
+    const waitV = VOICES_P ? VOICES_P.filter(v => v.kind === "rating" && v.comment && !v.commentOk && !v.hidden).length : 0;
     const so = document.querySelector(".pt-site");
     // Laptop sidebar foot (20 Nov 2026): who is signed in, View the website and Sign out kept together and lined up.
     if (so && LIVE && !document.getElementById("pt-signout")) {
@@ -76,12 +80,12 @@
       const b = document.createElement("button"); b.id = "pt-signout"; b.type = "button"; b.className = "pt-site pt-signout"; b.innerHTML = `${svg('<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h10"/>', 16)}<span>Sign out</span>`; b.onclick = signOut; foot.appendChild(b);
     }
     document.getElementById("pt-nav").innerHTML = MENU.map(([k, l, ready]) => ready
-      ? `<a href="#/${k}" class="${cur === k ? "on" : ""}" ${cur === k ? 'aria-current="page"' : ""}>${svg(ICON[k])}<span>${l}</span>${k === "sponsors" && newAsk ? `<b class="pt-badge">${newAsk}</b>` : k === "suggestions" && newCount ? `<b class="pt-badge">${newCount}</b>` : k === "reports" && openRep ? `<b class="pt-badge">${openRep}</b>` : ""}</a>`
+      ? `<a href="#/${k}" class="${cur === k ? "on" : ""}" ${cur === k ? 'aria-current="page"' : ""}>${svg(ICON[k])}<span>${l}</span>${k === "sponsors" && newAsk ? `<b class="pt-badge">${newAsk}</b>` : k === "suggestions" && newCount ? `<b class="pt-badge">${newCount}</b>` : k === "reports" && openRep ? `<b class="pt-badge">${openRep}</b>` : k === "voices" && waitV ? `<b class="pt-badge">${waitV}</b>` : ""}</a>`
       : `<span class="soon" title="Designed next">${svg(ICON[k])}<span>${l}</span><small>Next</small></span>`).join("");
     document.getElementById("pt-tabbar").innerHTML = [["dashboard", "Home"], ["suggestions", "Suggestions"], ["projects", "Projects"], ["reports", "Reports"], ["more", "More"]].map(([k, l]) => {
       const ready = k !== "more";
       return ready ? `<a href="#/${k}" class="${cur === k ? "on" : ""}">${svg(ICON[k], 22)}<span>${l}</span>${k === "sponsors" && newAsk ? `<b class="pt-badge">${newAsk}</b>` : k === "suggestions" && newCount ? `<b class="pt-badge">${newCount}</b>` : k === "reports" && openRep ? `<b class="pt-badge">${openRep}</b>` : ""}</a>`
-        : `<button type="button" class="${["sponsors", "day", "close", "people", "champions", "volunteers", "circles", "traffic", "team"].includes(cur) ? "on" : ""}" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
+        : `<button type="button" class="${["voices", "sponsors", "day", "close", "people", "champions", "volunteers", "circles", "traffic", "team"].includes(cur) ? "on" : ""}" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
     }).join("");
     document.querySelectorAll("[data-soon]").forEach(b => b.onclick = () => {
       let m = document.getElementById("pt-more");
@@ -1704,9 +1708,43 @@
     if (nt) nt.onchange = () => { try { if (nt.checked) localStorage.setItem("raav-notrack", "1"); else localStorage.removeItem("raav-notrack"); toast(nt.checked ? "This device is no longer counted" : "This device is counted again"); } catch (e) { toast("This browser blocks saving the choice."); } };
   }
 
+  // ---------- Vouches & ratings (SURESH 22 Nov 2026) ----------
+  // Anyone can vouch or rate on a project page. Stars count at once; written words wait here until someone presses
+  // Show on the page. Hide takes a false or unkind vouch or rating off the page (it stays here).
+  const REL_V = { role: "Holds a role", know: "Knows them", seen: "Seen the need" };
+  const starLine = n => "★★★★★".slice(0, n) + "☆☆☆☆☆".slice(0, 5 - n);
+  function voices() {
+    if (!LIVE) return `<header class="pt-head"><div><h1>Vouches &amp; ratings</h1><p class="pt-sub">This screen works on the real portal once you are signed in.</p></div></header>`;
+    const L = VOICES_P || [], wait = L.filter(v => v.kind === "rating" && v.comment && !v.commentOk && !v.hidden);
+    const row = v => `<li class="${v.hidden ? "pt-hid" : ""}"><span class="pt-av">${esc(initials(v.name))}</span><div>
+        <b>${esc(v.name)}</b> <small>${v.kind === "vouch" ? "vouched" : `rated <span style="color:#c9901a">${starLine(v.stars)}</span>`}</small> <time>${ago(v.at)}</time>
+        <p><a href="/projects/${esc(v.slug)}" target="_blank" rel="noopener">${esc(v.slug)}</a> · ${v.kind === "vouch" ? esc(v.role || REL_V[v.relation] || "") + " · " : ""}<a href="tel:${esc(String(v.phone).replace(/\s/g, ""))}">${esc(v.phone)}</a> <small>(private)</small></p>
+        ${v.comment ? `<p class="pt-desc" style="margin:6px 0">“${esc(v.comment)}”</p>` : ""}
+        <p class="pt-golive-btns">
+          ${v.kind === "rating" && v.comment && !v.hidden ? `<button type="button" class="pt-btn ${v.commentOk ? "ghost" : ""} sm" data-vok="${v.id}" data-on="${v.commentOk ? "no" : "yes"}">${v.commentOk ? "Take words off the page" : "Show words on the page"}</button>` : ""}
+          <button type="button" class="pt-btn ghost sm" data-vhide="${v.id}" data-on="${v.hidden ? "no" : "yes"}">${v.hidden ? "Show again" : "Hide"}</button>
+          ${v.hidden ? `<small>Hidden${v.checkedBy ? ` by ${esc(v.checkedBy)}` : ""}</small>` : v.commentOk && v.checkedBy ? `<small>Read by ${esc(v.checkedBy)}</small>` : ""}
+        </p></div></li>`;
+    return `<header class="pt-head"><div><h1>Vouches &amp; ratings</h1>
+      <p class="pt-sub">From project pages. Anyone can vouch or give 1 to 5 stars. Stars count at once; written words show only after you press Show words on the page. Check there is no child's name or phone number in them.</p></div></header>
+      <section class="pt-card"><h2>Words waiting to be read <span class="pt-count">${wait.length}</span></h2>
+        <ul class="pt-notes">${wait.map(row).join("") || `<li class="pt-empty">Nothing waiting.</li>`}</ul></section>
+      <section class="pt-card"><h2>Everything <span class="pt-count">${L.length}</span></h2>
+        <ul class="pt-notes">${L.filter(v => !wait.includes(v)).map(row).join("") || `<li class="pt-empty">No vouches or ratings yet.</li>`}</ul></section>`;
+  }
+  function wireVoices() {
+    const send = async (b, body) => {
+      b.disabled = true;
+      try { const r = await api(`/api/portal/voices/${b.dataset.vok || b.dataset.vhide}`, { method: "PATCH", body: JSON.stringify(body) }); VOICES_P = r.voices || []; render(); toast("Saved"); }
+      catch (e) { b.disabled = false; toast(e.message || "Could not save"); }
+    };
+    app.querySelectorAll("[data-vok]").forEach(b => b.onclick = () => send(b, { commentOk: b.dataset.on === "yes" }));
+    app.querySelectorAll("[data-vhide]").forEach(b => b.onclick = () => send(b, { hidden: b.dataset.on === "yes" }));
+  }
+
   function render() {
     const [page, id] = route();
-    const cur = ["suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "volunteers", "circles", "traffic", "team"].includes(page) ? page : "dashboard";
+    const cur = ["voices", "suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "volunteers", "circles", "traffic", "team"].includes(page) ? page : "dashboard";
     drawNav(cur);
     if (page === "suggestions" && id) { app.innerHTML = detail(id); wireDetail(id); }
     else if (page === "suggestions") { app.innerHTML = suggestions(); wireSuggestions(); }
@@ -1715,6 +1753,7 @@
     else if (page === "circles") { app.innerHTML = circles(); wireCircles(); }
     else if (page === "volunteers") { app.innerHTML = volunteers(); wireVolunteers(); }
     else if (page === "traffic") { app.innerHTML = traffic(); wireTraffic(); }
+    else if (page === "voices") { app.innerHTML = voices(); wireVoices(); }
     else if (page === "team" && LIVE) { app.innerHTML = liveTeam(); if (ACCESS) wireLiveTeam(); }
     else if (page === "team") { app.innerHTML = team(); wireTeam(); }
     else if (page === "close") { app.innerHTML = closeDay(id); wireClose(); }
@@ -1725,7 +1764,7 @@
     else if (page === "reports" && id) { app.innerHTML = reportDetail(id); wireReport(id); }
     else if (page === "reports") { app.innerHTML = reports(); wireReports(); }
     else app.innerHTML = dashboard();
-    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", volunteers: "Volunteers", circles: "Family circles", traffic: "Traffic", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
+    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", volunteers: "Volunteers", circles: "Family circles", traffic: "Traffic", voices: "Vouches & ratings", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
   }
 
   Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] })).then(async d => { try { const m = await fetch("/api/projects").then(r => r.json()); const have = new Set((d.projects || []).map(p => p.slug)); d.projects = [...(d.projects || []), ...(m.projects || []).filter(p => !have.has(p.slug))]; } catch (e) { /* only projects.json */ } return d; })])
@@ -1739,7 +1778,8 @@
           ME = await api("/api/portal/me");
           const r = await api("/api/portal/suggestions");
           D.suggestions = r.suggestions; C = await api("/api/portal/champions").then(x => ({ list: x.champions, districts: x.districts })).catch(() => C);
-          ASKS = await api("/api/portal/pledges").then(x => x.pledges || []).catch(() => []); D.user = { name: ME.name, role: ME.admin ? "Admin" : "Team" };
+          ASKS = await api("/api/portal/pledges").then(x => x.pledges || []).catch(() => []);
+          VOICES_P = await api("/api/portal/voices").then(x => x.voices || []).catch(() => []); D.user = { name: ME.name, role: ME.admin ? "Admin" : "Team" };
           if (!D.team.includes(ME.name)) D.team = [ME.name, ...D.team];
           LIVE = true; NOW = new Date();
         } catch (e) {
