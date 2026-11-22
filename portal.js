@@ -62,6 +62,11 @@
   let D = null, P = [], C = { list: [], districts: [] }, chDistrict = "All", chEdit = null;
   // People who filled in "I'd like to give" on the website (live only; null in the demo).
   let ASKS = null;
+  // Sponsors added by hand (projects.json "funders") and the ones the team took off (SURESH, 22 Nov 2026).
+  let FOFF = null; const HAND = {};
+  const keepHand = () => P.forEach(p => { HAND[p.slug] = (p.funders || []).filter(x => x && x.name).map(f => ({ name: String(f.name).trim(), amount: num(f.amount) })); });
+  const applyOff = () => P.forEach(p => { if (!HAND[p.slug]) return; const off = (FOFF || []).filter(x => x.slug === p.slug);
+    p.funders = HAND[p.slug].filter(f => !off.some(x => x.name === f.name && +x.amount === f.amount)); });
   // Vouches and ratings from project pages (live only).
   let VOICES_P = null;
   const toast = msg => { const t = document.getElementById("pt-toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("on"), 2600); };
@@ -1123,6 +1128,19 @@
       ${open.length ? `<ul class="pt-list big">${open.map(row).join("")}</ul>` : `<p class="pt-sub"><b>Nobody is waiting for a reply.</b></p>`}
       ${done.length ? `<details class="pt-asks-done"><summary>Finished (${done.length})</summary><ul class="pt-list big">${done.map(row).join("")}</ul></details>` : ""}</section>`;
   }
+  function handHTML() {
+    if (FOFF === null) return "";
+    const list = P.filter(p => (HAND[p.slug] || []).length);
+    const offOf = (slug, f) => FOFF.find(x => x.slug === slug && x.name === f.name && +x.amount === f.amount);
+    return `<section class="pt-card pt-asks pt-hand"><h2>Sponsors added by hand</h2>
+      <p class="pt-sub">These are written into the project by the team. <b>Remove</b> takes one off the website at once: the % bar, “Still needed” and the money page all follow. <b>Put back</b> brings it back. Gifts from the Be the smile form are in the list above (use <b>Close</b> there).</p>
+      ${list.length ? list.map(p => { const b = budget(p), q = b.goal ? Math.min(100, Math.round(b.raised / b.goal * 100)) : 0; return `<h3 class="pt-h2" style="margin:14px 0 6px">${esc(p.title)} <small class="pt-sub" style="margin:0">· now ${q}% funded</small></h3>
+        <ul class="pt-list big">${HAND[p.slug].map(f => { const o = offOf(p.slug, f); return `<li class="pt-pl${o ? " closed" : ""}">
+          <span class="pt-av">${esc(initials(f.name))}</span>
+          <span class="pt-row-main"><b>${esc(f.name)}${o ? ' <span class="pt-pill gray">Removed</span>' : ""}</b>${o ? `<small>Taken off by ${esc(o.by)} · ${fmtDay(String(o.at))}</small>` : ""}</span>
+          <span class="pt-row-side"><b class="pt-amt">${esc(p.currency || "$")}${Math.round(f.amount).toLocaleString("en-US")}</b>${ME && ME.admin ? (o ? `<button type="button" class="pt-btn ghost sm" data-fback="${o.id}">Put back</button>` : `<button type="button" class="pt-btn ghost sm" data-foff="${esc(p.slug)}" data-fname="${esc(f.name)}" data-famt="${f.amount}">Remove</button>`) : ""}</span></li>`; }).join("")}</ul>`; }).join("")
+      : `<p class="pt-sub"><b>No sponsors added by hand right now.</b></p>`}</section>`;
+  }
   let sview = "pledges";
   function sponsors() {
     const recv = D.pledges.filter(x => x.status === "received"), wait = D.pledges.filter(x => x.status === "pledged");
@@ -1140,6 +1158,7 @@
         <p class="pt-sub">A pledge counts toward a project only when the money is marked received.</p></div>
         <button type="button" class="pt-btn" data-newpl>+ Record a pledge</button></header>
       ${asksHTML()}
+      ${handHTML()}
       <section class="pt-stats">
         <div class="pt-stat st1"><b>${money(tot(recv))}</b><span>Received</span></div>
         <div class="pt-stat st2"><b>${money(tot(wait))}</b><span>Waiting to receive</span></div>
@@ -1173,6 +1192,15 @@
           <p class="pt-sub">${q}% received${pend ? ` · ${money(pend)} waiting` : ""}${b.raised >= b.goal ? " · fully funded" : ""}</p></section>`; }).join("")}</div>`}`;
   }
   function wireSponsors() {
+    app.querySelectorAll("[data-foff],[data-fback]").forEach(b => b.onclick = async () => {
+      if (b.dataset.foff && !confirm(`Take ${b.dataset.fname} off the website? The % goes down at once. You can put them back later.`)) return;
+      b.disabled = true;
+      try {
+        const r = b.dataset.foff ? await api("/api/portal/funders", { method: "POST", body: JSON.stringify({ slug: b.dataset.foff, name: b.dataset.fname, amount: +b.dataset.famt }) })
+          : await api(`/api/portal/funders/${b.dataset.fback}`, { method: "DELETE" });
+        FOFF = r.removed || []; applyOff(); render(); toast(b.dataset.foff ? "Removed from the website" : "Put back on the website");
+      } catch (e) { toast(e.message || "Could not save"); b.disabled = false; }
+    });
     app.querySelectorAll("[data-ask]").forEach(b => b.onclick = async () => {
       b.disabled = true;
       try { const r = await api(`/api/portal/pledges/${encodeURIComponent(b.dataset.ask)}`, { method: "PATCH", body: JSON.stringify({ status: b.dataset.to }) }); ASKS = r.pledges; render(); toast("Saved"); }
@@ -1765,7 +1793,7 @@
 
   Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] })).then(async d => { try { const m = await fetch("/api/projects").then(r => r.json()); const have = new Set((d.projects || []).map(p => p.slug)); d.projects = [...(d.projects || []), ...(m.projects || []).filter(p => !have.has(p.slug))]; } catch (e) { /* only projects.json */ } return d; })])
     .then(async ([d, p]) => {
-      D = d; P = (p.projects || []).filter(x => !x.hidden);
+      D = d; P = (p.projects || []).filter(x => !x.hidden); keepHand();
       P.filter(x => stageNum(x) === 2 && D.days[x.slug]).forEach(syncDay);
       const demo = new URLSearchParams(location.search).has("demo");
       if (!demo) {
@@ -1775,6 +1803,7 @@
           const r = await api("/api/portal/suggestions");
           D.suggestions = r.suggestions; C = await api("/api/portal/champions").then(x => ({ list: x.champions, districts: x.districts })).catch(() => C);
           ASKS = await api("/api/portal/pledges").then(x => x.pledges || []).catch(() => []);
+          FOFF = await api("/api/portal/funders").then(x => x.removed || []).catch(() => null); if (FOFF) applyOff();
           VOICES_P = await api("/api/portal/voices").then(x => x.voices || []).catch(() => []); D.user = { name: ME.name, role: ME.admin ? "Admin" : "Team" };
           if (!D.team.includes(ME.name)) D.team = [ME.name, ...D.team];
           LIVE = true; NOW = new Date();
