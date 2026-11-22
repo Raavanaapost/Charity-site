@@ -2,7 +2,7 @@
 //   GET  /api/voices/:slug   who vouched (from the request's /e/ page and from the project page), the star rating and
 //                            the comments the team has read
 //   POST /api/voices/:slug   { kind: "vouch", name, relation: role|know|seen, role|how, phone, agree }
-//                            { kind: "rating", name, stars: 1-5, comment, phone, agree }
+//                            { kind: "rating", name, involved, stars: 1-5, comment, phone, agree }  Impact projects only
 // Anyone can vouch, with no limit (open vouching). Stars count at once; written words show once the team has read
 // them, so no child's name or phone number reaches the page. Phones are kept for the team only; one phone gives one
 // vouch and one rating per project (a new rating replaces the old one).
@@ -17,15 +17,21 @@ const json = (data: unknown, status = 200) => Response.json(data, { status, head
 const phoneKey = (v: unknown) => String(v ?? "").replace(/\D/g, "").slice(-9);
 const REL: Record<string, string> = { know: "Knows the person who asked", seen: "Has seen the need" };
 
-async function projectExists(db: DB, slug: string, req: Request) {
-  const [m] = await db.sql<Row>`SELECT slug FROM site_projects WHERE slug = ${slug} AND NOT hidden`;
-  if (m) return true;
+// The project as the website shows it (projects.json wins over the portal's copy, like on the page), or null.
+async function projectOf(db: DB, slug: string, req: Request): Promise<Row | null> {
   try {
     const r = await fetch(new URL("/projects.json", req.url));
     const d = await r.json();
-    return (d.projects || []).some((p: Row) => p && p.slug === slug && !p.hidden);
-  } catch { return false; }
+    const p = (d.projects || []).find((x: Row) => x && x.slug === slug && !x.hidden);
+    if (p) return p;
+  } catch { /* fall through to the portal's projects */ }
+  const [m] = await db.sql<Row>`SELECT data FROM site_projects WHERE slug = ${slug} AND NOT hidden`;
+  return m ? m.data || {} : null;
 }
+// Ratings open once the day has happened (Impact), for the people involved (SURESH 22 Nov 2026: "Lets have it after
+// the day happened. Impact projects. People involved can give star").
+const isImpact = (p: Row) => /complete/i.test(String(p.status || ""));
+const INVOLVED: Record<string, string> = { day: "Was there on the day", parent: "Parent or teacher", gave: "Gave to it", organised: "Helped organise it", community: "From the community there" };
 
 async function request(db: DB, slug: string) {
   const [s] = await db.sql<Row>`SELECT id, reach, endorse_token FROM suggestions WHERE project_slug = ${slug} LIMIT 1`;
@@ -37,10 +43,10 @@ async function view(db: DB, slug: string) {
   const fromRequest = s ? ((await db.sql<Row>`SELECT name, relation, role, created_at FROM endorsements WHERE suggestion_id = ${s.id} AND NOT hidden ORDER BY created_at`) as Row[]) : [];
   const fromPage = (await db.sql<Row>`SELECT name, relation, role, created_at FROM project_voices WHERE slug = ${slug} AND kind = 'vouch' AND NOT hidden ORDER BY created_at`) as Row[];
   const vouches = [...fromRequest, ...fromPage].map((v) => ({ name: v.name, role: v.role || REL[v.relation] || "", inRole: v.relation === "role", at: v.created_at }));
-  const rated = (await db.sql<Row>`SELECT name, stars, comment, comment_ok, updated_at FROM project_voices WHERE slug = ${slug} AND kind = 'rating' AND NOT hidden ORDER BY updated_at DESC`) as Row[];
+  const rated = (await db.sql<Row>`SELECT name, role, stars, comment, comment_ok, updated_at FROM project_voices WHERE slug = ${slug} AND kind = 'rating' AND NOT hidden ORDER BY updated_at DESC`) as Row[];
   const count = rated.length, sum = rated.reduce((a, r) => a + Number(r.stars || 0), 0);
   const spread = [1, 2, 3, 4, 5].map((n) => rated.filter((r) => Number(r.stars) === n).length);
-  const comments = rated.filter((r) => r.comment_ok && r.comment).map((r) => ({ name: r.name, stars: Number(r.stars), comment: r.comment, at: r.updated_at }));
+  const comments = rated.filter((r) => r.comment_ok && r.comment).map((r) => ({ name: r.name, involved: r.role, stars: Number(r.stars), comment: r.comment, at: r.updated_at }));
   return { vouches, rating: { count, average: count ? Math.round((sum / count) * 10) / 10 : 0, spread }, comments, waiting: rated.filter((r) => r.comment && !r.comment_ok).length };
 }
 
@@ -54,7 +60,8 @@ export default async (req: Request) => {
   let f: Row;
   try { f = await req.json(); } catch { return json({ ok: false, error: "Could not read the form." }, 400); }
   if (clip(f["bot-field"], 10)) return json({ ok: true, ...(await view(db, slug)) }); // robots fill the hidden field
-  if (!(await projectExists(db, slug, req))) return json({ ok: false, error: "We couldn't find this project." }, 404);
+  const project = await projectOf(db, slug, req);
+  if (!project) return json({ ok: false, error: "We couldn't find this project." }, 404);
 
   const kind = f.kind === "rating" ? "rating" : f.kind === "vouch" ? "vouch" : "";
   if (!kind) return json({ ok: false, error: "Please choose vouch or rating." }, 400);
@@ -83,13 +90,16 @@ export default async (req: Request) => {
     if (!(added as Row[]).length) return json({ ok: false, error: "This phone number has already vouched for this project." }, 409);
     await db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES ('website', 'project.vouched', ${slug}, ${JSON.stringify({ name, relation, role })}::jsonb)`;
   } else {
+    if (!isImpact(project)) return json({ ok: false, error: "Ratings open once the day has happened." }, 409);
+    const involved = INVOLVED[clip(f.involved, 20)];
+    if (!involved) return json({ ok: false, error: "Please say how you were involved." }, 400);
     const stars = Math.round(Number(f.stars));
     if (!(stars >= 1 && stars <= 5)) return json({ ok: false, error: "Please choose 1 to 5 stars." }, 400);
     const comment = String(f.comment ?? "").replace(/[ \t]+/g, " ").trim().slice(0, 1000);
     await db.sql`
-      INSERT INTO project_voices (slug, kind, name, stars, comment, phone, phone_key, member_email)
-      VALUES (${slug}, 'rating', ${name}, ${stars}, ${comment}, ${phone}, ${key}, ${memberEmail})
-      ON CONFLICT (slug, kind, phone_key) DO UPDATE SET name = EXCLUDED.name, stars = EXCLUDED.stars, comment = EXCLUDED.comment,
+      INSERT INTO project_voices (slug, kind, name, role, stars, comment, phone, phone_key, member_email)
+      VALUES (${slug}, 'rating', ${name}, ${involved}, ${stars}, ${comment}, ${phone}, ${key}, ${memberEmail})
+      ON CONFLICT (slug, kind, phone_key) DO UPDATE SET name = EXCLUDED.name, role = EXCLUDED.role, stars = EXCLUDED.stars, comment = EXCLUDED.comment,
         comment_ok = FALSE, checked_by = '', member_email = EXCLUDED.member_email, updated_at = NOW()`;
     await db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES ('website', 'project.rated', ${slug}, ${JSON.stringify({ name, stars, words: !!comment })}::jsonb)`;
   }

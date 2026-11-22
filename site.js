@@ -12,8 +12,8 @@
               project (amount, name, email or WhatsApp, follow); the pledge shows on the project at once.
      group    "Just me / A group" on Spark a Smile (/spark) and its group words (SURESH 16 Nov 2026: a next feature).
      reasons  the reasons shown on /moment; [] shows all twelve.
-     voices   on project pages: open vouching (anyone, no limit) and 1-5 star ratings with comments the team reads
-              first (SURESH, 22 Nov 2026). false goes back to the static "Vouched for by" list and the old comments.
+     voices   on project pages: open vouching (anyone, no limit) and, on Impact projects only, 1-5 star ratings from the
+              people involved, with comments the team reads first (SURESH, 22 Nov 2026). false goes back to the static "Vouched for by" list and the old comments.
    On a draft or local preview, ?features=all shows everything for this browser tab (?features=launch goes back). */
 // Every skill people can bring to Raavanaa (SURESH, 17 Nov 2026: "have all the skills captured"). Shown on /spark (Join
 // Raavanaa) and /volunteer; both send the Netlify form "volunteer" (field skills[]).
@@ -2728,8 +2728,8 @@ window.RAAV_FEATURES = (function () {
         <button class="btn" type="submit">Vouch</button>
         <p class="v-err" data-v-err hidden></p>
       </form>
-      <div class="v-rate">
-        <h2>Rating</h2>
+      ${stageNum(p) !== 3 ? `<p class="v-note v-later">Once the day has happened, the people involved can rate it with stars.</p>` : `<div class="v-rate">
+        <h2>How did the day go?</h2>
         <p class="v-avg" data-v-avg><span class="v-none">No ratings yet.</span></p>
         <ul class="v-comments" data-v-comments></ul>
         <button type="button" class="btn ghost v-open" data-v-open="rating">Rate this project</button>
@@ -2738,15 +2738,16 @@ window.RAAV_FEATURES = (function () {
           <fieldset class="v-pick"><legend>Your stars</legend>
             ${[1, 2, 3, 4, 5].map(n => `<label title="${n} star${n > 1 ? "s" : ""}"><input type="radio" name="stars" value="${n}"><i>${STAR}</i><span class="sr">${n}</span></label>`).join("")}
           </fieldset>
-          <label>A few words <small>Optional. How is it being run? Please don't name any child.</small><textarea name="comment" maxlength="1000" rows="3"></textarea></label>
+          <label>How were you involved?<select name="involved" required><option value="">Choose one</option><option value="day">I was there on the day</option><option value="parent">Parent or teacher</option><option value="organised">I helped organise it</option><option value="gave">I gave to it</option><option value="community">From the community there</option></select></label>
+          <label>A few words <small>Optional. How did the day go? Please don't name any child.</small><textarea name="comment" maxlength="1000" rows="3"></textarea></label>
           <label>Your name <small>Shown with your words</small><input name="name" maxlength="80" autocomplete="name" required></label>
           <label>Your mobile number <small>Never shown. One rating per phone.</small><input name="phone" type="tel" maxlength="40" autocomplete="tel" required></label>
           <label class="v-agree"><input type="checkbox" name="agree"> My rating is honest and fair.</label>
           <button class="btn" type="submit">Send my rating</button>
           <p class="v-err" data-v-err hidden></p>
         </form>
-        <p class="v-note">Stars count straight away. Your words show once the Raavanaa team has read them.</p>
-      </div>
+        <p class="v-note">For the people involved. Stars count straight away. Your words show once the Raavanaa team has read them.</p>
+      </div>`}
     </section>`;
   }
   const VOICES = {};
@@ -2759,10 +2760,11 @@ window.RAAV_FEATURES = (function () {
       box.querySelector("[data-v-count]").textContent = list.length;
     }
     const r = d.rating || {};
+    if (!box.querySelector("[data-v-avg]")) return; // ratings only on Impact projects
     box.querySelector("[data-v-avg]").innerHTML = r.count
       ? `${starsHTML(r.average)} <b>${r.average.toFixed(1)}</b> <span>from ${r.count} rating${r.count > 1 ? "s" : ""}</span>`
       : `<span class="v-none">No ratings yet. Be the first.</span>`;
-    box.querySelector("[data-v-comments]").innerHTML = (d.comments || []).slice(0, 20).map(c => `<li>${starsHTML(c.stars, "sm")}<p>${esc(c.comment)}</p><small>${esc(c.name)} · ${fmtDate(c.at)}</small></li>`).join("");
+    box.querySelector("[data-v-comments]").innerHTML = (d.comments || []).slice(0, 20).map(c => `<li>${starsHTML(c.stars, "sm")}<p>${esc(c.comment)}</p><small>${esc(c.name)}${c.involved ? `, ${esc(c.involved)}` : ""} · ${fmtDate(c.at)}</small></li>`).join("");
     const chip = root.querySelector("[data-rate-chip]");
     if (chip && r.count) { chip.hidden = false; chip.innerHTML = `${starsHTML(r.average, "sm")} ${r.average.toFixed(1)} <span>(${r.count})</span>`; }
   }
@@ -2786,6 +2788,7 @@ window.RAAV_FEATURES = (function () {
         const fail = m => { err.textContent = m; err.hidden = false; };
         err.hidden = true;
         if (kind === "rating" && !data.stars) return fail("Please choose 1 to 5 stars.");
+        if (kind === "rating" && !data.involved) return fail("Please say how you were involved.");
         if (String(data.name || "").trim().length < 2) return fail("Please add your name.");
         if (String(data.phone || "").replace(/\D/g, "").length < 9) return fail("Please add a mobile number we can call.");
         if (!data.agree) return fail("Please tick the box to confirm.");
@@ -3110,7 +3113,7 @@ window.RAAV_FEATURES = (function () {
             <header class="phead">
               ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
               <h1>${esc(p.title)}</h1>
-              <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>Submitted by <strong>${esc(p.submitted_by || p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> ${esc(vLabel(p))}</span>` : ""}${FEAT.voices && !p.sample ? `<a class="rate-chip" href="#voices-h" data-rate-chip hidden></a>` : ""}
+              <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>Submitted by <strong>${esc(p.submitted_by || p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> ${esc(vLabel(p))}</span>` : ""}${FEAT.voices && !p.sample && stageNum(p) === 3 ? `<a class="rate-chip" href="#voices-h" data-rate-chip hidden></a>` : ""}
               <div class="glance">
                 <button type="button" class="glance-btn" aria-expanded="false" aria-controls="glance-card"><span>At a glance</span><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
                 <div class="panel glance-card" id="glance-card">
