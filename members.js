@@ -28,7 +28,7 @@ export async function getMember() {
 // because the confirmation email may open in a new tab. Only paths on this site are accepted.
 const NEXT_KEY = "raav-next";
 const nextFromUrl = new URLSearchParams(location.search).get("next") || "";
-if (/^\/[a-z0-9\/-]*$/i.test(nextFromUrl) && !nextFromUrl.startsWith("//")) { try { localStorage.setItem(NEXT_KEY, JSON.stringify({ to: nextFromUrl, at: Date.now() })); } catch (e) {} }
+if (/^\/[a-z0-9\/-]*(#[a-z0-9-]*)?$/i.test(nextFromUrl) && !nextFromUrl.startsWith("//")) { try { localStorage.setItem(NEXT_KEY, JSON.stringify({ to: nextFromUrl, at: Date.now() })); } catch (e) {} }
 // Is this person on the team (can open the dashboard)? Asks the server, which knows who an admin added.
 async function isTeam() {
   try { const r = await fetch("/api/portal/me", { credentials: "same-origin" }); return r.ok; } catch (e) { return false; }
