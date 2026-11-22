@@ -222,7 +222,7 @@
       $("[data-live]").hidden = false; $("[data-live-link]").href = r.live;
       $("[data-form-card]").hidden = true; $("[data-change]").hidden = true;
     }
-    if (r.pending) { $("[data-form-card]").hidden = true; $("[data-thanks]").hidden = true; return; }
+    if (r.pending) { $("[data-form-card]").hidden = true; $("[data-thanks]").hidden = true; if (r.openVouch) openVouch(r, n, step, false); return; }
     $("[data-people]").innerHTML = n
       ? r.endorsements.map((e) => `<li><span class="dot" aria-hidden="true">${esc((e.name || "?").trim().charAt(0).toUpperCase())}</span><span class="who"><b>${esc(e.name)}</b><small>${esc(e.role || RELATION[e.relation] || "")}</small></span>${e.relation === "role" ? '<span class="tag">' + t("ROLE", "பொறுப்பு") + '</span>' : ""}</li>`).join("")
       : `<li class="note">${t("Nobody has vouched yet. Be the first.", "இதுவரை யாரும் உறுதிப்படுத்தவில்லை. முதலாவதாக இருங்கள்.")}</li>`;
@@ -235,6 +235,42 @@
     const closed = r.closed || L.verified || r.pending || isPreview;
     $("[data-form-card]").hidden = isNew || already || closed || !!r.live || (r.open && L.needsRole === false);
     $("[data-thanks]").hidden = !already || !!r.live;
+    if (r.openVouch) openVouch(r, n, step, already);
+  }
+
+  // Open vouching (SURESH 22 Nov 2026: "Let it vouched as much as people possible. Anybody can vouch it."): no target
+  // number, no role needed, and people can still vouch once the project is live. Raavanaa (SURESH) approves and posts
+  // the page himself; vouches don't put it live. The old trust-ladder words above stay for when OPEN_VOUCH is false.
+  function openVouch(r, n, step, already) {
+    const setT = (k, v) => { const el = document.querySelector(`[data-t="${k}"]`); if (el) el.textContent = v; };
+    setT("newp", "Our team checks it first and makes the page. Then share it with everyone who knows about it, for example the school principal, a teacher, family or friends. Anyone can vouch, and the more people the better. You can follow every step here, and under My account.");
+    if (r.pending) return;
+    const live = !!r.live;
+    $("[data-ladder]").innerHTML =
+      step(true, 1, "Request sent", r.by ? `${r.by} told us about the need.` : "Someone told us about the need.") +
+      step(true, 2, "Page made by Raavanaa", "The team read it and made this page.") +
+      step(n > 0, 3, n ? `${n} ${n === 1 ? "person has" : "people have"} vouched` : "People who know it vouch", "Anyone who knows about it can vouch, with their name. The more, the better.") +
+      step(live, 4, live ? "Approved by Raavanaa and live" : "Raavanaa approves it", live ? "It is on the Projects page now." : "The Raavanaa team reads it, may call, and then puts it on the Projects page.");
+    const at = live ? 4 : 3, st = ["Requested", "Page made", "Vouched", "Live"];
+    $("[data-journey]").innerHTML = st.map((x, i) => {
+      const done = i < 2 || (i === 2 && n > 0) || (i === 3 && live);
+      return `<li class="${done ? "done" : i === Math.min(at, 3) ? "now" : ""}"><i aria-hidden="true">${done ? "✓" : ["✓", "📝", "🤝", "🌱"][i]}</i><span>${x}</span></li>`;
+    }).join("");
+    $("[data-journey-note]").innerHTML = live
+      ? `<b>Live.</b> It is on the Projects page. ${n ? `${n} ${n === 1 ? "person has" : "people have"} vouched so far.` : ""} You can still vouch below.`
+      : `<b>Waiting for Raavanaa's approval.</b> ${n ? `${n} ${n === 1 ? "person has" : "people have"} vouched so far.` : "Nobody has vouched yet."} Anyone who knows about it can vouch.`;
+    $("[data-count]").textContent = n ? String(n) : "";
+    $("[data-bars]").hidden = true;
+    setT("peoplenote", "Anyone who knows about it can vouch, with no limit. Not the person who sent the request. Phone numbers are never shown.");
+    setT("budgetnote", "No money is taken until Raavanaa has approved the project and replied to you personally. We pay for things directly where we can.");
+    setT("thxp", "Thank you. Your name now stands behind this project. Share the page so more people who know about it can vouch.");
+    setT("livep", "The project is on the Projects page, where people can follow it and help. You can still vouch for it below.");
+    $("[data-people-card]").hidden = false;
+    $("[data-share-card]").hidden = false;
+    $("[data-change]").hidden = live;
+    const closed = r.closed || r.pending || isPreview;
+    $("[data-form-card]").hidden = isNew || already || closed;
+    $("[data-thanks]").hidden = !already;
   }
 
   async function load() {

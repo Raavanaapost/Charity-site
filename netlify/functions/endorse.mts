@@ -6,7 +6,7 @@
 import type { Config } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
 import { getUser } from "@netlify/identity";
-import { makeProject, VOUCHES_NEEDED, VOUCH_NEEDS_ROLE, LIVE_ON_VOUCH } from "../lib/request-project.mts";
+import { makeProject, VOUCHES_NEEDED, VOUCH_NEEDS_ROLE, LIVE_ON_VOUCH, OPEN_VOUCH } from "../lib/request-project.mts";
 
 // Vouches needed to be backed: 1 for now (SURESH 20 Nov 2026), 3 with someone in a role later. See request-project.mts.
 const NEEDED = VOUCHES_NEEDED;
@@ -42,12 +42,13 @@ async function view(db: ReturnType<typeof getDatabase>, s: Row) {
   // Until the team approves the page, people only see that it is being checked (SURESH, 9 Nov 2026).
   if (!s.share_ok) {
     return {
-      pending: true, title: p.title || s.title, by: firstName(s.contact || ""), received: s.received_at, closed: s.status === "declined",
+      pending: true, openVouch: OPEN_VOUCH, title: p.title || s.title, by: firstName(s.contact || ""), received: s.received_at, closed: s.status === "declined",
       needed: NEEDED, endorsements: [], ladder: { submitted: true, backed: false, hasRole: false, verified: false, project: false },
     };
   }
   return {
     pending: false,
+    openVouch: OPEN_VOUCH,
     title: p.title || s.title,
     kind: p.activity || (s.focus || [])[0] || "",
     description: p.summary || (s.description === (s.focus || [])[0] ? "" : s.description),
