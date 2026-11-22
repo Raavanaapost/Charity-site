@@ -1718,7 +1718,7 @@
     const L = VOICES_P || [], wait = L.filter(v => v.kind === "rating" && v.comment && !v.commentOk && !v.hidden);
     const row = v => `<li class="${v.hidden ? "pt-hid" : ""}"><span class="pt-av">${esc(initials(v.name))}</span><div>
         <b>${esc(v.name)}</b> <small>${v.kind === "vouch" ? "vouched" : `rated <span style="color:#c9901a">${starLine(v.stars)}</span>`}</small> <time>${ago(v.at)}</time>
-        <p><a href="/projects/${esc(v.slug)}" target="_blank" rel="noopener">${esc(v.slug)}</a> · ${v.kind === "vouch" ? esc(v.role || REL_V[v.relation] || "") + " · " : ""}<a href="tel:${esc(String(v.phone).replace(/\s/g, ""))}">${esc(v.phone)}</a> <small>(private)</small></p>
+        <p><a href="/projects/${esc(v.slug)}" target="_blank" rel="noopener">${esc(v.slug)}</a> · ${esc(v.role || REL_V[v.relation] || "")}${v.role || v.relation ? " · " : ""}<a href="tel:${esc(String(v.phone).replace(/\s/g, ""))}">${esc(v.phone)}</a> <small>(private)</small></p>
         ${v.comment ? `<p class="pt-desc" style="margin:6px 0">“${esc(v.comment)}”</p>` : ""}
         <p class="pt-golive-btns">
           ${v.kind === "rating" && v.comment && !v.hidden ? `<button type="button" class="pt-btn ${v.commentOk ? "ghost" : ""} sm" data-vok="${v.id}" data-on="${v.commentOk ? "no" : "yes"}">${v.commentOk ? "Take words off the page" : "Show words on the page"}</button>` : ""}
@@ -1726,7 +1726,7 @@
           ${v.hidden ? `<small>Hidden${v.checkedBy ? ` by ${esc(v.checkedBy)}` : ""}</small>` : v.commentOk && v.checkedBy ? `<small>Read by ${esc(v.checkedBy)}</small>` : ""}
         </p></div></li>`;
     return `<header class="pt-head"><div><h1>Vouches &amp; ratings</h1>
-      <p class="pt-sub">From project pages. Anyone can vouch or give 1 to 5 stars. Stars count at once; written words show only after you press Show words on the page. Check there is no child's name or phone number in them.</p></div></header>
+      <p class="pt-sub">From project pages. Anyone can vouch. Once the day has happened (Impact), the people involved can give 1 to 5 stars. Stars count at once; written words show only after you press Show words on the page. Check there is no child's name or phone number in them.</p></div></header>
       <section class="pt-card"><h2>Words waiting to be read <span class="pt-count">${wait.length}</span></h2>
         <ul class="pt-notes">${wait.map(row).join("") || `<li class="pt-empty">Nothing waiting.</li>`}</ul></section>
       <section class="pt-card"><h2>Everything <span class="pt-count">${L.length}</span></h2>
