@@ -12,6 +12,8 @@
               project (amount, name, email or WhatsApp, follow); the pledge shows on the project at once.
      group    "Just me / A group" on Spark a Smile (/spark) and its group words (SURESH 16 Nov 2026: a next feature).
      reasons  the reasons shown on /moment; [] shows all twelve.
+     voices   on project pages: open vouching (anyone, no limit) and 1-5 star ratings with comments the team reads
+              first (SURESH, 22 Nov 2026). false goes back to the static "Vouched for by" list and the old comments.
    On a draft or local preview, ?features=all shows everything for this browser tab (?features=launch goes back). */
 // Every skill people can bring to Raavanaa (SURESH, 17 Nov 2026: "have all the skills captured"). Shown on /spark (Join
 // Raavanaa) and /volunteer; both send the Netlify form "volunteer" (field skills[]).
@@ -20,7 +22,7 @@ window.RAAV_SKILLS = ["Visiting and checking projects near me", "Driving and tra
   "Accounts and bookkeeping", "Website and IT", "Medical and first aid", "Counselling and care", "Legal advice", "Building and repairs",
   "Farming and livelihoods", "Organising and leading", "Something else"];
 window.RAAV_FEATURES = (function () {
-  const F = { sponsor: false, pledge: true, circle: false, vetting: true, tamil: false, group: false, join: false, volunteers: false, moment: false, map: false, reasons: [] };  // join: "Join Raavanaa" cards and links (off, SURESH 20 Nov 2026: "take join raavanaa out")  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
+  const F = { sponsor: false, pledge: true, circle: false, vetting: true, voices: true, tamil: false, group: false, join: false, volunteers: false, moment: false, map: false, reasons: [] };  // join: "Join Raavanaa" cards and links (off, SURESH 20 Nov 2026: "take join raavanaa out")  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
   try {
     const q = new URLSearchParams(location.search).get("features");
     const test = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) || /--charity-projects-draft\./.test(location.hostname);
@@ -2701,6 +2703,108 @@ window.RAAV_FEATURES = (function () {
     </section>`;
   }
 
+  // Vouches and ratings (SURESH, 22 Nov 2026: "Let it vouched as much as people possible. Anybody can vouch it." and
+  // "We need a feed back or comment and star rating. So that it can be more authentic and who responsible will take it
+  // as serious and care."). Filled from /api/voices/<slug>; projects.json "vouched" names show until it answers.
+  const STAR = `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3.2l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 17l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8z" fill="currentColor"/></svg>`;
+  const starsHTML = (v, cls = "") => `<span class="stars ${cls}" aria-label="${v} out of 5 stars">${[1, 2, 3, 4, 5].map(n => `<i class="${v >= n - 0.25 ? "on" : v >= n - 0.75 ? "half" : ""}">${STAR}</i>`).join("")}</span>`;
+  function voicesHTML(p) {
+    const seed = (Array.isArray(p.vouched) ? p.vouched : []).filter(v => v && v.name);
+    return `<section class="panel voices" aria-labelledby="voices-h" data-voices>
+      <h2 id="voices-h">Vouched for by <b class="v-count" data-v-count>${seed.length || ""}</b></h2>
+      <ul class="v-list" data-v-list>${seed.map(v => `<li><b>${esc(v.name)}</b>${v.role ? `<span>${esc(v.role)}</span>` : ""}</li>`).join("") || `<li class="v-none">Nobody yet. Do you know this project? Be the first.</li>`}</ul>
+      <button type="button" class="btn ghost v-open" data-v-open="vouch">I know this is real: vouch for it</button>
+      <form class="v-form" data-v-form="vouch" hidden novalidate>
+        <p hidden><label>Leave empty <input name="bot-field"></label></p>
+        <fieldset><legend>How do you know about it?</legend>
+          <label class="v-choice"><input type="radio" name="relation" value="know" checked> I know the people behind it</label>
+          <label class="v-choice"><input type="radio" name="relation" value="seen"> I have seen the need myself</label>
+          <label class="v-choice"><input type="radio" name="relation" value="role"> I hold a role there (principal, teacher, Grama Niladhari, temple)</label>
+        </fieldset>
+        <label>In a few words <small>Shown, for example "Teacher at the school" or "Friend of the organiser"</small><input name="how" maxlength="120"></label>
+        <label>Your name <small>Shown on the page</small><input name="name" maxlength="80" autocomplete="name" required></label>
+        <label>Your mobile number <small>Never shown. Raavanaa may call to check.</small><input name="phone" type="tel" maxlength="40" autocomplete="tel" required></label>
+        <label class="v-agree"><input type="checkbox" name="agree"> I know about this project and believe it is real.</label>
+        <button class="btn" type="submit">Vouch</button>
+        <p class="v-err" data-v-err hidden></p>
+      </form>
+      <div class="v-rate">
+        <h2>Rating</h2>
+        <p class="v-avg" data-v-avg><span class="v-none">No ratings yet.</span></p>
+        <ul class="v-comments" data-v-comments></ul>
+        <button type="button" class="btn ghost v-open" data-v-open="rating">Rate this project</button>
+        <form class="v-form" data-v-form="rating" hidden novalidate>
+          <p hidden><label>Leave empty <input name="bot-field"></label></p>
+          <fieldset class="v-pick"><legend>Your stars</legend>
+            ${[1, 2, 3, 4, 5].map(n => `<label title="${n} star${n > 1 ? "s" : ""}"><input type="radio" name="stars" value="${n}"><i>${STAR}</i><span class="sr">${n}</span></label>`).join("")}
+          </fieldset>
+          <label>A few words <small>Optional. How is it being run? Please don't name any child.</small><textarea name="comment" maxlength="1000" rows="3"></textarea></label>
+          <label>Your name <small>Shown with your words</small><input name="name" maxlength="80" autocomplete="name" required></label>
+          <label>Your mobile number <small>Never shown. One rating per phone.</small><input name="phone" type="tel" maxlength="40" autocomplete="tel" required></label>
+          <label class="v-agree"><input type="checkbox" name="agree"> My rating is honest and fair.</label>
+          <button class="btn" type="submit">Send my rating</button>
+          <p class="v-err" data-v-err hidden></p>
+        </form>
+        <p class="v-note">Stars count straight away. Your words show once the Raavanaa team has read them.</p>
+      </div>
+    </section>`;
+  }
+  const VOICES = {};
+  function fillVoices(root, d) {
+    const box = root.querySelector("[data-voices]"); if (!box || !d) return;
+    const seen = new Set(), list = [];
+    d.vouches.forEach(v => { const k = String(v.name).trim().toLowerCase(); if (!seen.has(k)) { seen.add(k); list.push(v); } });
+    if (list.length) {
+      box.querySelector("[data-v-list]").innerHTML = list.map(v => `<li><b>${esc(v.name)}</b>${v.role ? `<span>${esc(v.role)}</span>` : ""}</li>`).join("");
+      box.querySelector("[data-v-count]").textContent = list.length;
+    }
+    const r = d.rating || {};
+    box.querySelector("[data-v-avg]").innerHTML = r.count
+      ? `${starsHTML(r.average)} <b>${r.average.toFixed(1)}</b> <span>from ${r.count} rating${r.count > 1 ? "s" : ""}</span>`
+      : `<span class="v-none">No ratings yet. Be the first.</span>`;
+    box.querySelector("[data-v-comments]").innerHTML = (d.comments || []).slice(0, 20).map(c => `<li>${starsHTML(c.stars, "sm")}<p>${esc(c.comment)}</p><small>${esc(c.name)} · ${fmtDate(c.at)}</small></li>`).join("");
+    const chip = root.querySelector("[data-rate-chip]");
+    if (chip && r.count) { chip.hidden = false; chip.innerHTML = `${starsHTML(r.average, "sm")} ${r.average.toFixed(1)} <span>(${r.count})</span>`; }
+  }
+  async function wireVoices(root, p) {
+    const box = root.querySelector("[data-voices]"); if (!box) return;
+    const slug = slugOf(p), api = `/api/voices/${encodeURIComponent(slug)}`;
+    if (VOICES[slug]) fillVoices(root, VOICES[slug]);
+    else fetch(api).then(r => r.ok ? r.json() : null).then(d => { if (d && d.ok) { VOICES[slug] = d; fillVoices(root, d); } }).catch(() => { });
+    box.querySelectorAll("[data-v-open]").forEach(b => b.onclick = () => {
+      const f = box.querySelector(`[data-v-form="${b.dataset.vOpen}"]`); f.hidden = !f.hidden; b.setAttribute("aria-expanded", String(!f.hidden));
+      if (!f.hidden) f.querySelector("input:not([type=hidden]):not([name=bot-field])").focus();
+    });
+    const doneKey = k => `raav-${k}-${slug}`;
+    box.querySelectorAll("[data-v-form]").forEach(f => {
+      const kind = f.dataset.vForm, err = f.querySelector("[data-v-err]");
+      try { if (localStorage.getItem(doneKey(kind))) { const b = box.querySelector(`[data-v-open="${kind}"]`); b.textContent = kind === "vouch" ? "✓ You vouched for it" : "✓ Thank you for rating. Change my rating"; if (kind === "vouch") b.disabled = true; } } catch (e) { }
+      f.onsubmit = async e => {
+        e.preventDefault();
+        const fd = new FormData(f), data = Object.fromEntries(fd.entries()); data.kind = kind; data.agree = !!fd.get("agree");
+        if (kind === "vouch" && data.relation === "role") data.role = data.how;
+        const fail = m => { err.textContent = m; err.hidden = false; };
+        err.hidden = true;
+        if (kind === "rating" && !data.stars) return fail("Please choose 1 to 5 stars.");
+        if (String(data.name || "").trim().length < 2) return fail("Please add your name.");
+        if (String(data.phone || "").replace(/\D/g, "").length < 9) return fail("Please add a mobile number we can call.");
+        if (!data.agree) return fail("Please tick the box to confirm.");
+        const btn = f.querySelector("button[type=submit]"); btn.disabled = true;
+        try {
+          const res = await fetch(api, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+          const out = await res.json().catch(() => ({}));
+          if (!res.ok || !out.ok) { btn.disabled = false; return fail(out.error || "That didn't go through. Please try again."); }
+          try { localStorage.setItem(doneKey(kind), "1"); } catch (e2) { }
+          VOICES[slug] = out; fillVoices(root, out);
+          f.hidden = true; f.reset(); btn.disabled = false;
+          const b = box.querySelector(`[data-v-open="${kind}"]`);
+          b.textContent = kind === "vouch" ? "✓ Thank you. Your name is on the list" : (data.comment ? "✓ Thank you. Your words show once the team has read them" : "✓ Thank you for rating");
+          if (kind === "vouch") b.disabled = true;
+        } catch (e3) { btn.disabled = false; fail("That didn't go through. Check your connection and try again."); }
+      };
+    });
+  }
+
   function journeyHTML(p, full) {
     const w = p.people || {}, st = stageNum(p), d = v => v ? fmtDate(v) : "";
     const ex = (p.expectations || []).filter(x => x && x.text), reviewed = ex.length && ex.every(x => x.result);
@@ -2990,7 +3094,7 @@ window.RAAV_FEATURES = (function () {
     const panes = {
       // The story tab: the opening paragraph in full, the rest behind "See how this smile begins".
       story: taleHTML || `<p class="empty">The story is on its way.</p>`,
-      updates: expectHTML(p) + (updates.length ? updates.map(u => `<article class="update"><div class="meta">${fmtDate(u.date)}</div><h3>${esc(u.title)}</h3><div>${md(u.body)}</div></article>`).join("") : `<p class="empty">No impact updates yet.</p>`) + (p.sample ? "" : commentsHTML(slugOf(p))),
+      updates: expectHTML(p) + (updates.length ? updates.map(u => `<article class="update"><div class="meta">${fmtDate(u.date)}</div><h3>${esc(u.title)}</h3><div>${md(u.body)}</div></article>`).join("") : `<p class="empty">No impact updates yet.</p>`) + (p.sample || FEAT.voices ? "" : commentsHTML(slugOf(p))),
       budget: `<div class="budget-tab">${budgetDetailHTML(p, site, true)}${p.money ? `<p class="mny-link"><a class="btn ghost" href="/projects/${slugOf(p)}/money">See every rupee in and out</a></p>` : ""}${stageNum(p) === 1 && budgetOf(p).lines.length ? `<p class="note">These are estimates. Once the day has happened, the real costs are shown here.</p>` : stageNum(p) === 2 ? `<p class="note">Once the day has happened, a breakdown of where the money went is shown here.</p>` : ""}</div>`,
       media: (photos.length || media.length) ? `${media.length ? `<div class="media">${media.map(m => { const e = embedFor(m.url); return e ? `<figure style="margin:0"><div class="embed"><iframe src="${esc(e)}" title="${esc(m.title)}" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy"></iframe></div>${m.title ? `<figcaption class="note" style="padding-top:6px">${esc(m.title)}</figcaption>` : ""}</figure>` : `<a class="media-link" href="${esc(m.url)}" target="_blank" rel="noopener">▶ ${esc(m.title || m.url)}</a>`; }).join("")}</div>` : ""}${photos.length ? `<div class="photos">${photos.map((ph, k) => `<figure><button data-src="${esc(imgUrl(ph.image, 1600))}" aria-label="Open picture"><div class="cover"><img src="${esc(imgUrl(ph.image, 600))}" alt="${esc(ph.caption)}" loading="lazy"></div></button>${ph.caption ? `<figcaption>${esc(ph.caption)}</figcaption>` : ""}</figure>`).join("")}</div>` : ""}` : `<p class="empty">${p.photos_private ? "To protect the children, we do not put their photos on this website. The day is told here in words, and the organisers and families keep the photos." : "No videos or pictures yet."}</p>`
     };
@@ -3006,7 +3110,7 @@ window.RAAV_FEATURES = (function () {
             <header class="phead">
               ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
               <h1>${esc(p.title)}</h1>
-              <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>Submitted by <strong>${esc(p.submitted_by || p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> ${esc(vLabel(p))}</span>` : ""}
+              <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>Submitted by <strong>${esc(p.submitted_by || p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> ${esc(vLabel(p))}</span>` : ""}${FEAT.voices && !p.sample ? `<a class="rate-chip" href="#voices-h" data-rate-chip hidden></a>` : ""}
               <div class="glance">
                 <button type="button" class="glance-btn" aria-expanded="false" aria-controls="glance-card"><span>At a glance</span><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
                 <div class="panel glance-card" id="glance-card">
@@ -3038,7 +3142,7 @@ window.RAAV_FEATURES = (function () {
             ${ringPanel("only-wide")}
             ${stageNum(p) === 3 ? "" : `<div class="only-wide">${budgetBoxHTML(p, site, false)}</div>`}
             ${p.sample ? "" : shareHTML(p)}
-            ${vouchedHTML(p)}
+            ${FEAT.voices && !p.sample ? voicesHTML(p) : vouchedHTML(p)}
             ${journeyHTML(p, full)}
             ${signupHTML(slugOf(p), "Follow this project")}
             <a class="btn ghost" href="/initiated">Back to all projects</a>
@@ -3052,6 +3156,7 @@ window.RAAV_FEATURES = (function () {
       wireGlance(app);
       wireShare(app);
       wireSend(app, p);
+      if (FEAT.voices) wireVoices(app, p);
       app.querySelectorAll("[data-fund]").forEach(b => b.addEventListener("click", () => {
         const g = [...app.querySelectorAll(".go100")].find(x => x.offsetParent !== null); if (!g) return;
         const open = g.querySelector(".go-open"); if (open && open.getAttribute("aria-expanded") !== "true") open.click();
