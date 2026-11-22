@@ -12,7 +12,13 @@ type DB = ReturnType<typeof getDatabase>;
 export const VOUCHES_NEEDED = 1;
 export const VOUCH_NEEDS_ROLE = false;
 // A request goes live by itself once it has enough vouches (and the team approved its page for sharing).
-export const LIVE_ON_VOUCH = true;
+// SURESH 22 Nov 2026: "Give me the approval directly from now. So I can customize and create the page and post it."
+// Vouches no longer put a page live; an admin presses "Approve and post" in the portal. Set true to go back.
+export const LIVE_ON_VOUCH = false;
+// Open vouching (SURESH 22 Nov 2026: "Let it vouched as much as people possible. Anybody can vouch it."): anyone can
+// vouch, with no target number and no role needed, before and after the project is live. This replaces the trust
+// ladder of 9 Nov (3 vouches, one in a role, then a Champion visit). Set false to go back to the ladder words.
+export const OPEN_VOUCH = true;
 
 const day = (v: unknown) => (v ? new Date(v as string).toISOString().slice(0, 10) : "");
 const amount = (v: unknown) => Math.max(0, Math.round(Number(String(v ?? "").replace(/[^\d.]/g, "")) || 0));
@@ -39,20 +45,25 @@ function budgetOf(r: Record<string, any>) {
 export type By = { email: string; name: string };
 
 // Returns the project's slug (the existing one if it is already a project).
-export async function makeProject(db: DB, id: number, by: By, how: "portal" | "publish" | "vouch"): Promise<string> {
+export async function makeProject(db: DB, id: number, by: By, how: "portal" | "publish" | "vouch" | "update"): Promise<string> {
   const [r] = await db.sql<Record<string, any>>`SELECT * FROM suggestions WHERE id = ${id}`;
   if (!r) throw new Error("Request not found");
-  if (r.status === "project" && r.project_slug) return r.project_slug;
+  // Already live: "update" rebuilds the live page from the portal boxes (SURESH 22 Nov 2026: customise the page and
+  // post it), keeping its address and anything added since (gifts, updates, photos).
+  const live = r.status === "project" && r.project_slug;
+  if (live && how !== "update") return r.project_slug;
   const d = r.details || {}, q = r.plan || {}, pf = r.profile || {};
   const budget = budgetOf(r);
   const title = pf.title || d.title || r.title;
   const story = String(pf.summary || d.story || r.description || "").trim();
-  let slug = slugify(title);
-  const taken = await db.sql<{ slug: string }>`SELECT slug FROM site_projects WHERE slug LIKE ${slug + "%"}`;
-  if ((taken as any[]).some((x) => x.slug === slug)) slug = `${slug}-${String(r.ref).toLowerCase()}`;
+  let slug = live ? String(r.project_slug) : slugify(title);
+  if (!live) {
+    const taken = await db.sql<{ slug: string }>`SELECT slug FROM site_projects WHERE slug LIKE ${slug + "%"}`;
+    if ((taken as any[]).some((x) => x.slug === slug)) slug = `${slug}-${String(r.ref).toLowerCase()}`;
+  }
   const vouched = await db.sql<Record<string, any>>`SELECT name, relation, role FROM endorsements WHERE suggestion_id = ${id} AND NOT hidden ORDER BY created_at`;
   const place = pf.place || [r.village, r.city].filter(Boolean).join(", ") || r.location;
-  const label = how === "vouch" || (vouched as any[]).length ? "Checked by Raavanaa and vouched for" : "Checked and approved by Raavanaa";
+  const label = OPEN_VOUCH ? "Approved by Raavanaa" : how === "vouch" || (vouched as any[]).length ? "Checked by Raavanaa and vouched for" : "Checked and approved by Raavanaa";
   const data = {
     title, slug, hidden: false, featured: false, theme: r.category === "Education" ? "Education" : "Trips & Events", status: "Planning",
     location: place, city: r.city || String(place).split(",").pop()!.trim(), organization: d.org || "Raavanaa",
@@ -72,6 +83,16 @@ export async function makeProject(db: DB, id: number, by: By, how: "portal" | "p
     },
     from_request: r.ref,
   };
+  if (live) {
+    const [old] = await db.sql<{ data: Record<string, any> }>`SELECT data FROM site_projects WHERE slug = ${slug}`;
+    const keep: Record<string, any> = {};
+    if (old) for (const k of ["funders", "updates", "photos", "media", "impact", "started", "status", "people", "date_set", "booked", "volunteers", "money", "featured"]) if (old.data && old.data[k] !== undefined) keep[k] = old.data[k];
+    const merged = { ...data, ...keep };
+    await db.sql`UPDATE site_projects SET data = ${JSON.stringify(merged)}::jsonb WHERE slug = ${slug}`;
+    await db.sql`INSERT INTO suggestion_notes (suggestion_id, by_email, by_name, body) VALUES (${id}, ${by.email}, ${by.name}, ${"Live page updated from the portal: /projects/" + slug})`;
+    await db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES (${by.email}, 'suggestion.project.update', ${r.ref}, ${JSON.stringify({ slug })}::jsonb)`;
+    return slug;
+  }
   await db.sql`INSERT INTO site_projects (slug, suggestion_id, data, created_by) VALUES (${slug}, ${id}, ${JSON.stringify(data)}::jsonb, ${by.email})`;
   await db.sql`UPDATE suggestions SET status = 'project', project_slug = ${slug}, updated_at = NOW() WHERE id = ${id}`;
   const why = how === "vouch" ? "Vouched for, so it went live as an Initiated project" : how === "publish" ? "Published by an admin as an Initiated project" : "Turned into an Initiated project";

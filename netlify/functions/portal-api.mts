@@ -31,6 +31,15 @@ const evidenceStore = (context: Context) =>
 // Like clip, but keeps line breaks (paragraphs of the story, one budget item per line).
 const lines = (v: unknown, max: number) => String(v ?? "").split(/\r?\n/).map((l) => l.replace(/[ \t]+/g, " ").trim()).filter(Boolean).join("\n").slice(0, max);
 
+// The page people see, as the team wrote it in the portal boxes.
+const cleanProfile = (v: unknown) => {
+  const p = (v && typeof v === "object" ? v : {}) as Record<string, unknown>;
+  return {
+    title: clip(p.title, 120), tagline: clip(p.tagline, 200), summary: lines(p.summary, 4000), impact: lines(p.impact, 1200), place: clip(p.place, 120), children: clip(p.children, 60),
+    when: clip(p.when, 80), activity: clip(p.activity, 300), budget: lines(p.budget, 1000), budget_total: clip(p.budget_total, 60),
+  };
+};
+
 const day = (v: unknown) => (v ? new Date(v as string).toISOString().slice(0, 10) : "");
 const amount = (v: unknown) => Math.max(0, Math.round(Number(String(v ?? "").replace(/[^\d.]/g, "")) || 0));
 const slugify = (v: string) => v.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "project";
@@ -282,15 +291,25 @@ export default async (req: Request, context: Context) => {
       return json({ ok: true, started: true }, 202);
     }
 
-    // Publish now (SURESH 20 Nov 2026): an admin puts a request live once its page is made and approved for sharing.
-    // For open requests nobody needs to vouch; no visit or approve steps for now.
+    // Approve and post (SURESH 22 Nov 2026: "Give me the approval directly from now. So I can customize and create the
+    // page and post it."). An admin sends the page as written in the portal boxes ({ profile }); it is saved, approved
+    // for sharing and put live on Projects in one go. Pressed again on a live project, it updates the live page.
+    // Without a profile it works as the old Publish now (page already approved for sharing).
     if (parts[2] === "publish" && req.method === "POST") {
-      if (!me.admin) return json({ error: "Only an admin can publish." }, 403);
+      if (!me.admin) return json({ error: "Only an admin can approve and post." }, 403);
+      if (body.profile) {
+        const profile = cleanProfile(body.profile);
+        if (!profile.title) return json({ error: "Give the page a title first." }, 400);
+        await db.sql`UPDATE suggestions SET share_ok = TRUE, share_ok_by = CASE WHEN share_ok THEN share_ok_by ELSE ${me.name} END,
+          share_ok_at = COALESCE(share_ok_at, NOW()), profile = ${JSON.stringify(profile)}::jsonb, updated_at = NOW() WHERE id = ${row.id}`;
+      }
       const [r] = await db.sql<Record<string, any>>`SELECT status, project_slug, share_ok, profile FROM suggestions WHERE id = ${row.id}`;
-      if (r.status === "project" && r.project_slug) return json({ ok: true, slug: r.project_slug });
+      const live = r.status === "project" && r.project_slug;
+      if (live && !body.profile) return json({ ok: true, slug: r.project_slug });
       if (!r.share_ok || !(r.profile || {}).title) return json({ error: "Make the page first (Approve page for sharing)." }, 400);
-      const slug = await makeProject(db, row.id, { email: me.email, name: me.name }, "publish");
-      return json({ ok: true, slug });
+      if (!live) await db.sql`UPDATE suggestions SET approved_by = ${me.name}, approved_at = NOW(), updated_at = NOW() WHERE id = ${row.id}`;
+      const slug = await makeProject(db, row.id, { email: me.email, name: me.name }, live ? "update" : "publish");
+      return json({ ok: true, slug, updated: !!live });
     }
 
     // Step 6: create the Initiated project from the request. It shows on the website straight away (next to projects.json).
@@ -401,11 +420,7 @@ export default async (req: Request, context: Context) => {
       // Approve the request's page for sharing and vouching, with the profile the team checked.
       if (body.share !== undefined) {
         const ok = body.share === true;
-        const p = (body.profile && typeof body.profile === "object") ? body.profile : {};
-        const profile = {
-          title: clip(p.title, 120), tagline: clip(p.tagline, 200), summary: lines(p.summary, 4000), impact: lines(p.impact, 1200), place: clip(p.place, 120), children: clip(p.children, 60),
-          when: clip(p.when, 80), activity: clip(p.activity, 300), budget: lines(p.budget, 1000), budget_total: clip(p.budget_total, 60),
-        };
+        const profile = cleanProfile(body.profile);
         if (ok && !profile.title) return json({ error: "Give the page a title first." }, 400);
         changes.share = ok;
         if (ok) await db.sql`UPDATE suggestions SET share_ok = TRUE, share_ok_by = ${me.name}, share_ok_at = NOW(), profile = ${JSON.stringify(profile)}::jsonb, updated_at = NOW() WHERE id = ${row.id}`;
