@@ -520,3 +520,4 @@ body.pt-signedout .pt-main,body.pt-signedout .pt-shell{padding-top:0}body.pt-sig
 .pt-golive-btns{display:flex;flex-wrap:wrap;gap:8px}
 .pt-live{margin-top:14px;padding:12px 14px;border-radius:14px;background:#e7f4ea;color:#1f4d3a}
 .pt-live a{margin-left:8px;font-weight:600}
+.pt-notes li.pt-hid{opacity:.55}
