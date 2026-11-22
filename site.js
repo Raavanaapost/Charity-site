@@ -3265,9 +3265,14 @@ window.RAAV_FEATURES = (function () {
 
   function renderAbout(app, site) {
     const org = site.name.charAt(0).toUpperCase() + site.name.slice(1).toLowerCase();
-    // New About us words from SURESH (20 Nov 2026); the earlier About us is kept at /about-before (on the to-revisit list).
-    const OLD = /^\/about-before/.test(location.pathname) && !!site.about_old;
-    app.innerHTML = `<section class="intro about-page"><span class="eyebrow">About us</span>${OLD || !site.about_title ? `<h1 class="follow-title"><span class="initial">${esc(org.charAt(0))}</span><span class="org">${esc(org.slice(1))}</span> Community</h1>` : `<h1 class="follow-title about-title">${esc(site.about_title)}</h1>`}<div class="story">${md(OLD ? site.about_old : site.about)}</div><p><a href="/initiated">See our projects</a></p></section>`;
+    // /about = site.about (+ about_title if set). Kept versions: /about-before = the first About us (about_old),
+    // /about-letter = SURESH's "To everyone who wants to change a life" words (live 20-22 Nov 2026, about_letter).
+    const path = location.pathname;
+    const OLD = /^\/about-before/.test(path) && !!site.about_old;
+    const LETTER = /^\/about-letter/.test(path) && !!site.about_letter;
+    const title = LETTER ? site.about_letter_title : OLD ? "" : site.about_title;
+    const body = LETTER ? site.about_letter : OLD ? site.about_old : site.about;
+    app.innerHTML = `<section class="intro about-page"><span class="eyebrow">About us</span>${!title ? `<h1 class="follow-title"><span class="initial">${esc(org.charAt(0))}</span><span class="org">${esc(org.slice(1))}</span> Community</h1>` : `<h1 class="follow-title about-title">${esc(title)}</h1>`}<div class="story">${md(body)}</div><p><a href="/initiated">See our projects</a></p></section>`;
   }
 
   // Phone menu button
