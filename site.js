@@ -12,6 +12,8 @@
               project (amount, name, email or WhatsApp, follow); the pledge shows on the project at once.
      group    "Just me / A group" on Spark a Smile (/spark) and its group words (SURESH 16 Nov 2026: a next feature).
      reasons  the reasons shown on /moment; [] shows all twelve.
+     left     the red "See what's left to reach 100%" button on project pages and the fold it opens (funders list,
+              Make this happen, Help another way). Off for now (SURESH, 22 Nov 2026: "out now, keep it under to do").
      voices   on project pages: open vouching (anyone, no limit) and, on Impact projects only, 1-5 star ratings from the
               people involved, with comments the team reads first (SURESH, 22 Nov 2026). false goes back to the static "Vouched for by" list and the old comments.
    On a draft or local preview, ?features=all shows everything for this browser tab (?features=launch goes back). */
@@ -22,13 +24,13 @@ window.RAAV_SKILLS = ["Visiting and checking projects near me", "Driving and tra
   "Accounts and bookkeeping", "Website and IT", "Medical and first aid", "Counselling and care", "Legal advice", "Building and repairs",
   "Farming and livelihoods", "Organising and leading", "Something else"];
 window.RAAV_FEATURES = (function () {
-  const F = { sponsor: false, pledge: true, circle: false, vetting: true, voices: true, tamil: false, group: false, join: false, volunteers: false, moment: false, map: false, reasons: [] };  // join: "Join Raavanaa" cards and links (off, SURESH 20 Nov 2026: "take join raavanaa out")  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
+  const F = { sponsor: false, pledge: true, circle: false, vetting: true, voices: true, left: false, tamil: false, group: false, join: false, volunteers: false, moment: false, map: false, reasons: [] };  // join: "Join Raavanaa" cards and links (off, SURESH 20 Nov 2026: "take join raavanaa out")  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
   try {
     const q = new URLSearchParams(location.search).get("features");
     const test = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) || /--charity-projects-draft\./.test(location.hostname);
     if (test && q === "all") sessionStorage.setItem("raav-features", "all");
     if (q === "launch") sessionStorage.removeItem("raav-features");
-    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = F.group = F.join = F.volunteers = F.moment = F.map = true; F.reasons = []; }
+    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = F.group = F.join = F.volunteers = F.moment = F.map = F.left = true; F.reasons = []; }
   } catch (e) { /* storage blocked: the launch switches stay */ }
   ["sponsor", "circle", "vetting", "tamil"].forEach(k => { if (!F[k]) document.documentElement.classList.add("no-" + k); });
   // Tamil hidden for now (SURESH 15 Nov 2026): no தமிழ் switch, and a /ta/ page opens the same page in English.
@@ -2135,7 +2137,7 @@ window.RAAV_FEATURES = (function () {
           ${ring}
           <ul class="ring-steps">${steps.map(x => { const d = x.done; return `<li class="${d >= 1 ? "done" : d > 0 ? "part" : ""}"><i style="background:${x.c}"></i><span>${esc(x.name)}${x.name === "Funded" && !FEAT.pledge ? whoFunded(p) : ""}</span><b>${x.icon && d > 0 ? `${Math.round(d * 100)}% ${STEP_ICON[x.icon]}` : d >= 1 ? "✓" : x.pctLabel && d > 0 ? Math.round(d * 100) + "%" : "–"}</b></li>`; }).join("")}</ul>
         </div>
-        ${pct < 100 ? `<button class="go-open" type="button" aria-expanded="false" aria-controls="go-fold-${id}"><span>See what's left to reach 100%</span><i aria-hidden="true">⌄</i></button>
+        ${pct < 100 && FEAT.left ? `<button class="go-open" type="button" aria-expanded="false" aria-controls="go-fold-${id}"><span>See what's left to reach 100%</span><i aria-hidden="true">⌄</i></button>
         <div class="go-fold" id="go-fold-${id}" hidden>
           <ol class="go-list">${b.funders.map(f => `<li class="done funder"><i aria-hidden="true">${f.hide_amount ? "♥" : (b.goal ? Math.round(numOf(f.amount) / b.goal * 100) : 0) + "%"}</i>
               <div><b>${esc(f.name)}</b>${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}<span>Pledged ${money(numOf(f.amount))} for this day.</span></div></li>`).join("")}
@@ -3161,6 +3163,8 @@ window.RAAV_FEATURES = (function () {
       wireSend(app, p);
       if (FEAT.voices) wireVoices(app, p);
       app.querySelectorAll("[data-fund]").forEach(b => b.addEventListener("click", () => {
+        // With the 100% fold off, "Make it happen" goes straight to the giving form by the budget.
+        if (!FEAT.left) { const give = app.querySelector(".b-give [data-donate]"); if (give) { if (!app.querySelector(".pl-inline")) { give.dataset.noScroll = "1"; give.click(); delete give.dataset.noScroll; } const pn = give.closest(".panel") || give; pn.style.scrollMarginTop = "86px"; pn.scrollIntoView({ block: "start", behavior: "smooth" }); } return; }
         const g = [...app.querySelectorAll(".go100")].find(x => x.offsetParent !== null); if (!g) return;
         const open = g.querySelector(".go-open"); if (open && open.getAttribute("aria-expanded") !== "true") open.click();
         const t = g.querySelector("[data-mk=donate]") || g.querySelector(".go-make") || g; if (t.matches && t.matches("[data-mk]")) t.click();
