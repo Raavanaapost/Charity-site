@@ -209,11 +209,11 @@
       <h3>The page people will see</h3>
       <p class="pt-sub">Check every line. No children's names. The school's name is fine.</p>
       <div class="pt-pfs">${inp("title", "Title")}${inp("tagline", "One line under the title")}${inp("summary", "The story: everything they wrote, without children's names (a blank line starts a new paragraph)", true)}${inp("impact", "The impact it will make (2 to 4 sentences, from what they wrote)", true)}${inp("activity", "The day")}${inp("place", "Place")}${inp("children", "Children")}${inp("when", "When")}${inp("budget", "Budget, one item per line, e.g. Bus: Rs 30,000", true)}${inp("budget_total", "Total, e.g. Rs 61,000")}</div>
-      ${s.shareOk
+      ${s.openVouch ? approveHTML(s) : s.shareOk
         ? `<p class="pt-sub">Approved by ${esc(s.shareOkBy || "the team")}${s.shareOkAt ? ` ${ago(s.shareOkAt)}` : ""}. The requester can share it now.</p>
            <p><button type="button" class="pt-btn" data-share="save">Save changes</button> <button type="button" class="pt-btn ghost" data-share="stop">Stop sharing</button></p>`
         : `<p><button type="button" class="pt-btn" data-share="yes">Approve page for sharing</button></p>`}
-      ${goLiveHTML(s)}
+      ${s.openVouch ? "" : goLiveHTML(s)}
       ${messagesHTML(s)}
       ${s.endorseLink ? `<p><button type="button" class="pt-btn ghost" data-preview>Preview the page</button></p>
         <p class="pt-sub">Page: <a href="${esc(s.endorseLink)}" target="_blank" rel="noopener">raavanaa.org${esc(s.endorseLink)}</a></p>` : ""}
@@ -224,7 +224,7 @@
   const digits = v => String(v || "").replace(/\D/g, "").replace(/^0(?=7\d{8}$)/, "94");
   // While one vouch is enough (request-project.mts switch), the old six steps and, for open requests, the vouch card
   // are hidden: make the page, then Publish now or wait for the person in charge (SURESH 20 Nov 2026).
-  const simpleFlow = s => s.vouchesNeeded === 1 && !s.vouchNeedsRole;
+  const simpleFlow = s => s.openVouch || (s.vouchesNeeded === 1 && !s.vouchNeedsRole);
   // "We received your request" and "Your project is listed" (SURESH 21 Nov 2026). Email goes by itself once email
   // sending is on; WhatsApp is a tap here until there is an automatic WhatsApp sender.
   function messagesHTML(s) {
@@ -237,6 +237,29 @@
     return `<div class="pt-golive"><h3>Messages to them</h3>
       <p class="pt-sub">${m.emailOn ? "Emails go out by themselves. " : "Automatic email is off for now, so use the Email button. "}WhatsApp: tap the button and press send. The notes below show what has gone out.</p>
       ${block("1. We received your request", m.received)}${block("2. Your project is listed", m.listed)}</div>`;
+  }
+  // Approve and post (SURESH 22 Nov 2026: "Give me the approval directly from now. So I can customize and create the
+  // page and post it."). Nothing goes live by itself: an admin reads the boxes above, changes anything, and posts it.
+  // Anyone can vouch, before or after (open vouching), so the page can also be shared first.
+  function approveHTML(s) {
+    const admin = /admin/i.test(D.user.role || ""), live = s.projectSlug || s.status === "project";
+    const ic = s.incharge || {}, ref = s.requestType === "referred" && ic.name;
+    const who = ref ? ic.name : (s.contact || "").split(/[,(]/)[0].trim();
+    const phone = ref ? ic.phone : ((s.reach || "").match(/\+?[\d][\d\s-]{7,}/) || [""])[0];
+    const email = ref ? ic.email : ((s.reach || "").match(/[^\s,]+@[^\s,]+/) || [""])[0];
+    const link = live ? `${location.origin}/projects/${s.projectSlug}` : s.endorseLink ? location.origin + s.endorseLink : "";
+    const msg = `Hello ${who.split(" ")[0]}, Raavanaa has made the page for the need you told us about: ${link} Please check it, and vouch for it if it is right. Anyone who knows about it can vouch too, so please share the link.`;
+    const n = (s.endorsements || []).length;
+    return `<div class="pt-golive pt-approve">
+      ${live ? `<div class="pt-live"><b>✓ Live on Projects</b> <a href="/projects/${esc(s.projectSlug || "")}" target="_blank" rel="noopener">Open the project page →</a></div>
+        <p class="pt-sub">Change anything in the boxes above, then press Update the live page.</p>`
+      : `<h3>Your approval</h3><p class="pt-sub">Nothing goes live by itself. Read the page above, change anything you like, then press Approve and post. It goes on Projects as an Initiated project straight away.</p>`}
+      ${admin ? `<p><button type="button" class="pt-btn" data-approve>${live ? "Update the live page" : "Approve and post"}</button>
+        ${!live && !s.shareOk ? ` <button type="button" class="pt-btn ghost" data-share="yes">Save, share for vouching first</button>` : !live ? ` <button type="button" class="pt-btn ghost" data-share="save">Save changes</button>` : ""}</p>`
+      : `<p class="pt-sub">Only an admin can approve and post. ${s.shareOk ? "" : `<button type="button" class="pt-btn ghost" data-share="yes">Save, share for vouching</button>`}</p>`}
+      <p class="pt-sub">Vouches so far: <b>${n}</b>. Anyone can vouch, as many people as like, before or after it is live.</p>
+      ${(s.shareOk || live) && link ? `<p class="pt-golive-btns">${phone ? `<a class="pt-btn ghost" target="_blank" rel="noopener" href="https://wa.me/${digits(phone)}?text=${encodeURIComponent(msg)}">Send to ${esc(who.split(" ")[0] || "them")} on WhatsApp</a>` : ""}${email ? ` <a class="pt-btn ghost" href="mailto:${esc(email)}?subject=${encodeURIComponent("Your Raavanaa project page")}&body=${encodeURIComponent(msg)}">Send by email</a>` : ""}</p>` : ""}
+    </div>`;
   }
   function goLiveHTML(s) {
     if (s.projectSlug || s.status === "project") return `<div class="pt-live"><b>✓ Live on Projects</b> <a href="/projects/${esc(s.projectSlug || "")}" target="_blank" rel="noopener">Open the project page →</a></div>`;
@@ -255,6 +278,19 @@
     </div>`;
   }
   function wireReview(s) {
+    const ap = app.querySelector("[data-approve]");
+    if (ap) ap.onclick = async () => {
+      const profile = {}; app.querySelectorAll("[data-pf]").forEach(i => profile[i.dataset.pf] = i.value.trim());
+      if (!profile.title) { toast("Give the page a title first"); return; }
+      const live = !!(s.projectSlug || s.status === "project");
+      if (!LIVE) { Object.assign(s, { profile, shareOk: true, status: "project", projectSlug: s.projectSlug || "demo-project" }); render(); toast((live ? "Live page updated" : "Approved and posted") + " (demo)"); return; }
+      ap.disabled = true;
+      try {
+        const r = await api(`/api/portal/suggestions/${encodeURIComponent(s.id)}/publish`, { method: "POST", body: JSON.stringify({ profile }) });
+        Object.assign(s, { profile, shareOk: true, status: "project", projectSlug: r.slug }); render();
+        toast(r.updated ? "Live page updated" : "Approved and posted. It is on Projects now.");
+      } catch (e) { ap.disabled = false; toast(e.message || "Could not post"); }
+    };
     const pub = app.querySelector("[data-publish]");
     if (pub) pub.onclick = async () => {
       if (!LIVE) { toast("Publishing works on the real portal only"); return; }
@@ -315,6 +351,17 @@
   // Community endorsement: people who vouched through the request's share link. 3, one of them in a role = backed.
   const vouch = s => { const e = s.endorsements || [], need = s.vouchesNeeded || 3, roleOk = !s.vouchNeedsRole && s.vouchesNeeded ? true : e.some(x => x.relation === "role"), over = !!s.vouchOkBy && e.length >= 1; return { n: e.length, need, role: e.some(x => x.relation === "role"), over, backed: over || (e.length >= need && roleOk) }; };
   const REL = { role: "Role", know: "Knows them", seen: "Seen the need" };
+  // Open vouching (SURESH 22 Nov 2026): anyone can vouch, no target, no role. Phones stay private to the team.
+  const openVouchHTML = s => {
+    const e = s.endorsements || [];
+    if (!e.length && !s.endorseLink) return "";
+    return `<section class="pt-card">
+      <h2>Vouched for by <span class="pt-count">${e.length}</span></h2>
+      <p class="pt-sub">Anyone who knows about it can vouch. There is no limit. Call one of them if you want to check. Vouches made on the live project page are under Vouches &amp; ratings.</p>
+      <ul class="pt-notes">${e.map(x => `<li><span class="pt-av">${esc(initials(x.name))}</span><div><b>${esc(x.name)}</b> <time>${ago(x.at)}</time><p>${esc(x.role || REL[x.relation] || "")} · <a href="tel:${esc(String(x.phone).replace(/\s/g, ""))}">${esc(x.phone)}</a> <small>(private)</small></p></div></li>`).join("") || `<li class="pt-empty">Nobody yet.</li>`}</ul>
+      ${s.endorseLink ? `<p class="pt-sub">Share link: <a href="${esc(s.endorseLink)}" target="_blank" rel="noopener">raavanaa.org${esc(s.endorseLink)}</a></p>` : ""}
+    </section>`;
+  };
   const vouchHTML = s => {
     const e = s.endorsements || [], v = vouch(s);
     if (!e.length && !s.endorseLink) return "";
@@ -351,7 +398,7 @@
       <a class="pt-back" href="#/suggestions">‹ All suggestions</a>
       <header class="pt-head"><div><p class="pt-kicker">Suggestion ${esc(s.id)} · received ${ago(s.received)}</p><h1>${esc(det(s).title || s.title)}</h1>
         <p><span class="pt-pill ${STATUS[s.status].c}">${STATUS[s.status].label}</span>${s.status === "visit" && s.visit ? ` <span class="pt-sub">Visit on ${fmtDay(s.visit)}</span>` : ""}</p></div></header>
-      ${s.status === "declined" ? "" : `<ol class="pt-steps six">${step("take", "Taken")}${step("call", "Called")}${step("visit", "Visited")}${step("approve", "Approved")}${step("budget", "Budget")}${step("create", "Initiated")}</ol>`}
+      ${s.status === "declined" || s.openVouch ? "" : `<ol class="pt-steps six">${step("take", "Taken")}${step("call", "Called")}${step("visit", "Visited")}${step("approve", "Approved")}${step("budget", "Budget")}${step("create", "Initiated")}</ol>`}
       <div class="pt-detail">
         <section class="pt-card">
           <h2>What they sent</h2>
@@ -371,7 +418,7 @@
         </section>
         <div class="pt-col">
           ${reviewHTML(s)}
-          ${simpleFlow(s) && s.requestType !== "referred" ? "" : vouchHTML(s)}
+          ${s.openVouch ? openVouchHTML(s) : simpleFlow(s) && s.requestType !== "referred" ? "" : vouchHTML(s)}
           ${simpleFlow(s) ? "" : flowHTML(s, F, cur)}
           ${visitFeedbackHTML(s)}
           <section class="pt-card">

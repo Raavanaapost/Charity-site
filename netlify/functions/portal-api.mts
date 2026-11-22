@@ -14,7 +14,7 @@ import { getDatabase } from "@netlify/database";
 import { getStore } from "@netlify/blobs";
 import { summary } from "../lib/traffic-core.mts";
 import { teamAccess, ownerEmails, type TeamMember } from "../lib/team-access.mts";
-import { makeProject, VOUCHES_NEEDED, VOUCH_NEEDS_ROLE } from "../lib/request-project.mts";
+import { makeProject, VOUCHES_NEEDED, VOUCH_NEEDS_ROLE, OPEN_VOUCH, LIVE_ON_VOUCH } from "../lib/request-project.mts";
 import { peopleFor, message } from "../lib/notify.mts";
 import { mailOn } from "../lib/mail.mts";
 
@@ -112,7 +112,7 @@ function shape(r: Record<string, any>, notes: unknown[], files: unknown[] = [], 
       ? { status: "failed", error: "The AI check stopped without an answer. Press Run the AI check again.", at: r.ai_at, draft: r.ai_draft || {} }
       : { status: r.ai_status || "", error: r.ai_error || "", at: r.ai_at, draft: r.ai_draft || {} },
     profile: r.profile || {}, requestType: r.request_type || "open", incharge: { name: r.incharge_name || "", phone: r.incharge_phone || "", email: r.incharge_email || "" },
-    projectSlug: r.project_slug || "", vouchesNeeded: VOUCHES_NEEDED, vouchNeedsRole: VOUCH_NEEDS_ROLE,
+    projectSlug: r.project_slug || "", vouchesNeeded: VOUCHES_NEEDED, vouchNeedsRole: VOUCH_NEEDS_ROLE, openVouch: OPEN_VOUCH, liveOnVouch: LIVE_ON_VOUCH,
     // The two messages to the people behind the request, so a volunteer can send them on WhatsApp (SURESH 21 Nov 2026).
     messages: {
       emailOn: mailOn(),
