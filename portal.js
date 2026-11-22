@@ -361,8 +361,8 @@
     if (!e.length && !s.endorseLink) return "";
     return `<section class="pt-card">
       <h2>Vouched for by <span class="pt-count">${e.length}</span></h2>
-      <p class="pt-sub">Anyone who knows about it can vouch. There is no limit. Call one of them if you want to check. Vouches made on the live project page are under Vouches &amp; ratings.</p>
-      <ul class="pt-notes">${e.map(x => `<li><span class="pt-av">${esc(initials(x.name))}</span><div><b>${esc(x.name)}</b> <time>${ago(x.at)}</time><p>${esc(x.role || REL[x.relation] || "")} · <a href="tel:${esc(String(x.phone).replace(/\s/g, ""))}">${esc(x.phone)}</a> <small>(private)</small></p></div></li>`).join("") || `<li class="pt-empty">Nobody yet.</li>`}</ul>
+      <p class="pt-sub">Anyone who knows about it can vouch, signed in with their account. There is no limit. Write to one of them if you want to check. Vouches made on the live project page are under Vouches &amp; ratings.</p>
+      <ul class="pt-notes">${e.map(x => `<li><span class="pt-av">${esc(initials(x.name))}</span><div><b>${esc(x.name)}</b> <time>${ago(x.at)}</time><p>${esc(x.role || REL[x.relation] || "")}${x.phone ? ` · <a href="tel:${esc(String(x.phone).replace(/\s/g, ""))}">${esc(x.phone)}</a> <small>(private)</small>` : x.email ? ` · <a href="mailto:${esc(x.email)}">${esc(x.email)}</a> <small>(private)</small>` : ""}</p></div></li>`).join("") || `<li class="pt-empty">Nobody yet.</li>`}</ul>
       ${s.endorseLink ? `<p class="pt-sub">Share link: <a href="${esc(s.endorseLink)}" target="_blank" rel="noopener">raavanaa.org${esc(s.endorseLink)}</a></p>` : ""}
     </section>`;
   };

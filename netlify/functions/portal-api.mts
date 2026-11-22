@@ -71,11 +71,11 @@ async function filesFor(db: ReturnType<typeof getDatabase>, ids: number[]) {
 async function endorsementsFor(db: ReturnType<typeof getDatabase>, ids: number[]) {
   const by = new Map<number, unknown[]>();
   if (!ids.length) return by;
-  const rows = await db.sql`SELECT suggestion_id, name, relation, role, phone, created_at FROM endorsements
+  const rows = await db.sql`SELECT suggestion_id, name, relation, role, phone, member_email, created_at FROM endorsements
     WHERE NOT hidden AND suggestion_id = ANY(${ids}::int[]) ORDER BY created_at`;
   for (const e of rows as Record<string, any>[]) {
     const list = by.get(e.suggestion_id) || [];
-    list.push({ name: e.name, relation: e.relation, role: e.role, phone: e.phone, at: e.created_at });
+    list.push({ name: e.name, relation: e.relation, role: e.role, phone: e.phone, email: e.member_email || "", at: e.created_at });
     by.set(e.suggestion_id, list);
   }
   return by;
