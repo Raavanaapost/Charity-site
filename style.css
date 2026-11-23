@@ -3282,3 +3282,22 @@ html.pk-on,html.pk-on body{overflow:hidden}
 .pk-none{margin:10px 2px;color:#5d6b64;font-size:15px}
 html[data-form-lang="ta"] .pk-panel :is(h3,input,button,p){font-family:"Noto Sans Tamil",var(--display),sans-serif}
 @media (min-width:700px){.pk-sheet{align-items:center}.pk-panel{border-radius:24px;max-height:80vh;transform:translateY(24px);opacity:0;transition:transform .2s ease,opacity .2s ease}.pk-sheet.in .pk-panel{opacity:1}.pk-grab{display:none}}
+/* The small card after "Submit a request" (SURESH 23 Nov 2026) */
+.rq-done{text-align:center;display:grid;justify-items:center;gap:6px;outline:none}
+.rq-mark{width:84px;height:84px;margin:4px 0 2px;filter:drop-shadow(0 8px 14px rgba(31,77,58,.18));animation:rq-pop .5s ease both}
+@keyframes rq-pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+.rq-done h2{margin:4px 0;font-family:"Playfair Display",serif;font-weight:900;font-size:clamp(26px,6.6vw,36px);color:#1f4d3a;line-height:1.1}
+.rq-ticket{margin:8px 0 0;display:inline-grid;gap:2px;padding:12px 26px;border:2px dashed #e2c98f;border-radius:16px;background:#fff}
+.rq-ticket span{font-family:var(--display);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#8a6a1c}
+.rq-ticket b{font-family:"IBM Plex Mono",monospace;font-size:30px;color:#1f4d3a;letter-spacing:.04em}
+.rq-keep{margin:2px 0 8px;color:#5d6b64;font-size:14px}
+.rq-next{margin:10px 0 2px;font-family:var(--display);font-weight:700;font-size:17px;color:#1f4d3a;justify-self:stretch;text-align:left}
+.rq-steps{list-style:none;margin:0;padding:0;display:grid;gap:10px;justify-self:stretch;text-align:left}
+.rq-steps li{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:#f3f8f2;border:1.5px solid #cfe3d3}
+.rq-steps i{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:700;color:#fff;background:#1f7a47;font-family:var(--display)}
+.rq-steps li:nth-child(2) i{background:#b97a06}.rq-steps li:nth-child(3) i{background:#c8381e}
+.rq-steps span{color:#2f3d36;font-size:15.5px;line-height:1.45}.rq-steps b{color:#17231d}
+.rq-btns{display:grid;gap:10px;justify-self:stretch;margin-top:14px}
+.rq-btns .i-submit{text-decoration:none;font-size:clamp(18px,4.8vw,24px)}
+.rq-home{color:#1f4d3a;font-family:var(--display);font-weight:700;text-decoration:underline;padding:6px}
+html[data-form-lang="ta"] .rq-done :is(h2,p,span,b,a){font-family:"Noto Sans Tamil",var(--display),sans-serif}
