@@ -3161,12 +3161,14 @@ window.RAAV_FEATURES = (function () {
     // who [{value,label}], places [{name, local, when, about}].
     const ov = p.overview || {}, who = p.who || [], places = p.places || [];
     const overviewHTML = (ov.lead || (ov.facts || []).length || who.length || places.length) ? `<section class="pov s${st}">
-        <p class="pov-k">Overview</p>
-        ${ov.lead ? `<p class="pov-lead">${esc(ov.lead)}</p>` : ""}
+        <div class="pov-top"><p class="pov-k">Overview</p>
+        ${ov.lead ? `<p class="pov-lead">${esc(ov.lead)}</p>` : ""}</div>
+        <div class="pov-body">
         ${who.length ? `<div class="pov-who">${who.map(w => `<div><b>${esc(w.value)}</b><span>${esc(w.label)}</span></div>`).join("")}</div>${ov.who_note ? `<p class="pov-note">${esc(ov.who_note)}</p>` : ""}` : ""}
         ${(ov.facts || []).length ? `<dl class="pov-facts">${ov.facts.map(f => `<div><dt>${esc(f.k)}</dt><dd>${esc(f.v)}</dd></div>`).join("")}</dl>` : ""}
         ${places.length ? `<h3 class="pov-h">Where they go</h3>
         <ol class="pov-route">${places.map((pl, k) => `<li><span class="pov-n" aria-hidden="true">${k + 1}</span><div><b>${esc(pl.name)}</b>${pl.local ? `<i>${esc(pl.local)}</i>` : ""}${pl.when ? `<em>${esc(pl.when)}</em>` : ""}${pl.about ? `<p>${esc(pl.about)}</p>` : ""}</div></li>`).join("")}</ol>` : ""}
+        </div>
       </section>` : "";
     // Title card at the top of the Impact tab: the main points of the difference the day makes (SURESH, 23 Nov 2026).
     const icard = p.impact_card;
