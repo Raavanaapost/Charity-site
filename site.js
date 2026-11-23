@@ -3855,6 +3855,34 @@ window.RAAV_FEATURES = (function () {
     return "other";
   };
   const SAFE_NOTE = `<p class="note give-safe room-safe"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3l7 2.6v5.6c0 4.3-2.9 7.6-7 9.3-4.1-1.7-7-5-7-9.3V5.6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12l2.2 2.2L15.2 10" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Raavanaa will only ever share bank details in a personal reply from our official email. Never pay into an account sent to you any other way.</span></p>`;
+  // The giver's WhatsApp message from the room (SURESH, 23 Nov 2026: "make this template a neat design").
+  // Same layout for every project: a warm first line, the title in bold, the one-line story in italics,
+  // short facts each on its own line, then the link alone on the last line so WhatsApp shows the preview card.
+  // WhatsApp marks: *bold*, _italic_. Lines left out when a project has no such fact.
+  function roomShareText(p, o) {
+    const plain = t => String(t || "").replace(/[*_~`]/g, "").replace(/\s+/g, " ").trim();
+    const line = plain(p.tagline) || (plain(p.summary).match(/^.+?[.!?](\s|$)/) || [""])[0].trim();
+    const dt = o.day ? new Date(o.day + "T12:00:00") : null;
+    const when = dt && !isNaN(dt) ? dt.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }) : "";
+    const who = !plain(p.reach) ? "" : /^[\d\s,.+–-]*(to|and)?[\d\s,.+–-]*$/i.test(plain(p.reach)) ? `${plain(p.reach)} children` : plain(p.reach);
+    const facts = [
+      p.location && `\u{1F4CD} ${plain(p.location)}`,
+      when && `\u{1F4C5} ${when}`,
+      who && `\u{1F465} ${who}`,
+      o.left > 0 && `\u{1F3AF} ${o.pct > 0 ? `${o.pct}% there · ` : ""}${o.money(o.left)} still to go`,
+    ].filter(Boolean);
+    return [
+      o.tr ? `\u{1F49B} _${plain(o.tr)}_` : null,
+      `${o.tr ? "" : "\u{1F49B} "}I'm part of this with Raavanaa`,
+      "",
+      `*${plain(p.title)}*`,
+      line ? `_${line}_` : null,
+      facts.length ? "" : null,
+      ...facts,
+      "",
+      `You can be part of it too \u{1F447}`,
+    ].filter(x => x !== null && x !== undefined && x !== false).join("\n");
+  }
   function renderRoom(app, site, projects) {
     const q = new URLSearchParams(location.search), p = projects.find(x => slugOf(x) === slugify(q.get("p") || ""));
     if (!p) { location.replace("/overview"); return; }
@@ -3865,7 +3893,7 @@ window.RAAV_FEATURES = (function () {
     const pctNow = b.goal ? Math.min(100, Math.round((before + amt) / b.goal * 100)) : 0;
     const day = p.money && p.money.day ? fmtDate(p.money.day) : "";
     const url = `${location.origin}/projects/${slug}?from=room`;
-    const shareText = `${tr ? tr + ": " : ""}${FEAT.reserve ? "I reserved my part of" : "I'm part of"} "${p.title}" with Raavanaa. ${p.tagline || ""} You can be part of it too:`;
+    const shareText = roomShareText(p, { tr, day: p.money && p.money.day, left: b.goal ? Math.max(0, b.goal - before - amt) : 0, pct: pctNow, money: n => moneyOf(site, n, p).replace(/&amp;/g, "&") });
     document.title = `Your room: ${p.title} · ${site.name}`;
     const drawing = /\.svg(\?|$)/i.test(p.cover || "") ? p.cover : "/img/project-hills.svg";
     const exp = (p.expectations || []).filter(x => x && x.text);
@@ -3895,7 +3923,7 @@ window.RAAV_FEATURES = (function () {
       </article>
       <div class="room-acts">
         <section class="room-act share"><h3>Share it with someone</h3><p>One share can bring the next person in.</p>
-          <p class="room-btns"><a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(shareText + " " + url)}">WhatsApp</a>
+          <p class="room-btns"><a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(shareText + "\n" + url)}">WhatsApp</a>
           <a class="btn ghost" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}">Facebook</a>
           <button class="btn ghost" type="button" data-copy>Copy link</button></p></section>
         ${(() => { // Following needs no sign-in (SURESH 18 Nov: it asked him to log in again). The tick on the form already saved it.
