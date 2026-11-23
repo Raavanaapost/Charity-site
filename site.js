@@ -24,12 +24,14 @@ window.RAAV_SKILLS = ["Visiting and checking projects near me", "Driving and tra
   "Accounts and bookkeeping", "Website and IT", "Medical and first aid", "Counselling and care", "Legal advice", "Building and repairs",
   "Farming and livelihoods", "Organising and leading", "Something else"];
 window.RAAV_FEATURES = (function () {
-  const F = { sponsor: false, pledge: true, reserve: false, circle: false, vetting: true, voices: true, left: false, tamil: false, group: false, join: false, volunteers: false, moment: false, map: false, reasons: [] };  // join: "Join Raavanaa" cards and links (off, SURESH 20 Nov 2026: "take join raavanaa out")  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
+  const F = { sponsor: false, pledge: true, reserve: false, circle: false, vetting: true, voices: true, left: false, tamil: false, group: false, join: false, volunteers: false, groups: false, moment: false, map: false, reasons: [] };  // join: "Join Raavanaa" cards and links (off, SURESH 20 Nov 2026: "take join raavanaa out")  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
   try {
     const q = new URLSearchParams(location.search).get("features");
     const test = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) || /--charity-projects-draft\./.test(location.hostname);
     if (test && q === "all") sessionStorage.setItem("raav-features", "all");
     if (q === "launch") sessionStorage.removeItem("raav-features");
+    // Community groups (SURESH 23 Nov 2026): on the draft preview only until SURESH says "post" and it is set to true.
+    if (test) F.groups = true;
     if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = F.group = F.join = F.volunteers = F.moment = F.map = F.left = F.reserve = true; F.reasons = []; }
   } catch (e) { /* storage blocked: the launch switches stay */ }
   ["sponsor", "circle", "vetting", "tamil"].forEach(k => { if (!F[k]) document.documentElement.classList.add("no-" + k); });
@@ -43,6 +45,8 @@ window.RAAV_FEATURES = (function () {
   // Gift a Moment taken out for this release (SURESH, 20 Nov 2026: "we do it in phases, next release"). The page, its
   // project list and the moment cards stay in the code; set moment: true to bring them all back. Family pages /m/ still open.
   // Smile Map taken out for this release (SURESH, 20 Nov 2026: "another release"); set map: true to bring it back.
+  // Community groups: /groups (the list and Register our group) and /g/<name> (each group's page).
+  if (!F.groups && /^\/(ta\/)?(groups(\.html)?\/?$|g\/)/.test(location.pathname)) location.replace("/projects");
   if (!F.map && /^\/(ta\/)?smile-map(-v2)?(\.html)?\/?$/.test(location.pathname)) location.replace("/projects");
   if (!F.moment && /^\/(ta\/)?moment(\.html)?\/?$/.test(location.pathname)) location.replace("/projects");
   if (!F.tamil && /^\/ta(\/|$)/.test(location.pathname)) location.replace((location.pathname.replace(/^\/ta/, "") || "/") + location.search + location.hash);
@@ -282,6 +286,13 @@ window.RAAV_FEATURES = (function () {
       const after = navEl.querySelector('a[href="/initiated"], a[href="/projects"]');
       if (after) after.after(v); else navEl.insertBefore(v, navEl.querySelector(".nav-member"));
     }
+    // "Groups" in every menu, after Projects (SURESH 23 Nov 2026: community groups get their own profiles).
+    if (navEl && FEAT.groups && !navEl.querySelector('a[href$="/groups"]')) {
+      const v = document.createElement("a"); v.href = "/groups"; v.textContent = "Groups";
+      if (document.body.dataset.page === "groups") v.setAttribute("aria-current", "page");
+      const after = navEl.querySelector('a[href="/initiated"], a[href="/projects"]');
+      if (after) after.after(v); else navEl.insertBefore(v, navEl.querySelector(".nav-member"));
+    }
     // "Gift a Moment": a button in every menu that opens the moment page (/moment). SURESH, 10 Nov 2026: that page
     // is very important and needs a clear way in from everywhere; the Home page itself stays as it was (/overview).
     // The title "Gift a Moment, in their name" and its heart-and-lamp mark (img/moment-mark.svg) are the same everywhere.
@@ -325,7 +336,7 @@ window.RAAV_FEATURES = (function () {
       <div class="foot-main"><div class="wrap">
         <!-- Footer kept very simple (SURESH, 17 Nov 2026): one row of links, no stages, no Gift a Moment. -->
         <nav class="foot-simple" aria-label="Footer">
-          ${[["Projects", "/projects"], ["Submit a need", "/initiate?way=need"], ...(FEAT.volunteers ? [["Volunteers", "/volunteers"]] : []), ["About us", "/about"], ["Contact", "/contact"]].map(([t, h]) => `<a href="${h}">${t}</a>`).join("")}${APP.inApp ? "" : `<a href="#app" data-get-app>Get the app</a>`}
+          ${[["Projects", "/projects"], ["Submit a need", "/initiate?way=need"], ...(FEAT.groups ? [["Groups", "/groups"]] : []), ...(FEAT.volunteers ? [["Volunteers", "/volunteers"]] : []), ["About us", "/about"], ["Contact", "/contact"]].map(([t, h]) => `<a href="${h}">${t}</a>`).join("")}${APP.inApp ? "" : `<a href="#app" data-get-app>Get the app</a>`}
         </nav>
         ${follow.length ? `<p class="foot-follow">${follow.map(([t, h, ext]) => `<a href="${esc(h)}"${ext ? ' target="_blank" rel="noopener"' : ""}>${esc(t)}</a>`).join("")}</p>` : ""}
       </div></div>
