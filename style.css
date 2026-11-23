@@ -3317,7 +3317,7 @@ html[data-form-lang="ta"] .rq-done :is(h2,p,span,b,a){font-family:"Noto Sans Tam
 .pov-who b{font-family:"Cinzel",var(--display);font-size:44px;font-weight:600;line-height:1;color:#c8381e}
 .pov-who span{margin-top:4px;font-family:var(--display);font-weight:700;font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:#1f4d3a}
 .pov-note{margin:8px 2px 0;font-size:13.5px;color:#5d6b64;text-align:center}
-.pov-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:14px 0 0}
+.pov-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;margin:14px 0 0}
 .pov-facts div{padding:9px 12px;border-radius:10px;background:#fff;border:1px solid #eadfc4;border-left:4px solid #1f7a47}
 .pov-facts div:nth-child(3n+2){border-left-color:#e5851a}.pov-facts div:nth-child(3n){border-left-color:#c8381e}
 .pov-facts dt{font-family:var(--display);font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#7a6a45}
