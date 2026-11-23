@@ -1104,7 +1104,7 @@
   const projOf = slug => P.find(p => p.slug === slug) || { title: slug, slug };
   function syncFunders(slug) { // the project's funders = its received pledges
     const p = P.find(x => x.slug === slug); if (!p) return;
-    p.funders = D.pledges.filter(x => x.project === slug && x.status === "received").map(x => ({ name: x.public ? x.name : "A friend of Raavanaa", amount: x.amount }));
+    p.funders = D.pledges.filter(x => x.project === slug && x.status === "received").map(x => ({ name: x.public ? x.name : "Anonymous", amount: x.amount }));
   }
   // "I'd like to give" (SURESH, 12 Nov 2026): no money is taken on the website. Each person here asked to give;
   // a volunteer replies to them personally (bank details only in that reply) and marks what happened.
@@ -1119,7 +1119,7 @@
         <span class="pt-row-main"><b>${esc(x.name)} <span class="pt-pill ${st[1]}">${st[0]}</span></b>
           <small>${esc(x.id)} · ${fmtDay(String(x.at))} · ${reach(String(x.contact || ""))}${x.lang === "ta" ? " · wrote in Tamil" : ""}</small>
           <small><b>${esc(x.amount || "Amount not said")}</b> for ${esc(what(x))}${t ? ` · ${esc(t.words)} ${esc(t.name)}${t.note ? ` (“${esc(t.note)}”)` : ""}${t.day ? ` · remind every year before ${esc(t.day)}` : ""}` : ""}${x.moment ? ` · family page /m/${esc(x.moment)}` : ""}</small>
-          <small>List the gift as: <b>${x.listing === "own" && x.listAs ? "“" + esc(x.listAs) + "”" : x.listing === "anonymous" ? "A friend of Raavanaa (anonymous)" : x.listing === "name" ? esc(x.name) + ", without the amount" : esc(x.name) + ", with the amount"}</b></small>
+          <small>List the gift as: <b>${x.listing === "own" && x.listAs ? "“" + esc(x.listAs) + "”" : x.listing === "anonymous" ? "Anonymous" : x.listing === "name" ? esc(x.name) + ", without the amount" : esc(x.name) + ", with the amount"}</b></small>
           ${x.message ? `<small class="pt-ask-msg">“${esc(x.message)}”</small>` : ""}
           ${x.by && x.status !== "new" ? `<small>${st[0]} · ${esc(x.by)}${x.handledAt ? " · " + fmtDay(String(x.handledAt)) : ""}</small>` : ""}</span>
         <span class="pt-row-side">${x.status === "new" ? `<button type="button" class="pt-btn sm" data-ask="${esc(x.id)}" data-to="replied">I have replied</button>` : ""}${x.status === "replied" ? `<button type="button" class="pt-btn sm" data-ask="${esc(x.id)}" data-to="received">Gift received</button>` : ""}${x.status === "new" || x.status === "replied" ? `<button type="button" class="pt-btn ghost sm" data-ask="${esc(x.id)}" data-to="closed">Close</button>` : `${x.status === "received" ? `<button type="button" class="pt-btn ghost sm" data-ask="${esc(x.id)}" data-to="closed">Close</button>` : ""}<button type="button" class="pt-btn ghost sm" data-ask="${esc(x.id)}" data-to="new">Reopen</button>`}</span></li>`; };
@@ -1174,7 +1174,7 @@
           <label class="pt-field">Amount<span class="pt-money"><i>$</i><input name="amount" inputmode="decimal" required></span></label>
           <label class="pt-field">Email or phone<input name="contact" placeholder="For the thank-you and receipt"></label>
         </div>
-        <label class="pt-check"><input type="checkbox" name="public" checked><span>Show their name on the website (otherwise "A friend of Raavanaa")</span></label>
+        <label class="pt-check"><input type="checkbox" name="public" checked><span>Show their name on the website (otherwise "Anonymous")</span></label>
         <label class="pt-check"><input type="checkbox" name="received"><span>Money already received</span></label>
         <div class="pt-actions-row" style="margin-top:12px"><button class="pt-btn" type="submit" ${open.length ? "" : "disabled"}>Save pledge</button><button class="pt-btn ghost" type="button" data-cancelpl>Cancel</button></div>
       </form>
