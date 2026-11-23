@@ -504,6 +504,69 @@
     "approved_on": "2026-11-06"
    },
    "tagline": "The 52 children of a small Tamil school in Pussellawa have never been on a school trip, and on Friday 27 November they hope to see Kandy.",
+   "overview": {
+    "lead": "A small Tamil primary school in Pussellawa, in the hill country, is taking its pupils on their first ever school trip: one day in Kandy, about 50 km away, by bus, with food for everyone.",
+    "who_note": "The whole school goes: about 55 children and teachers travel together on the day.",
+    "facts": [
+     {
+      "k": "The day",
+      "v": "Friday 27 November 2026"
+     },
+     {
+      "k": "From",
+      "v": "Pussellawa, Kandy District"
+     },
+     {
+      "k": "Distance",
+      "v": "About 50 km each way by bus"
+     },
+     {
+      "k": "Cost",
+      "v": "Rs 61,000 for the bus and food"
+     },
+     {
+      "k": "Permission",
+      "v": "Department of Education"
+     },
+     {
+      "k": "Organiser",
+      "v": "Raavanaa volunteer in the hill country"
+     }
+    ]
+   },
+   "who": [
+    {
+     "value": "52",
+     "label": "children"
+    },
+    {
+     "value": "6",
+     "label": "teachers"
+    }
+   ],
+   "places": [
+    {
+     "name": "Temple of the Tooth",
+     "local": "Sri Dalada Maligawa, Kandy",
+     "when": "First stop",
+     "about": "The famous temple in the heart of Kandy, one of the best-known places in Sri Lanka."
+    },
+    {
+     "name": "Peradeniya Botanical Gardens",
+     "local": "Peradeniya, just outside Kandy",
+     "when": "On the way home",
+     "about": "The great gardens beside the Mahaweli river, with wide lawns and giant trees, where the children can walk and play before the bus home."
+    }
+   ],
+   "impact_card": {
+    "title": "A first school trip, and a new world to see",
+    "points": [
+     "52 children who have never been on a school trip get their first one",
+     "A new experience, just as the principal asked for: two of Sri Lanka's best-known places in one day",
+     "The whole group, about 55 children and teachers, travels safely there and back and shares a meal",
+     "After the day, the story and pictures (no children's faces) are shared here, and every rupee is shown"
+    ]
+   },
    "story": "## Summary\n\nThe pupils of a small Tamil primary school in Pussellawa have never been on a school trip. On 27 November 2026 they hope to spend a day in Kandy, at the Temple of the Tooth and the Peradeniya Botanical Gardens.\n\n## The need\n\nThe school has 52 children and 6 teachers in a hard-working tea-country community. The principal calls it a fully disadvantaged school, and says these children have never been anywhere on an excursion. She and her teachers decided together to give them a new experience, and asked Raavanaa for help after our first day in Pussellawa in October.\n\nThe school's sign sets out what it is for. Its vision is to give society primary pupils with sound skills and good character. Its mission is to give every pupil all the core skills and the chance to go on to secondary education.\n\n## The plan\n\nOn Friday 27 November 2026, about 55 children and teachers travel by bus from the school to Kandy, about 50 km away. They visit the Sri Dalada Maligawa, the Temple of the Tooth, and stop at the Peradeniya gardens on the way back. The school has permission for the trip from the Department of Education.\n\nThe whole day costs Rs 61,000: about Rs 30,000 for the bus and the rest for food for the whole group.\n\n## What it leaves behind\n\nA first school trip the children will remember. After the day, the organiser will send photos and videos, and we will share the story and the pictures here, so that everyone who gave can see the smiles they created.",
    "impact": [],
    "updates": [
