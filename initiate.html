@@ -121,15 +121,16 @@
         </li>
 
         <li class="i-q">
-          <label class="i-field" for="o-children"><span><b class="i-n">3</b>About how many will take part? <b class="req" aria-hidden="true">*</b></span>
-            <select id="o-children" name="children" required>
-              <option value="" selected disabled>Choose one</option>
-              <option>Fewer than 10</option>
-              <option>10 to 25</option>
-              <option>25 to 50</option>
-              <option>50 to 100</option>
-              <option>More than 100</option>
-            </select></label>
+          <!-- Type a number, or tap a range (SURESH 23 Nov 2026) -->
+          <label class="i-field" for="o-children"><span><b class="i-n">3</b><span data-t="many">About how many will take part?</span> <b class="req" aria-hidden="true">*</b></span>
+            <input id="o-children" name="children" required maxlength="30" autocomplete="off" inputmode="text" placeholder="Type a number, e.g. 35" data-tp="many"></label>
+          <div class="i-picks" data-fill="o-children" aria-label="Or tap a range">
+            <button type="button" data-ta="10க்கும் குறைவு">Fewer than 10</button>
+            <button type="button" data-ta="10 முதல் 25">10 to 25</button>
+            <button type="button" data-ta="25 முதல் 50">25 to 50</button>
+            <button type="button" data-ta="50 முதல் 100">50 to 100</button>
+            <button type="button" data-ta="100க்கும் மேல்">More than 100</button>
+          </div>
         </li>
 
         <li class="i-q">
@@ -157,8 +158,11 @@
             <label class="i-field" for="o-contact"><span>Your name <b class="req" aria-hidden="true">*</b></span>
               <input id="o-contact" name="contact" required maxlength="120" autocomplete="name" placeholder="Your name, and organisation if any" aria-describedby="o-contact-note">
               <small class="i-note" id="o-contact-note">It may be shown on the project page. A nickname is fine.</small></label>
-            <label class="i-field" for="o-reach"><span class="i-sub">Phone, WhatsApp or email <b class="req" aria-hidden="true">*</b></span>
-              <input id="o-reach" name="reach" required maxlength="120" autocomplete="tel" inputmode="text" placeholder="So we can call you back"></label>
+            <!-- Phone is optional, and the email comes from the signed-in account (SURESH 23 Nov 2026) -->
+            <label class="i-field" for="o-reach"><span class="i-sub"><span data-t="phone">Your phone or WhatsApp</span> <u class="opt" data-t="opt">(optional)</u></span>
+              <input id="o-reach" name="reach" maxlength="120" autocomplete="tel" inputmode="tel" placeholder="So we can call you back" data-tp="phone">
+              <small class="i-note" data-email-note hidden></small></label>
+            <input type="hidden" name="email" value="" data-member-email>
           </div>
         </li>
       </ol>

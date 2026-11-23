@@ -4142,7 +4142,7 @@ window.RAAV_FEATURES = (function () {
               group: by === "group" ? (sq.get("group") || "").slice(0, 60) : "", gname: by === "group" ? (sq.get("gname") || "").slice(0, 80) : "" };
             sf.querySelectorAll("[data-spark-f]").forEach(i => { i.value = vals[i.dataset.sparkF] || ""; });
             const kind = sf.querySelector("#o-kind"), k = sq.get("kind");
-            if (kind && k && [...kind.options].some(o => o.value === k || o.text === k)) kind.value = k;
+            if (kind && k) kind.value = k.slice(0, 60);
             const line = sf.querySelector("[data-spark]");
             if (line) {
               const who = by === "group" ? [vals.gname, vals.group].filter(Boolean).join(", ") || "A group" : by === "me" ? "Just me" : "";
@@ -4168,8 +4168,19 @@ window.RAAV_FEATURES = (function () {
             // A small line, not a big welcome: the person sees whose account sends the request.
             const who = oform.querySelector("[data-who]");
             if (who) { who.textContent = `Signed in as ${nm || me.email}`; who.hidden = false; }
+            // No need to type your email again: the signed-in one is sent with the request (SURESH 23 Nov 2026).
+            const em = oform.querySelector("[data-member-email]"), en = oform.querySelector("[data-email-note]");
+            if (em && me.email) em.value = me.email;
+            if (en && me.email) { en.dataset.email = me.email; en.textContent = (document.documentElement.dataset.formLang === "ta" ? "உங்கள் மின்னஞ்சலுக்கும் பதில் அனுப்புவோம்: " : "We'll also reply to your email: ") + me.email; en.hidden = false; }
           });
         }
+        // Ideas under a typed answer (what moment, how many): a tap fills the box, and the box can still be typed in (SURESH 23 Nov 2026).
+        document.querySelectorAll("[data-fill]").forEach(row => {
+          const box = document.getElementById(row.dataset.fill); if (!box) return;
+          const mark = () => row.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.textContent.trim() === box.value.trim()));
+          row.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; box.value = b.textContent.trim(); mark(); box.dispatchEvent(new Event("input", { bubbles: true })); });
+          box.addEventListener("input", mark); mark();
+        });
         const area = document.getElementById("o-description"), count = document.getElementById("o-count");
         if (area && count) { const upd = () => { count.textContent = area.value.length; }; area.addEventListener("input", upd); upd(); }
         const multi = document.getElementById("o-focus"), shown = document.getElementById("o-focus-value");
