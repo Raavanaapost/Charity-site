@@ -24,15 +24,18 @@ window.RAAV_SKILLS = ["Visiting and checking projects near me", "Driving and tra
   "Accounts and bookkeeping", "Website and IT", "Medical and first aid", "Counselling and care", "Legal advice", "Building and repairs",
   "Farming and livelihoods", "Organising and leading", "Something else"];
 window.RAAV_FEATURES = (function () {
-  const F = { sponsor: false, pledge: true, circle: false, vetting: true, voices: true, left: false, tamil: false, group: false, join: false, volunteers: false, moment: false, map: false, reasons: [] };  // join: "Join Raavanaa" cards and links (off, SURESH 20 Nov 2026: "take join raavanaa out")  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
+  const F = { sponsor: false, pledge: true, reserve: false, circle: false, vetting: true, voices: true, left: false, tamil: false, group: false, join: false, volunteers: false, moment: false, map: false, reasons: [] };  // join: "Join Raavanaa" cards and links (off, SURESH 20 Nov 2026: "take join raavanaa out")  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
   try {
     const q = new URLSearchParams(location.search).get("features");
     const test = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) || /--charity-projects-draft\./.test(location.hostname);
     if (test && q === "all") sessionStorage.setItem("raav-features", "all");
     if (q === "launch") sessionStorage.removeItem("raav-features");
-    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = F.group = F.join = F.volunteers = F.moment = F.map = F.left = true; F.reasons = []; }
+    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = F.group = F.join = F.volunteers = F.moment = F.map = F.left = F.reserve = true; F.reasons = []; }
   } catch (e) { /* storage blocked: the launch switches stay */ }
   ["sponsor", "circle", "vetting", "tamil"].forEach(k => { if (!F[k]) document.documentElement.classList.add("no-" + k); });
+  // No "Reserved" step (SURESH 23 Nov 2026: "better we remove reserve. So it will directly place the name"): a giver from the
+  // Be the smile form shows at once by name and amount on one line, counts as Funded and stays until the team Closes it in
+  // the portal. Set reserve: true to bring back the RESERVED tag, the Reserved ring line and the words about it.
   // Tamil hidden for now (SURESH 15 Nov 2026): no தமிழ் switch, and a /ta/ page opens the same page in English.
   // The Tamil pages and ta.js stay; set tamil: true to bring them back.
   // Volunteers pages taken out (SURESH, 20 Nov 2026: "take join volunteer page out"); set volunteers: true to bring them back.
@@ -2040,12 +2043,12 @@ window.RAAV_FEATURES = (function () {
       { name: vLabel(p), done: p.verified ? 1 : 0, c: "#1f7a47" },
       { name: "Budgeted", done: goal > 0 ? 1 : 0, c: "#3f9a5f" },
       // Reserved (pledged, not yet received) gets its own line (SURESH, 17 Nov 2026): one neat line each, no names.
-      ...(FEAT.pledge ? (() => {
+      ...(FEAT.pledge && FEAT.reserve ? (() => {
         const res = (p.funders || []).filter(x => x && x.name && x.pledged).reduce((s, x) => s + numOf(x.amount), 0);
         const fun = Math.max(0, raised - res);
         return [{ name: "Funded", done: goal > 0 ? Math.min(1, fun / goal) : 0, c: "#eaa21c", pctLabel: true, icon: "tick" },
           ...(res > 0 ? [{ name: "Reserved", done: goal > 0 ? Math.min(1, res / goal) : 0, c: "#c8381e", pctLabel: true, icon: "res" }] : [])];
-      })() : [{ name: "Funded", done: goal > 0 ? Math.min(1, raised / goal) : 0, c: "#eaa21c", pctLabel: true }])
+      })() : [{ name: "Funded", done: goal > 0 ? Math.min(1, raised / goal) : 0, c: "#eaa21c", pctLabel: true, ...(FEAT.pledge ? { icon: "tick" } : {}) }])
     ];
     if (st === 2) return [
       { name: "Date confirmed", done: p.date_set ? 1 : 0, c: "#eaa21c" },
@@ -2147,7 +2150,7 @@ window.RAAV_FEATURES = (function () {
           <div class="go-form go-make">
             <h3>Make this happen</h3>
             <div class="mk-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-mk="donate"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>${FEAT.sponsor ? "Donate" : "Give"}</button><button type="button" role="tab" aria-selected="false" data-mk="other">Help another way</button></div>
-            ${!FEAT.sponsor && FEAT.pledge ? `<div class="mk-pane" data-mkpane="donate"><p class="go-sub">Reserve your part, and a volunteer will contact you with the ways to fund. A reservation is held for 24 hours, then that part opens to everyone again.</p>
+            ${!FEAT.sponsor && FEAT.pledge ? `<div class="mk-pane" data-mkpane="donate"><p class="go-sub">${FEAT.reserve ? "Reserve your part, and a volunteer will contact you with the ways to fund. A reservation is held for 24 hours, then that part opens to everyone again." : "Add your name and your part, and a volunteer will contact you with the ways to fund."}</p>
               <button type="button" class="mk-jump" data-jump-give><span>Be the smile</span><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>` : `<div class="mk-pane" data-mkpane="donate"><p class="go-sub">${!FEAT.sponsor ? "Give towards this day in loving memory of someone dear to you. Their name goes with the gift, and a volunteer will reply to you personally." : canGive(p) ? `Give towards this day by card. Secure payment by ${GIVE_BY}.` : "Want to give towards this day? Tap Donate and tell us what you would like to give. A volunteer will reply to you personally."}</p>${DONATE_BTN}
               <p class="go-name"${FEAT.sponsor ? "" : " hidden"}><a href="/moment?project=${encodeURIComponent(slugOf(p))}">♡ Give in someone's name, or on behalf of a family or group →</a></p></div>`}
             <form class="mk-pane" data-mkpane="other" hidden name="make-it-happen" data-ajax data-done="Thank you! Your note is on its way. We'll be in touch soon, and you'll be part of a child's best day.">
@@ -2312,7 +2315,7 @@ window.RAAV_FEATURES = (function () {
     const listOf = (h, total) => b.lines.length ? `<h3 class="money-h">${h}</h3><ul class="bx-list">${b.lines.map(x => `<li><span>${esc(x.item)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>
         <p class="bx-total"><span>${total}</span><b>${money(sum)}</b></p>` : "";
     const funders = h => b.funders.length ? `<h3 class="money-h">${h}</h3>
-        <ul class="funders">${b.funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.pledged ? ` <em class="f-pledged">reserved</em>` : ""}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${numOf(f.amount) && !f.hide_amount ? `<b>${money(numOf(f.amount))}</b>` : ""}</li>`).join("")}</ul>` : "";
+        <ul class="funders">${b.funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.pledged && FEAT.reserve ? ` <em class="f-pledged">reserved</em>` : ""}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${numOf(f.amount) && !f.hide_amount ? `<b>${money(numOf(f.amount))}</b>` : ""}</li>`).join("")}</ul>` : "";
     if (st === 1) {
       const need = Math.max(0, b.goal - b.raised), kids = String(p.reach || "").match(/\d+/);
       return `
@@ -3096,7 +3099,7 @@ window.RAAV_FEATURES = (function () {
       </section>` : ""}
       ${funders.length ? `<section class="money">
         <h2 class="section-title">Made possible by</h2>
-        <ul class="funders">${funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.pledged ? ` <em class="f-pledged">reserved</em>` : ""}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${num(f.amount) && !f.hide_amount ? `<b>${money(num(f.amount))}</b>` : ""}</li>`).join("")}</ul>
+        <ul class="funders">${funders.map(f => `<li><span class="avatar">${esc(String(f.name).trim().split(/\s+/).filter(w => /^[A-Za-z0-9]/.test(w)).map(w => w[0]).slice(0, 2).join("").toUpperCase())}</span><span class="f-name">${esc(f.name)}${f.pledged && FEAT.reserve ? ` <em class="f-pledged">reserved</em>` : ""}${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</span>${num(f.amount) && !f.hide_amount ? `<b>${money(num(f.amount))}</b>` : ""}</li>`).join("")}</ul>
       </section>` : ""}`;
     // Small line icons for the folder tabs: book, heart, camera, play.
     const ic = d => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -3574,7 +3577,7 @@ window.RAAV_FEATURES = (function () {
         <div class="give-proj big pl-proj">${card(x).replace(/^<a [^>]*>/, "").replace(/<\/a>$/, "")}</div>
         <div class="panel give-box">
           <h2>${HEART_SVG} <span class="pl-say" data-say>${PL_SAYS[0]}</span></h2>
-          <p class="pl-lede"><b>Reserve and follow.</b> Give from anywhere, in your own money. A volunteer will follow up with the ways to fund. Your part is held for 24 hours.</p>
+          <p class="pl-lede">${FEAT.reserve ? "<b>Reserve and follow.</b> Give from anywhere, in your own money. A volunteer will follow up with the ways to fund. Your part is held for 24 hours." : "<b>Add your name and follow.</b> Give from anywhere, in your own money. Your name shows on the project straight away, and a volunteer will follow up with the ways to fund."}</p>
           <form class="give-form pledge-form give-ask" data-slug="${esc(slugOf(x))}" data-goal="${bp.goal}" data-raised="${bp.raised}" data-left="${left}" data-cur="${esc(cur)}" novalidate>
             <p hidden><label>Leave empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
             ${MOMENT ? `<div class="pl-moment"><span class="pl-moment-ic" aria-hidden="true">♡</span>
@@ -3842,7 +3845,7 @@ window.RAAV_FEATURES = (function () {
     school: { tag: "School funding", proud: ["Be proud. You are keeping a child in school.", "Every term you help with is a door kept open.", "Learning today, a different life tomorrow."],
       sub: p => `${p.reach ? esc(p.reach) : "These children"} keep learning because of people like you.` },
     other: { tag: "Creating smiles", proud: ["Be proud. You are creating a moment.", "Small acts, lasting smiles.", "Together we make it happen."],
-      sub: () => "Every part reserved brings the day closer." },
+      sub: () => FEAT.reserve ? "Every part reserved brings the day closer." : "Every part brings the day closer." },
   };
   const roomKind = (p, t) => {
     const words = `${p.theme || ""} ${p.title || ""} ${p.summary || ""}`.toLowerCase();
@@ -3862,7 +3865,7 @@ window.RAAV_FEATURES = (function () {
     const pctNow = b.goal ? Math.min(100, Math.round((before + amt) / b.goal * 100)) : 0;
     const day = p.money && p.money.day ? fmtDate(p.money.day) : "";
     const url = `${location.origin}/projects/${slug}?from=room`;
-    const shareText = `${tr ? tr + ": " : ""}I reserved my part of "${p.title}" with Raavanaa. ${p.tagline || ""} You can be part of it too:`;
+    const shareText = `${tr ? tr + ": " : ""}${FEAT.reserve ? "I reserved my part of" : "I'm part of"} "${p.title}" with Raavanaa. ${p.tagline || ""} You can be part of it too:`;
     document.title = `Your room: ${p.title} · ${site.name}`;
     const drawing = /\.svg(\?|$)/i.test(p.cover || "") ? p.cover : "/img/project-hills.svg";
     const exp = (p.expectations || []).filter(x => x && x.text);
@@ -3885,7 +3888,7 @@ window.RAAV_FEATURES = (function () {
         <div class="room-card-text">
           <h2><a href="/projects/${esc(slug)}">${esc(p.title)}</a></h2>
           ${p.tagline ? `<p class="room-tagline">${esc(p.tagline)}</p>` : ""}
-          ${amt ? `<p class="room-mine"><span class="f-pledged">reserved</span> Your part: <b>${q.get("g") ? esc(q.get("g").slice(0, 30)) : money(amt)}</b>${q.get("g") ? ` <span class="room-about">about ${money(amt)}</span>` : ""}${tr ? ` <small>${esc(tr)}</small>` : ""}</p>` : ""}
+          ${amt ? `<p class="room-mine">${FEAT.reserve ? `<span class="f-pledged">reserved</span> ` : ""}Your part: <b>${q.get("g") ? esc(q.get("g").slice(0, 30)) : money(amt)}</b>${q.get("g") ? ` <span class="room-about">about ${money(amt)}</span>` : ""}${tr ? ` <small>${esc(tr)}</small>` : ""}</p>` : ""}
           ${b.goal ? `<div class="room-bar" role="img" aria-label="${pctNow}% covered"><i style="width:${pctBefore}%"></i><i class="mine" style="width:${Math.max(0, pctNow - pctBefore)}%"></i></div>
           <p class="room-pct"><b>${pctNow}%</b> covered · ${money(Math.max(0, b.goal - before - amt))} still to go</p>` : ""}
         </div>
@@ -3908,7 +3911,7 @@ window.RAAV_FEATURES = (function () {
       </div>
       <h2 class="room-h">What happens next</h2>
       <ol class="room-steps">
-        <li class="done"><b>Your part is reserved</b><span>Your name shows on the project, held for 24 hours</span></li>
+        <li class="done"><b>${FEAT.reserve ? "Your part is reserved" : "Your name is on the project"}</b><span>${FEAT.reserve ? "Your name shows on the project, held for 24 hours" : "It shows on the project page now, with your part"}</span></li>
         <li><b>Ways to fund</b><span>A volunteer writes to you personally</span></li>
         <li><b>Gift received</b><span>Marked on the project, open for all to see</span></li>
         <li><b>The day${day ? `: ${day}` : ""}</b><span>The children live it</span></li>
