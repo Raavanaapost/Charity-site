@@ -70,6 +70,9 @@
 /m/*  /together.html  200
 # The Raavanaa Fund: the team chooses the next day of joy
 /fund  /fund.html  200
+# Community groups (23 Nov 2026): the list of groups and each group's own page
+/groups  /groups.html  200
+/g/*  /groups.html  200
 /thank-you  /thank-you.html  200
 /projects/*  /project.html  200
 /post  /post.html  200
