@@ -3169,11 +3169,11 @@ window.RAAV_FEATURES = (function () {
         <ol class="pov-route">${places.map((pl, k) => `<li><span class="pov-n" aria-hidden="true">${k + 1}</span><div><b>${esc(pl.name)}</b>${pl.local ? `<i>${esc(pl.local)}</i>` : ""}${pl.when ? `<em>${esc(pl.when)}</em>` : ""}${pl.about ? `<p>${esc(pl.about)}</p>` : ""}</div></li>`).join("")}</ol>` : ""}
       </section>` : "";
     // Title card at the top of the Impact tab: the main points of the difference the day makes (SURESH, 23 Nov 2026).
-    const ic = p.impact_card;
-    const impactCardHTML = ic && (ic.points || []).length ? `<section class="picard s${st}">
-        <p class="picard-k">${esc(ic.kicker || (st === 3 ? "The impact it made" : "The impact it will make"))}</p>
-        ${ic.title ? `<h3>${esc(ic.title)}</h3>` : ""}
-        <ul>${ic.points.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
+    const icard = p.impact_card;
+    const impactCardHTML = icard && (icard.points || []).length ? `<section class="picard s${st}">
+        <p class="picard-k">${esc(icard.kicker || (st === 3 ? "The impact it made" : "The impact it will make"))}</p>
+        ${icard.title ? `<h3>${esc(icard.title)}</h3>` : ""}
+        <ul>${icard.points.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
       </section>` : "";
     // Story first, then Impact, Budget, Media: the same order as on RaavanaaPost (SURESH, 6 Nov 2026).
     const tabs = [["story", "Story"], ["updates", "Impact"], ["budget", "Budget"], ["media", `Media${count(photos.length + media.length)}`]];
