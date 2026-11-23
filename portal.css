@@ -546,3 +546,4 @@ body.pt-signedout .pt-main,body.pt-signedout .pt-shell{padding-top:0}body.pt-sig
 .pt-memlog li{display:grid;grid-template-columns:130px 1fr;gap:10px;font-size:13.5px}
 .pt-memlog time{color:var(--muted);white-space:nowrap}
 .pt-memlog li.k-give span,.pt-memlog li.k-request span,.pt-memlog li.k-vouch span,.pt-memlog li.k-memory span{font-weight:700}
+.pt-memtable td:nth-child(4) a,.pt-memtable td:nth-child(6){white-space:nowrap}

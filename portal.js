@@ -796,7 +796,7 @@
           <td>${m.phone ? `<a href="https://wa.me/${esc(m.phone.replace(/\D/g, ""))}" target="_blank" rel="noopener">${esc(m.phone)}</a><small class="pt-memfrom">${esc(m.phoneFrom)}</small>` : "–"}</td>
           <td>${esc(m.via)}</td><td>${dt(m.joined)}</td>
           <td>${m.online ? '<i class="pt-dot on"></i>Online now' : memAgo(m.lastActive || m.lastSeen)}</td>
-          <td>${m.pages30 ? `${m.pages30} pages on ${m.days30} day${m.days30 === 1 ? "" : "s"}` : "–"}${didText(m.did) ? `<small class="pt-memfrom">${esc(didText(m.did))}</small>` : ""}</td>
+          <td>${m.pages30 ? `${m.pages30} page${m.pages30 === 1 ? "" : "s"} on ${m.days30} day${m.days30 === 1 ? "" : "s"}` : "–"}${didText(m.did) ? `<small class="pt-memfrom">${esc(didText(m.did))}</small>` : ""}</td>
           <td><button type="button" class="pt-link" data-memlog="${esc(m.email)}">${memOpen === m.email ? "Hide" : "Activity"}</button></td></tr>
           ${memOpen === m.email ? `<tr class="pt-memlogrow"><td colspan="10">${memLog(m)}</td></tr>` : ""}`).join("") || `<tr><td colspan="10" class="pt-empty">${L.length ? "Nobody matches." : "Nobody has signed in yet."}</td></tr>`}</tbody></table></div>`;
   }
