@@ -4167,7 +4167,7 @@ window.RAAV_FEATURES = (function () {
             if (c && !c.value && nm) c.value = nm;
             // A small line, not a big welcome: the person sees whose account sends the request.
             const who = oform.querySelector("[data-who]");
-            if (who) { who.textContent = `Signed in as ${nm || me.email}`; who.hidden = false; }
+            if (who) { who.dataset.name = nm || me.email; who.textContent = (document.documentElement.dataset.formLang === "ta" ? "உள்நுழைந்தவர்: " : "Signed in as ") + (nm || me.email); who.hidden = false; }
             // No need to type your email again: the signed-in one is sent with the request (SURESH 23 Nov 2026).
             const em = oform.querySelector("[data-member-email]"), en = oform.querySelector("[data-email-note]");
             if (em && me.email) em.value = me.email;

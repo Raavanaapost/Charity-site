@@ -43,11 +43,13 @@
         <p class="moment-sub">See a need, or have a plan for a child, a mum, an elder, a family or a whole village? Tell us, and together we'll make it happen.</p>
       </div>
     </div>
+    <!-- English or Tamil, for the form only (SURESH 23 Nov 2026). The Tamil words still need a check by a Tamil speaker. -->
+    <div class="i-lang" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">English</button><button type="button" data-lang="ta" lang="ta" aria-pressed="false">தமிழ்</button></div>
     <section class="initiate-card i-gate" data-gate hidden>
-      <p class="i-gate-step">Step 1 of 2</p>
-      <h2>Sign in to start a moment</h2>
-      <p>Every request on Raavanaa comes from a member, so each one is accountable. It takes a minute, and you only do it once.</p>
-      <a class="i-submit" href="/members?next=/initiate">Sign in or join</a>
+      <p class="i-gate-step" data-t="gstep">Step 1 of 2</p>
+      <h2 data-t="gh">Sign in to start a moment</h2>
+      <p data-t="gp">Every request on Raavanaa comes from a member, so each one is accountable. It takes a minute, and you only do it once.</p>
+      <a class="i-submit" href="/members?next=/initiate" data-t="gbtn">Sign in or join</a>
     </section>
     <form class="initiate-card" name="opportunity" method="POST" action="/initiate?sent=1" data-netlify="true" netlify-honeypot="bot-field" data-ajax data-done="Thank you! Your moment has started.">
       <input type="hidden" name="form-name" value="opportunity">
@@ -62,8 +64,8 @@
       <div class="initiate-head">
         <svg viewBox="0 0 48 44" width="46" height="42" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" aria-hidden="true"><path d="M30 5l8 13"></path><path d="M5 28l22 8"></path><path d="M14 10l14 14"></path></svg>
         <div>
-          <h2>Tell us about the need and your idea</h2>
-          <p>Share the details below. Our team will visit and help make it happen.</p>
+          <h2 data-t="head">Tell us about the need and your idea</h2>
+          <p data-t="headsub">Share the details below. Our team will visit and help make it happen.</p>
         </div>
       </div>
 
@@ -85,11 +87,11 @@
             <p class="ev-help"><span data-t="evhelp">Tell us more: record your voice, take a photo or attach a file</span> <u class="opt" data-t="evopt">(optional, up to 4)</u></p>
             <div class="ev-btns">
               <button type="button" class="ev-btn ev-rec" data-ev-rec><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span data-rec-label>Record your voice</span></button>
-              <button type="button" class="ev-btn" data-ev-live><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Take a photo</span></button>
-              <label class="ev-btn"><input type="file" multiple accept="image/*,application/pdf,video/*,audio/*" data-ev-pick><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5l-8.6 8.6a5 5 0 0 1-7.1-7.1l8.6-8.6a3.3 3.3 0 0 1 4.7 4.7l-8.6 8.6a1.7 1.7 0 0 1-2.4-2.4l7.9-7.9"/></svg><span>Attach a file</span></label>
+              <button type="button" class="ev-btn" data-ev-live><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span data-t="photo">Take a photo</span></button>
+              <label class="ev-btn"><input type="file" multiple accept="image/*,application/pdf,video/*,audio/*" data-ev-pick><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5l-8.6 8.6a5 5 0 0 1-7.1-7.1l8.6-8.6a3.3 3.3 0 0 1 4.7 4.7l-8.6 8.6a1.7 1.7 0 0 1-2.4-2.4l7.9-7.9"/></svg><span data-t="attach">Attach a file</span></label>
             </div>
             <input type="file" accept="image/*" capture="environment" data-ev-camera hidden>
-            <p class="ev-note">Voice notes up to 3 minutes (WhatsApp voice notes work too), photos, PDF documents or a short video (up to 15 seconds). Word file? Save it as PDF first.</p>
+            <p class="ev-note" data-t="evnote">Voice notes up to 3 minutes (WhatsApp voice notes work too), photos, PDF documents or a short video (up to 15 seconds). Word file? Save it as PDF first.</p>
             <ul class="ev-list" data-ev-list></ul>
             <p class="ev-msg" data-ev-msg role="status"></p>
           </div>
@@ -103,7 +105,7 @@
 
         <li class="i-q">
           <div class="i-row">
-            <label class="i-field" for="o-city"><span><b class="i-n">2</b>Where? <b class="req" aria-hidden="true">*</b></span>
+            <label class="i-field" for="o-city"><span><b class="i-n">2</b><span data-t="where">Where?</span> <b class="req" aria-hidden="true">*</b></span>
               <select id="o-city" name="city" required data-city>
                 <option value="" selected disabled>Choose a city or district</option>
                 <option>Jaffna</option>
@@ -111,11 +113,11 @@
                 <option>Batticaloa</option>
                 <option value="Other">Somewhere else</option>
               </select></label>
-            <label class="i-field" for="o-village"><span class="i-sub">Village or area <b class="req" aria-hidden="true">*</b></span>
-              <input id="o-village" name="village" required maxlength="80" placeholder="Pick or type, e.g. Karainagar" list="o-village-list" autocomplete="off"></label>
+            <label class="i-field" for="o-village"><span class="i-sub"><span data-t="village">Village or area</span> <b class="req" aria-hidden="true">*</b></span>
+              <input id="o-village" name="village" required maxlength="80" placeholder="Pick or type, e.g. Karainagar" data-tp="village" list="o-village-list" autocomplete="off"></label>
             <datalist id="o-village-list" data-villages></datalist>
           </div>
-          <label class="i-field" for="o-city-other" data-city-other hidden><span class="i-sub">Which city or district? <b class="req" aria-hidden="true">*</b></span>
+          <label class="i-field" for="o-city-other" data-city-other hidden><span class="i-sub"><span data-t="cityother">Which city or district?</span> <b class="req" aria-hidden="true">*</b></span>
             <input id="o-city-other" name="city_other" maxlength="60" placeholder="e.g. Mullaitivu"></label>
           <input type="hidden" name="location" value="" data-location>
         </li>
@@ -137,48 +139,49 @@
           <!-- Two ways in (SURESH 20 Nov 2026): an open request from anyone, or one sent for someone who asked,
                with that person's details. Raavanaa makes the page and sends it to them; their vouch puts it live. -->
           <fieldset class="i-way" data-way-in>
-            <legend><b class="i-n">4</b>Who is in charge of this need? <b class="req" aria-hidden="true">*</b></legend>
-            <label class="i-way-opt"><input type="radio" name="request_type" value="open" checked><span><b>Me</b><small>I'm sending it myself, or I don't know anyone there</small></span></label>
-            <label class="i-way-opt"><input type="radio" name="request_type" value="referred"><span><b>Someone asked me to send it</b><small>I'll add their name, phone and email</small></span></label>
+            <legend><b class="i-n">4</b><span data-t="incharge">Who is in charge of this need?</span> <b class="req" aria-hidden="true">*</b></legend>
+            <label class="i-way-opt"><input type="radio" name="request_type" value="open" checked><span><b data-t="me">Me</b><small data-t="mesub">I'm sending it myself, or I don't know anyone there</small></span></label>
+            <label class="i-way-opt"><input type="radio" name="request_type" value="referred"><span><b data-t="ref">Someone asked me to send it</b><small data-t="refsub">I'll add their name, phone and email</small></span></label>
           </fieldset>
           <div class="i-incharge" data-incharge hidden>
-            <p class="i-incharge-h">The person in charge</p>
-            <p class="i-note">We make the project page and send it to them. They check it and vouch for it, and then it goes live.</p>
+            <p class="i-incharge-h" data-t="ich">The person in charge</p>
+            <p class="i-note" data-t="icnote">We make the project page and send it to them. They check it and vouch for it, and then it goes live.</p>
             <div class="i-row">
-              <label class="i-field" for="o-ic-name"><span class="i-sub">Their name <b class="req" aria-hidden="true">*</b></span>
-                <input id="o-ic-name" name="incharge_name" maxlength="120" autocomplete="off" placeholder="e.g. the principal, or a parent"></label>
-              <label class="i-field" for="o-ic-phone"><span class="i-sub">Their phone or WhatsApp</span>
+              <label class="i-field" for="o-ic-name"><span class="i-sub"><span data-t="icname">Their name</span> <b class="req" aria-hidden="true">*</b></span>
+                <input id="o-ic-name" name="incharge_name" maxlength="120" autocomplete="off" placeholder="e.g. the principal, or a parent" data-tp="icname"></label>
+              <label class="i-field" for="o-ic-phone"><span class="i-sub" data-t="icphone">Their phone or WhatsApp</span>
                 <input id="o-ic-phone" name="incharge_phone" type="tel" maxlength="40" autocomplete="off" inputmode="tel" placeholder="+94 77 123 4567"></label>
-              <label class="i-field" for="o-ic-email"><span class="i-sub">Their email</span>
+              <label class="i-field" for="o-ic-email"><span class="i-sub" data-t="icemail">Their email</span>
                 <input id="o-ic-email" name="incharge_email" type="email" maxlength="120" autocomplete="off" placeholder="name@example.com"></label>
             </div>
-            <small class="i-note">A phone number, an email, or both.</small>
+            <small class="i-note" data-t="icboth">A phone number, an email, or both.</small>
           </div>
           <div class="i-row">
-            <label class="i-field" for="o-contact"><span>Your name <b class="req" aria-hidden="true">*</b></span>
-              <input id="o-contact" name="contact" required maxlength="120" autocomplete="name" placeholder="Your name, and organisation if any" aria-describedby="o-contact-note">
-              <small class="i-note" id="o-contact-note">It may be shown on the project page. A nickname is fine.</small></label>
+            <label class="i-field" for="o-contact"><span><span data-t="name">Your name</span> <b class="req" aria-hidden="true">*</b></span>
+              <input id="o-contact" name="contact" required maxlength="120" autocomplete="name" placeholder="Your name, and organisation if any" data-tp="name" aria-describedby="o-contact-note">
+              <small class="i-note" id="o-contact-note" data-t="namenote">It may be shown on the project page. A nickname is fine.</small></label>
             <!-- Phone is optional, and the email comes from the signed-in account (SURESH 23 Nov 2026) -->
             <label class="i-field" for="o-reach"><span class="i-sub"><span data-t="phone">Your phone or WhatsApp</span> <u class="opt" data-t="opt">(optional)</u></span>
               <input id="o-reach" name="reach" maxlength="120" autocomplete="tel" inputmode="tel" placeholder="So we can call you back" data-tp="phone">
               <small class="i-note" data-email-note hidden></small></label>
             <input type="hidden" name="email" value="" data-member-email>
+            <input type="hidden" name="form_lang" value="English">
           </div>
         </li>
       </ol>
 
       <div class="i-next" aria-label="What happens next">
-        <p class="i-next-h">What happens next</p>
+        <p class="i-next-h" data-t="next">What happens next</p>
         <ul>
-          <li><b>Raavanaa reads it and makes the project page,</b> and may call you with a few questions.</li>
-          <li><b>The person in charge checks the page and vouches for it.</b> Then it goes live on Projects. Anything to change? They tell us first.</li>
-          <li><b>Everything is recorded,</b> so every project is checked and accountable.</li>
+          <li data-t="next1"><b>Raavanaa reads it and makes the project page,</b> and may call you with a few questions.</li>
+          <li data-t="next2"><b>The person in charge checks the page and vouches for it.</b> Then it goes live on Projects. Anything to change? They tell us first.</li>
+          <li data-t="next3"><b>Everything is recorded,</b> so every project is checked and accountable.</li>
         </ul>
       </div>
 
       <button class="i-submit" type="submit">
         <svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true"><path d="M21.5 2.5 2.5 10.2l6.3 2.4 1.9 6.9 3.3-4.3 4.6 3.3z"></path></svg>
-        Create this moment</button>
+        <span data-t="send">Create this moment</span></button>
       <p class="note" data-msg hidden></p>
     </form>
   </div>
@@ -194,5 +197,6 @@
 </main>
 <footer><div class="wrap"><span>© <span data-year></span> <span data-site-name></span></span><span data-site-footer></span></div></footer>
 <script src="/site.js"></script>
+<script src="/initiate-lang.js"></script>
 </body>
 </html>

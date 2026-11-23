@@ -3242,3 +3242,10 @@ header.bar .logo img{width:216px!important;height:auto!important;aspect-ratio:25
 .i-picks button{font:inherit;font-family:var(--display);font-size:14.5px;font-weight:600;color:#1f4d3a;background:#fff;border:1.5px solid #cfe3d3;border-radius:999px;padding:8px 14px;cursor:pointer;line-height:1.2}
 .i-picks button.on{background:#1f7a47;border-color:#1f7a47;color:#fff}
 .i-write{display:block;margin:14px 0 6px}
+/* English / Tamil switch on the request form (SURESH 23 Nov 2026) */
+.i-lang{display:flex;justify-content:flex-end;gap:0;margin:0 0 10px}
+.i-lang button{font:inherit;font-family:var(--display);font-size:15px;font-weight:600;color:#1f4d3a;background:#fff;border:1.5px solid #cfe3d3;padding:7px 16px;cursor:pointer;line-height:1.2}
+.i-lang button:first-child{border-radius:999px 0 0 999px}.i-lang button:last-child{border-radius:0 999px 999px 0;border-left:0;font-family:"Noto Sans Tamil",var(--display),sans-serif}
+.i-lang button[aria-pressed="true"]{background:#1f7a47;border-color:#1f7a47;color:#fff}
+html[data-form-lang="ta"] .initiate-card,html[data-form-lang="ta"] .i-picks button{font-family:"Noto Sans Tamil",var(--display),sans-serif}
+html[data-form-lang="ta"] .initiate-card :is(h2,span,b,small,p,li,legend,input,textarea,select,button){font-family:"Noto Sans Tamil",var(--display),sans-serif}
