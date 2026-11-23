@@ -48,15 +48,81 @@
    "verified": true,
    "volunteers": false,
    "expectations": [
-    {"text": "Every prefect has a special uniform, like prefects in urban schools", "result": "", "note": ""},
-    {"text": "Stronger discipline, leadership and confidence among the student leaders", "result": "", "note": ""},
-    {"text": "Families spared an extra cost in hard times", "result": "", "note": ""}
+    {
+     "text": "Every prefect has a special uniform, like prefects in urban schools",
+     "result": "",
+     "note": ""
+    },
+    {
+     "text": "Stronger discipline, leadership and confidence among the student leaders",
+     "result": "",
+     "note": ""
+    },
+    {
+     "text": "Families spared an extra cost in hard times",
+     "result": "",
+     "note": ""
+    }
    ],
    "from_request": "S-1004",
    "organization": "Raavanaa",
    "submitted_by": "Prabakaran Karuppaiyah",
    "verified_label": "Checked by Raavanaa and vouched for",
    "_note": "Copied from the portal-made project (request S-1004) so the full request text shows in the story; projects.json wins on the same slug (SURESH 20 Nov 2026). School name allowed (SURESH 20 Nov), no children's names."
+  },
+  {
+   "title": "Attabage Child Development Centre: a safe, happy place for 23 children",
+   "slug": "attabage-child-development-centre",
+   "hidden": false,
+   "featured": false,
+   "theme": "Education",
+   "status": "Planning",
+   "city": "Kandy",
+   "location": "Attabage, Kandy District",
+   "organization": "Raavanaa",
+   "submitted_by": "Attabage Child Development Centre",
+   "started": "November 2026",
+   "reach": "23 children and their parents",
+   "verified": false,
+   "goal": 0,
+   "funders": [],
+   "budget": [],
+   "currency": "Rs ",
+   "date_set": false,
+   "booked": false,
+   "volunteers": false,
+   "summary": "The Attabage Child Development Centre cares for 23 children. In three handwritten pages it lists ten needs, from doors, windows and roof repairs to a fence, playground equipment, cradles and learning materials, and asks for a day out for the children and their parents.",
+   "tagline": "Ten things that would make a small children's centre in Attabage safe, warm and full of play.",
+   "cover": "/img/hero-initiated.svg",
+   "media": [],
+   "photos": [],
+   "steps": [],
+   "impact": [],
+   "updates": [],
+   "vouched": [],
+   "story": "## The need\n\nThe Attabage Child Development Centre cares for **23 children**. In three handwritten pages, the centre lists what it needs to give these children a safe, well-equipped place to learn and play:\n\n1. Doors and windows\n2. Repairs to damaged timber ceiling and roof boards\n3. Food provisions and play equipment\n4. More building space\n5. Outdoor playground equipment (swings, ladders, seesaws)\n6. A secure boundary fence and main gate\n7. Learning materials\n8. Baby cradles and mosquito nets\n9. Kitchenware and appliances\n10. A smart TV and a laptop\n\nThe centre also asks for a **day out for the children and their parents**.\n\n## The impact it will make\n\nThe 23 children at the centre would have a sound, secure building with working doors, windows and roof, a fence and gate to keep them safe, cradles and mosquito nets for the youngest, and a kitchen that can feed them. Playground equipment, learning materials and a TV and laptop would give them more to learn and enjoy every day, and a trip together would give the children and their parents a day of joy they share.\n\n*Everything the centre wrote is on this page. Costs and dates are still to come.*",
+   "expectations": [
+    {
+     "text": "A safe, secure building for the 23 children (doors, windows, roof, fence and gate)",
+     "result": "",
+     "note": ""
+    },
+    {
+     "text": "Play and learning equipment the children use every day",
+     "result": "",
+     "note": ""
+    },
+    {
+     "text": "A day out for the children and their parents",
+     "result": "",
+     "note": ""
+    }
+   ],
+   "people": {
+    "requested_by": "Attabage Child Development Centre",
+    "requested_on": "2026-11-23"
+   },
+   "_note": "From three handwritten pages transcribed and translated by Gemini (Drive Website_Projects/Raavanaa_Bowling_Club/01_Incoming, transcript_image_01-03.md, which had not arrived in Drive on 23 Nov). Initiated: no costs, date or funding yet. verified:false = listed only as 'being checked' until SURESH approves. No children's names or photos."
   },
   {
    "title": "Pussellawa kids' trip to Hanuman Kovil",
