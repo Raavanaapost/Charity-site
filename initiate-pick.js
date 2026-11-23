@@ -35,7 +35,7 @@
     many: { q: ["About how many will take part?", "ஏறத்தாழ எத்தனை பேர் பங்கேற்பார்கள்?"], own: ["Type a number, e.g. 35", "எண்ணை எழுதுங்கள், எ.கா. 35"],
       list: () => MANY.map(m => ({ v: ta() ? m[1] : m[0], label: ta() ? m[1] : m[0], icon: PPL(m[2]) })) },
   };
-  const T = { use: ["Use this", "இதைப் பயன்படுத்து"], or: ["or choose one", "அல்லது ஒன்றைத் தேர்ந்தெடுங்கள்"], close: ["Close", "மூடு"], none: ["Nothing in the list. Type it above and tap Use this.", "பட்டியலில் இல்லை. மேலே எழுதி, இதைப் பயன்படுத்து என்பதைத் தட்டுங்கள்."] };
+  const T = { use: ["Use this", "சரி"], or: ["or choose one", "அல்லது ஒன்றைத் தேர்ந்தெடுங்கள்"], close: ["Close", "மூடு"], none: ["Nothing in the list. Type it above and tap Use this.", "பட்டியலில் இல்லை. மேலே எழுதி, சரி என்பதைத் தட்டுங்கள்."] };
   const t = k => T[k][ta() ? 1 : 0];
 
   const sheet = document.createElement("div");
