@@ -1944,7 +1944,7 @@
 
   function render() {
     const [page, id] = route();
-    const cur = ["voices", "suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "members", "volunteers", "circles", "traffic", "team"].includes(page) ? page : "dashboard";
+    const cur = ["voices", "suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "members", "volunteers", "groups", "circles", "traffic", "team"].includes(page) ? page : "dashboard";
     drawNav(cur);
     if (page === "suggestions" && id) { app.innerHTML = detail(id); wireDetail(id); }
     else if (page === "suggestions") { app.innerHTML = suggestions(); wireSuggestions(); }
