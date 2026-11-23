@@ -792,7 +792,7 @@
         <div class="pt-chips">${chip("all", "All")}${chip("online", "Online now")}${chip("active", "Active in 30 days")}${chip("phone", "With phone")}${chip("nophone", "No phone")}${chip("google", "Google")}${chip("unconfirmed", "Email not confirmed")}</div></div>
       <div class="pt-card pt-tablewrap"><table class="pt-memtable"><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Signed in with</th><th>Joined</th><th>Last active</th><th>Last 30 days</th><th></th></tr></thead>
         <tbody>${list.map((m, i) => `<tr><td>${i + 1}</td><td><b>${esc(m.name || "(no name)")}</b>${m.team ? ' <small class="pt-tag">Team</small>' : ""}</td>
-          <td><a href="mailto:${esc(m.email)}">${esc(m.email)}</a>${m.confirmed ? "" : ' <small class="pt-tag warn">not confirmed</small>'}</td>
+          <td><a href="mailto:${esc(m.email)}">${esc(m.email)}</a>${m.confirmed ? "" : ' <small class="pt-memfrom">email not confirmed yet</small>'}</td>
           <td>${m.phone ? `<a href="https://wa.me/${esc(m.phone.replace(/\D/g, ""))}" target="_blank" rel="noopener">${esc(m.phone)}</a><small class="pt-memfrom">${esc(m.phoneFrom)}</small>` : "–"}</td>
           <td>${esc(m.via)}</td><td>${dt(m.joined)}</td>
           <td>${m.online ? '<i class="pt-dot on"></i>Online now' : memAgo(m.lastActive || m.lastSeen)}</td>
