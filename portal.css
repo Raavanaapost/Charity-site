@@ -521,3 +521,28 @@ body.pt-signedout .pt-main,body.pt-signedout .pt-shell{padding-top:0}body.pt-sig
 .pt-live{margin-top:14px;padding:12px 14px;border-radius:14px;background:#e7f4ea;color:#1f4d3a}
 .pt-live a{margin-left:8px;font-weight:600}
 .pt-notes li.pt-hid{opacity:.55}
+
+/* Members (23 Nov 2026): everyone in the members sign-in, how the list grows, who is online, activity. Admins only. */
+.pt-stats2{margin-top:-4px}
+.pt-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#bbb;margin-right:6px;vertical-align:middle}
+.pt-dot.on{background:#1f9d55;box-shadow:0 0 0 3px rgba(31,157,85,.2)}
+.pt-memgrow{margin-bottom:12px}
+.pt-memgrow h2 small{font-weight:500;font-size:13px}
+.pt-mbars{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;align-items:end;height:150px;padding-top:6px}
+.pt-mbar{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:3px;font-size:12px;color:var(--muted)}
+.pt-mbar b{color:var(--ink);font-size:13px}
+.pt-mbar i{display:block;width:100%;max-width:38px;min-height:2px;border-radius:6px 6px 2px 2px;background:#1f7a47}
+.pt-mbar span{white-space:nowrap;font-size:11px}
+.pt-mbar small{font-weight:700;color:var(--ink);font-size:11.5px}
+.pt-memtools{display:grid;gap:10px;margin:12px 0}
+.pt-memtable{width:100%;border-collapse:collapse;font-size:14px;min-width:980px}
+.pt-memtable th,.pt-memtable td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.pt-memtable th{font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+.pt-memtable td a{color:inherit}
+.pt-memfrom{display:block;color:var(--muted);font-size:12px}
+.pt-tag.warn{background:#fbe7d4;color:#8a4a12}
+.pt-memlogrow td{background:var(--bg)}
+.pt-memlog{list-style:none;margin:0;padding:0;display:grid;gap:6px;max-height:420px;overflow:auto}
+.pt-memlog li{display:grid;grid-template-columns:130px 1fr;gap:10px;font-size:13.5px}
+.pt-memlog time{color:var(--muted);white-space:nowrap}
+.pt-memlog li.k-give span,.pt-memlog li.k-request span,.pt-memlog li.k-vouch span,.pt-memlog li.k-memory span{font-weight:700}

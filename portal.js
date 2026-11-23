@@ -49,6 +49,7 @@
     champions: '<path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.6L12 16.4l-5.1 2.7 1-5.6-4.1-4 5.7-.8z"/>',
     voices: '<path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.6L12 16.4l-5.1 2.7 1-5.6-4.1-4 5.7-.8z"/><path d="M4 21h16"/>',
     reports: '<path d="M12 3l8 3v6c0 4.6-3.3 8-8 9-4.7-1-8-4.4-8-9V6z"/><path d="M12 8v5M12 16h.01" stroke-width="2.2"/>',
+    members: '<circle cx="12" cy="8" r="3.4"/><path d="M5 20c.6-4 3.2-6.3 7-6.3s6.4 2.3 7 6.3"/><path d="M18.5 4.5v4M16.5 6.5h4"/>',
     traffic: '<path d="M4 19V11M9.3 19V6M14.6 19v-5M20 19V9"/><path d="M3 21h18"/>',
     more: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'
   };
@@ -56,7 +57,7 @@
   const MENU = [
     ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true], ["voices", "Vouches & ratings", true],
     ["sponsors", "Sponsors & pledges", true], ["day", "Day preparation", true], ["close", "Close the day", true],
-    ["people", "People", true], ["champions", "Champions", true], ["volunteers", "Volunteers", true], ["circles", "Family circles", true], ["traffic", "Traffic", true], ["team", "Team & logins", true]
+    ["people", "People", true], ["champions", "Champions", true], ["members", "Members", true], ["volunteers", "Volunteers", true], ["circles", "Family circles", true], ["traffic", "Traffic", true], ["team", "Team & logins", true]
   ];
 
   let D = null, P = [], C = { list: [], districts: [] }, chDistrict = "All", chEdit = null;
@@ -90,7 +91,7 @@
     document.getElementById("pt-tabbar").innerHTML = [["dashboard", "Home"], ["suggestions", "Suggestions"], ["projects", "Projects"], ["reports", "Reports"], ["more", "More"]].map(([k, l]) => {
       const ready = k !== "more";
       return ready ? `<a href="#/${k}" class="${cur === k ? "on" : ""}">${svg(ICON[k], 22)}<span>${l}</span>${k === "sponsors" && newAsk ? `<b class="pt-badge">${newAsk}</b>` : k === "suggestions" && newCount ? `<b class="pt-badge">${newCount}</b>` : k === "reports" && openRep ? `<b class="pt-badge">${openRep}</b>` : ""}</a>`
-        : `<button type="button" class="${["voices", "sponsors", "day", "close", "people", "champions", "volunteers", "circles", "traffic", "team"].includes(cur) ? "on" : ""}" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
+        : `<button type="button" class="${["voices", "sponsors", "day", "close", "people", "champions", "members", "volunteers", "circles", "traffic", "team"].includes(cur) ? "on" : ""}" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
     }).join("");
     document.querySelectorAll("[data-soon]").forEach(b => b.onclick = () => {
       let m = document.getElementById("pt-more");
@@ -710,6 +711,124 @@
       try { VOLS = (await api("/api/volunteers/team", { method: "PATCH", body: JSON.stringify({ id, hidden }) })).volunteers || []; render(); toast(hidden ? "Hidden from the Volunteers page" : "Back on the Volunteers page"); }
       catch (e) { b.disabled = false; toast(e.message || "Could not save."); }
     });
+  }
+  // Members (SURESH, 23 Nov 2026): "a dashboard with all the sign in users we have in our members sign in. Name, email,
+  // phone. We have to make as many people as possible to sign in. That is our success." Admins only. Real accounts
+  // from the members sign-in (/members), newest first, with how the list is growing. Personal data: never share.
+  let MEMS = null, memQ = "", memF = "all", memOpen = "", MEMLOG = {};
+  const memAgo = d => { if (!d) return "–"; const m = Math.round((Date.now() - new Date(d)) / 6e4); return m < 2 ? "just now" : m < 60 ? m + " min ago" : m < 1440 ? Math.round(m / 60) + " h ago" : m < 2880 ? "yesterday" : Math.round(m / 1440) + " days ago"; };
+  const DID = { requests: ["request", "requests"], pledges: ["pledge", "pledges"], vouches: ["vouch", "vouches"], ratings: ["rating", "ratings"], comments: ["comment", "comments"], volunteer: ["volunteer join", "volunteer joins"], memories: ["memory page", "memory pages"] };
+  const didText = o => Object.entries(o || {}).filter(([, n]) => n).map(([k, n]) => `${n} ${(DID[k] || [k, k])[n === 1 ? 0 : 1]}`).join(", ");
+  // Pages opened within 30 minutes of each other fold into one visit line.
+  function foldLog(ev, m) {
+    const all = ev.concat([{ at: m.joined, kind: "joined", text: `Joined Raavanaa (${m.via})`, path: "" }]).filter(e => e.at).sort((a, b) => b.at.localeCompare(a.at));
+    const out = [];
+    for (const e of all) {
+      const last = out[out.length - 1];
+      if (e.kind === "view" && last && last.kind === "visit" && new Date(last.from) - new Date(e.at) < 30 * 6e4) { last.from = e.at; if (!last.pages.includes(e.path)) last.pages.push(e.path); last.n++; continue; }
+      out.push(e.kind === "view" ? { kind: "visit", at: e.at, from: e.at, pages: [e.path], n: 1 } : e);
+    }
+    return out;
+  }
+  function memLog(m) {
+    const L = MEMLOG[m.email];
+    if (!L) return `<p class="pt-loading">Loading activity…</p>`;
+    if (L.error) return `<p class="pt-private">${esc(L.error)}</p>`;
+    const items = foldLog(L, m);
+    const t = d => new Date(d).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+    return `<ol class="pt-memlog">${items.slice(0, 120).map(e => e.kind === "visit"
+      ? `<li><time>${t(e.at)}</time><span>Visit: ${e.n} page${e.n === 1 ? "" : "s"} · ${e.pages.slice(0, 6).map(esc).join(", ")}${e.pages.length > 6 ? " …" : ""}</span></li>`
+      : `<li class="k-${esc(e.kind)}"><time>${t(e.at)}</time><span>${esc(e.text)}${e.path && e.kind !== "view" ? ` · <a href="${esc(e.path)}" target="_blank" rel="noopener">${esc(e.path)}</a>` : ""}</span></li>`).join("")}</ol>
+      <p class="pt-sub">Pages and shares are recorded from 23 Nov 2026, only while they are signed in. Requests, pledges, vouches, comments and memory pages go back to the start.</p>`;
+  }
+  const memDemo = () => {
+    const d = n => new Date(Date.now() - n * 864e5).toISOString();
+    return [["Example Member", "member.one@example.com", "+94 77 000 0000", "Pledge form", "Google", 0], ["Sample Person", "sample.person@example.com", "", "", "Email", 2],
+      ["Test Giver", "test.giver@example.com", "", "", "Email", 9], ["Demo Volunteer", "demo.vol@example.com", "+1 416 000 0000", "Volunteer form", "Google", 20]]
+      .map(([name, email, phone, phoneFrom, via, n], i) => ({ name, email, phone, phoneFrom, via, joined: d(n), confirmed: true, lastSeen: d(n), team: false,
+        lastActive: i === 0 ? new Date().toISOString() : d(n), online: i === 0, pages30: [12, 4, 1, 0][i], days30: [3, 2, 1, 0][i], did: i === 0 ? { pledges: 1, vouches: 2 } : i === 3 ? { volunteer: 1 } : {} }));
+  };
+  function members() {
+    if (!LIVE || !ME || !ME.admin) { if (LIVE) return `<header class="pt-head"><div><p class="pt-kicker">Members</p><h1>Everyone who signed in</h1></div></header><p class="pt-private">Only admins can see the members list.</p>`; }
+    if (MEMS === null) { loadMembers(); return `<header class="pt-head"><div><p class="pt-kicker">Members</p><h1>Everyone who signed in</h1></div></header><p class="pt-loading">Loading…</p>`; }
+    if (MEMS.error) return `<header class="pt-head"><div><p class="pt-kicker">Members</p><h1>Everyone who signed in</h1></div></header><p class="pt-private">${esc(MEMS.error)}</p>`;
+    const L = MEMS.members, now = new Date(), day0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const t = m => new Date(m.joined).getTime() || 0;
+    const since = ms => L.filter(m => t(m) >= ms).length;
+    const today = since(day0), week = since(now - 7 * 864e5), month = since(now - 30 * 864e5);
+    const withPhone = L.filter(m => m.phone).length, google = L.filter(m => m.via === "Google").length;
+    const online = L.filter(m => m.online), active30 = L.filter(m => m.days30 > 0).length;
+    // New members in each of the last 8 weeks (oldest on the left) and the running total.
+    const weeks = Array.from({ length: 8 }, (_, i) => { const end = now - (7 - i) * 7 * 864e5, start = end - 7 * 864e5;
+      return { n: L.filter(m => t(m) > start && t(m) <= end).length, total: L.filter(m => t(m) <= end).length, label: new Date(end).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) }; });
+    const top = Math.max(1, ...weeks.map(w => w.n));
+    const q = memQ.trim().toLowerCase();
+    const list = L.filter(m => (memF === "all" || (memF === "phone" ? m.phone : memF === "nophone" ? !m.phone : memF === "google" ? m.via === "Google" : memF === "unconfirmed" ? !m.confirmed : memF === "online" ? m.online : memF === "active" ? m.days30 > 0 : true))
+      && (!q || (m.name + " " + m.email + " " + m.phone).toLowerCase().includes(q)));
+    const dt = d => d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "–";
+    const chip = (k, l) => `<button type="button" aria-pressed="${memF === k}" data-memf="${k}">${l}</button>`;
+    return `
+      <header class="pt-head"><div><p class="pt-kicker">Members</p><h1>Everyone who signed in</h1>
+        <p class="pt-sub">Every account made at <a href="/members" target="_blank" rel="noopener">raavanaa.org/members</a> (email or Google), newest first. More members is our success. Private: admins only, never share this list.</p></div>
+        <div class="pt-actions-row"><button type="button" class="pt-btn ghost" data-memcopy>Copy emails</button><button type="button" class="pt-btn" data-memcsv>Download list</button></div></header>
+      ${LIVE ? "" : `<p class="pt-private">Demo: made-up example people. Sign in to see the real members.</p>`}
+      <section class="pt-stats">
+        <div class="pt-stat st1"><b>${L.length}</b><span>Members in all</span></div>
+        <div class="pt-stat st2"><b>${today}</b><span>Joined today</span></div>
+        <div class="pt-stat s1"><b>${week}</b><span>This week</span></div>
+        <div class="pt-stat st3"><b>${month}</b><span>Joined last 30 days</span></div>
+      </section>
+      <section class="pt-stats pt-stats2">
+        <div class="pt-stat st1"><b><i class="pt-dot ${online.length ? "on" : ""}"></i>${online.length}</b><span>Online now</span></div>
+        <div class="pt-stat st2"><b>${active30}</b><span>Active in 30 days</span></div>
+        <div class="pt-stat s1"><b>${withPhone}</b><span>With a phone</span></div>
+        <div class="pt-stat st3"><b>${google}</b><span>Joined with Google</span></div>
+      </section>
+      ${online.length ? `<p class="pt-sub"><b>Online now:</b> ${online.map(m => esc(m.name || m.email)).join(", ")}</p>` : ""}
+      <section class="pt-card pt-memgrow"><h2>New members each week <small class="pt-sub">· running total under each week</small></h2>
+        <div class="pt-mbars">${weeks.map(w => `<div class="pt-mbar" title="${w.n} new in the week to ${esc(w.label)}; ${w.total} in all"><b>${w.n || ""}</b><i style="height:${Math.round(w.n / top * 100)}%"></i><span>${esc(w.label)}</span><small>${w.total}</small></div>`).join("")}</div></section>
+      <p class="pt-sub">${withPhone} of ${L.length} have a phone number. The sign-in only asks for name and email, so a phone shows only when the same email also filled in a Volunteer, pledge or request form. ${google} joined with Google.</p>
+      <div class="pt-memtools"><input class="pt-search" type="search" placeholder="Search name, email or phone" aria-label="Search members" value="${esc(memQ)}" data-memq>
+        <div class="pt-chips">${chip("all", "All")}${chip("online", "Online now")}${chip("active", "Active in 30 days")}${chip("phone", "With phone")}${chip("nophone", "No phone")}${chip("google", "Google")}${chip("unconfirmed", "Email not confirmed")}</div></div>
+      <div class="pt-card pt-tablewrap"><table class="pt-memtable"><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Signed in with</th><th>Joined</th><th>Last active</th><th>Last 30 days</th><th></th></tr></thead>
+        <tbody>${list.map((m, i) => `<tr><td>${i + 1}</td><td><b>${esc(m.name || "(no name)")}</b>${m.team ? ' <small class="pt-tag">Team</small>' : ""}</td>
+          <td><a href="mailto:${esc(m.email)}">${esc(m.email)}</a>${m.confirmed ? "" : ' <small class="pt-tag warn">not confirmed</small>'}</td>
+          <td>${m.phone ? `<a href="https://wa.me/${esc(m.phone.replace(/\D/g, ""))}" target="_blank" rel="noopener">${esc(m.phone)}</a><small class="pt-memfrom">${esc(m.phoneFrom)}</small>` : "–"}</td>
+          <td>${esc(m.via)}</td><td>${dt(m.joined)}</td>
+          <td>${m.online ? '<i class="pt-dot on"></i>Online now' : memAgo(m.lastActive || m.lastSeen)}</td>
+          <td>${m.pages30 ? `${m.pages30} pages on ${m.days30} day${m.days30 === 1 ? "" : "s"}` : "–"}${didText(m.did) ? `<small class="pt-memfrom">${esc(didText(m.did))}</small>` : ""}</td>
+          <td><button type="button" class="pt-link" data-memlog="${esc(m.email)}">${memOpen === m.email ? "Hide" : "Activity"}</button></td></tr>
+          ${memOpen === m.email ? `<tr class="pt-memlogrow"><td colspan="10">${memLog(m)}</td></tr>` : ""}`).join("") || `<tr><td colspan="10" class="pt-empty">${L.length ? "Nobody matches." : "Nobody has signed in yet."}</td></tr>`}</tbody></table></div>`;
+  }
+  async function loadMembers() {
+    await null;
+    if (!LIVE) { MEMS = { members: memDemo() }; render(); return; }
+    try { MEMS = await api("/api/members/team"); } catch (e) { MEMS = { error: e.message || "Could not load the members." }; }
+    render();
+  }
+  function wireMembers() {
+    if (!MEMS || MEMS.error || !MEMS.members) return;
+    const q = app.querySelector("[data-memq]");
+    if (q) q.oninput = () => { memQ = q.value; const pos = q.selectionStart; render(); const q2 = app.querySelector("[data-memq]"); if (q2) { q2.focus(); q2.setSelectionRange(pos, pos); } };
+    app.querySelectorAll("[data-memf]").forEach(b => b.onclick = () => { memF = b.dataset.memf; render(); });
+    app.querySelectorAll("[data-memlog]").forEach(b => b.onclick = async () => {
+      const em = b.dataset.memlog; memOpen = memOpen === em ? "" : em; render();
+      if (!memOpen || MEMLOG[em]) return;
+      if (!LIVE) { const n = Date.now(); MEMLOG[em] = [{ at: new Date(n - 6e4).toISOString(), kind: "view", path: "/projects", text: "Opened" }, { at: new Date(n - 3e5).toISOString(), kind: "view", path: "/", text: "Opened" }, { at: new Date(n - 864e5).toISOString(), kind: "give", text: "Pledged 5000 to kandy-trip (G-1001, new)", path: "/projects/kandy-trip" }]; render(); return; }
+      try { MEMLOG[em] = (await api("/api/members/team?email=" + encodeURIComponent(em))).events || []; } catch (e) { MEMLOG[em] = { error: e.message || "Could not load." }; }
+      render();
+    });
+    app.querySelector("[data-memcopy]").onclick = async () => {
+      const em = MEMS.members.map(m => m.email).filter(Boolean).join(", ");
+      try { await navigator.clipboard.writeText(em); toast(`Copied ${MEMS.members.length} emails`); } catch (e) { toast("Could not copy"); }
+    };
+    app.querySelector("[data-memcsv]").onclick = () => {
+      const cell = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+      const rows = [["Name", "Email", "Phone", "Phone from", "Signed in with", "Joined", "Last sign-in", "Last active", "Pages (30 days)", "Days active (30 days)", "Has done", "Email confirmed", "Team"]]
+        .concat(MEMS.members.map(m => [m.name, m.email, m.phone, m.phoneFrom, m.via, (m.joined || "").slice(0, 10), (m.lastSeen || "").slice(0, 10), (m.lastActive || "").slice(0, 16).replace("T", " "), m.pages30 || 0, m.days30 || 0, didText(m.did), m.confirmed ? "yes" : "no", m.team ? "yes" : ""]));
+      const blob = new Blob(["﻿" + rows.map(r => r.map(cell).join(",")).join("\r\n")], { type: "text/csv;charset=utf-8" });
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `raavanaa-members-${new Date().toISOString().slice(0, 10)}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    };
   }
   async function chSave(url, method, body, done) {
     if (!LIVE) {
@@ -1768,7 +1887,7 @@
 
   function render() {
     const [page, id] = route();
-    const cur = ["voices", "suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "volunteers", "circles", "traffic", "team"].includes(page) ? page : "dashboard";
+    const cur = ["voices", "suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "members", "volunteers", "circles", "traffic", "team"].includes(page) ? page : "dashboard";
     drawNav(cur);
     if (page === "suggestions" && id) { app.innerHTML = detail(id); wireDetail(id); }
     else if (page === "suggestions") { app.innerHTML = suggestions(); wireSuggestions(); }
@@ -1776,6 +1895,7 @@
     else if (page === "champions") { app.innerHTML = champions(); wireChampions(); }
     else if (page === "circles") { app.innerHTML = circles(); wireCircles(); }
     else if (page === "volunteers") { app.innerHTML = volunteers(); wireVolunteers(); }
+    else if (page === "members") { app.innerHTML = members(); wireMembers(); }
     else if (page === "traffic") { app.innerHTML = traffic(); wireTraffic(); }
     else if (page === "voices") { app.innerHTML = voices(); wireVoices(); }
     else if (page === "team" && LIVE) { app.innerHTML = liveTeam(); if (ACCESS) wireLiveTeam(); }
@@ -1788,7 +1908,7 @@
     else if (page === "reports" && id) { app.innerHTML = reportDetail(id); wireReport(id); }
     else if (page === "reports") { app.innerHTML = reports(); wireReports(); }
     else app.innerHTML = dashboard();
-    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", volunteers: "Volunteers", circles: "Family circles", traffic: "Traffic", voices: "Vouches & ratings", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
+    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", members: "Members", volunteers: "Volunteers", circles: "Family circles", traffic: "Traffic", voices: "Vouches & ratings", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
   }
 
   Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] })).then(async d => { try { const m = await fetch("/api/projects").then(r => r.json()); const have = new Set((d.projects || []).map(p => p.slug)); d.projects = [...(d.projects || []), ...(m.projects || []).filter(p => !have.has(p.slug))]; } catch (e) { /* only projects.json */ } return d; })])
