@@ -3592,7 +3592,7 @@ window.RAAV_FEATURES = (function () {
             <p class="give-reach" role="status" hidden></p>
             <label><span>Your name</span><input name="name" maxlength="80" autocomplete="name" required></label>
             <label><span>Email or WhatsApp</span><input name="contact" maxlength="120" required autocomplete="email" placeholder="you@example.com or 077 123 4567"></label>
-            <label class="give-check"><input type="checkbox" name="show" value="yes" checked> <span>Show my name and amount on the project</span></label>
+            <label class="give-check"><input type="checkbox" name="show" value="yes" checked> <span>Show my name and amount on the project <small>(untick to show it as anonymous)</small></span></label>
             <label class="give-check"><input type="checkbox" name="follow" value="yes" checked> <span>Follow this project <small>(sign in with this email to see it in My account)</small></span></label>
             ${MOMENT ? "" : `<details class="pl-tribute"><summary>Give it in someone's name <small>(optional)</small></summary>
               <label><span>This gift is</span><select name="tribute_kind">${REASONS.map(([v, t]) => `<option value="${v}">${t}</option>`).join("")}</select></label>
