@@ -50,6 +50,7 @@
     voices: '<path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.6L12 16.4l-5.1 2.7 1-5.6-4.1-4 5.7-.8z"/><path d="M4 21h16"/>',
     reports: '<path d="M12 3l8 3v6c0 4.6-3.3 8-8 9-4.7-1-8-4.4-8-9V6z"/><path d="M12 8v5M12 16h.01" stroke-width="2.2"/>',
     members: '<circle cx="12" cy="8" r="3.4"/><path d="M5 20c.6-4 3.2-6.3 7-6.3s6.4 2.3 7 6.3"/><path d="M18.5 4.5v4M16.5 6.5h4"/>',
+    groups: '<circle cx="8" cy="9" r="2.6"/><circle cx="16" cy="9" r="2.6"/><circle cx="12" cy="5.5" r="2.3"/><path d="M3 19c.4-3.2 2.3-5 5-5 1.6 0 2.9.6 3.8 1.8M21 19c-.4-3.2-2.3-5-5-5-1.6 0-2.9.6-3.8 1.8M8.5 20c.4-2.6 1.6-3.8 3.5-3.8s3.1 1.2 3.5 3.8"/>',
     traffic: '<path d="M4 19V11M9.3 19V6M14.6 19v-5M20 19V9"/><path d="M3 21h18"/>',
     more: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'
   };
@@ -57,7 +58,7 @@
   const MENU = [
     ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true], ["voices", "Vouches & ratings", true],
     ["sponsors", "Sponsors & pledges", true], ["day", "Day preparation", true], ["close", "Close the day", true],
-    ["people", "People", true], ["champions", "Champions", true], ["members", "Members", true], ["volunteers", "Volunteers", true], ["circles", "Family circles", true], ["traffic", "Traffic", true], ["team", "Team & logins", true]
+    ["people", "People", true], ["champions", "Champions", true], ["members", "Members", true], ["volunteers", "Volunteers", true], ["groups", "Groups", true], ["circles", "Family circles", true], ["traffic", "Traffic", true], ["team", "Team & logins", true]
   ];
 
   let D = null, P = [], C = { list: [], districts: [] }, chDistrict = "All", chEdit = null;
@@ -91,7 +92,7 @@
     document.getElementById("pt-tabbar").innerHTML = [["dashboard", "Home"], ["suggestions", "Suggestions"], ["projects", "Projects"], ["reports", "Reports"], ["more", "More"]].map(([k, l]) => {
       const ready = k !== "more";
       return ready ? `<a href="#/${k}" class="${cur === k ? "on" : ""}">${svg(ICON[k], 22)}<span>${l}</span>${k === "sponsors" && newAsk ? `<b class="pt-badge">${newAsk}</b>` : k === "suggestions" && newCount ? `<b class="pt-badge">${newCount}</b>` : k === "reports" && openRep ? `<b class="pt-badge">${openRep}</b>` : ""}</a>`
-        : `<button type="button" class="${["voices", "sponsors", "day", "close", "people", "champions", "members", "volunteers", "circles", "traffic", "team"].includes(cur) ? "on" : ""}" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
+        : `<button type="button" class="${["voices", "sponsors", "day", "close", "people", "champions", "members", "volunteers", "groups", "circles", "traffic", "team"].includes(cur) ? "on" : ""}" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
     }).join("");
     document.querySelectorAll("[data-soon]").forEach(b => b.onclick = () => {
       let m = document.getElementById("pt-more");
@@ -711,6 +712,62 @@
       try { VOLS = (await api("/api/volunteers/team", { method: "PATCH", body: JSON.stringify({ id, hidden }) })).volunteers || []; render(); toast(hidden ? "Hidden from the Volunteers page" : "Back on the Volunteers page"); }
       catch (e) { b.disabled = false; toast(e.message || "Could not save."); }
     });
+  }
+  // Community groups (SURESH, 23 Nov 2026): groups that collect in their own WhatsApp circle register at /groups.
+  // The team calls the contact, then presses "List it" so the page /g/<name> is public. "Checked by Raavanaa" after
+  // the call. The team can also link a raavanaa.org project to the group (only the team, so nobody claims another's
+  // project). Contact details here are private.
+  let GRPS = null, grpF = "waiting";
+  function groups() {
+    if (GRPS === null) { loadGroups(); return `<header class="pt-head"><div><p class="pt-kicker">Groups</p><h1>Community groups</h1></div></header><p class="pt-sub">Loading…</p>`; }
+    const when = d => d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "";
+    const n = k => GRPS.filter(g => g.status === k).length;
+    const list = GRPS.filter(g => grpF === "all" || g.status === grpF);
+    const opts = P.filter(p => !p.sample).map(p => `<option value="${esc(p.slug)}">${esc(p.title)}</option>`).join("");
+    const SAY = { waiting: "Waiting for a call", listed: "Live on the website", hidden: "Taken off" };
+    return `
+      <header class="pt-head"><div><p class="pt-kicker">Groups</p><h1>Community groups</h1>
+        <p class="pt-sub">Groups that collect in their own WhatsApp circle and run projects. They register at <a href="/groups" target="_blank" rel="noopener">/groups</a>. Call the contact, then press <b>List it</b> so their page goes live. Tick <b>Checked by Raavanaa</b> once you have spoken to them. Their money stays in their own circle.</p></div></header>
+      <section class="pt-stats">
+        <div class="pt-stat st1"><b>${n("waiting")}</b><span>Waiting</span></div>
+        <div class="pt-stat st2"><b>${n("listed")}</b><span>Live</span></div>
+        <div class="pt-stat st3"><b>${GRPS.reduce((a, g) => a + (g.followers || 0), 0)}</b><span>Followers</span></div>
+      </section>
+      <div class="pt-chips">${[["waiting", "Waiting"], ["listed", "Live"], ["hidden", "Taken off"], ["all", "All"]].map(([k, l]) => `<button type="button" aria-pressed="${grpF === k}" data-gf="${k}">${l}</button>`).join("")}</div>
+      <section class="pt-champs">${list.length ? list.map(g => `
+        <article class="pt-card pt-champ ${g.status === "hidden" ? "off" : ""}">
+          <div><h3><a href="/g/${esc(g.slug)}" target="_blank" rel="noopener">${esc(g.name)}</a> <small>· ${esc(g.kind)} · ${SAY[g.status] || g.status}${g.checked ? " · ✓ checked" : ""}</small></h3>
+            <p class="pt-sub">${esc(g.places || "No place given")} · ${g.members_count || 0} members · registered ${when(g.created_at)} · ${g.followers || 0} followers · ${g.projects?.length || 0} linked</p>
+            <p class="pt-champ-meta">${esc(g.contact_name)} · <a href="https://wa.me/${esc(String(g.contact_phone).replace(/[^\d]/g, ""))}" target="_blank" rel="noopener">${esc(g.contact_phone)}</a> · ${esc(g.owner_email)}</p>
+            <p class="pt-sub">“${esc(g.about)}”</p>
+            ${g.collect ? `<p class="pt-sub">How they collect: ${esc(g.collect)}</p>` : ""}
+            ${(g.projects || []).filter(x => x.raavanaa_slug).map(x => `<p class="pt-sub">Linked: ${esc(x.title || x.raavanaa_slug)} <button type="button" class="pt-btn ghost" data-gunlink="${g.id}:${x.id}">Unlink</button></p>`).join("")}
+            <p class="pt-sub"><label>Link a Raavanaa project: <select data-glink="${g.id}"><option value="">Choose…</option>${opts}</select></label></p></div>
+          <div class="pt-actions-row">
+            ${g.status !== "listed" ? `<button type="button" class="pt-btn" data-gst="${g.id}:listed">List it</button>` : ""}
+            <button type="button" class="pt-btn ghost" data-gchk="${g.id}" data-on="${g.checked ? "" : "1"}">${g.checked ? "Untick Checked" : "Checked by Raavanaa"}</button>
+            ${g.status !== "hidden" ? `<button type="button" class="pt-btn ghost" data-gst="${g.id}:hidden">Take off</button>` : ""}
+            ${g.status === "hidden" ? `<button type="button" class="pt-btn ghost" data-gst="${g.id}:waiting">Back to waiting</button>` : ""}
+          </div>
+        </article>`).join("") : `<p class="pt-sub">${grpF === "waiting" ? "No group is waiting for a call." : "No groups here yet."}</p>`}</section>`;
+  }
+  async function loadGroups() {
+    await null;
+    if (!LIVE) { GRPS = [{ id: 1, slug: "jaffna-friends-circle", name: "Jaffna Friends Circle", kind: "WhatsApp circle", about: "Forty friends from Jaffna who give a little every month for school days.", places: "Toronto, London, Jaffna", members_count: 40, collect: "Each of us puts 20 dollars a month into the circle.", contact_name: "Ravi", contact_phone: "+1 416 555 0100", owner_email: "ravi@example.com", status: "waiting", checked: false, followers: 0, projects: [], created_at: new Date().toISOString() }]; render(); return; }
+    try { GRPS = (await api("/api/groups/team")).groups || []; } catch (e) { GRPS = []; toast(e.message || "Could not load."); }
+    render();
+  }
+  function wireGroups() {
+    const save = async (body, msg) => {
+      if (!LIVE) { const g = GRPS.find(x => x.id === body.id); if (body.status) g.status = body.status; if ("checked" in body) g.checked = body.checked; if (body.link) g.projects.push({ id: Date.now(), raavanaa_slug: body.link, title: body.title }); if (body.unlink) g.projects = g.projects.filter(x => x.id !== body.unlink); render(); toast(msg + " (demo)"); return; }
+      try { GRPS = (await api("/api/groups/team", { method: "PATCH", body: JSON.stringify(body) })).groups || []; render(); toast(msg); }
+      catch (e) { toast(e.message || "Could not save."); }
+    };
+    app.querySelectorAll("[data-gf]").forEach(b => b.onclick = () => { grpF = b.dataset.gf; render(); });
+    app.querySelectorAll("[data-gst]").forEach(b => b.onclick = () => { const [id, status] = b.dataset.gst.split(":"); save({ id: +id, status }, status === "listed" ? "Listed: the page is live" : status === "hidden" ? "Taken off the website" : "Back to waiting"); });
+    app.querySelectorAll("[data-gchk]").forEach(b => b.onclick = () => save({ id: +b.dataset.gchk, checked: !!b.dataset.on }, b.dataset.on ? "Marked Checked by Raavanaa" : "Checked tick removed"));
+    app.querySelectorAll("[data-glink]").forEach(s => s.onchange = () => { if (!s.value) return; const p = P.find(x => x.slug === s.value); save({ id: +s.dataset.glink, link: s.value, title: p ? p.title : s.value, stage: ["Initiated", "Activated", "Impact"][stageNum(p || {}) - 1] || "Initiated" }, "Project linked to the group"); });
+    app.querySelectorAll("[data-gunlink]").forEach(b => b.onclick = () => { const [id, pid] = b.dataset.gunlink.split(":"); save({ id: +id, unlink: +pid }, "Unlinked"); });
   }
   // Members (SURESH, 23 Nov 2026): "a dashboard with all the sign in users we have in our members sign in. Name, email,
   // phone. We have to make as many people as possible to sign in. That is our success." Admins only. Real accounts
@@ -1895,6 +1952,7 @@
     else if (page === "champions") { app.innerHTML = champions(); wireChampions(); }
     else if (page === "circles") { app.innerHTML = circles(); wireCircles(); }
     else if (page === "volunteers") { app.innerHTML = volunteers(); wireVolunteers(); }
+    else if (page === "groups") { app.innerHTML = groups(); wireGroups(); }
     else if (page === "members") { app.innerHTML = members(); wireMembers(); }
     else if (page === "traffic") { app.innerHTML = traffic(); wireTraffic(); }
     else if (page === "voices") { app.innerHTML = voices(); wireVoices(); }
@@ -1908,7 +1966,7 @@
     else if (page === "reports" && id) { app.innerHTML = reportDetail(id); wireReport(id); }
     else if (page === "reports") { app.innerHTML = reports(); wireReports(); }
     else app.innerHTML = dashboard();
-    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", members: "Members", volunteers: "Volunteers", circles: "Family circles", traffic: "Traffic", voices: "Vouches & ratings", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
+    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", members: "Members", volunteers: "Volunteers", groups: "Groups", circles: "Family circles", traffic: "Traffic", voices: "Vouches & ratings", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
   }
 
   Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] })).then(async d => { try { const m = await fetch("/api/projects").then(r => r.json()); const have = new Set((d.projects || []).map(p => p.slug)); d.projects = [...(d.projects || []), ...(m.projects || []).filter(p => !have.has(p.slug))]; } catch (e) { /* only projects.json */ } return d; })])

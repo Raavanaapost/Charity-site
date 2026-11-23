@@ -228,6 +228,14 @@ async function account(app, site, msg = "") {
       <h2>Projects I vouched for</h2>
       <ul class="m-req-list" data-vouched-list></ul>
     </section>
+    <section class="panel member-card m-requests" data-my-groups hidden>
+      <h2>My groups</h2>
+      <ul class="m-req-list" data-groups-run></ul>
+    </section>
+    <section class="panel member-card m-requests" data-my-follow hidden>
+      <h2>Groups I follow</h2>
+      <ul class="m-req-list" data-groups-follow></ul>
+    </section>
     <section class="panel member-card m-requests" data-my-gifts hidden>
       <h2>Projects I follow</h2>
       <ul class="m-req-list" data-gift-list></ul>
@@ -249,6 +257,17 @@ async function account(app, site, msg = "") {
     </div>
     <p class="member-foot">${team ? `<a href="/portal#/dashboard">Open the team dashboard</a> · ` : ""}<button type="button" class="member-link" data-signout>Sign out</button></p>
   </section>`;
+  // Community groups (23 Nov 2026): the groups this member runs and the ones they follow, with each one's latest news.
+  if ((window.RAAV_FEATURES || {}).groups) fetch("/api/groups/mine", { credentials: "same-origin" }).then(r => r.ok ? r.json() : null).then(d => {
+    if (!d) return;
+    const day = v => new Date(v).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+    const li = g => `<li><a href="/g/${encodeURIComponent(g.slug)}"><b>${esc(g.name)}</b></a>
+      <span>${g.latest ? esc(g.latest.body.length > 120 ? g.latest.body.slice(0, 118) + "…" : g.latest.body) : "No news yet"}</span>
+      <small>${g.status === "listed" ? "" : "Waiting for the team's call · "}${esc(g.kind)}${g.latest ? " · " + esc(day(g.latest.at)) : ""}</small></li>`;
+    const fill = (sel, list, extra) => { const box = app.querySelector(sel); if (!box) return; box.hidden = false; box.querySelector("ul").innerHTML = list.length ? list.map(li).join("") : extra; };
+    fill("[data-my-groups]", d.run || [], `<li><span>Does your group collect in its own WhatsApp circle? <a href="/groups#register"><b>Register your group</b></a> and get a page on Raavanaa.</span></li>`);
+    if ((d.follow || []).length) fill("[data-my-follow]", d.follow, "");
+  }).catch(() => {});
   // The requests this member sent, with where each one is and its page link.
   fetch("/api/my-requests", { credentials: "same-origin" }).then(r => r.ok ? r.json() : null).then(d => {
     const gbox = app.querySelector("[data-my-gifts]"), gifts = d && d.gifts;
