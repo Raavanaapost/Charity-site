@@ -11,4 +11,4 @@ Only totals are kept: no IP address, cookie, name or exact place. WhatsApp hides
 
 | Week | Visits | Pages | Led to something | Shares | Top source | Top campaign |
 |---|---:|---:|---:|---:|---|---|
-| [2026-W47](weekly/2026-W47.md) | 45 | 155 | 2 | 0 | Direct or WhatsApp (unknown) | test-claude |
+| [2026-W47](weekly/2026-W47.md) | 80 | 225 | 4 | 0 | Direct or WhatsApp (unknown) | test-claude |
