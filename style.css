@@ -3303,15 +3303,13 @@ html[data-form-lang="ta"] .rq-done :is(h2,p,span,b,a){font-family:"Noto Sans Tam
 .rq-done{scroll-margin-top:120px}
 
 /* Project page: Overview at the top of the Story tab, and the Impact title card (23 Nov 2026). */
-.pov{--c:#1f7a47;margin:0 0 24px;border-radius:18px;overflow:hidden;background:#fbf6ea;border:2px solid #d9b45a;box-shadow:0 14px 32px -18px rgba(31,77,58,.55)}
+.pov{--c:#1f7a47;margin:0 0 22px;padding:16px 16px 14px;border-radius:14px;background:color-mix(in srgb,var(--c) 6%,var(--surface));border:1.5px solid color-mix(in srgb,var(--c) 26%,var(--surface))}
 .pov.s2{--c:#b97a06}.pov.s3{--c:#c8381e}
-.pov-top{position:relative;padding:18px 18px 16px;background:linear-gradient(140deg,#1f4d3a 0%,#1f7a47 100%);color:#fbf6ea}
-.pov-top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:linear-gradient(90deg,#e5851a,#c8381e 45%,#f2b21c)}
-.pov-k{margin:0 0 6px;font-family:"Cinzel",var(--display);font-size:22px;font-weight:600;letter-spacing:.06em;color:#f5c04a}
-.pov-k::before{content:"";display:inline-block;width:26px;height:3px;margin:0 10px 6px 0;vertical-align:middle;background:#f2b21c;border-radius:2px}
+.pov-top{margin:0 0 12px}
+.pov-k{margin:0 0 4px;font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--c);font-weight:700}
 .picard-k{margin:0 0 4px;font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
-.pov-lead{margin:0;font-size:17px;line-height:1.5;color:#fbf6ea}
-.pov-body{padding:16px 16px 18px}
+.pov-lead{margin:0;font-size:17px;line-height:1.5}
+.pov-body{padding:0}
 .pov-who{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
 .pov-who div{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 10px 12px;border-radius:14px;background:#fff;border:2px solid #f2b21c;box-shadow:0 6px 14px -10px rgba(185,122,6,.7)}
 .pov-who b{font-family:"Cinzel",var(--display);font-size:44px;font-weight:600;line-height:1;color:#c8381e}
@@ -3323,16 +3321,16 @@ html[data-form-lang="ta"] .rq-done :is(h2,p,span,b,a){font-family:"Noto Sans Tam
 .pov-facts dt{font-family:var(--display);font-size:12.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#1f7a47}
 .pov-facts div:nth-child(3n+2) dt{color:#d06f0c}.pov-facts div:nth-child(3n) dt{color:#c8381e}
 .pov-facts dd{margin:2px 0 0;font-family:var(--display);font-weight:600;line-height:1.3;color:#1d2622}
-.pov-h{margin:18px 0 10px;font-family:"Cinzel",var(--display);font-size:18px;color:#1f4d3a}
+.pov-h{margin:16px 0 8px;font-size:16px;color:var(--c)}
 .pov-route{list-style:none;margin:0;padding:0;display:grid;gap:0;position:relative}
 .pov-route li{display:flex;gap:12px;position:relative;padding-bottom:14px}
 .pov-route li:last-child{padding-bottom:0}
 .pov-route li:not(:last-child)::before{content:"";position:absolute;left:15px;top:32px;bottom:2px;border-left:2px dashed color-mix(in srgb,var(--c) 45%,var(--surface))}
 .pov-n{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff;font-family:var(--display);font-weight:800}
-.pov-route b{display:block;font-family:var(--display);font-size:16.5px;line-height:1.25;color:#1d2622}
+.pov-route b{display:block;font-family:var(--display);font-size:16.5px;line-height:1.25}
 .pov-route i{display:block;font-size:14px;color:var(--muted)}
 .pov-route em{display:inline-block;margin-top:3px;font-style:normal;font-family:var(--display);font-size:12.5px;font-weight:700;padding:1px 9px;border-radius:999px;background:color-mix(in srgb,var(--c) 14%,var(--surface));color:var(--c)}
-.pov-route p{margin:4px 0 0;font-size:14.5px;line-height:1.5;color:#1d2622}
+.pov-route p{margin:4px 0 0;font-size:14.5px;line-height:1.5}
 .picard{--c:#1f7a47;margin:0 0 22px;border-radius:14px;overflow:hidden;border:1.5px solid color-mix(in srgb,#c8381e 30%,var(--surface));background:var(--surface)}
 .picard-k{margin:0;padding:12px 16px 0;color:#c8381e}
 .picard h3{margin:0;padding:2px 16px 10px;font-family:"Cinzel",var(--display);font-size:21px;color:var(--ink);border-bottom:3px solid #f2b21c}
