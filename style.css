@@ -3234,3 +3234,6 @@ header.bar .logo img{width:216px!important;height:auto!important;aspect-ratio:25
 .voices .v-say{margin-top:4px}
 .voices .v-say button{justify-self:end}
 .voices .v-comments li.v-none{background:none;padding:0}
+/* Request form (SURESH 23 Nov 2026): the "person in charge" box stays folded away unless "Someone asked me to send it"
+   is picked. display:grid above was beating the hidden attribute, so the box always showed. */
+.i-incharge[hidden]{display:none}
