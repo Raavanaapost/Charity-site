@@ -3320,7 +3320,8 @@ html[data-form-lang="ta"] .rq-done :is(h2,p,span,b,a){font-family:"Noto Sans Tam
 .pov-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;margin:14px 0 0}
 .pov-facts div{padding:9px 12px;border-radius:10px;background:#fff;border:1px solid #eadfc4;border-left:4px solid #1f7a47}
 .pov-facts div:nth-child(3n+2){border-left-color:#e5851a}.pov-facts div:nth-child(3n){border-left-color:#c8381e}
-.pov-facts dt{font-family:var(--display);font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#7a6a45}
+.pov-facts dt{font-family:var(--display);font-size:12.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#1f7a47}
+.pov-facts div:nth-child(3n+2) dt{color:#d06f0c}.pov-facts div:nth-child(3n) dt{color:#c8381e}
 .pov-facts dd{margin:2px 0 0;font-family:var(--display);font-weight:600;line-height:1.3;color:#1d2622}
 .pov-h{margin:18px 0 10px;font-family:"Cinzel",var(--display);font-size:18px;color:#1f4d3a}
 .pov-route{list-style:none;margin:0;padding:0;display:grid;gap:0;position:relative}
