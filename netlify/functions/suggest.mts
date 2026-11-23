@@ -63,7 +63,7 @@ export default async (req: Request) => {
   // The team fills in the rest (title, category, evidence...) after calling and visiting.
   const KINDS: Record<string, string> = { "A day out or trip": "Trips & Events", "A game or sports day": "Trips & Events", "A celebration or festival": "Trips & Events", "Help with learning": "Education",
     // the same ideas on the Tamil form
-    "ஒரு நாள் சுற்றுலா அல்லது பயணம்": "Trips & Events", "விளையாட்டு அல்லது விளையாட்டுப் போட்டி நாள்": "Trips & Events", "கொண்டாட்டம் அல்லது விழா": "Trips & Events", "கல்விக்கு உதவி": "Education" };
+    "ஒரு நாள் சுற்றுலா அல்லது பயணம்": "Trips & Events", "விளையாட்டு நாள்": "Trips & Events", "கொண்டாட்டம் அல்லது விழா": "Trips & Events", "கல்விக்கு உதவி": "Education" };
   if (s.kind) { if (!s.focus.includes(s.kind)) s.focus.unshift(s.kind); if (!s.category) s.category = KINDS[s.kind] || "Other"; }
   const first = s.description.split(/[.!?\n]/)[0];
   if (!s.title) s.title = first ? clip(first, 70) + (first.length > 70 ? "…" : "") : s.kind ? `${s.kind} in ${s.village || s.city}` : "";
