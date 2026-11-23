@@ -358,6 +358,30 @@ window.RAAV_FEATURES = (function () {
     const sync = () => { const on = !!root.querySelector("[name=request_type][value=referred]:checked"); box.hidden = !on; root.querySelector("#o-ic-name") && (root.querySelector("#o-ic-name").required = on); };
     root.querySelectorAll("[name=request_type]").forEach(r => r.addEventListener("change", sync)); sync();
   }
+  // After "Submit a request": the Create a Moment mark, the request number, and the steps from here (SURESH 23 Nov 2026:
+  // "a mini template with moment or ticket no. and the process"). In Tamil when the form was in Tamil.
+  function requestDone(f, pj, warn) {
+    const T = document.documentElement.dataset.formLang === "ta";
+    const L = T ? { h: "உங்கள் கோரிக்கை கிடைத்தது", no: "கோரிக்கை எண்", keep: "இந்த எண்ணை வைத்திருங்கள். எங்களுடன் பேசும்போது இதைக் குறிப்பிடுங்கள்.", next: "அடுத்து என்ன நடக்கும்",
+        s: [["நாங்கள் படிக்கிறோம்", "சில கேள்விகளுக்காக உங்களை அழைக்கலாம்."], ["திட்டப் பக்கத்தை உருவாக்குகிறோம்", "உங்களுடனும், பொறுப்பானவர் இருந்தால் அவருடனும் சரிபார்க்கிறோம்."], ["திட்டங்கள் பக்கத்தில் வெளியாகும்", "Raavanaa அங்கீகரித்ததும், மக்கள் உதவ முடியும்."]],
+        acc: "என் கணக்கில் பார்க்க", home: "முகப்புக்குச் செல்ல" }
+      : { h: "Your request is in", no: "Request number", keep: "Keep this number. Mention it when you talk to us.", next: "What happens next",
+        s: [["We read it", "and may call you with a few questions."], ["We make the project page", "and check it with you, and with the person in charge if there is one."], ["It goes live on Projects", "once Raavanaa approves it, and people can help."]],
+        acc: "Follow it in My account", home: "Back to Home" };
+    const ref = pj && pj.ref ? String(pj.ref) : "";
+    const card = document.createElement("section");
+    card.className = "initiate-card rq-done"; card.setAttribute("role", "status"); card.tabIndex = -1;
+    card.innerHTML = `<img class="rq-mark" src="/img/spark-mark.svg" width="84" height="84" alt="">
+      <h2>${esc(L.h)}</h2>
+      ${ref ? `<p class="rq-ticket"><span>${esc(L.no)}</span><b>${esc(ref)}</b></p><p class="rq-keep">${esc(L.keep)}</p>` : ""}
+      ${warn ? `<p class="note error">${esc(warn)}</p>` : ""}
+      <p class="rq-next">${esc(L.next)}</p>
+      <ol class="rq-steps">${L.s.map((x, i) => `<li><i>${i + 1}</i><span><b>${esc(x[0])}</b> ${esc(x[1])}</span></li>`).join("")}</ol>
+      <div class="rq-btns"><a class="i-submit" href="/members">${esc(L.acc)}</a><a class="rq-home" href="/overview">${esc(L.home)}</a></div>`;
+    f.hidden = true; const lang = document.querySelector(".i-lang"); if (lang) lang.hidden = true;
+    f.parentNode.insertBefore(card, f);
+    card.scrollIntoView({ behavior: "smooth", block: "start" }); card.focus({ preventScroll: true });
+  }
   function wireForms(root) {
     wireWayIn(root);
     root.querySelectorAll("form[data-ajax]").forEach(f => f.addEventListener("submit", async e => {
@@ -397,6 +421,8 @@ window.RAAV_FEATURES = (function () {
         if (f._after && pj) { msg.hidden = false; msg.className = "note"; await f._after(pj, msg); }
         f.querySelectorAll("input:not([type=hidden]),textarea,select").forEach(el => el.disabled = true);
         if (f._done) f._done();
+        // A request: a small card with its number and what happens next, in place of the form (SURESH 23 Nov 2026).
+        if (f.getAttribute("name") === "opportunity") { requestDone(f, pj, msg.dataset.warn); return; }
         msg.textContent = msg.dataset.warn || f.dataset.done; msg.className = msg.dataset.warn ? "note error" : "toast";
         // A new request gets its own endorse page: the person shares it so people who know the project can vouch.
         if (pj && pj.endorse) {
@@ -4142,7 +4168,7 @@ window.RAAV_FEATURES = (function () {
               group: by === "group" ? (sq.get("group") || "").slice(0, 60) : "", gname: by === "group" ? (sq.get("gname") || "").slice(0, 80) : "" };
             sf.querySelectorAll("[data-spark-f]").forEach(i => { i.value = vals[i.dataset.sparkF] || ""; });
             const kind = sf.querySelector("#o-kind"), k = sq.get("kind");
-            if (kind && k) kind.value = k.slice(0, 60);
+            if (kind && k && k !== "Something else") kind.value = k.slice(0, 60); // "Something else" left the box looking filled in
             const line = sf.querySelector("[data-spark]");
             if (line) {
               const who = by === "group" ? [vals.gname, vals.group].filter(Boolean).join(", ") || "A group" : by === "me" ? "Just me" : "";
@@ -4174,13 +4200,6 @@ window.RAAV_FEATURES = (function () {
             if (en && me.email) { en.dataset.email = me.email; en.textContent = (document.documentElement.dataset.formLang === "ta" ? "உங்கள் மின்னஞ்சலுக்கும் பதில் அனுப்புவோம்: " : "We'll also reply to your email: ") + me.email; en.hidden = false; }
           });
         }
-        // Ideas under a typed answer (what moment, how many): a tap fills the box, and the box can still be typed in (SURESH 23 Nov 2026).
-        document.querySelectorAll("[data-fill]").forEach(row => {
-          const box = document.getElementById(row.dataset.fill); if (!box) return;
-          const mark = () => row.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.textContent.trim() === box.value.trim()));
-          row.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; box.value = b.textContent.trim(); mark(); box.dispatchEvent(new Event("input", { bubbles: true })); });
-          box.addEventListener("input", mark); mark();
-        });
         const area = document.getElementById("o-description"), count = document.getElementById("o-count");
         if (area && count) { const upd = () => { count.textContent = area.value.length; }; area.addEventListener("input", upd); upd(); }
         const multi = document.getElementById("o-focus"), shown = document.getElementById("o-focus-value");
@@ -4361,36 +4380,7 @@ window.RAAV_FEATURES = (function () {
         // "How?" next to "Tell us a little more": write, record or attach.
         const info = document.querySelector("[data-info]"), tip = document.getElementById("o-desc-tip");
         if (info && tip) info.addEventListener("click", () => { tip.hidden = !tip.hidden; info.setAttribute("aria-expanded", String(!tip.hidden)); });
-        // Districts and their villages (villages.json): pick from the list, or type any other place.
-        const citySel = document.querySelector("[data-city]"), vlist = document.querySelector("[data-villages]");
-        if (citySel && vlist) {
-          load("/villages.json").then(data => {
-            const D = (data && data.districts) || [];
-            if (!D.length) return;
-            const keep = citySel.value, first = citySel.querySelector("option[disabled]"), otherOpt = citySel.querySelector('option[value="Other"]');
-            citySel.innerHTML = "";
-            if (first) citySel.append(first);
-            D.forEach(d => { const o = document.createElement("option"); o.textContent = d.name; citySel.append(o); });
-            if (otherOpt) citySel.append(otherOpt);
-            if (keep) citySel.value = keep;
-            const fill = () => {
-              const d = D.find(x => x.name === citySel.value);
-              const names = d ? d.villages : D.flatMap(x => x.villages);
-              vlist.innerHTML = names.map(n => `<option value="${esc(n)}"></option>`).join("");
-            };
-            citySel.addEventListener("change", fill); fill();
-          }).catch(() => {});
-        }
-        // City: pick from the list, or choose Other and type it. "Location" is filled from city + village for Netlify Forms.
-        const city = document.querySelector("[data-city]"), other = document.querySelector("[data-city-other]"), village = document.getElementById("o-village"), loc = document.querySelector("[data-location]");
-        if (city && other) {
-          const otherIn = other.querySelector("input");
-          const syncCity = () => {
-            const isOther = city.value === "Other"; other.hidden = !isOther; otherIn.required = isOther;
-            if (loc) loc.value = [village.value.trim(), isOther ? otherIn.value.trim() : city.value].filter(Boolean).join(", ");
-          };
-          [city, otherIn, village].forEach(el => { el.addEventListener("change", syncCity); el.addEventListener("input", syncCity); }); syncCity();
-        }
+        // Where and village: typed, or picked in the window of choices (initiate-pick.js, 23 Nov 2026).
         wireForms(document);
       } else if (page === "privacy") {
         document.title = `Privacy & child safety · ${site.name}`;

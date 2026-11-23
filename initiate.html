@@ -61,28 +61,16 @@
       <input type="hidden" name="group_type" value="" data-spark-f="group">
       <input type="hidden" name="group_name" value="" data-spark-f="gname">
       <p class="i-spark" data-spark hidden></p>
-      <div class="initiate-head">
-        <svg viewBox="0 0 48 44" width="46" height="42" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" aria-hidden="true"><path d="M30 5l8 13"></path><path d="M5 28l22 8"></path><path d="M14 10l14 14"></path></svg>
-        <div>
-          <h2 data-t="head">Tell us about the need and your idea</h2>
-          <p data-t="headsub">Share the details below. Our team will visit and help make it happen.</p>
-        </div>
-      </div>
+      <!-- Just the title (SURESH 23 Nov 2026: "Remove tell us title and the text. Say submit a request.") -->
+      <h2 class="i-title" data-t="head">Submit a request</h2>
 
       <ol class="i-steps">
 
         <li class="i-q">
-          <!-- Voice, photo and attach come first, the writing box below them (SURESH 23 Nov 2026).
-               Type your own moment, or tap one of the ideas to fill the box (SURESH 23 Nov 2026) -->
+          <!-- Type in the box, or tap Choose for a window of choices; voice, photo and attach come before the
+               writing box (SURESH 23 Nov 2026) -->
           <label class="i-field" for="o-kind"><span><b class="i-n">1</b><span data-t="kind">What moment would you like to create?</span> <b class="req" aria-hidden="true">*</b></span>
-            <input id="o-kind" name="kind" required maxlength="60" autocomplete="off" placeholder="Type it in your own words" data-tp="kind"></label>
-          <div class="i-picks" data-fill="o-kind" aria-label="Or tap an idea">
-            <button type="button" data-ta="ஒரு நாள் சுற்றுலா அல்லது பயணம்">A day out or trip</button>
-            <button type="button" data-ta="விளையாட்டு நாள்">A game or sports day</button>
-            <button type="button" data-ta="ஒன்றாக ஒரு நல்ல உணவு">A good meal together</button>
-            <button type="button" data-ta="கொண்டாட்டம் அல்லது விழா">A celebration or festival</button>
-            <button type="button" data-ta="கல்விக்கு உதவி">Help with learning</button>
-          </div>
+            <span class="pk" data-pick="kind"><input id="o-kind" name="kind" required maxlength="60" autocomplete="off" placeholder="Type it, or tap Choose" data-tp="kind"><button type="button" class="pk-btn" data-pick-open aria-label="Choose from a list"><span data-t="choose">Choose</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></span></label>
           <div class="ev" data-evidence>
             <p class="ev-help"><span data-t="evhelp">Tell us more: record your voice, take a photo or attach a file</span> <u class="opt" data-t="evopt">(optional, up to 4)</u></p>
             <div class="ev-btns">
@@ -106,33 +94,17 @@
         <li class="i-q">
           <div class="i-row">
             <label class="i-field" for="o-city"><span><b class="i-n">2</b><span data-t="where">Where?</span> <b class="req" aria-hidden="true">*</b></span>
-              <select id="o-city" name="city" required data-city>
-                <option value="" selected disabled>Choose a city or district</option>
-                <option>Jaffna</option>
-                <option>Kilinochchi</option>
-                <option>Batticaloa</option>
-                <option value="Other">Somewhere else</option>
-              </select></label>
+              <span class="pk" data-pick="city"><input id="o-city" name="city" required maxlength="60" autocomplete="off" placeholder="City or district" data-tp="city"><button type="button" class="pk-btn" data-pick-open aria-label="Choose from a list"><span data-t="choose">Choose</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></span></label>
             <label class="i-field" for="o-village"><span class="i-sub"><span data-t="village">Village or area</span> <b class="req" aria-hidden="true">*</b></span>
-              <input id="o-village" name="village" required maxlength="80" placeholder="Pick or type, e.g. Karainagar" data-tp="village" list="o-village-list" autocomplete="off"></label>
-            <datalist id="o-village-list" data-villages></datalist>
+              <span class="pk" data-pick="village"><input id="o-village" name="village" required maxlength="80" autocomplete="off" placeholder="e.g. Karainagar" data-tp="village"><button type="button" class="pk-btn" data-pick-open aria-label="Choose from a list"><span data-t="choose">Choose</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></span></label>
           </div>
-          <label class="i-field" for="o-city-other" data-city-other hidden><span class="i-sub"><span data-t="cityother">Which city or district?</span> <b class="req" aria-hidden="true">*</b></span>
-            <input id="o-city-other" name="city_other" maxlength="60" placeholder="e.g. Mullaitivu"></label>
           <input type="hidden" name="location" value="" data-location>
         </li>
 
         <li class="i-q">
           <!-- Type a number, or tap a range (SURESH 23 Nov 2026) -->
           <label class="i-field" for="o-children"><span><b class="i-n">3</b><span data-t="many">About how many will take part?</span> <b class="req" aria-hidden="true">*</b></span>
-            <input id="o-children" name="children" required maxlength="30" autocomplete="off" inputmode="text" placeholder="Type a number, e.g. 35" data-tp="many"></label>
-          <div class="i-picks" data-fill="o-children" aria-label="Or tap a range">
-            <button type="button" data-ta="10க்கும் குறைவு">Fewer than 10</button>
-            <button type="button" data-ta="10 முதல் 25">10 to 25</button>
-            <button type="button" data-ta="25 முதல் 50">25 to 50</button>
-            <button type="button" data-ta="50 முதல் 100">50 to 100</button>
-            <button type="button" data-ta="100க்கும் மேல்">More than 100</button>
-          </div>
+            <span class="pk" data-pick="many"><input id="o-children" name="children" required maxlength="30" autocomplete="off" placeholder="Type a number, e.g. 35" data-tp="many"><button type="button" class="pk-btn" data-pick-open aria-label="Choose from a list"><span data-t="choose">Choose</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></span></label>
         </li>
 
         <li class="i-q">
@@ -170,15 +142,7 @@
         </li>
       </ol>
 
-      <div class="i-next" aria-label="What happens next">
-        <p class="i-next-h" data-t="next">What happens next</p>
-        <ul>
-          <li data-t="next1"><b>Raavanaa reads it and makes the project page,</b> and may call you with a few questions.</li>
-          <li data-t="next2"><b>The person in charge checks the page and vouches for it.</b> Then it goes live on Projects. Anything to change? They tell us first.</li>
-          <li data-t="next3"><b>Everything is recorded,</b> so every project is checked and accountable.</li>
-        </ul>
-      </div>
-
+      <!-- "What happens next" now shows on the card after sending (SURESH 23 Nov 2026) -->
       <button class="i-submit" type="submit">
         <svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true"><path d="M21.5 2.5 2.5 10.2l6.3 2.4 1.9 6.9 3.3-4.3 4.6 3.3z"></path></svg>
         <span data-t="send">Create this moment</span></button>
@@ -197,6 +161,7 @@
 </main>
 <footer><div class="wrap"><span>© <span data-year></span> <span data-site-name></span></span><span data-site-footer></span></div></footer>
 <script src="/site.js"></script>
+<script src="/initiate-pick.js"></script>
 <script src="/initiate-lang.js"></script>
 </body>
 </html>
