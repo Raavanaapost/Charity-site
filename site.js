@@ -3425,7 +3425,7 @@ window.RAAV_FEATURES = (function () {
           <span class="give-dollar"><b aria-hidden="true">${LKR ? "Rs" : "$"}</b><input name="own" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Your amount in ${LKR ? "Sri Lankan rupees" : "Canadian dollars"}"></span></label>
         ${kind === "general" ? "" : `<label><span>Your name <small>(optional)</small></span><input name="name" maxlength="60" autocomplete="name"></label>
         <label class="give-check"><input type="checkbox" name="show_name" value="yes"> <span>${kind === "member" ? "Show my name with the Smile members" : "Show my name on the project page"}</span></label>
-        <p class="note give-hint">If you leave this unticked, you'll appear as “A friend of Raavanaa”.</p>`}
+        <p class="note give-hint">If you leave this unticked, you'll appear as “Anonymous”.</p>`}
         ${kind === "general" ? `<label class="give-wish"><span>Your wish <small>(optional)</small></span><textarea name="wish" maxlength="300" rows="2" placeholder="Is there something you would love this gift to do?"></textarea></label>` : ""}
         ${LKR ? `<label><span>Email <small>(for your receipt)</small></span><input name="email" type="email" maxlength="120" autocomplete="email" required></label>
         <label><span>Phone</span><input name="phone" type="tel" maxlength="20" autocomplete="tel" required placeholder="07X XXX XXXX"></label>` : ""}
@@ -3548,7 +3548,7 @@ window.RAAV_FEATURES = (function () {
           if (!(r && r.ok && out.ok) && !(n && n.ok)) throw new Error("not saved");
           // Show it at once: on this page, and on the project page (this browser) until the list catches up.
           const pct = pctWith(body.amount_value);
-          justPledged({ slug, ref: out.ref || "local-" + Date.now(), name: show ? name : "A friend of Raavanaa", amount: body.amount_value });
+          justPledged({ slug, ref: out.ref || "local-" + Date.now(), name: show ? name : "Anonymous", amount: body.amount_value });
           if (bar) bar.style.width = pct + "%";
           if (barText) barText.textContent = `${moneyOf(site, Math.max(0, left - body.amount_value), x)} still needed · ${pct}% covered`;
           // The giver's own room for this project (SURESH, 17 Nov 2026): welcome, a proud line, share, follow, the story.
@@ -3563,7 +3563,7 @@ window.RAAV_FEATURES = (function () {
           box.className = "give-done"; box.tabIndex = -1; box.setAttribute("role", "status");
           box.innerHTML = `<p class="give-done-heart" aria-hidden="true"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg></p>
             <h3><span>Thank you,</span> <b>${esc(name)}</b></h3>
-            <p class="pl-shows"><b>${esc(amountText)}</b> pledged by <b>${esc(show ? name : "A friend of Raavanaa")}</b> now shows on the project. It is <b>${pct}%</b> covered.</p>
+            <p class="pl-shows"><b>${esc(amountText)}</b> pledged by <b>${esc(show ? name : "Anonymous")}</b> now shows on the project. It is <b>${pct}%</b> covered.</p>
             <p><b>We'll send you the ways to fund</b> ${isMail ? "by email" : "on WhatsApp"} at <b>${esc(contact)}</b>.</p>
             ${SAFE}
             <p class="give-done-next"><a class="btn" href="/projects/${esc(slug)}">See it on the project</a>${follow ? ` <span class="pl-following">✓ You're following it</span>` : ""}</p>`;
@@ -3784,7 +3784,7 @@ window.RAAV_FEATURES = (function () {
             <h3><span>Thank you,</span> <b>${esc(body.name)}</b></h3>
             <p>A Raavanaa volunteer will write to you personally and tell you how to send your gift.</p>
             <p class="give-done-at"><span>We will reply to:</span> <b>${esc(contact)}</b></p>
-            <p class="give-done-at"><span>Your gift will be listed as:</span> <b>${listing === "own" ? esc(listWords) : listing === "anonymous" ? "A friend of Raavanaa" : esc(body.name)}</b>${listing === "both" ? ` <span>with the amount</span>` : listing === "name" ? ` <span>without the amount</span>` : ""}</p>
+            <p class="give-done-at"><span>Your gift will be listed as:</span> <b>${listing === "own" ? esc(listWords) : listing === "anonymous" ? "Anonymous" : esc(body.name)}</b>${listing === "both" ? ` <span>with the amount</span>` : listing === "name" ? ` <span>without the amount</span>` : ""}</p>
             ${SAFE}
             <p class="give-done-next">${slug ? `<a class="btn ghost" href="/projects/${esc(slug)}">Back to the project</a>` : `<a class="btn ghost" href="/overview">See the projects</a>`}</p>`;
           f.replaceWith(box); box.focus({ preventScroll: true }); box.scrollIntoView({ block: "center", behavior: "smooth" });
@@ -4142,7 +4142,7 @@ window.RAAV_FEATURES = (function () {
               group: by === "group" ? (sq.get("group") || "").slice(0, 60) : "", gname: by === "group" ? (sq.get("gname") || "").slice(0, 80) : "" };
             sf.querySelectorAll("[data-spark-f]").forEach(i => { i.value = vals[i.dataset.sparkF] || ""; });
             const kind = sf.querySelector("#o-kind"), k = sq.get("kind");
-            if (kind && k && [...kind.options].some(o => o.value === k || o.text === k)) kind.value = k;
+            if (kind && k) kind.value = k.slice(0, 60);
             const line = sf.querySelector("[data-spark]");
             if (line) {
               const who = by === "group" ? [vals.gname, vals.group].filter(Boolean).join(", ") || "A group" : by === "me" ? "Just me" : "";
@@ -4167,9 +4167,20 @@ window.RAAV_FEATURES = (function () {
             if (c && !c.value && nm) c.value = nm;
             // A small line, not a big welcome: the person sees whose account sends the request.
             const who = oform.querySelector("[data-who]");
-            if (who) { who.textContent = `Signed in as ${nm || me.email}`; who.hidden = false; }
+            if (who) { who.dataset.name = nm || me.email; who.textContent = (document.documentElement.dataset.formLang === "ta" ? "உள்நுழைந்தவர்: " : "Signed in as ") + (nm || me.email); who.hidden = false; }
+            // No need to type your email again: the signed-in one is sent with the request (SURESH 23 Nov 2026).
+            const em = oform.querySelector("[data-member-email]"), en = oform.querySelector("[data-email-note]");
+            if (em && me.email) em.value = me.email;
+            if (en && me.email) { en.dataset.email = me.email; en.textContent = (document.documentElement.dataset.formLang === "ta" ? "உங்கள் மின்னஞ்சலுக்கும் பதில் அனுப்புவோம்: " : "We'll also reply to your email: ") + me.email; en.hidden = false; }
           });
         }
+        // Ideas under a typed answer (what moment, how many): a tap fills the box, and the box can still be typed in (SURESH 23 Nov 2026).
+        document.querySelectorAll("[data-fill]").forEach(row => {
+          const box = document.getElementById(row.dataset.fill); if (!box) return;
+          const mark = () => row.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.textContent.trim() === box.value.trim()));
+          row.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; box.value = b.textContent.trim(); mark(); box.dispatchEvent(new Event("input", { bubbles: true })); });
+          box.addEventListener("input", mark); mark();
+        });
         const area = document.getElementById("o-description"), count = document.getElementById("o-count");
         if (area && count) { const upd = () => { count.textContent = area.value.length; }; area.addEventListener("input", upd); upd(); }
         const multi = document.getElementById("o-focus"), shown = document.getElementById("o-focus-value");

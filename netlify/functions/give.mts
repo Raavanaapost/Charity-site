@@ -19,7 +19,7 @@ import {
 const json = (body: unknown, status = 200, cache = "no-store") => Response.json(body, { status, headers: { "Cache-Control": cache } });
 const projects = ((data as { projects?: Project[] }).projects || []).filter((p) => p && p.title);
 const find = (slug: string) => projects.find((p) => slugOf(p) === slug);
-const FRIEND = "A friend of Raavanaa";
+const FRIEND = "Anonymous"; // was "A friend of Raavanaa" (SURESH 23 Nov 2026: "shouldn't it say anonymous?")
 // Sri Lankan rupees to one Canadian dollar, set by the team in site.json (only used for Stripe gifts in CAD).
 const RATE = Number((siteData as { rate_lkr_per_cad?: unknown }).rate_lkr_per_cad) || 0;
 

@@ -39,7 +39,8 @@ export default async (req: Request) => {
     location: "",
     children: clip(f.children, 30),
     contact: clip(f.contact, 120),
-    reach: clip(f.reach, 120),
+    // Phone is optional now; without one the team reaches the person on their signed-in email (SURESH 23 Nov 2026).
+    reach: clip(f.reach, 120) || memberEmail,
     trusted: clip(f.trusted_contact, 200),
     additional: clipText(f.additional, 1000),
     requestType: f.request_type === "referred" ? "referred" : "open",
@@ -54,11 +55,15 @@ export default async (req: Request) => {
   // From the Spark a Smile page (16 Nov 2026): request or submit, and one person or a group. Kept at the top of
   // "additional" so the team sees it in the portal without a new database column.
   const spark = [clip(f.way, 40), clip(f.started_by, 40), clip(f.group_type, 60), clip(f.group_name, 80)].filter(Boolean);
+  // Sent from the Tamil form (23 Nov 2026): tell the team, so someone who reads Tamil picks it up.
+  if (f.form_lang === "Tamil") spark.push("Sent in Tamil");
   if (spark.length) s.additional = clipText(`Started as: ${spark.join(" · ")}` + (s.additional ? `\n${s.additional}` : ""), 1000);
   s.location = [s.village, s.city].filter(Boolean).join(", ");
   // The public form asks four things: what kind of moment (+ optional details), where, how many, and who to call.
   // The team fills in the rest (title, category, evidence...) after calling and visiting.
-  const KINDS: Record<string, string> = { "A day out or trip": "Trips & Events", "A game or sports day": "Trips & Events", "A celebration or festival": "Trips & Events", "Help with learning": "Education" };
+  const KINDS: Record<string, string> = { "A day out or trip": "Trips & Events", "A game or sports day": "Trips & Events", "A celebration or festival": "Trips & Events", "Help with learning": "Education",
+    // the same ideas on the Tamil form
+    "ஒரு நாள் சுற்றுலா அல்லது பயணம்": "Trips & Events", "விளையாட்டு நாள்": "Trips & Events", "கொண்டாட்டம் அல்லது விழா": "Trips & Events", "கல்விக்கு உதவி": "Education" };
   if (s.kind) { if (!s.focus.includes(s.kind)) s.focus.unshift(s.kind); if (!s.category) s.category = KINDS[s.kind] || "Other"; }
   const first = s.description.split(/[.!?\n]/)[0];
   if (!s.title) s.title = first ? clip(first, 70) + (first.length > 70 ? "…" : "") : s.kind ? `${s.kind} in ${s.village || s.city}` : "";

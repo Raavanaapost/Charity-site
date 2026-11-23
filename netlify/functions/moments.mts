@@ -20,7 +20,7 @@ import { TRIBUTE_WORDS } from "../lib/give-core.mts";
 
 const json = (body: unknown, status = 200, cache = "no-store") => Response.json(body, { status, headers: { "Cache-Control": cache } });
 const clip = (v: unknown, max: number) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, max).replace(/[<>]/g, "");
-const FRIEND = "A friend of Raavanaa";
+const FRIEND = "Anonymous"; // was "A friend of Raavanaa" (SURESH 23 Nov 2026: "shouldn't it say anonymous?")
 const env = (k: string) => (Netlify.env.get(k) || "").trim();
 // Same rule as /api/give: real gifts only count on the live site, test gifts everywhere else.
 const liveSite = (context: Context) => {
