@@ -196,8 +196,9 @@ async function pledges() {
     const rows = await getDatabase().sql<{ ref: string; project_slug: string; name: string; amount_value: number; listing: string; listing_words: string; tribute: (Tribute & { show?: boolean }) | null }>`
       SELECT ref, project_slug, name, amount_value, listing, listing_words, tribute FROM give_requests
       WHERE kind = 'project' AND project_slug <> '' AND amount_value > 0
-        -- A reservation is held for 24 hours (SURESH, 17 Nov 2026); once a volunteer has replied, or the gift came, it stays.
-        AND (status IN ('replied', 'received') OR (status = 'new' AND received_at > NOW() - INTERVAL '24 hours')) ORDER BY received_at`;
+        -- No 24-hour hold any more (SURESH, 23 Nov 2026: "better we remove reserve"): a giver stays on the project by name
+        -- until the team presses Close in the portal. (Before: status 'new' counted only for 24 hours.)
+        AND status IN ('new', 'replied', 'received') ORDER BY received_at`;
     for (const r of rows) {
       if (!find(r.project_slug)) continue;
       const name = r.listing === "anonymous" ? FRIEND : r.listing === "own" && r.listing_words ? r.listing_words : r.name;
