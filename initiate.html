@@ -70,26 +70,19 @@
       <ol class="i-steps">
 
         <li class="i-q">
-          <label class="i-field" for="o-kind"><span><b class="i-n">1</b>What moment would you like to create? <b class="req" aria-hidden="true">*</b></span>
-            <select id="o-kind" name="kind" required>
-              <option value="" selected disabled>Choose one</option>
-              <option>A day out or trip</option>
-              <option>A game or sports day</option>
-              <option>A good meal together</option>
-              <option>A celebration or festival</option>
-              <option>Help with learning</option>
-              <option>Something else</option>
-            </select></label>
-          <div class="i-desc-head"><label class="i-sub" for="o-description">Tell us a little more <u class="opt">(optional)</u></label>
-            <button type="button" class="i-info" aria-expanded="false" aria-controls="o-desc-tip" data-info><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5h.01"/></svg><span>How?</span></button></div>
-          <p class="i-tip" id="o-desc-tip" hidden>Tell us in whatever way is easiest: write it here, <b>record your voice</b> in English or Tamil, or <b>attach</b> photos and documents below. We turn voice notes into text.</p>
-          <label class="i-field" for="o-description">
-            <span class="i-area">
-              <textarea id="o-description" name="description" maxlength="1000" rows="3" placeholder="Who is it for, and what would make the difference?"></textarea>
-              <span class="i-count" aria-hidden="true"><span id="o-count">0</span>/1000</span>
-            </span></label>
+          <!-- Voice, photo and attach come first, the writing box below them (SURESH 23 Nov 2026).
+               Type your own moment, or tap one of the ideas to fill the box (SURESH 23 Nov 2026) -->
+          <label class="i-field" for="o-kind"><span><b class="i-n">1</b><span data-t="kind">What moment would you like to create?</span> <b class="req" aria-hidden="true">*</b></span>
+            <input id="o-kind" name="kind" required maxlength="60" autocomplete="off" placeholder="Type it in your own words" data-tp="kind"></label>
+          <div class="i-picks" data-fill="o-kind" aria-label="Or tap an idea">
+            <button type="button" data-ta="ஒரு நாள் சுற்றுலா அல்லது பயணம்">A day out or trip</button>
+            <button type="button" data-ta="விளையாட்டு அல்லது விளையாட்டுப் போட்டி நாள்">A game or sports day</button>
+            <button type="button" data-ta="ஒன்றாக ஒரு நல்ல உணவு">A good meal together</button>
+            <button type="button" data-ta="கொண்டாட்டம் அல்லது விழா">A celebration or festival</button>
+            <button type="button" data-ta="கல்விக்கு உதவி">Help with learning</button>
+          </div>
           <div class="ev" data-evidence>
-            <p class="ev-help">A voice note, photos or documents <u class="opt">(optional, up to 4)</u>: the place, a letter from the school, a price quote. Only our team sees them.</p>
+            <p class="ev-help"><span data-t="evhelp">Tell us more: record your voice, take a photo or attach a file</span> <u class="opt" data-t="evopt">(optional, up to 4)</u></p>
             <div class="ev-btns">
               <button type="button" class="ev-btn ev-rec" data-ev-rec><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span data-rec-label>Record your voice</span></button>
               <button type="button" class="ev-btn" data-ev-live><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Take a photo</span></button>
@@ -100,6 +93,12 @@
             <ul class="ev-list" data-ev-list></ul>
             <p class="ev-msg" data-ev-msg role="status"></p>
           </div>
+          <label class="i-sub i-write" for="o-description"><span data-t="write">Or write it here</span> <u class="opt" data-t="opt">(optional)</u></label>
+          <label class="i-field" for="o-description">
+            <span class="i-area">
+              <textarea id="o-description" name="description" maxlength="1000" rows="3" placeholder="Who is it for, and what would make the difference?" data-tp="desc"></textarea>
+              <span class="i-count" aria-hidden="true"><span id="o-count">0</span>/1000</span>
+            </span></label>
         </li>
 
         <li class="i-q">
