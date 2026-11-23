@@ -61,6 +61,9 @@
     ["people", "People", true], ["champions", "Champions", true], ["members", "Members", true], ["volunteers", "Volunteers", true], ["groups", "Groups", true], ["circles", "Family circles", true], ["traffic", "Traffic", true], ["team", "Team & logins", true]
   ];
 
+  // Groups screen parked for its own release (SURESH 23 Nov 2026): shown only on the draft with ?features=all.
+  let GROUPS_ON = false; try { GROUPS_ON = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) && (new URLSearchParams(location.search).get("features") === "all" || sessionStorage.getItem("raav-features") === "all"); } catch (e) { /* storage blocked */ }
+  if (!GROUPS_ON) MENU.splice(MENU.findIndex(m => m[0] === "groups"), 1);
   let D = null, P = [], C = { list: [], districts: [] }, chDistrict = "All", chEdit = null;
   // People who filled in "I'd like to give" on the website (live only; null in the demo).
   let ASKS = null;
@@ -1952,7 +1955,7 @@
     else if (page === "champions") { app.innerHTML = champions(); wireChampions(); }
     else if (page === "circles") { app.innerHTML = circles(); wireCircles(); }
     else if (page === "volunteers") { app.innerHTML = volunteers(); wireVolunteers(); }
-    else if (page === "groups") { app.innerHTML = groups(); wireGroups(); }
+    else if (page === "groups" && GROUPS_ON) { app.innerHTML = groups(); wireGroups(); }
     else if (page === "members") { app.innerHTML = members(); wireMembers(); }
     else if (page === "traffic") { app.innerHTML = traffic(); wireTraffic(); }
     else if (page === "voices") { app.innerHTML = voices(); wireVoices(); }

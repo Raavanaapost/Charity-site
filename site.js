@@ -30,9 +30,9 @@ window.RAAV_FEATURES = (function () {
     const test = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) || /--charity-projects-draft\./.test(location.hostname);
     if (test && q === "all") sessionStorage.setItem("raav-features", "all");
     if (q === "launch") sessionStorage.removeItem("raav-features");
-    // Community groups (SURESH 23 Nov 2026): on the draft preview only until SURESH says "post" and it is set to true.
-    if (test) F.groups = true;
-    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = F.group = F.join = F.volunteers = F.moment = F.map = F.left = F.reserve = true; F.reasons = []; }
+    // Community groups (SURESH 23 Nov 2026: "Keep this as to do feature. Lets do this as another feature release"):
+    // off everywhere, also on the draft; preview with ?features=all. Set groups: true when that release comes.
+    if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = F.group = F.join = F.volunteers = F.moment = F.map = F.left = F.reserve = F.groups = true; F.reasons = []; }
   } catch (e) { /* storage blocked: the launch switches stay */ }
   ["sponsor", "circle", "vetting", "tamil"].forEach(k => { if (!F[k]) document.documentElement.classList.add("no-" + k); });
   // No "Reserved" step (SURESH 23 Nov 2026: "better we remove reserve. So it will directly place the name"): a giver from the
