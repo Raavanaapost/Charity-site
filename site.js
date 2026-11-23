@@ -1107,7 +1107,7 @@ window.RAAV_FEATURES = (function () {
     // "Project at a glance": the same facts as on the project's own page, in a small window.
     const RING_WORD = { 1: "Funded so far", 2: "Preparations done", 3: "Results reported" };
     const popHTML = p => { const n = stageNum(p), s = safe(p), b = budgetOf(p), pct = ringPercent(p);
-      const facts = [["Where", esc(p.location || cityOf(p))], ["Who it is for", esc(s.reach)], ["Started", esc(p.started || "")], ["Cost of the day", b.goal ? moneyOf(site, b.goal, p) : ""],
+      const facts = [["Where", esc(p.location || cityOf(p))], ["Who it is for", esc(s.reach)], ["Started", esc(p.started || "")], ["Cost of the day", b.goal ? moneyOf(site, b.goal, p) : esc(p.budget_text || "")], ["The day", esc(p.date_text || "")],
         [RING_WORD[n], pct + "%"], ["Next step", esc(nextStepOf(p))]].filter(x => x[1]);
       return `<p class="hm-pop-k"><span>Project at a glance</span><b class="hm-pill">${HOME_STAGE[n - 1]}</b></p>
         <b class="hm-pop-t">${esc(s.title)}</b>
@@ -1316,7 +1316,7 @@ window.RAAV_FEATURES = (function () {
     // "Project at a glance": the same facts as on the project's own page, in a small window.
     const RING_WORD = { 1: "Funded so far", 2: "Preparations done", 3: "Results reported" };
     const popHTML = p => { const n = stageNum(p), s = safe(p), b = budgetOf(p), pct = ringPercent(p);
-      const facts = [["Submitted by", esc(byOf(p))], ["Where", esc(p.location || cityOf(p))], ["Who it is for", esc(s.reach)], ["Started", esc(p.started || "")], ["Cost of the day", b.goal ? moneyOf(site, b.goal, p) : ""],
+      const facts = [["Submitted by", esc(byOf(p))], ["Where", esc(p.location || cityOf(p))], ["Who it is for", esc(s.reach)], ["Started", esc(p.started || "")], ["Cost of the day", b.goal ? moneyOf(site, b.goal, p) : esc(p.budget_text || "")], ["The day", esc(p.date_text || "")],
         [RING_WORD[n], pct + "%"], ["Next step", esc(nextStepOf(p))]].filter(x => x[1]);
       return `<p class="hm-pop-k"><span>Project at a glance</span><b class="hm-pill">${HOME_STAGE[n - 1]}</b></p>
         <b class="hm-pop-t">${esc(s.title)}</b>
@@ -2345,9 +2345,13 @@ window.RAAV_FEATURES = (function () {
   //   Initiated: budget, how much is funded, what is still needed; the estimated costs on the project's Budget tab.
   //   Activated: the budget, "Fully funded", and the sponsors.
   //   Impact: the same, plus where the money went.
+  // No budget yet. "budget_text" / "date_text" in projects.json say it plainly, e.g. "To be decided" (SURESH 23 Nov 2026, Attabage).
+  const budgetWaitHTML = p => p && p.budget_text
+    ? `<p class="b-wait"><b>Budget:</b> ${esc(p.budget_text)}${p.date_text ? `<br><b>Date:</b> ${esc(p.date_text)}` : ""}<br>We will decide these together and show them here.</p>`
+    : `<p class="b-wait">The budget for this project is being prepared. It will be shown here as soon as it is ready.</p>`;
   function budgetDetailHTML(p, site, detail = false) {
     const b = budgetOf(p), money = n => moneyOf(site, n, p), st = stageNum(p);
-    if (!b.goal) return `<p class="b-wait">The budget for this project is being prepared. It will be shown here as soon as it is ready.</p>`;
+    if (!b.goal) return budgetWaitHTML(p);
     const sum = b.lines.reduce((t, x) => t + numOf(x.amount), 0);
     const listOf = (h, total) => b.lines.length ? `<h3 class="money-h">${h}</h3><ul class="bx-list">${b.lines.map(x => `<li><span>${esc(x.item)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>
         <p class="bx-total"><span>${total}</span><b>${money(sum)}</b></p>` : "";
@@ -3119,7 +3123,7 @@ window.RAAV_FEATURES = (function () {
             <div><dt>${funders.length === 1 ? "Supporter" : "Supporters"}</dt><dd>${funders.length}</dd></div>
             <div><dt>${full ? "Status" : "Still needed"}</dt><dd>${full ? "Fully funded" : money(goal - raised)}</dd></div>
           </dl>`
-        : `<p class="b-wait">The budget for this project is being prepared. It will be shown here as soon as it is ready.</p>`}
+        : budgetWaitHTML(p)}
         <p class="b-pledge"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 20s-7-4.4-7-9.6A4.2 4.2 0 0 1 12 7.7a4.2 4.2 0 0 1 7 2.7C19 15.6 12 20 12 20z" fill="currentColor"/></svg> Every penny goes to the day itself.</p>
       </div>`;
     // "Activating" ring: every step a project needs before the day can happen is one slice of the circle.
@@ -3209,6 +3213,8 @@ window.RAAV_FEATURES = (function () {
                     ${p.location ? `<dt>Location</dt><dd>${esc(p.location)}</dd>` : ""}
                     ${p.started ? `<dt>Started</dt><dd>${esc(p.started)}</dd>` : ""}
                     ${p.reach ? `<dt>Reach</dt><dd>${esc(p.reach)}</dd>` : ""}
+                    ${!budgetOf(p).goal && p.budget_text ? `<dt>Budget</dt><dd>${esc(p.budget_text)}</dd>` : ""}
+                    ${p.date_text ? `<dt>Date</dt><dd>${esc(p.date_text)}</dd>` : ""}
                   </dl>
                   ${(p.impact || []).length ? `<div class="stats">${p.impact.map(s => `<div class="stat"><b>${esc(s.value)}</b><span>${esc(s.label)}</span></div>`).join("")}</div>` : ""}
                 </div>
