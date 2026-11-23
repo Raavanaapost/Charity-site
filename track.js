@@ -33,7 +33,21 @@
   var app = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
   var lang = /^\/ta(\/|$)/.test(location.pathname) ? "ta" : "en";
 
+  // Signed-in members only (SURESH, 23 Nov 2026: "who is online, their activity log"): the same note also goes to
+  // /api/members/seen, which checks the sign-in itself. Visitors without an account send nothing extra.
+  var member = false;
+  try { member = !!localStorage.getItem("gotrue.user"); } catch (e) { member = false; }
+  var memberReady = member ? import("/members.js").then(function (m) { return m.getMember(); }).then(function (u) { return !!u; }, function () { return false; }) : null;
+  function seen(kind, detail) {
+    if (!memberReady) return;
+    memberReady.then(function (ok) {
+      if (!ok) return;
+      try { fetch("/api/members/seen", { method: "POST", credentials: "same-origin", keepalive: true, body: JSON.stringify({ k: kind, p: location.pathname, d: detail || "" }) }).catch(function () {}); } catch (e) { /* never break the page */ }
+    });
+  }
+
   function send(kind, detail, first) {
+    seen(kind, detail);
     var body = JSON.stringify({
       k: kind, p: location.pathname, d: detail || "", v: visit.v, l: first ? 1 : 0,
       r: first ? visit.r : "", c: visit.c, u: visit.u, x: visit.x, a: app ? 1 : 0, lang: lang

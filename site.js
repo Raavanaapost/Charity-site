@@ -51,7 +51,7 @@ window.RAAV_FEATURES = (function () {
 // The site's own visit counter (16 Nov 2026, track.js): free, no cookies, nothing personal.
 (function () {
   if (document.querySelector('script[src^="/track.js"]')) return;
-  const t = document.createElement("script"); t.src = "/track.js?v=1"; t.defer = true; document.head.appendChild(t);
+  const t = document.createElement("script"); t.src = "/track.js?v=2"; t.defer = true; document.head.appendChild(t);
 })();
 (function () {
   let COMMENTS = [];
