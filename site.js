@@ -3156,13 +3156,32 @@ window.RAAV_FEATURES = (function () {
         <div class="ptale-text story" id="ptale-text">${(h => { const k = h.indexOf("</p>") + 4; return k > 3 && h.slice(k).trim() ? h.slice(0, k) + `<div class="ptale-rest">${h.slice(k)}</div>` : h; })(md(taleSrc))}</div>
         <button class="ptale-more" type="button" aria-expanded="false" aria-controls="ptale-text" hidden><span>${TALE_MORE[st]}</span><i aria-hidden="true">⌄</i></button>
       </section>` : "";
+    // Overview at the top of the Story tab (SURESH, 23 Nov 2026: "some overview at the top, the places they
+    // visit, kids and teachers"). All optional, from projects.json: overview {lead, facts[{k,v}]},
+    // who [{value,label}], places [{name, local, when, about}].
+    const ov = p.overview || {}, who = p.who || [], places = p.places || [];
+    const overviewHTML = (ov.lead || (ov.facts || []).length || who.length || places.length) ? `<section class="pov s${st}">
+        <p class="pov-k">Overview</p>
+        ${ov.lead ? `<p class="pov-lead">${esc(ov.lead)}</p>` : ""}
+        ${who.length ? `<div class="pov-who">${who.map(w => `<div><b>${esc(w.value)}</b><span>${esc(w.label)}</span></div>`).join("")}</div>${ov.who_note ? `<p class="pov-note">${esc(ov.who_note)}</p>` : ""}` : ""}
+        ${(ov.facts || []).length ? `<dl class="pov-facts">${ov.facts.map(f => `<div><dt>${esc(f.k)}</dt><dd>${esc(f.v)}</dd></div>`).join("")}</dl>` : ""}
+        ${places.length ? `<h3 class="pov-h">Where they go</h3>
+        <ol class="pov-route">${places.map((pl, k) => `<li><span class="pov-n" aria-hidden="true">${k + 1}</span><div><b>${esc(pl.name)}</b>${pl.local ? `<i>${esc(pl.local)}</i>` : ""}${pl.when ? `<em>${esc(pl.when)}</em>` : ""}${pl.about ? `<p>${esc(pl.about)}</p>` : ""}</div></li>`).join("")}</ol>` : ""}
+      </section>` : "";
+    // Title card at the top of the Impact tab: the main points of the difference the day makes (SURESH, 23 Nov 2026).
+    const ic = p.impact_card;
+    const impactCardHTML = ic && (ic.points || []).length ? `<section class="picard s${st}">
+        <p class="picard-k">${esc(ic.kicker || (st === 3 ? "The impact it made" : "The impact it will make"))}</p>
+        ${ic.title ? `<h3>${esc(ic.title)}</h3>` : ""}
+        <ul>${ic.points.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
+      </section>` : "";
     // Story first, then Impact, Budget, Media: the same order as on RaavanaaPost (SURESH, 6 Nov 2026).
     const tabs = [["story", "Story"], ["updates", "Impact"], ["budget", "Budget"], ["media", `Media${count(photos.length + media.length)}`]];
 
     const panes = {
       // The story tab: the opening paragraph in full, the rest behind "See how this smile begins".
-      story: taleHTML || `<p class="empty">The story is on its way.</p>`,
-      updates: expectHTML(p) + (updates.length ? updates.map(u => `<article class="update"><div class="meta">${fmtDate(u.date)}</div><h3>${esc(u.title)}</h3><div>${md(u.body)}</div></article>`).join("") : `<p class="empty">No impact updates yet.</p>`) + (p.sample || FEAT.voices ? "" : commentsHTML(slugOf(p))),
+      story: overviewHTML + (taleHTML || (overviewHTML ? "" : `<p class="empty">The story is on its way.</p>`)),
+      updates: impactCardHTML + expectHTML(p) + (updates.length ? updates.map(u => `<article class="update"><div class="meta">${fmtDate(u.date)}</div><h3>${esc(u.title)}</h3><div>${md(u.body)}</div></article>`).join("") : `<p class="empty">No impact updates yet.</p>`) + (p.sample || FEAT.voices ? "" : commentsHTML(slugOf(p))),
       budget: `<div class="budget-tab">${budgetDetailHTML(p, site, true)}${p.money ? `<p class="mny-link"><a class="btn ghost" href="/projects/${slugOf(p)}/money">See every rupee in and out</a></p>` : ""}${stageNum(p) === 1 && budgetOf(p).lines.length ? `<p class="note">These are estimates. Once the day has happened, the real costs are shown here.</p>` : stageNum(p) === 2 ? `<p class="note">Once the day has happened, a breakdown of where the money went is shown here.</p>` : ""}</div>`,
       media: (photos.length || media.length) ? `${media.length ? `<div class="media">${media.map(m => { const e = embedFor(m.url); return e ? `<figure style="margin:0"><div class="embed"><iframe src="${esc(e)}" title="${esc(m.title)}" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy"></iframe></div>${m.title ? `<figcaption class="note" style="padding-top:6px">${esc(m.title)}</figcaption>` : ""}</figure>` : `<a class="media-link" href="${esc(m.url)}" target="_blank" rel="noopener">▶ ${esc(m.title || m.url)}</a>`; }).join("")}</div>` : ""}${photos.length ? `<div class="photos">${photos.map((ph, k) => `<figure><button data-src="${esc(imgUrl(ph.image, 1600))}" aria-label="Open picture"><div class="cover"><img src="${esc(imgUrl(ph.image, 600))}" alt="${esc(ph.caption)}" loading="lazy"></div></button>${ph.caption ? `<figcaption>${esc(ph.caption)}</figcaption>` : ""}</figure>`).join("")}</div>` : ""}` : `<p class="empty">${p.photos_private ? "To protect the children, we do not put their photos on this website. The day is told here in words, and the organisers and families keep the photos." : "No videos or pictures yet."}</p>`
     };
