@@ -1,0 +1,269 @@
+{
+  "day": "2026-11-23",
+  "from": "2026-11-23T00:00:00.000Z",
+  "to": "2026-11-24T00:00:00.000Z",
+  "tz": "UTC",
+  "now": {
+    "views": 91,
+    "visits": 43,
+    "shares": 0,
+    "give": 1,
+    "memory": 0,
+    "request": 0,
+    "vouch": 0,
+    "install": 0,
+    "app_visits": 2
+  },
+  "daily": [
+    {
+      "day": "2026-11-23",
+      "views": 91,
+      "visits": 43,
+      "actions": 1,
+      "shares": 0
+    }
+  ],
+  "sources": [
+    {
+      "key": "direct",
+      "visits": 29,
+      "acted": 0,
+      "shares": 0,
+      "pages": 2.2
+    },
+    {
+      "key": "other",
+      "visits": 7,
+      "acted": 1,
+      "shares": 0,
+      "pages": 2
+    },
+    {
+      "key": "facebook",
+      "visits": 5,
+      "acted": 0,
+      "shares": 0,
+      "pages": 1
+    },
+    {
+      "key": "google",
+      "visits": 1,
+      "acted": 0,
+      "shares": 0,
+      "pages": 5
+    }
+  ],
+  "campaigns": [
+    {
+      "key": "room",
+      "visits": 7,
+      "acted": 1,
+      "shares": 0,
+      "pages": 2
+    }
+  ],
+  "pages": [
+    {
+      "key": "/projects/pussellawa-kandy-trip",
+      "views": 22,
+      "visits": 18
+    },
+    {
+      "key": "/members",
+      "views": 17,
+      "visits": 8
+    },
+    {
+      "key": "/overview",
+      "views": 13,
+      "visits": 8
+    },
+    {
+      "key": "/initiate",
+      "views": 12,
+      "visits": 4
+    },
+    {
+      "key": "/initiated",
+      "views": 6,
+      "visits": 6
+    },
+    {
+      "key": "/projects/prefect-uniforms-for-students-in-valaippadu",
+      "views": 3,
+      "visits": 3
+    },
+    {
+      "key": "/about",
+      "views": 3,
+      "visits": 2
+    },
+    {
+      "key": "/contact",
+      "views": 2,
+      "visits": 2
+    },
+    {
+      "key": "/projects/mums-and-kids-day-out",
+      "views": 2,
+      "visits": 2
+    },
+    {
+      "key": "/impact",
+      "views": 2,
+      "visits": 2
+    },
+    {
+      "key": "/volunteers",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/activated",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/how-it-works",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/privacy",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/projects",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/projects/casuarina-beach-day",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/report",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/room",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/spark",
+      "views": 1,
+      "visits": 1
+    }
+  ],
+  "countries": [
+    {
+      "key": "CA",
+      "visits": 30
+    },
+    {
+      "key": "US",
+      "visits": 9
+    },
+    {
+      "key": "LK",
+      "visits": 4
+    }
+  ],
+  "devices": [
+    {
+      "key": "computer",
+      "visits": 24
+    },
+    {
+      "key": "phone",
+      "visits": 17
+    },
+    {
+      "key": "app",
+      "visits": 2
+    }
+  ],
+  "hours": [
+    {
+      "key": 0,
+      "views": 2
+    },
+    {
+      "key": 1,
+      "views": 14
+    },
+    {
+      "key": 2,
+      "views": 21
+    },
+    {
+      "key": 3,
+      "views": 16
+    },
+    {
+      "key": 10,
+      "views": 11
+    },
+    {
+      "key": 11,
+      "views": 1
+    },
+    {
+      "key": 13,
+      "views": 11
+    },
+    {
+      "key": 14,
+      "views": 4
+    },
+    {
+      "key": 16,
+      "views": 2
+    },
+    {
+      "key": 17,
+      "views": 5
+    },
+    {
+      "key": 18,
+      "views": 1
+    },
+    {
+      "key": 19,
+      "views": 1
+    },
+    {
+      "key": 22,
+      "views": 1
+    },
+    {
+      "key": 23,
+      "views": 1
+    }
+  ],
+  "weekdays": [
+    {
+      "key": 1,
+      "views": 91
+    }
+  ],
+  "shares": [],
+  "refs": [
+    {
+      "key": "m.facebook.com",
+      "visits": 3
+    },
+    {
+      "key": "facebook.com",
+      "visits": 2
+    },
+    {
+      "key": "com.google.android.gm",
+      "visits": 1
+    }
+  ]
+}
