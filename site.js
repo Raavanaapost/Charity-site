@@ -872,7 +872,14 @@ window.RAAV_FEATURES = (function () {
   // turning call on it ("Make this happen", "Own it", ...); all three take turns through the listed projects.
   const MAKE_SAYS = ["Make this happen", "Own it", "Create the moment", "Be the smile", "Start it today"];
   // SURESH 21 Nov 2026: the top pictures show Initiated projects only (the days still waiting to happen).
+  // SURESH 24 Nov 2026: a project marked "main_story": true stays as the big picture and never swaps;
+  // only the two smaller pictures take turns.
   const homeDeck = (shown, k) => {
+    const main = shown.find(p => p.main_story);
+    if (main) {
+      const others = shown.filter(p => p !== main && stageNum(p) === 1), pool = others.length ? others : shown.filter(p => p !== main);
+      return [main, ...(pool.length ? [0, 1].map(j => pool[(k * 2 + j) % pool.length]).filter((p, j, a) => a.indexOf(p) === j) : [])];
+    }
     const init = shown.filter(p => stageNum(p) === 1);
     if (init.length) return [0, 1, 2].map(j => init[(k + j) % init.length]).filter((p, j, a) => a.indexOf(p) === j);
     const big = null;
