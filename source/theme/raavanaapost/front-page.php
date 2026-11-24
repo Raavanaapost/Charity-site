@@ -47,7 +47,8 @@ endif;
  * pictures, then two more. Words sit on the picture: stage, place and headline.
  */
 $rp_not    = rp_cat( 'sports' ) ? array( rp_cat( 'sports' )->term_id ) : array(); // League news stays in Sports, not in the top five.
-$rp_slides = array_merge( $rp_lead, rp_take( array( 'numberposts' => 2, 'category__not_in' => $rp_not ) ) );
+// A story chosen in front-lead.txt stays as the big picture and does not turn (SURESH 24 Nov 2026: "Dont swap").
+$rp_slides = $rp_front ? $rp_lead : array_merge( $rp_lead, rp_take( array( 'numberposts' => 2, 'category__not_in' => $rp_not ) ) );
 $rp_tiles  = rp_take( array( 'numberposts' => 4, 'category__not_in' => $rp_not ) );
 ?>
 

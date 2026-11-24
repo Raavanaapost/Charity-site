@@ -102,12 +102,12 @@ $stories = array(
 		'place'   => 'Pussellawa, Kandy District',
 		'excerpt' => 'The children of Choughleigh Tamil Vidyalayam, a small primary school in Pussellawa\'s tea country, have never been on a school trip. On Friday 27 November they hope to visit the Temple of the Tooth and the Peradeniya gardens.',
 		'stage'   => 'reported',
-		'update'  => 'Visited and verified. The day has moved to 27 November, and the Rs 61,000 for the bus and food is still to be covered.',
+		'update'  => 'Visited and verified. On Friday 27 November the children go to the Temple of the Tooth and the Peradeniya gardens. The Rs 61,000 for the bus and food is still to be covered.',
 		'highlights' => array(
 			'52 children have never been on a school trip',
 			'Friday 27 November: the Temple of the Tooth, Kandy',
 			'Then the Peradeniya gardens on the way home',
-			'Half pledged. Rs 30,500 still to go',
+			'Rs 61,000 for the bus and food for about 55 people',
 		),
 		'hours'   => -68,
 		'views'   => 30,
@@ -115,10 +115,14 @@ $stories = array(
 			. n_p( 'The school\'s vision is to give society primary pupils with sound skills and good character. Its mission is to give every pupil all the core skills and the chance to go on to secondary education.' )
 			. n_h( 'The plan' )
 			. n_p( 'On Friday 27 November 2026, about 55 children and teachers travel by bus to Kandy, about 50 km away. They visit the Sri Dalada Maligawa, the Temple of the Tooth, and stop at the Peradeniya gardens on the way back. The school has permission for the trip from the Department of Education.' )
+			. n_h( 'Where they go' )
+			. n_ul( array( '<strong>First stop: the Temple of the Tooth</strong> (Sri Dalada Maligawa), the famous temple in the heart of Kandy', '<strong>On the way home: the Peradeniya Botanical Gardens</strong>, the great gardens beside the Mahaweli river, with wide lawns and giant trees' ) )
+			. n_h( 'The impact it will make' )
+			. n_ul( array( '52 children who have never been on a school trip get their first one', 'A new experience, just as the principal asked for: two of Sri Lanka\'s best-known places in one day', 'The whole group travels safely there and back and shares a meal', 'After the day, the story and pictures (no children\'s faces) are shared here, and every rupee is shown' ) )
 			. n_h( 'What it costs' )
 			. n_ul( array( 'Bus to Kandy and back: about Rs 30,000', 'Food for the whole group: about Rs 31,000' ) )
 			. n_p( 'Rs 61,000 in all. After the day we will share the story and the pictures here.' )
-			. n_p( 'See the project on <a href="https://raavanaa.org">raavanaa.org</a>.' ),
+			. n_p( 'See the project and give on <a href="https://raavanaa.org/projects/pussellawa-kandy-trip">raavanaa.org</a>.' ),
 	),
 	array(
 		'key'     => 'F',
