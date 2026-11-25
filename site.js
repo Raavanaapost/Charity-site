@@ -3214,7 +3214,7 @@ window.RAAV_FEATURES = (function () {
             <header class="phead">
               ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
               <h1>${esc(p.title)}</h1>
-              <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>Submitted by <strong>${esc(p.submitted_by || p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> ${esc(vLabel(p))}</span>` : ""}${FEAT.voices && !p.sample && stageNum(p) === 3 ? `<a class="rate-chip" href="#voices-h" data-rate-chip hidden></a>` : ""}
+              <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>Submitted by <strong>${esc(p.submitted_by || p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> ${esc(vLabel(p))}</span>` : ""}${FEAT.voices && !p.sample && stageNum(p) === 3 ? `<a class="rate-chip" href="#voices-h" data-rate-chip hidden></a>` : ""}${FEAT.groups && !p.sample ? `<a class="started-by" data-started-by hidden></a>` : ""}
               <div class="glance">
                 <button type="button" class="glance-btn" aria-expanded="false" aria-controls="glance-card"><span>At a glance</span><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
                 <div class="panel glance-card" id="glance-card">
@@ -3263,6 +3263,15 @@ window.RAAV_FEATURES = (function () {
       wireShare(app);
       wireSend(app, p);
       if (FEAT.voices) wireVoices(app, p);
+      // "Started by" (SURESH 25 Nov 2026, groups and organisations): the group or organisation the team linked to this
+      // project, with its badge, opens its profile /g/<name>.
+      if (FEAT.groups && !p.sample) fetch("/api/groups").then(r => r.ok ? r.json() : null).then(d => {
+        const a = app.querySelector("[data-started-by]"), l = d && (d.links || []).find(x => x.project === slugOf(p));
+        if (!a || !l) return;
+        const g = (d.groups || []).find(x => x.slug === l.group) || {};
+        a.href = "/g/" + encodeURIComponent(l.group); a.hidden = false;
+        a.innerHTML = `<span class="sb-k">Started by</span> <b>${esc(l.name)}</b> <span class="sb-b">${g.verified ? "✓ Verified organisation" : g.type === "organisation" ? "Organisation" : "Group"}</span>`;
+      }).catch(() => {});
       app.querySelectorAll("[data-fund]").forEach(b => b.addEventListener("click", () => {
         // With the 100% fold off, "Make it happen" goes straight to the giving form by the budget.
         if (!FEAT.left) { const give = app.querySelector(".b-give [data-donate]"); if (give) { if (!app.querySelector(".pl-inline")) { give.dataset.noScroll = "1"; give.click(); delete give.dataset.noScroll; } const pn = give.closest(".panel") || give; pn.style.scrollMarginTop = "86px"; pn.scrollIntoView({ block: "start", behavior: "smooth" }); } return; }
