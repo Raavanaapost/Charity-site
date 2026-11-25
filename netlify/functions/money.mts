@@ -26,7 +26,9 @@ const isRupees = (p: Project) => /rs|lkr|රු|ரூ/i.test(p.currency || "");
 // Projects in dollars ("$", the site's default) are Canadian dollars, at the team's rate in site.json.
 const toRs = (p: Project, v: number) => Math.round(isRupees(p) ? v : v * RATE_CAD);
 const day = (v: unknown) => (/^\d{4}-\d{2}-\d{2}/.test(String(v || "")) ? String(v).slice(0, 10) : "");
-const PROJECTS = ((data as { projects?: Project[] }).projects || []).filter((p) => p && p.title && p.slug && !p.hidden);
+// Only projects the public can see (checked and not hidden), as on the project pages.
+const isPublic = (p: Project) => !!(p && p.title && p.slug && !p.hidden && p.verified);
+const FILE_PROJECTS = ((data as { projects?: Project[] }).projects || []).filter(isPublic);
 
 type Gift = { date: string; name: string; amount: number | null; counted: number; project: string; status: "received" | "promised"; country: string; via: "form" | "team" };
 
@@ -40,6 +42,13 @@ export default async () => {
   } catch (e) { console.log("money: gifts not read:", (e as Error).message); }
   try { removed = await db.sql`SELECT slug, name, amount FROM funder_removals`; } catch (e) { console.log("money: removals not read:", (e as Error).message); }
 
+  // Projects the team made from requests in the portal live in the database (site_projects); projects.json wins on a clash.
+  let PROJECTS = FILE_PROJECTS;
+  try {
+    const made = (await db.sql`SELECT data FROM site_projects WHERE NOT hidden`) as { data: Project }[];
+    const have = new Set(FILE_PROJECTS.map((p) => p.slug));
+    PROJECTS = [...FILE_PROJECTS, ...made.map((r) => r.data).filter((p) => isPublic(p) && !have.has(p.slug))];
+  } catch (e) { console.log("money: site projects not read:", (e as Error).message); }
   const gifts: Gift[] = [];
   const bySlug = new Map(PROJECTS.map((p) => [p.slug as string, p]));
   for (const p of PROJECTS) {

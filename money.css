@@ -7,14 +7,15 @@
 .ob-head h1{margin:0;font-family:"Cinzel",Georgia,serif;font-size:clamp(26px,5.6vw,40px);color:var(--ob-green);text-wrap:balance}
 .ob-tag{margin:0 auto;max-width:56ch;font-family:"Literata",Georgia,serif;font-style:italic;color:var(--muted)}
 .ob-loading,.ob-empty{color:var(--muted);text-align:center;margin:8px 0}
-.ob-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.ob-tiles{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+@media (max-width:760px){.ob-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .ob-tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;gap:2px;min-width:0}
 .ob-tile .lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .ob-tile .big{font-size:clamp(20px,4.6vw,26px);color:var(--ob-green);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .ob-tile small{color:var(--muted);font-size:12px}
-.ob-tile.main{border:2px solid var(--ob-green)}
-.ob-tile.soon{border-style:dashed;opacity:.7}
-.ob-tile.soon .big{color:var(--muted);font-size:18px}
+.ob-tile.main{border:2px solid var(--ob-green);grid-column:span 2}
+.ob-tile.soon{border-style:dashed;grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;background:transparent}
+.ob-tile.soon b{font-size:14px;color:var(--ink)}
 .ob-panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
 .ob-panel h2{margin:0 0 12px;font-family:"Cinzel",Georgia,serif;font-size:19px;color:var(--ob-green)}
 .ob-filters{display:grid;gap:12px}
