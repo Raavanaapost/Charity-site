@@ -8,6 +8,7 @@ import { getDatabase } from "@netlify/database";
 import { getUser } from "@netlify/identity";
 import { TRIBUTE_WORDS } from "../lib/give-core.mts";
 import { escHtml, sendMail, teamEmail } from "../lib/mail.mts";
+import { follow as addFollower } from "../lib/follow.mts";
 import data from "../../projects.json" with { type: "json" };
 
 type P = { slug?: string; title?: string; currency?: string };
@@ -60,6 +61,8 @@ export default async (req: Request) => {
               ${row.kind === "project" ? value : 0}, ${memberEmail}, ${follow})
       RETURNING ref`;
     await db.sql`INSERT INTO audit_log (actor, action, target) VALUES ('website', 'give_request.received', ${saved.ref})`;
+    // Follow ticked: they get each update of this project (Followers & updates in the portal, 25 Nov 2026).
+    if (follow && slug) await addFollower(db, slug, name, contact, "give").catch((e) => console.log("follower not saved:", (e as Error).message));
     await tell(new URL(req.url).origin, saved.ref, { name, contact, isEmail, slug, amount: row.amount, follow, message: row.message, tribute, listing: row.listing, words: row.words });
     return json({ ok: true, ref: saved.ref });
   } catch (e) {
