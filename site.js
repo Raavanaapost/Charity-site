@@ -2896,7 +2896,9 @@ window.RAAV_FEATURES = (function () {
     const G = ["", "Smiles in the Making", "Moments on the Way", "Days of Joy, Created"];
     let html = "", g = 0;
     // "Moments on the Way" and "Days of Joy, Created" are shown once the day has happened (SURESH, 6 Nov 2026).
-    S.filter(x => st === 3 || x.g === 1).forEach((x, k) => {
+    // "Moments on the Way" also shows from Activated, so the dots move on past Fully funded (SURESH 25 Nov 2026:
+    // "The dot didn't move to activated").
+    S.filter(x => st === 3 || x.g === 1 || (st === 2 && x.g === 2)).forEach((x, k) => {
       if (x.g !== g) { g = x.g; html += `${k ? "</ol>" : ""}<p class="jr-g jr-g${g}">${G[g]}</p><ol class="jr">`; }
       const state = x.done ? "done" : k === now ? "now" : "next", info = [x.who && esc(x.who), x.when && d(x.when)].filter(Boolean).join(" · ");
       // The funding step, while it is the current one, gets a small "Make it happen" nudge (SURESH, 6 Nov 2026).
