@@ -50,11 +50,12 @@
     voices: '<path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.6L12 16.4l-5.1 2.7 1-5.6-4.1-4 5.7-.8z"/><path d="M4 21h16"/>',
     reports: '<path d="M12 3l8 3v6c0 4.6-3.3 8-8 9-4.7-1-8-4.4-8-9V6z"/><path d="M12 8v5M12 16h.01" stroke-width="2.2"/>',
     traffic: '<path d="M4 19V11M9.3 19V6M14.6 19v-5M20 19V9"/><path d="M3 21h18"/>',
+    followers: '<path d="M4 11v2a1 1 0 0 0 1 1h2l5 4V6L7 10H5a1 1 0 0 0-1 1z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>',
     more: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'
   };
   const svg = (d, s = 20) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
   const MENU = [
-    ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true], ["voices", "Vouches & ratings", true],
+    ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true], ["voices", "Vouches & ratings", true], ["followers", "Followers & updates", true],
     ["sponsors", "Sponsors & pledges", true], ["day", "Day preparation", true], ["close", "Close the day", true],
     ["people", "People", true], ["champions", "Champions", true], ["volunteers", "Volunteers", true], ["circles", "Family circles", true], ["traffic", "Traffic", true], ["team", "Team & logins", true]
   ];
@@ -90,7 +91,7 @@
     document.getElementById("pt-tabbar").innerHTML = [["dashboard", "Home"], ["suggestions", "Suggestions"], ["projects", "Projects"], ["reports", "Reports"], ["more", "More"]].map(([k, l]) => {
       const ready = k !== "more";
       return ready ? `<a href="#/${k}" class="${cur === k ? "on" : ""}">${svg(ICON[k], 22)}<span>${l}</span>${k === "sponsors" && newAsk ? `<b class="pt-badge">${newAsk}</b>` : k === "suggestions" && newCount ? `<b class="pt-badge">${newCount}</b>` : k === "reports" && openRep ? `<b class="pt-badge">${openRep}</b>` : ""}</a>`
-        : `<button type="button" class="${["voices", "sponsors", "day", "close", "people", "champions", "volunteers", "circles", "traffic", "team"].includes(cur) ? "on" : ""}" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
+        : `<button type="button" class="${["voices", "followers", "sponsors", "day", "close", "people", "champions", "volunteers", "circles", "traffic", "team"].includes(cur) ? "on" : ""}" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
     }).join("");
     document.querySelectorAll("[data-soon]").forEach(b => b.onclick = () => {
       let m = document.getElementById("pt-more");
@@ -1766,9 +1767,96 @@
     app.querySelectorAll("[data-vhide]").forEach(b => b.onclick = () => send(b, { hidden: b.dataset.on === "yes" }));
   }
 
+  // ---------- Followers & updates (SURESH 25 Nov 2026, option A: free, WhatsApp by tap) ----------
+  // People follow a project from its page (WhatsApp or email, no sign-in) or with the Follow tick when they give.
+  // The team posts the news here: it shows on the project page at once. Then each follower gets it with one tap
+  // (WhatsApp opens with the message filled in, or an email), and is ticked off so nobody is sent it twice.
+  let FOL = null, folLoading = false, folUpd = {};
+  const SITE_URL = "https://raavanaa.org";
+  const waNum = v => String(v || "").replace(/\D/g, "").replace(/^00/, "").replace(/^0(?=7\d{8}$)/, "94");
+  const SRC = { give: "Gave", page: "Project page", team: "Added by team" };
+  const QUICK = ["Fully funded: thank you!", "The date is set", "Getting ready for the day", "The day happened", "The money report is up"];
+  function folMsg(f, u, p) {
+    const first = String(f.name || "").trim().split(/\s+/)[0];
+    return [`${first ? `Hi ${first},` : "Hello,"} here is news from "${p ? p.title : u.slug}" on Raavanaa.`, "", `*${u.title}*`, u.body || "", "",
+      `See the project: ${SITE_URL}/projects/${u.slug}`, "", "Thank you for following it.", "The Raavanaa team", "", `(To stop these updates: ${SITE_URL}/stop/${f.token})`]
+      .filter((l, i, a) => !(l === "" && a[i - 1] === "")).join("\n");
+  }
+  function followers(slugIn) {
+    if (!LIVE) return `<header class="pt-head"><div><h1>Followers &amp; updates</h1><p class="pt-sub">Sign in to the live portal to see who follows each project and to send them updates.</p></div></header>`;
+    if (!FOL) {
+      if (!folLoading) { folLoading = true; api("/api/portal/followers").then(d => { FOL = d; render(); }).catch(e => { folLoading = false; toast(e.message || "Could not load followers"); }); }
+      return `<header class="pt-head"><div><h1>Followers &amp; updates</h1><p class="pt-sub">Loading…</p></div></header>`;
+    }
+    const live = FOL.followers.filter(f => !f.stopped);
+    const count = slug => live.filter(f => f.slug === slug).length;
+    const list = P.slice().sort((a, b) => count(b.slug) - count(a.slug) || a.title.localeCompare(b.title));
+    const slug = slugIn && P.some(p => p.slug === slugIn) ? slugIn : (list[0] || {}).slug;
+    const p = P.find(x => x.slug === slug);
+    if (!p) return `<header class="pt-head"><div><h1>Followers &amp; updates</h1><p class="pt-sub">No live projects yet.</p></div></header>`;
+    const fl = live.filter(f => f.slug === slug), ups = FOL.updates.filter(u => u.slug === slug);
+    const u = ups.find(x => x.id === folUpd[slug]) || ups.find(x => !x.hidden);
+    const sent = new Set(u ? u.sent : []), left = fl.filter(f => !sent.has(f.id));
+    const emailsLeft = left.filter(f => f.kind === "email").map(f => f.contact);
+    const row = f => {
+      const m = u ? folMsg(f, u, p) : "", done = sent.has(f.id);
+      return `<li class="pt-fol${done ? " done" : ""}"><span class="pt-av">${esc(initials(f.name || "?") || "?")}</span><div>
+        <b>${esc(f.name || "No name")}</b> <small class="pt-fol-src">${esc(SRC[f.source] || f.source)}</small> <time>${ago(f.at)}</time>
+        <p>${f.kind === "email" ? `<a href="mailto:${esc(f.contact)}">${esc(f.contact)}</a>` : `<a href="https://wa.me/${waNum(f.contact)}" target="_blank" rel="noopener">${esc(f.contact)}</a>`} <small>(private)</small></p>
+        ${u ? `<p class="pt-golive-btns">${f.kind === "whatsapp" ? `<a class="pt-btn${done ? " ghost" : ""} sm" data-folsend="${f.id}" target="_blank" rel="noopener" href="https://wa.me/${waNum(f.contact)}?text=${encodeURIComponent(m)}">${done ? "Send again" : "Send on WhatsApp"}</a>`
+          : `<a class="pt-btn${done ? " ghost" : ""} sm" data-folsend="${f.id}" href="mailto:${esc(f.contact)}?subject=${encodeURIComponent(`News: ${p.title}`)}&body=${encodeURIComponent(m)}">${done ? "Email again" : "Send by email"}</a>`}
+          <label class="pt-fol-tick"><input type="checkbox" data-foltick="${f.id}" ${done ? "checked" : ""}> Sent</label>
+          <button type="button" class="pt-btn ghost sm" data-folrm="${f.id}">Remove</button></p>`
+        : `<p class="pt-golive-btns"><button type="button" class="pt-btn ghost sm" data-folrm="${f.id}">Remove</button></p>`}</div></li>`;
+    };
+    return `<header class="pt-head"><div><h1>Followers &amp; updates</h1>
+      <p class="pt-sub">People who follow a project get each update. They follow from the project page (WhatsApp or email, no sign-in) or with the Follow tick when they give. Post the news here: it shows on the project page at once. Then send it to each follower with one tap and it ticks itself off. Numbers and emails stay private.</p></div></header>
+      <section class="pt-card"><label class="pt-field">Project<select data-folproj>${list.map(x => `<option value="${esc(x.slug)}" ${x.slug === slug ? "selected" : ""}>${esc(x.title)} · ${count(x.slug)} following</option>`).join("")}</select></label>
+        <p class="pt-sub"><a href="/projects/${esc(slug)}" target="_blank" rel="noopener">Open the project page</a> · <b>${fl.length}</b> ${fl.length === 1 ? "follower" : "followers"}</p></section>
+      <section class="pt-card"><h2>Post an update</h2>
+        <p class="pt-golive-btns">${QUICK.map(q => `<button type="button" class="pt-btn ghost sm" data-folquick="${esc(q)}">${esc(q)}</button>`).join("")}</p>
+        <form class="pt-note-form" data-folpost>
+          <label class="pt-field">Title<input name="title" maxlength="140" required placeholder="For example: The date is set"></label>
+          <label class="pt-field">The news<textarea name="body" rows="4" placeholder="A few lines in plain words. No children's names or photos."></textarea></label>
+          <button class="pt-btn" type="submit">Post on the project page</button></form></section>
+      <section class="pt-card"><h2>Send it to followers ${u ? `<span class="pt-count">${fl.length - left.length} of ${fl.length} sent</span>` : ""}</h2>
+        ${ups.length ? `<label class="pt-field">Update to send<select data-folupd>${ups.map(x => `<option value="${x.id}" ${u && x.id === u.id ? "selected" : ""}>${esc(x.title)} · ${ago(x.at)}${x.hidden ? " (hidden)" : ""}</option>`).join("")}</select></label>` : `<p class="pt-sub">Post an update above first; then the send buttons appear here.</p>`}
+        ${u && emailsLeft.length > 1 ? `<p class="pt-golive-btns"><a class="pt-btn ghost sm" data-folbcc="${left.filter(f => f.kind === "email").map(f => f.id).join(",")}" href="mailto:?bcc=${encodeURIComponent(emailsLeft.join(","))}&subject=${encodeURIComponent(`News: ${p.title}`)}&body=${encodeURIComponent(folMsg({ name: "", token: "" }, u, p).replace(/\n\n\(To stop these updates: .*\)$/, "\n\n(To stop these updates, just reply STOP.)"))}">Email all ${emailsLeft.length} not yet sent (BCC)</a></p>` : ""}
+        <ul class="pt-notes">${fl.map(row).join("") || `<li class="pt-empty">Nobody follows this project yet. Share the project link: the Follow box is on the page.</li>`}</ul></section>
+      <section class="pt-card"><h2>Add a follower by hand</h2><p class="pt-sub">For someone who asked on WhatsApp or by phone to get the updates.</p>
+        <form class="pt-note-form" data-foladd><label class="pt-field">Name<input name="name" maxlength="80"></label>
+          <label class="pt-field">WhatsApp number or email<input name="contact" required maxlength="120"></label>
+          <button class="pt-btn" type="submit">Add follower</button></form></section>
+      ${ups.length ? `<section class="pt-card"><h2>Updates on this project</h2><ul class="pt-notes">${ups.map(x => `<li class="${x.hidden ? "pt-hid" : ""}"><div><b>${esc(x.title)}</b> <time>${ago(x.at)}</time>${x.by ? ` <small>by ${esc(x.by)}</small>` : ""}
+          ${x.body ? `<p class="pt-desc" style="margin:6px 0;white-space:pre-line">${esc(x.body)}</p>` : ""}
+          <p class="pt-golive-btns"><button type="button" class="pt-btn ghost sm" data-folhide="${x.id}" data-on="${x.hidden ? "no" : "yes"}">${x.hidden ? "Show on the page again" : "Hide from the page"}</button></p></div></li>`).join("")}</ul></section>` : ""}`;
+  }
+  function wireFollowers(slugIn) {
+    if (!LIVE || !FOL) return;
+    const sel = app.querySelector("[data-folproj]"); if (!sel) return;
+    const slug = sel.value;
+    const save = async (url, opts, msg) => { try { FOL = await api(url, opts); render(); if (msg) toast(msg); } catch (e) { toast(e.message || "Could not save"); } };
+    sel.onchange = () => { location.hash = `#/followers/${sel.value}`; };
+    const us = app.querySelector("[data-folupd]"); if (us) us.onchange = () => { folUpd[slug] = +us.value; render(); };
+    app.querySelectorAll("[data-folquick]").forEach(b => b.onclick = () => { const t = app.querySelector("[data-folpost] [name=title]"); t.value = b.dataset.folquick; app.querySelector("[data-folpost] [name=body]").focus(); });
+    const post = app.querySelector("[data-folpost]"); if (post) post.onsubmit = e => { e.preventDefault(); post.querySelector("button").disabled = true;
+      folUpd[slug] = 0; save("/api/portal/updates", { method: "POST", body: JSON.stringify({ slug, title: post.elements.title.value, body: post.elements.body.value }) }, "Posted on the project page. Now send it to the followers."); };
+    const add = app.querySelector("[data-foladd]"); if (add) add.onsubmit = e => { e.preventDefault(); save("/api/portal/followers", { method: "POST", body: JSON.stringify({ slug, name: add.elements.name.value, contact: add.elements.contact.value }) }, "Follower added"); };
+    const updId = () => { const u = app.querySelector("[data-folupd]"); return u ? +u.value : 0; };
+    const tick = (fid, on) => save(`/api/portal/updates/${updId()}/sent`, { method: "POST", body: JSON.stringify({ follow: fid, on }) });
+    app.querySelectorAll("[data-folsend]").forEach(a => a.addEventListener("click", () => { if (!a.closest(".done")) setTimeout(() => tick(+a.dataset.folsend, true), 400); }));
+    const bcc = app.querySelector("[data-folbcc]"); if (bcc) bcc.addEventListener("click", () => setTimeout(async () => {
+      for (const fid of bcc.dataset.folbcc.split(",").map(Number).filter(Boolean)) { try { FOL = await api(`/api/portal/updates/${updId()}/sent`, { method: "POST", body: JSON.stringify({ follow: fid, on: true }) }); } catch (e) { /* next */ } }
+      render(); toast("Ticked as sent");
+    }, 400));
+    app.querySelectorAll("[data-foltick]").forEach(c => c.onchange = () => tick(+c.dataset.foltick, c.checked));
+    app.querySelectorAll("[data-folrm]").forEach(b => b.onclick = () => { if (b.dataset.sure) save(`/api/portal/followers/${b.dataset.folrm}`, { method: "DELETE" }, "Taken off: no more updates"); else { b.dataset.sure = "1"; b.textContent = "Press again to remove"; } });
+    app.querySelectorAll("[data-folhide]").forEach(b => b.onclick = () => save(`/api/portal/updates/${b.dataset.folhide}`, { method: "PATCH", body: JSON.stringify({ hidden: b.dataset.on === "yes" }) }, "Saved"));
+  }
+
   function render() {
     const [page, id] = route();
-    const cur = ["voices", "suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "volunteers", "circles", "traffic", "team"].includes(page) ? page : "dashboard";
+    const cur = ["voices", "followers", "suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "volunteers", "circles", "traffic", "team"].includes(page) ? page : "dashboard";
     drawNav(cur);
     if (page === "suggestions" && id) { app.innerHTML = detail(id); wireDetail(id); }
     else if (page === "suggestions") { app.innerHTML = suggestions(); wireSuggestions(); }
@@ -1778,6 +1866,7 @@
     else if (page === "volunteers") { app.innerHTML = volunteers(); wireVolunteers(); }
     else if (page === "traffic") { app.innerHTML = traffic(); wireTraffic(); }
     else if (page === "voices") { app.innerHTML = voices(); wireVoices(); }
+    else if (page === "followers") { app.innerHTML = followers(id); wireFollowers(id); }
     else if (page === "team" && LIVE) { app.innerHTML = liveTeam(); if (ACCESS) wireLiveTeam(); }
     else if (page === "team") { app.innerHTML = team(); wireTeam(); }
     else if (page === "close") { app.innerHTML = closeDay(id); wireClose(); }
@@ -1788,7 +1877,7 @@
     else if (page === "reports" && id) { app.innerHTML = reportDetail(id); wireReport(id); }
     else if (page === "reports") { app.innerHTML = reports(); wireReports(); }
     else app.innerHTML = dashboard();
-    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", volunteers: "Volunteers", circles: "Family circles", traffic: "Traffic", voices: "Vouches & ratings", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
+    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", volunteers: "Volunteers", circles: "Family circles", traffic: "Traffic", voices: "Vouches & ratings", followers: "Followers & updates", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
   }
 
   Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] })).then(async d => { try { const m = await fetch("/api/projects").then(r => r.json()); const have = new Set((d.projects || []).map(p => p.slug)); d.projects = [...(d.projects || []), ...(m.projects || []).filter(p => !have.has(p.slug))]; } catch (e) { /* only projects.json */ } return d; })])

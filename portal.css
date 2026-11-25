@@ -521,3 +521,8 @@ body.pt-signedout .pt-main,body.pt-signedout .pt-shell{padding-top:0}body.pt-sig
 .pt-live{margin-top:14px;padding:12px 14px;border-radius:14px;background:#e7f4ea;color:#1f4d3a}
 .pt-live a{margin-left:8px;font-weight:600}
 .pt-notes li.pt-hid{opacity:.55}
+
+/* Followers & updates (25 Nov 2026) */
+.pt-fol.done{opacity:.6}
+.pt-fol-src{display:inline-block;padding:1px 8px;border-radius:999px;background:rgba(0,0,0,.06);font-size:.75rem}
+.pt-fol-tick{display:inline-flex;align-items:center;gap:4px;font-size:.85rem;margin:0 6px}

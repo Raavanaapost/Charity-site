@@ -9,6 +9,7 @@
 //   POST   /api/portal/access                     admin only: add someone by email {email, name, role: admin|team}
 //   DELETE /api/portal/access/:email              admin only: take someone's access away
 //   GET/POST/DELETE /api/portal/funders           sponsors added by hand, taken off a project (admin) or put back
+//   /api/portal/followers, /api/portal/updates    Followers & updates (see below)
 // Access: see ../lib/team-access.mts (Identity role admin/team, PORTAL_ADMINS, or added in the portal).
 import type { Config, Context } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
@@ -18,6 +19,7 @@ import { teamAccess, ownerEmails, type TeamMember } from "../lib/team-access.mts
 import { makeProject, VOUCHES_NEEDED, VOUCH_NEEDS_ROLE, OPEN_VOUCH, LIVE_ON_VOUCH } from "../lib/request-project.mts";
 import { peopleFor, message } from "../lib/notify.mts";
 import { mailOn } from "../lib/mail.mts";
+import { follow as addFollower } from "../lib/follow.mts";
 
 const STATUSES = ["new", "visit", "verified", "approved", "declined", "project"];
 const clip = (v: unknown, max: number) => String(v ?? "").trim().slice(0, max);
@@ -281,6 +283,62 @@ export default async (req: Request, context: Context) => {
       if (b.note !== undefined) await db.sql`UPDATE give_requests SET team_note = ${clip(b.note, 1000)} WHERE id = ${row.id}`;
       await db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES (${me.email}, 'give_request.update', ${ref}, ${JSON.stringify({ status: b.status, note: b.note !== undefined })}::jsonb)`;
       return json({ pledges: await list() });
+    }
+    return json({ error: "Not allowed" }, 405);
+  }
+
+  // Followers & updates (SURESH, 25 Nov 2026, option A: free, WhatsApp by tap).
+  //   GET    /api/portal/followers              every follower (with their private number or email) and every update
+  //   POST   /api/portal/followers              { slug, name, contact }  add someone by hand (asked on WhatsApp)
+  //   DELETE /api/portal/followers/:id          take someone off (no more updates)
+  //   POST   /api/portal/updates                { slug, title, body }    post news: shows on the project page at once
+  //   PATCH  /api/portal/updates/:id            { hidden }               hide or show it again
+  //   POST   /api/portal/updates/:id/sent       { follow, on }           tick who has been sent it
+  if (parts[0] === "followers" || parts[0] === "updates") {
+    const all = async () => {
+      const followers = ((await db.sql`SELECT id, slug, name, contact, kind, source, token, created_at, stopped_at FROM project_follows ORDER BY created_at`) as Record<string, any>[])
+        .map((r) => ({ id: r.id, slug: r.slug, name: r.name, contact: r.contact, kind: r.kind, source: r.source, token: r.token, at: r.created_at, stopped: !!r.stopped_at }));
+      const sends = (await db.sql`SELECT update_id, follow_id FROM update_sends`) as Record<string, any>[];
+      const updates = ((await db.sql`SELECT id, slug, title, body, posted_by, hidden, created_at FROM project_updates ORDER BY created_at DESC LIMIT 500`) as Record<string, any>[])
+        .map((u) => ({ id: u.id, slug: u.slug, title: u.title, body: u.body, by: u.posted_by, hidden: u.hidden, at: u.created_at, sent: sends.filter((x) => x.update_id === u.id).map((x) => x.follow_id) }));
+      return json({ followers, updates });
+    };
+    let b: Record<string, any> = {};
+    if (req.method !== "GET") { try { b = await req.json(); } catch { /* empty */ } }
+    const slugOk = (v: unknown) => /^[a-z0-9-]{1,80}$/.test(String(v || ""));
+    if (parts[0] === "followers") {
+      if (req.method === "GET" && !parts[1]) return all();
+      if (req.method === "POST" && !parts[1]) {
+        if (!slugOk(b.slug)) return json({ error: "Pick a project" }, 400);
+        if (!(await addFollower(db, String(b.slug), clip(b.name, 80), clip(b.contact, 120), "team"))) return json({ error: "Add a WhatsApp number or an email" }, 400);
+        await db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES (${me.email}, 'follower.add', ${String(b.slug)}, ${JSON.stringify({ name: clip(b.name, 80) })}::jsonb)`;
+        return all();
+      }
+      if (req.method === "DELETE" && parts[1]) {
+        await db.sql`UPDATE project_follows SET stopped_at = COALESCE(stopped_at, NOW()) WHERE id = ${Number(parts[1]) || 0}`;
+        await db.sql`INSERT INTO audit_log (actor, action, target) VALUES (${me.email}, 'follower.remove', ${String(Number(parts[1]) || 0)})`;
+        return all();
+      }
+    } else {
+      if (req.method === "POST" && !parts[1]) {
+        const title = clip(b.title, 140), body = lines(b.body, 3000);
+        if (!slugOk(b.slug) || !title) return json({ error: "Pick a project and write a short title" }, 400);
+        await db.sql`INSERT INTO project_updates (slug, title, body, posted_by) VALUES (${String(b.slug)}, ${title}, ${body}, ${me.name || me.email})`;
+        await db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES (${me.email}, 'update.post', ${String(b.slug)}, ${JSON.stringify({ title })}::jsonb)`;
+        return all();
+      }
+      const id = Number(parts[1]) || 0;
+      if (req.method === "PATCH" && id && !parts[2]) {
+        if (b.hidden !== undefined) await db.sql`UPDATE project_updates SET hidden = ${b.hidden === true} WHERE id = ${id}`;
+        if (typeof b.title === "string" && clip(b.title, 140)) await db.sql`UPDATE project_updates SET title = ${clip(b.title, 140)}, body = ${lines(b.body, 3000)} WHERE id = ${id}`;
+        return all();
+      }
+      if (req.method === "POST" && id && parts[2] === "sent") {
+        const fid = Number(b.follow) || 0;
+        if (b.on === false) await db.sql`DELETE FROM update_sends WHERE update_id = ${id} AND follow_id = ${fid}`;
+        else await db.sql`INSERT INTO update_sends (update_id, follow_id, sent_by) VALUES (${id}, ${fid}, ${me.name || me.email}) ON CONFLICT DO NOTHING`;
+        return all();
+      }
     }
     return json({ error: "Not allowed" }, 405);
   }
