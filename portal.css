@@ -548,3 +548,8 @@ body.pt-signedout .pt-main,body.pt-signedout .pt-shell{padding-top:0}body.pt-sig
 .pt-memlog li.k-give span,.pt-memlog li.k-request span,.pt-memlog li.k-vouch span,.pt-memlog li.k-memory span{font-weight:700}
 .pt-memtable td:nth-child(4) a,.pt-memtable td:nth-child(6){white-space:nowrap}
 .pt-ask-from select{font:inherit;font-size:12px;padding:2px 6px;border:1px solid var(--line,#ddd);border-radius:6px;background:transparent;color:inherit;margin-left:4px}
+
+/* Followers & updates (25 Nov 2026) */
+.pt-fol.done{opacity:.6}
+.pt-fol-src{display:inline-block;padding:1px 8px;border-radius:999px;background:rgba(0,0,0,.06);font-size:.75rem}
+.pt-fol-tick{display:inline-flex;align-items:center;gap:4px;font-size:.85rem;margin:0 6px}
