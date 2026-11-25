@@ -3389,6 +3389,8 @@ html[data-form-lang="ta"] .rq-done :is(h2,p,span,b,a){font-family:"Noto Sans Tam
 .panel.folded.v-vouch{--fc:#b8860b}
 .panel.folded.share-box{--fc:#2c6e9b}
 .panel.folded.journey{--fc:#b35a0c}
-.pfold > summary h2{font-size:clamp(23px,5.4vw,27px) !important;font-weight:900;color:var(--fc,var(--brand))}
+.pfold > summary h2{font-weight:900;color:var(--fc,var(--brand))}
 .pfold > summary h2 .v-count{background:var(--fc,var(--brand)) !important;font-size:13px;vertical-align:.25em}
 .pfold-chev{border-color:var(--fc,var(--brand)) !important}
+/* Fold 4 (SURESH 25 Nov): titles in the Home title font (Playfair Display italic 900), back to the first size. */
+.pfold > summary h2{font-weight:900;line-height:1.15}
