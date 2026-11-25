@@ -3114,6 +3114,49 @@ window.RAAV_FEATURES = (function () {
         <i style="background-image:url(/img/stage-${art[k]}.svg)">${k + 1 < n ? `<em aria-label="done">✓</em>` : ""}</i>
         <b>${l}</b><small>${k + 1 === n ? "Now · " + say[k] : say[k]}</small></a>`).join("")}</nav>`;
   }
+  // Follow this project (SURESH 25 Nov 2026: "Need a way for them to follow"): a name and a WhatsApp number or email,
+  // no sign-in. The team posts each update in the portal (Followers & updates) and sends it with one tap per person.
+  const FOLLOW_KEY = "raav-follows";
+  const followsHere = () => { try { return JSON.parse(localStorage.getItem(FOLLOW_KEY) || "[]"); } catch (e) { return []; } };
+  function followBoxHTML(p) {
+    const slug = slugOf(p), on = followsHere().includes(slug), n = +p.followers || 0, last = (p.updates || [])[0];
+    return `<section class="panel follow pfollow" data-pfollow>
+      <h2 class="follow-title">${headline("Follow this project")}</h2>
+      ${n ? `<p class="pfollow-n"><b>${n}</b> ${n === 1 ? "person follows" : "people follow"} this project</p>` : ""}
+      ${last ? `<p class="pfollow-last"><small>Latest news · ${fmtDate(last.date)}</small><b>${esc(last.title)}</b></p>` : ""}
+      <div data-pf-done${on ? "" : " hidden"}><p class="pfollow-ok">✓ You're following it. We'll send you each update.</p></div>
+      <form data-pf-form${on ? " hidden" : ""} novalidate>
+        <p class="note" style="margin:0 0 8px">Get each step of this project on WhatsApp or by email: when it is funded, when the day is set, and how the day went. No sign-in.</p>
+        <p hidden><label>Leave empty <input name="bot-field"></label></p>
+        <label class="sr" for="pf-name">Your name</label>
+        <input id="pf-name" name="name" autocomplete="name" placeholder="Your name">
+        <label class="sr" for="pf-contact">WhatsApp number or email</label>
+        <input id="pf-contact" name="contact" required autocomplete="tel" inputmode="email" placeholder="WhatsApp number or email">
+        <button class="btn" type="submit">Follow</button>
+        <p class="note" data-msg hidden></p>
+        <p class="note pfollow-small">Only the team sees your number or email. Every message has a link to stop.</p>
+      </form>
+    </section>`;
+  }
+  function wireFollowBox(root, p) {
+    const box = root.querySelector("[data-pfollow]"); if (!box) return;
+    const f = box.querySelector("[data-pf-form]"), msg = f.querySelector("[data-msg]");
+    try { const me = account && account(); if (me && me.name && !f.name.value) f.name.value = me.name; } catch (e) { /* no account */ }
+    f.addEventListener("submit", async e => {
+      e.preventDefault();
+      const btn = f.querySelector("button"), contact = f.contact.value.trim();
+      const bad = !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) && contact.replace(/\D/g, "").length < 7;
+      if (bad) { msg.hidden = false; msg.textContent = "Please add a WhatsApp number (with the country code if you are abroad) or an email address."; return; }
+      btn.disabled = true; msg.hidden = true;
+      try {
+        const r = await fetch("/api/follow", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ slug: slugOf(p), name: f.name.value.trim(), contact, "bot-field": f["bot-field"].value }) });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok || !d.ok) throw new Error(d.error || "Could not save that just now. Please try again.");
+        try { const l = followsHere(); if (!l.includes(slugOf(p))) localStorage.setItem(FOLLOW_KEY, JSON.stringify([...l, slugOf(p)])); } catch (er) { /* storage blocked */ }
+        f.hidden = true; box.querySelector("[data-pf-done]").hidden = false;
+      } catch (er) { msg.hidden = false; msg.textContent = er.message; btn.disabled = false; }
+    });
+  }
   function renderProject(app, site, projects, slug) {
     const i = projects.findIndex(p => slugOf(p) === slug);
     const p = projects[i];
@@ -3262,7 +3305,7 @@ window.RAAV_FEATURES = (function () {
             ${p.sample ? "" : shareHTML(p)}
             ${FEAT.voices && !p.sample ? voicesHTML(p) : vouchedHTML(p)}
             ${journeyHTML(p, full)}
-            ${signupHTML(slugOf(p), "Follow this project")}
+            ${p.sample ? "" : followBoxHTML(p)}
             <a class="btn ghost" href="/initiated">Back to all projects</a>
           </aside>
         </div>`;
@@ -3275,6 +3318,7 @@ window.RAAV_FEATURES = (function () {
       wireShare(app);
       wireSend(app, p);
       if (FEAT.voices) wireVoices(app, p);
+      wireFollowBox(app, p);
       // "Started by" (SURESH 25 Nov 2026, groups and organisations): the group or organisation the team linked to this
       // project, with its badge, opens its profile /g/<name>.
       if (FEAT.groups && !p.sample) fetch("/api/groups").then(r => r.ok ? r.json() : null).then(d => {
@@ -4124,6 +4168,7 @@ window.RAAV_FEATURES = (function () {
     try {
       // All five data calls start together (13 Nov 2026, speed): the gift totals used to wait for the other four.
       const giveP = load("/api/give/totals").catch(() => null);
+      const followP = load("/api/follow").catch(() => null); // news the team posts + how many follow each project (25 Nov 2026)
       const [site, data, cm, made] = await Promise.all([load("/site.json"), load("/projects.json"), load("/comments.json").catch(() => ({})), load("/api/projects").catch(() => null)]);
       // Projects created from requests in the team portal come from the database; projects.json wins if a slug is in both.
       if (made && made.projects) { const have = new Set((data.projects || []).map(p => p.slug)); data.projects = [...(data.projects || []), ...made.projects.filter(p => p && !have.has(p.slug))]; }
@@ -4134,6 +4179,9 @@ window.RAAV_FEATURES = (function () {
       if (!FEAT.vetting && (page === "initiate" || page === "create")) { app.innerHTML = soonHTML(); document.title = `Opening soon · ${site.name}`; return; }
       // Only projects that have been visited and verified are public (Decisions log, 10 Oct 2026).
       const projects = (data.projects || []).filter(p => p && p.title && !p.hidden && p.verified);
+      // Updates posted in the portal (Followers & updates, 25 Nov 2026) join the project's own updates, newest first.
+      const FOL = await followP;
+      if (FOL) projects.forEach(p => { const ups = (FOL.updates || {})[slugOf(p)] || []; if (ups.length) p.updates = [...ups, ...(p.updates || [])]; p.followers = (FOL.followers || {})[slugOf(p)] || 0; });
       // Card gifts (PayHere or Stripe) are added to each project's supporters, so the budget bars and stages stay right.
       const GIVE = await giveP;
       GIVE_ON = !!(GIVE && GIVE.enabled);

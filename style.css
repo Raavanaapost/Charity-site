@@ -3346,3 +3346,13 @@ html[data-form-lang="ta"] .rq-done :is(h2,p,span,b,a){font-family:"Noto Sans Tam
 .byline .started-by[hidden]{display:none}
 .byline .started-by .sb-k{color:#6c6a52}
 .byline .started-by .sb-b{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:#e2efe6;color:#1f7a47;border-radius:999px;padding:2px 8px}
+
+/* Follow this project (25 Nov 2026): WhatsApp or email, no sign-in; count of followers and the latest news. */
+.pfollow-n { margin: 0 0 6px; font-size: .95rem; }
+.pfollow-n b { color: var(--accent, #b4402a); font-size: 1.1rem; }
+.pfollow-last { margin: 0 0 10px; padding: 8px 10px; border-radius: 10px; background: rgba(0, 0, 0, .04); line-height: 1.35; }
+.pfollow-last small { display: block; opacity: .7; font-size: .78rem; }
+.pfollow-ok { margin: 4px 0 0; font-weight: 600; color: #2f7a47; }
+.pfollow form { display: grid; gap: 8px; }
+.pfollow form[hidden], .pfollow [hidden] { display: none; }
+.pfollow .pfollow-small { font-size: .78rem; opacity: .75; margin: 8px 0 0; }
