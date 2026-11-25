@@ -3376,3 +3376,7 @@ html[data-form-lang="ta"] .rq-done :is(h2,p,span,b,a){font-family:"Noto Sans Tam
 .pfold-chev{flex:none;width:12px;height:12px;border-right:2.5px solid var(--brand);border-bottom:2.5px solid var(--brand);transform:rotate(45deg) translateY(-3px);transition:transform .2s}
 .pfold[open] > summary .pfold-chev{transform:rotate(-135deg) translateY(-3px)}
 .pfold-body{padding-bottom:14px}
+/* Fold 2 (SURESH 25 Nov): Comments first, a very light shade on each section, slanted titles like "See how this smile begins". */
+.voices .v-talk{order:-1}
+.panel.folded{background:color-mix(in srgb,var(--brand) 5%,var(--surface,#fff))}
+.pfold > summary h2{font-family:"Playfair Display",Georgia,serif !important;font-style:italic;font-weight:800;letter-spacing:0;color:var(--brand)}
