@@ -3341,3 +3341,8 @@ html[data-form-lang="ta"] .rq-done :is(h2,p,span,b,a){font-family:"Noto Sans Tam
 .picard li::before{content:"★";position:absolute;left:2px;top:0;color:#e5851a}
 /* Vouches and comments sit right under the story (SURESH 25 Nov: "Where is the comment?"). */
 .layout > div > .voices{margin-top:20px}
+/* Comment and Vouch buttons right under the story (SURESH 25 Nov). */
+.v-jumps{display:flex;gap:10px;margin:16px 0 0}
+.v-jump{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 14px;border-radius:999px;border:1.5px solid var(--brand);background:var(--surface,#fff);color:var(--brand);font:inherit;font-weight:700;font-size:15px;cursor:pointer}
+.v-jump b{background:var(--brand);color:#fff;border-radius:999px;padding:0 8px;font-size:12px}
+.v-jump b:empty{display:none}

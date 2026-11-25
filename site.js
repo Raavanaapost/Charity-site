@@ -2827,6 +2827,7 @@ window.RAAV_FEATURES = (function () {
     }
     const cm = d.comments || [];
     box.querySelector("[data-c-count]").textContent = cm.length || "";
+    const c2 = root.querySelector("[data-c-count2]"); if (c2) c2.textContent = cm.length || "";
     box.querySelector("[data-v-comments]").innerHTML = cm.length ? cm.slice(0, 50).map(c => `<li>${c.stars ? starsHTML(c.stars, "sm") : ""}<p>${esc(c.comment)}</p><small>${esc(c.name)}${c.involved ? `, ${esc(c.involved)}` : ""} · ${fmtDate(c.at)}</small></li>`).join("") : `<li class="v-none">No comments yet. Be the first.</li>`;
     const r = d.rating || {}, avg = box.querySelector("[data-v-avg]");
     if (avg) avg.innerHTML = r.count
@@ -2845,6 +2846,13 @@ window.RAAV_FEATURES = (function () {
     box.querySelectorAll("[data-v-open]").forEach(b => b.onclick = () => {
       const f = box.querySelector(`[data-v-form="${b.dataset.vOpen}"]`); f.hidden = !f.hidden; b.setAttribute("aria-expanded", String(!f.hidden));
       const first = f.querySelector("input[type=radio], select, textarea, input[name=how]"); if (!f.hidden && first && me) first.focus();
+    });
+    // The Comment and Vouch buttons under the story (SURESH 25 Nov: "a comment icon below the story").
+    root.querySelectorAll("[data-v-jump]").forEach(j => j.onclick = () => {
+      const to = j.dataset.vJump === "comment" ? box.querySelector(".v-talk") : box;
+      to.style.scrollMarginTop = "90px"; to.scrollIntoView({ block: "start", behavior: "smooth" });
+      if (j.dataset.vJump === "vouch") { const f = box.querySelector('[data-v-form="vouch"]'); if (f && f.hidden) box.querySelector('[data-v-open="vouch"]').click(); }
+      else { const t = box.querySelector(".v-say textarea"); if (account() && t) setTimeout(() => t.focus({ preventScroll: true }), 400); }
     });
     const doneKey = k => `raav-${k}-${slug}`;
     box.querySelectorAll("[data-v-form]").forEach(f => {
@@ -3235,7 +3243,7 @@ window.RAAV_FEATURES = (function () {
               ${tabs.map(([k, l]) => `<button class="tab t-${k}" role="tab" aria-selected="${k === tab}" data-t="${k}">${TAB_ICONS[k]}<span>${l}</span></button>`).join("")}
             </div>
             <section class="folder t-${tab}" role="tabpanel">${panes[tab]}</section>
-            ${FEAT.voices && !p.sample ? voicesHTML(p) : ""}
+            ${FEAT.voices && !p.sample ? `<div class="v-jumps"><button type="button" class="v-jump" data-v-jump="comment"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.6A8 8 0 1 1 21 12z"/></svg><span>Comment</span><b data-c-count2></b></button><button type="button" class="v-jump" data-v-jump="vouch"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Vouch</span></button></div>${voicesHTML(p)}` : ""}
           </div>
           <aside class="side">
             ${ringPanel("only-wide")}
