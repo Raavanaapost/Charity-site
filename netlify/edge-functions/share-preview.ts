@@ -5,6 +5,8 @@
 // No children's names and no school names go in share.json (SURESH, 9 Nov 2026).
 // While SITE_PASSWORD is set, the apps can only reach the open pages (/e/ vouching links); project
 // previews start working for everyone once the password is removed at launch.
+import { allProgress, money, showsProgress } from "../lib/share-progress.mts";
+
 type Card = { title: string; text: string; title_ta?: string; text_ta?: string };
 type Share = { default: Card; vouch?: Card; moment?: Card; projects: Record<string, Card> };
 
@@ -64,15 +66,32 @@ export default async (request: Request, context: { next: () => Promise<Response>
     card = share.projects[slug] || share.default;
     image = share.projects[slug] ? slug : "default";
   }
-  const title = (ta && card.title_ta) || card.title;
-  const text = (ta && card.text_ta) || card.text;
-  const img = `${url.origin}/img/share/${image}${ta ? "-ta" : ""}.jpg`;
+  let title = (ta && card.title_ta) || card.title;
+  let text = (ta && card.text_ta) || card.text;
+  let img = `${url.origin}/img/share/${image}${ta ? "-ta" : ""}.jpg`;
+  // Project pages (English) while money is being raised or once it is all raised: the picture is the project's funding
+  // ring with today's % (SURESH, 25 Nov 2026), made by /api/share-card. ?v= changes with the %, so WhatsApp and
+  // Facebook fetch a fresh picture when it moves. The words start with the % too, for apps that show no picture.
+  if (!ta && path.startsWith("/projects/")) {
+    const slug = decodeURIComponent(path.replace(/^\/projects\//, "").replace(/\/+$/, "").replace(/\/money$/, "")).toLowerCase();
+    try {
+      const pr = (await allProgress(url.origin))[slug];
+      if (pr && showsProgress(pr)) {
+        const full = pr.stage === 2 || pr.pct >= 100;
+        img = `${url.origin}/api/share-card/${slug}.jpg?v=${full ? 100 : pr.pct}`;
+        // A project made in the portal has no words of its own in share.json: use its title, not the general one.
+        if (!share.projects[slug]) title = pr.title;
+        text = (full ? "Fully funded. " : `${pr.pct}% funded, ${money(pr, Math.max(0, pr.goal - pr.raised))} still to go. `) + text;
+      }
+    } catch (_) { /* keep the usual picture */ }
+  }
 
   let html = await res.text();
   html = setMeta(html, "property", "og:title", title);
   html = setMeta(html, "property", "og:description", text);
   html = setMeta(html, "property", "og:image", img);
   html = setMeta(html, "property", "og:image:width", "1200");
+  html = setMeta(html, "property", "og:image:type", "image/jpeg");
   html = setMeta(html, "property", "og:image:height", "630");
   html = setMeta(html, "property", "og:url", url.origin + url.pathname);
   html = setMeta(html, "property", "og:locale", ta ? "ta_LK" : "en_GB");
