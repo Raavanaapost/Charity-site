@@ -1,0 +1,184 @@
+{
+  "day": "2026-11-24",
+  "from": "2026-11-24T00:00:00.000Z",
+  "to": "2026-11-25T00:00:00.000Z",
+  "tz": "UTC",
+  "now": {
+    "views": 55,
+    "visits": 22,
+    "shares": 1,
+    "give": 2,
+    "memory": 0,
+    "request": 1,
+    "vouch": 0,
+    "install": 0,
+    "app_visits": 0
+  },
+  "daily": [
+    {
+      "day": "2026-11-24",
+      "views": 55,
+      "visits": 22,
+      "actions": 3,
+      "shares": 1
+    }
+  ],
+  "sources": [
+    {
+      "key": "direct",
+      "visits": 20,
+      "acted": 2,
+      "shares": 1,
+      "pages": 2.6
+    }
+  ],
+  "campaigns": [],
+  "pages": [
+    {
+      "key": "/overview",
+      "views": 16,
+      "visits": 15
+    },
+    {
+      "key": "/projects/pussellawa-kandy-trip",
+      "views": 10,
+      "visits": 7
+    },
+    {
+      "key": "/initiate",
+      "views": 6,
+      "visits": 2
+    },
+    {
+      "key": "/projects/prefect-uniforms-for-students-in-valaippadu",
+      "views": 5,
+      "visits": 4
+    },
+    {
+      "key": "/members",
+      "views": 4,
+      "visits": 1
+    },
+    {
+      "key": "/about",
+      "views": 2,
+      "visits": 1
+    },
+    {
+      "key": "/contact",
+      "views": 2,
+      "visits": 2
+    },
+    {
+      "key": "/initiated",
+      "views": 2,
+      "visits": 2
+    },
+    {
+      "key": "/projects/mums-and-kids-day-out",
+      "views": 2,
+      "visits": 1
+    },
+    {
+      "key": "/room",
+      "views": 2,
+      "visits": 2
+    },
+    {
+      "key": "/activated",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/projects/pussellawa-kids-trip",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/projects/yogapuram-preschool-day",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/projects/casuarina-beach-day",
+      "views": 1,
+      "visits": 1
+    }
+  ],
+  "countries": [
+    {
+      "key": "CA",
+      "visits": 17
+    },
+    {
+      "key": "LK",
+      "visits": 3
+    },
+    {
+      "key": "TH",
+      "visits": 1
+    },
+    {
+      "key": "US",
+      "visits": 1
+    }
+  ],
+  "devices": [
+    {
+      "key": "phone",
+      "visits": 21
+    },
+    {
+      "key": "computer",
+      "visits": 1
+    }
+  ],
+  "hours": [
+    {
+      "key": 0,
+      "views": 3
+    },
+    {
+      "key": 4,
+      "views": 1
+    },
+    {
+      "key": 7,
+      "views": 11
+    },
+    {
+      "key": 10,
+      "views": 2
+    },
+    {
+      "key": 12,
+      "views": 2
+    },
+    {
+      "key": 14,
+      "views": 1
+    },
+    {
+      "key": 22,
+      "views": 20
+    },
+    {
+      "key": 23,
+      "views": 15
+    }
+  ],
+  "weekdays": [
+    {
+      "key": 2,
+      "views": 55
+    }
+  ],
+  "shares": [
+    {
+      "key": "more",
+      "shares": 1,
+      "pages": 1
+    }
+  ],
+  "refs": []
+}
