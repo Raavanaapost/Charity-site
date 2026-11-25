@@ -11,7 +11,7 @@
 // hold written words until the team has read them, as on 22 Nov morning.
 import type { Config } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
-import { getUser } from "@netlify/identity";
+import { whoIs } from "../lib/whois.mts";
 
 const CHECK_FIRST = false;
 type Row = Record<string, any>;
@@ -68,8 +68,8 @@ export default async (req: Request) => {
   let f: Row;
   try { f = await req.json(); } catch { return json({ ok: false, error: "Could not read the form." }, 400); }
   if (clip(f["bot-field"], 10)) return json({ ok: true, ...(await view(db, slug)) }); // robots fill the hidden field
-  const user = await getUser().catch(() => null);
-  if (!user || !user.email) return json({ ok: false, error: "Please sign in first.", signin: true }, 401);
+  const user = await whoIs(req);
+  if (!user) return json({ ok: false, error: "Please sign in first.", signin: true }, 401);
   const project = await projectOf(db, slug, req);
   if (!project) return json({ ok: false, error: "We couldn't find this project." }, 404);
 
