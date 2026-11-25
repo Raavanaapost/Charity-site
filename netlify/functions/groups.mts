@@ -10,6 +10,9 @@
 //   POST  /api/groups/:slug/follow         signed in: { on: true|false }
 //   POST  /api/groups/:slug/projects       group admin: add or edit one of its own projects { id?, title, ... , remove? }
 //   POST  /api/groups/:slug/updates        group admin: post a short update { body, project_id? } or { remove: id }
+// Organisations (SURESH 25 Nov 2026, option B): the same profile with profile_type "organisation", a registration body
+// and number, website and logo; only the team sets verified ("Verified organisation") after seeing the certificate.
+//   GET   /api/groups/:slug/logo           the profile's logo picture (if any)
 // The group's money stays in its own circle; Raavanaa never holds it. What a group types about money is shown as
 // "reported by the group". Linking a raavanaa.org project to a group is for the team only, so nobody can claim
 // someone else's project. Phone and contact details are never public.
@@ -25,8 +28,11 @@ const clip = (v: unknown, max: number) => String(v ?? "").replace(/\s+/g, " ").t
 const text = (v: unknown, max: number) => String(v ?? "").replace(/[<>]/g, "").replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim().slice(0, max);
 const num = (v: unknown) => { const n = Number(String(v ?? "").replace(/[^\d.]/g, "")); return Number.isFinite(n) && n > 0 ? Math.round(n) : 0; };
 const STAGES = ["Initiated", "Activated", "Impact"];
-const KINDS = ["WhatsApp circle", "Friends", "Family", "Past pupils", "Village or society", "Temple or church", "Youth or sports club", "Workplace", "Other"];
+const KINDS = ["WhatsApp circle", "Friends", "Family", "Past pupils", "Village or society", "Temple or church", "Youth or sports club", "Workplace", "Charity or NGO", "School or education", "Other"];
 const CUR = ["LKR", "CAD", "GBP", "EUR", "USD", "AUD", "CHF", "NOK", "INR"];
+const REG_BODIES = ["NGO Secretariat", "Companies Act (guarantee company)", "Divisional Secretariat / social services", "Registered charity abroad", "Other"];
+const LOGO_RE = /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/;
+const site = (v: unknown) => { const u = clip(v, 160); if (!u) return ""; const w = /^https?:\/\//i.test(u) ? u : "https://" + u; try { const x = new URL(w); return /\./.test(x.hostname) ? x.href : ""; } catch { return ""; } };
 const slugify = (s: string) => s.toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-|-$/g, "").slice(0, 48) || "group";
 
 async function me() {
@@ -41,7 +47,10 @@ const isAdmin = (g: Row, email: string | undefined) => !!email && (g.owner_email
 // The public face of a group (never the contact details or the team's note).
 const face = (g: Row, extra: Row = {}) => ({
   slug: g.slug, name: g.name, kind: g.kind, about: g.about, places: g.places, members: g.members_count, started: g.started,
-  collect: g.collect, checked: !!g.checked, status: g.status, since: g.listed_at || g.created_at, ...extra,
+  collect: g.collect, checked: !!g.checked, status: g.status, since: g.listed_at || g.created_at,
+  type: g.profile_type === "organisation" ? "organisation" : "group", verified: g.profile_type === "organisation" && !!g.verified,
+  reg_body: g.profile_type === "organisation" ? g.reg_body : "", reg_number: g.profile_type === "organisation" ? g.reg_number : "",
+  website: g.website || "", logo: g.logo ? `/api/groups/${encodeURIComponent(g.slug)}/logo?v=${new Date(g.updated_at || g.created_at).getTime()}` : "", ...extra,
 });
 const proj = (p: Row) => ({
   id: p.id, slug: p.raavanaa_slug || "", title: p.title, place: p.place, stage: STAGES.includes(p.stage) ? p.stage : "Initiated",
@@ -90,7 +99,13 @@ const fields = (b: Row) => ({
   name: clip(b.name, 80), kind: KINDS.includes(clip(b.kind, 40)) ? clip(b.kind, 40) : "Other", about: text(b.about, 1200),
   places: clip(b.places, 160), members: Math.min(num(b.members), 100000), started: clip(b.started, 40), collect: text(b.collect, 400),
   contact_name: clip(b.contact_name, 80), contact_phone: clip(b.contact_phone, 40),
+  type: b.type === "organisation" ? "organisation" : "group", reg_body: REG_BODIES.includes(clip(b.reg_body, 60)) ? clip(b.reg_body, 60) : "",
+  reg_number: clip(b.reg_number, 60), website: site(b.website),
 });
+// A picture typed in the browser (shrunk there to 256 px): data URL, at most about 90 KB. "" = no logo; undefined = keep.
+const logoOf = (v: unknown) => v === "" || v === null ? "" : typeof v === "string" && v.length <= 120000 && LOGO_RE.test(v) ? v : undefined;
+const orgCheck = (f: ReturnType<typeof fields>) => f.type === "organisation" && (!f.reg_body || f.reg_number.length < 2)
+  ? "Please say where your organisation is registered and its registration number." : "";
 
 export default async (req: Request) => {
   const url = new URL(req.url);
@@ -114,6 +129,11 @@ export default async (req: Request) => {
           await db.sql`INSERT INTO audit_log (actor, action, target) VALUES (${t.email}, ${"group." + body.status}, ${g.slug})`;
         }
         if (typeof body.checked === "boolean") await db.sql`UPDATE community_groups SET checked = ${body.checked}, updated_at = NOW() WHERE id = ${id}`;
+        if (typeof body.verified === "boolean") {
+          if (body.verified && (g.profile_type !== "organisation" || !g.reg_number)) return json({ ok: false, error: "Only an organisation with a registration number can be verified." }, 400);
+          await db.sql`UPDATE community_groups SET verified = ${body.verified}, verified_by = ${body.verified ? t.email : ""}, verified_at = ${body.verified ? new Date().toISOString() : null}, updated_at = NOW() WHERE id = ${id}`;
+          await db.sql`INSERT INTO audit_log (actor, action, target) VALUES (${t.email}, ${body.verified ? "group.verified" : "group.unverified"}, ${g.slug})`;
+        }
         if (typeof body.team_note === "string") await db.sql`UPDATE community_groups SET team_note = ${text(body.team_note, 800)} WHERE id = ${id}`;
         if (body.link) {
           const slug = clip(body.link, 80), title = clip(body.title, 120);
@@ -126,6 +146,7 @@ export default async (req: Request) => {
       }
       const groups = (await db.sql<Row>`SELECT * FROM community_groups ORDER BY (status = 'waiting') DESC, created_at DESC LIMIT 500`) as Row[];
       const c = await counts(db, groups.map((g) => g.id));
+      for (const g of groups) g.logo = g.logo ? face(g).logo : "";
       const links = (await db.sql<Row>`SELECT id, group_id, raavanaa_slug, title, stage FROM group_projects WHERE NOT hidden ORDER BY created_at DESC LIMIT 2000`) as Row[];
       return json({ ok: true, groups: groups.map((g) => ({ ...g, ...c[g.id], projects: links.filter((l) => l.group_id === g.id) })) });
     }
@@ -159,11 +180,15 @@ export default async (req: Request) => {
       if (f.name.length < 3) return json({ ok: false, error: "Please give your group's name." }, 400);
       if (f.about.length < 20) return json({ ok: false, error: "Please say in a few lines what your group does." }, 400);
       if (!f.contact_phone) return json({ ok: false, error: "Please add a WhatsApp number so the team can call you." }, 400);
+      const oc = orgCheck(f); if (oc) return json({ ok: false, error: oc }, 400);
+      const logo = logoOf(body.logo) || "";
       const mine = (await db.sql<Row>`SELECT COUNT(*)::int AS n FROM community_groups WHERE owner_email = ${who.email} AND created_at > NOW() - INTERVAL '1 day'`) as Row[];
       if (mine[0].n >= 3) return json({ ok: false, error: "You have registered three groups today. Please wait for the team to call you." }, 429);
       const slug = await freeSlug(db, f.name);
-      await db.sql`INSERT INTO community_groups (slug, name, kind, about, places, members_count, started, collect, contact_name, contact_phone, owner_email)
-        VALUES (${slug}, ${f.name}, ${f.kind}, ${f.about}, ${f.places}, ${f.members}, ${f.started}, ${f.collect}, ${f.contact_name || who.name}, ${f.contact_phone}, ${who.email})`;
+      await db.sql`INSERT INTO community_groups (slug, name, kind, about, places, members_count, started, collect, contact_name, contact_phone, owner_email,
+          profile_type, reg_body, reg_number, website, logo)
+        VALUES (${slug}, ${f.name}, ${f.kind}, ${f.about}, ${f.places}, ${f.members}, ${f.started}, ${f.collect}, ${f.contact_name || who.name}, ${f.contact_phone}, ${who.email},
+          ${f.type}, ${f.type === "organisation" ? f.reg_body : ""}, ${f.type === "organisation" ? f.reg_number : ""}, ${f.website}, ${logo})`;
       await db.sql`INSERT INTO audit_log (actor, action, target) VALUES (${who.email}, 'group.registered', ${slug})`;
       return json({ ok: true, slug });
     }
@@ -178,6 +203,12 @@ export default async (req: Request) => {
 
     if (!sub && req.method === "GET") return json(await profile(db, g, who, team));
 
+    if (sub === "logo" && req.method === "GET") {
+      const m = String(g.logo || "").match(/^data:(image\/(?:png|jpeg|webp));base64,(.+)$/);
+      if (!m) return new Response("No logo", { status: 404 });
+      return new Response(Buffer.from(m[2], "base64"), { headers: { "Content-Type": m[1], "Cache-Control": "public, max-age=86400" } });
+    }
+
     if (sub === "follow" && req.method === "POST") {
       if (!who) return json({ ok: false, signin: true, error: "Please sign in to follow." }, 401);
       if (body.on === false) await db.sql`DELETE FROM group_follows WHERE group_id = ${g.id} AND email = ${who.email}`;
@@ -189,13 +220,21 @@ export default async (req: Request) => {
     if (!admin) return json({ ok: false, error: "Only the people who run this group can change it." }, 403);
 
     if (!sub && req.method === "PATCH") {
-      const f = fields({ ...face(g), members: g.members_count, contact_name: g.contact_name, contact_phone: g.contact_phone, ...body });
+      const f = fields({ ...face(g), members: g.members_count, contact_name: g.contact_name, contact_phone: g.contact_phone,
+        type: g.profile_type, reg_body: g.reg_body, reg_number: g.reg_number, website: g.website, ...body });
       if (f.name.length < 3) return json({ ok: false, error: "Please give your group's name." }, 400);
+      const oc = orgCheck(f); if (oc) return json({ ok: false, error: oc }, 400);
+      const logo = logoOf(body.logo);
+      // A new registration (or going back to a group) needs the team to see the certificate again.
+      const keepVerified = f.type === "organisation" && g.profile_type === "organisation" && f.reg_number === g.reg_number && f.reg_body === g.reg_body;
       const admins = Array.isArray(body.admins)
         ? [...new Set(body.admins.map((x: unknown) => clip(x, 120).toLowerCase()).filter((x: string) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x) && x !== g.owner_email))].slice(0, 8)
         : g.admins || [];
       await db.sql`UPDATE community_groups SET name = ${f.name}, kind = ${f.kind}, about = ${f.about}, places = ${f.places}, members_count = ${f.members},
-        started = ${f.started}, collect = ${f.collect}, contact_name = ${f.contact_name}, contact_phone = ${f.contact_phone}, admins = ${admins}::text[], updated_at = NOW() WHERE id = ${g.id}`;
+        started = ${f.started}, collect = ${f.collect}, contact_name = ${f.contact_name}, contact_phone = ${f.contact_phone}, admins = ${admins}::text[],
+        profile_type = ${f.type}, reg_body = ${f.type === "organisation" ? f.reg_body : ""}, reg_number = ${f.type === "organisation" ? f.reg_number : ""}, website = ${f.website},
+        logo = ${logo === undefined ? g.logo : logo}, verified = ${keepVerified && !!g.verified}, updated_at = NOW() WHERE id = ${g.id}`;
+      if (g.verified && !keepVerified) await db.sql`INSERT INTO audit_log (actor, action, target) VALUES (${who!.email}, 'group.unverified-by-edit', ${g.slug})`;
       const [n] = (await db.sql<Row>`SELECT * FROM community_groups WHERE id = ${g.id}`) as Row[];
       return json(await profile(db, n, who, team));
     }
