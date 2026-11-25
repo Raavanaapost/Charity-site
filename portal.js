@@ -722,14 +722,14 @@
   // project). Contact details here are private.
   let GRPS = null, grpF = "waiting";
   function groups() {
-    if (GRPS === null) { loadGroups(); return `<header class="pt-head"><div><p class="pt-kicker">Groups</p><h1>Community groups</h1></div></header><p class="pt-sub">Loading…</p>`; }
+    if (GRPS === null) { loadGroups(); return `<header class="pt-head"><div><p class="pt-kicker">Groups</p><h1>Groups and organisations</h1></div></header><p class="pt-sub">Loading…</p>`; }
     const when = d => d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "";
     const n = k => GRPS.filter(g => g.status === k).length;
     const list = GRPS.filter(g => grpF === "all" || g.status === grpF);
     const opts = P.filter(p => !p.sample).map(p => `<option value="${esc(p.slug)}">${esc(p.title)}</option>`).join("");
     const SAY = { waiting: "Waiting for a call", listed: "Live on the website", hidden: "Taken off" };
     return `
-      <header class="pt-head"><div><p class="pt-kicker">Groups</p><h1>Community groups</h1>
+      <header class="pt-head"><div><p class="pt-kicker">Groups</p><h1>Groups and organisations</h1>
         <p class="pt-sub">Groups (WhatsApp circles, past pupils, villages) and registered organisations create a profile at <a href="/groups" target="_blank" rel="noopener">/groups</a>. Call the contact, then press <b>List it</b> so their page goes live. Tick <b>Checked by Raavanaa</b> once you have spoken to them. For an organisation, press <b>Verified</b> only after you have seen its registration certificate (never put the certificate on the site). Raavanaa never holds their money.</p></div></header>
       <section class="pt-stats">
         <div class="pt-stat st1"><b>${n("waiting")}</b><span>Waiting</span></div>

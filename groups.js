@@ -23,7 +23,7 @@
       (g.verified ? "✓ Verified organisation" : isOrg(g) ? "Organisation" : "Group") + "</span>";
   };
   var avatar = function (g, big) {
-    return g.logo ? '<span class="g-av logo' + (big ? " big" : "") + '"><img src="' + esc(g.logo) + '" alt=""></span>'
+    return g.logo ? '<span class="g-av g-av-logo' + (big ? " big" : "") + '"><img src="' + esc(g.logo) + '" alt=""></span>'
       : '<span class="g-av' + (big ? " big" : "") + '" style="--t:' + tone(g.name) + '">' + esc(initials(g.name)) + "</span>";
   };
   // A logo picture is shrunk on the phone to 256 px before it is sent (about 20-60 KB).
@@ -69,7 +69,12 @@
   // Wires the type switch and the logo picker of a form; returns a function that adds the logo to the data.
   var wireOrgForm = function (f) {
     var box = f.querySelector("[data-orgf]"), logo;
-    var sync = function () { var o = (f.querySelector("input[name=type]:checked") || {}).value === "organisation"; box.hidden = !o; f.classList.toggle("is-org", o); };
+    var sync = function (ev) {
+      var o = (f.querySelector("input[name=type]:checked") || {}).value === "organisation"; box.hidden = !o; f.classList.toggle("is-org", o);
+      // Choosing an organisation on the register form picks "Charity or NGO" as its kind (they can change it).
+      var k = f.querySelector('input[name=kind][value="Charity or NGO"]'), first = f.querySelector("input[name=kind]");
+      if (ev && k && first) (o ? k : first).checked = true;
+    };
     f.querySelectorAll("input[name=type]").forEach(function (r) { r.onchange = sync; }); sync();
     var file = f.querySelector("[data-logo-file]"), prev = f.querySelector("[data-logo-prev]"), clr = f.querySelector("[data-logo-clear]");
     if (file) file.onchange = function () {
@@ -163,7 +168,7 @@
         '<label><span>Name</span><input name="name" required maxlength="80" placeholder="e.g. Jaffna Friends Circle"></label>' +
         orgFields() + logoField() +
         '<fieldset class="g-kinds"><legend>What kind?</legend>' + KINDS.map(function (k, i) { return '<label class="v-sk"><input type="radio" name="kind" value="' + esc(k) + '"' + (i ? "" : " checked") + "><span>" + esc(k) + "</span></label>"; }).join("") + "</fieldset>" +
-        '<label><span>What does your group do?</span><textarea name="about" required rows="4" maxlength="1200" placeholder="Who you are, what you have done so far, and what you would like to do next."></textarea></label>' +
+        '<label><span>What do you do?</span><textarea name="about" required rows="4" maxlength="1200" placeholder="Who you are, what you have done so far, and what you would like to do next."></textarea></label>' +
         '<div class="v-row">' +
           '<label><span>Where are your members?</span><input name="places" maxlength="160" placeholder="e.g. Toronto, London, Jaffna"></label>' +
           '<label><span>How many members?</span><input name="members" inputmode="numeric" maxlength="6" placeholder="e.g. 40"></label>' +
@@ -231,10 +236,10 @@
           (g.started ? "<span>Together since <b>" + esc(g.started) + "</b></span>" : "") +
         "</div>" +
         (g.status !== "listed" ? "" : '<div class="g-acts">' +
-          '<button type="button" class="v-btn g-follow' + (g.following ? " on" : "") + '" data-follow aria-pressed="' + !!g.following + '">' + (g.following ? "✓ Following" : "+ Follow this group") + "</button>" +
+          '<button type="button" class="v-btn g-follow' + (g.following ? " on" : "") + '" data-follow aria-pressed="' + !!g.following + '">' + (g.following ? "✓ Following" : "+ Follow " + (isOrg(g) ? "this organisation" : "this group")) + "</button>" +
           '<a class="v-btn ghost" href="https://wa.me/?text=' + encodeURIComponent(g.name + " on Raavanaa: see our projects and follow us " + share) + '" target="_blank" rel="noopener">Share on WhatsApp</a>' +
         "</div>" +
-        '<p class="g-fnote" data-fnote>' + (g.following ? "You will find this group's news in My account." : "Follow to see their news and projects in My account.") + "</p>") +
+        '<p class="g-fnote" data-fnote>' + (g.following ? "You will find their news in My account." : "Follow to see their news and projects in My account.") + "</p>") +
       "</header>" +
       '<section class="g-about"><h2>About us</h2><p>' + esc(g.about).replace(/\n/g, "<br>") + "</p>" +
         (isOrg(g) ? '<div class="g-money"><b>Gifts to ' + esc(g.name) + " go to " + esc(g.name) + " directly.</b> " + (g.collect ? esc(g.collect) + " " : "") + "Raavanaa never holds the money. The amounts on this page are reported by the organisation.</div>"
@@ -248,7 +253,7 @@
             (list.length ? list.map(projCard).join("") : '<p class="g-none">Nothing here yet.</p>') + "</div>";
         }).join("") : '<p class="g-none">No projects yet.' + (admin ? " Add your first one in Manage our group above." : "") + "</p>") +
       "</section>" +
-      '<section class="g-news"><h2>News from the group</h2>' +
+      '<section class="g-news"><h2>Latest news</h2>' +
         (G.updates.length ? '<ol class="g-feed">' + G.updates.map(function (u) {
           var p = u.project && G.projects.filter(function (x) { return x.id === u.project; })[0];
           return '<li><p>' + esc(u.body).replace(/\n/g, "<br>") + "</p><small>" + esc(u.by) + " · " + when(u.at) + (p ? " · " + esc(p.title) : "") +
