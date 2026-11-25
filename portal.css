@@ -547,3 +547,4 @@ body.pt-signedout .pt-main,body.pt-signedout .pt-shell{padding-top:0}body.pt-sig
 .pt-memlog time{color:var(--muted);white-space:nowrap}
 .pt-memlog li.k-give span,.pt-memlog li.k-request span,.pt-memlog li.k-vouch span,.pt-memlog li.k-memory span{font-weight:700}
 .pt-memtable td:nth-child(4) a,.pt-memtable td:nth-child(6){white-space:nowrap}
+.pt-ask-from select{font:inherit;font-size:12px;padding:2px 6px;border:1px solid var(--line,#ddd);border-radius:6px;background:transparent;color:inherit;margin-left:4px}
