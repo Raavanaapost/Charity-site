@@ -2324,6 +2324,12 @@ window.RAAV_FEATURES = (function () {
   let GIVE_ON = false;
   const GIVE_OPEN = new Set();
   let G_CTX = null;   // site, projects and gift totals, so the giving form can open in place on a project page
+  // "?p=<funded %>" on shared project links (SURESH 25 Nov 2026: "why 100% not updated in the sharing snapshot").
+  // WhatsApp and Facebook keep a link's preview by its address, so the same link shared again showed the old %.
+  // A new % makes a new address and so a fresh preview with today's ring. The page itself ignores ?p.
+  const sharePct = slug => { const p = G_CTX && (G_CTX.projects || []).find(x => slugOf(x) === slug); if (!p) return "";
+    const n = stageNum(p), b = budgetOf(p); return n < 3 && b.goal > 0 ? (n === 2 || b.pct >= 100 ? 100 : b.pct) : ""; };
+  const withPct = (url, slug) => { const v = sharePct(slug); return v === "" ? url : url + (url.includes("?") ? "&" : "?") + "p=" + v; };
   let GIVE_RATE = 0; // Sri Lankan rupees to one Canadian dollar (site.json "rate_lkr_per_cad"), Stripe only
   let GIVE_BY = "Stripe", GIVE_CUR = "CAD";
   const isRupees = p => /rs|lkr|රු|ரூ/i.test(p.currency || "");
@@ -2947,7 +2953,7 @@ window.RAAV_FEATURES = (function () {
     if (!box) return;
     const slug = box.dataset.share;
     const ta = location.pathname.startsWith("/ta/");
-    const url = `${location.origin}${ta ? "/ta" : ""}/projects/${slug}`;
+    const url = withPct(`${location.origin}${ta ? "/ta" : ""}/projects/${slug}`, slug);
     let data = null;
     try { data = await (await fetch("/share.json")).json(); } catch (_) {}
     const own = data && data.projects && data.projects[slug];
@@ -3039,7 +3045,7 @@ window.RAAV_FEATURES = (function () {
     if (!opens.length) return;
     let dlg = document.querySelector(".send-dlg");
     if (!dlg) { document.body.insertAdjacentHTML("beforeend", sendDialogHTML()); dlg = document.querySelector(".send-dlg"); }
-    const slug = slugOf(p), url = `${location.origin}/projects/${slug}`;
+    const slug = slugOf(p), url = withPct(`${location.origin}/projects/${slug}`, slug);
     let data = null;
     const words = async () => {
       if (!data) { try { data = await (await fetch("/share.json")).json(); } catch (_) { data = {}; } }
@@ -3997,7 +4003,7 @@ window.RAAV_FEATURES = (function () {
     const before = Math.max(0, b.raised - mineIn), pctBefore = b.goal ? Math.min(100, Math.round(before / b.goal * 100)) : 0;
     const pctNow = b.goal ? Math.min(100, Math.round((before + amt) / b.goal * 100)) : 0;
     const day = p.money && p.money.day ? fmtDate(p.money.day) : "";
-    const url = `${location.origin}/projects/${slug}?from=room`;
+    const url = withPct(`${location.origin}/projects/${slug}?from=room`, slug);
     const shareText = roomShareText(p, { tr, day: p.money && p.money.day, left: b.goal ? Math.max(0, b.goal - before - amt) : 0, pct: pctNow, money: n => moneyOf(site, n, p).replace(/&amp;/g, "&") });
     document.title = `Your room: ${p.title} · ${site.name}`;
     const drawing = /\.svg(\?|$)/i.test(p.cover || "") ? p.cover : "/img/project-hills.svg";
