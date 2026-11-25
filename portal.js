@@ -730,7 +730,7 @@
     const SAY = { waiting: "Waiting for a call", listed: "Live on the website", hidden: "Taken off" };
     return `
       <header class="pt-head"><div><p class="pt-kicker">Groups</p><h1>Community groups</h1>
-        <p class="pt-sub">Groups that collect in their own WhatsApp circle and run projects. They register at <a href="/groups" target="_blank" rel="noopener">/groups</a>. Call the contact, then press <b>List it</b> so their page goes live. Tick <b>Checked by Raavanaa</b> once you have spoken to them. Their money stays in their own circle.</p></div></header>
+        <p class="pt-sub">Groups (WhatsApp circles, past pupils, villages) and registered organisations create a profile at <a href="/groups" target="_blank" rel="noopener">/groups</a>. Call the contact, then press <b>List it</b> so their page goes live. Tick <b>Checked by Raavanaa</b> once you have spoken to them. For an organisation, press <b>Verified</b> only after you have seen its registration certificate (never put the certificate on the site). Raavanaa never holds their money.</p></div></header>
       <section class="pt-stats">
         <div class="pt-stat st1"><b>${n("waiting")}</b><span>Waiting</span></div>
         <div class="pt-stat st2"><b>${n("listed")}</b><span>Live</span></div>
@@ -739,7 +739,8 @@
       <div class="pt-chips">${[["waiting", "Waiting"], ["listed", "Live"], ["hidden", "Taken off"], ["all", "All"]].map(([k, l]) => `<button type="button" aria-pressed="${grpF === k}" data-gf="${k}">${l}</button>`).join("")}</div>
       <section class="pt-champs">${list.length ? list.map(g => `
         <article class="pt-card pt-champ ${g.status === "hidden" ? "off" : ""}">
-          <div><h3><a href="/g/${esc(g.slug)}" target="_blank" rel="noopener">${esc(g.name)}</a> <small>· ${esc(g.kind)} · ${SAY[g.status] || g.status}${g.checked ? " · ✓ checked" : ""}</small></h3>
+          <div><h3><a href="/g/${esc(g.slug)}" target="_blank" rel="noopener">${esc(g.name)}</a> <small>· ${g.profile_type === "organisation" ? (g.verified ? "✓ Verified organisation" : "Organisation") : "Group"} · ${esc(g.kind)} · ${SAY[g.status] || g.status}${g.checked ? " · ✓ checked" : ""}</small></h3>
+            ${g.profile_type === "organisation" ? `<p class="pt-champ-meta">Registered with ${esc(g.reg_body)} · No. ${esc(g.reg_number)}${g.website ? ` · <a href="${esc(g.website)}" target="_blank" rel="noopener">${esc(g.website)}</a>` : ""}${g.verified ? ` · verified by ${esc(g.verified_by)}` : " · ask to see the certificate before you verify"}</p>` : ""}
             <p class="pt-sub">${esc(g.places || "No place given")} · ${g.members_count || 0} members · registered ${when(g.created_at)} · ${g.followers || 0} followers · ${g.projects?.length || 0} linked</p>
             <p class="pt-champ-meta">${esc(g.contact_name)} · <a href="https://wa.me/${esc(String(g.contact_phone).replace(/[^\d]/g, ""))}" target="_blank" rel="noopener">${esc(g.contact_phone)}</a> · ${esc(g.owner_email)}</p>
             <p class="pt-sub">“${esc(g.about)}”</p>
@@ -749,6 +750,7 @@
           <div class="pt-actions-row">
             ${g.status !== "listed" ? `<button type="button" class="pt-btn" data-gst="${g.id}:listed">List it</button>` : ""}
             <button type="button" class="pt-btn ghost" data-gchk="${g.id}" data-on="${g.checked ? "" : "1"}">${g.checked ? "Untick Checked" : "Checked by Raavanaa"}</button>
+            ${g.profile_type === "organisation" ? `<button type="button" class="pt-btn ${g.verified ? "ghost" : ""}" data-gver="${g.id}" data-on="${g.verified ? "" : "1"}">${g.verified ? "Remove Verified" : "I saw the certificate: Verified"}</button>` : ""}
             ${g.status !== "hidden" ? `<button type="button" class="pt-btn ghost" data-gst="${g.id}:hidden">Take off</button>` : ""}
             ${g.status === "hidden" ? `<button type="button" class="pt-btn ghost" data-gst="${g.id}:waiting">Back to waiting</button>` : ""}
           </div>
@@ -756,18 +758,20 @@
   }
   async function loadGroups() {
     await null;
-    if (!LIVE) { GRPS = [{ id: 1, slug: "jaffna-friends-circle", name: "Jaffna Friends Circle", kind: "WhatsApp circle", about: "Forty friends from Jaffna who give a little every month for school days.", places: "Toronto, London, Jaffna", members_count: 40, collect: "Each of us puts 20 dollars a month into the circle.", contact_name: "Ravi", contact_phone: "+1 416 555 0100", owner_email: "ravi@example.com", status: "waiting", checked: false, followers: 0, projects: [], created_at: new Date().toISOString() }]; render(); return; }
+    if (!LIVE) { GRPS = [{ id: 1, slug: "jaffna-friends-circle", name: "Jaffna Friends Circle", kind: "WhatsApp circle", about: "Forty friends from Jaffna who give a little every month for school days.", places: "Toronto, London, Jaffna", members_count: 40, collect: "Each of us puts 20 dollars a month into the circle.", contact_name: "Ravi", contact_phone: "+1 416 555 0100", owner_email: "ravi@example.com", status: "waiting", checked: false, followers: 0, projects: [], created_at: new Date().toISOString(), profile_type: "group" },
+      { id: 2, slug: "vanni-hope-foundation", name: "Vanni Hope Foundation", kind: "Charity or NGO", about: "A registered charity that runs after-school classes and school days in Mullaitivu and Kilinochchi.", places: "Mullaitivu, Kilinochchi, London", members_count: 25, collect: "", contact_name: "Nila", contact_phone: "+94 77 123 0000", owner_email: "nila@example.com", status: "waiting", checked: false, followers: 0, projects: [], created_at: new Date().toISOString(), profile_type: "organisation", reg_body: "NGO Secretariat", reg_number: "FL 12345", website: "https://vannihope.org/", verified: false }]; render(); return; }
     try { GRPS = (await api("/api/groups/team")).groups || []; } catch (e) { GRPS = []; toast(e.message || "Could not load."); }
     render();
   }
   function wireGroups() {
     const save = async (body, msg) => {
-      if (!LIVE) { const g = GRPS.find(x => x.id === body.id); if (body.status) g.status = body.status; if ("checked" in body) g.checked = body.checked; if (body.link) g.projects.push({ id: Date.now(), raavanaa_slug: body.link, title: body.title }); if (body.unlink) g.projects = g.projects.filter(x => x.id !== body.unlink); render(); toast(msg + " (demo)"); return; }
+      if (!LIVE) { const g = GRPS.find(x => x.id === body.id); if (body.status) g.status = body.status; if ("checked" in body) g.checked = body.checked; if ("verified" in body) g.verified = body.verified; if (body.link) g.projects.push({ id: Date.now(), raavanaa_slug: body.link, title: body.title }); if (body.unlink) g.projects = g.projects.filter(x => x.id !== body.unlink); render(); toast(msg + " (demo)"); return; }
       try { GRPS = (await api("/api/groups/team", { method: "PATCH", body: JSON.stringify(body) })).groups || []; render(); toast(msg); }
       catch (e) { toast(e.message || "Could not save."); }
     };
     app.querySelectorAll("[data-gf]").forEach(b => b.onclick = () => { grpF = b.dataset.gf; render(); });
     app.querySelectorAll("[data-gst]").forEach(b => b.onclick = () => { const [id, status] = b.dataset.gst.split(":"); save({ id: +id, status }, status === "listed" ? "Listed: the page is live" : status === "hidden" ? "Taken off the website" : "Back to waiting"); });
+    app.querySelectorAll("[data-gver]").forEach(b => b.onclick = () => save({ id: +b.dataset.gver, verified: !!b.dataset.on }, b.dataset.on ? "Verified organisation" : "Verified badge removed"));
     app.querySelectorAll("[data-gchk]").forEach(b => b.onclick = () => save({ id: +b.dataset.gchk, checked: !!b.dataset.on }, b.dataset.on ? "Marked Checked by Raavanaa" : "Checked tick removed"));
     app.querySelectorAll("[data-glink]").forEach(s => s.onchange = () => { if (!s.value) return; const p = P.find(x => x.slug === s.value); save({ id: +s.dataset.glink, link: s.value, title: p ? p.title : s.value, stage: ["Initiated", "Activated", "Impact"][stageNum(p || {}) - 1] || "Initiated" }, "Project linked to the group"); });
     app.querySelectorAll("[data-gunlink]").forEach(b => b.onclick = () => { const [id, pid] = b.dataset.gunlink.split(":"); save({ id: +id, unlink: +pid }, "Unlinked"); });
