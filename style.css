@@ -3346,3 +3346,14 @@ html[data-form-lang="ta"] .rq-done :is(h2,p,span,b,a){font-family:"Noto Sans Tam
 .v-jump{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 14px;border-radius:999px;border:1.5px solid var(--brand);background:var(--surface,#fff);color:var(--brand);font:inherit;font-weight:700;font-size:15px;cursor:pointer}
 .v-jump b{background:var(--brand);color:#fff;border-radius:999px;padding:0 8px;font-size:12px}
 .v-jump b:empty{display:none}
+/* Open and close sections on project pages (SURESH 25 Nov): Share, Vouched for by, The journey, Comments. */
+.voices{display:grid;gap:16px}
+.voices .v-talk{margin-top:0;padding-top:0;border-top:0}
+.voices .v-talk .v-rate{margin-top:0;padding-top:0;border-top:0;margin-bottom:14px}
+.folded{padding-top:4px !important;padding-bottom:4px !important}
+.pfold > summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;padding:14px 0;min-height:44px}
+.pfold > summary::-webkit-details-marker{display:none}
+.pfold > summary h2{margin:0 !important}
+.pfold-chev{flex:none;width:12px;height:12px;border-right:2.5px solid var(--brand);border-bottom:2.5px solid var(--brand);transform:rotate(45deg) translateY(-3px);transition:transform .2s}
+.pfold[open] > summary .pfold-chev{transform:rotate(-135deg) translateY(-3px)}
+.pfold-body{padding-bottom:14px}
