@@ -3088,11 +3088,12 @@ window.RAAV_FEATURES = (function () {
 
   // Project page: a small picture of the three stages, the same circles and words as on Home, with this
   // project's place among them (SURESH, 17 Nov 2026: "a small graphic of which stage it has moved to").
-  // Stages already passed get a tick, the current one is full and marked "Now", later ones are faded.
+  // The current stage is full, marked "Now" and carries the green tick dot, which moves on with the project
+  // (SURESH 25 Nov 2026: "for activated the green dot stays at Initiated instead of moving"); later ones are faded.
   function stageJourneyHTML(p) {
     const n = stageNum(p), art = ["initiated", "activated", "impact"], say = STAGE_SAY;
     return `<nav class="pjour" aria-label="Where this project stands: ${STAGE_LABEL[n - 1]}">${STAGE_LABEL.map((l, k) => `${k ? `<span class="pjour-arrow${k < n ? " past" : ""}" aria-hidden="true">›</span>` : ""}<a class="pjour-st s${k + 1}${k + 1 < n ? " past" : k + 1 === n ? " now" : " next"}" href="/${art[k]}"${k + 1 === n ? ' aria-current="step"' : ""}>
-        <i style="background-image:url(/img/stage-${art[k]}.svg)">${k + 1 < n ? `<em aria-label="done">✓</em>` : ""}</i>
+        <i style="background-image:url(/img/stage-${art[k]}.svg)">${k + 1 === n ? `<em aria-label="this project is here">✓</em>` : ""}</i>
         <b>${l}</b><small>${k + 1 === n ? "Now · " + say[k] : say[k]}</small></a>`).join("")}</nav>`;
   }
   function renderProject(app, site, projects, slug) {
