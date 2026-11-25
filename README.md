@@ -24,9 +24,9 @@ raavanaa.org: the `draft` and `main` branches are not touched by it.
 ## Rules for every story and photo
 
 - First names only. No full names or addresses.
-- Schools, pre-schools and homes are not named (SURESH, 9 Nov 2026).
+- Schools may be named again (SURESH, 20 Nov 2026); children's names never.
 - Places are towns, never a home or school.
-- No real photos of children (SURESH, 12 Nov 2026). A story shows a drawing (`'art'`, the SVG files in `source/theme/raavanaapost/assets/img/art/`) or an AI illustration, never a photo of a child.
+- Real photos of the days are allowed again (SURESH, 25 Nov 2026: permission given). Photos of children only with that permission; otherwise a drawing (`'art'`, SVGs in `source/theme/raavanaapost/assets/img/art/`). A story's photo (`'thumb'`) wins over its drawing.
 - Evidence files are private and never go here.
 - "Report a need" sends people to the Request a smile form on raavanaa.org, so there is one inbox.
 
