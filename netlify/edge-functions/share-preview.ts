@@ -93,7 +93,9 @@ export default async (request: Request, context: { next: () => Promise<Response>
   html = setMeta(html, "property", "og:image:width", "1200");
   html = setMeta(html, "property", "og:image:type", "image/jpeg");
   html = setMeta(html, "property", "og:image:height", "630");
-  html = setMeta(html, "property", "og:url", url.origin + url.pathname);
+  // Keep ?p=<funded %> in og:url, so Facebook treats a link with a new % as new and shows the fresh picture.
+  const pq = url.searchParams.get("p");
+  html = setMeta(html, "property", "og:url", url.origin + url.pathname + (pq && /^\d{1,3}$/.test(pq) ? "?p=" + pq : ""));
   html = setMeta(html, "property", "og:locale", ta ? "ta_LK" : "en_GB");
   html = setMeta(html, "name", "twitter:card", "summary_large_image");
   html = setMeta(html, "name", "twitter:title", title);
