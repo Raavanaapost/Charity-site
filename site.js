@@ -24,11 +24,14 @@ window.RAAV_SKILLS = ["Visiting and checking projects near me", "Driving and tra
   "Accounts and bookkeeping", "Website and IT", "Medical and first aid", "Counselling and care", "Legal advice", "Building and repairs",
   "Farming and livelihoods", "Organising and leading", "Something else"];
 window.RAAV_FEATURES = (function () {
-  const F = { sponsor: false, pledge: true, reserve: false, circle: false, vetting: true, voices: true, left: false, tamil: false, group: false, join: false, volunteers: false, groups: false, moment: false, map: false, reasons: [] };  // join: "Join Raavanaa" cards and links (off, SURESH 20 Nov 2026: "take join raavanaa out")  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
+  const F = { sponsor: false, pledge: true, reserve: false, circle: false, vetting: true, voices: true, left: false, tamil: false, group: false, join: false, volunteers: false, groups: false, moment: false, map: false, money: false, reasons: [] };  // join: "Join Raavanaa" cards and links (off, SURESH 20 Nov 2026: "take join raavanaa out")  // all twelve reasons back on /moment (SURESH 17 Nov 2026: "All")
   try {
     const q = new URLSearchParams(location.search).get("features");
     const test = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) || /--charity-projects-draft\./.test(location.hostname);
     if (test && q === "all") sessionStorage.setItem("raav-features", "all");
+    // Open Books, raavanaa.org/money (SURESH 25 Nov 2026, option B): on the draft and previews only until SURESH says "post";
+    // a post of other work keeps it hidden on the live site. To go live: set money: true in F above.
+    if (test) F.money = true;
     if (q === "launch") sessionStorage.removeItem("raav-features");
     // Community groups (SURESH 23 Nov 2026: "Keep this as to do feature. Lets do this as another feature release"):
     // off everywhere, also on the draft; preview with ?features=all. Set groups: true when that release comes.
@@ -3408,6 +3411,22 @@ window.RAAV_FEATURES = (function () {
     const hit = byTz.find(([re]) => re.test(tz));
     return hit ? hit[1] : /-CA$/.test(lang) ? "CAD" : /-GB$/.test(lang) ? "GBP" : /-IN$/.test(lang) ? "INR" : "LKR";
   };
+  // Open Books (SURESH, 25 Nov 2026): "Where are you giving from?" in one tap, guessed from the phone's time zone.
+  // Countries only, never a city. The list is the countries Tamil families give from most, then "Somewhere else".
+  const PL_COUNTRIES = ["Sri Lanka", "Canada", "United Kingdom", "Australia", "New Zealand", "United States", "Switzerland", "Norway", "Sweden", "Denmark", "Germany", "France",
+    "Netherlands", "Italy", "India", "Singapore", "Malaysia", "United Arab Emirates", "Qatar", "Saudi Arabia", "Kuwait", "Japan", "Somewhere else"];
+  const guessCountry = () => {
+    let tz = "", lang = "";
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; lang = navigator.language || ""; } catch (e) { /* none */ }
+    const byTz = [[/^Asia\/Colombo/, "Sri Lanka"], [/^America\/(Toronto|Vancouver|Edmonton|Winnipeg|Halifax|Regina|St_Johns|Montreal|Moncton|Glace_Bay|Whitehorse|Yellowknife|Iqaluit)/, "Canada"],
+      [/^Europe\/London/, "United Kingdom"], [/^Australia\//, "Australia"], [/^Pacific\/Auckland/, "New Zealand"], [/^Europe\/Zurich/, "Switzerland"], [/^Europe\/Oslo/, "Norway"],
+      [/^Europe\/Stockholm/, "Sweden"], [/^Europe\/Copenhagen/, "Denmark"], [/^Europe\/Berlin/, "Germany"], [/^Europe\/Paris/, "France"], [/^Europe\/Amsterdam/, "Netherlands"],
+      [/^Europe\/Rome/, "Italy"], [/^Asia\/(Kolkata|Calcutta)/, "India"], [/^Asia\/Singapore/, "Singapore"], [/^Asia\/Kuala_Lumpur/, "Malaysia"], [/^Asia\/Dubai/, "United Arab Emirates"],
+      [/^Asia\/Qatar/, "Qatar"], [/^Asia\/Riyadh/, "Saudi Arabia"], [/^Asia\/Kuwait/, "Kuwait"], [/^Asia\/Tokyo/, "Japan"],
+      [/^America\/(New_York|Chicago|Denver|Los_Angeles|Phoenix|Anchorage|Detroit|Indiana|Kentucky|Boise)/, "United States"], [/^Pacific\/Honolulu/, "United States"]];
+    const hit = byTz.find(([re]) => re.test(tz));
+    return hit ? hit[1] : /-CA$/.test(lang) ? "Canada" : /-GB$/.test(lang) ? "United Kingdom" : /-LK$/.test(lang) ? "Sri Lanka" : "";
+  };
   const PL_SAYS = ["Be the smile", "Make the smile", "Make the moment", "Complete the day", "Light up their day"];
   const HEART_SVG = `<svg class="pl-heart" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>`;
 
@@ -3544,6 +3563,8 @@ window.RAAV_FEATURES = (function () {
       // Any amount, in the giver's own money; the project counts in rupees (today's rate from /api/fx).
       const curSel = f.querySelector('[name="cur"]');
       if (curSel) { let c = ""; try { c = localStorage.getItem("raav-cur") || ""; } catch (e) { /* none */ } curSel.value = PL_CURS.includes(c) ? c : guessCur(); }
+      const ctySel = f.querySelector('[name="country"]');
+      if (ctySel) { let c = ""; try { c = localStorage.getItem("raav-country") || ""; } catch (e) { /* none */ } ctySel.value = PL_COUNTRIES.includes(c) ? c : guessCountry(); }
       const typed = () => { const v = parseFloat(String(ownIn.value).replace(/,/g, "").replace(/[^0-9.]/g, "")); return isFinite(v) && v > 0 ? v : 0; };
       const rate = () => !curSel ? 1 : ((PL_FX && PL_FX[curSel.value]) || PL_FX_TABLE[curSel.value] || 0);
       const amount = () => Math.round(typed() * rate());
@@ -3604,12 +3625,14 @@ window.RAAV_FEATURES = (function () {
         const trWords = trSel.dataset.words || (trSel.selectedOptions && trSel.selectedOptions[0] ? trSel.selectedOptions[0].textContent.trim() : "");
         const amountText = curSel && curSel.value !== "LKR" ? `${typedText()} (about ${moneyOf(site, v, x)})` : moneyOf(site, v, x), slug = f.dataset.slug;
         const body = { kind: "project", project: slug, name, contact, amount: amountText, amount_value: Math.min(v, left || v), listing: show ? "both" : "anonymous",
-          follow: follow ? "yes" : "no", lang: "en", message: "", "bot-field": f.querySelector('[name="bot-field"]').value };
+          follow: follow ? "yes" : "no", lang: "en", message: "", "bot-field": f.querySelector('[name="bot-field"]').value,
+          country: ctySel ? ctySel.value : "", currency: curSel ? curSel.value : (isRupees(x) ? "LKR" : "") };
+        try { if (ctySel && ctySel.value) localStorage.setItem("raav-country", ctySel.value); } catch (e) { /* none */ }
         if (trName) Object.assign(body, { tribute_on: "yes", tribute_kind: trSel.value, tribute_words: trWords, tribute_name: trName, tribute_show: "yes" });
         if (trName && MOMENT) { if (MOMENT.note) body.tribute_note = MOMENT.note; if (MOMENT.code) body.moment = MOMENT.code; if (MOMENT.day) Object.assign(body, { remind: "yes", remind_day: MOMENT.day }); }
         pay.disabled = true; say("Sending…");
         const copy = new URLSearchParams({ "form-name": "give-request", name, contact, amount: amountText, kind: "project", project: slug, moment: body.moment || "",
-          tribute: trName ? `${body.tribute_words} ${trName}` : "", message: follow ? "Wants to follow the project" : "", lang: "en", "bot-field": body["bot-field"], listing: show ? "Name and amount" : "Anonymous" });
+          tribute: trName ? `${body.tribute_words} ${trName}` : "", message: follow ? "Wants to follow the project" : "", lang: "en", "bot-field": body["bot-field"], listing: show ? "Name and amount" : "Anonymous", country: body.country || "" });
         try {
           const [r, n] = await Promise.all([
             fetch("/api/pledge", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).catch(() => null),
@@ -3663,6 +3686,7 @@ window.RAAV_FEATURES = (function () {
             <p class="give-reach" role="status" hidden></p>
             <label><span>Your name</span><input name="name" maxlength="80" autocomplete="name" required></label>
             <label><span>Email or WhatsApp</span><input name="contact" maxlength="120" required autocomplete="email" placeholder="you@example.com or 077 123 4567"></label>
+            ${FEAT.money ? `<label class="pl-country"><span>Where are you giving from? <small>(country only, shown on our <a href="/money" target="_blank" rel="noopener">Open Books</a>)</small></span><select name="country"><option value="">Choose a country</option>${PL_COUNTRIES.map(c => `<option>${c}</option>`).join("")}</select></label>` : ""}
             <label class="give-check"><input type="checkbox" name="show" value="yes" checked> <span>Show my name and amount on the project <small>(untick to show it as anonymous)</small></span></label>
             <label class="give-check"><input type="checkbox" name="follow" value="yes" checked> <span>Follow this project <small>(sign in with this email to see it in My account)</small></span></label>
             ${MOMENT ? "" : `<details class="pl-tribute"><summary>Give it in someone's name <small>(optional)</small></summary>
