@@ -2780,7 +2780,9 @@ window.RAAV_FEATURES = (function () {
     const impact = stageNum(p) === 3;
     // Signed in = the account is who they are (SURESH, 22 Nov 2026: no phone or other personal details).
     const signin = what => `<a class="btn v-signin" data-v-signin href="/members?next=${encodeURIComponent(location.pathname + "#voices-h")}">Sign in to ${what}</a>`;
-    return `<section class="panel voices" aria-labelledby="voices-h" data-voices>
+    // Two sections that open and close (SURESH 25 Nov: "Vouched and its comment is a different section ... expand view").
+    return `<div class="voices" data-voices>
+      <section class="panel v-sec v-vouch" data-fold="vouch">
       <h2 id="voices-h">Vouched for by <b class="v-count" data-v-count>${seed.length || ""}</b></h2>
       <ul class="v-list" data-v-list>${seed.map(v => `<li><b>${esc(v.name)}</b>${v.role ? `<span>${esc(v.role)}</span>` : ""}</li>`).join("") || `<li class="v-none">Nobody yet. Do you know this project? Be the first.</li>`}</ul>
       <button type="button" class="btn ghost v-open" data-v-open="vouch">I know this is real: vouch for it</button>
@@ -2796,6 +2798,9 @@ window.RAAV_FEATURES = (function () {
         <button class="btn" type="submit">Vouch</button>${signin("vouch")}
         <p class="v-err" data-v-err hidden></p>
       </form>
+      </section>
+      <section class="panel v-sec v-talk" data-fold="comments">
+      <h2 id="comments-h">Comments <b class="v-count" data-c-count></b></h2>
       ${impact ? `<div class="v-rate">
         <h2>How did the day go?</h2>
         <p class="v-avg" data-v-avg><span class="v-none">No ratings yet.</span></p>
@@ -2812,8 +2817,7 @@ window.RAAV_FEATURES = (function () {
           <p class="v-err" data-v-err hidden></p>
         </form>
       </div>` : `<p class="v-note v-later">Once the day has happened, the people involved can rate it with stars.</p>`}
-      <div class="v-talk">
-        <h2>Comments <b class="v-count" data-c-count></b></h2>
+      <div class="v-talk-in">
         <ul class="v-comments" data-v-comments><li class="v-none">No comments yet.</li></ul>
         <form class="v-form v-say" data-v-form="comment" novalidate>
           <p hidden><label>Leave empty <input name="bot-field"></label></p>
@@ -2824,7 +2828,8 @@ window.RAAV_FEATURES = (function () {
           <p class="v-err" data-v-err hidden></p>
         </form>
       </div>
-    </section>`;
+      </section>
+    </div>`;
   }
   const VOICES = {};
   // Who is signed in on this browser (Netlify Identity keeps it in localStorage).
@@ -2868,6 +2873,21 @@ window.RAAV_FEATURES = (function () {
       return t.access_token ? { Authorization: "Bearer " + t.access_token } : {};
     } catch (e) { return {}; }
   }
+  // Share, Vouched for by, The journey and Comments open and close (SURESH 25 Nov: "in a expand shrinking view").
+  // Each panel's own title becomes the line you tap; they start closed so the page stays short.
+  function foldPanels(root) {
+    root.querySelectorAll(".share-box, .journey, .v-sec").forEach(sec => {
+      if (sec.querySelector(":scope > details.pfold")) return;
+      const h = sec.querySelector(":scope > h2"); if (!h) return;
+      const d = document.createElement("details"); d.className = "pfold";
+      const sm = document.createElement("summary"); sm.appendChild(h);
+      sm.insertAdjacentHTML("beforeend", `<i class="pfold-chev" aria-hidden="true"></i>`);
+      d.appendChild(sm);
+      const body = document.createElement("div"); body.className = "pfold-body";
+      while (sec.firstChild) body.appendChild(sec.firstChild);
+      d.appendChild(body); sec.appendChild(d); sec.classList.add("folded");
+    });
+  }
   async function wireVoices(root, p) {
     const box = root.querySelector("[data-voices]"); if (!box) return;
     const slug = slugOf(p), api = `/api/voices/${encodeURIComponent(slug)}`, me = account();
@@ -2881,7 +2901,8 @@ window.RAAV_FEATURES = (function () {
     });
     // The Comment and Vouch buttons under the story (SURESH 25 Nov: "a comment icon below the story").
     root.querySelectorAll("[data-v-jump]").forEach(j => j.onclick = () => {
-      const to = j.dataset.vJump === "comment" ? box.querySelector(".v-talk") : box;
+      const to = j.dataset.vJump === "comment" ? box.querySelector(".v-talk") : box.querySelector(".v-vouch");
+      const d = to.closest("details") || to.querySelector("details") || to; if (d.tagName === "DETAILS") d.open = true;
       to.style.scrollMarginTop = "90px"; to.scrollIntoView({ block: "start", behavior: "smooth" });
       if (j.dataset.vJump === "vouch") { const f = box.querySelector('[data-v-form="vouch"]'); if (f && f.hidden) box.querySelector('[data-v-open="vouch"]').click(); }
       else { const t = box.querySelector(".v-say textarea"); if (account() && t) setTimeout(() => t.focus({ preventScroll: true }), 400); }
@@ -3342,6 +3363,7 @@ window.RAAV_FEATURES = (function () {
       wireShare(app);
       wireSend(app, p);
       if (FEAT.voices) wireVoices(app, p);
+      foldPanels(app);
       wireFollowBox(app, p);
       // "Started by" (SURESH 25 Nov 2026, groups and organisations): the group or organisation the team linked to this
       // project, with its badge, opens its profile /g/<name>.
