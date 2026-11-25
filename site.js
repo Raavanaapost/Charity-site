@@ -2855,6 +2855,19 @@ window.RAAV_FEATURES = (function () {
     const chip = root.querySelector("[data-rate-chip]");
     if (chip && r.count) { chip.hidden = false; chip.innerHTML = `${starsHTML(r.average, "sm")} ${r.average.toFixed(1)} <span>(${r.count})</span>`; }
   }
+  // A fresh sign-in token for vouch, rate and comment (25 Nov 2026): the sign-in cookie runs out after an hour while the
+  // browser still shows the person as signed in, so the token is refreshed here and sent with the request.
+  async function authHeader() {
+    try {
+      const u = JSON.parse(localStorage.getItem("gotrue.user") || "null"); if (!u || !u.token) return {};
+      let t = u.token;
+      if (t.refresh_token && (!t.expires_at || t.expires_at < Date.now() + 60e3)) {
+        const r = await fetch("/.netlify/identity/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: "grant_type=refresh_token&refresh_token=" + encodeURIComponent(t.refresh_token) });
+        if (r.ok) { const n = await r.json(); t = { ...t, ...n, expires_at: Date.now() + (n.expires_in || 3600) * 1000 }; u.token = t; try { localStorage.setItem("gotrue.user", JSON.stringify(u)); } catch (e2) { } }
+      }
+      return t.access_token ? { Authorization: "Bearer " + t.access_token } : {};
+    } catch (e) { return {}; }
+  }
   async function wireVoices(root, p) {
     const box = root.querySelector("[data-voices]"); if (!box) return;
     const slug = slugOf(p), api = `/api/voices/${encodeURIComponent(slug)}`, me = account();
@@ -2890,9 +2903,10 @@ window.RAAV_FEATURES = (function () {
         if (kind !== "comment" && String(data.name || "").trim().length < 2) return fail("Please add your name.");
         const btn = f.querySelector("button[type=submit]"); btn.disabled = true;
         try {
-          const res = await fetch(api, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+          const res = await fetch(api, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", ...(await authHeader()) }, body: JSON.stringify(data) });
           const out = await res.json().catch(() => ({}));
-          if (out.signin) { location.href = "/members?next=" + encodeURIComponent(location.pathname + "#voices-h"); return; }
+          // Signed out on the server: say so and keep what they wrote, instead of leaving the page (their vouch was lost before).
+          if (out.signin) { btn.disabled = false; err.innerHTML = `Your sign-in has run out. <a href="/members?next=${encodeURIComponent(location.pathname)}">Sign in again</a>, then press the button once more.`; err.hidden = false; return; }
           if (!res.ok || !out.ok) { btn.disabled = false; return fail(out.error || "That didn't go through. Please try again."); }
           VOICES[slug] = out; fillVoices(root, out); btn.disabled = false;
           if (kind === "comment") { f.reset(); return; }

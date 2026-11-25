@@ -6,6 +6,7 @@
 import type { Config } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
 import { getUser } from "@netlify/identity";
+import { whoIs } from "../lib/whois.mts";
 import { makeProject, VOUCHES_NEEDED, VOUCH_NEEDS_ROLE, LIVE_ON_VOUCH, OPEN_VOUCH } from "../lib/request-project.mts";
 
 // Vouches needed to be backed: 1 for now (SURESH 20 Nov 2026), 3 with someone in a role later. See request-project.mts.
@@ -96,8 +97,8 @@ export default async (req: Request) => {
   // Open vouching (SURESH 22 Nov 2026: "we don't need their personal information"): the signed-in account is the
   // identity, with no phone. One vouch per account. The old phone path below stays for OPEN_VOUCH = false.
   if (OPEN_VOUCH) {
-    const user = await getUser().catch(() => null);
-    if (!user || !user.email) return json({ ok: false, error: "Please sign in first.", signin: true }, 401);
+    const user = await whoIs(req);
+    if (!user) return json({ ok: false, error: "Please sign in first.", signin: true }, 401);
     const email = user.email.toLowerCase(), meta = ((user as Row).user_metadata || (user as Row).metadata || {}) as Row;
     if (e.relation !== "role") e.role = clip(f.how, 120);
     if (e.relation === "role" && !e.role) return json({ ok: false, error: "Please add your role, for example Principal of the school." }, 400);

@@ -285,6 +285,20 @@
     } else { sub.hidden = false; if (go) { go.remove(); const tip = form.querySelector("[data-signin-tip]"); if (tip) tip.remove(); } }
   }
   let OPENV = false;
+  // A fresh sign-in token for vouch, rate and comment (25 Nov 2026): the sign-in cookie runs out after an hour while the
+  // browser still shows the person as signed in, so the token is refreshed here and sent with the request.
+  async function authHeader() {
+    try {
+      const u = JSON.parse(localStorage.getItem("gotrue.user") || "null"); if (!u || !u.token) return {};
+      let t = u.token;
+      if (t.refresh_token && (!t.expires_at || t.expires_at < Date.now() + 60e3)) {
+        const r = await fetch("/.netlify/identity/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: "grant_type=refresh_token&refresh_token=" + encodeURIComponent(t.refresh_token) });
+        if (r.ok) { const n = await r.json(); t = { ...t, ...n, expires_at: Date.now() + (n.expires_in || 3600) * 1000 }; u.token = t; try { localStorage.setItem("gotrue.user", JSON.stringify(u)); } catch (e2) { } }
+      }
+      return t.access_token ? { Authorization: "Bearer " + t.access_token } : {};
+    } catch (e) { return {}; }
+  }
+
   function account() {
     try {
       const u = JSON.parse(localStorage.getItem("gotrue.user") || "null");
@@ -326,9 +340,9 @@
     if (!fd.get("agree")) return fail(t("Please tick the box to confirm.", "உறுதிப்படுத்த பெட்டியில் டிக் செய்யவும்."));
     btn.disabled = true;
     try {
-      const res = await fetch(api, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+      const res = await fetch(api, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", ...(await authHeader()) }, body: JSON.stringify(data) });
       const out = await res.json().catch(() => ({}));
-      if (out.signin) { location.href = "/members?next=" + encodeURIComponent(location.pathname); return; }
+      if (out.signin) { btn.disabled = false; err.innerHTML = `Your sign-in has run out. <a href="/members?next=${encodeURIComponent(location.pathname)}">Sign in again</a>, then press Vouch once more.`; err.hidden = false; return; }
       if (!res.ok || !out.ok) { btn.disabled = false; return fail(out.error || t("That didn't go through. Please try again.", "அது சேரவில்லை. மீண்டும் முயற்சிக்கவும்.")); }
       try { localStorage.setItem(doneKey, "1"); } catch (_) { /* private mode */ }
       render(out.request);
