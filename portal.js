@@ -1287,6 +1287,9 @@
   }
   // "I'd like to give" (SURESH, 12 Nov 2026): no money is taken on the website. Each person here asked to give;
   // a volunteer replies to them personally (bank details only in that reply) and marks what happened.
+  // Open Books (25 Nov 2026): the same country list as the Be the smile form.
+  const ASK_COUNTRIES = ["Sri Lanka", "Canada", "United Kingdom", "Australia", "New Zealand", "United States", "Switzerland", "Norway", "Sweden", "Denmark", "Germany", "France",
+    "Netherlands", "Italy", "India", "Singapore", "Malaysia", "United Arab Emirates", "Qatar", "Saudi Arabia", "Kuwait", "Japan", "Somewhere else"];
   const ASK_ST = { new: ["New", "amber"], replied: ["Replied", "blue"], received: ["Gift received", "green"], closed: ["Closed", "gray"] };
   function asksHTML() {
     if (!ASKS) return "";
@@ -1298,6 +1301,7 @@
         <span class="pt-row-main"><b>${esc(x.name)} <span class="pt-pill ${st[1]}">${st[0]}</span></b>
           <small>${esc(x.id)} · ${fmtDay(String(x.at))} · ${reach(String(x.contact || ""))}${x.lang === "ta" ? " · wrote in Tamil" : ""}</small>
           <small><b>${esc(x.amount || "Amount not said")}</b> for ${esc(what(x))}${t ? ` · ${esc(t.words)} ${esc(t.name)}${t.note ? ` (“${esc(t.note)}”)` : ""}${t.day ? ` · remind every year before ${esc(t.day)}` : ""}` : ""}${x.moment ? ` · family page /m/${esc(x.moment)}` : ""}</small>
+          <small class="pt-ask-from">Giving from <select data-acountry="${esc(x.id)}" aria-label="Country">${["", ...ASK_COUNTRIES, ...(x.country && !ASK_COUNTRIES.includes(x.country) ? [x.country] : [])].map(c => `<option value="${esc(c)}"${c === (x.country || "") ? " selected" : ""}>${c ? esc(c) : "Not said"}</option>`).join("")}</select>${x.status === "received" && x.receivedOn ? ` · received ${fmtDay(x.receivedOn)}` : ""}</small>
           <small>List the gift as: <b>${x.listing === "own" && x.listAs ? "“" + esc(x.listAs) + "”" : x.listing === "anonymous" ? "Anonymous" : x.listing === "name" ? esc(x.name) + ", without the amount" : esc(x.name) + ", with the amount"}</b></small>
           ${x.message ? `<small class="pt-ask-msg">“${esc(x.message)}”</small>` : ""}
           ${x.by && x.status !== "new" ? `<small>${st[0]} · ${esc(x.by)}${x.handledAt ? " · " + fmtDay(String(x.handledAt)) : ""}</small>` : ""}</span>
@@ -1384,6 +1388,11 @@
       b.disabled = true;
       try { const r = await api(`/api/portal/pledges/${encodeURIComponent(b.dataset.ask)}`, { method: "PATCH", body: JSON.stringify({ status: b.dataset.to }) }); ASKS = r.pledges; render(); toast("Saved"); }
       catch (e) { toast(e.message || "Could not save"); b.disabled = false; }
+    });
+    app.querySelectorAll("[data-acountry]").forEach(sel => sel.onchange = async () => {
+      sel.disabled = true;
+      try { const r = await api(`/api/portal/pledges/${encodeURIComponent(sel.dataset.acountry)}`, { method: "PATCH", body: JSON.stringify({ country: sel.value }) }); ASKS = r.pledges; render(); toast("Country saved"); }
+      catch (e) { toast(e.message || "Could not save"); sel.disabled = false; }
     });
     app.querySelectorAll("[data-sv]").forEach(b => b.onclick = () => { sview = b.dataset.sv; render(); });
     const form = app.querySelector("#pt-plform");

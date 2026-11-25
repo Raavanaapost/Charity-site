@@ -258,7 +258,7 @@ export default async (req: Request, context: Context) => {
 
   // "I'd like to give" (SURESH, 12 Nov 2026): people who asked to give. A volunteer replies to each one personally.
   //   GET   /api/portal/pledges        the list, newest first, the unanswered ones on top
-  //   PATCH /api/portal/pledges/:ref   { status: new | replied | received | closed, note }
+  //   PATCH /api/portal/pledges/:ref   { status: new | replied | received | closed, note, country }
   if (parts[0] === "pledges") {
     const PSTATUS = ["new", "replied", "received", "closed"];
     const list = async () => ((await db.sql`
@@ -266,6 +266,7 @@ export default async (req: Request, context: Context) => {
       id: r.ref, at: r.received_at, name: r.name, contact: r.contact, amount: r.amount, kind: r.kind, project: r.project_slug, moment: r.moment_code,
       tribute: r.tribute || null, message: r.message, lang: r.lang, status: r.status, note: r.team_note, by: r.handled_by, handledAt: r.handled_at,
       listing: r.listing || "both", listAs: r.listing_words || "",
+      country: r.country || "", currency: r.currency || "", receivedOn: r.received_on ? new Date(r.received_on).toISOString().slice(0, 10) : "",
     }));
     if (req.method === "GET" && !parts[1]) return json({ pledges: await list() });
     if (req.method === "PATCH" && parts[1]) {
@@ -277,9 +278,14 @@ export default async (req: Request, context: Context) => {
       if (b.status !== undefined) {
         if (!PSTATUS.includes(b.status)) return json({ error: "Unknown status" }, 400);
         await db.sql`UPDATE give_requests SET status = ${b.status}, handled_by = ${me.name}, handled_at = NOW() WHERE id = ${row.id}`;
+        // Open Books: "Gift received" keeps the day it came (Received on /money); Reopen takes it back to Promised.
+        if (b.status === "received") await db.sql`UPDATE give_requests SET received_on = COALESCE(received_on, CURRENT_DATE) WHERE id = ${row.id}`;
+        if (b.status === "new" || b.status === "replied") await db.sql`UPDATE give_requests SET received_on = NULL WHERE id = ${row.id}`;
       }
+      // Where the giver gives from (Open Books), set or corrected by the team; a country name only.
+      if (b.country !== undefined) await db.sql`UPDATE give_requests SET country = ${clip(b.country, 40).replace(/[^\p{L} .'()-]/gu, "")} WHERE id = ${row.id}`;
       if (b.note !== undefined) await db.sql`UPDATE give_requests SET team_note = ${clip(b.note, 1000)} WHERE id = ${row.id}`;
-      await db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES (${me.email}, 'give_request.update', ${ref}, ${JSON.stringify({ status: b.status, note: b.note !== undefined })}::jsonb)`;
+      await db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES (${me.email}, 'give_request.update', ${ref}, ${JSON.stringify({ status: b.status, note: b.note !== undefined, country: b.country })}::jsonb)`;
       return json({ pledges: await list() });
     }
     return json({ error: "Not allowed" }, 405);
