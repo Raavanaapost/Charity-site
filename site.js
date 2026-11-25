@@ -50,6 +50,7 @@ window.RAAV_FEATURES = (function () {
   // Smile Map taken out for this release (SURESH, 20 Nov 2026: "another release"); set map: true to bring it back.
   // Community groups: /groups (the list and Register our group) and /g/<name> (each group's page).
   if (!F.groups && /^\/(ta\/)?(groups(\.html)?\/?$|g\/)/.test(location.pathname)) location.replace("/projects");
+  if (!F.money && /^\/(ta\/)?money(\.html)?\/?$/.test(location.pathname)) location.replace("/projects");
   if (!F.map && /^\/(ta\/)?smile-map(-v2)?(\.html)?\/?$/.test(location.pathname)) location.replace("/projects");
   if (!F.moment && /^\/(ta\/)?moment(\.html)?\/?$/.test(location.pathname)) location.replace("/projects");
   if (!F.tamil && /^\/ta(\/|$)/.test(location.pathname)) location.replace((location.pathname.replace(/^\/ta/, "") || "/") + location.search + location.hash);
@@ -339,7 +340,7 @@ window.RAAV_FEATURES = (function () {
       <div class="foot-main"><div class="wrap">
         <!-- Footer kept very simple (SURESH, 17 Nov 2026): one row of links, no stages, no Gift a Moment. -->
         <nav class="foot-simple" aria-label="Footer">
-          ${[["Projects", "/projects"], ["Submit a need", "/initiate?way=need"], ...(FEAT.groups ? [["Groups", "/groups"]] : []), ...(FEAT.volunteers ? [["Volunteers", "/volunteers"]] : []), ["About us", "/about"], ["Contact", "/contact"]].map(([t, h]) => `<a href="${h}">${t}</a>`).join("")}${APP.inApp ? "" : `<a href="#app" data-get-app>Get the app</a>`}
+          ${[["Projects", "/projects"], ["Submit a need", "/initiate?way=need"], ...(FEAT.groups ? [["Groups", "/groups"]] : []), ...(FEAT.volunteers ? [["Volunteers", "/volunteers"]] : []), ["About us", "/about"], ...(FEAT.money ? [["Open Books", "/money"]] : []), ["Contact", "/contact"]].map(([t, h]) => `<a href="${h}">${t}</a>`).join("")}${APP.inApp ? "" : `<a href="#app" data-get-app>Get the app</a>`}
         </nav>
         ${follow.length ? `<p class="foot-follow">${follow.map(([t, h, ext]) => `<a href="${esc(h)}"${ext ? ' target="_blank" rel="noopener"' : ""}>${esc(t)}</a>`).join("")}</p>` : ""}
       </div></div>

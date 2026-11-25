@@ -1,0 +1,67 @@
+/* Open Books, /money (SURESH 25 Nov 2026). Uses the site's own tokens from style.css, plus the stage colours. */
+.ob{--ob-green:#1f4d3a;--ob-gold:#b8892b;--ob-rec:#1f7a47;--ob-pro:#e2cf9f;--ob-s1:#1f7a47;--ob-s2:#b97a06;--ob-s3:#c8381e;display:grid;gap:18px;padding-block:22px 48px;max-width:1000px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ob{--ob-green:#8fd0ad;--ob-gold:#e0b65a;--ob-rec:#5fbf85;--ob-pro:#6d6243;--ob-s1:#5fbf85;--ob-s2:#f2b21c;--ob-s3:#ef7a5f}}
+:root[data-theme="dark"] .ob{--ob-green:#8fd0ad;--ob-gold:#e0b65a;--ob-rec:#5fbf85;--ob-pro:#6d6243;--ob-s1:#5fbf85;--ob-s2:#f2b21c;--ob-s3:#ef7a5f}
+.ob-head{text-align:center;display:grid;gap:6px}
+.ob-eyebrow{margin:0;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ob-gold);font-weight:700}
+.ob-head h1{margin:0;font-family:"Cinzel",Georgia,serif;font-size:clamp(26px,5.6vw,40px);color:var(--ob-green);text-wrap:balance}
+.ob-tag{margin:0 auto;max-width:56ch;font-family:"Literata",Georgia,serif;font-style:italic;color:var(--muted)}
+.ob-loading,.ob-empty{color:var(--muted);text-align:center;margin:8px 0}
+.ob-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.ob-tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;gap:2px;min-width:0}
+.ob-tile .lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ob-tile .big{font-size:clamp(20px,4.6vw,26px);color:var(--ob-green);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.ob-tile small{color:var(--muted);font-size:12px}
+.ob-tile.main{border:2px solid var(--ob-green)}
+.ob-tile.soon{border-style:dashed;opacity:.7}
+.ob-tile.soon .big{color:var(--muted);font-size:18px}
+.ob-panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
+.ob-panel h2{margin:0 0 12px;font-family:"Cinzel",Georgia,serif;font-size:19px;color:var(--ob-green)}
+.ob-filters{display:grid;gap:12px}
+.ob-chips{display:flex;flex-wrap:wrap;gap:8px}
+.ob-chip{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:7px 13px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.ob-chip[aria-pressed="true"]{background:var(--ob-green);border-color:var(--ob-green);color:var(--surface)}
+.ob-chip.s-Initiated[aria-pressed="true"]{background:var(--ob-s1);border-color:var(--ob-s1)}
+.ob-chip.s-Activated[aria-pressed="true"]{background:var(--ob-s2);border-color:var(--ob-s2)}
+.ob-chip.s-Impact[aria-pressed="true"]{background:var(--ob-s3);border-color:var(--ob-s3)}
+.ob-selects{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.ob-selects label{display:grid;gap:3px;font-size:12px;color:var(--muted);flex:1 1 160px;min-width:0}
+.ob-selects select{font:inherit;font-size:14px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;width:100%}
+.ob-clear{border:0;background:none;color:var(--ob-green);font:inherit;font-size:13px;font-weight:600;text-decoration:underline;cursor:pointer;padding:8px 4px}
+.ob-chip:focus-visible,.ob-selects select:focus-visible,.ob-clear:focus-visible,.ob-dl:focus-visible,.ob-row .name:focus-visible,.ob-col:focus-visible{outline:2px solid var(--ob-gold);outline-offset:2px}
+.ob-two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:760px){.ob-two{grid-template-columns:1fr}}
+.ob-rows{display:grid;gap:12px}
+.ob-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 10px;align-items:baseline}
+.ob-row .name{font:inherit;font-weight:600;color:var(--ink);text-decoration:none;background:none;border:0;padding:0;text-align:left;cursor:pointer;overflow-wrap:anywhere}
+.ob-row a.name:hover,.ob-row button.name:hover{text-decoration:underline}
+.ob-row .amt{font-variant-numeric:tabular-nums;font-size:14px;color:var(--ink)}
+.ob-row.quiet .name,.ob-row.quiet .amt{color:var(--muted);font-weight:500}
+.ob-bar{grid-column:1/-1;display:flex;height:10px;border-radius:6px;background:var(--line);overflow:hidden}
+.ob-bar i,.ob-legend i{display:block;height:100%}
+.ob-bar .rec,.ob-legend .rec,.ob-cols .rec{background:var(--ob-rec)}
+.ob-bar .pro,.ob-legend .pro,.ob-cols .pro{background:var(--ob-pro)}
+.ob-meta{grid-column:1/-1;color:var(--muted);font-size:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ob-legend{display:flex;gap:16px;margin:14px 0 0;font-size:12px;color:var(--muted)}
+.ob-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.ob-note{margin:12px 0 0;font-size:12px;color:var(--muted)}
+.ob-pill{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.02em;color:#fff;border-radius:999px;padding:2px 8px;white-space:nowrap}
+.ob-pill.s-Initiated{background:#1f7a47}.ob-pill.s-Activated{background:#b97a06}.ob-pill.s-Impact{background:#c8381e}
+.ob-cols{display:flex;align-items:flex-end;gap:12px;overflow-x:auto;padding:4px 2px 2px;border-bottom:1px solid var(--line)}
+.ob-col{flex:1 0 64px;max-width:120px;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer}
+.ob-col .stack{width:56%;display:flex;flex-direction:column;border-radius:6px 6px 0 0;overflow:hidden;min-height:2px}
+.ob-col .v,.ob-col .m{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ob-col .m{padding-bottom:4px}
+.ob-h2row{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:baseline}
+.ob-dl{border:1px solid var(--ob-green);color:var(--ob-green);background:transparent;border-radius:999px;padding:7px 14px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.ob-table{overflow-x:auto}
+.ob-table table{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+.ob-table th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:8px 6px;border-bottom:1px solid var(--line)}
+.ob-table td{padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.ob-table a{color:var(--ink)}
+.ob-table .r{text-align:right;font-variant-numeric:tabular-nums}
+.ob-table .nw{white-space:nowrap}
+.ob-table i{color:var(--muted)}
+.ob-st{font-size:12px;font-weight:700}
+.ob-st.received{color:var(--ob-rec)}.ob-st.promised{color:var(--muted)}
+.ob-asof{text-align:center;font-size:12px;color:var(--muted);margin:0}
