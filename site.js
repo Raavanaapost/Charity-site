@@ -2099,13 +2099,15 @@ window.RAAV_FEATURES = (function () {
   }
   // Initiated: the % is only how much is funded so far; verified and budgeted are shown as ticks but do not count (SURESH, 6 Nov 2026).
   const ringArcs = p => stageNum(p) === 1 ? ringSteps(p).filter(x => x.name === "Funded" || x.name === "Reserved") : ringSteps(p);
-  const ringPercent = p => stageNum(p) === 1 ? Math.min(100, Math.round(ringArcs(p).reduce((s, x) => s + x.done, 0) * 100)) : (st => Math.round(st.reduce((s, x) => s + x.done, 0) / st.length * 100))(ringArcs(p));
+  // Activated = fully funded, so its % is 100 everywhere (SURESH 25 Nov 2026: the Kandy trip showed 33% after it reached 100%,
+  // because the ring had switched to counting the preparation steps). The steps still show as ticks on the project page.
+  const ringPercent = p => stageNum(p) === 2 ? 100 : stageNum(p) === 1 ? Math.min(100, Math.round(ringArcs(p).reduce((s, x) => s + x.done, 0) * 100)) : (st => Math.round(st.reduce((s, x) => s + x.done, 0) / st.length * 100))(ringArcs(p));
   // Small icons at the end of a step line: a tick for money funded, a little bookmark for money reserved (17 Nov 2026).
   const STEP_ICON = { tick: `<span class="st-ic tick" aria-label="funded">✓</span>`,
     res: `<svg class="st-ic res" viewBox="0 0 24 24" width="15" height="15" aria-label="reserved"><path d="M6.5 3.5h11v17l-5.5-4-5.5 4z" fill="currentColor"/></svg>` };
   const RING_TEXT = {
     1: { h: "Activating", l: "FUNDED", done: "ACTIVATED", aria: "funded so far" },
-    2: { h: "Preparing the day", l: "PREPARING", done: "READY", aria: "of the preparations done" },
+    2: { h: "Fully funded · Preparing the day", l: "FUNDED", done: "FUNDED", aria: "funded" },
     3: { h: "Delivered", l: "REPORTING", done: "DELIVERED", aria: "of the results reported" }
   };
 
@@ -2127,10 +2129,12 @@ window.RAAV_FEATURES = (function () {
   const DONATE_BTN = `<button class="donate-btn" type="button" data-donate><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.9c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg><span>${FEAT.sponsor ? "Donate" : FEAT.pledge ? "Be the smile" : "Give in loving memory"}</span></button>`;
   // The "Activating" circle with its list of steps, as on a project page.
   function activatingPanelHTML(p, cls = "") {
-    const steps = ringSteps(p), T = RING_TEXT[stageNum(p)];
+    const T = RING_TEXT[stageNum(p)];
+    // Activated: one full "Funded" ring, with the preparation steps listed under a Funded ✓ line.
+    const steps = stageNum(p) === 2 ? [{ name: "Funded", done: 1, c: "#eaa21c" }, ...ringSteps(p)] : ringSteps(p);
     const ringPct = ringPercent(p);
     const ringSVG = () => {
-      const arcs = ringArcs(p), n = arcs.length, gap = n === 1 ? 0 : n > 5 ? 16 : 20, len = 360 / n - gap; // the rounded ends eat most of the gap
+      const arcs = stageNum(p) === 2 ? [{ done: 1, c: "#eaa21c" }] : ringArcs(p), n = arcs.length, gap = n === 1 ? 0 : n > 5 ? 16 : 20, len = 360 / n - gap; // the rounded ends eat most of the gap
       const arc = (start, l, c, o) => l > 0.01 ? `<circle cx="60" cy="60" r="48" fill="none" stroke="${c}" stroke-opacity="${o}" stroke-width="13" stroke-linecap="round" pathLength="360" stroke-dasharray="${l.toFixed(2)} ${(360 - l).toFixed(2)}" stroke-dashoffset="${(-start).toFixed(2)}"/>` : "";
       return `<svg class="ring" viewBox="0 0 120 120" role="img" aria-label="${ringPct}% ${T.aria}">
         <g transform="rotate(-90 60 60)">${stageNum(p) === 1 ? (() => { let at = 0; return arc(0, 359.9, arcs[0].c, .18) + arcs.map(x => { const l = Math.min(360 - at, 360 * x.done), o = arc(at, l, x.c, 1); at += l; return o; }).join(""); })()
