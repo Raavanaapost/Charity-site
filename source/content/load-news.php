@@ -78,6 +78,7 @@ $ph = array(
 	'pus_run'     => n_photo( 'pussellawa/running-together.jpg', 'Running together' ),
 	'pus_hills'   => n_photo( 'pussellawa/hills-view.jpg', 'The view from Hanuman Kovil' ),
 	'pus_look'    => n_photo( 'pussellawa/looking-out.jpg', 'A quiet moment with the view' ),
+	'kt_sign'     => n_photo( 'pussellawa-kandy/school-sign.jpg', 'Choughleigh Tamil Vidyalayam, Pussellawa' ),
 );
 
 /* Fixed to when the stories were first published, so a rebuild keeps their dates. */
@@ -111,6 +112,7 @@ $stories = array(
 		'project' => 'pussellawa-kandy-trip',
 		'title'   => 'A first school trip: Pussellawa pupils hope to see Kandy',
 		'art'     => 'kandy-trip',
+		'thumb'   => 'kt_sign', // the school sign is the main picture (SURESH, 25 Nov 2026)
 		'cats'    => array( 'community-needs', 'sri-lanka' ),
 		'place'   => 'Pussellawa, Kandy District',
 		'excerpt' => 'The children of Choughleigh Tamil Vidyalayam, a small primary school in Pussellawa\'s tea country, have never been on a school trip. On Friday 27 November they hope to visit the Temple of the Tooth and the Peradeniya gardens.',
