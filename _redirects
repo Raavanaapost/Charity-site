@@ -86,6 +86,8 @@
 /volunteer  /volunteer.html  200
 # Everyone who joined: volunteers, members and Champions in one list (17 Nov 2026)
 /volunteers  /volunteers.html  200
+# Open Books: every gift and every spend in one place (SURESH 25 Nov 2026)
+/money  /money.html  200
 /initiate  /initiate.html  200
 # The first Initiate design (kids picture, orange), kept as a template
 /initiate-kids  /initiate-kids.html  200
