@@ -1,0 +1,5 @@
+# Only one setting here; everything else stays in the Netlify dashboard.
+# The share picture maker (share-card.mts) uses resvg, which ships a ready-made program for Linux:
+# copy that package as it is instead of bundling it (25 Nov 2026).
+[functions."share-card"]
+  external_node_modules = ["@resvg/resvg-js"]

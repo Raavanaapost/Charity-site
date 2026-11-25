@@ -7,6 +7,8 @@
     "@netlify/blobs": "latest",
     "@netlify/database": "latest",
     "@netlify/functions": "latest",
-    "@netlify/identity": "latest"
+    "@netlify/identity": "latest",
+    "@resvg/resvg-js": "^2.6.2",
+    "jpeg-js": "^0.4.4"
   }
 }
