@@ -3299,12 +3299,13 @@ window.RAAV_FEATURES = (function () {
               ${tabs.map(([k, l]) => `<button class="tab t-${k}" role="tab" aria-selected="${k === tab}" data-t="${k}">${TAB_ICONS[k]}<span>${l}</span></button>`).join("")}
             </div>
             <section class="folder t-${tab}" role="tabpanel">${panes[tab]}</section>
+            ${FEAT.voices && !p.sample ? voicesHTML(p) : ""}
           </div>
           <aside class="side">
             ${ringPanel("only-wide")}
             ${stageNum(p) === 3 ? "" : `<div class="only-wide">${budgetBoxHTML(p, site, false)}</div>`}
             ${p.sample ? "" : shareHTML(p)}
-            ${FEAT.voices && !p.sample ? voicesHTML(p) : vouchedHTML(p)}
+            ${FEAT.voices && !p.sample ? "" : vouchedHTML(p)}
             ${journeyHTML(p, full)}
             ${p.sample ? "" : followBoxHTML(p)}
             <a class="btn ghost" href="/initiated">Back to all projects</a>

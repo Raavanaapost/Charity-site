@@ -3356,3 +3356,5 @@ html[data-form-lang="ta"] .rq-done :is(h2,p,span,b,a){font-family:"Noto Sans Tam
 .pfollow form { display: grid; gap: 8px; }
 .pfollow form[hidden], .pfollow [hidden] { display: none; }
 .pfollow .pfollow-small { font-size: .78rem; opacity: .75; margin: 8px 0 0; }
+/* Vouches and comments sit right under the story (SURESH 25 Nov: "Where is the comment?"). */
+.layout > div > .voices{margin-top:20px}
