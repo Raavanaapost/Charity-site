@@ -13,7 +13,71 @@
   var TONES = ["#1f7a47", "#b97a06", "#c8381e", "#2f7f8f", "#7a4fa0", "#8a5c12"];
   var tone = function (n) { var h = 0; for (var i = 0; i < n.length; i++) h = (h * 31 + n.charCodeAt(i)) >>> 0; return TONES[h % TONES.length]; };
   var initials = function (n) { return String(n).split(/\s+/).filter(function (w) { return /^[A-Za-z0-9஀-௿]/.test(w) && !/^(of|the|and|for)$/i.test(w); }).map(function (w) { return w.charAt(0); }).join("").slice(0, 2).toUpperCase() || "G"; };
-  var KINDS = ["WhatsApp circle", "Friends", "Family", "Past pupils", "Village or society", "Temple or church", "Youth or sports club", "Workplace", "Other"];
+  var KINDS = ["WhatsApp circle", "Friends", "Family", "Past pupils", "Village or society", "Temple or church", "Youth or sports club", "Workplace", "Charity or NGO", "School or education", "Other"];
+  // Option B (SURESH 25 Nov 2026): one kind of profile, three badges. Group = a circle (money stays in it); Organisation =
+  // says it is registered (body + number shown); Verified organisation = the team saw the certificate.
+  var REG_BODIES = ["NGO Secretariat", "Companies Act (guarantee company)", "Divisional Secretariat / social services", "Registered charity abroad", "Other"];
+  var isOrg = function (g) { return g.type === "organisation"; };
+  var badge = function (g, big) {
+    return '<span class="g-badge ' + (g.verified ? "verified" : isOrg(g) ? "org" : "grp") + (big ? " big" : "") + '">' +
+      (g.verified ? "✓ Verified organisation" : isOrg(g) ? "Organisation" : "Group") + "</span>";
+  };
+  var avatar = function (g, big) {
+    return g.logo ? '<span class="g-av logo' + (big ? " big" : "") + '"><img src="' + esc(g.logo) + '" alt=""></span>'
+      : '<span class="g-av' + (big ? " big" : "") + '" style="--t:' + tone(g.name) + '">' + esc(initials(g.name)) + "</span>";
+  };
+  // A logo picture is shrunk on the phone to 256 px before it is sent (about 20-60 KB).
+  var shrink = function (file) {
+    return new Promise(function (ok, no) {
+      if (!file || !/^image\//.test(file.type)) return no(new Error("Please choose a picture."));
+      var img = new Image(), url = URL.createObjectURL(file);
+      img.onload = function () {
+        var k = Math.min(1, 256 / Math.max(img.width, img.height)), c = document.createElement("canvas");
+        c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        var x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        var d = c.toDataURL("image/webp", 0.85); if (!/^data:image\/webp/.test(d)) d = c.toDataURL("image/jpeg", 0.85);
+        ok(d);
+      };
+      img.onerror = function () { no(new Error("That picture could not be read.")); };
+      img.src = url;
+    });
+  };
+  // The organisation fields, shown when "A registered organisation" is chosen (register and edit forms).
+  var orgFields = function (g) {
+    g = g || {};
+    return '<div class="g-orgf" data-orgf>' +
+      '<div class="v-row">' +
+        '<label><span>Registered with</span><select name="reg_body"><option value="">Choose…</option>' + REG_BODIES.map(function (b) { return "<option" + (g.reg_body === b ? " selected" : "") + ">" + esc(b) + "</option>"; }).join("") + "</select></label>" +
+        '<label><span>Registration number</span><input name="reg_number" maxlength="60" value="' + esc(g.reg_number || "") + '" placeholder="As on the certificate"></label>' +
+        '<label><span>Website <small>(optional)</small></span><input name="website" maxlength="160" value="' + esc(g.website || "") + '" placeholder="e.g. ourcharity.org"></label>' +
+      "</div>" +
+      '<p class="g-small">Keep your certificate ready: a Raavanaa volunteer asks to see it before your page shows <b>Verified organisation</b>. The certificate itself is never put on the site.</p>' +
+      "</div>";
+  };
+  var typePick = function (cur) {
+    return '<fieldset class="g-type"><legend>Who are you?</legend>' +
+      '<label><input type="radio" name="type" value="group"' + (cur !== "organisation" ? " checked" : "") + '><span><b>A group</b><small>Friends, family, past pupils, a village or a WhatsApp circle. Your money stays in your own circle.</small></span></label>' +
+      '<label><input type="radio" name="type" value="organisation"' + (cur === "organisation" ? " checked" : "") + '><span><b>A registered organisation</b><small>A charity, NGO, society or company with a registration number.</small></span></label>' +
+      "</fieldset>";
+  };
+  var logoField = function (g) {
+    return '<label class="g-logo"><span>Logo <small>(optional)</small></span>' +
+      '<span class="g-logo-row"><span class="g-logo-prev" data-logo-prev>' + (g && g.logo ? '<img src="' + esc(g.logo) + '" alt="">' : "") + '</span><input type="file" accept="image/*" data-logo-file>' +
+      (g && g.logo ? '<button type="button" class="g-link" data-logo-clear>Remove logo</button>' : "") + "</span></label>";
+  };
+  // Wires the type switch and the logo picker of a form; returns a function that adds the logo to the data.
+  var wireOrgForm = function (f) {
+    var box = f.querySelector("[data-orgf]"), logo;
+    var sync = function () { var o = (f.querySelector("input[name=type]:checked") || {}).value === "organisation"; box.hidden = !o; f.classList.toggle("is-org", o); };
+    f.querySelectorAll("input[name=type]").forEach(function (r) { r.onchange = sync; }); sync();
+    var file = f.querySelector("[data-logo-file]"), prev = f.querySelector("[data-logo-prev]"), clr = f.querySelector("[data-logo-clear]");
+    if (file) file.onchange = function () {
+      shrink(file.files[0]).then(function (d) { logo = d; prev.innerHTML = '<img src="' + d + '" alt="">'; }).catch(function (e) { file.value = ""; alert(e.message); });
+    };
+    if (clr) clr.onclick = function () { logo = ""; prev.innerHTML = ""; clr.remove(); };
+    return function (data) { delete data.logo; if (logo !== undefined) data.logo = logo; if (data.type !== "organisation") { data.reg_body = ""; data.reg_number = ""; } return data; };
+  };
   var STAGES = [["Initiated", "s1", "Planning it"], ["Activated", "s2", "Making it happen"], ["Impact", "s3", "Done, and what it made"]];
   var CUR = { LKR: "Rs ", CAD: "CA$", GBP: "£", EUR: "€", USD: "US$", AUD: "A$", CHF: "CHF ", NOK: "NOK ", INR: "₹" };
   var money = function (n, c) { return (CUR[c] || "Rs ") + Number(n || 0).toLocaleString("en-GB"); };
@@ -44,20 +108,21 @@
 
   /* ---------- /groups ---------- */
   function listPage() {
-    var TITLES = ["Small circles, <em>big days.</em>", "Your WhatsApp group, <em>now with a home.</em>", "Collect together, <em>show it openly.</em>"];
+    var TITLES = ["Small circles, <em>big days.</em>", "Your WhatsApp group, <em>now with a home.</em>", "Your charity, <em>under one roof.</em>", "Collect together, <em>show it openly.</em>"];
     root.innerHTML =
       '<header class="vh">' +
-        '<p class="vh-ribbon">Community groups</p>' +
-        '<h1 class="vh-title">Groups that make it happen</h1>' +
+        '<p class="vh-ribbon">Groups and organisations</p>' +
+        '<h1 class="vh-title">Together, we make it happen</h1>' +
         '<p class="vh-turn" data-turn>' + TITLES.map(function (t, i) { return '<span class="' + (i ? "" : "on") + '">' + t + "</span>"; }).join("") + "</p>" +
-        '<p class="vh-lede">Friends, families, past pupils and villages already collect in their own WhatsApp circles and make days of joy happen. Give your group a page on Raavanaa, show your projects openly, and let people follow you.</p>' +
-        '<a class="vh-join" href="#register" data-go-reg><span class="vh-join-ic" aria-hidden="true">+</span><span><b>Register our group</b><small>free, takes two minutes</small></span><i aria-hidden="true">↓</i></a>' +
+        '<p class="vh-lede">Friends, families, past pupils and villages already collect in their own WhatsApp circles, and registered charities do it every day. Give your group or organisation a page on Raavanaa, show your projects openly, and let people follow you.</p>' +
+        '<a class="vh-join" href="#register" data-go-reg><span class="vh-join-ic" aria-hidden="true">+</span><span><b>Create our profile</b><small>free, takes two minutes</small></span><i aria-hidden="true">↓</i></a>' +
       "</header>" +
       '<ol class="g-how">' +
-        '<li><b>1</b><span><strong>Register your group</strong>Name, what you do, where you are.</span></li>' +
-        '<li><b>2</b><span><strong>We call you</strong>A Raavanaa volunteer says hello and checks it is real.</span></li>' +
+        '<li><b>1</b><span><strong>Create your profile</strong>A group or a registered organisation: name, what you do, where you are.</span></li>' +
+        '<li><b>2</b><span><strong>We call you</strong>A Raavanaa volunteer says hello and checks it is real. Organisations show us their certificate.</span></li>' +
         '<li><b>3</b><span><strong>Your page goes live</strong>Add your projects and news. People follow you.</span></li>' +
       "</ol>" +
+      '<div class="vf-chips g-filter" data-filter hidden>' + [["all", "Everyone"], ["group", "Groups"], ["organisation", "Organisations"]].map(function (x, i) { return '<button type="button" data-f="' + x[0] + '" aria-pressed="' + !i + '">' + x[1] + "</button>"; }).join("") + "</div>" +
       '<section class="g-list" data-list aria-live="polite"><p class="v-empty">Loading…</p></section>' +
       '<section class="v-join g-reg" id="register" aria-labelledby="reg-h" data-reg></section>' +
       '<p class="v-fine">Your group\'s money stays in your own circle: Raavanaa never holds it. Phone numbers are never shown on the page.</p>';
@@ -66,32 +131,38 @@
     drawRegister(root.querySelector("[data-reg]"));
     api("/api/groups").then(function (d) {
       var box = root.querySelector("[data-list]"), list = d.groups || [];
-      if (!list.length) { box.innerHTML = '<p class="v-empty">No groups yet. <a href="#register">Be the first group on Raavanaa.</a></p>'; return; }
-      box.innerHTML = list.map(card).join("");
+      if (!list.length) { box.innerHTML = '<p class="v-empty">No profiles yet. <a href="#register">Be the first on Raavanaa.</a></p>'; return; }
+      var fl = root.querySelector("[data-filter]"), show = function (k) {
+        var l = list.filter(function (g) { return k === "all" || g.type === k; });
+        box.innerHTML = l.length ? l.map(card).join("") : '<p class="v-empty">None yet.</p>';
+        fl.querySelectorAll("button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.f === k)); });
+      };
+      fl.hidden = false; fl.querySelectorAll("button").forEach(function (b) { b.onclick = function () { show(b.dataset.f); }; }); show("all");
     }).catch(function () { root.querySelector("[data-list]").innerHTML = '<p class="v-empty">Could not load the groups just now.</p>'; });
   }
   function card(g) {
-    return '<a class="g-card" href="/g/' + encodeURIComponent(g.slug) + '">' +
-      '<span class="g-av" style="--t:' + tone(g.name) + '">' + esc(initials(g.name)) + "</span>" +
+    return '<a class="g-card" href="/g/' + encodeURIComponent(g.slug) + '">' + avatar(g) +
       '<span class="g-card-body"><b>' + esc(g.name) + "</b>" +
         '<small>' + esc(g.kind) + (g.places ? " · " + esc(g.places) : "") + "</small>" +
-        '<span class="g-chips">' + (g.checked ? '<i class="g-ok">✓ Checked by Raavanaa</i>' : "") +
+        '<span class="g-chips">' + badge(g) + (g.checked && !g.verified ? '<i class="g-ok">✓ Checked by Raavanaa</i>' : "") +
           "<i>" + (g.projects || 0) + " project" + (g.projects === 1 ? "" : "s") + "</i><i>" + (g.followers || 0) + " follower" + (g.followers === 1 ? "" : "s") + "</i></span>" +
       "</span></a>";
   }
   function drawRegister(box) {
     var me = account();
     if (!me) {
-      box.innerHTML = '<h2 id="reg-h">Register our group</h2><p>Sign in first (Google or email), so the group stays yours and only you and the people you add can change its page.</p>' +
-        '<p><a class="v-btn" href="' + signinURL("/groups#register") + '">Sign in to register</a></p>';
+      box.innerHTML = '<h2 id="reg-h">Create our profile</h2><p>Sign in first (Google or email), so the profile stays yours and only you and the people you add can change it.</p>' +
+        '<p><a class="v-btn" href="' + signinURL("/groups#register") + '">Sign in to start</a></p>';
       return;
     }
-    box.innerHTML = '<h2 id="reg-h">Register our group</h2>' +
-      '<p>Tell us about your group. A Raavanaa volunteer will call the number you give, and then your page goes live.</p>' +
+    box.innerHTML = '<h2 id="reg-h">Create our profile</h2>' +
+      '<p>Tell us about you. A Raavanaa volunteer will call the number you give, and then your page goes live.</p>' +
       '<form class="v-form g-form" data-form>' +
         '<p hidden><label>Leave empty <input name="bot-field"></label></p>' +
-        '<label><span>Group name</span><input name="name" required maxlength="80" placeholder="e.g. Jaffna Friends Circle"></label>' +
-        '<fieldset class="g-kinds"><legend>What kind of group?</legend>' + KINDS.map(function (k, i) { return '<label class="v-sk"><input type="radio" name="kind" value="' + esc(k) + '"' + (i ? "" : " checked") + "><span>" + esc(k) + "</span></label>"; }).join("") + "</fieldset>" +
+        typePick("group") +
+        '<label><span>Name</span><input name="name" required maxlength="80" placeholder="e.g. Jaffna Friends Circle"></label>' +
+        orgFields() + logoField() +
+        '<fieldset class="g-kinds"><legend>What kind?</legend>' + KINDS.map(function (k, i) { return '<label class="v-sk"><input type="radio" name="kind" value="' + esc(k) + '"' + (i ? "" : " checked") + "><span>" + esc(k) + "</span></label>"; }).join("") + "</fieldset>" +
         '<label><span>What does your group do?</span><textarea name="about" required rows="4" maxlength="1200" placeholder="Who you are, what you have done so far, and what you would like to do next."></textarea></label>' +
         '<div class="v-row">' +
           '<label><span>Where are your members?</span><input name="places" maxlength="160" placeholder="e.g. Toronto, London, Jaffna"></label>' +
@@ -103,13 +174,13 @@
           '<label><span>Your name</span><input name="contact_name" maxlength="80" value="' + esc((me.user_metadata && me.user_metadata.full_name) || "") + '"></label>' +
           '<label><span>Your WhatsApp number <small>(never shown)</small></span><input name="contact_phone" required maxlength="40" inputmode="tel" placeholder="+94 7… or +1 …"></label>' +
         "</div>" +
-        '<button class="v-btn" type="submit">Register our group →</button>' +
+        '<button class="v-btn" type="submit">Create our profile →</button>' +
         '<p class="v-msg" data-msg hidden></p>' +
       "</form>";
-    var f = box.querySelector("[data-form]"), msg = f.querySelector("[data-msg]");
+    var f = box.querySelector("[data-form]"), msg = f.querySelector("[data-msg]"), addLogo = wireOrgForm(f);
     f.onsubmit = function (e) {
       e.preventDefault();
-      var data = Object.fromEntries(new FormData(f).entries()), btn = f.querySelector("button");
+      var data = addLogo(Object.fromEntries(new FormData(f).entries())), btn = f.querySelector("button[type=submit]");
       btn.disabled = true; msg.hidden = false; msg.className = "v-msg"; msg.textContent = "Sending…";
       api("/api/groups", "POST", data).then(function (d) {
         if (d.signin) { location.href = signinURL("/groups#register"); return; }
@@ -146,11 +217,13 @@
       (g.status !== "listed" ? '<p class="g-wait' + (fresh ? " fresh" : "") + '">' + (fresh ? "<b>Thank you! Your group is registered.</b> " : "") +
         (g.status === "hidden" ? "This page is taken off Raavanaa. Please <a href=\"/contact\">contact us</a>." : "Only you can see this page for now. A Raavanaa volunteer will call you soon, and then it goes live for everyone. You can already add your projects below.") + "</p>" : "") +
       '<header class="g-hero">' +
-        '<span class="g-av big" style="--t:' + tone(g.name) + '">' + esc(initials(g.name)) + "</span>" +
+        avatar(g, true) + badge(g, true) +
         '<p class="vh-ribbon">' + esc(g.kind || "Community group") + "</p>" +
         '<h1 class="vh-title">' + esc(g.name) + "</h1>" +
         (g.places ? '<p class="g-places">' + esc(g.places) + "</p>" : "") +
-        (g.checked ? '<p class="g-ok big">✓ Checked by Raavanaa</p>' : "") +
+        (isOrg(g) ? '<p class="g-reg-line">Registered with ' + esc(g.reg_body) + " · No. " + esc(g.reg_number) + (g.verified ? " · certificate seen by Raavanaa" : " · not yet checked by Raavanaa") + "</p>" : "") +
+        (g.website ? '<p class="g-web"><a href="' + esc(g.website) + '" target="_blank" rel="noopener nofollow">' + esc(g.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")) + " ↗</a></p>" : "") +
+        (g.checked && !g.verified ? '<p class="g-ok big">✓ Checked by Raavanaa</p>' : "") +
         '<div class="vh-stats">' +
           (g.members ? "<span><b>" + g.members + "</b> members</span>" : "") +
           "<span><b>" + total + "</b> project" + (total === 1 ? "" : "s") + "</span>" +
@@ -164,7 +237,8 @@
         '<p class="g-fnote" data-fnote>' + (g.following ? "You will find this group's news in My account." : "Follow to see their news and projects in My account.") + "</p>") +
       "</header>" +
       '<section class="g-about"><h2>About us</h2><p>' + esc(g.about).replace(/\n/g, "<br>") + "</p>" +
-        '<div class="g-money"><b>Our money stays in our own circle.</b> ' + (g.collect ? esc(g.collect) + " " : "") + "Raavanaa never holds it. The amounts on this page are reported by the group.</div>" +
+        (isOrg(g) ? '<div class="g-money"><b>Gifts to ' + esc(g.name) + " go to " + esc(g.name) + " directly.</b> " + (g.collect ? esc(g.collect) + " " : "") + "Raavanaa never holds the money. The amounts on this page are reported by the organisation.</div>"
+          : '<div class="g-money"><b>Our money stays in our own circle.</b> ' + (g.collect ? esc(g.collect) + " " : "") + "Raavanaa never holds it. The amounts on this page are reported by the group.</div>") +
       "</section>" +
       (admin ? manageHTML() : "") +
       '<section class="g-projs"><h2>Our projects</h2>' +
@@ -221,7 +295,9 @@
         '<p class="g-row"><button class="v-btn" type="submit">' + (edit ? "Save" : "Add the project") + "</button>" + (edit ? '<button type="button" class="g-link" data-premove="' + p.id + '">Remove this project</button>' : "") + "</p></form>";
     }
     if (OPEN === "about") body = '<form data-about class="g-mform">' +
-      '<label><span>Group name</span><input name="name" required maxlength="80" value="' + esc(g.name) + '"></label>' +
+      typePick(g.type) + (isOrg(g) ? "" : '<p class="g-small">Has your group registered? Choose <b>A registered organisation</b>: your page, projects and followers stay the same.</p>') +
+      '<label><span>Name</span><input name="name" required maxlength="80" value="' + esc(g.name) + '"></label>' +
+      orgFields(g) + logoField(g) +
       '<label><span>Kind of group</span><select name="kind">' + KINDS.map(function (k) { return "<option" + (g.kind === k ? " selected" : "") + ">" + esc(k) + "</option>"; }).join("") + "</select></label>" +
       '<label><span>About us</span><textarea name="about" rows="4" maxlength="1200">' + esc(g.about) + "</textarea></label>" +
       '<div class="v-row"><label><span>Where are your members?</span><input name="places" maxlength="160" value="' + esc(g.places) + '"></label>' +
@@ -232,8 +308,8 @@
       '<label><span>WhatsApp <small>(never shown)</small></span><input name="contact_phone" maxlength="40" value="' + esc(mg.contact_phone || "") + '"></label></div>' +
       '<label><span>Others who can manage this page <small>(their sign-in emails, one per line)</small></span><textarea name="admins" rows="2">' + esc((mg.admins || []).join("\n")) + "</textarea></label>" +
       '<button class="v-btn" type="submit">Save</button></form>';
-    return '<section class="g-manage" id="manage"><h2>Manage our group <small>only you and your group\'s admins see this</small></h2>' +
-      '<div class="vf-chips g-tabs">' + tab("news", "Post news") + tab("proj", "Add a project") + tab("about", "Edit our page") + "</div>" +
+    return '<section class="g-manage" id="manage"><h2>Manage our page <small>only you and your group\'s admins see this</small></h2>' +
+      '<div class="vf-chips g-tabs">' + tab("news", "Post news") + tab("proj", "Add a project") + tab("about", "Edit our page and logo") + "</div>" +
       body + '<p class="v-msg err" data-merr hidden></p>' +
       '<p class="g-need">Need help from more people for a project? <a href="/initiate?way=submit&by=group&gname=' + encodeURIComponent(g.name) + '">Submit it as a need on Raavanaa</a>. Once it is approved, the team links it to this page.</p>' +
       "</section>";
@@ -256,14 +332,15 @@
     var send = function (path, method, data) {
       var err = root.querySelector("[data-merr]");
       return api("/api/groups/" + encodeURIComponent(G.group.slug) + path, method, data).then(function (d) {
-        if (!d.ok) { if (err) { err.hidden = false; err.textContent = d.error || "That didn't go through. Please try again."; } return; }
+        if (!d.ok) { root.querySelectorAll(".g-mform button[type=submit]").forEach(function (b) { b.disabled = false; }); if (err) { err.hidden = false; err.textContent = d.error || "That didn't go through. Please try again."; } return; }
         G = d; OPEN = ""; draw();
       }).catch(function () { if (err) { err.hidden = false; err.textContent = "That didn't go through. Check your connection and try again."; } });
     };
     var form = function (sel, fn) { var f = root.querySelector(sel); if (f) f.onsubmit = function (e) { e.preventDefault(); f.querySelector("button[type=submit]").disabled = true; fn(Object.fromEntries(new FormData(f).entries())); }; };
     form("[data-news]", function (d) { send("/updates", "POST", d); });
     form("[data-proj]", function (d) { send("/projects", "POST", d); });
-    form("[data-about]", function (d) { d.admins = String(d.admins || "").split(/[\s,;]+/).filter(Boolean); send("", "PATCH", d); });
+    var af = root.querySelector("[data-about]"), addLogo = af ? wireOrgForm(af) : null;
+    form("[data-about]", function (d) { d.admins = String(d.admins || "").split(/[\s,;]+/).filter(Boolean); send("", "PATCH", addLogo(d)); });
     root.querySelectorAll("[data-premove]").forEach(function (b) { b.onclick = function () { send("/projects", "POST", { remove: Number(b.dataset.premove) }); }; });
     root.querySelectorAll("[data-unpost]").forEach(function (b) { b.onclick = function () { send("/updates", "POST", { remove: Number(b.dataset.unpost) }); }; });
   }
