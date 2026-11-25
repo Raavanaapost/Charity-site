@@ -2789,6 +2789,8 @@ body[data-light] .mosaic{margin-top:8px}
 .pjour-st.now i{width:66px;height:66px;margin-top:-6px;box-shadow:0 0 0 4px #fff,0 0 0 7px var(--c),0 10px 20px -8px var(--c)}
 .pjour-st.now small{color:var(--c);font-weight:700}
 .pjour-st.s2.now small{color:#b97a06}
+/* The tick dot moves with the project and takes its stage colour (SURESH 25 Nov 2026). */
+.pjour-st.now i em{background:var(--c)}.pjour-st.s2.now i em{background:#d08a00}
 .pjour-st.next i{filter:grayscale(.85) opacity(.55);border-color:#cfc8b8;box-shadow:none}
 .pjour-st.next b{color:#9aa39e}
 .pjour-st i em{position:absolute;right:-6px;bottom:-4px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#1f7a47;color:#fff;font-style:normal;font-weight:900;font-size:13px;border:2px solid #fff}
