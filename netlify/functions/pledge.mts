@@ -43,6 +43,9 @@ export default async (req: Request) => {
   // The amount as a number in the project's own money (simple project pledge, 17 Nov 2026), so it adds to the % bar.
   const value = Math.max(0, Math.min(10_000_000, Math.round(Number(String(f.amount_value ?? "").replace(/[^0-9.]/g, "")) || 0)));
   const follow = f.follow === "yes" || f.follow === true;
+  // Open Books (25 Nov 2026): where they give from (a country name from the form's list) and the money they typed it in.
+  const country = clip(f.country, 40).replace(/[^\p{L} .'()-]/gu, "");
+  const currency = /^[A-Z]{3}$/.test(String(f.currency || "")) ? String(f.currency) : "";
   const user = await getUser().catch(() => null);
   const memberEmail = user && user.email ? user.email.toLowerCase() : "";
   const row = {
@@ -54,13 +57,13 @@ export default async (req: Request) => {
   try {
     const db = getDatabase();
     const [saved] = await db.sql<{ ref: string }>`
-      INSERT INTO give_requests (ref, name, contact, amount, kind, project_slug, moment_code, tribute, message, lang, listing, listing_words, amount_value, member_email, follow)
+      INSERT INTO give_requests (ref, name, contact, amount, kind, project_slug, moment_code, tribute, message, lang, listing, listing_words, amount_value, member_email, follow, country, currency)
       VALUES ('G-' || nextval('give_request_ref_seq'), ${name}, ${contact}, ${row.amount}, ${row.kind}, ${slug}, ${moment},
               ${tribute ? JSON.stringify(tribute) : null}::jsonb, ${row.message}, ${row.lang}, ${row.listing}, ${row.words},
-              ${row.kind === "project" ? value : 0}, ${memberEmail}, ${follow})
+              ${row.kind === "project" ? value : 0}, ${memberEmail}, ${follow}, ${country}, ${currency})
       RETURNING ref`;
     await db.sql`INSERT INTO audit_log (actor, action, target) VALUES ('website', 'give_request.received', ${saved.ref})`;
-    await tell(new URL(req.url).origin, saved.ref, { name, contact, isEmail, slug, amount: row.amount, follow, message: row.message, tribute, listing: row.listing, words: row.words });
+    await tell(new URL(req.url).origin, saved.ref, { name, contact, isEmail, slug, amount: row.amount, follow, message: row.message, tribute, listing: row.listing, words: row.words, country });
     return json({ ok: true, ref: saved.ref });
   } catch (e) {
     console.log("give request not saved:", (e as Error).message);
@@ -70,7 +73,7 @@ export default async (req: Request) => {
 
 // "We'll send you the ways to fund": a short note to the giver (when they gave an email) and a copy to the team.
 // Sent only when email is set up (lib/mail.mts). Never any bank details here.
-async function tell(SITE: string, ref: string, x: { name: string; contact: string; isEmail: boolean; slug: string; amount: string; follow: boolean; message: string; tribute: Record<string, string> | null; listing: string; words: string }) {
+async function tell(SITE: string, ref: string, x: { name: string; contact: string; isEmail: boolean; slug: string; amount: string; follow: boolean; message: string; tribute: Record<string, string> | null; listing: string; words: string; country: string }) {
   const p = x.slug ? PROJECTS.find((y) => y.slug === x.slug) : undefined;
   const what = p ? `"${p.title}"` : "the Raavanaa Fund";
   const link = p ? `${SITE}/projects/${x.slug}` : `${SITE}/overview`;
@@ -87,7 +90,7 @@ async function tell(SITE: string, ref: string, x: { name: string; contact: strin
   }
   if (team) {
     const tr = x.tribute ? `${x.tribute.words} ${x.tribute.name}` : "";
-    const lines = [["Ref", ref], ["Name", x.name], ["Contact", x.contact], ["Amount", x.amount], ["For", p ? p.title || "" : "Raavanaa Fund"], ["Listed as", x.listing === "own" ? x.words : x.listing],
+    const lines = [["Ref", ref], ["Name", x.name], ["Contact", x.contact], ["Amount", x.amount], ["For", p ? p.title || "" : "Raavanaa Fund"], ["Listed as", x.listing === "own" ? x.words : x.listing], ["Giving from", x.country],
       ["Follow", x.follow ? "yes" : "no"], ["In the name of", tr], ["Message", x.message]].filter(([, v]) => v);
     jobs.push(sendMail(team, `New pledge ${ref}: ${x.name}, ${x.amount}`, lines.map(([k, v]) => `${k}: ${v}`).join("\n") + `\n\nReply with the ways to fund, then mark it in the portal: ${SITE}/portal#/sponsors`,
       `<table>${lines.map(([k, v]) => `<tr><td><b>${k}</b></td><td>${escHtml(v)}</td></tr>`).join("")}</table><p>Reply with the ways to fund, then mark it in the <a href="${SITE}/portal#/sponsors">portal</a>.</p>`,
