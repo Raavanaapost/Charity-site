@@ -80,7 +80,7 @@ export default async (request: Request, context: { next: () => Promise<Response>
         const full = pr.stage === 2 || pr.pct >= 100;
         img = `${url.origin}/api/share-card/${slug}.jpg?v=${full ? 100 : pr.pct}`;
         // A project made in the portal has no words of its own in share.json: use its title, not the general one.
-        if (!share.projects[slug]) title = pr.title;
+        if (!share.projects[slug]) { title = pr.title; if (pr.blurb) text = pr.blurb; }
         text = (full ? "Fully funded. " : `${pr.pct}% funded, ${money(pr, Math.max(0, pr.goal - pr.raised))} still to go. `) + text;
       }
     } catch (_) { /* keep the usual picture */ }
