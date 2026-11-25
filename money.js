@@ -45,8 +45,7 @@
         <div class="ob-tile"><span class="lbl">Gifts</span><b class="big" data-t="n"></b><small data-t="nsub"></small></div>
         <div class="ob-tile"><span class="lbl">Countries</span><b class="big" data-t="c"></b><small>giving from around the world</small></div>
         <div class="ob-tile"><span class="lbl">Spent with receipts</span><b class="big" data-t="out"></b><small>checked by a volunteer</small></div>
-        <div class="ob-tile soon"><span class="lbl">Monthly givers</span><b class="big">Coming</b><small>people who give every month</small></div>
-        <div class="ob-tile soon"><span class="lbl">Raavanaa Trust Fund</span><b class="big">Coming</b><small>its balance and where it went</small></div>
+        <div class="ob-tile soon"><span class="lbl">Coming next</span><b>Monthly givers</b><small>people who give every month</small><b>Raavanaa Trust Fund</b><small>its balance and where it went</small></div>
       </section>
       <section class="ob-panel ob-filters" aria-label="Filters">
         <div class="ob-chips" role="group" aria-label="Stage">${["All", ...STAGES].map(s => `<button type="button" class="ob-chip${s === "All" ? "" : " s-" + s}" data-stage="${s}" aria-pressed="${s === f.stage}">${s === "All" ? "All stages" : s}</button>`).join("")}</div>
