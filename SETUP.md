@@ -5,7 +5,7 @@ It shares nothing with raavanaa.org.
 
 ## 1. Database (done)
 
-Supabase project **riyaz** (Canada Central). The design and every change are in `supabase/schema.sql` and `supabase/stage2.sql` to `supabase/stage7.sql`.
+Supabase project **riyaz** (Canada Central). The design and every change are in `supabase/schema.sql` and `supabase/stage2.sql` to `supabase/stage7.sql, then stage8.sql (practice buddies)`.
 Authentication → URL Configuration is set to `https://abhyasa-portal.netlify.app` with redirect `https://abhyasa-portal.netlify.app/**`.
 
 ## 2. Netlify (done)

@@ -76,7 +76,7 @@ function friendly(err){
   if (/duplicate key|groups_slug_key/i.test(m)) return "That web address is already taken. Please try another.";
   if (/email rate limit/i.test(m)) return "We can't send the confirmation email right now, because too many were sent this hour. Your account has not been created yet. Please try again in about an hour.";
   if (/rate limit/i.test(m)) return "Too many tries. Please wait a minute and try again.";
-  if (/invalid login credentials/i.test(m)) return "Email or password doesn't match. If you haven't set a password yet, use \"Email me a sign-in link\" once, then set one under Account.";
+  if (/invalid login credentials/i.test(m)) return "Email or password doesn't match. Please try again, or tap Forgot password.";
   if (/email not confirmed/i.test(m)) return "Please confirm your email first: tap the link we emailed you, then sign in.";
   if (/user already registered/i.test(m)) return "There's already an account with this email. Sign in instead, or use \"Forgot password?\".";
   if (/should be different from the old password/i.test(m)) return "That's the same as your current password. Please choose a new one.";
@@ -158,6 +158,7 @@ function route(){
   if (hs && (p === "/" || p === "")) return viewGroup(hs);
   if ((m = p.match(/^\/g\/([a-z0-9-]+)\/?$/))) return viewGroup(m[1]);
   if ((m = p.match(/^\/(?:register|join|consent)\/([a-f0-9]{24,64})\/?$/))) return viewRegister(m[1]);
+  if ((m = p.match(/^\/buddy\/([a-f0-9]{24,64})\/?$/))) return viewBuddy(m[1]);
   if (p === "/signin") return viewSignIn();
   if (p === "/account") return viewAccount();
   if (p === "/admin" || p === "/admin/") return viewAdmin();
@@ -537,6 +538,81 @@ function viewSignIn(){
   card.querySelectorAll(".si-tab").forEach(t => t.onclick = () => { if (t.dataset.k !== kind) show(t.dataset.k, false, t); });
   show(kind, true);
 }
+/* ---------- Practice buddies (adult students only) ---------- */
+const BUDDY_ICON = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.8"/><path d="M1.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5M15.5 14.2c3.4-.6 6.5 1.9 6.5 5.3"/></svg>`;
+async function buddyCard(box, cur, g){
+  const { data, error } = await sb.rpc("buddy_list", { student: cur.id, today: ymd(today0()) });
+  if (error || !box.isConnected) return;
+  const rows = data || [], others = rows.filter(r => !r.me);
+  const row = r => `<li class="bd-row${r.me ? " me" : ""}">${avatar(r.first_name, 40)}
+      <div class="bd-main"><div class="row between"><strong>${r.me ? "You" : esc(r.first_name)}</strong><span class="hint">${r.days} of 7 days · ${fmtMins(r.minutes)}</span></div>
+        <div class="bd-bar" aria-hidden="true"><span style="width:${Math.round(Math.min(7, r.days) / 7 * 100)}%"></span></div></div>
+      ${r.done_today ? `<span class="pill ok">Today ✓</span>` : `<span class="pill grey">Not yet</span>`}
+      ${r.me ? "" : `<button class="bd-x" type="button" data-rm="${r.id}" aria-label="Remove ${esc(r.first_name)} as a buddy" title="Remove">×</button>`}</li>`;
+  box.hidden = false;
+  box.innerHTML = `<div class="row between"><h2>Practice buddies</h2><button class="btn small with-ico" type="button" id="bd-inv">${BUDDY_ICON}<span>Invite</span></button></div>
+    ${others.length ? `<ul class="bd-list">${rows.map(row).join("")}</ul><p class="hint m0">Last 7 days. Buddies see only your first name and these numbers.</p>`
+      : `<p class="muted m0">Practise alongside a classmate. Invite another adult student from ${esc(g.name || "your school")} and you will each see how many days and minutes the other has practised.</p>`}
+    <div id="bd-out" role="status"></div>`;
+  const out = box.querySelector("#bd-out");
+  box.querySelector("#bd-inv").onclick = async e => {
+    e.currentTarget.disabled = true;
+    const { data: tok, error: err } = await sb.rpc("buddy_invite", { student: cur.id });
+    e.currentTarget.disabled = false;
+    if (err) { out.innerHTML = `<div class="notice">${esc(friendly(err))}</div>`; return; }
+    openBuddyInvite(siteUrl("/buddy/" + tok), cur.first_name, g.name);
+  };
+  box.querySelectorAll("[data-rm]").forEach(b => b.onclick = async () => {
+    if (!b.dataset.sure) { b.dataset.sure = "1"; b.textContent = "Remove?"; b.classList.add("sure"); return; }
+    const { error: err } = await sb.rpc("buddy_remove", { buddy: b.dataset.rm });
+    if (err) { out.innerHTML = `<div class="notice">${esc(friendly(err))}</div>`; return; }
+    buddyCard(box, cur, g);
+  });
+}
+function openBuddyInvite(url, name, school){
+  const text = `Hi! It's ${name}. Let's be practice buddies on Gurushishya${school ? ` (${school})` : ""}. We will each see how many days the other has practised, to keep each other going.\n\nTap to join: ${url}`;
+  const dlg = document.createElement("dialog"); dlg.className = "dlg"; dlg.setAttribute("aria-labelledby", "bdlg-h");
+  dlg.innerHTML = `<div class="dlg-in"><h2 id="bdlg-h">Invite a practice buddy</h2>
+    <div class="msg-preview">${esc(text)}</div>
+    <div class="send-btns"><a class="btn wa" target="_blank" rel="noopener" href="${wa(text)}">WhatsApp</a><button class="btn ghost" type="button" data-copy>Copy message</button></div>
+    <div class="sent-note" data-note role="status" hidden></div>
+    <div class="row between"><span class="hint">For adult students of the same school. The link works for 14 days and you can send it to several people.</span><button class="btn small ghost" type="button" data-close>Done</button></div></div>`;
+  document.body.appendChild(dlg);
+  const note = dlg.querySelector("[data-note]");
+  dlg.querySelector("[data-copy]").onclick = async () => {
+    let ok = true; try { await navigator.clipboard.writeText(text); } catch (e) { ok = false; }
+    note.hidden = false; note.textContent = ok ? "Copied. Paste it into a message to your classmate." : "Press and hold the message above to copy it.";
+  };
+  dlg.querySelector("[data-close]").onclick = () => dlg.close();
+  dlg.addEventListener("close", () => dlg.remove());
+  dlg.showModal();
+}
+async function viewBuddy(token){
+  if (!user) return go("/signin?next=/buddy/" + token);
+  document.title = "Practice buddies · Gurushishya";
+  $app.innerHTML = LOADING;
+  const [info, mine] = await Promise.all([
+    sb.rpc("buddy_info", { token }),
+    sb.from("students").select("id,first_name,classes(name,groups(name))").eq("guardian_id", user.id).eq("status", "active").eq("is_adult", true).order("created_at")
+  ]);
+  const inv = (info.data || [])[0], me = (mine.data || []).filter(r => r.classes);
+  const wrap = body => { $app.innerHTML = `<section class="card narrow"><h1 class="page-h setup-h"><span class="si-ico setup-ico">${BUDDY_ICON}</span><span>Practice buddies</span></h1>${body}</section>`; };
+  if (!inv) return wrap(`<p class="notice m0">This invite is not working any more. Please ask your classmate for a new one.</p>${link("/practice", "Go to my practice", "btn ghost")}`);
+  if (!me.length) return wrap(`<p class="notice m0">Practice buddies are for adult students of ${esc(inv.group_name)}. This account has no adult student there yet.</p>${link("/practice", "Go to my practice", "btn ghost")}`);
+  wrap(`<p class="m0"><strong>${esc(inv.first_name)}</strong> from ${esc(inv.class_name)} (${esc(inv.group_name)}) invites you to be practice buddies.</p>
+    <p class="muted m0">You will each see the other's first name and how many days and minutes they practised in the last 7 days. Nothing else is shared, and you can remove a buddy at any time.</p>
+    ${me.length > 1 ? `<label for="bd-me">Join as<select id="bd-me">${me.map(r => `<option value="${r.id}">${esc(r.first_name)} · ${esc(r.classes.name)}</option>`).join("")}</select></label>` : ""}
+    <div class="row"><button class="btn" type="button" id="bd-yes">Yes, be buddies</button>${link("/practice", "No, thank you", "btn ghost")}</div>
+    <div id="bd-out" role="status"></div>`);
+  document.getElementById("bd-yes").onclick = async e => {
+    const sid = me.length > 1 ? document.getElementById("bd-me").value : me[0].id;
+    e.currentTarget.disabled = true;
+    const { error } = await sb.rpc("buddy_accept", { token, student: sid });
+    if (error) { e.currentTarget.disabled = false; document.getElementById("bd-out").innerHTML = `<div class="notice">${esc(friendly(error))}</div>`; return; }
+    store.set("riyaz.enrol", sid); go("/practice");
+  };
+}
+
 /* Account: set or change the password (also where "Forgot password?" links land) */
 function viewAccount(){
   if (!user) return go("/signin?next=/account");
@@ -919,10 +995,12 @@ async function viewDesk(tab = ""){
           <label for="addm-min">Minutes<input id="addm-min" type="number" min="1" max="300" value="${goal}" required style="width:110px"></label>
           <button class="btn small" type="submit">Add</button></form></details>
     </section>
+    ${cur.is_adult && !kid ? `<section class="card" id="buddies" data-kid-hide hidden></section>` : ""}
     ${latestHw ? `<section class="card"><div class="row between"><h2>Latest homework</h2>${link("/practice/notes", "All notes", "btn small ghost")}</div><p class="m0" style="white-space:pre-line">${esc(latestHw.body)}</p></section>` : ""}
     <section class="card">${url && classOpenNow(k) ? `<a class="btn big teal" data-kid-allow href="${esc(url)}" target="_blank" rel="noopener">Join online class now</a>`
       : `<p class="m0"><strong>Next class:</strong> ${nextClassText(k)}${url ? `<br><span class="hint">The Join button appears here 10 minutes before class.</span>` : ""}</p>`}</section>`;
 
+  if (document.getElementById("buddies")) buddyCard(document.getElementById("buddies"), cur, g);
   const out = document.getElementById("p-out"), goBtn = document.getElementById("go"), cancel = document.getElementById("cancel");
   const ring = document.getElementById("ring"), clock = document.getElementById("clock"), goalTxt = document.getElementById("goal-txt");
   // The timer only counts while this screen is open and in front. Leaving it (another app, tab or window,
