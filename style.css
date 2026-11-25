@@ -3383,3 +3383,12 @@ html[data-form-lang="ta"] .rq-done :is(h2,p,span,b,a){font-family:"Noto Sans Tam
 .panel.folded{background:#f1f8f3}
 .pfold > summary h2 .v-count{font-family:var(--sans,system-ui),sans-serif;font-style:normal}
 .voices .folded .v-comments li{background:#fff;border:1px solid #e3eee6}
+/* Fold 3 (SURESH 25 Nov): even lighter shade, a colour of its own per section (thin left stripe + title), bigger titles. */
+.panel.folded{--fc:#1f7a47;background:color-mix(in srgb,var(--fc) 3%,#fff);border-left:4px solid var(--fc) !important}
+.panel.folded.v-talk{--fc:#1f7a47}
+.panel.folded.v-vouch{--fc:#b8860b}
+.panel.folded.share-box{--fc:#2c6e9b}
+.panel.folded.journey{--fc:#b35a0c}
+.pfold > summary h2{font-size:clamp(23px,5.4vw,27px) !important;font-weight:900;color:var(--fc,var(--brand))}
+.pfold > summary h2 .v-count{background:var(--fc,var(--brand)) !important;font-size:13px;vertical-align:.25em}
+.pfold-chev{border-color:var(--fc,var(--brand)) !important}
