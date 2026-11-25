@@ -8,7 +8,7 @@
 
 export type Progress = {
   slug: string; title: string; stage: 1 | 2 | 3; goal: number; raised: number; pct: number;
-  currency: string; kids: number | null; cover: string;
+  currency: string; kids: number | null; cover: string; blurb: string;
 };
 type P = Record<string, any>;
 
@@ -47,6 +47,7 @@ export async function allProgress(origin: string): Promise<Record<string, Progre
     out[slug] = {
       slug, title: String(p.title), stage, goal, raised, pct: goal ? Math.min(100, Math.round(raised / goal * 100)) : 0,
       currency: String(p.currency || "$").trim() || "$", kids: kids ? +kids[0] : null, cover: String(p.cover || ""),
+      blurb: String(p.tagline || String(p.summary || "").split(/(?<=[.!?])\s/)[0] || "").trim(),
     };
   }
   cache = { at: Date.now(), data: out };
