@@ -3361,3 +3361,5 @@ html[data-form-lang="ta"] .rq-done :is(h2,p,span,b,a){font-family:"Noto Sans Tam
 .voices .v-talk{order:-1}
 .panel.folded{background:color-mix(in srgb,var(--brand) 5%,var(--surface,#fff))}
 .pfold > summary h2{font-family:"Playfair Display",Georgia,serif !important;font-style:italic;font-weight:800;letter-spacing:0;color:var(--brand)}
+.panel.folded{background:#f1f8f3}
+.pfold > summary h2 .v-count{font-family:var(--sans,system-ui),sans-serif;font-style:normal}
