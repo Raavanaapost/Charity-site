@@ -3472,8 +3472,12 @@ html[data-form-lang="ta"] .rq-done :is(h2,p,span,b,a){font-family:"Noto Sans Tam
 .imp-next .btn{justify-content:center}
 .imp-go{background:#c8381e;border-color:#c8381e;color:#fff}
 .imp-more{margin:26px 0 6px;font-family:"Cinzel",var(--display);font-size:20px;color:#1f4d3a}
-@media (min-width:760px){.imp-tiles{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}}
+@media (min-width:760px){.imp-tiles{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .imp-tile b,:root:not([data-theme="light"]) .imp-next h3,:root:not([data-theme="light"]) .imp-more{color:#e7ece9}:root:not([data-theme="light"]) .imp-ta,:root:not([data-theme="light"]) .imp-k,:root:not([data-theme="light"]) .imp-tl time{color:#ef7a5f}:root:not([data-theme="light"]) .imp-date{color:#ffd9cc}}
 :root[data-theme="dark"] .imp-tile b,:root[data-theme="dark"] .imp-next h3,:root[data-theme="dark"] .imp-more{color:#e7ece9}
 :root[data-theme="dark"] .imp-ta,:root[data-theme="dark"] .imp-k,:root[data-theme="dark"] .imp-tl time{color:#ef7a5f}
 :root[data-theme="dark"] .imp-date{color:#ffd9cc}
+.imp-q footer{background:none;border:0;padding:0;margin:0}
+.imp-letter .imp-from{font-family:var(--display)}
+/* Impact overview box in warm sand, not a pink tint of the red (SURESH 17 Nov 2026: no pink). */
+.pov.s3{background:var(--sand-2);border-color:var(--sand)}
