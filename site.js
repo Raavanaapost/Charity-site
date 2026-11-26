@@ -4313,7 +4313,9 @@ window.RAAV_FEATURES = (function () {
     const page = document.body.dataset.page;
     try {
       // All five data calls start together (13 Nov 2026, speed): the gift totals used to wait for the other four.
-      const giveP = load("/api/give/totals").catch(() => null);
+      // Gifts from the website decide which projects are fully funded (Activated). On a weak phone connection the first
+      // try can fail and the project would show as Initiated (SURESH 26 Nov 2026, Kandy), so try once more.
+      const giveP = load("/api/give/totals").catch(() => new Promise(r => setTimeout(r, 1200)).then(() => load("/api/give/totals?retry=1")).catch(() => null));
       const followP = load("/api/follow").catch(() => null); // news the team posts + how many follow each project (25 Nov 2026)
       const [site, data, cm, made] = await Promise.all([load("/site.json"), load("/projects.json"), load("/comments.json").catch(() => ({})), load("/api/projects").catch(() => null)]);
       // Projects created from requests in the team portal come from the database; projects.json wins if a slug is in both.
