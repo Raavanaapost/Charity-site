@@ -2417,7 +2417,8 @@ html[lang="ta"] .app-sheet-box h3{letter-spacing:0;text-transform:none;font-size
 .mny-closed b{font-family:var(--display);font-weight:800;color:var(--brand)}
 .mny-table .num.mny-under{color:var(--brand)}
 .mny-table .num.mny-over{color:var(--flame)}
-.mny-plan .num{font-size:15px}
+.mny-plan td.num{font-size:15px}
+.mny-tiles .mny-tile b{font-size:clamp(20px,2.3vw,25px);white-space:nowrap}
 .mny-due{display:inline-block;font-size:12.5px;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--sun-soft);color:var(--ink);white-space:nowrap}
 .mny-due.late{background:var(--flame);color:#fff}
 .mny-table td small.mny-ok{color:var(--brand);font-weight:600}
@@ -2426,6 +2427,7 @@ html[lang="ta"] .app-sheet-box h3{letter-spacing:0;text-transform:none;font-size
 .mny-rule-note{margin-top:14px}
 .mny-how{margin:0;padding-left:20px;display:grid;gap:6px;font-size:15px}
 .mny-dl{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 0}
+.mny-dl .btn{width:auto;flex:0 1 auto}
 .give-rule{font-size:13.5px}
 @media print{
   header.bar,body>footer,.appbar,.crumbs,.mny-dl,.mny-back,.mny-need{display:none!important}

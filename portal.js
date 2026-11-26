@@ -2148,8 +2148,8 @@
     const spent = live.filter(c => c.checkedAt).reduce((t, c) => t + c.amount, 0), handed = liveH.filter(h => h.checkedAt).reduce((t, h) => t + h.amount, 0);
     const received = gifts.filter(g => g.status === "received").reduce((t, g) => t + g.counted, 0) + (p.funders || []).filter(f => f.received).reduce((t, f) => t + num(f.amount), 0);
     const waiting = live.filter(c => !c.checkedAt).length + liveH.filter(h => !h.checkedAt).length;
-    const checkBtn = (kind, x) => x.checkedAt ? `<span class="pt-pill st-3">✓ Checked by ${esc(x.checkedBy)}</span> <button type="button" class="pt-btn ghost sm" data-bk="${kind}" data-id="${x.id}" data-check="no">Undo check</button>`
-      : x.mine ? `<span class="pt-pill st-1">Waiting: someone else on the team checks this</span>` : `<button type="button" class="pt-btn sm" data-bk="${kind}" data-id="${x.id}" data-check="yes">Check: figures and photo are right</button>`;
+    const checkBtn = (kind, x) => x.checkedAt ? `<span class="pt-pill green">✓ Checked by ${esc(x.checkedBy)}</span> <button type="button" class="pt-btn ghost sm" data-bk="${kind}" data-id="${x.id}" data-check="no">Undo check</button>`
+      : x.mine ? `<span class="pt-pill amber">Waiting: someone else on the team checks this</span>` : `<button type="button" class="pt-btn sm" data-bk="${kind}" data-id="${x.id}" data-check="yes">Check: figures and photo are right</button>`;
     const tile = (l, v, s2) => `<div class="pt-stat"><b>${v}</b><span>${l}</span>${s2 ? `<small>${s2}</small>` : ""}</div>`;
     return `${head("Every rupee in and out of a project, checked by two people. Whatever you enter here waits until a second team member presses Check; only then does it show on the project's money page.")}
       <section class="pt-card"><label class="pt-field">Project<select data-bkproj>${list.map(x => `<option value="${esc(x.slug)}" ${x.slug === slug ? "selected" : ""}>${esc(x.title)}</option>`).join("")}</select></label>
@@ -2158,7 +2158,7 @@
 
       <section class="pt-card"><h2>1. Money in: what reached the bank</h2>
         <p class="pt-sub">Mark a gift "Gift received" in Sponsors &amp; pledges first. Then write what the giver sent in their own money, the rupees that arrived and the bank's fee. The money page shows them openly, by gift, without bank details.</p>
-        <ul class="pt-notes">${gifts.map(g => `<li><div><b>${esc(g.name)}</b> <small>${esc(g.ref)} · said "${esc(g.said)}" · counted ${rsOf(p, g.counted)}${g.country ? ` · ${esc(g.country)}` : ""}</small> <span class="pt-pill ${g.status === "received" ? "st-3" : "st-1"}">${g.status === "received" ? `Received${g.receivedOn ? " " + esc(g.receivedOn) : ""}` : "Not received yet"}</span>
+        <ul class="pt-notes">${gifts.map(g => `<li><div><b>${esc(g.name)}</b> <small>${esc(g.ref)} · said "${esc(g.said)}" · counted ${rsOf(p, g.counted)}${g.country ? ` · ${esc(g.country)}` : ""}</small> <span class="pt-pill ${g.status === "received" ? "green" : "amber"}">${g.status === "received" ? `Received${g.receivedOn ? " " + esc(g.receivedOn) : ""}` : "Not received yet"}</span>
           ${g.status === "received" ? `<form class="pt-addline" data-bkgift="${esc(g.ref)}"><label>Sent${g.currency && g.currency !== "LKR" ? ` (${esc(g.currency)})` : ""}<input name="sent" inputmode="decimal" value="${g.sent || ""}" placeholder="100"></label>
             <label>Arrived (Rs)<input name="arrived" inputmode="decimal" value="${g.arrived || ""}" placeholder="22500"></label><label>Bank fee (Rs)<input name="fee" inputmode="decimal" value="${g.fee || ""}" placeholder="500"></label>
             <button class="pt-btn sm" type="submit">Save</button></form>` : ""}</div></li>`).join("") || `<li class="pt-empty">No gifts through the website for this project.</li>`}</ul></section>
@@ -2173,7 +2173,7 @@
           <button class="pt-btn" type="submit">Write down the hand-over</button></form>`}
         <ul class="pt-notes">${hands.map(h => `<li class="${h.hidden ? "pt-hid" : ""}"><div><b>${rsOf(p, h.amount)}</b> to ${esc(h.to)}${h.role ? `, ${esc(h.role)}` : ""} <small>${esc(h.date)} · ${esc(HOWS[h.method] || "")} · written by ${esc(h.by)}</small>
           ${h.note ? `<p class="pt-private" style="margin:6px 0">${esc(h.note)}</p>` : ""}
-          <p class="pt-golive-btns">${h.confirmed ? `<span class="pt-pill st-3">✓ ${esc(h.confirmedName)} confirmed ${ago(h.confirmed)}</span>` : `<a class="pt-btn sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(gotMsg(p, h))}">Send their link on WhatsApp</a> <button type="button" class="pt-btn ghost sm" data-bkcopy="${esc(HERE + "/got/" + h.token)}">Copy link</button> <small>Not confirmed yet</small>`}</p>
+          <p class="pt-golive-btns">${h.confirmed ? `<span class="pt-pill green">✓ ${esc(h.confirmedName)} confirmed ${ago(h.confirmed)}</span>` : `<a class="pt-btn sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(gotMsg(p, h))}">Send their link on WhatsApp</a> <button type="button" class="pt-btn ghost sm" data-bkcopy="${esc(HERE + "/got/" + h.token)}">Copy link</button> <small>Not confirmed yet</small>`}</p>
           <p class="pt-golive-btns">${h.hidden ? "" : checkBtn("handovers", h)} <button type="button" class="pt-btn ghost sm" data-bk="handovers" data-id="${h.id}" data-hide="${h.hidden ? "no" : "yes"}">${h.hidden ? "Put back" : "Remove (a mistake)"}</button></p></div></li>`).join("") || `<li class="pt-empty">No hand-overs written down yet.</li>`}</ul></section>
 
       <section class="pt-card"><h2>3. Costs, each with its receipt</h2>
@@ -2186,7 +2186,7 @@
           <label class="pt-field">Short note (shown on the money page, optional)<input name="note" maxlength="300"></label>
           <button class="pt-btn" type="submit">Add the cost</button></form></details>`}
         <ul class="pt-notes">${costs.map(c => `<li class="${c.hidden ? "pt-hid" : ""}"><div style="display:flex;gap:12px;align-items:flex-start">
-          ${c.image ? `<a href="${esc(c.image)}" target="_blank" rel="noopener"><img src="${esc(c.image)}" alt="Receipt" style="width:84px;height:110px;object-fit:cover;border-radius:10px;flex:none"></a>` : `<span class="pt-pill st-1">No photo</span>`}
+          ${c.image ? `<a href="${esc(c.image)}" target="_blank" rel="noopener"><img src="${esc(c.image)}" alt="Receipt" style="width:84px;height:110px;object-fit:cover;border-radius:10px;flex:none"></a>` : `<span class="pt-pill red">No photo</span>`}
           <form class="pt-note-form" data-bkedit="${c.id}" style="flex:1;margin:0"><div class="pt-2"><label class="pt-field">What for<input name="item" maxlength="120" value="${esc(c.item)}"></label><label class="pt-field">Amount (Rs)<input name="amount" inputmode="decimal" value="${c.amount}"></label></div>
             <div class="pt-2"><label class="pt-field">Budget line<select name="line">${[...lines, ""].map(l => `<option value="${esc(l)}" ${l === (lines.includes(c.line) ? c.line : "") ? "selected" : ""}>${esc(l || "Something else")}</option>`).join("")}</select></label><label class="pt-field">Date<input type="date" name="date" value="${esc(c.date)}"></label></div>
             <small>From ${esc(c.by)}${c.note ? ` · "${esc(c.note)}"` : ""}</small>
