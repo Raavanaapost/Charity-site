@@ -36,6 +36,13 @@ window.RAAV_FEATURES = (function () {
     // Groups and organisations (SURESH 26 Nov 2026: "Bring in the feature about group organization profile"): on for the
     // draft preview now; raavanaa.org stays off until SURESH says "post" (then set groups: true above).
     if (test) F.groups = true;
+    // Quiet start (SURESH 26 Nov 2026: "create few real groups first"): the private link raavanaa.org/groups?groups=open
+    // opens the Groups pages in that browser, so the first real groups can make their profiles on the live site before
+    // the menu, footer and project lines show Groups to everyone. ?groups=close forgets it.
+    const gq = new URLSearchParams(location.search).get("groups");
+    if (gq === "open") localStorage.setItem("raav-groups-open", "1");
+    if (gq === "close") localStorage.removeItem("raav-groups-open");
+    if (localStorage.getItem("raav-groups-open") === "1") F.groupsQuiet = true;
     if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = F.group = F.join = F.volunteers = F.moment = F.map = F.left = F.reserve = F.groups = true; F.reasons = []; }
   } catch (e) { /* storage blocked: the launch switches stay */ }
   ["sponsor", "circle", "vetting", "tamil"].forEach(k => { if (!F[k]) document.documentElement.classList.add("no-" + k); });
@@ -50,7 +57,7 @@ window.RAAV_FEATURES = (function () {
   // project list and the moment cards stay in the code; set moment: true to bring them all back. Family pages /m/ still open.
   // Smile Map taken out for this release (SURESH, 20 Nov 2026: "another release"); set map: true to bring it back.
   // Community groups: /groups (the list and Register our group) and /g/<name> (each group's page).
-  if (!F.groups && /^\/(ta\/)?(groups(\.html)?\/?$|g\/)/.test(location.pathname)) location.replace("/projects");
+  if (!F.groups && !F.groupsQuiet && /^\/(ta\/)?(groups(\.html)?\/?$|g\/)/.test(location.pathname)) location.replace("/projects");
   if (!F.money && /^\/(ta\/)?money(\.html)?\/?$/.test(location.pathname)) location.replace("/projects");
   if (!F.map && /^\/(ta\/)?smile-map(-v2)?(\.html)?\/?$/.test(location.pathname)) location.replace("/projects");
   if (!F.moment && /^\/(ta\/)?moment(\.html)?\/?$/.test(location.pathname)) location.replace("/projects");

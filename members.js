@@ -258,7 +258,7 @@ async function account(app, site, msg = "") {
     <p class="member-foot">${team ? `<a href="/portal#/dashboard">Open the team dashboard</a> · ` : ""}<button type="button" class="member-link" data-signout>Sign out</button></p>
   </section>`;
   // Community groups (23 Nov 2026): the groups this member runs and the ones they follow, with each one's latest news.
-  if ((window.RAAV_FEATURES || {}).groups) fetch("/api/groups/mine", { credentials: "same-origin" }).then(r => r.ok ? r.json() : null).then(d => {
+  if ((window.RAAV_FEATURES || {}).groups || (window.RAAV_FEATURES || {}).groupsQuiet) fetch("/api/groups/mine", { credentials: "same-origin" }).then(r => r.ok ? r.json() : null).then(d => {
     if (!d) return;
     const day = v => new Date(v).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
     const li = g => `<li><a href="/g/${encodeURIComponent(g.slug)}"><b>${esc(g.name)}</b></a>
