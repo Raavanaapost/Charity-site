@@ -3558,7 +3558,17 @@ html[lang="ta"] .all-chip b{font-family:"Noto Sans Tamil",var(--display),sans-se
 .pact-follow{background:#b97a06;border-color:#b97a06;color:#fff;min-width:200px}
 .pact-follow:hover{background:#9c6604}
 .pact-follow:disabled{background:transparent;color:#8a5a04;border-color:#eaa21c;opacity:1;cursor:default}
+/* SURESH 26 Nov 2026: stronger words in the band, and Follow the day in the ribbon red with a gentle glow that asks to be tapped (no blinking) */
+.pact-k{color:#9a2f14;font-size:14px}
+.pact-k i{background:#c8381e}
+.pact-day{color:#2e1a04;font-weight:700}
+.pact-note{color:#3a2408;font-weight:600}
+.pact-follow{background:linear-gradient(90deg,#b8321a,#e0780f);border-color:#b8321a;color:#fff;font-weight:800;animation:pactGlow 2.8s ease-in-out infinite}
+.pact-follow:hover{background:linear-gradient(90deg,#9c2a15,#c9680c)}
+@keyframes pactGlow{0%,100%{box-shadow:0 0 0 0 rgba(200,56,30,.45);transform:scale(1)}50%{box-shadow:0 0 0 10px rgba(200,56,30,0);transform:scale(1.03)}}
+@media (prefers-reduced-motion: reduce){.pact-follow{animation:none}}
+.pact-follow:disabled{animation:none}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .pact{background:linear-gradient(135deg,#2e2414,#3a2b10);border-color:#b97a06}
-  :root:not([data-theme="light"]) .pact-day{color:#f5d58a} :root:not([data-theme="light"]) .pact-day b{color:#fff} :root:not([data-theme="light"]) .pact-note{color:#d9c79f}}
+  :root:not([data-theme="light"]) .pact-day{color:#f5d58a} :root:not([data-theme="light"]) .pact-day b{color:#fff} :root:not([data-theme="light"]) .pact-note{color:#f1e4c4} :root:not([data-theme="light"]) .pact-k{color:#ffb38a}}
 :root[data-theme="dark"] .pact{background:linear-gradient(135deg,#2e2414,#3a2b10);border-color:#b97a06}
-:root[data-theme="dark"] .pact-day{color:#f5d58a} :root[data-theme="dark"] .pact-day b{color:#fff} :root[data-theme="dark"] .pact-note{color:#d9c79f}
+:root[data-theme="dark"] .pact-day{color:#f5d58a} :root[data-theme="dark"] .pact-day b{color:#fff} :root[data-theme="dark"] .pact-note{color:#f1e4c4} :root[data-theme="dark"] .pact-k{color:#ffb38a}
