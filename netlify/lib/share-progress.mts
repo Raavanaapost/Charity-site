@@ -16,17 +16,19 @@ const numOf = (v: unknown) => { const n = parseFloat(String(v == null ? "" : v).
 const slugify = (s: string) => String(s || "").toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").trim().replace(/[\s_]+/g, "-").replace(/-+/g, "-");
 const slugOf = (p: P) => slugify(p.slug || p.title);
 
-let cache: { at: number; data: Record<string, Progress> } | null = null;
+const caches: Record<string, { at: number; data: Record<string, Progress> }> = {};
 
 async function getJSON(url: URL, ms = 2500) {
   const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), ms);
   try { const r = await fetch(url, { signal: ctl.signal }); return r.ok ? await r.json() : null; } catch (_) { return null; } finally { clearTimeout(t); }
 }
 
-export async function allProgress(origin: string): Promise<Record<string, Progress>> {
+// liveGifts: on the draft, use the live site's gift totals (?gifts=live test links, SURESH 26 Nov 2026).
+export async function allProgress(origin: string, liveGifts = false): Promise<Record<string, Progress>> {
+  const key = origin + (liveGifts ? "|live" : ""), cache = caches[key];
   if (cache && Date.now() - cache.at < 60_000) return cache.data;
   const [data, made, give] = await Promise.all([
-    getJSON(new URL("/projects.json", origin)), getJSON(new URL("/api/projects", origin)), getJSON(new URL("/api/give/totals", origin))]);
+    getJSON(new URL("/projects.json", origin)), getJSON(new URL("/api/projects", origin)), getJSON(new URL(liveGifts ? "/api/give/totals?from=live" : "/api/give/totals", origin))]);
   if (!data) return cache?.data ?? {};
   let list: P[] = data.projects || [];
   if (made && made.projects) { const have = new Set(list.map((p) => p.slug)); list = [...list, ...made.projects.filter((p: P) => p && !have.has(p.slug))]; }
@@ -51,7 +53,7 @@ export async function allProgress(origin: string): Promise<Record<string, Progre
       blurb: String(p.tagline || String(p.summary || "").split(/(?<=[.!?])\s/)[0] || "").trim(),
     };
   }
-  cache = { at: Date.now(), data: out };
+  caches[key] = { at: Date.now(), data: out };
   return out;
 }
 

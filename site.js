@@ -2430,6 +2430,11 @@ window.RAAV_FEATURES = (function () {
   // Card payments are open for a verified project that is still being planned and isn't fully covered yet.
   // PayHere (Sri Lanka) takes rupees, so it serves rupee projects; Stripe takes Canadian dollars (rupee projects
   // too, at the team's rate). Until one is switched on in Netlify, Donate shows the pilot note.
+  // Draft test mode (SURESH 26 Nov 2026): open a draft page with ?gifts=live and it shows the LIVE gift totals (so Kandy
+  // is Activated, as on raavanaa.org), and the share links it makes carry ?gifts=live so the preview matches too.
+  // Remembered for the visit. Never on raavanaa.org itself.
+  const LIVE_GIFTS = (() => { if (/(^|\.)raavanaa\.org$/.test(location.hostname)) return false;
+    try { if (/[?&]gifts=live\b/.test(location.search)) sessionStorage.setItem("raavLiveGifts", "1"); return sessionStorage.getItem("raavLiveGifts") === "1"; } catch (_) { return /[?&]gifts=live\b/.test(location.search); } })();
   let GIVE_ON = false;
   const GIVE_OPEN = new Set();
   let G_CTX = null;   // site, projects and gift totals, so the giving form can open in place on a project page
@@ -2438,7 +2443,7 @@ window.RAAV_FEATURES = (function () {
   // A new % makes a new address and so a fresh preview with today's ring. The page itself ignores ?p.
   const sharePct = slug => { const p = G_CTX && (G_CTX.projects || []).find(x => slugOf(x) === slug); if (!p) return "";
     const n = stageNum(p), b = budgetOf(p); return n < 3 && b.goal > 0 ? (n === 2 || b.pct >= 100 ? 100 : b.pct) : ""; };
-  const withPct = (url, slug) => { const v = sharePct(slug); return v === "" ? url : url + (url.includes("?") ? "&" : "?") + "p=" + v; };
+  const withPct = (url, slug) => { const v = sharePct(slug); const u = v === "" ? url : url + (url.includes("?") ? "&" : "?") + "p=" + v; return LIVE_GIFTS ? u + (u.includes("?") ? "&" : "?") + "gifts=live" : u; };
   let GIVE_RATE = 0; // Sri Lankan rupees to one Canadian dollar (site.json "rate_lkr_per_cad"), Stripe only
   let GIVE_BY = "Stripe", GIVE_CUR = "CAD";
   const isRupees = p => /rs|lkr|රු|ரூ/i.test(p.currency || "");
@@ -3120,7 +3125,7 @@ window.RAAV_FEATURES = (function () {
     // highlight and not details below ... Simple").
     if (n === 2) { const h = happeningNow(day);
       // A short address with no https:// (WhatsApp cannot hide a link behind words, but it still makes this one tappable).
-      const short = p.short ? `${location.host}/${p.short}` : url.replace(/^https?:\/\//, "").replace(/\?.*$/, "");
+      const short = p.short && !LIVE_GIFTS ? `${location.host}/${p.short}` : url.replace(/^https?:\/\//, "").replace(/\?.*$/, "");
       return [`\u2728 *${h.top.toUpperCase()} ${h.big.toUpperCase()}* \u2728`, "", `*${plain(p.title)}*`, "\u{1F49B} Thanks for the moment, to everyone who gave", "", "\u{1F4F8} *Follow the day*", `\u{1F449} ${short}`].join("\n"); }
     const head = n === 3 ? "\u{1F389} *The day happened*" : "\u{1F331} *A need on Raavanaa*";
     const facts = [
@@ -4596,7 +4601,7 @@ window.RAAV_FEATURES = (function () {
       // All five data calls start together (13 Nov 2026, speed): the gift totals used to wait for the other four.
       // Gifts from the website decide which projects are fully funded (Activated). On a weak phone connection the first
       // try can fail and the project would show as Initiated (SURESH 26 Nov 2026, Kandy), so try once more.
-      const giveP = load("/api/give/totals").catch(() => new Promise(r => setTimeout(r, 1200)).then(() => load("/api/give/totals?retry=1")).catch(() => null));
+      const giveP = load(LIVE_GIFTS ? "/api/give/totals?from=live" : "/api/give/totals").catch(() => new Promise(r => setTimeout(r, 1200)).then(() => load(LIVE_GIFTS ? "/api/give/totals?from=live&retry=1" : "/api/give/totals?retry=1")).catch(() => null));
       const followP = load("/api/follow").catch(() => null); // news the team posts + how many follow each project (25 Nov 2026)
       const booksP = load("/api/books").catch(() => null); // Money books: checked costs, hand-overs, bank fees, closed books (26 Nov 2026)
       const [site, data, cm, made] = await Promise.all([load("/site.json"), load("/projects.json"), load("/comments.json").catch(() => ({})), load("/api/projects").catch(() => null)]);

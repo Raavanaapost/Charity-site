@@ -274,7 +274,7 @@ export default async (req: Request, context: Context) => {
     return new Response(img, { headers: { "Content-Type": "image/jpeg", "Cache-Control": "public, max-age=600",
       "Netlify-CDN-Cache-Control": "public, durable, s-maxage=3600, stale-while-revalidate=600" } });
   }
-  const all = await allProgress(url.origin);
+  const all = await allProgress(url.origin, url.searchParams.get("gifts") === "live" && !/(^|\.)raavanaa\.org$/.test(url.hostname));
   if (slug === "site") {
     const list = Object.values(all), count = (n: number) => list.filter((p) => p.stage === n).length;
     const [art, ...stages] = await Promise.all(["/img/project-hills.svg", "/img/stage-initiated.svg", "/img/stage-activated.svg", "/img/stage-impact.svg"].map((x) => dataUrl(url.origin, x)));

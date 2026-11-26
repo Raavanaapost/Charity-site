@@ -278,6 +278,11 @@ export default async (req: Request, context: Context) => {
     if (route === "checkout" && req.method === "POST") return await checkout(req, context);
     if (route === "payhere" && req.method === "POST") return await payhereNotify(req);
     if (route === "webhook" && req.method === "POST") return await webhook(req);
+    // Draft test mode (SURESH 26 Nov 2026): ?from=live on the draft gives the LIVE gift totals, read only, so a share
+    // tried from the draft shows the same stage and % as the live site. Ignored on raavanaa.org itself.
+    if (route === "totals" && req.method === "GET" && new URL(req.url).searchParams.get("from") === "live" && !/(^|\.)raavanaa\.org$/.test(new URL(req.url).hostname)) {
+      const r = await fetch("https://raavanaa.org/api/give/totals"); return new Response(await r.text(), { status: r.status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
+    }
     if (route === "totals" && req.method === "GET") return await totals(context);
     if (route === "session" && req.method === "GET") return await session(req);
     return json({ error: "Not found" }, 404);

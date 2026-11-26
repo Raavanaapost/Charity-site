@@ -132,10 +132,11 @@ export default async (request: Request, context: { next: (req?: Request) => Prom
   if (!ta && path.startsWith("/projects/")) {
     const slug = decodeURIComponent(path.replace(/^\/projects\//, "").replace(/\/+$/, "").replace(/\/money$/, "")).toLowerCase();
     try {
-      const pr = (await allProgress(url.origin))[slug];
+      const live = url.searchParams.get("gifts") === "live" && !/(^|\.)raavanaa\.org$/.test(url.hostname);
+      const pr = (await allProgress(url.origin, live))[slug];
       if (pr && showsProgress(pr)) {
         const full = pr.stage === 2 || pr.pct >= 100;
-        img = `${url.origin}/api/share-card/${slug}.jpg?v=${pr.stage === 2 ? "a" + lkDate() : full ? 100 : pr.pct}`;
+        img = `${url.origin}/api/share-card/${slug}.jpg?v=${pr.stage === 2 ? "a" + lkDate() : full ? 100 : pr.pct}${live ? "&gifts=live" : ""}`;
         // A project made in the portal has no words of its own in share.json: use its title, not the general one.
         if (!share.projects[slug]) { title = pr.title; if (pr.blurb) text = pr.blurb; }
         // Fully funded: no "help make it happen" ask in the words (SURESH 26 Nov 2026), the project's own line instead.
