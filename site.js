@@ -4272,7 +4272,17 @@ window.RAAV_FEATURES = (function () {
           sample.sample = true;
           const m = document.createElement("meta"); m.name = "robots"; m.content = "noindex"; document.head.appendChild(m);
           renderProject(app, site, [sample], "sample");
-        } else renderProject(app, site, projects, slugify(slug));
+        } else {
+          // Impact page preview (SURESH 26 Nov 2026): /projects/<slug>?impact=preview shows how the page will look once
+          // the day has happened, filled with made-up EXAMPLE words from sample-impact.json. Nothing real changes.
+          if (/[?&]impact=preview\b/.test(location.search)) {
+            const pp = projects.find(x => slugOf(x) === slugify(slug));
+            const ex = pp ? ((await load("/sample-impact.json").catch(() => ({})))[slugOf(pp)]) : null;
+            if (pp && ex) { pp.impact_page = ex; pp.status = "Completed"; pp.impact_preview = true;
+              const m = document.createElement("meta"); m.name = "robots"; m.content = "noindex"; document.head.appendChild(m); }
+          }
+          renderProject(app, site, projects, slugify(slug));
+        }
       } else if (page === "map") {
         renderMap(projects);
       } else if (page === "map2") {
