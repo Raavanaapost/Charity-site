@@ -33,8 +33,9 @@ window.RAAV_FEATURES = (function () {
     // a post of other work keeps it hidden on the live site. To go live: set money: true in F above.
     if (test) F.money = true;
     if (q === "launch") sessionStorage.removeItem("raav-features");
-    // Community groups (SURESH 23 Nov 2026: "Keep this as to do feature. Lets do this as another feature release"):
-    // off everywhere, also on the draft; preview with ?features=all. Set groups: true when that release comes.
+    // Groups and organisations (SURESH 26 Nov 2026: "Bring in the feature about group organization profile"): on for the
+    // draft preview now; raavanaa.org stays off until SURESH says "post" (then set groups: true above).
+    if (test) F.groups = true;
     if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = F.group = F.join = F.volunteers = F.moment = F.map = F.left = F.reserve = F.groups = true; F.reasons = []; }
   } catch (e) { /* storage blocked: the launch switches stay */ }
   ["sponsor", "circle", "vetting", "tamil"].forEach(k => { if (!F[k]) document.documentElement.classList.add("no-" + k); });
