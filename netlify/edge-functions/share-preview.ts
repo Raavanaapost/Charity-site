@@ -10,6 +10,8 @@ import { allProgress, money, showsProgress } from "../lib/share-progress.mts";
 type Card = { title: string; text: string; title_ta?: string; text_ta?: string };
 type Share = { default: Card; vouch?: Card; moment?: Card; projects: Record<string, Card> };
 
+const SITE_PAGES = /^\/(|index(\.html)?|overview|projects|initiated|activated|impact|about|spark|initiate|contact|how-it-works|money)\/?$/;
+
 let cache: { at: number; data: Share } | null = null;
 async function loadShare(origin: string): Promise<Share | null> {
   if (cache && Date.now() - cache.at < 60_000) return cache.data;
@@ -39,6 +41,28 @@ export default async (request: Request, context: { next: () => Promise<Response>
   const url = new URL(request.url);
   const ta = url.pathname.startsWith("/ta/");
   const path = ta ? url.pathname.slice(3) : url.pathname;
+  // General pages (Home, Projects, the stage pages, About, Spark, Submit a need, Contact): the Raavanaa picture with the
+  // heading and the three stage circles with today's counts, instead of the plain logo (SURESH, 26 Nov 2026).
+  // ?v= changes with the counts, so apps fetch a fresh picture when a project moves stage.
+  if (SITE_PAGES.test(path)) {
+    let html = await res.text(), v = "";
+    try { const list = Object.values(await allProgress(url.origin)); v = [1, 2, 3].map((n) => list.filter((p) => p.stage === n).length).join("-"); } catch (_) { /* no counts: still the picture */ }
+    const img = `${url.origin}/api/share-card/site.jpg${v ? "?v=" + v : ""}`;
+    html = setMeta(html, "property", "og:image", img);
+    html = setMeta(html, "property", "og:image:width", "1200");
+    html = setMeta(html, "property", "og:image:height", "630");
+    html = setMeta(html, "property", "og:image:type", "image/jpeg");
+    html = setMeta(html, "name", "twitter:card", "summary_large_image");
+    html = setMeta(html, "name", "twitter:image", img);
+    // A bare "Raavanaa" title says little in a feed: give it the line from the picture.
+    if (/<meta property="og:title" content="Raavanaa">/.test(html)) {
+      html = setMeta(html, "property", "og:title", "Raavanaa · Make a moment happen for children in Sri Lanka");
+      html = setMeta(html, "name", "twitter:title", "Raavanaa · Make a moment happen for children in Sri Lanka");
+    }
+    const headers = new Headers(res.headers);
+    headers.delete("content-length");
+    return new Response(html, { status: 200, headers });
+  }
   const share = await loadShare(url.origin);
   if (!share) return res;
 
@@ -106,4 +130,4 @@ export default async (request: Request, context: { next: () => Promise<Response>
   return new Response(html, { status: 200, headers });
 };
 
-export const config = { path: ["/projects/*", "/ta/projects/*", "/e/*", "/ta/e/*", "/moment", "/ta/moment", "/m/*", "/ta/m/*", "/fund", "/ta/fund"] };
+export const config = { path: ["/", "/index.html", "/overview", "/projects", "/initiated", "/activated", "/impact", "/about", "/spark", "/initiate", "/contact", "/how-it-works", "/money", "/projects/*", "/ta/projects/*", "/e/*", "/ta/e/*", "/moment", "/ta/moment", "/m/*", "/ta/m/*", "/fund", "/ta/fund"] };
