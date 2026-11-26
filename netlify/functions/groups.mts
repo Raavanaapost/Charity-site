@@ -20,6 +20,7 @@ import type { Config } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
 import { getUser } from "@netlify/identity";
 import { teamAccess } from "../lib/team-access.mts";
+import { allProgress } from "../lib/share-progress.mts";
 
 type Row = Record<string, any>;
 type DB = ReturnType<typeof getDatabase>;
@@ -29,7 +30,13 @@ const text = (v: unknown, max: number) => String(v ?? "").replace(/[<>]/g, "").r
 const num = (v: unknown) => { const n = Number(String(v ?? "").replace(/[^\d.]/g, "")); return Number.isFinite(n) && n > 0 ? Math.round(n) : 0; };
 const STAGES = ["Initiated", "Activated", "Impact"];
 const KINDS = ["WhatsApp circle", "Friends", "Family", "Past pupils", "Village or society", "Temple or church", "Youth or sports club", "Workplace", "Charity or NGO", "School or education", "Other"];
-const CUR = ["LKR", "CAD", "GBP", "EUR", "USD", "AUD", "CHF", "NOK", "INR"];
+const THEMES = ["Trips & Events", "Education", "Livelihood", "Health & Care", "Other"];
+// The associate ladder (SURESH 26 Nov 2026, "Medium"): earned by finished work, never by money (SURESH: Raavanaa does not
+// manage a group's own funding). 1 Listed = checked and listed by the team; 2 Raavanaa Associate = organiser agreement
+// signed (the team ticks it) and one finished project with an Impact page on Raavanaa; 3 Trusted Associate = three.
+// A finished project counts when it is a Raavanaa project the group runs or works on (now at Impact), or the group's
+// own project the team chose to show on Raavanaa, moved to Impact.
+const LEVELS = ["", "Listed", "Raavanaa Associate", "Trusted Associate"];
 const REG_BODIES = ["NGO Secretariat", "Companies Act (guarantee company)", "Divisional Secretariat / social services", "Registered charity abroad", "Other"];
 const LOGO_RE = /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/;
 const site = (v: unknown) => { const u = clip(v, 160); if (!u) return ""; const w = /^https?:\/\//i.test(u) ? u : "https://" + u; try { const x = new URL(w); return /\./.test(x.hostname) ? x.href : ""; } catch { return ""; } };
@@ -67,12 +74,26 @@ const face = (g: Row, extra: Row = {}) => ({
   collect: g.collect, checked: !!g.checked, status: g.status, since: g.listed_at || g.created_at,
   type: g.profile_type === "organisation" ? "organisation" : "group", verified: g.profile_type === "organisation" && !!g.verified,
   reg_body: g.profile_type === "organisation" ? g.reg_body : "", reg_number: g.profile_type === "organisation" ? g.reg_number : "",
+  agreed: !!g.agreed, level: g._level || (g.status === "listed" ? 1 : 0), levelName: LEVELS[g._level || (g.status === "listed" ? 1 : 0)] || "", done: g._done || 0,
   website: g.website || "", facebook: g.facebook || "", instagram: g.instagram || "", logo: g.logo ? `/api/groups/${encodeURIComponent(g.slug)}/logo?v=${new Date(g.updated_at || g.created_at).getTime()}` : "", ...extra,
 });
 const proj = (p: Row) => ({
   id: p.id, slug: p.raavanaa_slug || "", title: p.title, place: p.place, stage: STAGES.includes(p.stage) ? p.stage : "Initiated",
-  story: p.story, day: p.day, cost: Number(p.cost) || 0, collected: Number(p.collected) || 0, currency: p.currency, updated: p.updated_at,
+  story: p.story, day: p.day, theme: p.theme || "", role: p.role === "partner" ? "partner" : "owner", shown: !!p.on_raavanaa, updated: p.updated_at,
 });
+// Works out each group's ladder step (sets g._level and g._done). Linked Raavanaa projects count with their live stage.
+async function ladder(db: DB, groups: Row[], origin: string) {
+  const ids = groups.map((g) => g.id);
+  if (!ids.length) return;
+  const rows = (await db.sql<Row>`SELECT group_id, raavanaa_slug, stage, on_raavanaa FROM group_projects WHERE NOT hidden AND group_id = ANY(${ids}::int[])`) as Row[];
+  let live: Record<string, { stage: number }> = {};
+  if (rows.some((r) => r.raavanaa_slug)) { try { live = await allProgress(origin); } catch { live = {}; } }
+  for (const g of groups) {
+    const done = rows.filter((r) => r.group_id === g.id && (r.raavanaa_slug ? live[r.raavanaa_slug]?.stage === 3 : r.on_raavanaa && r.stage === "Impact")).length;
+    g._done = done;
+    g._level = g.status !== "listed" ? 0 : g.agreed && done >= 3 ? 3 : g.agreed && done >= 1 ? 2 : 1;
+  }
+}
 const upd = (u: Row) => ({ id: u.id, body: u.body, by: u.by_name, project: u.project_id, at: u.created_at });
 
 async function counts(db: DB, ids: number[]) {
@@ -86,7 +107,8 @@ async function counts(db: DB, ids: number[]) {
   return out;
 }
 
-async function profile(db: DB, g: Row, who: { email: string } | null, team: boolean) {
+async function profile(db: DB, g: Row, who: { email: string } | null, team: boolean, origin = "") {
+  if (origin) await ladder(db, [g], origin);
   const projects = ((await db.sql<Row>`SELECT * FROM group_projects WHERE group_id = ${g.id} AND NOT hidden ORDER BY created_at DESC LIMIT 100`) as Row[]).map(proj);
   const updates = ((await db.sql<Row>`SELECT * FROM group_updates WHERE group_id = ${g.id} AND NOT hidden ORDER BY created_at DESC LIMIT 30`) as Row[]).map(upd);
   const [{ n: followers }] = (await db.sql<Row>`SELECT COUNT(*)::int AS n FROM group_follows WHERE group_id = ${g.id}`) as Row[];
@@ -155,11 +177,25 @@ export default async (req: Request) => {
           await db.sql`UPDATE community_groups SET verified = ${body.verified}, verified_by = ${body.verified ? t.email : ""}, verified_at = ${body.verified ? new Date().toISOString() : null}, updated_at = NOW() WHERE id = ${id}`;
           await db.sql`INSERT INTO audit_log (actor, action, target) VALUES (${t.email}, ${body.verified ? "group.verified" : "group.unverified"}, ${g.slug})`;
         }
+        if (typeof body.agreed === "boolean") {
+          await db.sql`UPDATE community_groups SET agreed = ${body.agreed}, agreed_at = ${body.agreed ? new Date().toISOString() : null}, updated_at = NOW() WHERE id = ${id}`;
+          await db.sql`INSERT INTO audit_log (actor, action, target) VALUES (${t.email}, ${body.agreed ? "group.agreed" : "group.not-agreed"}, ${g.slug})`;
+        }
+        // A group's own project into the main Raavanaa list (or out of it), with its category.
+        if (body.show && typeof body.show === "object") {
+          const pid = Number(body.show.id) || 0, theme = THEMES.includes(clip(body.show.theme, 40)) ? clip(body.show.theme, 40) : "";
+          await db.sql`UPDATE group_projects SET on_raavanaa = ${!!body.show.on}, theme = CASE WHEN ${theme} <> '' THEN ${theme} ELSE theme END WHERE id = ${pid} AND group_id = ${id} AND raavanaa_slug = ''`;
+          await db.sql`INSERT INTO audit_log (actor, action, target) VALUES (${t.email}, ${body.show.on ? "group.project-shown" : "group.project-unshown"}, ${g.slug + " " + pid})`;
+        }
         if (typeof body.team_note === "string") await db.sql`UPDATE community_groups SET team_note = ${text(body.team_note, 800)} WHERE id = ${id}`;
         if (body.link) {
           const slug = clip(body.link, 80), title = clip(body.title, 120);
-          const have = (await db.sql<Row>`SELECT 1 FROM group_projects WHERE group_id = ${id} AND raavanaa_slug = ${slug} AND NOT hidden`) as Row[];
-          if (!have.length) await db.sql`INSERT INTO group_projects (group_id, raavanaa_slug, title, stage) VALUES (${id}, ${slug}, ${title}, ${STAGES.includes(body.stage) ? body.stage : "Initiated"})`;
+          // "owner" = runs the project (one per project: linking a new owner makes the old one a partner); "partner" = together with.
+          const role = body.role === "partner" ? "partner" : "owner";
+          if (role === "owner") await db.sql`UPDATE group_projects SET role = 'partner' WHERE raavanaa_slug = ${slug} AND role = 'owner' AND group_id <> ${id} AND NOT hidden`;
+          const have = (await db.sql<Row>`SELECT id FROM group_projects WHERE group_id = ${id} AND raavanaa_slug = ${slug} AND NOT hidden`) as Row[];
+          if (have.length) await db.sql`UPDATE group_projects SET role = ${role} WHERE id = ${have[0].id}`;
+          else await db.sql`INSERT INTO group_projects (group_id, raavanaa_slug, title, stage, role) VALUES (${id}, ${slug}, ${title}, ${STAGES.includes(body.stage) ? body.stage : "Initiated"}, ${role})`;
           await db.sql`INSERT INTO audit_log (actor, action, target) VALUES (${t.email}, 'group.link', ${g.slug + " " + slug})`;
         }
         if (body.unlink) await db.sql`UPDATE group_projects SET hidden = TRUE WHERE id = ${Number(body.unlink) || 0} AND group_id = ${id}`;
@@ -167,8 +203,9 @@ export default async (req: Request) => {
       }
       const groups = (await db.sql<Row>`SELECT * FROM community_groups ORDER BY (status = 'waiting') DESC, created_at DESC LIMIT 500`) as Row[];
       const c = await counts(db, groups.map((g) => g.id));
-      for (const g of groups) g.logo = g.logo ? face(g).logo : "";
-      const links = (await db.sql<Row>`SELECT id, group_id, raavanaa_slug, title, stage FROM group_projects WHERE NOT hidden ORDER BY created_at DESC LIMIT 2000`) as Row[];
+      await ladder(db, groups, url.origin);
+      for (const g of groups) { g.logo = g.logo ? face(g).logo : ""; g.level = g._level; g.levelName = LEVELS[g._level] || ""; g.done = g._done; }
+      const links = (await db.sql<Row>`SELECT id, group_id, raavanaa_slug, title, stage, role, on_raavanaa, theme FROM group_projects WHERE NOT hidden ORDER BY created_at DESC LIMIT 2000`) as Row[];
       return json({ ok: true, groups: groups.map((g) => ({ ...g, ...c[g.id], projects: links.filter((l) => l.group_id === g.id) })) });
     }
 
@@ -189,9 +226,15 @@ export default async (req: Request) => {
       if (req.method === "GET") {
         const groups = (await db.sql<Row>`SELECT * FROM community_groups WHERE status = 'listed' ORDER BY listed_at DESC NULLS LAST LIMIT 500`) as Row[];
         const c = await counts(db, groups.map((g) => g.id));
-        const links = (await db.sql<Row>`SELECT p.raavanaa_slug, g.slug, g.name FROM group_projects p JOIN community_groups g ON g.id = p.group_id
-          WHERE p.raavanaa_slug <> '' AND NOT p.hidden AND g.status = 'listed'`) as Row[];
-        return json({ ok: true, groups: groups.map((g) => face(g, c[g.id])), links: links.map((l) => ({ project: l.raavanaa_slug, group: l.slug, name: l.name })) }, 200, "public, max-age=60");
+        await ladder(db, groups, url.origin);
+        const links = (await db.sql<Row>`SELECT p.raavanaa_slug, p.role, g.slug, g.name FROM group_projects p JOIN community_groups g ON g.id = p.group_id
+          WHERE p.raavanaa_slug <> '' AND NOT p.hidden AND g.status = 'listed' ORDER BY p.role = 'owner' DESC, p.created_at`) as Row[];
+        // Groups' own projects the team chose to show in the main Raavanaa list (no money: SURESH 26 Nov 2026).
+        const shown = (await db.sql<Row>`SELECT p.*, g.slug AS gslug FROM group_projects p JOIN community_groups g ON g.id = p.group_id
+          WHERE p.raavanaa_slug = '' AND p.on_raavanaa AND NOT p.hidden AND g.status = 'listed' ORDER BY p.created_at DESC LIMIT 300`) as Row[];
+        return json({ ok: true, groups: groups.map((g) => face(g, c[g.id])),
+          links: links.map((l) => ({ project: l.raavanaa_slug, group: l.slug, name: l.name, role: l.role === "partner" ? "partner" : "owner" })),
+          shown: shown.map((p) => ({ ...proj(p), group: p.gslug, listed: p.created_at })) }, 200, "public, max-age=60");
       }
       if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
       if (clip(body["bot-field"], 10)) return json({ ok: true });
@@ -222,7 +265,7 @@ export default async (req: Request) => {
     if (!g || (g.status !== "listed" && !admin && !team)) return json({ ok: false, error: "We could not find that group." }, 404);
     const sub = parts[1] || "";
 
-    if (!sub && req.method === "GET") return json(await profile(db, g, who, team));
+    if (!sub && req.method === "GET") return json(await profile(db, g, who, team, url.origin));
 
     if (sub === "logo" && req.method === "GET") {
       const m = String(g.logo || "").match(/^data:(image\/(?:png|jpeg|webp));base64,(.+)$/);
@@ -234,7 +277,7 @@ export default async (req: Request) => {
       if (!who) return json({ ok: false, signin: true, error: "Please sign in to follow." }, 401);
       if (body.on === false) await db.sql`DELETE FROM group_follows WHERE group_id = ${g.id} AND email = ${who.email}`;
       else await db.sql`INSERT INTO group_follows (group_id, email) VALUES (${g.id}, ${who.email}) ON CONFLICT DO NOTHING`;
-      return json(await profile(db, g, who, team));
+      return json(await profile(db, g, who, team, url.origin));
     }
 
     // Everything below changes the group: its own admins only (the team uses /api/groups/team).
@@ -257,30 +300,33 @@ export default async (req: Request) => {
         facebook = ${f.facebook}, instagram = ${f.instagram}, logo = ${logo === undefined ? g.logo : logo}, verified = ${keepVerified && !!g.verified}, updated_at = NOW() WHERE id = ${g.id}`;
       if (g.verified && !keepVerified) await db.sql`INSERT INTO audit_log (actor, action, target) VALUES (${who!.email}, 'group.unverified-by-edit', ${g.slug})`;
       const [n] = (await db.sql<Row>`SELECT * FROM community_groups WHERE id = ${g.id}`) as Row[];
-      return json(await profile(db, n, who, team));
+      return json(await profile(db, n, who, team, url.origin));
     }
 
     if (sub === "projects" && req.method === "POST") {
       const id = Number(body.id) || 0;
-      if (body.remove) { await db.sql`UPDATE group_projects SET hidden = TRUE WHERE id = ${Number(body.remove) || 0} AND group_id = ${g.id} AND raavanaa_slug = ''`; return json(await profile(db, g, who, team)); }
+      if (body.remove) { await db.sql`UPDATE group_projects SET hidden = TRUE WHERE id = ${Number(body.remove) || 0} AND group_id = ${g.id} AND raavanaa_slug = ''`; return json(await profile(db, g, who, team, url.origin)); }
+      // No money on a group's own project (SURESH 26 Nov 2026: Raavanaa does not manage their funding): story, place, day,
+      // stage and category only. Changing the name or the story takes it off the main Raavanaa list until the team looks again.
       const p = { title: clip(body.title, 120), place: clip(body.place, 80), stage: STAGES.includes(body.stage) ? body.stage : "Initiated", story: text(body.story, 2000),
-        day: clip(body.day, 40), cost: num(body.cost), collected: num(body.collected), currency: CUR.includes(body.currency) ? body.currency : "LKR" };
+        day: clip(body.day, 40), theme: THEMES.includes(clip(body.theme, 40)) ? clip(body.theme, 40) : "" };
       if (p.title.length < 3) return json({ ok: false, error: "Please give the project a name." }, 400);
-      if (id) await db.sql`UPDATE group_projects SET title = ${p.title}, place = ${p.place}, stage = ${p.stage}, story = ${p.story}, day = ${p.day}, cost = ${p.cost},
-        collected = ${p.collected}, currency = ${p.currency}, updated_at = NOW() WHERE id = ${id} AND group_id = ${g.id} AND raavanaa_slug = ''`;
-      else await db.sql`INSERT INTO group_projects (group_id, title, place, stage, story, day, cost, collected, currency)
-        VALUES (${g.id}, ${p.title}, ${p.place}, ${p.stage}, ${p.story}, ${p.day}, ${p.cost}, ${p.collected}, ${p.currency})`;
-      return json(await profile(db, g, who, team));
+      if (id) await db.sql`UPDATE group_projects SET on_raavanaa = on_raavanaa AND title = ${p.title} AND story = ${p.story},
+        title = ${p.title}, place = ${p.place}, stage = ${p.stage}, story = ${p.story}, day = ${p.day}, theme = ${p.theme}, cost = 0, collected = 0,
+        updated_at = NOW() WHERE id = ${id} AND group_id = ${g.id} AND raavanaa_slug = ''`;
+      else await db.sql`INSERT INTO group_projects (group_id, title, place, stage, story, day, theme)
+        VALUES (${g.id}, ${p.title}, ${p.place}, ${p.stage}, ${p.story}, ${p.day}, ${p.theme})`;
+      return json(await profile(db, g, who, team, url.origin));
     }
 
     if (sub === "updates" && req.method === "POST") {
-      if (body.remove) { await db.sql`UPDATE group_updates SET hidden = TRUE WHERE id = ${Number(body.remove) || 0} AND group_id = ${g.id}`; return json(await profile(db, g, who, team)); }
+      if (body.remove) { await db.sql`UPDATE group_updates SET hidden = TRUE WHERE id = ${Number(body.remove) || 0} AND group_id = ${g.id}`; return json(await profile(db, g, who, team, url.origin)); }
       const b = text(body.body, 800);
       if (b.length < 3) return json({ ok: false, error: "Please write your update." }, 400);
       const pid = Number(body.project_id) || 0;
       const okP = pid ? ((await db.sql<Row>`SELECT 1 FROM group_projects WHERE id = ${pid} AND group_id = ${g.id}`) as Row[]).length > 0 : false;
       await db.sql`INSERT INTO group_updates (group_id, project_id, body, by_name, by_email) VALUES (${g.id}, ${okP ? pid : null}, ${b}, ${who!.name}, ${who!.email})`;
-      return json(await profile(db, g, who, team));
+      return json(await profile(db, g, who, team, url.origin));
     }
     return new Response("Method not allowed", { status: 405 });
   } catch (e) {
