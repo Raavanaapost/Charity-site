@@ -1966,6 +1966,21 @@
   let FOL = null, folLoading = false, folUpd = {};
   const SITE_URL = "https://raavanaa.org";
   const waNum = v => String(v || "").replace(/\D/g, "").replace(/^00/, "").replace(/^0(?=7\d{8}$)/, "94");
+  // The project day (26 Nov 2026): photos are made small in the browser (about 1600 px, JPEG) before they are sent.
+  const smallPhoto = file => new Promise((ok, no) => {
+    if (!file) return ok("");
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => { const k = Math.min(1, 1600 / Math.max(img.width, img.height)), c = document.createElement("canvas");
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); ok(c.toDataURL("image/jpeg", 0.82)); };
+    img.onerror = () => no(new Error("That photo could not be opened"));
+    img.src = url;
+  });
+  const HERE = location.origin; // links made on the draft open the draft
+  const dayMsg = (p, l) => [`Hello${l.label ? " " + l.label.split(/\s+/)[0] : ""}, this is your own link to post from "${p.title}" on the day:`, "", `${HERE}/day/${l.token}`, "",
+    "Open it on your phone. At each stop, tap what is happening, add a photo and press Post now. It shows on the project page at once, with the time, and the sponsors see it as it happens.",
+    "For each bill, tap \"A receipt\", write what it was for and the amount, and take a photo of it.", "", "No children's names, please. Thank you!", "The Raavanaa team"].join("\n");
+  const thanksMsg = (p, t) => { const first = String(t.to || "").trim().split(/\s+/)[0];
+    return [`Dear ${first || "friend"},`, "", `The children and teachers have a thank-you for you, from "${p.title}". It was made just for you:`, "", `${HERE}/thanks/${t.token}`, "", "With love,", "Raavanaa"].join("\n"); };
   const SRC = { give: "Gave", page: "Project page", team: "Added by team" };
   const QUICK = ["Fully funded: thank you!", "The date is set", "Getting ready for the day", "The day happened", "The money report is up"];
   function folMsg(f, u, p) {
@@ -1973,6 +1988,42 @@
     return [`${first ? `Hi ${first},` : "Hello,"} here is news from "${p ? p.title : u.slug}" on Raavanaa.`, "", `*${u.title}*`, u.body || "", "",
       `See the project: ${SITE_URL}/projects/${u.slug}`, "", "Thank you for following it.", "The Raavanaa team", "", `(To stop these updates: ${SITE_URL}/stop/${f.token})`]
       .filter((l, i, a) => !(l === "" && a[i - 1] === "")).join("\n");
+  }
+  // Phone links for the organiser and a private thank-you page for each sponsor (Kandy trip, 26 Nov 2026).
+  function dayCards(p, slug) {
+    const links = (FOL.links || []).filter(l => l.slug === slug), thanks = (FOL.thanks || []).filter(t => t.slug === slug), givers = (FOL.givers || []).filter(g => g.slug === slug);
+    const giverOf = ref => givers.find(g => g.ref === ref);
+    const thankForm = (g, t) => `<form class="pt-note-form" data-thform data-ref="${esc(g ? g.ref : "")}" data-token="${esc(t ? t.token : "")}"${t ? " hidden" : ""}>
+        <label class="pt-field">Dear …<input name="to" maxlength="80" required value="${esc(t ? t.to : g ? g.name : "")}" placeholder="How the children address them"></label>
+        <label class="pt-field">The children's words<textarea name="message" rows="5" placeholder="In the children's and teachers' own words (translated). Addressed to this sponsor, not to Raavanaa.">${esc(t ? t.message : "")}</textarea></label>
+        <label class="pt-field">From<input name="from" maxlength="200" value="${esc(t ? t.from : `The children and teachers of ${p.organization && p.organization !== "Raavanaa" ? p.organization : "the school"}`)}"></label>
+        <label class="pt-field">Video link (YouTube or Google Drive, optional)<input name="video" maxlength="300" value="${esc(t ? t.video : "")}" placeholder="https://"></label>
+        <label class="pt-field">Photo (a drawing, a group photo with permission)${t && t.image ? " · one is there; add one to replace it" : ""}<input type="file" name="image" accept="image/*"></label>
+        <label class="pt-field">Photo of the letter${t && t.letter ? " · one is there; add one to replace it" : ""}<input type="file" name="letter" accept="image/*"></label>
+        <button class="pt-btn" type="submit">${t ? "Save the page" : "Make the thank-you page"}</button></form>`;
+    const giverRow = g => { const t = thanks.find(x => x.ref === g.ref && !x.hidden);
+      const share = p && p.goal ? Math.round(g.amount / num(p.goal) * 100) : 0;
+      return `<li><div><b>${esc(g.name)}</b> <small>${esc(g.ref)} · Rs ${Math.round(g.amount).toLocaleString("en-US")}${share ? ` · ${share}% of the day` : ""}${g.listing === "anonymous" ? " · shown as Anonymous" : ""}</small>
+        ${g.tribute && g.tribute.name ? `<p class="pt-private" style="margin:6px 0">${esc(g.tribute.words || "In memory of")} ${esc(g.tribute.name)}${g.tribute.day ? ` · ${esc(g.tribute.day)}` : ""}</p>` : ""}
+        ${t ? `<p class="pt-golive-btns"><a class="pt-btn sm" target="_blank" rel="noopener" href="/thanks/${esc(t.token)}">Open their page</a>
+          ${/@/.test(g.contact) ? `<a class="pt-btn sm" href="mailto:${esc(g.contact)}?subject=${encodeURIComponent("A thank-you for you")}&body=${encodeURIComponent(thanksMsg(p, t))}">Send by email</a>`
+            : `<a class="pt-btn sm" target="_blank" rel="noopener" href="https://wa.me/${waNum(g.contact)}?text=${encodeURIComponent(thanksMsg(p, t))}">Send on WhatsApp</a>`}
+          <button type="button" class="pt-btn ghost sm" data-thedit>Change</button> <small>${t.opened ? `Opened ${ago(t.opened)}` : "Not opened yet"}</small></p>` : ""}
+        ${thankForm(g, t)}</div></li>`; };
+    const extra = thanks.filter(t => !giverOf(t.ref) && !t.hidden);
+    return `<section class="pt-card"><h2>Phone link for the day</h2>
+        <p class="pt-sub">Give the organiser on the bus their own link. At each stop they tap what is happening, add a photo and post it: it shows on the project page at once with the Sri Lanka time. Receipts go to the money page. No sign-in. Stop the link after the day.</p>
+        <form class="pt-addline" data-dlform><input name="label" maxlength="80" placeholder="Who has it, e.g. the principal"><button class="pt-btn" type="submit">Make a link</button></form>
+        <ul class="pt-notes">${links.map(l => `<li class="${l.stopped ? "pt-hid" : ""}"><div><b>${esc(l.label || "Phone link")}</b> <time>${ago(l.at)}</time>${l.stopped ? " <small>stopped</small>" : ""}
+          ${l.stopped ? "" : `<p class="pt-golive-btns"><a class="pt-btn sm" target="_blank" rel="noopener" href="/day/${esc(l.token)}">Open</a>
+          <a class="pt-btn sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(dayMsg(p, l))}">Send on WhatsApp</a>
+          <button type="button" class="pt-btn ghost sm" data-dlcopy="${esc(HERE + "/day/" + l.token)}">Copy link</button>
+          <button type="button" class="pt-btn ghost sm" data-dlstop="${esc(l.token)}">Stop</button></p>`}</div></li>`).join("")}</ul></section>
+      <section class="pt-card"><h2>Thank-you pages for the sponsors</h2>
+        <p class="pt-sub">One private page per sponsor, from the children and the school, addressed to them by name: their words, a photo or drawing, the letter, a video, and their part of the day. Nobody else sees it. Then send them the link with one tap.</p>
+        <ul class="pt-notes">${givers.map(giverRow).join("") || `<li class="pt-empty">No sponsors on this project yet.</li>`}
+        ${extra.map(t => `<li><div><b>${esc(t.to)}</b> <small>added by hand</small><p class="pt-golive-btns"><a class="pt-btn sm" target="_blank" rel="noopener" href="/thanks/${esc(t.token)}">Open their page</a> <button type="button" class="pt-btn ghost sm" data-thedit>Change</button></p>${thankForm(null, t)}</div></li>`).join("")}</ul>
+        <details><summary class="pt-sub">For someone who gave by hand (not on the website)</summary>${thankForm(null, null).replace(" hidden>", ">")}</details></section>`;
   }
   function followers(slugIn) {
     if (!LIVE) return `<header class="pt-head"><div><h1>Followers &amp; updates</h1><p class="pt-sub">Sign in to the live portal to see who follows each project and to send them updates.</p></div></header>`;
@@ -2009,8 +2060,11 @@
         <p class="pt-golive-btns">${QUICK.map(q => `<button type="button" class="pt-btn ghost sm" data-folquick="${esc(q)}">${esc(q)}</button>`).join("")}</p>
         <form class="pt-note-form" data-folpost>
           <label class="pt-field">Title<input name="title" maxlength="140" required placeholder="For example: The date is set"></label>
-          <label class="pt-field">The news<textarea name="body" rows="4" placeholder="A few lines in plain words. No children's names or photos."></textarea></label>
+          <label class="pt-field">The news<textarea name="body" rows="4" placeholder="A few lines in plain words. No children's names."></textarea></label>
+          <label class="pt-field">Photo (optional, only with the school's permission)<input type="file" name="photo" accept="image/*"></label>
+          <label class="pt-check"><input type="checkbox" name="live"><span>It is from the day itself (shows in "Live from the day" with the time)</span></label>
           <button class="pt-btn" type="submit">Post on the project page</button></form></section>
+      ${dayCards(p, slug)}
       <section class="pt-card"><h2>Send it to followers ${u ? `<span class="pt-count">${fl.length - left.length} of ${fl.length} sent</span>` : ""}</h2>
         ${ups.length ? `<label class="pt-field">Update to send<select data-folupd>${ups.map(x => `<option value="${x.id}" ${u && x.id === u.id ? "selected" : ""}>${esc(x.title)} · ${ago(x.at)}${x.hidden ? " (hidden)" : ""}</option>`).join("")}</select></label>` : `<p class="pt-sub">Post an update above first; then the send buttons appear here.</p>`}
         ${u && emailsLeft.length > 1 ? `<p class="pt-golive-btns"><a class="pt-btn ghost sm" data-folbcc="${left.filter(f => f.kind === "email").map(f => f.id).join(",")}" href="mailto:?bcc=${encodeURIComponent(emailsLeft.join(","))}&subject=${encodeURIComponent(`News: ${p.title}`)}&body=${encodeURIComponent(folMsg({ name: "", token: "" }, u, p).replace(/\n\n\(To stop these updates: .*\)$/, "\n\n(To stop these updates, just reply STOP.)"))}">Email all ${emailsLeft.length} not yet sent (BCC)</a></p>` : ""}
@@ -2020,7 +2074,9 @@
           <label class="pt-field">WhatsApp number or email<input name="contact" required maxlength="120"></label>
           <button class="pt-btn" type="submit">Add follower</button></form></section>
       ${ups.length ? `<section class="pt-card"><h2>Updates on this project</h2><ul class="pt-notes">${ups.map(x => `<li class="${x.hidden ? "pt-hid" : ""}"><div><b>${esc(x.title)}</b> <time>${ago(x.at)}</time>${x.by ? ` <small>by ${esc(x.by)}</small>` : ""}
+          ${x.kind === "receipt" ? ` <span class="pt-pill st-2">Receipt · Rs ${Math.round(x.amount).toLocaleString("en-US")}</span>` : x.kind === "live" ? ` <span class="pt-pill st-1">Live</span>` : ""}
           ${x.body ? `<p class="pt-desc" style="margin:6px 0;white-space:pre-line">${esc(x.body)}</p>` : ""}
+          ${x.image ? `<a href="${esc(x.image)}" target="_blank" rel="noopener"><img src="${esc(x.image)}" alt="" style="width:120px;height:90px;object-fit:cover;border-radius:10px;margin:4px 0"></a>` : ""}
           <p class="pt-golive-btns"><button type="button" class="pt-btn ghost sm" data-folhide="${x.id}" data-on="${x.hidden ? "no" : "yes"}">${x.hidden ? "Show on the page again" : "Hide from the page"}</button></p></div></li>`).join("")}</ul></section>` : ""}`;
   }
   function wireFollowers(slugIn) {
@@ -2031,8 +2087,23 @@
     sel.onchange = () => { location.hash = `#/followers/${sel.value}`; };
     const us = app.querySelector("[data-folupd]"); if (us) us.onchange = () => { folUpd[slug] = +us.value; render(); };
     app.querySelectorAll("[data-folquick]").forEach(b => b.onclick = () => { const t = app.querySelector("[data-folpost] [name=title]"); t.value = b.dataset.folquick; app.querySelector("[data-folpost] [name=body]").focus(); });
-    const post = app.querySelector("[data-folpost]"); if (post) post.onsubmit = e => { e.preventDefault(); post.querySelector("button").disabled = true;
-      folUpd[slug] = 0; save("/api/portal/updates", { method: "POST", body: JSON.stringify({ slug, title: post.elements.title.value, body: post.elements.body.value }) }, "Posted on the project page. Now send it to the followers."); };
+    const post = app.querySelector("[data-folpost]"); if (post) post.onsubmit = async e => { e.preventDefault(); const btn = post.querySelector("button[type=submit]"); btn.disabled = true;
+      let image = ""; try { image = await smallPhoto(post.elements.photo.files[0]); } catch (er) { toast(er.message); btn.disabled = false; return; }
+      folUpd[slug] = 0; save("/api/portal/updates", { method: "POST", body: JSON.stringify({ slug, title: post.elements.title.value, body: post.elements.body.value, image, live: post.elements.live.checked }) }, "Posted on the project page. Now send it to the followers."); };
+    const reload = async msg => { try { FOL = await api("/api/portal/followers"); render(); if (msg) toast(msg); } catch (er) { toast(er.message || "Could not load"); } };
+    const dl = app.querySelector("[data-dlform]"); if (dl) dl.onsubmit = async e => { e.preventDefault();
+      try { await api("/api/portal/daylinks", { method: "POST", body: JSON.stringify({ slug, label: dl.elements.label.value }) }); reload("Link made. Send it to the organiser."); } catch (er) { toast(er.message || "Could not make the link"); } };
+    app.querySelectorAll("[data-dlcopy]").forEach(b => b.onclick = () => { navigator.clipboard.writeText(b.dataset.dlcopy).then(() => toast("Link copied"), () => toast(b.dataset.dlcopy)); });
+    app.querySelectorAll("[data-dlstop]").forEach(b => b.onclick = async () => { if (!b.dataset.sure) { b.dataset.sure = 1; b.textContent = "Press again to stop"; return; }
+      try { await api(`/api/portal/daylinks/${b.dataset.dlstop}`, { method: "DELETE" }); reload("Link stopped"); } catch (er) { toast(er.message || "Could not stop it"); } });
+    app.querySelectorAll("[data-thedit]").forEach(b => b.onclick = () => { const f = b.closest("li").querySelector("[data-thform]"); if (f) f.hidden = !f.hidden; });
+    app.querySelectorAll("[data-thform]").forEach(f => f.onsubmit = async e => { e.preventDefault(); const btn = f.querySelector("button[type=submit]"); btn.disabled = true;
+      try {
+        const [image, letter] = await Promise.all([smallPhoto(f.elements.image.files[0]), smallPhoto(f.elements.letter.files[0])]);
+        const body = JSON.stringify({ slug, ref: f.dataset.ref, to: f.elements.to.value, message: f.elements.message.value, from: f.elements.from.value, video: f.elements.video.value, image, letter });
+        if (f.dataset.token) await api(`/api/portal/thanks/${f.dataset.token}`, { method: "PATCH", body }); else await api("/api/portal/thanks", { method: "POST", body });
+        reload("Thank-you page saved. Open it to check, then send it.");
+      } catch (er) { toast(er.message || "Could not save"); btn.disabled = false; } });
     const add = app.querySelector("[data-foladd]"); if (add) add.onsubmit = e => { e.preventDefault(); save("/api/portal/followers", { method: "POST", body: JSON.stringify({ slug, name: add.elements.name.value, contact: add.elements.contact.value }) }, "Follower added"); };
     const updId = () => { const u = app.querySelector("[data-folupd]"); return u ? +u.value : 0; };
     const tick = (fid, on) => save(`/api/portal/updates/${updId()}/sent`, { method: "POST", body: JSON.stringify({ follow: fid, on }) });

@@ -20,6 +20,7 @@ import { makeProject, VOUCHES_NEEDED, VOUCH_NEEDS_ROLE, OPEN_VOUCH, LIVE_ON_VOUC
 import { peopleFor, message } from "../lib/notify.mts";
 import { mailOn } from "../lib/mail.mts";
 import { follow as addFollower } from "../lib/follow.mts";
+import { savePhoto, photoUrl } from "../lib/day.mts";
 
 const STATUSES = ["new", "visit", "verified", "approved", "declined", "project"];
 const clip = (v: unknown, max: number) => String(v ?? "").trim().slice(0, max);
@@ -300,14 +301,70 @@ export default async (req: Request, context: Context) => {
   //   POST   /api/portal/updates                { slug, title, body }    post news: shows on the project page at once
   //   PATCH  /api/portal/updates/:id            { hidden }               hide or show it again
   //   POST   /api/portal/updates/:id/sent       { follow, on }           tick who has been sent it
+  // The project day (26 Nov 2026): phone links for the organiser and private thank-you pages for each sponsor.
+  //   POST   /api/portal/daylinks         { slug, label }              a new phone link (/day/<token>)
+  //   DELETE /api/portal/daylinks/:token                                stop it
+  //   POST   /api/portal/thanks           { slug, ref, to, message, from, video, image, letter }   a sponsor's thank-you page
+  //   PATCH  /api/portal/thanks/:token    same fields (photos only when sent again), or { hidden }
+  if (parts[0] === "daylinks" || parts[0] === "thanks") {
+    let b: Record<string, any> = {};
+    if (req.method !== "GET") { try { b = await req.json(); } catch { /* empty */ } }
+    const slug = String(b.slug || "");
+    if (parts[0] === "daylinks") {
+      if (req.method === "POST" && !parts[1]) {
+        if (!/^[a-z0-9-]{1,80}$/.test(slug)) return json({ error: "Pick a project" }, 400);
+        const [l] = (await db.sql`INSERT INTO day_links (slug, label, created_by) VALUES (${slug}, ${clip(b.label, 80)}, ${me.name || me.email}) RETURNING token`) as Record<string, any>[];
+        await db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES (${me.email}, 'daylink.add', ${slug}, ${JSON.stringify({ label: clip(b.label, 80) })}::jsonb)`;
+        return json({ ok: true, token: l.token });
+      }
+      if (req.method === "DELETE" && parts[1]) {
+        await db.sql`UPDATE day_links SET stopped_at = COALESCE(stopped_at, NOW()) WHERE token = ${clip(parts[1], 64)}`;
+        await db.sql`INSERT INTO audit_log (actor, action, target) VALUES (${me.email}, 'daylink.stop', ${clip(parts[1], 64)})`;
+        return json({ ok: true });
+      }
+    } else {
+      const fields = async () => {
+        const image = await savePhoto(context, slug || "thanks", b.image), letter = await savePhoto(context, slug || "thanks", b.letter);
+        if (image === null || letter === null) return null;
+        return { image, letter, to: clip(b.to, 80), message: lines(b.message, 4000), from: clip(b.from, 200), video: /^https:\/\//.test(String(b.video || "")) ? clip(b.video, 300) : "", ref: clip(b.ref, 20) };
+      };
+      if (req.method === "POST" && !parts[1]) {
+        if (!/^[a-z0-9-]{1,80}$/.test(slug)) return json({ error: "Pick a project" }, 400);
+        const f = await fields(); if (!f) return json({ error: "A photo could not be saved. Try another one." }, 400);
+        if (!f.to) return json({ error: "Write the sponsor's name" }, 400);
+        const [t] = (await db.sql`INSERT INTO sponsor_thanks (slug, give_ref, to_name, message, from_line, image, letter, video, created_by)
+          VALUES (${slug}, ${f.ref}, ${f.to}, ${f.message}, ${f.from}, ${f.image}, ${f.letter}, ${f.video}, ${me.name || me.email}) RETURNING token`) as Record<string, any>[];
+        await db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES (${me.email}, 'thanks.add', ${slug}, ${JSON.stringify({ to: f.to, ref: f.ref })}::jsonb)`;
+        return json({ ok: true, token: t.token });
+      }
+      if (req.method === "PATCH" && parts[1]) {
+        const token = clip(parts[1], 64);
+        if (b.hidden !== undefined) { await db.sql`UPDATE sponsor_thanks SET hidden = ${b.hidden === true} WHERE token = ${token}`; return json({ ok: true }); }
+        const f = await fields(); if (!f) return json({ error: "A photo could not be saved. Try another one." }, 400);
+        await db.sql`UPDATE sponsor_thanks SET to_name = COALESCE(NULLIF(${f.to}, ''), to_name), message = ${f.message}, from_line = ${f.from}, video = ${f.video},
+          image = COALESCE(NULLIF(${f.image}, ''), image), letter = COALESCE(NULLIF(${f.letter}, ''), letter) WHERE token = ${token}`;
+        return json({ ok: true, token });
+      }
+    }
+    return json({ error: "Not allowed" }, 405);
+  }
+
   if (parts[0] === "followers" || parts[0] === "updates") {
     const all = async () => {
       const followers = ((await db.sql`SELECT id, slug, name, contact, kind, source, token, created_at, stopped_at FROM project_follows ORDER BY created_at`) as Record<string, any>[])
         .map((r) => ({ id: r.id, slug: r.slug, name: r.name, contact: r.contact, kind: r.kind, source: r.source, token: r.token, at: r.created_at, stopped: !!r.stopped_at }));
       const sends = (await db.sql`SELECT update_id, follow_id FROM update_sends`) as Record<string, any>[];
-      const updates = ((await db.sql`SELECT id, slug, title, body, posted_by, hidden, created_at FROM project_updates ORDER BY created_at DESC LIMIT 500`) as Record<string, any>[])
-        .map((u) => ({ id: u.id, slug: u.slug, title: u.title, body: u.body, by: u.posted_by, hidden: u.hidden, at: u.created_at, sent: sends.filter((x) => x.update_id === u.id).map((x) => x.follow_id) }));
-      return json({ followers, updates });
+      const links = ((await db.sql`SELECT token, slug, label, created_by, created_at, stopped_at FROM day_links ORDER BY created_at DESC`) as Record<string, any>[])
+        .map((l) => ({ token: l.token, slug: l.slug, label: l.label, by: l.created_by, at: l.created_at, stopped: !!l.stopped_at }));
+      const linkName = (by: string) => { const l = links.find((x) => `day:${x.token}` === by); return l ? `${l.label || "the organiser"} (phone link)` : by; };
+      const updates = ((await db.sql`SELECT id, slug, title, body, posted_by, hidden, image, kind, amount, created_at FROM project_updates ORDER BY created_at DESC LIMIT 500`) as Record<string, any>[])
+        .map((u) => ({ id: u.id, slug: u.slug, title: u.title, body: u.body, by: linkName(u.posted_by), hidden: u.hidden, at: u.created_at, image: photoUrl(u.image), kind: u.kind, amount: Number(u.amount) || 0,
+          sent: sends.filter((x) => x.update_id === u.id).map((x) => x.follow_id) }));
+      const thanks = ((await db.sql`SELECT token, slug, give_ref, to_name, message, from_line, image, letter, video, created_at, opened_at, hidden FROM sponsor_thanks ORDER BY created_at DESC`) as Record<string, any>[])
+        .map((t) => ({ token: t.token, slug: t.slug, ref: t.give_ref, to: t.to_name, message: t.message, from: t.from_line, image: photoUrl(t.image), letter: photoUrl(t.letter), video: t.video, at: t.created_at, opened: t.opened_at, hidden: t.hidden }));
+      const givers = ((await db.sql`SELECT ref, name, contact, amount_value, project_slug, tribute, listing FROM give_requests WHERE status <> 'closed' AND project_slug <> '' ORDER BY received_at`) as Record<string, any>[])
+        .map((g) => ({ ref: g.ref, name: g.name, contact: g.contact, amount: Number(g.amount_value) || 0, slug: g.project_slug, tribute: g.tribute || null, listing: g.listing || "both" }));
+      return json({ followers, updates, links, thanks, givers });
     };
     let b: Record<string, any> = {};
     if (req.method !== "GET") { try { b = await req.json(); } catch { /* empty */ } }
@@ -329,7 +386,9 @@ export default async (req: Request, context: Context) => {
       if (req.method === "POST" && !parts[1]) {
         const title = clip(b.title, 140), body = lines(b.body, 3000);
         if (!slugOk(b.slug) || !title) return json({ error: "Pick a project and write a short title" }, 400);
-        await db.sql`INSERT INTO project_updates (slug, title, body, posted_by) VALUES (${String(b.slug)}, ${title}, ${body}, ${me.name || me.email})`;
+        const image = await savePhoto(context, String(b.slug), b.image);
+        if (image === null) return json({ error: "That photo could not be saved. Try another one." }, 400);
+        await db.sql`INSERT INTO project_updates (slug, title, body, posted_by, image, kind) VALUES (${String(b.slug)}, ${title}, ${body}, ${me.name || me.email}, ${image}, ${b.live ? "live" : "news"})`;
         await db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES (${me.email}, 'update.post', ${String(b.slug)}, ${JSON.stringify({ title })}::jsonb)`;
         return all();
       }
