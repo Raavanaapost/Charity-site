@@ -3003,7 +3003,7 @@ window.RAAV_FEATURES = (function () {
     if (n === 2) { const h = happeningNow(day);
       // A short address with no https:// (WhatsApp cannot hide a link behind words, but it still makes this one tappable).
       const short = p.short ? `${location.host}/${p.short}` : url.replace(/^https?:\/\//, "").replace(/\?.*$/, "");
-      return [`\u2728 *${h.top.toUpperCase()} ${h.big.toUpperCase()}* \u2728`, "", `*${plain(p.title)}*`, "\u2705 Fully funded, thank you to everyone who gave", "", `\u{1F449} Follow the day: ${short}`].join("\n"); }
+      return [`\u2728 *${h.top.toUpperCase()} ${h.big.toUpperCase()}* \u2728`, "", `*${plain(p.title)}*`, "\u{1F49B} Thanks for the moment, to everyone who gave", "", "\u{1F4F8} *Follow the day*", `\u{1F449} ${short}`].join("\n"); }
     const head = n === 3 ? "\u{1F389} *The day happened*" : "\u{1F331} *A need on Raavanaa*";
     const facts = [
       when && `\u{1F4C5} ${when}`,
