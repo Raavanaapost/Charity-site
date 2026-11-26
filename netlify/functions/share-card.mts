@@ -53,35 +53,40 @@ async function artData(origin: string, pr: Progress) {
 // Activated (fully funded, the day is coming): the picture shows that it is happening, not the money (SURESH 26 Nov
 // 2026: "happenings now as highlight ... Simple but dont need to focus the 100% circle").
 function happeningSVG(pr: Progress, art: string) {
-  // v2 (SURESH 26 Nov 2026: "make happening today stand out ... Dont need to take up so much for image"): the day in
-  // big letters across most of the card, the drawing in a narrow strip, and a "Follow the day" button.
-  const w = happeningWhen(pr.day), title = wrap(pr.title, 40, 2);
-  const top = w.top.toUpperCase(), big = w.big.toUpperCase();
-  const fsTop = Math.min(64, Math.floor(700 / (top.length * 0.8))), fsBig = Math.min(150, Math.floor(720 / (big.length * 0.8)));
-  const yBig = 170 + fsTop + Math.round(fsBig * 0.82);
-  const yTitle = yBig + 62;
+  // v3 (SURESH 26 Nov 2026: "the happening section color combination makes letter not stand out ... move the title
+  // big and close to center"): deep green panel with cream and gold letters, everything centred, the title larger,
+  // "Thanks for the moment" in place of "Fully funded", and a gold "Follow the day" button.
+  const w = happeningWhen(pr.day), title = wrap(pr.title, 34, 2);
+  const top = w.top.toUpperCase(), big = w.big.toUpperCase(), cx = 415;
+  const fsTop = Math.min(56, Math.floor(700 / (top.length * 0.8))), fsBig = Math.min(140, Math.floor(740 / (big.length * 0.8)));
+  const yTop = 148 + fsTop, yBig = yTop + Math.round(fsBig * 0.86), yTitle = yBig + 70;
   return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
-    <linearGradient id="fade" x1="0" x2="1"><stop offset="0" stop-color="#fbf6ea"/><stop offset="1" stop-color="#fbf6ea" stop-opacity="0"/></linearGradient>
-    <clipPath id="right"><rect x="820" y="0" width="380" height="630"/></clipPath>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1f4d3a"/><stop offset="1" stop-color="#143628"/></linearGradient>
+    <linearGradient id="fade" x1="0" x2="1"><stop offset="0" stop-color="#173f2f"/><stop offset="1" stop-color="#173f2f" stop-opacity="0"/></linearGradient>
+    <clipPath id="right"><rect x="830" y="0" width="370" height="630"/></clipPath>
   </defs>
-  <rect width="1200" height="630" fill="#fbf6ea"/>
-  ${art ? `<image x="820" y="0" width="380" height="630" preserveAspectRatio="xMidYMid slice" clip-path="url(#right)" xlink:href="${art}" href="${art}"/>` : ""}
-  <rect x="820" y="0" width="120" height="630" fill="url(#fade)"/>
-  <image x="52" y="30" width="200" height="66" href="data:image/png;base64,${A.logoPng}" xlink:href="data:image/png;base64,${A.logoPng}"/>
-  <rect x="56" y="118" width="172" height="36" rx="18" fill="#eaa21c"/>
-  <circle cx="78" cy="136" r="6" fill="#fff"/>
-  <text x="92" y="143" font-family="Inter" font-weight="800" font-size="17" letter-spacing="2" fill="#fff">ACTIVATED</text>
-  <text x="52" y="${170 + fsTop}" font-family="Cinzel" font-weight="700" font-size="${fsTop}" fill="#b97a06">${esc(top)}</text>
-  <text x="48" y="${yBig}" font-family="Cinzel" font-weight="700" font-size="${fsBig}" fill="#d9661a">${esc(big)}</text>
-  ${title.map((l, i) => `<text x="56" y="${yTitle + i * 34}" font-family="Cinzel" font-weight="700" font-size="27" fill="#1f4d3a">${esc(l)}</text>`).join("")}
-  <g transform="translate(56 534)">
-    <rect width="290" height="60" rx="30" fill="#1f4d3a"/>
-    <text x="34" y="39" font-family="Inter" font-weight="800" font-size="23" fill="#fff">Follow the day</text>
-    <circle cx="252" cy="30" r="19" fill="#eaa21c"/><path d="M245 21l11 9-11 9" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  ${art ? `<image x="830" y="0" width="370" height="630" preserveAspectRatio="xMidYMid slice" clip-path="url(#right)" xlink:href="${art}" href="${art}"/>` : ""}
+  <rect x="826" y="0" width="8" height="630" fill="#eaa21c"/>
+  <rect x="0" y="0" width="830" height="8" fill="#eaa21c"/>
+  <image x="${cx - 105}" y="30" width="210" height="70" href="data:image/png;base64,${A.logoLightPng}" xlink:href="data:image/png;base64,${A.logoLightPng}"/>
+  <g transform="translate(${cx - 78} 108)"><rect width="156" height="30" rx="15" fill="#eaa21c"/><circle cx="20" cy="15" r="5" fill="#1f4d3a"/>
+    <text x="84" y="21" text-anchor="middle" font-family="Inter" font-weight="800" font-size="14" letter-spacing="2" fill="#1f4d3a">ACTIVATED</text></g>
+  <text x="${cx}" y="${yTop}" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="${fsTop}" letter-spacing="3" fill="#f2c14e">${esc(top)}</text>
+  <text x="${cx}" y="${yBig}" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="${fsBig}" fill="#fffaf0">${esc(big)}</text>
+  <rect x="${cx - 42}" y="${yBig + 22}" width="84" height="4" rx="2" fill="#eaa21c"/>
+  ${title.map((l, i) => `<text x="${cx}" y="${yTitle + i * 42}" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="34" fill="#fbe7b5">${esc(l)}</text>`).join("")}
+  <g transform="translate(${cx - 300} 540)">
+    <rect width="270" height="56" rx="28" fill="#eaa21c"/>
+    <text x="30" y="36" font-family="Inter" font-weight="800" font-size="22" fill="#1f4d3a">Follow the day</text>
+    <circle cx="234" cy="28" r="17" fill="#1f4d3a"/><path d="M228 20l10 8-10 8" fill="none" stroke="#f2c14e" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
-  <g transform="translate(372 548)"><circle cx="12" cy="16" r="12" fill="#1f7a47"/><path d="M6.5 16.5l3.6 3.6 7.4-7.6" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
-    <text x="32" y="23" font-family="Inter" font-weight="600" font-size="19" fill="#1f7a47">Fully funded, thank you</text></g>
+  <g transform="translate(${cx + 10} 540)">
+    <rect width="320" height="56" rx="28" fill="none" stroke="#f2c14e" stroke-width="2.5"/>
+    <path d="M38 40s-13-8-13-17a7.5 7.5 0 0 1 13-4.8A7.5 7.5 0 0 1 51 23c0 9-13 17-13 17z" fill="#e5533d"/>
+    <text x="64" y="36" font-family="Inter" font-weight="700" font-size="21" fill="#fffaf0">Thanks for the moment</text>
+  </g>
 </svg>`;
 }
 
