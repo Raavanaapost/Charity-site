@@ -2016,7 +2016,7 @@
         ${thankForm(g, t)}</div></li>`; };
     const extra = thanks.filter(t => !giverOf(t.ref) && !t.hidden);
     return `<section class="pt-card"><h2>Phone link for the day</h2>
-        <p class="pt-sub">Give the organiser on the bus their own link. At each stop they tap what is happening, add a photo and post it: it shows on the project page at once with the Sri Lanka time. Receipts go to the money page. No sign-in. Stop the link after the day.</p>
+        <p class="pt-sub">Give the organiser on the bus their own link. At each stop they tap what is happening, add a photo and post it: it shows on the project page at once with the Sri Lanka time. Receipts go to Money books, where a second team member checks them before they show on the money page. No sign-in. Stop the link after the day.</p>
         <form class="pt-addline" data-dlform><input name="label" maxlength="80" placeholder="Who has it, e.g. the principal"><button class="pt-btn" type="submit">Make a link</button></form>
         <ul class="pt-notes">${links.map(l => `<li class="${l.stopped ? "pt-hid" : ""}"><div><b>${esc(l.label || "Phone link")}</b> <time>${ago(l.at)}</time>${l.stopped ? " <small>stopped</small>" : ""}
           ${l.stopped ? "" : `<p class="pt-golive-btns"><a class="pt-btn sm" target="_blank" rel="noopener" href="/day/${esc(l.token)}">Open</a>
