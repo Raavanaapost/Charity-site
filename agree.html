@@ -157,6 +157,9 @@ input[type=text],input[type=tel],input[type=email],select{width:100%;font:inheri
   }
   document.querySelectorAll("[data-lang]").forEach(function (b) { b.addEventListener("click", function () { setLang(b.dataset.lang); }); });
   if (q.get("lang") === "ta") setLang("ta");
+  // ?role=principal picks the role for them (SURESH 26 Nov: "just say Principal for now"); they type their own name.
+  var role = (q.get("role") || "").toLowerCase();
+  Array.prototype.forEach.call(f.role.options, function (o) { if (o.value.toLowerCase() === role || o.value.toLowerCase() === role.replace(/-/g, " ")) f.role.value = o.value; });
   if (q.get("sent")) { f.hidden = true; document.getElementById("done").hidden = false; }
 
   f.addEventListener("submit", function (e) {
