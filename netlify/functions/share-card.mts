@@ -10,6 +10,7 @@ import jpeg from "jpeg-js";
 import { mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { allProgress, money, showsProgress, type Progress } from "../lib/share-progress.mts";
 import * as A from "../lib/card-assets.mts";
+import { groupSummary, projectLine, badgeWord, type GroupSummary } from "../lib/group-summary.mts";
 
 // resvg reads fonts from files only, so they are written to /tmp once per warm function.
 const FONT_DIR = "/tmp/raav-card-fonts";
@@ -123,8 +124,8 @@ function siteSVG(c: SiteCounts, art: string, stages: string[]) {
 </svg>`;
 }
 
-function toJpeg(svg: string) {
-  const r = new Resvg(svg, { font: { fontFiles: fontFiles(), loadSystemFonts: false, defaultFontFamily: "Inter" }, fitTo: { mode: "width", value: 1200 } }).render();
+function toJpeg(svg: string, width = 1200) {
+  const r = new Resvg(svg, { font: { fontFiles: fontFiles(), loadSystemFonts: false, defaultFontFamily: "Inter" }, fitTo: { mode: "width", value: width } }).render();
   return Buffer.from(jpeg.encode({ data: r.pixels, width: r.width, height: r.height }, 86).data);
 }
 export const renderCard = (pr: Progress, art: string) => toJpeg(cardSVG(pr, art));
@@ -135,9 +136,101 @@ async function dataUrl(origin: string, path: string) {
   return "";
 }
 
+
+// A group's or organisation's own picture (SURESH 26 Nov 2026: share a profile on WhatsApp/Facebook/Instagram):
+//   /api/share-card/g--<slug>.jpg        1200x630 link preview
+//   /api/share-card/g--<slug>-story.jpg  1080x1920 Instagram story
+// Its logo (or initials), the badge, its name, places and "3 projects, 2 done". Logos and drawings only, no photos.
+const TONES = ["#1f7a47", "#b97a06", "#c8381e", "#2f7f8f", "#7a4fa0", "#8a5c12"];
+const tone = (n: string) => { let h = 0; for (let i = 0; i < n.length; i++) h = (h * 31 + n.charCodeAt(i)) >>> 0; return TONES[h % TONES.length]; };
+const initials = (n: string) => n.split(/\s+/).filter((w) => /^[A-Za-z0-9]/.test(w) && !/^(of|the|and|for)$/i.test(w)).map((w) => w.charAt(0)).join("").slice(0, 2).toUpperCase() || "G";
+const BADGE_COL = (g: GroupSummary) => g.type === "organisation" ? (g.verified ? ["#1f7a47", "#e3f1e7"] : ["#2f5f8f", "#e5eef8"]) : ["#1f7a47", "#e3f1e7"];
+
+function avatarSVG(g: GroupSummary, logo: string, cx: number, cy: number, r: number) {
+  return `<circle cx="${cx}" cy="${cy}" r="${r + 10}" fill="#fff" filter="url(#sh)"/><circle cx="${cx}" cy="${cy}" r="${r + 6}" fill="none" stroke="#c9a24a" stroke-width="4"/>` + (logo
+    ? `<clipPath id="av"><circle cx="${cx}" cy="${cy}" r="${r}"/></clipPath><circle cx="${cx}" cy="${cy}" r="${r}" fill="#fff"/><image x="${cx - r}" y="${cy - r}" width="${2 * r}" height="${2 * r}" preserveAspectRatio="xMidYMid meet" clip-path="url(#av)" href="${logo}" xlink:href="${logo}"/>`
+    : `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${tone(g.name)}"/><text x="${cx}" y="${cy + r * 0.3}" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="${Math.round(r * 0.86)}" fill="#fff">${esc(initials(g.name))}</text>`);
+}
+// The ✓ is drawn, because the card fonts have no ✓ letter.
+const tick = (x: number, y: number, size: number, col: string) => `<path d="M${x} ${y - size * 0.35} l${size * 0.32} ${size * 0.32} l${size * 0.62} -${size * 0.7}" fill="none" stroke="${col}" stroke-width="${Math.max(2.5, size * 0.17)}" stroke-linecap="round" stroke-linejoin="round"/>`;
+function badgeSVG(g: GroupSummary, x: number, y: number, size: number, anchor: "start" | "middle") {
+  const word = badgeWord(g).toUpperCase(), [fg, bg] = BADGE_COL(g), ok = g.type === "organisation" && g.verified;
+  const tw = word.length * size * 0.78, extra = ok ? size * 1.3 : 0;
+  const w = Math.round(tw + extra + size * 1.6), h = Math.round(size * 2.1), bx = anchor === "middle" ? x - w / 2 : x;
+  return `<rect x="${bx}" y="${y - h + size * 0.55}" width="${w}" height="${h}" rx="${h / 2}" fill="${bg}"/>` +
+    (ok ? tick(bx + size * 0.8, y - size * 0.05, size, fg) : "") +
+    `<text x="${bx + extra + w / 2 - extra / 2}" y="${y}" text-anchor="middle" font-family="Inter" font-weight="800" font-size="${size}" letter-spacing="${size * 0.12}" fill="${fg}">${esc(word)}</text>`;
+}
+const DEFS = `<linearGradient id="fade" x1="0" x2="1"><stop offset="0" stop-color="#fbf6ea"/><stop offset="1" stop-color="#fbf6ea" stop-opacity="0"/></linearGradient>
+    <linearGradient id="fadeV" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#fbf6ea"/><stop offset="1" stop-color="#fbf6ea" stop-opacity="0"/></linearGradient>
+    <filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#1f4d3a" flood-opacity=".2"/></filter>`;
+
+function groupSVG(g: GroupSummary, logo: string, art: string) {
+  const name = wrap(g.name, 19, 2), y0 = name.length > 1 ? 262 : 292;
+  const stats = `${projectLine(g)}${g.followers ? ` · ${g.followers} follower${g.followers === 1 ? "" : "s"}` : ""}`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>${DEFS}<clipPath id="right"><rect x="800" y="0" width="400" height="630"/></clipPath></defs>
+  <rect width="1200" height="630" fill="#fbf6ea"/>
+  ${art ? `<image x="800" y="0" width="400" height="630" preserveAspectRatio="xMidYMid slice" clip-path="url(#right)" xlink:href="${art}" href="${art}"/>` : ""}
+  <rect x="800" y="0" width="150" height="630" fill="url(#fade)"/>
+  <image x="52" y="34" width="232" height="77" href="data:image/png;base64,${A.logoPng}" xlink:href="data:image/png;base64,${A.logoPng}"/>
+  ${avatarSVG(g, logo, 170, 330, 104)}
+  ${badgeSVG(g, 318, y0 - 66, 17, "start")}
+  ${name.map((l, i) => `<text x="318" y="${y0 + i * 50}" font-family="Cinzel" font-weight="700" font-size="42" fill="#1f4d3a">${esc(l)}</text>`).join("")}
+  ${g.places ? `<text x="318" y="${y0 + name.length * 50 + 2}" font-family="Inter" font-weight="500" font-size="22" fill="#6f6a5e">${esc(wrap(g.places, 40, 1)[0])}</text>` : ""}
+  <text x="318" y="${y0 + name.length * 50 + 58}" font-family="Inter" font-weight="800" font-size="28" fill="#d9661a">${esc(stats)}</text>
+  ${g.checked && !g.verified ? `${tick(318, y0 + name.length * 50 + 98, 20, "#1f7a47")}<text x="346" y="${y0 + name.length * 50 + 100}" font-family="Inter" font-weight="600" font-size="20" fill="#1f7a47">Checked by Raavanaa</text>` : ""}
+  <text x="56" y="566" font-family="Inter" font-weight="600" font-size="15" letter-spacing="2.2" fill="#b0812a">EVERY PROJECT SHOWN OPENLY</text>
+  <text x="56" y="598" font-family="Inter" font-weight="700" font-size="22" fill="#1f4d3a">Follow us on raavanaa.org</text>
+</svg>`;
+}
+function groupStorySVG(g: GroupSummary, logo: string, art: string) {
+  const name = wrap(g.name, 16, 3), ny = 930, top = ny + name.length * 78 + (g.places ? 110 : 40), btn = top + 240;
+  const box = (x: number, n: number | string, label: string, col: string) => `<g transform="translate(${x} 0)"><rect x="-140" y="${top}" width="280" height="190" rx="28" fill="#fff" stroke="#eadfc2" stroke-width="3"/>
+    <text y="${top + 100}" text-anchor="middle" font-family="Inter" font-weight="800" font-size="74" fill="${col}">${n}</text>
+    <text y="${top + 152}" text-anchor="middle" font-family="Inter" font-weight="700" font-size="26" letter-spacing="2" fill="#6f6a5e">${label}</text></g>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <defs>${DEFS}<clipPath id="bot"><rect x="0" y="1560" width="1080" height="360"/></clipPath></defs>
+  <rect width="1080" height="1920" fill="#fbf6ea"/>
+  ${art ? `<image x="0" y="1560" width="1080" height="360" preserveAspectRatio="xMidYMid slice" clip-path="url(#bot)" xlink:href="${art}" href="${art}"/>` : ""}
+  <rect x="0" y="1560" width="1080" height="140" fill="url(#fadeV)"/>
+  <image x="300" y="110" width="480" height="159" href="data:image/png;base64,${A.logoPng}" xlink:href="data:image/png;base64,${A.logoPng}"/>
+  ${avatarSVG(g, logo, 540, 540, 180)}
+  ${badgeSVG(g, 540, 810, 30, "middle")}
+  ${name.map((l, i) => `<text x="540" y="${ny + i * 78}" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="66" fill="#1f4d3a">${esc(l)}</text>`).join("")}
+  ${g.places ? `<text x="540" y="${ny + name.length * 78 + 20}" text-anchor="middle" font-family="Inter" font-weight="500" font-size="34" fill="#6f6a5e">${esc(wrap(g.places, 36, 1)[0])}</text>` : ""}
+  ${box(240, g.projects, "PROJECTS", "#1f7a47")}${box(540, g.done, "DONE", "#c8381e")}${box(840, g.followers, "FOLLOWERS", "#b97a06")}
+  <rect x="190" y="${btn}" width="700" height="96" rx="48" fill="#1f4d3a"/>
+  <text x="540" y="${btn + 62}" text-anchor="middle" font-family="Inter" font-weight="800" font-size="36" fill="#fff">Follow us on raavanaa.org</text>
+</svg>`;
+}
+async function logoData(origin: string, logo: string) {
+  if (!logo) return "";
+  if (logo.startsWith("data:")) return logo;
+  try {
+    const r = await fetch(new URL(logo, origin));
+    if (!r.ok) return "";
+    const type = r.headers.get("content-type") || "image/png";
+    return `data:${type};base64,${Buffer.from(await r.arrayBuffer()).toString("base64")}`;
+  } catch (_) { return ""; }
+}
+async function groupCard(origin: string, key: string) {
+  const story = /-story$/.test(key), slug = key.replace(/-story$/, "");
+  const g = await groupSummary(origin, slug);
+  if (!g) return null;
+  const [logo, art] = await Promise.all([logoData(origin, g.logo), dataUrl(origin, "/img/project-hills.svg")]);
+  return toJpeg(story ? groupStorySVG(g, logo, art) : groupSVG(g, logo, art), story ? 1080 : 1200);
+}
+
 export default async (req: Request, context: Context) => {
   const url = new URL(req.url);
   const slug = String(context.params.slug || "").replace(/\.(jpe?g|png)$/i, "").toLowerCase();
+  if (slug.startsWith("g--")) {
+    const img = await groupCard(url.origin, slug.slice(3)).catch((e) => { console.log("group card:", (e as Error).message); return null; });
+    if (!img) return Response.redirect(new URL("/img/share/default.jpg", url.origin), 302);
+    return new Response(img, { headers: { "Content-Type": "image/jpeg", "Cache-Control": "public, max-age=600",
+      "Netlify-CDN-Cache-Control": "public, durable, s-maxage=3600, stale-while-revalidate=600" } });
+  }
   const all = await allProgress(url.origin);
   if (slug === "site") {
     const list = Object.values(all), count = (n: number) => list.filter((p) => p.stage === n).length;
