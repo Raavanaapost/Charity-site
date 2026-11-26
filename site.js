@@ -2998,7 +2998,11 @@ window.RAAV_FEATURES = (function () {
     const day = p.money && p.money.day, dt = day ? new Date(day + "T12:00:00") : null;
     const when = dt && !isNaN(dt) ? dt.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : "";
     const who = !plain(p.reach) ? "" : /^[\d\s,.+–-]*(to|and)?[\d\s,.+–-]*$/i.test(plain(p.reach)) ? `${plain(p.reach)} children` : plain(p.reach);
-    const head = n === 3 ? "\u{1F389} *The day happened*" : n === 2 ? "\u2705 *Fully funded, thank you*" : "\u{1F331} *A need on Raavanaa*";
+    // Activated: only that it is happening, the name and thank you; no list (SURESH 26 Nov 2026: "happenings now as
+    // highlight and not details below ... Simple").
+    if (n === 2) { const h = happeningNow(day);
+      return [`\u2728 *${h.top} ${h.big}*`, "", `*${plain(p.title)}*`, "\u2705 Fully funded, thank you to everyone who gave", "", "Follow the day \u{1F447}", url].join("\n"); }
+    const head = n === 3 ? "\u{1F389} *The day happened*" : "\u{1F331} *A need on Raavanaa*";
     const facts = [
       when && `\u{1F4C5} ${when}`,
       p.location && `\u{1F4CD} ${plain(p.location)}`,
@@ -3008,9 +3012,18 @@ window.RAAV_FEATURES = (function () {
     const ask = n === 1 ? "Help make it happen \u{1F447}" : n === 2 ? "Follow the day \u{1F447}" : "See the story \u{1F447}";
     return [head, "", `*${plain(p.title)}*`, ...(line ? [`_${line}_`] : []), ...(facts.length ? ["", ...facts] : []), "", ask, url].join("\n");
   }
+  // "Happening today" / "Happening Friday 27 November" / "It happened on ...", by the date in Sri Lanka (as in share-progress.mts).
+  function happeningNow(day) {
+    const d = day ? new Date(day + "T12:00:00Z") : null;
+    if (!d || isNaN(+d)) return { top: "Happening", big: "soon" };
+    const lk = new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10);
+    if (day === lk) return { top: "Happening", big: "today" };
+    const wd = d.toLocaleDateString("en-GB", { weekday: "long", timeZone: "UTC" }), dm = d.toLocaleDateString("en-GB", { day: "numeric", month: "long", timeZone: "UTC" });
+    return day < lk ? { top: "It happened on", big: `${wd} ${dm}` } : { top: `Happening ${wd}`, big: dm };
+  }
   // The picture that goes with it: the funding card for Initiated / Activated projects, else the project's own share picture.
   const glancePic = (p, own) => { const n = stageNum(p), b = budgetOf(p);
-    return n < 3 && b.goal > 0 ? `/api/share-card/${slugOf(p)}.jpg?v=${n === 2 || b.pct >= 100 ? 100 : b.pct}` : `/img/share/${own ? slugOf(p) : "default"}.jpg`; };
+    return n < 3 && b.goal > 0 ? `/api/share-card/${slugOf(p)}.jpg?v=${n === 2 ? "a" + new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10) : b.pct >= 100 ? 100 : b.pct}` : `/img/share/${own ? slugOf(p) : "default"}.jpg`; };
 
   async function wireShare(root) {
     const box = root.querySelector("[data-share]");
