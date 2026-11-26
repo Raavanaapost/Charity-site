@@ -2886,7 +2886,12 @@ window.RAAV_FEATURES = (function () {
       const body = document.createElement("div"); body.className = "pfold-body";
       while (sec.firstChild) body.appendChild(sec.firstChild);
       d.appendChild(body); sec.appendChild(d); sec.classList.add("folded");
+      // Comments and Share start open (SURESH 26 Nov); Vouched for by and The journey start closed.
+      if (sec.matches(".v-talk, .share-box")) d.open = true;
     });
+    // Order (SURESH 26 Nov): 1 Comments, 2 Share, then Vouched for by, then The journey.
+    const v = root.querySelector("[data-voices]"), sh = root.querySelector(".share-box"), talk = v && v.querySelector(".v-talk");
+    if (v && sh && talk) talk.after(sh);
   }
   async function wireVoices(root, p) {
     const box = root.querySelector("[data-voices]"); if (!box) return;

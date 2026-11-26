@@ -3394,3 +3394,6 @@ html[data-form-lang="ta"] .rq-done :is(h2,p,span,b,a){font-family:"Noto Sans Tam
 .pfold-chev{border-color:var(--fc,var(--brand)) !important}
 /* Fold 4 (SURESH 25 Nov): titles in the Home title font (Playfair Display italic 900), back to the first size. */
 .pfold > summary h2{font-weight:900;line-height:1.15}
+/* Fold 5 (SURESH 26 Nov): Comments 1, Share 2 (moved in beside Comments), then Vouched for by. */
+.voices .v-talk{order:-2}
+.voices > .share-box{order:-1;margin:0}
