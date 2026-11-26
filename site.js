@@ -3204,6 +3204,84 @@ window.RAAV_FEATURES = (function () {
       ${live.length > 3 ? `<button type="button" class="btn ghost plive-more" onclick="this.closest('.plive').classList.add('all');this.remove()">See all ${live.length} posts from the day</button>` : ""}` : ""}
     </section>`;
   }
+  // The Impact page (SURESH 26 Nov 2026, thread "Redesign Impact story page"): once the day has happened, the top of the
+  // project page stops asking for help and shows what happened, as highlights at a glance:
+  //   1 one impact line + the best picture, 2 highlight tiles, 3 "In their words" (Tamil with English, never names),
+  //   4 thank-you from the children to each sponsor + the organisers' letter, 5 the day hour by hour (from the
+  //   Live from the day posts), 6 where every rupee went (Books closed), 7 make the next moment happen.
+  // Everything is optional, from projects.json "impact_page":
+  //   { "line", "date", "picture": {image, caption}, "highlights": [{value,label}], "quotes": [{ta,en,who}],
+  //     "thanks": {title, to: [{name, words}], from}, "letter": {words, who, link}, "timeline": [{time, what}] }
+  // Missing parts fall back to what the project already has (tagline, cover, who, funders, live posts, money books).
+  function impactTopHTML(p, site, i) {
+    const ip = p.impact_page || {}, b = budgetOf(p), money = n => moneyOf(site, n, p), ex = !!ip.example;
+    const exTag = ex ? `<span class="imp-ex">Example words</span>` : "";
+    let secN = 0; const sec = (h, tag = "") => `<p class="imp-k"><span>${++secN} · ${h}</span>${tag}</p>`;
+    const dayISO = ip.date || (p.money && p.money.day) || "";
+    const dayTxt = dayISO ? new Date(dayISO + "T12:00:00").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : "";
+    // 2 Highlights: the team's own tiles, else the people counts and the money, then the books.
+    const realFunders = b.funders.filter(f => !/test/i.test(f.name || ""));
+    const tiles = (ip.highlights || []).length ? ip.highlights : [
+      ...(p.who || []).map(w => ({ value: w.value, label: w.label })), ...(p.impact || []).map(w => ({ value: w.value, label: w.label })),
+      ...(b.goal ? [{ value: money(b.raised || b.goal), label: realFunders.length ? `given by ${realFunders.length} ${realFunders.length === 1 ? "sponsor" : "sponsors"}` : "for the day" }] : [])];
+    const closed = !!((p.books && p.books.closed) || (ex && ip.money && ip.money.closed));
+    // 6 Money: given, spent with receipts, left over.
+    const spentList = ex && ip.money ? (ip.money.lines || []) : ((p.money && p.money.spent) || []).filter(x => x && x.item);
+    const spent = ex && ip.money ? numOf(ip.money.spent) : spentList.reduce((t, x) => t + numOf(x.amount), 0);
+    const given = b.raised || (ex ? b.goal : 0);
+    const byLine = {}; spentList.forEach(x => { const k = x.line || x.item; byLine[k] = (byLine[k] || 0) + numOf(x.amount); });
+    // 5 The day: the team's own timeline, else the Live from the day posts, oldest first.
+    const short = iso => { try { return new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "Asia/Colombo" }); } catch (e) { return ""; } };
+    const tl = (ip.timeline || []).length ? ip.timeline : (p.updates || []).filter(u => u.live && u.at).sort((a, c) => String(a.at).localeCompare(String(c.at))).map(u => ({ time: short(u.at), what: u.title }));
+    const hasLive = (p.updates || []).some(u => u.live && u.at);
+    // 4 Thanks: the children's words to each sponsor, else a plain thank-you to each listed sponsor.
+    const th = ip.thanks || {};
+    const thanksTo = (th.to || []).length ? th.to : realFunders.filter(f => f.list !== false).map(f => ({ name: f.name }));
+    const pic = ip.picture || {};
+    return `<section class="imp" aria-label="What this day made happen">
+      ${ex ? `<p class="imp-banner"><b>Preview.</b> This is how the page will look after the day. The words marked <em>Example words</em> are made up; the real ones come from the children, teachers and organisers.</p>` : ""}
+      <p class="imp-pills"><span class="imp-pill">Impact · It happened</span>${dayTxt ? `<span class="imp-date">${esc(dayTxt)}</span>` : ""}</p>
+      ${sec("The impact", ip.line ? exTag : "")}
+      <p class="imp-line">${esc(ip.line || p.tagline || p.summary || "")}</p>
+      <figure class="imp-pic">
+        ${pic.image ? `<img src="${esc(imgUrl(pic.image, 1200))}" alt="${esc(pic.caption || "")}">` : `<div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, "", 1200)}</div>`}
+        <figcaption>${esc(pic.caption || "Best picture of the day")}</figcaption>
+      </figure>
+      ${tiles.length || closed ? `${sec("Highlights at a glance", (ip.highlights || []).length ? exTag : "")}
+      <div class="imp-tiles">${tiles.map(t => `<div class="imp-tile"><b>${esc(t.value)}</b><span>${esc(t.label)}</span></div>`).join("")}${closed ? `<div class="imp-tile done"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 12.5l5 5L20 6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg><b>Books closed</b><span>every rupee shown</span></div>` : ""}</div>` : ""}
+      ${(ip.quotes || []).length ? `${sec("In their words", exTag)}
+      <div class="imp-quotes">${ip.quotes.map((q, k) => `<blockquote class="imp-q${k ? "" : " first"}">${q.ta ? `<p class="imp-ta" lang="ta">“${esc(q.ta)}”</p>` : ""}${q.en ? `<p class="imp-en">“${esc(q.en)}”</p>` : ""}${q.who ? `<footer>${esc(q.who)}</footer>` : ""}</blockquote>`).join("")}</div>` : ""}
+      ${thanksTo.length || ip.letter ? `${sec("Thank you", th.to || ip.letter ? exTag : "")}
+      <div class="imp-thanks">
+        ${thanksTo.length ? `<h3>${esc(th.title || "From the children, to the people who gave")}</h3>
+        <ul>${thanksTo.map(t => `<li><b>Dear ${esc(t.name)},</b>${t.words ? `<span>${esc(t.words)}</span>` : `<span>thank you.</span>`}</li>`).join("")}</ul>
+        ${th.from ? `<p class="imp-from">${esc(th.from)}</p>` : ""}` : ""}
+        ${ip.letter ? `<div class="imp-letter"><h4>From the organisers</h4><p>“${esc(ip.letter.words)}”</p>${ip.letter.who ? `<p class="imp-from">${esc(ip.letter.who)}</p>` : ""}${ip.letter.link ? `<a href="${esc(ip.letter.link)}">Read the full letter</a>` : ""}</div>` : ""}
+      </div>` : ""}
+      ${tl.length ? `${sec("The day, hour by hour", (ip.timeline || []).length ? exTag : "")}
+      ${hasLive || ex ? `<p class="imp-sub">From the Live from the day posts · Sri Lanka time</p>` : ""}
+      <ol class="imp-tl">${tl.map(t => `<li><time>${esc(t.time)}</time><span>${esc(t.what)}</span></li>`).join("")}</ol>
+      ${hasLive ? `<p><a class="imp-a" href="#live" data-imp-live>See every photo and post from the day</a></p>` : ""}` : ""}
+      ${given || spent ? `${sec("Where every rupee went", ex && ip.money ? exTag : "")}
+      <div class="imp-money">
+        ${closed ? `<span class="imp-stamp">Books closed</span>` : ""}
+        <dl>
+          <div><dt>Given</dt><dd>${money(given)}</dd></div>
+          ${spent ? `<div><dt>Spent, with receipts</dt><dd>${money(spent)}</dd></div>
+          <div><dt>${given - spent >= 0 ? "Left over" : "Over budget"}</dt><dd>${money(Math.abs(given - spent))}</dd></div>` : `<div><dt>Spent</dt><dd><small>receipts coming</small></dd></div>`}
+        </dl>
+        ${given && spent ? `<div class="imp-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100, Math.round(spent / given * 100))}" aria-label="Share of the money spent"><i style="width:${Math.min(100, Math.round(spent / given * 100))}%"></i></div>` : ""}
+        ${Object.keys(byLine).length ? `<p class="imp-lines">${Object.entries(byLine).map(([k, v]) => `${esc(k)} ${money(v)}`).join(" · ")}</p>` : ""}
+        ${p.money ? `<a class="imp-a" href="/projects/${slugOf(p)}/money">Follow every rupee: the full money page</a>` : ""}
+      </div>` : ""}
+      <div class="imp-next">
+        <h3>Make the next moment happen</h3>
+        <p>Another school is waiting for its first day out.</p>
+        <a class="btn imp-go" href="/projects">See projects waiting</a>
+        <button type="button" class="btn ghost" data-imp-share>Share this day</button>
+      </div>
+    </section>`;
+  }
   function renderProject(app, site, projects, slug) {
     const i = projects.findIndex(p => slugOf(p) === slug);
     const p = projects[i];
@@ -3334,12 +3412,15 @@ window.RAAV_FEATURES = (function () {
               </div>
             </header>
             ${stageJourneyHTML(p)}
+            ${st === 3 ? `${impactTopHTML(p, site, i)}
+            <h2 class="imp-more">The full story, from the start</h2>
+            ${liveHTML(p)}` : `
             ${p.tagline ? `<p class="psum">${esc(p.tagline)}</p>` : ""}
             ${liveHTML(p)}
             <div class="hero-wrap">
               <div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.cover ? "" : "Cover photo", 1400)}</div>
             </div>
-            ${ringPanel("only-narrow")}
+            ${ringPanel("only-narrow")}`}
             ${stageNum(p) === 3 ? "" : `<div class="only-narrow">${budgetBoxHTML(p, site, false)}</div>`}
             <div class="tabs" role="tablist">
               ${tabs.map(([k, l]) => `<button class="tab t-${k}" role="tab" aria-selected="${k === tab}" data-t="${k}">${TAB_ICONS[k]}<span>${l}</span></button>`).join("")}
@@ -3368,6 +3449,11 @@ window.RAAV_FEATURES = (function () {
       if (FEAT.voices) wireVoices(app, p);
       foldPanels(app);
       wireFollowBox(app, p);
+      // Impact page: "Share this day" uses the phone's share sheet, else copies the link.
+      app.querySelectorAll("[data-imp-share]").forEach(bt => bt.onclick = async () => {
+        const url = location.origin + "/projects/" + slugOf(p);
+        try { if (navigator.share) { await navigator.share({ title: p.title, url }); return; } await navigator.clipboard.writeText(url); bt.textContent = "Link copied"; } catch (e) {}
+      });
       app.querySelectorAll("[data-fund]").forEach(b => b.addEventListener("click", () => {
         // With the 100% fold off, "Make it happen" goes straight to the giving form by the budget.
         if (!FEAT.left) { const give = app.querySelector(".b-give [data-donate]"); if (give) { if (!app.querySelector(".pl-inline")) { give.dataset.noScroll = "1"; give.click(); delete give.dataset.noScroll; } const pn = give.closest(".panel") || give; pn.style.scrollMarginTop = "86px"; pn.scrollIntoView({ block: "start", behavior: "smooth" }); } return; }
