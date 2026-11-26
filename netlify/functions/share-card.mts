@@ -90,16 +90,63 @@ function cardSVG(pr: Progress, art: string) {
 </svg>`;
 }
 
-export function renderCard(pr: Progress, art: string) {
-  const svg = cardSVG(pr, art);
+// The picture for Home, Projects, About and other general pages (SURESH 26 Nov 2026: a shared raavanaa.org link
+// showed only the plain logo; "something like heading or the % circle and logo ... to catch the eyes").
+// Logo, the heading, and the three stage circles from Home with how many projects are in each today.
+export type SiteCounts = { n1: number; n2: number; n3: number };
+function siteSVG(c: SiteCounts, art: string, stages: string[]) {
+  const ST = [["INITIATED", "#1f7a47", c.n1], ["ACTIVATED", "#b97a06", c.n2], ["IMPACT", "#c8381e", c.n3]] as const;
+  const ring = ["#1f7a47", "#eaa21c", "#c8381e"];
+  return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="fade" x1="0" x2="1"><stop offset="0" stop-color="#fbf6ea"/><stop offset="1" stop-color="#fbf6ea" stop-opacity="0"/></linearGradient>
+    <clipPath id="right"><rect x="700" y="0" width="500" height="630"/></clipPath>
+    ${[0, 1, 2].map((k) => `<clipPath id="c${k}"><circle cx="${130 + k * 190}" cy="420" r="66"/></clipPath>`).join("")}
+    <filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#1f4d3a" flood-opacity=".2"/></filter>
+  </defs>
+  <rect width="1200" height="630" fill="#fbf6ea"/>
+  ${art ? `<image x="700" y="0" width="500" height="630" preserveAspectRatio="xMidYMid slice" clip-path="url(#right)" xlink:href="${art}" href="${art}"/>` : ""}
+  <rect x="700" y="0" width="170" height="630" fill="url(#fade)"/>
+  <image x="52" y="30" width="300" height="99" href="data:image/png;base64,${A.logoPng}" xlink:href="data:image/png;base64,${A.logoPng}"/>
+  <rect x="56" y="146" width="84" height="5" rx="2.5" fill="#c9a24a"/>
+  <text x="56" y="205" font-family="Cinzel" font-weight="700" font-size="40" fill="#1f4d3a">Make a moment happen</text>
+  <text x="56" y="253" font-family="Cinzel" font-weight="700" font-size="40" fill="#d9661a">for children in Sri Lanka</text>
+  ${ST.map(([label, col, n], k) => { const cx = 130 + k * 190; return `
+  <circle cx="${cx}" cy="420" r="74" fill="#fff" filter="url(#sh)"/>
+  ${stages[k] ? `<image x="${cx - 66}" y="354" width="132" height="132" clip-path="url(#c${k})" xlink:href="${stages[k]}" href="${stages[k]}"/>` : ""}
+  <circle cx="${cx}" cy="420" r="70" fill="none" stroke="${ring[k]}" stroke-width="7"/>
+  <circle cx="${cx + 52}" cy="368" r="26" fill="${ring[k]}" stroke="#fff" stroke-width="4"/>
+  <text x="${cx + 52}" y="378" text-anchor="middle" font-family="Inter" font-weight="800" font-size="27" fill="#fff">${n}</text>
+  <text x="${cx}" y="530" text-anchor="middle" font-family="Inter" font-weight="800" font-size="19" letter-spacing="1.6" fill="${col}">${label}</text>`; }).join("")}
+  <text x="56" y="596" font-family="Inter" font-weight="600" font-size="20" fill="#1f4d3a">raavanaa.org</text>
+  <text x="${56 + 150}" y="596" font-family="Inter" font-weight="600" font-size="15" letter-spacing="2.2" fill="#b0812a">EVERY RUPEE SHOWN OPENLY</text>
+</svg>`;
+}
+
+function toJpeg(svg: string) {
   const r = new Resvg(svg, { font: { fontFiles: fontFiles(), loadSystemFonts: false, defaultFontFamily: "Inter" }, fitTo: { mode: "width", value: 1200 } }).render();
   return Buffer.from(jpeg.encode({ data: r.pixels, width: r.width, height: r.height }, 86).data);
+}
+export const renderCard = (pr: Progress, art: string) => toJpeg(cardSVG(pr, art));
+export const renderSite = (c: SiteCounts, art: string, stages: string[]) => toJpeg(siteSVG(c, art, stages));
+
+async function dataUrl(origin: string, path: string) {
+  try { const r = await fetch(new URL(path, origin)); if (r.ok) return `data:image/svg+xml;base64,${Buffer.from(await r.arrayBuffer()).toString("base64")}`; } catch (_) { /* left out */ }
+  return "";
 }
 
 export default async (req: Request, context: Context) => {
   const url = new URL(req.url);
   const slug = String(context.params.slug || "").replace(/\.(jpe?g|png)$/i, "").toLowerCase();
-  const pr = (await allProgress(url.origin))[slug];
+  const all = await allProgress(url.origin);
+  if (slug === "site") {
+    const list = Object.values(all), count = (n: number) => list.filter((p) => p.stage === n).length;
+    const [art, ...stages] = await Promise.all(["/img/project-hills.svg", "/img/stage-initiated.svg", "/img/stage-activated.svg", "/img/stage-impact.svg"].map((x) => dataUrl(url.origin, x)));
+    return new Response(renderSite({ n1: count(1), n2: count(2), n3: count(3) }, art, stages), { headers: {
+      "Content-Type": "image/jpeg", "Cache-Control": "public, max-age=600",
+      "Netlify-CDN-Cache-Control": "public, durable, s-maxage=86400, stale-while-revalidate=3600" } });
+  }
+  const pr = all[slug];
   // Not a project with a budget (or Impact): send the project's usual picture instead.
   if (!showsProgress(pr)) return Response.redirect(new URL(`/img/share/default.jpg`, url.origin), 302);
   const img = renderCard(pr!, await artData(url.origin, pr!));
