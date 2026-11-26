@@ -45,3 +45,19 @@ export async function groupSummary(origin: string, slug: string): Promise<GroupS
 // "3 projects, 2 done" (or "No projects yet").
 export const projectLine = (s: GroupSummary) => !s.projects ? "No projects yet" : `${s.projects} project${s.projects === 1 ? "" : "s"}${s.done ? `, ${s.done} done` : ""}`;
 export const badgeWord = (s: GroupSummary) => s.type === "organisation" ? (s.verified ? "Verified organisation" : "Organisation") : s.kind === "Family" ? "Family" : "Group";
+
+// Who runs a Raavanaa project (the group or organisation the team linked as its owner), for the project's share picture
+// and link preview: "Run by <name>". Empty when no listed group runs it (then Raavanaa runs it).
+let linksCache: { at: number; map: Record<string, string> } | null = null;
+export async function projectOwner(origin: string, slug: string): Promise<string> {
+  if (!linksCache || Date.now() - linksCache.at > 60_000) {
+    const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 2000);
+    try {
+      const r = await fetch(new URL("/api/groups", origin), { signal: ctl.signal });
+      const d = r.ok ? await r.json() : null, map: Record<string, string> = {};
+      for (const l of (d && d.links) || []) if (l.role !== "partner" && !map[l.project]) map[l.project] = l.name;
+      linksCache = { at: Date.now(), map };
+    } catch (_) { linksCache = linksCache || { at: Date.now(), map: {} }; } finally { clearTimeout(t); }
+  }
+  return linksCache.map[slug] || "";
+}

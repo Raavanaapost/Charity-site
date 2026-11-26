@@ -6,7 +6,7 @@
 // While SITE_PASSWORD is set, the apps can only reach the open pages (/e/ vouching links); project
 // previews start working for everyone once the password is removed at launch.
 import { allProgress, money, showsProgress } from "../lib/share-progress.mts";
-import { groupSummary, projectLine, badgeWord } from "../lib/group-summary.mts";
+import { groupSummary, projectLine, badgeWord, projectOwner } from "../lib/group-summary.mts";
 
 type Card = { title: string; text: string; title_ta?: string; text_ta?: string };
 type Share = { default: Card; vouch?: Card; moment?: Card; projects: Record<string, Card> };
@@ -139,6 +139,9 @@ export default async (request: Request, context: { next: (req?: Request) => Prom
         // A project made in the portal has no words of its own in share.json: use its title, not the general one.
         if (!share.projects[slug]) { title = pr.title; if (pr.blurb) text = pr.blurb; }
         text = (full ? "Fully funded. " : `${pr.pct}% funded, ${money(pr, Math.max(0, pr.goal - pr.raised))} still to go. `) + text;
+        // Associates (SURESH 26 Nov 2026): the group or organisation that runs it.
+        const owner = await projectOwner(url.origin, slug).catch(() => "");
+        if (owner) text = `Run by ${owner}. ` + text;
       }
     } catch (_) { /* keep the usual picture */ }
   }

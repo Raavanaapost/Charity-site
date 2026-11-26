@@ -10,7 +10,7 @@ import jpeg from "jpeg-js";
 import { mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { allProgress, money, showsProgress, type Progress } from "../lib/share-progress.mts";
 import * as A from "../lib/card-assets.mts";
-import { groupSummary, projectLine, badgeWord, type GroupSummary } from "../lib/group-summary.mts";
+import { groupSummary, projectLine, badgeWord, projectOwner, type GroupSummary } from "../lib/group-summary.mts";
 
 // resvg reads fonts from files only, so they are written to /tmp once per warm function.
 const FONT_DIR = "/tmp/raav-card-fonts";
@@ -50,7 +50,7 @@ async function artData(origin: string, pr: Progress) {
   return "";
 }
 
-function cardSVG(pr: Progress, art: string) {
+function cardSVG(pr: Progress, art: string, owner = "") {
   const full = pr.stage === 2 || pr.pct >= 100, pct = full ? 100 : pr.pct, left = Math.max(0, pr.goal - pr.raised);
   const title = wrap(pr.title, 27, 2);
   const kicker = full ? "ACTIVATED" : "ACTIVATING", kc = full ? "#b97a06" : "#1f7a47";
@@ -71,7 +71,7 @@ function cardSVG(pr: Progress, art: string) {
   <rect x="640" y="0" width="160" height="630" fill="url(#fade)"/>
   <image x="52" y="34" width="232" height="77" href="data:image/png;base64,${A.logoPng}" xlink:href="data:image/png;base64,${A.logoPng}"/>
   <rect x="56" y="128" width="84" height="5" rx="2.5" fill="#c9a24a"/>
-  <text x="56" y="170" font-family="Inter" font-weight="600" font-size="17" letter-spacing="2.5" fill="${kc}">${kicker}</text>
+  <text x="56" y="170" font-family="Inter" font-weight="600" font-size="17" letter-spacing="2.5" fill="${kc}">${kicker}${owner ? `<tspan fill="#6f6a5e"> · RUN BY ${esc(wrap(owner.toUpperCase(), 30, 1)[0])}</tspan>` : ""}</text>
   ${title.map((l, i) => `<text x="56" y="${titleY + i * 40}" font-family="Cinzel" font-weight="700" font-size="32" fill="#1f4d3a">${esc(l)}</text>`).join("")}
   <g transform="translate(56 ${textY})">
     <text y="0" font-family="Inter" font-weight="800" font-size="27" fill="#1c2a22">${esc(head[0])}</text>
@@ -128,7 +128,7 @@ function toJpeg(svg: string, width = 1200) {
   const r = new Resvg(svg, { font: { fontFiles: fontFiles(), loadSystemFonts: false, defaultFontFamily: "Inter" }, fitTo: { mode: "width", value: width } }).render();
   return Buffer.from(jpeg.encode({ data: r.pixels, width: r.width, height: r.height }, 86).data);
 }
-export const renderCard = (pr: Progress, art: string) => toJpeg(cardSVG(pr, art));
+export const renderCard = (pr: Progress, art: string, owner = "") => toJpeg(cardSVG(pr, art, owner));
 export const renderSite = (c: SiteCounts, art: string, stages: string[]) => toJpeg(siteSVG(c, art, stages));
 
 async function dataUrl(origin: string, path: string) {
@@ -242,7 +242,8 @@ export default async (req: Request, context: Context) => {
   const pr = all[slug];
   // Not a project with a budget (or Impact): send the project's usual picture instead.
   if (!showsProgress(pr)) return Response.redirect(new URL(`/img/share/default.jpg`, url.origin), 302);
-  const img = renderCard(pr!, await artData(url.origin, pr!));
+  const [art, owner] = await Promise.all([artData(url.origin, pr!), projectOwner(url.origin, slug).catch(() => "")]);
+  const img = renderCard(pr!, art, owner);
   return new Response(img, { headers: {
     "Content-Type": "image/jpeg",
     // Browsers and apps keep it 10 minutes; Netlify's own cache keeps each ?v= for a day (a new % = a new address).
