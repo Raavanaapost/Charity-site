@@ -3551,11 +3551,14 @@ html[lang="ta"] .all-chip b{font-family:"Noto Sans Tamil",var(--display),sans-se
 .pact-k i{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#eaa21c;color:#fff;font-style:normal;font-size:13px;letter-spacing:0}
 .pact-day{margin:10px 0 6px;font-family:"Cinzel",Georgia,serif;font-size:clamp(19px,2.2vw,23px);line-height:1.3;color:#5a3c02}
 .pact-day b{color:#8a5a04}
+/* SURESH 26 Nov 2026: make "Happening today" stand out (no green): the day in white on the warm red-to-amber ribbon of the share card */
+.pact-day{font-size:clamp(21px,2.6vw,27px);color:#4a2a06}
+.pact-day b{display:inline-block;margin:4px 2px;padding:2px 16px 4px;border-radius:999px;background:linear-gradient(90deg,#b8321a,#e0780f);color:#fff;box-shadow:0 3px 10px rgba(122,42,10,.25)}
 .pact-note{margin:0 auto 12px;max-width:34em;font-size:15px;line-height:1.5;color:#6b5527}
 .pact-follow{background:#b97a06;border-color:#b97a06;color:#fff;min-width:200px}
 .pact-follow:hover{background:#9c6604}
 .pact-follow:disabled{background:transparent;color:#8a5a04;border-color:#eaa21c;opacity:1;cursor:default}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .pact{background:linear-gradient(135deg,#2e2414,#3a2b10);border-color:#b97a06}
-  :root:not([data-theme="light"]) .pact-day{color:#f5d58a} :root:not([data-theme="light"]) .pact-day b{color:#f5c04a} :root:not([data-theme="light"]) .pact-note{color:#d9c79f}}
+  :root:not([data-theme="light"]) .pact-day{color:#f5d58a} :root:not([data-theme="light"]) .pact-day b{color:#fff} :root:not([data-theme="light"]) .pact-note{color:#d9c79f}}
 :root[data-theme="dark"] .pact{background:linear-gradient(135deg,#2e2414,#3a2b10);border-color:#b97a06}
-:root[data-theme="dark"] .pact-day{color:#f5d58a} :root[data-theme="dark"] .pact-day b{color:#f5c04a} :root[data-theme="dark"] .pact-note{color:#d9c79f}
+:root[data-theme="dark"] .pact-day{color:#f5d58a} :root[data-theme="dark"] .pact-day b{color:#fff} :root[data-theme="dark"] .pact-note{color:#d9c79f}
