@@ -3353,7 +3353,7 @@ window.RAAV_FEATURES = (function () {
       // The story tab: the opening paragraph in full, the rest behind "See how this smile begins".
       story: overviewHTML + (taleHTML || (overviewHTML ? "" : `<p class="empty">The story is on its way.</p>`)),
       updates: impactCardHTML + expectHTML(p) + (updates.length ? updates.map(u => `<article class="update"><div class="meta">${fmtDate(u.date)}${u.at ? ` · ${lkTime(u.at)}` : ""}</div><h3>${esc(u.title)}</h3>${u.image ? `<img class="update-img" src="${esc(u.image)}" alt="" loading="lazy">` : ""}<div>${md(u.body)}</div></article>`).join("") : `<p class="empty">No impact updates yet.</p>`) + (p.sample || FEAT.voices ? "" : commentsHTML(slugOf(p))),
-      budget: `<div class="budget-tab">${budgetDetailHTML(p, site, true)}${p.money ? `<p class="mny-link"><a class="btn ghost" href="/projects/${slugOf(p)}/money">See every rupee in and out</a></p>` : ""}${stageNum(p) === 1 && budgetOf(p).lines.length ? `<p class="note">These are estimates. Once the day has happened, the real costs are shown here.</p>` : stageNum(p) === 2 ? `<p class="note">Once the day has happened, a breakdown of where the money went is shown here.</p>` : ""}</div>`,
+      budget: `<div class="budget-tab">${budgetDetailHTML(p, site, true)}${(p.money && p.money.rule) || site.money_rule ? `<p class="note mny-rule-note"><b>If money is left over:</b> ${esc((p.money && p.money.rule) || site.money_rule)}</p>` : ""}${p.money ? `<p class="mny-link"><a class="btn ghost" href="/projects/${slugOf(p)}/money">See every rupee in and out</a></p>` : ""}${stageNum(p) === 1 && budgetOf(p).lines.length ? `<p class="note">These are estimates. Once the day has happened, the real costs are shown here.</p>` : stageNum(p) === 2 ? `<p class="note">Once the day has happened, a breakdown of where the money went is shown here.</p>` : ""}</div>`,
       media: (photos.length || media.length) ? `${media.length ? `<div class="media">${media.map(m => { const e = embedFor(m.url); return e ? `<figure style="margin:0"><div class="embed"><iframe src="${esc(e)}" title="${esc(m.title)}" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy"></iframe></div>${m.title ? `<figcaption class="note" style="padding-top:6px">${esc(m.title)}</figcaption>` : ""}</figure>` : `<a class="media-link" href="${esc(m.url)}" target="_blank" rel="noopener">▶ ${esc(m.title || m.url)}</a>`; }).join("")}</div>` : ""}${photos.length ? `<div class="photos">${photos.map((ph, k) => `<figure><button data-src="${esc(imgUrl(ph.image, 1600))}" aria-label="Open picture"><div class="cover"><img src="${esc(imgUrl(ph.image, 600))}" alt="${esc(ph.caption)}" loading="lazy"></div></button>${ph.caption ? `<figcaption>${esc(ph.caption)}</figcaption>` : ""}</figure>`).join("")}</div>` : ""}` : `<p class="empty">${p.photos_private ? "To protect the children, we do not put their photos on this website. The day is told here in words, and the organisers and families keep the photos." : "No videos or pictures yet."}</p>`
     };
 
@@ -3450,31 +3450,55 @@ window.RAAV_FEATURES = (function () {
   }
 
   // The money page of a project (/projects/<slug>/money): every rupee in, every rupee out, and the receipts.
-  // It is shown for projects that carry a "money" block in projects.json:
-  //   "money": { "as_of": "2026-11-12", "day": "2026-11-27",
-  //              "spent": [{ "date": "2026-11-27", "item": "Bus to Kandy and back", "amount": 30000, "receipt": "/img/projects/<folder>/receipts/bus.jpg" }],
+  // It is shown for projects that carry a "money" block in projects.json (or have anything in the Money books):
+  //   "money": { "as_of": "2026-11-12", "day": "2026-11-27", "rule": "own left-over rule (else site.json money_rule)",
+  //              "spent": [{ "date": "2026-11-27", "item": "Bus to Kandy and back", "line": "<budget item>", "amount": 30000, "receipt": "/img/…" }],
   //              "receipts": [{ "image": "/img/…", "caption": "…" }] }
   // Money in comes from the project's "funders"; add "received": "2026-11-20" to a funder once the money has arrived
   // (until then it shows as Pledged). A giver who asked for "my name only" gets "hide_amount": true: the name shows,
   // the amount is counted in the totals but not shown beside the name. Receipts: cover names, phone numbers and the school's name before a photo goes up.
+  // Follow every rupee (SURESH 26 Nov 2026, option B): the team's Money books (portal #/books, /api/books) add the costs
+  // and hand-overs a second team member has checked, the bank fee of each gift, and the closed books with what was left over.
   function renderMoney(app, site, projects, slug) {
     const p = projects.find(x => slugOf(x) === slug);
     if (!p || !p.money) {
       app.innerHTML = `<section class="intro"><h1>${p ? "No money page yet" : "Project not found"}</h1><p>${p ? "This project does not have a money page yet." : "It may have been renamed or removed."}</p><p><a href="${p ? "/projects/" + slugOf(p) : "/initiated"}">${p ? "Back to the project" : "See all projects"}</a></p></section>`;
       return;
     }
-    document.title = `${p.title} · ${site.name}`;
-    const m = p.money, b = budgetOf(p), money = n => moneyOf(site, n, p);
+    document.title = `Money in, money out: ${p.title} · ${site.name}`;
+    const m = p.money, b = budgetOf(p), money = n => moneyOf(site, n, p), bk = p.books || {};
     const day = d => { if (!d) return ""; const dt = new Date(String(d).length === 10 ? d + "T12:00:00" : d);
       return isNaN(dt) ? esc(d) : dt.toLocaleDateString(TA_PATH ? "ta-LK" : "en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" }); };
     const short = d => { if (!d || d === true) return ""; const dt = new Date(String(d).length === 10 ? d + "T12:00:00" : d);
       return isNaN(dt) ? "" : dt.toLocaleDateString(TA_PATH ? "ta-LK" : "en-GB", { day: "numeric", month: "short", year: "numeric" }); };
     const spent = (m.spent || []).filter(x => x && x.item), out = spent.reduce((t, x) => t + numOf(x.amount), 0);
     const got = b.funders.filter(f => f.received).reduce((t, f) => t + numOf(f.amount), 0);
+    const hand = (bk.handovers || []), handed = hand.reduce((t, h) => t + numOf(h.amount), 0);
     const need = Math.max(0, b.goal - b.raised), planned = b.lines.reduce((t, x) => t + numOf(x.amount), 0);
     const receipts = [...spent.filter(x => x.receipt).map(x => ({ image: x.receipt, caption: x.item })), ...(m.receipts || []).filter(x => x && x.image)];
-    const open = GIVE_OPEN.has(slugOf(p));
+    const open = GIVE_OPEN.has(slugOf(p)), closed = bk.closed;
+    const rule = m.rule || site.money_rule || "";
+    // Receipts are due 14 days after the day (organiser agreement, 26 Nov 2026).
+    const dueD = m.day ? new Date(new Date(m.day + "T12:00:00").getTime() + 14 * 864e5) : null, dayPast = m.day && new Date() > new Date(m.day + "T23:59:00");
+    const late = dueD && new Date() > dueD;
+    const due = dueD ? dueD.toLocaleDateString(TA_PATH ? "ta-LK" : "en-GB", { day: "numeric", month: "short" }) : "";
+    // Planned against spent, line by line: each bill names its budget line; bills without one are "Other costs".
+    const items = b.lines.map(x => String(x.item || "")), byLine = items.map(it => spent.filter(x => x.line === it));
+    const other = spent.filter(x => !items.includes(x.line || ""));
+    const rcLinks = list => list.filter(x => x.receipt).map((x, i) => `<a class="mny-rc" href="${esc(x.receipt)}" target="_blank" rel="noopener">Receipt${list.filter(y => y.receipt).length > 1 ? " " + (i + 1) : ""}</a>`).join(" ");
+    const diffCell = (pl, sp, has) => { if (!has) return `<td class="num"><small>–</small></td>`; const d = pl - sp;
+      return `<td class="num ${d < 0 ? "mny-over" : "mny-under"}">${d === 0 ? "as planned" : `${money(Math.abs(d))} ${d > 0 ? "less" : "more"}`}</td>`; };
+    const lineRow = (label, pl, list) => { const sp = list.reduce((t, x) => t + numOf(x.amount), 0), has = list.length > 0;
+      return `<tr><td>${esc(label)}</td><td class="num">${pl ? money(pl) : `<small>–</small>`}</td><td class="num">${has ? money(sp) : `<small>–</small>`}</td>${pl ? diffCell(pl, sp, has) : `<td class="num"><small>–</small></td>`}
+        <td>${has ? rcLinks(list) || `<small>no photo</small>` : dayPast ? `<span class="mny-due${late ? " late" : ""}">${late ? "Receipt late" : `Receipt due by ${due}`}</span>` : `<small>after the day</small>`}</td></tr>`; };
     const tile = (cls, label, value, small) => `<div class="mny-tile ${cls}"><span>${label}</span><b>${value}</b>${small ? `<small>${small}</small>` : ""}</div>`;
+    const bankOf = f => { const g = f.bank; if (!g || !(g.arrived || g.fee || g.sent)) return "";
+      const bits = [g.sent && g.currency && g.currency !== "LKR" ? `${esc(g.currency)} ${Math.round(g.sent * 100) / 100} sent` : "", g.fee ? `bank fee ${money(g.fee)}` : "", g.arrived ? `${money(g.arrived)} arrived` : "",
+        g.sent && g.arrived && g.currency && g.currency !== "LKR" ? `rate ${Math.round((g.arrived + g.fee) / g.sent * 100) / 100}` : ""].filter(Boolean);
+      return bits.length ? `<small class="mny-bank">${bits.join(" · ")}</small>` : ""; };
+    const fees = b.funders.reduce((t, f) => t + numOf(f.bank && f.bank.fee), 0);
+    const checkers = [...new Set([...spent.map(x => x.checked_by), ...hand.map(h => h.checked_by)].filter(Boolean))];
+    const waiting = (bk.waiting || 0) + (bk.handover_waiting || 0);
     app.innerHTML = `
       <nav class="crumbs"><a href="/projects">Projects</a> / <a href="/projects/${slugOf(p)}">${esc(p.title)}</a></nav>
       <section class="mny">
@@ -3482,50 +3506,96 @@ window.RAAV_FEATURES = (function () {
           <span class="eyebrow">Every rupee, in the open</span>
           <h1>Money in, money out</h1>
           <p class="mny-for"><a href="/projects/${slugOf(p)}">${esc(p.title)}</a></p>
-          ${m.as_of ? `<p class="mny-date"><span>Last updated</span> <time datetime="${esc(m.as_of)}">${day(m.as_of)}</time></p>` : ""}
+          ${m.as_of || closed ? `<p class="mny-date"><span>Last updated</span> <time datetime="${esc(closed ? closed.on : m.as_of)}">${day(closed ? closed.on : [m.as_of, ...spent.map(x => x.checked_on || x.date), ...hand.map(h => h.checked_on)].filter(Boolean).sort().pop())}</time></p>` : ""}
+          ${closed ? `<p class="mny-closed"><b>✓ Books closed</b> <span>${short(closed.on)}${closed.by ? ` by ${esc(closed.by)}` : ""}. Every rupee in is matched by a rupee spent${closed.leftover ? " or passed on" : ""}.</span></p>` : ""}
         </header>
         <div class="mny-tiles">
           ${tile("goal", "Budget", money(b.goal))}
-          ${tile("in", "Money in", money(b.raised), !b.raised ? "" : got >= b.raised ? "received" : got ? "pledged and received" : "pledged so far")}
-          ${tile("out", "Money out", money(out), out ? "spent so far" : "nothing spent yet")}
-          ${need > 0 ? tile("need", "Still needed", money(need)) : tile("bal", "Balance", money(Math.max(0, b.raised - out)), "money in, less money out")}
+          ${tile("in", "Money in", money(b.raised), !b.raised ? "" : got >= b.raised ? "received" : got ? `${money(got)} received` : "pledged so far")}
+          ${tile("hand", "Handed over", money(handed), handed ? "to the organiser" : "not yet")}
+          ${tile("out", "Spent", money(out), out ? "with receipts" : "nothing spent yet")}
+          ${need > 0 ? tile("need", "Still needed", money(need)) : tile("bal", closed ? "Left over" : "Balance", money(closed ? closed.leftover : Math.max(0, b.raised - out)), closed ? (closed.leftover ? "passed on, see below" : "nothing left") : "money in, less spent")}
         </div>
 
         <section class="mny-box">
-          <h2>Money in</h2>
+          <h2>1. Money in</h2>
           ${b.funders.length ? `<table class="mny-table">
             <thead><tr><th scope="col">From</th><th scope="col">Status</th><th scope="col" class="num">Amount</th></tr></thead>
-            <tbody>${b.funders.map(f => `<tr><td><span class="f-name">${esc(f.name)}</span>${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}</td>
+            <tbody>${b.funders.map(f => `<tr><td><span class="f-name">${esc(f.name)}</span>${f.tribute ? `<small class="f-tribute">${esc(f.tribute)}</small>` : ""}${bankOf(f)}</td>
               <td>${f.received ? `<span class="mny-st got"><b>Received</b>${short(f.received) ? ` <time>${short(f.received)}</time>` : ""}</span>` : `<span class="mny-st"><b>Pledged</b></span>`}</td>
               <td class="num">${f.hide_amount ? `<small>in the total</small>` : money(numOf(f.amount))}</td></tr>`).join("")}</tbody>
             <tfoot><tr><th scope="row" colspan="2">Total</th><td class="num">${money(b.raised)}</td></tr></tfoot>
           </table>
-          <p class="note">Pledged means the giver has told us the amount. We mark it Received when the money reaches Raavanaa.</p>` : `<p class="empty">No gifts yet.</p>`}
+          <p class="note">Pledged means the giver has told us the amount. We mark it Received when the money reaches Raavanaa.${fees ? ` Banks took ${money(fees)} in fees; we show them so nothing is hidden.` : " For gifts from abroad we show what was sent, the bank fee and the rupees that arrived."}</p>` : `<p class="empty">No gifts yet.</p>`}
           ${need > 0 ? `<p class="mny-need"><span><b>${money(need)}</b> <span>still to go</span></span>${open ? DONATE_BTN : ""}</p>` : ""}
         </section>
 
         <section class="mny-box">
-          <h2>Money out</h2>
-          ${spent.length ? `<table class="mny-table">
-            <thead><tr><th scope="col">Date</th><th scope="col">What for</th><th scope="col" class="num">Amount</th></tr></thead>
-            <tbody>${spent.map(x => `<tr><td><time>${short(x.date)}</time></td><td>${esc(x.item)}${x.note ? `<small>${esc(x.note)}</small>` : ""}${x.receipt ? ` <a class="mny-rc" href="${esc(x.receipt)}" target="_blank" rel="noopener">See receipt</a>` : ""}</td><td class="num">${money(numOf(x.amount))}</td></tr>`).join("")}</tbody>
-            <tfoot><tr><th scope="row" colspan="2">Total spent</th><td class="num">${money(out)}</td></tr></tfoot>
-          </table>` : `<p class="mny-wait"><b>Nothing has been spent yet.</b> <span>Each cost is written here when it is paid, with its receipt.</span></p>
-          ${m.day ? `<p class="mny-day"><span>The day:</span> <time datetime="${esc(m.day)}">${day(m.day)}</time></p>` : ""}`}
-          ${!spent.length && b.lines.length ? `<h3 class="money-h">Planned costs</h3>
-          <ul class="bx-list">${b.lines.map(x => `<li><span>${esc(x.item)}</span><b>${money(numOf(x.amount))}</b></li>`).join("")}</ul>
-          <p class="bx-total"><span>Planned total</span><b>${money(planned)}</b></p>` : ""}
+          <h2>2. Handed over to the organiser</h2>
+          ${hand.length ? `<table class="mny-table">
+            <thead><tr><th scope="col">Date</th><th scope="col">To</th><th scope="col" class="num">Amount</th></tr></thead>
+            <tbody>${hand.map(h => `<tr><td><time>${short(h.date)}</time>${h.how ? `<small>${esc(h.how)}</small>` : ""}</td><td><span class="f-name">${esc(h.to)}</span>${h.role ? `<small>${esc(h.role)}</small>` : ""}
+              ${h.confirmed ? `<small class="mny-ok">✓ ${esc(h.to.split(/\s+/)[0])} confirmed receiving it, ${short(h.confirmed)}</small>` : `<small>Waiting for the organiser to confirm</small>`}</td><td class="num">${money(numOf(h.amount))}</td></tr>`).join("")}</tbody>
+            <tfoot><tr><th scope="row" colspan="2">Total handed over</th><td class="num">${money(handed)}</td></tr></tfoot>
+          </table>` : `<p class="mny-wait"><b>Not handed over yet.</b> <span>When Raavanaa passes the money to the organiser, we write down how much, when and how, and the organiser confirms it on their phone.</span></p>`}
+          ${bk.handover_waiting ? `<p class="note">${bk.handover_waiting === 1 ? "One hand-over is" : `${bk.handover_waiting} hand-overs are`} waiting for a second team member's check before it shows here.</p>` : ""}
         </section>
 
         <section class="mny-box">
-          <h2>Receipts</h2>
+          <h2>3. Planned against spent</h2>
+          ${b.lines.length ? `<table class="mny-table mny-plan">
+            <thead><tr><th scope="col">Budget line</th><th scope="col" class="num">Planned</th><th scope="col" class="num">Spent</th><th scope="col" class="num">Difference</th><th scope="col">Receipt</th></tr></thead>
+            <tbody>${b.lines.map((x, i) => lineRow(x.item, numOf(x.amount), byLine[i])).join("")}${other.length ? lineRow("Other costs", 0, other) : ""}</tbody>
+            <tfoot><tr><th scope="row">Total</th><td class="num">${money(planned)}</td><td class="num">${money(out)}</td>${out ? diffCell(planned, out, true) : `<td class="num"><small>–</small></td>`}<td></td></tr></tfoot>
+          </table>` : ""}
+          ${spent.length ? `<h3 class="money-h">Every bill</h3><table class="mny-table">
+            <thead><tr><th scope="col">Date</th><th scope="col">What for</th><th scope="col" class="num">Amount</th></tr></thead>
+            <tbody>${spent.map(x => `<tr><td><time>${short(x.date)}</time></td><td>${esc(x.item)}${x.note ? `<small>${esc(x.note)}</small>` : ""}${x.receipt ? ` <a class="mny-rc" href="${esc(x.receipt)}" target="_blank" rel="noopener">See receipt</a>` : ""}${x.checked_by ? `<small class="mny-ok">✓ Checked by ${esc(x.checked_by)}</small>` : ""}</td><td class="num">${money(numOf(x.amount))}</td></tr>`).join("")}</tbody>
+            <tfoot><tr><th scope="row" colspan="2">Total spent</th><td class="num">${money(out)}</td></tr></tfoot>
+          </table>` : `<p class="mny-wait"><b>Nothing has been spent yet.</b> <span>Each cost is written here when it is paid, with its receipt.</span></p>
+          ${m.day ? `<p class="mny-day"><span>The day:</span> <time datetime="${esc(m.day)}">${day(m.day)}</time></p>` : ""}`}
+          ${bk.waiting ? `<p class="note">${bk.waiting === 1 ? "One bill is" : `${bk.waiting} bills are`} waiting for a second team member's check before ${bk.waiting === 1 ? "it shows" : "they show"} here.</p>` : ""}
+          ${dueD ? `<p class="note">The organiser sends a photo of every bill within 14 days of the day${due ? ` (by ${due})` : ""}.</p>` : ""}
+        </section>
+
+        <section class="mny-box">
+          <h2>4. Receipts</h2>
           ${receipts.length ? `<div class="mny-receipts">${receipts.map(r => `<a href="${esc(r.image)}" target="_blank" rel="noopener"><img src="${esc(imgUrl(r.image, 480))}" alt="" loading="lazy"><span>${esc(r.caption || "")}</span></a>`).join("")}</div>`
             : `<p class="mny-wait"><span>A photo of each receipt is put here after the cost is paid.</span></p>`}
+        </section>
+
+        <section class="mny-box">
+          <h2>5. Money left over</h2>
+          ${closed ? `<p class="mny-wait"><b>${closed.leftover ? `${money(closed.leftover)} was left over.` : "Nothing was left over."}</b>${closed.leftover && closed.to ? ` <span>It went to ${esc(closed.to)}.</span>` : ""}</p>` : ""}
+          ${rule ? `<p class="mny-rule">${esc(rule)}</p>` : ""}
+        </section>
+
+        <section class="mny-box mny-trust">
+          <h2>How we check</h2>
+          <ul class="mny-how"><li>Every cost and every hand-over is checked by a second Raavanaa team member, not the one who wrote it down, before it shows here.</li>
+            <li>Names, phone numbers and bank details are covered on receipts.</li>
+            ${checkers.length ? `<li>Checked by ${checkers.map(esc).join(", ")}.</li>` : ""}
+            ${waiting ? `<li>${waiting} ${waiting === 1 ? "entry is" : "entries are"} waiting for a check right now.</li>` : ""}</ul>
+          <p class="mny-dl"><button type="button" class="btn ghost" data-mny-csv>Download the statement</button> <button type="button" class="btn ghost" data-mny-print>Print</button></p>
         </section>
 
         <p class="mny-back"><a class="btn ghost" href="/projects/${slugOf(p)}">Back to the project</a></p>
       </section>`;
     wireDonate(app, slugOf(p));
+    // The statement: one file anyone can open in a spreadsheet, the same figures as this page.
+    const csvBtn = app.querySelector("[data-mny-csv]");
+    if (csvBtn) csvBtn.onclick = () => {
+      const q = v => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`, cur = String(p.currency || site.currency || "").trim() || "Rs";
+      const rows = [["Raavanaa statement", p.title], ["Made on", new Date().toISOString().slice(0, 10)], ["Money in " + cur], ["Section", "Date", "Who or what", "Status or line", "Amount", "Note"]];
+      b.funders.forEach(f => rows.push(["Money in", f.received && f.received !== true ? f.received : "", f.name, f.received ? "Received" : "Pledged", f.hide_amount ? "" : numOf(f.amount), f.bank && f.bank.fee ? `bank fee ${f.bank.fee}; arrived ${f.bank.arrived}` : ""]));
+      hand.forEach(h => rows.push(["Handed over", h.date, h.to + (h.role ? ", " + h.role : ""), h.confirmed ? "Confirmed " + h.confirmed : "Not confirmed yet", numOf(h.amount), h.how]));
+      spent.forEach(x => rows.push(["Spent", x.date, x.item, x.line || "Other", numOf(x.amount), x.checked_by ? "Checked by " + x.checked_by : ""]));
+      if (closed) rows.push(["Left over", closed.on, closed.to, "Books closed", closed.leftover, closed.by ? "Closed by " + closed.by : ""]);
+      rows.push([], ["Totals", "", "Budget", "", b.goal], ["", "", "Money in", "", b.raised], ["", "", "Handed over", "", handed], ["", "", "Spent", "", out], ["", "", closed ? "Left over" : "Balance", "", closed ? closed.leftover : Math.max(0, b.raised - out)]);
+      const blob = new Blob(["﻿" + rows.map(r => r.map(q).join(",")).join("\r\n")], { type: "text/csv;charset=utf-8" });
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `raavanaa-${slugOf(p)}-statement.csv`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    };
+    const pr = app.querySelector("[data-mny-print]"); if (pr) pr.onclick = () => window.print();
   }
 
   function renderPrivacy(app, site) {
@@ -3863,6 +3933,7 @@ window.RAAV_FEATURES = (function () {
               <label><span>Their name</span><input name="tribute_name" maxlength="60" placeholder="e.g. Amma, Kamala Rajan"></label>
             </details>`}
             <button class="btn give-pay" type="submit">${HEART_SVG}<span>Create the moment</span></button>
+            ${(x.money && x.money.rule) || site.money_rule ? `<p class="note give-rule"><span>${esc((x.money && x.money.rule) || site.money_rule)}${x.money ? ` <a href="/projects/${esc(slugOf(x))}/money">See every rupee</a>` : ""}</span></p>` : ""}
             ${SAFE}
             <p class="note give-msg" role="status" hidden></p>
           </form>
@@ -4272,6 +4343,7 @@ window.RAAV_FEATURES = (function () {
       // All five data calls start together (13 Nov 2026, speed): the gift totals used to wait for the other four.
       const giveP = load("/api/give/totals").catch(() => null);
       const followP = load("/api/follow").catch(() => null); // news the team posts + how many follow each project (25 Nov 2026)
+      const booksP = load("/api/books").catch(() => null); // Money books: checked costs, hand-overs, bank fees, closed books (26 Nov 2026)
       const [site, data, cm, made] = await Promise.all([load("/site.json"), load("/projects.json"), load("/comments.json").catch(() => ({})), load("/api/projects").catch(() => null)]);
       // Projects created from requests in the team portal come from the database; projects.json wins if a slug is in both.
       if (made && made.projects) { const have = new Set((data.projects || []).map(p => p.slug)); data.projects = [...(data.projects || []), ...made.projects.filter(p => p && !have.has(p.slug))]; }
@@ -4285,8 +4357,11 @@ window.RAAV_FEATURES = (function () {
       // Updates posted in the portal (Followers & updates, 25 Nov 2026) join the project's own updates, newest first.
       const FOL = await followP;
       if (FOL) projects.forEach(p => { const ups = (FOL.updates || {})[slugOf(p)] || []; if (ups.length) p.updates = [...ups, ...(p.updates || [])]; p.followers = (FOL.followers || {})[slugOf(p)] || 0; });
-      // Receipts posted from the day (phone link, 26 Nov 2026) join the project's money page as money out.
-      if (FOL) projects.forEach(p => { const rc = (FOL.receipts || {})[slugOf(p)] || []; if (rc.length) { p.money = p.money || {}; p.money.spent = [...(p.money.spent || []), ...rc.slice().reverse()]; } });
+      // Follow every rupee (26 Nov 2026): costs (receipts from the day's phone link or entered in the portal) and hand-overs
+      // join the project's money page once a second team member has checked them. Costs written in projects.json count as checked.
+      const BOOKS = await booksP;
+      if (BOOKS && BOOKS.projects) projects.forEach(p => { const bk = BOOKS.projects[slugOf(p)]; if (!bk) return; p.books = bk;
+        if (bk.spent.length || bk.handovers.length || bk.closed || bk.waiting || bk.handover_waiting) { p.money = p.money || {}; p.money.spent = [...(p.money.spent || []), ...bk.spent]; } });
       // Card gifts (PayHere or Stripe) are added to each project's supporters, so the budget bars and stages stay right.
       const GIVE = await giveP;
       GIVE_ON = !!(GIVE && GIVE.enabled);
@@ -4304,6 +4379,9 @@ window.RAAV_FEATURES = (function () {
         const list = ((GIVE && GIVE.pledges) || {})[slugOf(p)] || [], refs = new Set(list.map(x => x.ref));
         const add = [...list, ...mine.filter(x => x.slug === slugOf(p) && !refs.has(x.ref))];
         if (add.length) p.funders = [...(p.funders || []), ...add];
+        // A gift the team marked received carries its day and, for gifts from abroad, what was sent, the fee and what arrived.
+        const gifts = (p.books && p.books.gifts) || {};
+        (p.funders || []).forEach(f => { const g = f && f.ref && gifts[f.ref]; if (g) { f.received = f.received || g.received || true; f.bank = g; } });
       });
       projects.filter(canGive).forEach(p => GIVE_OPEN.add(slugOf(p)));
       // With card payments off, Donate still opens the project's form ("I'd like to give") while the project needs money.

@@ -284,6 +284,7 @@
   ]
  },
  "rate_lkr_per_cad": 230,
+ "money_rule": "Anything left over goes to the same children's next activity, or to the next Raavanaa project if there is none, and we show it on the money page. If a cost turns out higher than planned, the organiser asks the team first.",
  "give_amounts": [
   {
    "amount": 1100,
