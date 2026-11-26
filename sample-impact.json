@@ -4,7 +4,7 @@
     "example": true,
     "line": "52 children saw Kandy for the first time, and came home singing on the bus.",
     "date": "2026-11-27",
-    "picture": { "caption": "The bus by Kandy Lake (example picture, no faces)" },
+    "picture": { "caption": "Best picture of the day (example: the school sign, no faces)" },
     "highlights": [
       { "value": "52", "label": "children went" },
       { "value": "6", "label": "teachers with them" },
