@@ -3322,10 +3322,11 @@ window.RAAV_FEATURES = (function () {
                 <div class="panel glance-card" id="glance-card">
                   <h2>Project at a glance</h2>
                   <dl class="facts">
-                    ${p.status ? `<dt>Status</dt><dd>${esc(p.status)}</dd>` : ""}
+                    <dt>Stage</dt><dd>${STAGE_LABEL[stageNum(p) - 1]}</dd>
+                    ${(p.glance || []).length ? p.glance.map(g => `<dt>${esc(g.k)}</dt><dd>${esc(g.v)}</dd>`).join("") : `
                     ${p.location ? `<dt>Location</dt><dd>${esc(p.location)}</dd>` : ""}
                     ${p.started ? `<dt>Started</dt><dd>${esc(p.started)}</dd>` : ""}
-                    ${p.reach ? `<dt>Reach</dt><dd>${esc(p.reach)}</dd>` : ""}
+                    ${p.reach ? `<dt>Reach</dt><dd>${esc(p.reach)}</dd>` : ""}`}
                   </dl>
                   ${(p.impact || []).length ? `<div class="stats">${p.impact.map(s => `<div class="stat"><b>${esc(s.value)}</b><span>${esc(s.label)}</span></div>`).join("")}</div>` : ""}
                 </div>
