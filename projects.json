@@ -587,6 +587,12 @@
   {
    "title": "A day in Kandy for the pupils of Pussellawa",
    "slug": "pussellawa-kandy-trip",
+   "glance": [
+    {"k": "Where", "v": "Kandy: Temple of the Tooth, Peradeniya gardens"},
+    {"k": "When", "v": "Friday 27 Nov 2026"},
+    {"k": "Who", "v": "52 children, 6 teachers"},
+    {"k": "Cost", "v": "Rs 61,000 (bus and food)"}
+   ],
    "main_story": true,
    "hidden": false,
    "featured": false,
