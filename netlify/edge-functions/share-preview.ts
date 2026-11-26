@@ -142,7 +142,7 @@ export default async (request: Request, context: { next: (req?: Request) => Prom
         if (full && pr.blurb) text = pr.blurb;
         // Activated: just that it is happening, and thank you (SURESH 26 Nov 2026: "happenings now as highlight").
         text = (full ? "Fully funded, thank you. " : `${pr.pct}% funded, ${money(pr, Math.max(0, pr.goal - pr.raised))} still to go. `) + text;
-        if (pr.stage === 2) { const w = happeningWhen(pr.day); text = `${w.top} ${w.big}. Fully funded, thank you to everyone who gave.`; }
+        if (pr.stage === 2) { const w = happeningWhen(pr.day); text = `${w.top} ${w.big}. Thanks for the moment, to everyone who made it happen.`; }
         // Associates (SURESH 26 Nov 2026): the group or organisation that runs it.
         const owner = await projectOwner(url.origin, slug).catch(() => "");
         if (owner) text = `Run by ${owner}. ` + text;
