@@ -42,7 +42,9 @@ window.RAAV_FEATURES = (function () {
     const gq = new URLSearchParams(location.search).get("groups");
     if (gq === "open") localStorage.setItem("raav-groups-open", "1");
     if (gq === "close") localStorage.removeItem("raav-groups-open");
-    if (localStorage.getItem("raav-groups-open") === "1") F.groupsQuiet = true;
+    // SURESH 26 Nov 2026 19:50Z: "We are not doing this in this phase. We want to build this fully first before we post it."
+    // So the private link works on the draft only for now; to bring it back on raavanaa.org, drop "test &&" below.
+    if (test && localStorage.getItem("raav-groups-open") === "1") F.groupsQuiet = true;
     if (test && sessionStorage.getItem("raav-features") === "all") { F.sponsor = F.circle = F.vetting = F.tamil = F.group = F.join = F.volunteers = F.moment = F.map = F.left = F.reserve = F.groups = true; F.reasons = []; }
   } catch (e) { /* storage blocked: the launch switches stay */ }
   ["sponsor", "circle", "vetting", "tamil"].forEach(k => { if (!F[k]) document.documentElement.classList.add("no-" + k); });

@@ -66,7 +66,7 @@
   ];
 
   // Groups screen: on the draft preview (SURESH 26 Nov 2026); on raavanaa.org once released (set GROUPS_ON = true).
-  let GROUPS_ON = false; try { GROUPS_ON = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) || localStorage.getItem("raav-groups-open") === "1"; } catch (e) { /* storage blocked */ }
+  let GROUPS_ON = false; try { GROUPS_ON = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) ; } catch (e) { /* storage blocked */ }
   if (!GROUPS_ON) MENU.splice(MENU.findIndex(m => m[0] === "groups"), 1);
   let D = null, P = [], C = { list: [], districts: [] }, chDistrict = "All", chEdit = null;
   // People who filled in "I'd like to give" on the website (live only; null in the demo).
