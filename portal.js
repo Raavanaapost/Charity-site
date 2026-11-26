@@ -743,17 +743,21 @@
       <div class="pt-chips">${[["waiting", "Waiting"], ["listed", "Live"], ["hidden", "Taken off"], ["all", "All"]].map(([k, l]) => `<button type="button" aria-pressed="${grpF === k}" data-gf="${k}">${l}</button>`).join("")}</div>
       <section class="pt-champs">${list.length ? list.map(g => `
         <article class="pt-card pt-champ ${g.status === "hidden" ? "off" : ""}">
-          <div><h3><a href="/g/${esc(g.slug)}" target="_blank" rel="noopener">${esc(g.name)}</a> <small>· ${g.profile_type === "organisation" ? (g.verified ? "✓ Verified organisation" : "Organisation") : "Group"} · ${esc(g.kind)} · ${SAY[g.status] || g.status}${g.checked ? " · ✓ checked" : ""}</small></h3>
+          <div><h3><a href="/g/${esc(g.slug)}" target="_blank" rel="noopener">${esc(g.name)}</a> <small>· ${g.profile_type === "organisation" ? (g.verified ? "✓ Verified organisation" : "Organisation") : "Group"} · ${esc(g.kind)} · ${SAY[g.status] || g.status}${g.checked ? " · ✓ checked" : ""}${g.levelName ? ` · ★ ${esc(g.levelName)}` : ""}</small></h3>
             ${g.profile_type === "organisation" ? `<p class="pt-champ-meta">Registered with ${esc(g.reg_body)} · No. ${esc(g.reg_number)}${g.website ? ` · <a href="${esc(g.website)}" target="_blank" rel="noopener">${esc(g.website)}</a>` : ""}${g.verified ? ` · verified by ${esc(g.verified_by)}` : " · ask to see the certificate before you verify"}</p>` : ""}
             <p class="pt-sub">${esc(g.places || "No place given")} · ${g.members_count || 0} members · registered ${when(g.created_at)} · ${g.followers || 0} followers · ${g.projects?.length || 0} linked</p>
             <p class="pt-champ-meta">${esc(g.contact_name)} · <a href="https://wa.me/${esc(String(g.contact_phone).replace(/[^\d]/g, ""))}" target="_blank" rel="noopener">${esc(g.contact_phone)}</a> · ${esc(g.owner_email)}</p>
             <p class="pt-sub">“${esc(g.about)}”</p>
             ${g.collect ? `<p class="pt-sub">How they collect: ${esc(g.collect)}</p>` : ""}
-            ${(g.projects || []).filter(x => x.raavanaa_slug).map(x => `<p class="pt-sub">Linked: ${esc(x.title || x.raavanaa_slug)} <button type="button" class="pt-btn ghost" data-gunlink="${g.id}:${x.id}">Unlink</button></p>`).join("")}
-            <p class="pt-sub"><label>Link a Raavanaa project: <select data-glink="${g.id}"><option value="">Choose…</option>${opts}</select></label></p></div>
+            <p class="pt-champ-meta">Ladder: ${g.done || 0} finished project${g.done === 1 ? "" : "s"} with an Impact page · organiser agreement ${g.agreed ? "signed" : "not yet signed"}. Associate = agreement + 1 finished; Trusted Associate = agreement + 3.</p>
+            ${(g.projects || []).filter(x => x.raavanaa_slug).map(x => `<p class="pt-sub">${x.role === "partner" ? "Together with" : "Runs"}: ${esc(x.title || x.raavanaa_slug)} <button type="button" class="pt-btn ghost" data-gunlink="${g.id}:${x.id}">Unlink</button></p>`).join("")}
+            <p class="pt-sub"><label>Link a Raavanaa project: <select data-glink="${g.id}"><option value="">Choose…</option>${opts}</select></label>
+              <label><select data-grole="${g.id}"><option value="owner">they run it</option><option value="partner">together with (partner)</option></select></label></p>
+            ${(g.projects || []).filter(x => !x.raavanaa_slug).map(x => `<p class="pt-sub">Own project: ${esc(x.title)} · ${esc(x.stage)}${x.theme ? " · " + esc(x.theme) : ""} ${x.on_raavanaa ? `<b>· in the Raavanaa list</b> <button type="button" class="pt-btn ghost" data-gshow="${g.id}:${x.id}:">Take out of the list</button>` : `<button type="button" class="pt-btn ghost" data-gshow="${g.id}:${x.id}:1">Show on Raavanaa</button>`}</p>`).join("")}</div>
           <div class="pt-actions-row">
             ${g.status !== "listed" ? `<button type="button" class="pt-btn" data-gst="${g.id}:listed">List it</button>` : ""}
             <button type="button" class="pt-btn ghost" data-gchk="${g.id}" data-on="${g.checked ? "" : "1"}">${g.checked ? "Untick Checked" : "Checked by Raavanaa"}</button>
+            <button type="button" class="pt-btn ghost" data-gagr="${g.id}" data-on="${g.agreed ? "" : "1"}">${g.agreed ? "Agreement: untick" : "Organiser agreement signed"}</button>
             ${g.profile_type === "organisation" ? `<button type="button" class="pt-btn ${g.verified ? "ghost" : ""}" data-gver="${g.id}" data-on="${g.verified ? "" : "1"}">${g.verified ? "Remove Verified" : "I saw the certificate: Verified"}</button>` : ""}
             ${g.status !== "hidden" ? `<button type="button" class="pt-btn ghost" data-gst="${g.id}:hidden">Take off</button>` : ""}
             ${g.status === "hidden" ? `<button type="button" class="pt-btn ghost" data-gst="${g.id}:waiting">Back to waiting</button>` : ""}
@@ -777,7 +781,10 @@
     app.querySelectorAll("[data-gst]").forEach(b => b.onclick = () => { const [id, status] = b.dataset.gst.split(":"); save({ id: +id, status }, status === "listed" ? "Listed: the page is live" : status === "hidden" ? "Taken off the website" : "Back to waiting"); });
     app.querySelectorAll("[data-gver]").forEach(b => b.onclick = () => save({ id: +b.dataset.gver, verified: !!b.dataset.on }, b.dataset.on ? "Verified organisation" : "Verified badge removed"));
     app.querySelectorAll("[data-gchk]").forEach(b => b.onclick = () => save({ id: +b.dataset.gchk, checked: !!b.dataset.on }, b.dataset.on ? "Marked Checked by Raavanaa" : "Checked tick removed"));
-    app.querySelectorAll("[data-glink]").forEach(s => s.onchange = () => { if (!s.value) return; const p = P.find(x => x.slug === s.value); save({ id: +s.dataset.glink, link: s.value, title: p ? p.title : s.value, stage: ["Initiated", "Activated", "Impact"][stageNum(p || {}) - 1] || "Initiated" }, "Project linked to the group"); });
+    app.querySelectorAll("[data-glink]").forEach(s => s.onchange = () => { if (!s.value) return; const p = P.find(x => x.slug === s.value), r = app.querySelector(`[data-grole="${s.dataset.glink}"]`), role = r ? r.value : "owner";
+      save({ id: +s.dataset.glink, link: s.value, role, title: p ? p.title : s.value, stage: ["Initiated", "Activated", "Impact"][stageNum(p || {}) - 1] || "Initiated" }, role === "partner" ? "Linked as a partner (together with)" : "Linked: they run this project"); });
+    app.querySelectorAll("[data-gagr]").forEach(b => b.onclick = () => save({ id: +b.dataset.gagr, agreed: !!b.dataset.on }, b.dataset.on ? "Organiser agreement marked signed" : "Agreement tick removed"));
+    app.querySelectorAll("[data-gshow]").forEach(b => b.onclick = () => { const [id, pid, on] = b.dataset.gshow.split(":"); save({ id: +id, show: { id: +pid, on: !!on } }, on ? "Shown in the Raavanaa project list" : "Taken out of the Raavanaa list"); });
     app.querySelectorAll("[data-gunlink]").forEach(b => b.onclick = () => { const [id, pid] = b.dataset.gunlink.split(":"); save({ id: +id, unlink: +pid }, "Unlinked"); });
   }
   // Members (SURESH, 23 Nov 2026): "a dashboard with all the sign in users we have in our members sign in. Name, email,
