@@ -79,9 +79,9 @@ function happeningSVG(pr: Progress, art: string) {
   <text x="${cx}" y="${yBig}" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="${fsBig}" fill="#fff">${esc(big)}</text>
   ${title.map((l, i) => `<text x="${cx}" y="${yTitle + i * 38}" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="31" fill="#3a2410">${esc(l)}</text>`).join("")}
   <g transform="translate(${cx - 310} 538)">
-    <rect width="280" height="58" rx="29" fill="#4a2a06"/>
+    <rect width="280" height="58" rx="29" fill="url(#rib)"/>
     <text x="32" y="37" font-family="Inter" font-weight="800" font-size="22" fill="#fff">Follow the day</text>
-    <circle cx="244" cy="29" r="18" fill="#eaa21c"/><path d="M237 20.5l11 8.5-11 8.5" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="244" cy="29" r="18" fill="#fff"/><path d="M237 20.5l11 8.5-11 8.5" fill="none" stroke="#c8381e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
   <g transform="translate(${cx - 10} 538)">
     <rect width="320" height="58" rx="29" fill="#fff" stroke="#e0780f" stroke-width="2.5"/>
