@@ -5,7 +5,7 @@
 // No children's names and no school names go in share.json (SURESH, 9 Nov 2026).
 // While SITE_PASSWORD is set, the apps can only reach the open pages (/e/ vouching links); project
 // previews start working for everyone once the password is removed at launch.
-import { allProgress, money, showsProgress } from "../lib/share-progress.mts";
+import { allProgress, money, showsProgress, happeningWhen, lkDate } from "../lib/share-progress.mts";
 import { groupSummary, projectLine, badgeWord, projectOwner } from "../lib/group-summary.mts";
 
 type Card = { title: string; text: string; title_ta?: string; text_ta?: string };
@@ -135,12 +135,14 @@ export default async (request: Request, context: { next: (req?: Request) => Prom
       const pr = (await allProgress(url.origin))[slug];
       if (pr && showsProgress(pr)) {
         const full = pr.stage === 2 || pr.pct >= 100;
-        img = `${url.origin}/api/share-card/${slug}.jpg?v=${full ? 100 : pr.pct}`;
+        img = `${url.origin}/api/share-card/${slug}.jpg?v=${pr.stage === 2 ? "a" + lkDate() : full ? 100 : pr.pct}`;
         // A project made in the portal has no words of its own in share.json: use its title, not the general one.
         if (!share.projects[slug]) { title = pr.title; if (pr.blurb) text = pr.blurb; }
         // Fully funded: no "help make it happen" ask in the words (SURESH 26 Nov 2026), the project's own line instead.
         if (full && pr.blurb) text = pr.blurb;
+        // Activated: just that it is happening, and thank you (SURESH 26 Nov 2026: "happenings now as highlight").
         text = (full ? "Fully funded, thank you. " : `${pr.pct}% funded, ${money(pr, Math.max(0, pr.goal - pr.raised))} still to go. `) + text;
+        if (pr.stage === 2) { const w = happeningWhen(pr.day); text = `${w.top} ${w.big}. Fully funded, thank you to everyone who gave.`; }
         // Associates (SURESH 26 Nov 2026): the group or organisation that runs it.
         const owner = await projectOwner(url.origin, slug).catch(() => "");
         if (owner) text = `Run by ${owner}. ` + text;
