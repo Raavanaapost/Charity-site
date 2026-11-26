@@ -1,0 +1,44 @@
+{
+  "_note": "Made-up EXAMPLE words for previewing the Impact page (?impact=preview). Not real. The real words go in the project's own \"impact_page\" in projects.json after the day.",
+  "pussellawa-kandy-trip": {
+    "example": true,
+    "line": "52 children saw Kandy for the first time, and came home singing on the bus.",
+    "date": "2026-11-27",
+    "picture": { "caption": "The bus by Kandy Lake (example picture, no faces)" },
+    "highlights": [
+      { "value": "52", "label": "children went" },
+      { "value": "6", "label": "teachers with them" },
+      { "value": "2", "label": "places seen" },
+      { "value": "Rs 61,000", "label": "given by 2 sponsors" },
+      { "value": "1st", "label": "school trip ever" }
+    ],
+    "quotes": [
+      { "ta": "முதல் முறையாக யானையைப் பார்த்தேன்!", "en": "I saw an elephant for the first time!", "who": "A Grade 3 pupil" },
+      { "ta": "பேருந்தில் எல்லோரும் பாடினோம்.", "en": "We all sang together on the bus.", "who": "A Grade 5 pupil" },
+      { "ta": "இந்தக் குழந்தைகள் இன்று பெரிய உலகத்தைக் கண்டார்கள்.", "en": "Today these children saw a bigger world.", "who": "A teacher" }
+    ],
+    "thanks": {
+      "title": "From the children, to the people who gave",
+      "to": [
+        { "name": "Srikantha", "words": "Thank you for our day in Kandy. We will never forget it." },
+        { "name": "Anonymous friend", "words": "We don't know your name, but we sang for you too." }
+      ],
+      "from": "The 52 children of Pussellawa"
+    },
+    "letter": {
+      "words": "Many of these children had never left the estate. Thank you for trusting us with your gift. Every rupee is shown below.",
+      "who": "Balasubramaniam Kandiah and the teachers"
+    },
+    "timeline": [
+      { "time": "7:00 AM", "what": "The bus leaves the school" },
+      { "time": "10:15 AM", "what": "Temple of the Tooth" },
+      { "time": "12:30 PM", "what": "Lunch together" },
+      { "time": "2:30 PM", "what": "Peradeniya gardens" },
+      { "time": "6:30 PM", "what": "Everyone home safe" }
+    ],
+    "money": { "spent": 60400, "lines": [
+      { "item": "Bus to Kandy and back", "amount": 28000 },
+      { "item": "Food for the whole group", "amount": 32400 }
+    ], "closed": true }
+  }
+}
