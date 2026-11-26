@@ -85,8 +85,8 @@ window.RAAV_FEATURES = (function () {
     let t = 0;
     const deco = () => groupLinks().then(m => document.querySelectorAll(".hm-row[data-slug]").forEach(row => {
       const l = m[row.dataset.slug], main = row.querySelector(".hm-main");
-      if (!l || !main || main.querySelector(".hm-by")) return;
-      main.insertAdjacentHTML("beforeend", `<span class="hm-by">Started by <span class="hb-n">${String(l.name).replace(/[&<>"]/g, "")}</span>${l.verified ? ' <span class="hb-v" title="Verified organisation">✓</span>' : ""}</span>`);
+      if (!l || !main || main.querySelector(".hm-grp")) return;
+      main.insertAdjacentHTML("beforeend", `<span class="hm-grp">Started by <span class="hb-n">${String(l.name).replace(/[&<>"]/g, "")}</span>${l.verified ? ' <span class="hb-v" title="Verified organisation">✓</span>' : ""}</span>`);
     }));
     new MutationObserver(() => { clearTimeout(t); t = setTimeout(deco, 120); }).observe(document.documentElement, { childList: true, subtree: true });
   }
