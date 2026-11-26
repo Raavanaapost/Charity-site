@@ -75,25 +75,42 @@ window.RAAV_FEATURES = (function () {
   // Groups and organisations (26 Nov 2026): which group or organisation started each project (linked by the team in the
   // portal), from /api/groups, fetched once. On the draft only, while nothing is linked yet, two made-up sample profiles
   // stand in so the design can be seen (never on raavanaa.org).
-  let GROUP_LINKS = null;
+  let GROUP_LINKS = null, GROUP_DATA = null;
   const groupLinks = () => GROUP_LINKS || (GROUP_LINKS = fetch("/api/groups").then(r => r.ok ? r.json() : {}).catch(() => ({})).then(d => {
-    const m = {};
-    (d.links || []).forEach(l => { const g = (d.groups || []).find(x => x.slug === l.group) || {}; m[l.project] = { slug: l.group, name: l.name, type: g.type, verified: !!g.verified }; });
+    // m[project] = the group or organisation that runs it (owner), with partners: [the ones working together with it]
+    // (associates, SURESH 26 Nov 2026). A project with only partners still lists them.
+    const m = {}, info = g => ({ slug: g.slug, name: g.name, type: g.type, verified: !!g.verified, level: g.level || 1, levelName: g.levelName || "" });
+    (d.links || []).forEach(l => { const g = Object.assign({ slug: l.group, name: l.name }, (d.groups || []).find(x => x.slug === l.group) || {});
+      const e = m[l.project] = m[l.project] || { partners: [] };
+      if (l.role === "partner") e.partners.push(info(g)); else if (!e.slug) Object.assign(e, info(g)); else e.partners.push(info(g)); });
     const test = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) || /--charity-projects-draft\./.test(location.hostname);
     if (test && !Object.keys(m).length) {
-      m["prefect-uniforms-for-students-in-valaippadu"] = { slug: "sample-organisation", name: "Vanni Hope Foundation (sample)", type: "organisation", verified: true };
-      m["casuarina-beach-day"] = { slug: "sample-group", name: "Jaffna Friends Circle (sample)", type: "group", verified: false };
+      m["prefect-uniforms-for-students-in-valaippadu"] = { slug: "sample-organisation", name: "Vanni Hope Foundation (sample)", type: "organisation", verified: true, level: 2, levelName: "Raavanaa Associate",
+        partners: [{ slug: "sample-group", name: "Jaffna Friends Circle (sample)", type: "group", level: 1 }] };
+      m["casuarina-beach-day"] = { slug: "sample-group", name: "Jaffna Friends Circle (sample)", type: "group", verified: false, level: 1, partners: [] };
     }
+    GROUP_DATA = d;
     return m;
   }));
   const groupBadge = l => l.verified ? "✓ Verified organisation" : l.type === "organisation" ? "Organisation" : "Group";
-  // "by <name>" on every project line (Home, Projects, stage pages), added after the lines are drawn.
+  // Ladder step words (Raavanaa Associate, Trusted Associate) when the group has earned one.
+  const groupLevel = l => l && l.level >= 2 ? l.levelName || (l.level === 3 ? "Trusted Associate" : "Raavanaa Associate") : "";
+  // On every project line (Home, Projects, stage pages), added after the lines are drawn (SURESH 26 Nov 2026: the name of
+  // the group or organisation that runs it, next to the stage): "Run by <name> ✓" under the stage pill, and
+  // "Together with <name>" under the title for partners.
   if (FEAT.groups) {
     let t = 0;
+    const clean = x => String(x).replace(/[&<>"]/g, "");
     const deco = () => groupLinks().then(m => document.querySelectorAll(".hm-row[data-slug]").forEach(row => {
-      const l = m[row.dataset.slug], main = row.querySelector(".hm-main");
-      if (!l || !main || main.querySelector(".hm-grp")) return;
-      main.insertAdjacentHTML("beforeend", `<span class="hm-grp">Started by <span class="hb-n">${String(l.name).replace(/[&<>"]/g, "")}</span>${l.verified ? ' <span class="hb-v" title="Verified organisation">✓</span>' : ""}</span>`);
+      const l = m[row.dataset.slug], main = row.querySelector(".hm-main"), side = row.querySelector(".hm-side");
+      if (!l || !main || row.dataset.grp) return;
+      row.dataset.grp = "1";
+      if (l.slug && side) {
+        const old = side.querySelector(".hm-by"), pill = side.querySelector(".hm-pill");
+        const html = `<small class="hm-run" title="Run by ${clean(l.name)}${groupLevel(l) ? " · " + clean(groupLevel(l)) : ""}">Run by <b>${clean(l.name)}</b>${l.verified || l.level >= 2 ? ' <span class="hb-v">✓</span>' : ""}</small>`;
+        if (old) old.outerHTML = html; else if (pill) pill.insertAdjacentHTML("afterend", html);
+      }
+      if ((l.partners || []).length) main.insertAdjacentHTML("beforeend", `<span class="hm-grp">Together with <span class="hb-n">${l.partners.map(x => clean(x.name)).join(", ")}</span></span>`);
     }));
     new MutationObserver(() => { clearTimeout(t); t = setTimeout(deco, 120); }).observe(document.documentElement, { childList: true, subtree: true });
   }
@@ -1247,6 +1264,28 @@ window.RAAV_FEATURES = (function () {
     const CHOOSE = (() => { const k = new URLSearchParams(location.search).get("choose"); return k == null ? null : (k.replace(/[^a-z]/g, "") || "memory"); })();
     if (CHOOSE) projects = projects.filter(p => GIVE_OPEN.has(slugOf(p)));
     const storyHref = slug => `/projects/${slug}${CHOOSE ? `?choose=${CHOOSE}` : ""}`;
+    // One mixed list (SURESH 26 Nov 2026, associates "Medium"): Raavanaa's projects and the groups' and organisations' own
+    // projects the team chose to show on Raavanaa, by category, with who runs each. A group's own project shows no money
+    // (Raavanaa does not manage their funding); it opens the group's page.
+    let LINKS = {};
+    if (FEAT.groups && !CHOOSE) {
+      LINKS = await Promise.race([groupLinks(), new Promise(r => setTimeout(() => r({}), 2500))]).catch(() => ({}));
+      const d = GROUP_DATA || {}, gs = {};
+      (d.groups || []).forEach(g => gs[g.slug] = g);
+      let shown = (d.shown || []).filter(x => gs[x.group]);
+      const test = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) || /--charity-projects-draft\./.test(location.hostname);
+      if (test && !shown.length && !(d.groups || []).length) {
+        gs["sample-group"] = { slug: "sample-group", name: "Jaffna Friends Circle (sample)", type: "group", level: 1 };
+        gs["sample-organisation"] = { slug: "sample-organisation", name: "Vanni Hope Foundation (sample)", type: "organisation", verified: true, level: 2, levelName: "Raavanaa Associate" };
+        shown = [{ group: "sample-group", id: 2, title: "School shoes for Grade 1", place: "Point Pedro", stage: "Activated", theme: "Education", story: "New shoes for 30 children starting school in January.", listed: new Date(Date.now() - 3 * 864e5).toISOString() },
+          { group: "sample-organisation", id: 3, title: "Sports day for three schools", place: "Mullaitivu", stage: "Impact", theme: "Trips & Events", story: "Races, games and lunch for 210 children.", listed: new Date(Date.now() - 9 * 864e5).toISOString() }];
+      }
+      projects = projects.concat(shown.map(x => { const g = gs[x.group];
+        return { _g: true, _stage: x.stage === "Impact" ? 3 : x.stage === "Activated" ? 2 : 1, _href: `/g/${encodeURIComponent(x.group)}#gp-${x.id}`, _grp: g,
+          slug: `g-${x.group}-${x.id}`, title: x.title, summary: x.story, city: x.place, location: x.place, theme: x.theme, listed: x.listed,
+          organization: String(g.name).replace(/ \(sample\)$/, ""), submitted_type: g.type === "organisation" ? "Organisation" : "Group" }; }));
+    }
+    const runKind = p => p._g ? (p._grp.type === "organisation" ? "org" : "grp") : (l => l && l.slug ? (l.type === "organisation" ? "org" : "grp") : "raav")(LINKS[slugOf(p)]);
     projects = projects.map((p, k) => [p, k]).sort((a, b) => (listedAt(b[0]) - listedAt(a[0])) || (a[1] - b[1])).map(x => x[0]);
     const share = await load("/share.json").catch(() => null);
     const safe = p => { const sh = (share && share.projects && share.projects[slugOf(p)]) || {};
@@ -1257,7 +1296,9 @@ window.RAAV_FEATURES = (function () {
     // place chips from the projects we have, newest listed first, that filter the list, with "All" at the end.
     const cities = [...new Set(projects.map(cityOf).filter(Boolean))];
     const PIN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>';
-    const st = { q: "", city: "All", by: "" };
+    const st = { q: "", city: "All", by: "", cat: "", run: "" };
+    const cats = [...new Set(projects.map(p => p.theme).filter(Boolean))];
+    const RUNS = [["raav", "Raavanaa"], ["grp", "Groups"], ["org", "Organisations"]].filter(([k]) => projects.some(p => runKind(p) === k));
     // Who submitted each project: an organisation or a person, by name (SURESH, 17 Nov 2026).
     const byOf = p => String(p.submitted_by || p.organization || "").trim();
     // SURESH 17 Nov 2026: under each stage, the name of someone who has already given to that project (one picked at
@@ -1266,6 +1307,8 @@ window.RAAV_FEATURES = (function () {
     const match = p => {
       if (st.city !== "All" && cityOf(p) !== st.city) return false;
       if (st.by && byOf(p) !== st.by) return false;
+      if (st.cat && p.theme !== st.cat) return false;
+      if (st.run && runKind(p) !== st.run) return false;
       if (!st.q) return true;
       const sh = safe(p), hay = [sh.title, p.summary, p.theme, cityOf(p), (p.location || "").split(",")[0]].filter(Boolean).join(" ").toLowerCase();
       return st.q.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(w));
@@ -1303,6 +1346,10 @@ window.RAAV_FEATURES = (function () {
         ${cities.length ? `<div class="pj-places" role="group" aria-label="Places">
           ${cities.concat("All").map(c => `<button type="button" class="pj-place${c === "All" ? " all" : ""}" data-city="${esc(c)}" aria-pressed="${c === st.city}">${c === "All" ? "" : PIN}<span>${esc(c)}</span><b></b></button>`).join("")}
         </div>` : ""}
+        ${FEAT.groups && (cats.length > 1 || RUNS.length > 1) ? `<div class="pj-kinds" role="group" aria-label="Category and who runs it">
+          ${cats.length > 1 ? `<span class="pj-kind-row"><span class="pj-kind-k">Category</span>${cats.map(c => `<button type="button" class="pj-kind" data-cat="${esc(c)}" aria-pressed="false">${esc(c)}</button>`).join("")}</span>` : ""}
+          ${RUNS.length > 1 ? `<span class="pj-kind-row"><span class="pj-kind-k">Run by</span>${RUNS.map(([k, t]) => `<button type="button" class="pj-kind run-${k}" data-run="${k}" aria-pressed="false">${t}</button>`).join("")}</span>` : ""}
+        </div>` : ""}
         <div class="hm-folder s0 pj-nofolder" id="hm-folder"></div>
         <div class="hm-pop" id="hm-pop" role="tooltip" hidden></div>
       </section>
@@ -1335,7 +1382,17 @@ window.RAAV_FEATURES = (function () {
             <span class="ch-chosen" aria-hidden="true">${on ? "Chosen" : ""}</span>
           </div>
         </div>`; };
-    const rowHTML = p => { if (CHOOSE) return pickRowHTML(p); const n = stageNum(p), s = safe(p), pct = ringPercent(p), slug = slugOf(p);
+    // A group's own project: its stage, category and place, "Run by <group>", no money ring; opens the group's page.
+    const groupRowHTML = p => { const n = p._stage, g = p._grp, place = p.city || "";
+      const meta = [p.theme, place].filter(Boolean).map(t => `<span>${esc(t)}</span>`).concat(listedLabel(p) ? `<span class="hm-listed">Listed ${esc(listedLabel(p))}</span>` : []).join('<i aria-hidden="true"> · </i>');
+      return `<div class="hm-row s${n} hm-grow" role="listitem" data-gslug="${esc(p.slug)}">
+          <a class="hm-row-link" href="${esc(p._href)}">
+            <span class="hm-thumb"><img src="/img/project-hills.svg" alt="" loading="lazy" width="58" height="58"></span>
+            <span class="hm-main"><b>${esc(p.title)}</b><small>${meta}</small>${p.summary ? `<span class="hm-more"><span class="hm-desc">${esc(p.summary)}</span></span>` : ""}<span class="hm-gown">Group's own project</span></span>
+            <span class="hm-side"><span class="hm-pill">${HOME_STAGE[n - 1]}</span><small class="hm-run">Run by <b>${esc(g.name)}</b>${g.verified || g.level >= 2 ? ' <span class="hb-v">✓</span>' : ""}</small></span>
+          </a>
+        </div>`; };
+    const rowHTML = p => { if (CHOOSE) return pickRowHTML(p); if (p._g) return groupRowHTML(p); const n = stageNum(p), s = safe(p), pct = ringPercent(p), slug = slugOf(p);
       const place = cityOf(p) || (p.location || "").split(",")[0].trim();
       const meta = [p.theme, place].filter(Boolean).map(t => `<span>${esc(t)}</span>`).concat(`<span class="hm-next"><span>Next:</span> <span>${esc(nextStepOf(p))}</span></span>`).concat(listedLabel(p) ? `<span class="hm-listed">Listed ${esc(listedLabel(p))}</span>` : []).join('<i aria-hidden="true"> · </i>');
       return `<div class="hm-row s${n}" role="listitem" data-slug="${esc(slug)}">
@@ -1360,7 +1417,7 @@ window.RAAV_FEATURES = (function () {
         st.city = c; b.querySelector("b").textContent = projects.filter(match).length; st.city = keep;
         b.setAttribute("aria-pressed", String(c === st.city)); });
       folder.innerHTML = list.length ? `<div class="hm-list"${CHOOSE ? "" : ' role="list"'}>${list.map(rowHTML).join("")}</div>`
-        : CHOOSE ? `<p class="hm-empty">Every project is funded right now. Let Raavanaa choose the next one that needs it.</p>` : `<p class="hm-empty">${st.q || st.city !== "All" ? "No projects match your search." : EMPTY[0]}</p><p class="hm-empty-go"><a class="btn" href="/initiate">Suggest one</a></p>`;
+        : CHOOSE ? `<p class="hm-empty">Every project is funded right now. Let Raavanaa choose the next one that needs it.</p>` : `<p class="hm-empty">${st.q || st.city !== "All" || st.cat || st.run ? "No projects match your search." : EMPTY[0]}</p><p class="hm-empty-go"><a class="btn" href="/initiate">Suggest one</a></p>`;
     };
 
     // "Project at a glance": the same facts as on the project's own page, in a small window.
@@ -1442,6 +1499,12 @@ window.RAAV_FEATURES = (function () {
       return;
     }
     app.querySelector("#find-q").addEventListener("input", e => { st.q = e.target.value.trim(); closePop(); draw(); });
+    const kinds = app.querySelector(".pj-kinds");
+    if (kinds) kinds.addEventListener("click", e => { const b = e.target.closest(".pj-kind"); if (!b) return;
+      if (b.dataset.cat != null) st.cat = st.cat === b.dataset.cat ? "" : b.dataset.cat; else st.run = st.run === b.dataset.run ? "" : b.dataset.run;
+      kinds.querySelectorAll("[data-cat]").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.cat === st.cat)));
+      kinds.querySelectorAll("[data-run]").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.run === st.run)));
+      closePop(); draw(); });
     const whoBox = app.querySelector(".pj-who-list");
     if (whoBox) whoBox.addEventListener("click", e => { const b = e.target.closest(".pj-who-b"); if (!b) return;
       st.by = st.by === b.dataset.by ? "" : b.dataset.by;
@@ -2111,6 +2174,7 @@ window.RAAV_FEATURES = (function () {
   // Stage comes from the facts, not only the status word: Impact once the day is marked complete,
   // Activated only when the project is verified and its whole budget is covered, otherwise Initiated.
   const stageNum = p => {
+    if (p._g) return p._stage; // a group's own project in the mixed list (its stage as the group reports it)
     if (/complete/i.test(p.status || "")) return 3;
     const goal = numOf(p.goal) || (p.budget || []).filter(x => x && x.item).reduce((s, x) => s + numOf(x.amount), 0);
     const raised = (p.funders || []).filter(x => x && x.name).reduce((s, x) => s + numOf(x.amount), 0);
@@ -3452,7 +3516,7 @@ window.RAAV_FEATURES = (function () {
             <header class="phead">
               ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
               <h1>${esc(p.title)}</h1>
-              <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>Submitted by <strong>${esc(p.submitted_by || p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> ${esc(vLabel(p))}</span>` : ""}${FEAT.voices && !p.sample && stageNum(p) === 3 ? `<a class="rate-chip" href="#voices-h" data-rate-chip hidden></a>` : ""}${FEAT.groups && !p.sample ? `<a class="started-by" data-started-by hidden></a>` : ""}
+              <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>Submitted by <strong>${esc(p.submitted_by || p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> ${esc(vLabel(p))}</span>` : ""}${FEAT.voices && !p.sample && stageNum(p) === 3 ? `<a class="rate-chip" href="#voices-h" data-rate-chip hidden></a>` : ""}${FEAT.groups && !p.sample ? `<span class="started-by" data-started-by hidden></span>` : ""}
               <div class="glance">
                 <button type="button" class="glance-btn" aria-expanded="false" aria-controls="glance-card"><span>At a glance</span><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
                 <div class="panel glance-card" id="glance-card">
@@ -3517,10 +3581,14 @@ window.RAAV_FEATURES = (function () {
       // "Started by" (SURESH 25 Nov 2026, groups and organisations): the group or organisation the team linked to this
       // project, with its badge, opens its profile /g/<name>.
       if (FEAT.groups && !p.sample) groupLinks().then(m => {
-        const a = app.querySelector("[data-started-by]"), l = m[slugOf(p)];
-        if (!a || !l) return;
-        a.href = "/g/" + encodeURIComponent(l.slug); a.hidden = false;
-        a.innerHTML = `<span class="sb-k">Started by</span> <b>${esc(l.name)}</b> <span class="sb-b">${groupBadge(l)}</span>`;
+        // SURESH 26 Nov 2026: "Run by <name>" beside the stage, and "Together with" for partner groups. A project no
+        // group runs says "Run by Raavanaa".
+        const a = app.querySelector("[data-started-by]"), l = m[slugOf(p)] || { partners: [] };
+        if (!a) return;
+        const tog = l.partners.length ? `<span class="sb-tog">Together with ${l.partners.map(x => `<a href="/g/${encodeURIComponent(x.slug)}">${esc(x.name)}</a>`).join(", ")}</span>` : "";
+        a.hidden = false;
+        a.innerHTML = `<span class="sb-st s${stageNum(p)}">${STAGE_LABEL[stageNum(p) - 1]}</span><span class="sb-k">Run by</span> ` +
+          (l.slug ? `<a href="/g/${encodeURIComponent(l.slug)}"><b>${esc(l.name)}</b></a> <span class="sb-b">${groupLevel(l) ? "✓ " + esc(groupLevel(l)) : groupBadge(l)}</span>` : `<b>Raavanaa</b>`) + tog;
       }).catch(() => {});
       app.querySelectorAll("[data-fund]").forEach(b => b.addEventListener("click", () => {
         // With the 100% fold off, "Make it happen" goes straight to the giving form by the budget.

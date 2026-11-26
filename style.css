@@ -3528,3 +3528,19 @@ html[data-form-lang="ta"] .rq-done :is(h2,p,span,b,a){font-family:"Noto Sans Tam
 .all-chip i{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:#1f4d3a;color:#fff;font-style:normal;font-family:var(--display);font-weight:700;font-size:14px}
 .all-chip:hover{box-shadow:0 10px 18px -10px rgba(138,92,18,.9)}
 html[lang="ta"] .all-chip b{font-family:"Noto Sans Tamil",var(--display),sans-serif}
+/* Associates (SURESH 26 Nov 2026): "Run by <name>" beside the stage on project lines and project pages,
+   "Together with" for partner groups, and the Category / Run by chips on /projects. */
+.byline .started-by a{color:#1f4d3a;text-decoration:none}
+.byline .started-by a:hover{text-decoration:underline}
+.byline .started-by .sb-st{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fff;border-radius:999px;padding:3px 9px;background:#1f7a47}
+.byline .started-by .sb-st.s2{background:#b97a06}.byline .started-by .sb-st.s3{background:#c8381e}
+.byline .started-by .sb-tog{flex-basis:100%;font-size:13px;color:#6c6a52}
+.hm-side .hm-run{display:block;max-width:132px;margin-top:3px;font-family:var(--display);font-size:11.5px;line-height:1.25;color:var(--muted);text-align:center;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.hm-side .hm-run b{color:#1f4d3a;font-weight:700}
+.hm-side .hm-run .hb-v{display:inline-grid;place-items:center;width:13px;height:13px;border-radius:50%;background:#1f7a47;color:#fff;font-size:9px;vertical-align:1px}
+.hm-main .hm-gown{display:block;text-align:left;font-family:var(--display);font-size:12px;color:#8a6d2b;font-style:italic}
+.pj-kinds{display:flex;flex-direction:column;gap:6px;margin:2px 0 10px}
+.pj-kind-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.pj-kind-k{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:#8a6d2b;font-weight:700;margin-right:2px}
+.pj-kind{font:inherit;font-size:13.5px;padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.pj-kind[aria-pressed="true"]{background:#1f4d3a;border-color:#1f4d3a;color:#fff}
