@@ -108,6 +108,34 @@
   };
   var stageOf = function (status) { return /complete/i.test(status) ? "Impact" : /active/i.test(status) ? "Activated" : "Initiated"; };
 
+  // Sample profiles (SURESH 26 Nov 2026: "How will it look after we create a group, an organisation, a family?"): made-up
+  // profiles so the design can be seen, on the draft preview and localhost ONLY, never on raavanaa.org.
+  var TEST = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) || /--charity-projects-draft\./.test(location.hostname);
+  var NOW = new Date().toISOString(), ago = function (d) { return new Date(Date.now() - d * 864e5).toISOString(); };
+  var SAMPLE_LOGO = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#2f7f8f"/><path d="M50 22 74 66H26z" fill="#f2c14e"/><rect x="24" y="70" width="52" height="7" rx="2" fill="#fff"/></svg>');
+  var SAMPLES = {
+    "sample-group": { group: { slug: "sample-group", name: "Jaffna Friends Circle", type: "group", kind: "WhatsApp circle", places: "Toronto, London, Jaffna", members: 40, started: "2019",
+        about: "Forty school friends from Jaffna, now in Toronto and London. Each month we put a little into our WhatsApp circle and make a day happen back home.",
+        collect: "Each of us puts in 20 dollars a month.", checked: true, status: "listed", followers: 37, since: ago(60) },
+      projects: [{ id: 1, slug: "casuarina-beach-day" },
+        { id: 2, title: "School shoes for Grade 1", place: "Point Pedro", stage: "Activated", story: "New shoes for 30 children starting school in January.", cost: 60000, collected: 45000, currency: "LKR" },
+        { id: 3, title: "Christmas lunch at the children's home", place: "Chavakachcheri", stage: "Impact", day: "25 Dec 2025", story: "Lunch and a small gift for 34 children. Paid in full by the circle.", cost: 85000, collected: 85000, currency: "LKR" }],
+      updates: [{ id: 1, body: "Shoes are ordered. We hand them over on 6 December.", by: "Ravi", project: 2, at: ago(2) }, { id: 2, body: "We collected Rs 45,000 this month. Thank you all!", by: "Ravi", at: ago(9) }] },
+    "sample-organisation": { group: { slug: "sample-organisation", name: "Vanni Hope Foundation", type: "organisation", kind: "Charity or NGO", places: "Mullaitivu, Kilinochchi, London", members: 25, started: "2015",
+        about: "A registered charity that runs after-school classes and school days for children in Mullaitivu and Kilinochchi.", reg_body: "NGO Secretariat", reg_number: "FL 12345",
+        website: "https://example.org/", logo: SAMPLE_LOGO, verified: true, checked: true, status: "listed", followers: 112, since: ago(120) },
+      projects: [{ id: 1, slug: "prefect-uniforms-for-students-in-valaippadu" },
+        { id: 2, title: "After-school maths class", place: "Puthukkudiyiruppu", stage: "Activated", story: "Two evenings a week for 40 children, with a trained teacher.", cost: 240000, collected: 180000, currency: "LKR" },
+        { id: 3, title: "Sports day for three schools", place: "Mullaitivu", stage: "Impact", day: "Aug 2026", story: "Races, games and lunch for 210 children.", cost: 150000, collected: 150000, currency: "LKR" }],
+      updates: [{ id: 1, body: "The prefect uniforms project is now on Raavanaa. Please vouch for it if you know the school.", by: "Nila", project: 1, at: ago(1) }] },
+    "sample-family": { group: { slug: "sample-family", name: "The Rajan Family", type: "group", kind: "Family", places: "Toronto, Jaffna, Chennai", members: 14, started: "2024",
+        about: "Three generations of one family. Every year on Amma's remembrance day we give a day of joy to children in her village, in her memory.",
+        collect: "Brothers, sisters and cousins put in what they can before the day.", checked: true, status: "listed", followers: 22, since: ago(30) },
+      projects: [{ id: 1, title: "Amma's remembrance day 2026", place: "Uduvil", stage: "Initiated", day: "14 Mar 2026", story: "Breakfast, games and a book for every child at the village school, in Amma's memory.", cost: 70000, collected: 20000, currency: "LKR" },
+        { id: 2, title: "Amma's remembrance day 2025", place: "Uduvil", stage: "Impact", day: "14 Mar 2025", story: "Lunch and games for 52 children.", cost: 65000, collected: 65000, currency: "LKR" }],
+      updates: [{ id: 1, body: "Date fixed for 14 March. Cousins in Chennai will be there on the day.", by: "Meena", project: 1, at: ago(4) }] }
+  };
+
   var m = location.pathname.match(/^\/g\/([^/]+)/);
   if (m) groupPage(decodeURIComponent(m[1])); else listPage();
 
@@ -129,6 +157,8 @@
       "</ol>" +
       '<div class="vf-chips g-filter" data-filter hidden>' + [["all", "Everyone"], ["group", "Groups"], ["organisation", "Organisations"]].map(function (x, i) { return '<button type="button" data-f="' + x[0] + '" aria-pressed="' + !i + '">' + x[1] + "</button>"; }).join("") + "</div>" +
       '<section class="g-list" data-list aria-live="polite"><p class="v-empty">Loading…</p></section>' +
+      (TEST ? '<section class="g-samples"><h2>Sample profiles <small>made up, on the draft only</small></h2><div class="g-list">' +
+        ["sample-group", "sample-organisation", "sample-family"].map(function (k) { var x = SAMPLES[k].group; x.projects = SAMPLES[k].projects.length; return card(x); }).join("") + "</div></section>" : "") +
       '<section class="v-join g-reg" id="register" aria-labelledby="reg-h" data-reg></section>' +
       '<p class="v-fine">Your group\'s money stays in your own circle: Raavanaa never holds it. Phone numbers are never shown on the page.</p>';
     turnTitles(root.querySelector("[data-turn]"));
@@ -199,6 +229,10 @@
   var G = null, OPEN = "";
   function groupPage(slug) {
     root.innerHTML = '<p class="v-empty">Loading…</p>';
+    if (TEST && SAMPLES[slug]) {
+      projects().then(function () { var x = JSON.parse(JSON.stringify(SAMPLES[slug])); x.ok = true; x.sample = true; G = x; draw(); });
+      return;
+    }
     Promise.all([api("/api/groups/" + encodeURIComponent(slug)), projects()]).then(function (a) {
       if (!a[0].ok) {
         root.innerHTML = '<header class="vh"><p class="vh-ribbon">Community groups</p><h1 class="vh-title">Group not found</h1><p class="vh-lede">This group is not on Raavanaa, or it is still waiting for the team\'s call.' + (account() ? "" : ' If it is your group, <a href="' + signinURL() + '">sign in</a> to see it.') + '</p><a class="v-btn" href="/groups">See all groups</a></header>';
@@ -219,6 +253,7 @@
     var total = G.projects.length;
     var share = location.origin + "/g/" + encodeURIComponent(g.slug);
     root.innerHTML =
+      (G.sample ? '<p class="g-wait g-sample"><b>Sample profile.</b> Made up to show how a ' + (g.kind === "Family" ? "family" : isOrg(g) ? "organisation" : "group") + " page looks once it is created. It shows only on the draft, never on raavanaa.org.</p>" : "") +
       (g.status !== "listed" ? '<p class="g-wait' + (fresh ? " fresh" : "") + '">' + (fresh ? "<b>Thank you! Your group is registered.</b> " : "") +
         (g.status === "hidden" ? "This page is taken off Raavanaa. Please <a href=\"/contact\">contact us</a>." : "Only you can see this page for now. A Raavanaa volunteer will call you soon, and then it goes live for everyone. You can already add your projects below.") + "</p>" : "") +
       '<header class="g-hero">' +
@@ -321,7 +356,8 @@
   }
   function wire() {
     var fbtn = root.querySelector("[data-follow]");
-    if (fbtn) fbtn.onclick = function () {
+    if (fbtn && G.sample) { fbtn.onclick = function () { fbtn.textContent = "✓ Following (sample, nothing saved)"; }; }
+    else if (fbtn) fbtn.onclick = function () {
       if (!account()) { location.href = signinURL(); return; }
       var on = fbtn.getAttribute("aria-pressed") !== "true";
       fbtn.disabled = true;

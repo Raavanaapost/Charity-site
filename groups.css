@@ -126,3 +126,7 @@ body[data-page="groups"] .bar{background:var(--surface)}
 .g-logo-prev{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:#fff;border:1.5px dashed var(--line);overflow:hidden}
 .g-logo-prev img{width:100%;height:100%;object-fit:contain}
 .g-logo input{font-size:14px;max-width:100%}
+/* Sample profiles on the draft (26 Nov 2026) */
+.g-sample{background:#eef3fb;border-color:#8aa6d6}
+.g-samples{margin-top:26px}
+.g-samples .g-list{margin-top:10px}

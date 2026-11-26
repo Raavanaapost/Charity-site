@@ -3397,3 +3397,7 @@ html[data-form-lang="ta"] .rq-done :is(h2,p,span,b,a){font-family:"Noto Sans Tam
 /* Fold 5 (SURESH 26 Nov): Comments 1, Share 2 (moved in beside Comments), then Vouched for by. */
 .voices .v-talk{order:-2}
 .voices > .share-box{order:-1;margin:0}
+/* "Started by <group or organisation>" on project lines (26 Nov 2026, groups switch) */
+.hm-main .hm-by{display:block;text-align:left;font-family:var(--display);font-size:12.5px;line-height:1.35;color:var(--muted)}
+.hm-main .hm-by .hb-n{display:inline;font-weight:700;color:#1f4d3a}
+.hm-main .hm-by .hb-v{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;background:#1f7a47;color:#fff;font-size:10px;vertical-align:1px}

@@ -65,6 +65,31 @@ window.RAAV_FEATURES = (function () {
 (function () {
   let COMMENTS = [];
   const FEAT = window.RAAV_FEATURES;
+  // Groups and organisations (26 Nov 2026): which group or organisation started each project (linked by the team in the
+  // portal), from /api/groups, fetched once. On the draft only, while nothing is linked yet, two made-up sample profiles
+  // stand in so the design can be seen (never on raavanaa.org).
+  let GROUP_LINKS = null;
+  const groupLinks = () => GROUP_LINKS || (GROUP_LINKS = fetch("/api/groups").then(r => r.ok ? r.json() : {}).catch(() => ({})).then(d => {
+    const m = {};
+    (d.links || []).forEach(l => { const g = (d.groups || []).find(x => x.slug === l.group) || {}; m[l.project] = { slug: l.group, name: l.name, type: g.type, verified: !!g.verified }; });
+    const test = /^(draft--|localhost$|127\.0\.0\.1$)/.test(location.hostname) || /--charity-projects-draft\./.test(location.hostname);
+    if (test && !Object.keys(m).length) {
+      m["prefect-uniforms-for-students-in-valaippadu"] = { slug: "sample-organisation", name: "Vanni Hope Foundation (sample)", type: "organisation", verified: true };
+      m["casuarina-beach-day"] = { slug: "sample-group", name: "Jaffna Friends Circle (sample)", type: "group", verified: false };
+    }
+    return m;
+  }));
+  const groupBadge = l => l.verified ? "✓ Verified organisation" : l.type === "organisation" ? "Organisation" : "Group";
+  // "by <name>" on every project line (Home, Projects, stage pages), added after the lines are drawn.
+  if (FEAT.groups) {
+    let t = 0;
+    const deco = () => groupLinks().then(m => document.querySelectorAll(".hm-row[data-slug]").forEach(row => {
+      const l = m[row.dataset.slug], main = row.querySelector(".hm-main");
+      if (!l || !main || main.querySelector(".hm-by")) return;
+      main.insertAdjacentHTML("beforeend", `<span class="hm-by">Started by <span class="hb-n">${String(l.name).replace(/[&<>"]/g, "")}</span>${l.verified ? ' <span class="hb-v" title="Verified organisation">✓</span>' : ""}</span>`);
+    }));
+    new MutationObserver(() => { clearTimeout(t); t = setTimeout(deco, 120); }).observe(document.documentElement, { childList: true, subtree: true });
+  }
   const PALETTES = [
     ["#2f7f8f", "#163a45", "#f2c14e"], ["#c0583a", "#5a2a2a", "#f6d79a"],
     ["#3d7a4f", "#1b3a2a", "#9fd3c7"], ["#b07d2b", "#4a3418", "#f1e3b5"],
@@ -3373,12 +3398,11 @@ window.RAAV_FEATURES = (function () {
       wireFollowBox(app, p);
       // "Started by" (SURESH 25 Nov 2026, groups and organisations): the group or organisation the team linked to this
       // project, with its badge, opens its profile /g/<name>.
-      if (FEAT.groups && !p.sample) fetch("/api/groups").then(r => r.ok ? r.json() : null).then(d => {
-        const a = app.querySelector("[data-started-by]"), l = d && (d.links || []).find(x => x.project === slugOf(p));
+      if (FEAT.groups && !p.sample) groupLinks().then(m => {
+        const a = app.querySelector("[data-started-by]"), l = m[slugOf(p)];
         if (!a || !l) return;
-        const g = (d.groups || []).find(x => x.slug === l.group) || {};
-        a.href = "/g/" + encodeURIComponent(l.group); a.hidden = false;
-        a.innerHTML = `<span class="sb-k">Started by</span> <b>${esc(l.name)}</b> <span class="sb-b">${g.verified ? "✓ Verified organisation" : g.type === "organisation" ? "Organisation" : "Group"}</span>`;
+        a.href = "/g/" + encodeURIComponent(l.slug); a.hidden = false;
+        a.innerHTML = `<span class="sb-k">Started by</span> <b>${esc(l.name)}</b> <span class="sb-b">${groupBadge(l)}</span>`;
       }).catch(() => {});
       app.querySelectorAll("[data-fund]").forEach(b => b.addEventListener("click", () => {
         // With the 100% fold off, "Make it happen" goes straight to the giving form by the budget.
