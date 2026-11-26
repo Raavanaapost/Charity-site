@@ -6,11 +6,12 @@
 // While SITE_PASSWORD is set, the apps can only reach the open pages (/e/ vouching links); project
 // previews start working for everyone once the password is removed at launch.
 import { allProgress, money, showsProgress } from "../lib/share-progress.mts";
+import { groupSummary, projectLine, badgeWord } from "../lib/group-summary.mts";
 
 type Card = { title: string; text: string; title_ta?: string; text_ta?: string };
 type Share = { default: Card; vouch?: Card; moment?: Card; projects: Record<string, Card> };
 
-const SITE_PAGES = /^\/(|index(\.html)?|overview|projects|initiated|activated|impact|about|spark|initiate|contact|how-it-works|money)\/?$/;
+const SITE_PAGES = /^\/(|index(\.html)?|overview|projects|initiated|activated|impact|about|spark|initiate|contact|how-it-works|money|groups)\/?$/;
 
 let cache: { at: number; data: Share } | null = null;
 async function loadShare(origin: string): Promise<Share | null> {
@@ -64,6 +65,33 @@ export default async (request: Request, context: { next: (req?: Request) => Prom
       html = setMeta(html, "property", "og:title", "Raavanaa · Make a moment happen for children in Sri Lanka");
       html = setMeta(html, "name", "twitter:title", "Raavanaa · Make a moment happen for children in Sri Lanka");
     }
+    const headers = new Headers(res.headers);
+    headers.delete("content-length");
+    return new Response(html, { status: 200, headers });
+  }
+  // A group's or organisation's profile (SURESH 26 Nov 2026): its name, badge and "3 projects, 2 done", with its own
+  // picture (logo or initials) from /api/share-card/g--<slug>.jpg. ?v= changes when the counts or the logo change.
+  const gm = path.match(/^\/g\/([a-z0-9-]{1,80})\/?$/);
+  if (gm) {
+    const g = await groupSummary(url.origin, gm[1]).catch(() => null);
+    if (!g) return res;
+    let html = await res.text();
+    const title = `${g.name} · Raavanaa`;
+    const text = `${g.type === "organisation" || !g.kind || g.kind === "Other" ? badgeWord(g) : g.kind}${g.places ? " in " + g.places : ""}. ${projectLine(g)}. Follow us and see every project openly.`;
+    const img = `${url.origin}/api/share-card/g--${g.slug}.jpg?v=${g.v}`;
+    html = setMeta(html, "property", "og:title", title);
+    html = setMeta(html, "property", "og:description", text);
+    html = setMeta(html, "name", "description", text);
+    html = setMeta(html, "property", "og:image", img);
+    html = setMeta(html, "property", "og:image:width", "1200");
+    html = setMeta(html, "property", "og:image:height", "630");
+    html = setMeta(html, "property", "og:image:type", "image/jpeg");
+    html = setMeta(html, "property", "og:url", url.origin + "/g/" + g.slug);
+    html = setMeta(html, "name", "twitter:card", "summary_large_image");
+    html = setMeta(html, "name", "twitter:title", title);
+    html = setMeta(html, "name", "twitter:description", text);
+    html = setMeta(html, "name", "twitter:image", img);
+    html = html.replace(/<title>[^<]*<\/title>/, `<title>${esc(title)}</title>`);
     const headers = new Headers(res.headers);
     headers.delete("content-length");
     return new Response(html, { status: 200, headers });
@@ -135,4 +163,4 @@ export default async (request: Request, context: { next: (req?: Request) => Prom
   return new Response(html, { status: 200, headers });
 };
 
-export const config = { path: ["/", "/index.html", "/overview", "/projects", "/initiated", "/activated", "/impact", "/about", "/spark", "/initiate", "/contact", "/how-it-works", "/money", "/projects/*", "/ta/projects/*", "/e/*", "/ta/e/*", "/moment", "/ta/moment", "/m/*", "/ta/m/*", "/fund", "/ta/fund"] };
+export const config = { path: ["/", "/index.html", "/overview", "/projects", "/initiated", "/activated", "/impact", "/about", "/spark", "/initiate", "/contact", "/how-it-works", "/money", "/projects/*", "/ta/projects/*", "/e/*", "/ta/e/*", "/moment", "/ta/moment", "/m/*", "/ta/m/*", "/fund", "/ta/fund", "/groups", "/g/*"] };
