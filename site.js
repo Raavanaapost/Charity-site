@@ -2989,6 +2989,29 @@ window.RAAV_FEATURES = (function () {
       </div>
       <p class="share-tip note" hidden></p>
     </div>`;
+  // The WhatsApp message from a project's Share box, as a neat glance that fits the stage (SURESH 26 Nov 2026: "Not
+  // professional. Can you create a nice glance when shared"). Bold title, one line, then when / where / who and the money.
+  function glanceText(p, site, url) {
+    const plain = t => String(t || "").replace(/[*_~`]/g, "").replace(/\s+/g, " ").trim();
+    const n = stageNum(p), b = budgetOf(p), money = v => moneyOf(site, v, p).replace(/&amp;/g, "&");
+    const line = plain(p.tagline) || (plain(p.summary).match(/^.+?[.!?](\s|$)/) || [""])[0].trim();
+    const day = p.money && p.money.day, dt = day ? new Date(day + "T12:00:00") : null;
+    const when = dt && !isNaN(dt) ? dt.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : "";
+    const who = !plain(p.reach) ? "" : /^[\d\s,.+–-]*(to|and)?[\d\s,.+–-]*$/i.test(plain(p.reach)) ? `${plain(p.reach)} children` : plain(p.reach);
+    const head = n === 3 ? "\u{1F389} *The day happened*" : n === 2 ? "\u2705 *Fully funded, thank you*" : "\u{1F331} *A need on Raavanaa*";
+    const facts = [
+      when && `\u{1F4C5} ${when}`,
+      p.location && `\u{1F4CD} ${plain(p.location)}`,
+      who && `\u{1F465} ${who}`,
+      n === 1 && b.goal > 0 ? `\u{1F3AF} ${b.pct}% funded · ${money(Math.max(0, b.goal - b.raised))} still to go` : n === 2 && b.goal ? `\u{1F49B} ${money(b.goal)} raised, every rupee shown openly` : "",
+    ].filter(Boolean);
+    const ask = n === 1 ? "Help make it happen \u{1F447}" : n === 2 ? "Follow the day \u{1F447}" : "See the story \u{1F447}";
+    return [head, "", `*${plain(p.title)}*`, ...(line ? [`_${line}_`] : []), ...(facts.length ? ["", ...facts] : []), "", ask, url].join("\n");
+  }
+  // The picture that goes with it: the funding card for Initiated / Activated projects, else the project's own share picture.
+  const glancePic = (p, own) => { const n = stageNum(p), b = budgetOf(p);
+    return n < 3 && b.goal > 0 ? `/api/share-card/${slugOf(p)}.jpg?v=${n === 2 || b.pct >= 100 ? 100 : b.pct}` : `/img/share/${own ? slugOf(p) : "default"}.jpg`; };
+
   async function wireShare(root) {
     const box = root.querySelector("[data-share]");
     if (!box) return;
@@ -3012,7 +3035,26 @@ window.RAAV_FEATURES = (function () {
       io.observe(box);
     } else getPic();
     box.querySelector('[data-sh="ig"]').addEventListener("pointerdown", getPic);
-    box.querySelector('[data-sh="wa"]').href = `https://wa.me/?text=${enc(`${title}\n${text}\n${url}`)}`;
+    // WhatsApp: the glance message. On phones that can share pictures, the funding card goes with it as a photo, so the
+    // picture always shows even when WhatsApp does not load a link preview (SURESH 26 Nov 2026).
+    const proj = !ta && G_CTX && (G_CTX.projects || []).find(x => slugOf(x) === slug);
+    const waText = proj ? glanceText(proj, G_CTX.site, url) : `${title}\n${text}\n${url}`;
+    const wa = box.querySelector('[data-sh="wa"]');
+    wa.href = `https://wa.me/?text=${enc(waText)}`;
+    if (proj && navigator.canShare && /Android|iPhone|iPad/i.test(navigator.userAgent)) {
+      let cardP = null, cardFile = null;
+      const getCard = () => cardP || (cardP = fetch(glancePic(proj, own)).then(r => r.ok ? r.blob() : null).catch(() => null)
+        .then(b => { if (b) cardFile = new File([b], `raavanaa-${slug}.jpg`, { type: "image/jpeg" }); else cardP = null; return b; }));
+      if ("IntersectionObserver" in window) { const io2 = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io2.disconnect(); getCard(); } }, { rootMargin: "400px" }); io2.observe(box); } else getCard();
+      wa.addEventListener("pointerdown", getCard);
+      wa.addEventListener("click", e => {
+        // The share sheet has to open straight from the tap, so this only happens once the picture is already here;
+        // otherwise the wa.me link opens as before with the glance message.
+        if (!cardFile || !navigator.canShare({ files: [cardFile], text: waText })) return;
+        e.preventDefault();
+        navigator.share({ files: [cardFile], text: waText }).catch(() => { });
+      });
+    }
     box.querySelector('[data-sh="fb"]').href = `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`;
     box.querySelector('[data-sh="x"]').href = `https://twitter.com/intent/tweet?text=${enc(title)}&url=${enc(url)}`;
     const tip = box.querySelector(".share-tip");
