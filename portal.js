@@ -19,7 +19,9 @@
   // Same stage rules as the public site.
   const budget = p => {
     const goal = num(p.goal) || (p.budget || []).filter(x => x && x.item).reduce((s, x) => s + num(x.amount), 0);
-    const raised = (p.funders || []).filter(x => x && x.name).reduce((s, x) => s + num(x.amount), 0);
+    // Website gifts count too (26 Nov 2026: the Kandy trip, fully funded by two website gifts, showed as 0 Activated).
+    const web = (typeof ASKS !== "undefined" && ASKS ? ASKS : []).filter(a => a.project === p.slug && a.status !== "closed").reduce((s, a) => s + num(a.amountValue), 0);
+    const raised = (p.funders || []).filter(x => x && x.name).reduce((s, x) => s + num(x.amount), 0) + web;
     return { goal, raised };
   };
   const stageNum = p => {
@@ -132,7 +134,7 @@
     const pct = funding.goal ? Math.round(funding.raised / funding.goal * 100) : 0;
     return `
       <header class="pt-head"><div><p class="pt-kicker">Dashboard</p><h1>Hello, ${esc(D.user.name)}</h1></div>
-        <div class="pt-actions-row"><a class="pt-btn ghost" href="#/suggestions">Open suggestions</a><a class="pt-btn ghost" href="#/traffic">${svg(ICON.traffic, 18)} Traffic</a></div></header>
+        <div class="pt-actions-row"><a class="pt-btn ghost" href="#/suggestions">Open suggestions</a><a class="pt-btn ghost" href="#/traffic">${svg(ICON.traffic, 18)} Traffic</a>${LIVE ? `<a class="pt-btn" href="#/followers/${esc((P.find(p => stageNum(p) === 2) || P.find(p => p.slug === "pussellawa-kandy-trip") || {}).slug || "")}">${svg(ICON.followers, 18)} Updates &amp; thank-yous</a>` : ""}</div></header>
       <section class="pt-stats">
         <a class="pt-stat s1" href="#/suggestions"><b>${sNew.length}</b><span>New suggestions</span></a>
         <div class="pt-stat st1"><b>${st[0].length}</b><span>Initiated</span></div>
@@ -1025,7 +1027,8 @@
           else { await idCall(id, ["handleAuthCallback"]); await idCall(id, ["updateUser"], { password: fd.get("password") }); }
         }
         else await idCall(id, ["login"], fd.get("email"), fd.get("password"));
-        location.replace("/portal#/dashboard"); location.reload();
+        // Back to the screen the link was for (e.g. #/followers), not always the dashboard (26 Nov 2026).
+        location.replace("/portal" + (/^#\/[a-z]/.test(location.hash) ? location.hash : "#/dashboard")); location.reload();
       } catch (err) { out.textContent = err && err.message ? err.message : "That did not work. Check the email and password."; }
     };
     // Three messages take turns at the top and under the picture (SURESH, 10 Nov 2026).
