@@ -130,3 +130,15 @@ body[data-page="groups"] .bar{background:var(--surface)}
 .g-sample{background:#eef3fb;border-color:#8aa6d6}
 .g-samples{margin-top:26px}
 .g-samples .g-list{margin-top:10px}
+/* Follow us (Facebook Page, Instagram, website) and Share this profile (26 Nov 2026) */
+.g-follow-us{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;margin:10px 0 4px}
+.g-follow-us>span{flex-basis:100%;text-align:center;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#8a6d2b;font-weight:600}
+.g-soc{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;border:1px solid #e6d6ab;background:#fffdf6;color:#1f4d3a;text-decoration:none;font-size:14px}
+.g-soc b{font-weight:600}
+.g-soc:hover{border-color:#c9a24a}
+.g-soc-fb svg{color:#1877f2}.g-soc-ig svg{color:#d6246e}.g-soc-web svg{color:#1f4d3a}
+a.g-soc:not([href]){cursor:default}
+.g-share{margin:26px 0 8px;scroll-margin-top:90px}
+.g-share h2{margin-top:0}
+.g-share-pic{display:block;width:100%;height:auto;margin-top:14px;border-radius:12px;border:1px solid #eadfc2;background:#fbf6ea}
+@media (min-width:700px){.g-share .share-row{grid-template-columns:repeat(4,1fr)}.g-share .share-row .sh-ig{grid-column:auto}}

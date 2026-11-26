@@ -55,6 +55,24 @@
       '<p class="g-small">Keep your certificate ready: a Raavanaa volunteer asks to see it before your page shows <b>Verified organisation</b>. The certificate itself is never put on the site.</p>' +
       "</div>";
   };
+  // Facebook Page and Instagram (SURESH 26 Nov 2026): shown as "Follow us" icons on the profile. Optional; the server
+  // keeps only real facebook.com / instagram.com addresses.
+  var socialFields = function (g) {
+    g = g || {};
+    return '<div class="v-row g-social-f">' +
+      '<label><span>Facebook Page <small>(optional)</small></span><input name="facebook" maxlength="200" value="' + esc(g.facebook || "") + '" placeholder="facebook.com/yourpage"></label>' +
+      '<label><span>Instagram <small>(optional)</small></span><input name="instagram" maxlength="200" value="' + esc((g.instagram || "").replace(/^https:\/\/www\.instagram\.com\//, "@").replace(/\/$/, "")) + '" placeholder="@yourgroup"></label>' +
+      "</div>";
+  };
+  var ico = function (d) { return '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">' + d + "</svg>"; };
+  var ICONS = {
+    wa: ico('<path fill="currentColor" d="M12 2.2a9.7 9.7 0 0 0-8.4 14.6L2.3 21.7l5-1.3A9.7 9.7 0 1 0 12 2.2zm0 17.7c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 19.9zm4.4-6c-.2-.1-1.4-.7-1.7-.8-.2-.1-.4-.1-.5.1l-.8.9c-.1.2-.3.2-.5.1a6.6 6.6 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.5-.4h-.5a.9.9 0 0 0-.7.3 2.8 2.8 0 0 0-.9 2.1c0 1.3.9 2.5 1 2.6.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1l-.6-.2z"/>'),
+    fb: ico('<path fill="currentColor" d="M13.5 21v-7.5H16l.4-3h-2.9V8.6c0-.9.3-1.5 1.5-1.5h1.5V4.4c-.3 0-1.2-.1-2.2-.1-2.2 0-3.7 1.3-3.7 3.8v2.4H8v3h2.6V21z"/>'),
+    ig: ico('<rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor"/>'),
+    link: ico('<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/>'),
+    web: ico('<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 12h17M12 3.5c2.6 2.6 2.6 14.4 0 17M12 3.5c-2.6 2.6-2.6 14.4 0 17" fill="none" stroke="currentColor" stroke-width="1.6"/>'),
+    more: ico('<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 3v12M7.5 7.5L12 3l4.5 4.5M5 13v6.5h14V13"/>')
+  };
   var typePick = function (cur) {
     return '<fieldset class="g-type"><legend>Who are you?</legend>' +
       '<label><input type="radio" name="type" value="group"' + (cur !== "organisation" ? " checked" : "") + '><span><b>A group</b><small>Friends, family, past pupils, a village or a WhatsApp circle. Your money stays in your own circle.</small></span></label>' +
@@ -116,14 +134,14 @@
   var SAMPLES = {
     "sample-group": { group: { slug: "sample-group", name: "Jaffna Friends Circle", type: "group", kind: "WhatsApp circle", places: "Toronto, London, Jaffna", members: 40, started: "2019",
         about: "Forty school friends from Jaffna, now in Toronto and London. Each month we put a little into our WhatsApp circle and make a day happen back home.",
-        collect: "Each of us puts in 20 dollars a month.", checked: true, status: "listed", followers: 37, since: ago(60) },
+        collect: "Each of us puts in 20 dollars a month.", facebook: "https://www.facebook.com/", checked: true, status: "listed", followers: 37, since: ago(60) },
       projects: [{ id: 1, slug: "casuarina-beach-day" },
         { id: 2, title: "School shoes for Grade 1", place: "Point Pedro", stage: "Activated", story: "New shoes for 30 children starting school in January.", cost: 60000, collected: 45000, currency: "LKR" },
         { id: 3, title: "Christmas lunch at the children's home", place: "Chavakachcheri", stage: "Impact", day: "25 Dec 2025", story: "Lunch and a small gift for 34 children. Paid in full by the circle.", cost: 85000, collected: 85000, currency: "LKR" }],
       updates: [{ id: 1, body: "Shoes are ordered. We hand them over on 6 December.", by: "Ravi", project: 2, at: ago(2) }, { id: 2, body: "We collected Rs 45,000 this month. Thank you all!", by: "Ravi", at: ago(9) }] },
     "sample-organisation": { group: { slug: "sample-organisation", name: "Vanni Hope Foundation", type: "organisation", kind: "Charity or NGO", places: "Mullaitivu, Kilinochchi, London", members: 25, started: "2015",
         about: "A registered charity that runs after-school classes and school days for children in Mullaitivu and Kilinochchi.", reg_body: "NGO Secretariat", reg_number: "FL 12345",
-        website: "https://example.org/", logo: SAMPLE_LOGO, verified: true, checked: true, status: "listed", followers: 112, since: ago(120) },
+        website: "https://example.org/", facebook: "https://www.facebook.com/", instagram: "https://www.instagram.com/", logo: SAMPLE_LOGO, verified: true, checked: true, status: "listed", followers: 112, since: ago(120) },
       projects: [{ id: 1, slug: "prefect-uniforms-for-students-in-valaippadu" },
         { id: 2, title: "After-school maths class", place: "Puthukkudiyiruppu", stage: "Activated", story: "Two evenings a week for 40 children, with a trained teacher.", cost: 240000, collected: 180000, currency: "LKR" },
         { id: 3, title: "Sports day for three schools", place: "Mullaitivu", stage: "Impact", day: "Aug 2026", story: "Races, games and lunch for 210 children.", cost: 150000, collected: 150000, currency: "LKR" }],
@@ -196,7 +214,7 @@
         '<p hidden><label>Leave empty <input name="bot-field"></label></p>' +
         typePick("group") +
         '<label><span>Name</span><input name="name" required maxlength="80" placeholder="e.g. Jaffna Friends Circle"></label>' +
-        orgFields() + logoField() +
+        orgFields() + logoField() + socialFields() +
         '<fieldset class="g-kinds"><legend>What kind?</legend>' + KINDS.map(function (k, i) { return '<label class="v-sk"><input type="radio" name="kind" value="' + esc(k) + '"' + (i ? "" : " checked") + "><span>" + esc(k) + "</span></label>"; }).join("") + "</fieldset>" +
         '<label><span>What do you do?</span><textarea name="about" required rows="4" maxlength="1200" placeholder="Who you are, what you have done so far, and what you would like to do next."></textarea></label>' +
         '<div class="v-row">' +
@@ -262,7 +280,7 @@
         '<h1 class="vh-title">' + esc(g.name) + "</h1>" +
         (g.places ? '<p class="g-places">' + esc(g.places) + "</p>" : "") +
         (isOrg(g) ? '<p class="g-reg-line">Registered with ' + esc(g.reg_body) + " · No. " + esc(g.reg_number) + (g.verified ? " · certificate seen by Raavanaa" : " · not yet checked by Raavanaa") + "</p>" : "") +
-        (g.website ? '<p class="g-web"><a href="' + esc(g.website) + '" target="_blank" rel="noopener nofollow">' + esc(g.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")) + " ↗</a></p>" : "") +
+        followUs(g) +
         (g.checked && !g.verified ? '<p class="g-ok big">✓ Checked by Raavanaa</p>' : "") +
         '<div class="vh-stats">' +
           (g.members ? "<span><b>" + g.members + "</b> members</span>" : "") +
@@ -272,7 +290,7 @@
         "</div>" +
         (g.status !== "listed" ? "" : '<div class="g-acts">' +
           '<button type="button" class="v-btn g-follow' + (g.following ? " on" : "") + '" data-follow aria-pressed="' + !!g.following + '">' + (g.following ? "✓ Following" : "+ Follow " + (isOrg(g) ? "this organisation" : "this group")) + "</button>" +
-          '<a class="v-btn ghost" href="https://wa.me/?text=' + encodeURIComponent(g.name + " on Raavanaa: see our projects and follow us " + share) + '" target="_blank" rel="noopener">Share on WhatsApp</a>' +
+          '<a class="v-btn ghost" href="#share">Share this ' + (isOrg(g) ? "organisation" : g.kind === "Family" ? "family" : "group") + "</a>" +
         "</div>" +
         '<p class="g-fnote" data-fnote>' + (g.following ? "You will find their news in My account." : "Follow to see their news and projects in My account.") + "</p>") +
       "</header>" +
@@ -295,8 +313,75 @@
             (admin ? ' · <button type="button" class="g-link" data-unpost="' + u.id + '">Remove</button>' : "") + "</small></li>";
         }).join("") + "</ol>" : '<p class="g-none">No news yet.</p>') +
       "</section>" +
+      (g.status === "listed" ? shareBoxHTML(g) : "") +
       '<p class="g-back"><a href="/groups">← All groups</a> · <a href="/projects">All projects on Raavanaa</a></p>';
     wire();
+    wireShare(g, share, byStage.Impact.length, total);
+  }
+  // "Follow us": the profile's own Facebook Page, Instagram and website (SURESH 26 Nov 2026). Sample profiles show the
+  // icons without a link (a made-up page must not send people to someone's real account).
+  function followUs(g) {
+    var links = [g.facebook && ["fb", "Facebook", g.facebook], g.instagram && ["ig", "Instagram", g.instagram],
+      g.website && ["web", g.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, ""), g.website]].filter(Boolean);
+    if (!links.length) return "";
+    return '<div class="g-follow-us"><span>Follow us</span>' + links.map(function (l) {
+      return G.sample ? '<a class="g-soc g-soc-' + l[0] + '" title="On a real profile this opens their own ' + esc(l[1]) + '">' + ICONS[l[0]] + "<b>" + esc(l[1]) + "</b></a>"
+        : '<a class="g-soc g-soc-' + l[0] + '" href="' + esc(l[2]) + '" target="_blank" rel="noopener nofollow">' + ICONS[l[0]] + "<b>" + esc(l[1]) + "</b></a>";
+    }).join("") + "</div>";
+  }
+  // "Share this profile", like the share box on projects: WhatsApp with the words ready, Facebook, copy link, an
+  // Instagram story picture (phones get it in the share sheet), and the phone's own share sheet. The link preview and
+  // both pictures are made on the server with the name, logo and "3 projects, 2 done" (share-card.mts); drawings and
+  // logos only, never children's photos.
+  function shareBoxHTML(g) {
+    var who = isOrg(g) ? "organisation" : g.kind === "Family" ? "family" : "group";
+    return '<section class="panel share-box g-share" id="share"><h2>Share this ' + who + "</h2>" +
+      '<p class="note">Share the page with your WhatsApp circle, family and friends. Everyone can follow and see every project openly.</p>' +
+      '<div class="share-row">' +
+        '<a class="sh sh-wa" data-sh="wa" target="_blank" rel="noopener">' + ICONS.wa + "<span>WhatsApp</span></a>" +
+        '<a class="sh sh-fb" data-sh="fb" target="_blank" rel="noopener">' + ICONS.fb + "<span>Facebook</span></a>" +
+        '<button class="sh sh-link" type="button" data-sh="link">' + ICONS.link + "<span>Copy link</span></button>" +
+        '<button class="sh sh-ig" type="button" data-sh="ig">' + ICONS.ig + "<span>Instagram story</span></button>" +
+        '<button class="sh sh-more" type="button" data-sh="more" hidden>' + ICONS.more + "<span>More</span></button>" +
+      "</div>" +
+      '<img class="g-share-pic" data-share-pic alt="The picture people see when this page is shared" loading="lazy" width="1200" height="630">' +
+      '<p class="share-tip note" hidden></p></section>';
+  }
+  function wireShare(g, url, done, total) {
+    var box = root.querySelector("[data-sh]") && root.querySelector(".g-share");
+    if (!box) return;
+    var enc = encodeURIComponent, line = !total ? "" : total + " project" + (total === 1 ? "" : "s") + (done ? ", " + done + " done" : "");
+    var words = g.name + " is on Raavanaa" + (line ? ": " + line : "") + ". See every project openly and follow " + (isOrg(g) ? "the organisation" : "them") + ".";
+    var v = total + "-" + done, card = "/api/share-card/g--" + enc(g.slug);
+    box.querySelector("[data-share-pic]").src = card + ".jpg?v=" + v;
+    box.querySelector('[data-sh="wa"]').href = "https://wa.me/?text=" + enc(words + "\n" + url);
+    box.querySelector('[data-sh="fb"]').href = "https://www.facebook.com/sharer/sharer.php?u=" + enc(url);
+    var tip = box.querySelector(".share-tip"), say = function (t) { tip.textContent = t; tip.hidden = false; };
+    var more = box.querySelector('[data-sh="more"]');
+    if (navigator.share) { more.hidden = false; more.onclick = function () { navigator.share({ title: g.name + " · Raavanaa", text: words, url: url }).catch(function () {}); }; }
+    box.querySelector('[data-sh="link"]').onclick = function () {
+      (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(function () { say("Link copied. Paste it anywhere."); }, function () { say(url); });
+    };
+    // The story picture is fetched before the tap, because a phone opens its share sheet only straight after a tap.
+    var picP = null, getPic = function () { return picP || (picP = fetch(card + "-story.jpg?v=" + v).then(function (r) { return r.ok ? r.blob() : Promise.reject(); }).catch(function () { picP = null; return null; })); };
+    var ig = box.querySelector('[data-sh="ig"]');
+    ig.addEventListener("pointerdown", getPic);
+    if ("IntersectionObserver" in window) { var io = new IntersectionObserver(function (es) { if (es.some(function (e) { return e.isIntersecting; })) { io.disconnect(); getPic(); } }, { rootMargin: "400px" }); io.observe(box); }
+    ig.onclick = function () {
+      getPic().then(function (blob) {
+        if (!blob) throw new Error("no picture");
+        var file = new File([blob], "raavanaa-" + g.slug + ".jpg", { type: "image/jpeg" });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.resolve()).catch(function () {}).then(function () {
+            return navigator.share({ files: [file] });
+          }).then(function () { say("Pick Instagram, then Story. The link is copied: add it with the link sticker."); }).catch(function () {});
+          return;
+        }
+        var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = file.name;
+        document.body.appendChild(a); a.click(); a.remove();
+        say("Story picture saved. Post it to your Instagram story and add this page's link with the link sticker.");
+      }).catch(function () { say("Could not get the picture. Please try again."); });
+    };
   }
   function projCard(p) {
     var rp = p.slug && PROJ[p.slug], admin = G.group.admin;
@@ -337,7 +422,7 @@
     if (OPEN === "about") body = '<form data-about class="g-mform">' +
       typePick(g.type) + (isOrg(g) ? "" : '<p class="g-small">Has your group registered? Choose <b>A registered organisation</b>: your page, projects and followers stay the same.</p>') +
       '<label><span>Name</span><input name="name" required maxlength="80" value="' + esc(g.name) + '"></label>' +
-      orgFields(g) + logoField(g) +
+      orgFields(g) + logoField(g) + socialFields(g) +
       '<label><span>Kind of group</span><select name="kind">' + KINDS.map(function (k) { return "<option" + (g.kind === k ? " selected" : "") + ">" + esc(k) + "</option>"; }).join("") + "</select></label>" +
       '<label><span>About us</span><textarea name="about" rows="4" maxlength="1200">' + esc(g.about) + "</textarea></label>" +
       '<div class="v-row"><label><span>Where are your members?</span><input name="places" maxlength="160" value="' + esc(g.places) + '"></label>' +
