@@ -33,6 +33,23 @@ const CUR = ["LKR", "CAD", "GBP", "EUR", "USD", "AUD", "CHF", "NOK", "INR"];
 const REG_BODIES = ["NGO Secretariat", "Companies Act (guarantee company)", "Divisional Secretariat / social services", "Registered charity abroad", "Other"];
 const LOGO_RE = /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/;
 const site = (v: unknown) => { const u = clip(v, 160); if (!u) return ""; const w = /^https?:\/\//i.test(u) ? u : "https://" + u; try { const x = new URL(w); return /\./.test(x.hostname) ? x.href : ""; } catch { return ""; } };
+// Facebook Page and Instagram (SURESH 26 Nov 2026: "Follow us" on the profile). Only real facebook.com / instagram.com
+// addresses are kept, so a profile cannot send people to some other site with a Facebook icon. A bare name or @name works too.
+const social = (v: unknown, kind: "facebook" | "instagram") => {
+  let s = clip(v, 200).replace(/\s+/g, "");
+  if (!s) return "";
+  const hosts = kind === "facebook" ? /^(www\.|m\.|web\.)?(facebook\.com|fb\.com)$/i : /^(www\.)?instagram\.com$/i;
+  // A bare name or @name (Instagram names may have dots: @jaffna.friends).
+  if (/^@?[\w.\-]{1,80}$/.test(s) && !/\.(com|org|net|lk)$/i.test(s)) s = (kind === "facebook" ? "facebook.com/" : "instagram.com/") + s.replace(/^@/, "");
+  try {
+    const x = new URL(/^https?:\/\//i.test(s) ? s : "https://" + s);
+    if (!hosts.test(x.hostname)) return "";
+    const path = x.pathname.replace(/\/+$/, "");
+    if (!/^\/[\w.\-\/]{2,120}$/.test(path)) return "";
+    const keepQ = kind === "facebook" && path === "/profile.php" && /^\d+$/.test(x.searchParams.get("id") || "") ? "?id=" + x.searchParams.get("id") : "";
+    return (kind === "facebook" ? "https://www.facebook.com" : "https://www.instagram.com") + path + keepQ;
+  } catch { return ""; }
+};
 const slugify = (s: string) => s.toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-|-$/g, "").slice(0, 48) || "group";
 
 async function me() {
@@ -50,7 +67,7 @@ const face = (g: Row, extra: Row = {}) => ({
   collect: g.collect, checked: !!g.checked, status: g.status, since: g.listed_at || g.created_at,
   type: g.profile_type === "organisation" ? "organisation" : "group", verified: g.profile_type === "organisation" && !!g.verified,
   reg_body: g.profile_type === "organisation" ? g.reg_body : "", reg_number: g.profile_type === "organisation" ? g.reg_number : "",
-  website: g.website || "", logo: g.logo ? `/api/groups/${encodeURIComponent(g.slug)}/logo?v=${new Date(g.updated_at || g.created_at).getTime()}` : "", ...extra,
+  website: g.website || "", facebook: g.facebook || "", instagram: g.instagram || "", logo: g.logo ? `/api/groups/${encodeURIComponent(g.slug)}/logo?v=${new Date(g.updated_at || g.created_at).getTime()}` : "", ...extra,
 });
 const proj = (p: Row) => ({
   id: p.id, slug: p.raavanaa_slug || "", title: p.title, place: p.place, stage: STAGES.includes(p.stage) ? p.stage : "Initiated",
@@ -101,11 +118,15 @@ const fields = (b: Row) => ({
   contact_name: clip(b.contact_name, 80), contact_phone: clip(b.contact_phone, 40),
   type: b.type === "organisation" ? "organisation" : "group", reg_body: REG_BODIES.includes(clip(b.reg_body, 60)) ? clip(b.reg_body, 60) : "",
   reg_number: clip(b.reg_number, 60), website: site(b.website),
+  facebook: social(b.facebook, "facebook"), instagram: social(b.instagram, "instagram"),
 });
 // A picture typed in the browser (shrunk there to 256 px): data URL, at most about 90 KB. "" = no logo; undefined = keep.
 const logoOf = (v: unknown) => v === "" || v === null ? "" : typeof v === "string" && v.length <= 120000 && LOGO_RE.test(v) ? v : undefined;
 const orgCheck = (f: ReturnType<typeof fields>) => f.type === "organisation" && (!f.reg_body || f.reg_number.length < 2)
   ? "Please say where your organisation is registered and its registration number." : "";
+
+const linkCheck = (b: Row) => clip(b.facebook, 200) && !social(b.facebook, "facebook") ? "That Facebook link does not look right. Please paste your Facebook Page's address, e.g. facebook.com/yourpage."
+  : clip(b.instagram, 200) && !social(b.instagram, "instagram") ? "That Instagram link does not look right. Please give your Instagram name, e.g. @yourgroup." : "";
 
 export default async (req: Request) => {
   const url = new URL(req.url);
@@ -180,15 +201,15 @@ export default async (req: Request) => {
       if (f.name.length < 3) return json({ ok: false, error: "Please give your group's name." }, 400);
       if (f.about.length < 20) return json({ ok: false, error: "Please say in a few lines what your group does." }, 400);
       if (!f.contact_phone) return json({ ok: false, error: "Please add a WhatsApp number so the team can call you." }, 400);
-      const oc = orgCheck(f); if (oc) return json({ ok: false, error: oc }, 400);
+      const oc = orgCheck(f) || linkCheck(body); if (oc) return json({ ok: false, error: oc }, 400);
       const logo = logoOf(body.logo) || "";
       const mine = (await db.sql<Row>`SELECT COUNT(*)::int AS n FROM community_groups WHERE owner_email = ${who.email} AND created_at > NOW() - INTERVAL '1 day'`) as Row[];
       if (mine[0].n >= 3) return json({ ok: false, error: "You have registered three groups today. Please wait for the team to call you." }, 429);
       const slug = await freeSlug(db, f.name);
       await db.sql`INSERT INTO community_groups (slug, name, kind, about, places, members_count, started, collect, contact_name, contact_phone, owner_email,
-          profile_type, reg_body, reg_number, website, logo)
+          profile_type, reg_body, reg_number, website, logo, facebook, instagram)
         VALUES (${slug}, ${f.name}, ${f.kind}, ${f.about}, ${f.places}, ${f.members}, ${f.started}, ${f.collect}, ${f.contact_name || who.name}, ${f.contact_phone}, ${who.email},
-          ${f.type}, ${f.type === "organisation" ? f.reg_body : ""}, ${f.type === "organisation" ? f.reg_number : ""}, ${f.website}, ${logo})`;
+          ${f.type}, ${f.type === "organisation" ? f.reg_body : ""}, ${f.type === "organisation" ? f.reg_number : ""}, ${f.website}, ${logo}, ${f.facebook}, ${f.instagram})`;
       await db.sql`INSERT INTO audit_log (actor, action, target) VALUES (${who.email}, 'group.registered', ${slug})`;
       return json({ ok: true, slug });
     }
@@ -221,9 +242,9 @@ export default async (req: Request) => {
 
     if (!sub && req.method === "PATCH") {
       const f = fields({ ...face(g), members: g.members_count, contact_name: g.contact_name, contact_phone: g.contact_phone,
-        type: g.profile_type, reg_body: g.reg_body, reg_number: g.reg_number, website: g.website, ...body });
+        type: g.profile_type, reg_body: g.reg_body, reg_number: g.reg_number, website: g.website, facebook: g.facebook, instagram: g.instagram, ...body });
       if (f.name.length < 3) return json({ ok: false, error: "Please give your group's name." }, 400);
-      const oc = orgCheck(f); if (oc) return json({ ok: false, error: oc }, 400);
+      const oc = orgCheck(f) || linkCheck(body); if (oc) return json({ ok: false, error: oc }, 400);
       const logo = logoOf(body.logo);
       // A new registration (or going back to a group) needs the team to see the certificate again.
       const keepVerified = f.type === "organisation" && g.profile_type === "organisation" && f.reg_number === g.reg_number && f.reg_body === g.reg_body;
@@ -233,7 +254,7 @@ export default async (req: Request) => {
       await db.sql`UPDATE community_groups SET name = ${f.name}, kind = ${f.kind}, about = ${f.about}, places = ${f.places}, members_count = ${f.members},
         started = ${f.started}, collect = ${f.collect}, contact_name = ${f.contact_name}, contact_phone = ${f.contact_phone}, admins = ${admins}::text[],
         profile_type = ${f.type}, reg_body = ${f.type === "organisation" ? f.reg_body : ""}, reg_number = ${f.type === "organisation" ? f.reg_number : ""}, website = ${f.website},
-        logo = ${logo === undefined ? g.logo : logo}, verified = ${keepVerified && !!g.verified}, updated_at = NOW() WHERE id = ${g.id}`;
+        facebook = ${f.facebook}, instagram = ${f.instagram}, logo = ${logo === undefined ? g.logo : logo}, verified = ${keepVerified && !!g.verified}, updated_at = NOW() WHERE id = ${g.id}`;
       if (g.verified && !keepVerified) await db.sql`INSERT INTO audit_log (actor, action, target) VALUES (${who!.email}, 'group.unverified-by-edit', ${g.slug})`;
       const [n] = (await db.sql<Row>`SELECT * FROM community_groups WHERE id = ${g.id}`) as Row[];
       return json(await profile(db, n, who, team));
