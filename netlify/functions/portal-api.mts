@@ -267,7 +267,7 @@ export default async (req: Request, context: Context) => {
     const list = async () => ((await db.sql`
       SELECT * FROM give_requests ORDER BY (status = 'new') DESC, (status = 'replied') DESC, received_at DESC LIMIT 500`) as Record<string, any>[]).map((r) => ({
       id: r.ref, at: r.received_at, name: r.name, contact: r.contact, amount: r.amount, kind: r.kind, project: r.project_slug, moment: r.moment_code,
-      tribute: r.tribute || null, message: r.message, lang: r.lang, status: r.status, note: r.team_note, by: r.handled_by, handledAt: r.handled_at,
+      tribute: r.tribute || null, amountValue: Number(r.amount_value) || 0, message: r.message, lang: r.lang, status: r.status, note: r.team_note, by: r.handled_by, handledAt: r.handled_at,
       listing: r.listing || "both", listAs: r.listing_words || "",
     }));
     if (req.method === "GET" && !parts[1]) return json({ pledges: await list() });
