@@ -715,6 +715,8 @@ window.RAAV_FEATURES = (function () {
   // On phones the menu is folded away, so the Home page also carries a slim strip at the very top.
   const momentRibbonHTML = () => `<a class="moment-ribbon" href="/moment"><img src="/img/moment-mark.svg" alt="" width="34" height="34"><span><b>Gift a Moment</b> <em>in their name</em></span><i aria-hidden="true">→</i></a>`;
   // Gift a Moment as a small round icon that sits with the story pictures (Home, 14 Nov 2026).
+  // Home's "All projects" icon (SURESH 26 Nov 2026), in the calm cream style of the Gift a Moment pill.
+  const allChipHTML = n => `<a class="all-chip" href="${TA_PATH ? "/ta" : ""}/projects"><span class="all-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="4.6" rx="1.6"/><rect x="3.5" y="11" width="17" height="4.6" rx="1.6"/><path d="M4.5 19.5h15"/></svg></span><span class="all-txt"><b>All projects</b> <em>${n ? `${n} ${n === 1 ? "project" : "projects"} in every stage` : "every stage"}</em></span><i aria-hidden="true">→</i></a>`;
   const momentChipHTML = () => `<a class="moment-chip" href="/moment"><img src="/img/moment-mark.svg" alt="" width="40" height="40"><span><b>Gift a Moment</b> <em>in their name</em></span><i aria-hidden="true">→</i></a>`;
   const createHTML = (list = CREATE, o = {}) => `<a class="create-cta${o.cls ? " " + o.cls : ""}" href="${o.href || "/spark"}">
       <span class="cc-titles">${list.map((c, i) => `<b class="${i ? "" : "on"}">${c.title}</b>`).join("")}</span>
@@ -970,6 +972,7 @@ window.RAAV_FEATURES = (function () {
       ${light ? `<section class="intro">
         <h1 class="headline">${headline((slides[start] && slides[start].title) || site.tagline)}</h1>
       </section>` : ""}
+      ${/* SURESH 26 Nov 2026: a round icon on Home that opens the page with every project (/projects) */ ""}${light ? allChipHTML(projects.length) : ""}
       ${light ? "" : `<div class="stage-rail" aria-live="polite">
         <p class="rail-say">${STAGE_SAY.map((t, i) => `<span class="s${i + 1}${i ? "" : " on"}">${t}</span>`).join("")}</p>
       </div>`}
