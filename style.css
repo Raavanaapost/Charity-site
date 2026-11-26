@@ -3519,3 +3519,12 @@ html[data-form-lang="ta"] .rq-done :is(h2,p,span,b,a){font-family:"Noto Sans Tam
 .imp-letter .imp-from{font-family:var(--display)}
 /* Impact overview box in warm sand, not a pink tint of the red (SURESH 17 Nov 2026: no pink). */
 .pov.s3{background:var(--sand-2);border-color:var(--sand)}
+/* Home "All projects" icon (SURESH 26 Nov 2026): cream pill with a round green icon, opens /projects. */
+.all-chip{display:flex;align-items:center;gap:10px;width:max-content;max-width:100%;margin:2px auto 18px;padding:5px 8px 5px 5px;border-radius:999px;text-decoration:none;color:#2a3423;background:#fbf6ea;border:1.5px solid #ecc76a;box-shadow:0 8px 14px -12px rgba(138,92,18,.8)}
+.all-chip .all-ico{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#1f4d3a;color:#f3d27a;box-shadow:inset 0 0 0 2px #ecc76a}
+.all-chip .all-txt{line-height:1.2;font-size:13.5px}
+.all-chip b{font-family:"Cinzel",var(--display);font-weight:700;font-size:15.5px;color:#1f4d3a;letter-spacing:.02em}
+.all-chip em{display:block;font-family:var(--display);font-style:italic;color:#7a6a45}
+.all-chip i{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:#1f4d3a;color:#fff;font-style:normal;font-family:var(--display);font-weight:700;font-size:14px}
+.all-chip:hover{box-shadow:0 10px 18px -10px rgba(138,92,18,.9)}
+html[lang="ta"] .all-chip b{font-family:"Noto Sans Tamil",var(--display),sans-serif}
