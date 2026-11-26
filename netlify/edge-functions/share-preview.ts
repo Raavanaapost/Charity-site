@@ -35,8 +35,13 @@ function setMeta(html: string, attr: "property" | "name", key: string, value: st
   return re.test(html) ? html.replace(re, tag) : html.replace("</head>", `${tag}\n</head>`);
 }
 
-export default async (request: Request, context: { next: () => Promise<Response> }) => {
-  const res = await context.next();
+export default async (request: Request, context: { next: (req?: Request) => Promise<Response> }) => {
+  // Facebook's crawler asks for the page with a Range header. The page then came back as "206 Partial Content", which
+  // this function used to skip, so Facebook saw the plain logo and no og:url (SURESH 26 Nov 2026, Sharing Debugger).
+  // Ask for the whole page instead; it is small, and the apps only read the <head>.
+  let req = request;
+  if (request.headers.has("range")) { const h = new Headers(request.headers); h.delete("range"); h.delete("if-range"); req = new Request(request, { headers: h }); }
+  const res = await context.next(req);
   if (res.status !== 200 || !(res.headers.get("content-type") || "").includes("text/html")) return res;
   const url = new URL(request.url);
   const ta = url.pathname.startsWith("/ta/");
