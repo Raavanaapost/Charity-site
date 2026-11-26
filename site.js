@@ -3190,6 +3190,7 @@ window.RAAV_FEATURES = (function () {
         if (!r.ok || !d.ok) throw new Error(d.error || "Could not save that just now. Please try again.");
         try { const l = followsHere(); if (!l.includes(slugOf(p))) localStorage.setItem(FOLLOW_KEY, JSON.stringify([...l, slugOf(p)])); } catch (er) { /* storage blocked */ }
         f.hidden = true; box.querySelector("[data-pf-done]").hidden = false;
+        root.querySelectorAll("[data-pact-follow]").forEach(b => { b.disabled = true; b.textContent = "✓ You're following this day"; });
       } catch (er) { msg.hidden = false; msg.textContent = er.message; btn.disabled = false; }
     });
   }
@@ -3208,6 +3209,31 @@ window.RAAV_FEATURES = (function () {
       ${live.length ? `<h2><i aria-hidden="true"></i>Live from the day <small>${esc(day)}</small></h2>
       <ol>${live.map(item).join("")}</ol>
       ${live.length > 3 ? `<button type="button" class="btn ghost plive-more" onclick="this.closest('.plive').classList.add('all');this.remove()">See all ${live.length} posts from the day</button>` : ""}` : ""}
+    </section>`;
+  }
+  // Activated page top (SURESH 26 Nov 2026, thread "Show funded status on Activated pages"): Initiated and Activated
+  // keep the same template; on Activated the top says plainly that the day is fully funded and when it happens, in
+  // place of any ask to give, and offers Follow so people come back for the day. The day comes from "day" or
+  // money.day (YYYY-MM-DD) in projects.json, else from date_text or the "When" line of At a glance.
+  const actDayISO = p => String(p.day || (p.money && p.money.day) || "").slice(0, 10);
+  function activatedTopHTML(p) {
+    const iso = actDayISO(p), slug = slugOf(p), on = followsHere().includes(slug);
+    let when = "";
+    if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+      const d = new Date(iso + "T12:00:00Z"), nice = d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
+      const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Colombo" }); // YYYY-MM-DD in Sri Lanka
+      const diff = Math.round((Date.parse(iso) - Date.parse(today)) / 864e5);
+      when = diff > 1 ? `Happening on <b>${esc(nice)}</b>` : diff === 1 ? `Happening tomorrow, <b>${esc(nice)}</b>`
+        : diff === 0 ? `Happening <b>today</b> in Sri Lanka, ${esc(nice)}` : `The day was <b>${esc(nice)}</b>. The story is on its way.`;
+    } else {
+      const t = p.date_text || ((p.glance || []).find(g => /^(when|the day|date)$/i.test(g.k)) || {}).v || "";
+      when = t ? `Happening on <b>${esc(t)}</b>` : "The date is being set";
+    }
+    return `<section class="pact" data-pact>
+      <p class="pact-k"><i aria-hidden="true">✓</i> Fully funded</p>
+      <p class="pact-day">${when}</p>
+      <p class="pact-note">Thank you to everyone who gave. Nothing more is needed for this day. Follow it to see the day as it happens.</p>
+      <button type="button" class="btn pact-follow" data-pact-follow${on ? " disabled" : ""}>${on ? "✓ You're following this day" : "Follow the day"}</button>
     </section>`;
   }
   // The Impact page (SURESH 26 Nov 2026, thread "Redesign Impact story page"): once the day has happened, the top of the
@@ -3421,6 +3447,7 @@ window.RAAV_FEATURES = (function () {
             ${st === 3 ? `${impactTopHTML(p, site, i)}
             <h2 class="imp-more">The full story, from the start</h2>
             ${liveHTML(p)}` : `
+            ${st === 2 && !p.sample ? activatedTopHTML(p) : ""}
             ${p.tagline ? `<p class="psum">${esc(p.tagline)}</p>` : ""}
             ${liveHTML(p)}
             <div class="hero-wrap">
@@ -3455,6 +3482,13 @@ window.RAAV_FEATURES = (function () {
       if (FEAT.voices) wireVoices(app, p);
       foldPanels(app);
       wireFollowBox(app, p);
+      // Activated top: "Follow the day" opens the Follow box in the side column and puts the cursor in it.
+      app.querySelectorAll("[data-pact-follow]").forEach(bt => bt.onclick = () => {
+        const box = app.querySelector("[data-pfollow]"); if (!box) return;
+        box.style.scrollMarginTop = "86px"; box.scrollIntoView({ block: "start", behavior: "smooth" });
+        const inp = box.querySelector("[data-pf-form]:not([hidden]) input[name=name]");
+        if (inp) setTimeout(() => inp.focus({ preventScroll: true }), 450);
+      });
       // Impact page: "Share this day" uses the phone's share sheet, else copies the link.
       app.querySelectorAll("[data-imp-share]").forEach(bt => bt.onclick = async () => {
         const url = location.origin + "/projects/" + slugOf(p);
