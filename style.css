@@ -3401,3 +3401,24 @@ html[data-form-lang="ta"] .rq-done :is(h2,p,span,b,a){font-family:"Noto Sans Tam
 .hm-main .hm-grp{display:block;text-align:left;font-family:var(--display);font-size:12.5px;line-height:1.35;color:var(--muted)}
 .hm-main .hm-grp .hb-n{display:inline;font-weight:700;color:#1f4d3a}
 .hm-main .hm-grp .hb-v{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;background:#1f7a47;color:#fff;font-size:10px;vertical-align:1px}
+
+/* Live from the day (Kandy trip, 26 Nov 2026): posts from the organiser's phone, newest first, Sri Lanka time. */
+.plive{margin:18px 0;padding:18px 18px 8px;border-radius:16px;background:var(--surface);border:1.5px solid var(--line);scroll-margin-top:80px}
+.plive h2{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-family:var(--display);font-size:20px;margin:0 0 12px}
+.plive h2 i{width:10px;height:10px;border-radius:50%;background:var(--flame);box-shadow:0 0 0 4px color-mix(in srgb,var(--flame) 22%,transparent)}
+.plive h2 small{font-size:14px;font-weight:500;color:var(--muted)}
+.plive ol{list-style:none;margin:0;padding:0 0 0 14px;border-left:2px solid var(--line)}
+.plive-i{position:relative;padding:0 0 18px 12px}
+.plive-i::before{content:"";position:absolute;left:-21px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--surface);border:2.5px solid var(--sun)}
+.plive-i:first-child::before{background:var(--sun)}
+.plive-i time{display:block;font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.plive-i b{display:block;font-family:var(--display);font-size:17px;margin:2px 0}
+.plive-i p{margin:2px 0 8px;max-width:60ch}
+.plive-i img{display:block;width:100%;max-width:520px;max-height:420px;object-fit:cover;border-radius:12px;margin-top:6px}
+.plive:not(.all) .plive-i.more{display:none}
+.plive-more{margin:0 0 12px}
+.plive-ded{text-align:center;margin:0 0 14px;padding:12px;border-radius:12px;background:var(--sun-soft)}
+.plive-ded span{display:block;font-size:14px;color:var(--muted)}
+.plive-ded b{display:block;font-family:"Cinzel",Georgia,serif;font-size:21px;margin:2px 0}
+.plive-ded small{display:block;color:var(--muted)}
+.update-img{display:block;width:100%;max-width:560px;border-radius:12px;margin:6px 0 10px}

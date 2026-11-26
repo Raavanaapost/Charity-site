@@ -3239,6 +3239,23 @@ window.RAAV_FEATURES = (function () {
       } catch (er) { msg.hidden = false; msg.textContent = er.message; btn.disabled = false; }
     });
   }
+  // "Live from the day" (SURESH 26 Nov 2026, Kandy trip): what the organiser posts from the bus with the phone link,
+  // newest first, with the Sri Lanka time, so the sponsors and families feel the day as it happens. A project can carry
+  // "dedication": { "words": "In loving memory of", "name": "…", "note": "…" } when a sponsor gives the day in someone's name.
+  const lkTime = iso => { try { return new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "Asia/Colombo" }) + " in Sri Lanka"; } catch (e) { return ""; } };
+  function liveHTML(p) {
+    const live = (p.updates || []).filter(u => u.live && u.at).sort((a, b) => String(b.at).localeCompare(String(a.at)));
+    const ded = p.dedication && p.dedication.name ? p.dedication : null;
+    if (!live.length && !ded) return "";
+    const day = live.length ? new Date(live[0].at).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "Asia/Colombo" }) : "";
+    const item = (u, k) => `<li class="plive-i${k > 2 ? " more" : ""}"><time>${esc(lkTime(u.at))}</time><b>${esc(u.title)}</b>${u.body ? `<p>${esc(u.body)}</p>` : ""}${u.image ? `<a href="${esc(u.image)}" target="_blank" rel="noopener"><img src="${esc(u.image)}" alt="" loading="lazy"></a>` : ""}</li>`;
+    return `<section class="plive" id="live">
+      ${ded ? `<div class="plive-ded"><span>${esc(ded.words || "This day is given in loving memory of")}</span><b>${esc(ded.name)}</b>${ded.note ? `<small>${esc(ded.note)}</small>` : ""}</div>` : ""}
+      ${live.length ? `<h2><i aria-hidden="true"></i>Live from the day <small>${esc(day)}</small></h2>
+      <ol>${live.map(item).join("")}</ol>
+      ${live.length > 3 ? `<button type="button" class="btn ghost plive-more" onclick="this.closest('.plive').classList.add('all');this.remove()">See all ${live.length} posts from the day</button>` : ""}` : ""}
+    </section>`;
+  }
   function renderProject(app, site, projects, slug) {
     const i = projects.findIndex(p => slugOf(p) === slug);
     const p = projects[i];
@@ -3335,7 +3352,7 @@ window.RAAV_FEATURES = (function () {
     const panes = {
       // The story tab: the opening paragraph in full, the rest behind "See how this smile begins".
       story: overviewHTML + (taleHTML || (overviewHTML ? "" : `<p class="empty">The story is on its way.</p>`)),
-      updates: impactCardHTML + expectHTML(p) + (updates.length ? updates.map(u => `<article class="update"><div class="meta">${fmtDate(u.date)}</div><h3>${esc(u.title)}</h3><div>${md(u.body)}</div></article>`).join("") : `<p class="empty">No impact updates yet.</p>`) + (p.sample || FEAT.voices ? "" : commentsHTML(slugOf(p))),
+      updates: impactCardHTML + expectHTML(p) + (updates.length ? updates.map(u => `<article class="update"><div class="meta">${fmtDate(u.date)}${u.at ? ` · ${lkTime(u.at)}` : ""}</div><h3>${esc(u.title)}</h3>${u.image ? `<img class="update-img" src="${esc(u.image)}" alt="" loading="lazy">` : ""}<div>${md(u.body)}</div></article>`).join("") : `<p class="empty">No impact updates yet.</p>`) + (p.sample || FEAT.voices ? "" : commentsHTML(slugOf(p))),
       budget: `<div class="budget-tab">${budgetDetailHTML(p, site, true)}${p.money ? `<p class="mny-link"><a class="btn ghost" href="/projects/${slugOf(p)}/money">See every rupee in and out</a></p>` : ""}${stageNum(p) === 1 && budgetOf(p).lines.length ? `<p class="note">These are estimates. Once the day has happened, the real costs are shown here.</p>` : stageNum(p) === 2 ? `<p class="note">Once the day has happened, a breakdown of where the money went is shown here.</p>` : ""}</div>`,
       media: (photos.length || media.length) ? `${media.length ? `<div class="media">${media.map(m => { const e = embedFor(m.url); return e ? `<figure style="margin:0"><div class="embed"><iframe src="${esc(e)}" title="${esc(m.title)}" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy"></iframe></div>${m.title ? `<figcaption class="note" style="padding-top:6px">${esc(m.title)}</figcaption>` : ""}</figure>` : `<a class="media-link" href="${esc(m.url)}" target="_blank" rel="noopener">▶ ${esc(m.title || m.url)}</a>`; }).join("")}</div>` : ""}${photos.length ? `<div class="photos">${photos.map((ph, k) => `<figure><button data-src="${esc(imgUrl(ph.image, 1600))}" aria-label="Open picture"><div class="cover"><img src="${esc(imgUrl(ph.image, 600))}" alt="${esc(ph.caption)}" loading="lazy"></div></button>${ph.caption ? `<figcaption>${esc(ph.caption)}</figcaption>` : ""}</figure>`).join("")}</div>` : ""}` : `<p class="empty">${p.photos_private ? "To protect the children, we do not put their photos on this website. The day is told here in words, and the organisers and families keep the photos." : "No videos or pictures yet."}</p>`
     };
@@ -3371,6 +3388,7 @@ window.RAAV_FEATURES = (function () {
             </header>
             ${stageJourneyHTML(p)}
             ${p.tagline ? `<p class="psum">${esc(p.tagline)}</p>` : ""}
+            ${liveHTML(p)}
             <div class="hero-wrap">
               <div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, p.cover ? "" : "Cover photo", 1400)}</div>
             </div>
@@ -3427,6 +3445,7 @@ window.RAAV_FEATURES = (function () {
     };
     const start = location.hash.slice(1);
     draw(tabs.some(([k]) => k === start) ? start : tabs[0][0]);
+    if (start === "live") { const l = document.getElementById("live"); if (l) setTimeout(() => l.scrollIntoView({ block: "start" }), 50); }
   }
 
   // The money page of a project (/projects/<slug>/money): every rupee in, every rupee out, and the receipts.
@@ -4265,6 +4284,8 @@ window.RAAV_FEATURES = (function () {
       // Updates posted in the portal (Followers & updates, 25 Nov 2026) join the project's own updates, newest first.
       const FOL = await followP;
       if (FOL) projects.forEach(p => { const ups = (FOL.updates || {})[slugOf(p)] || []; if (ups.length) p.updates = [...ups, ...(p.updates || [])]; p.followers = (FOL.followers || {})[slugOf(p)] || 0; });
+      // Receipts posted from the day (phone link, 26 Nov 2026) join the project's money page as money out.
+      if (FOL) projects.forEach(p => { const rc = (FOL.receipts || {})[slugOf(p)] || []; if (rc.length) { p.money = p.money || {}; p.money.spent = [...(p.money.spent || []), ...rc.slice().reverse()]; } });
       // Card gifts (PayHere or Stripe) are added to each project's supporters, so the budget bars and stages stay right.
       const GIVE = await giveP;
       GIVE_ON = !!(GIVE && GIVE.enabled);
