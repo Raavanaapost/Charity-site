@@ -553,3 +553,8 @@ body.pt-signedout .pt-main,body.pt-signedout .pt-shell{padding-top:0}body.pt-sig
 .pt-fol.done{opacity:.6}
 .pt-fol-src{display:inline-block;padding:1px 8px;border-radius:999px;background:rgba(0,0,0,.06);font-size:.75rem}
 .pt-fol-tick{display:inline-flex;align-items:center;gap:4px;font-size:.85rem;margin:0 6px}
+
+/* Money books (Follow every rupee, 26 Nov 2026) */
+.pt-addline label{display:grid;gap:3px;flex:1 1 110px;font-size:12.5px;color:var(--muted)}
+.pt-addline label input{width:100%}
+.pt-stat small{font-size:12px;color:var(--muted)}

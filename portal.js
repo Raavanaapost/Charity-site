@@ -55,12 +55,13 @@
     groups: '<circle cx="8" cy="9" r="2.6"/><circle cx="16" cy="9" r="2.6"/><circle cx="12" cy="5.5" r="2.3"/><path d="M3 19c.4-3.2 2.3-5 5-5 1.6 0 2.9.6 3.8 1.8M21 19c-.4-3.2-2.3-5-5-5-1.6 0-2.9.6-3.8 1.8M8.5 20c.4-2.6 1.6-3.8 3.5-3.8s3.1 1.2 3.5 3.8"/>',
     traffic: '<path d="M4 19V11M9.3 19V6M14.6 19v-5M20 19V9"/><path d="M3 21h18"/>',
     followers: '<path d="M4 11v2a1 1 0 0 0 1 1h2l5 4V6L7 10H5a1 1 0 0 0-1 1z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>',
+    books: '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11M9 8h6M9 11h4"/>',
     more: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'
   };
   const svg = (d, s = 20) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
   const MENU = [
     ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true], ["voices", "Vouches & ratings", true], ["followers", "Followers & updates", true],
-    ["sponsors", "Sponsors & pledges", true], ["day", "Day preparation", true], ["close", "Close the day", true],
+    ["sponsors", "Sponsors & pledges", true], ["books", "Money books", true], ["day", "Day preparation", true], ["close", "Close the day", true],
     ["people", "People", true], ["champions", "Champions", true], ["members", "Members", true], ["volunteers", "Volunteers", true], ["groups", "Groups", true], ["circles", "Family circles", true], ["traffic", "Traffic", true], ["team", "Team & logins", true]
   ];
 
@@ -98,7 +99,7 @@
     document.getElementById("pt-tabbar").innerHTML = [["dashboard", "Home"], ["suggestions", "Suggestions"], ["projects", "Projects"], ["reports", "Reports"], ["more", "More"]].map(([k, l]) => {
       const ready = k !== "more";
       return ready ? `<a href="#/${k}" class="${cur === k ? "on" : ""}">${svg(ICON[k], 22)}<span>${l}</span>${k === "sponsors" && newAsk ? `<b class="pt-badge">${newAsk}</b>` : k === "suggestions" && newCount ? `<b class="pt-badge">${newCount}</b>` : k === "reports" && openRep ? `<b class="pt-badge">${openRep}</b>` : ""}</a>`
-        : `<button type="button" class="${["voices", "followers", "sponsors", "day", "close", "people", "champions", "members", "volunteers", "groups", "circles", "traffic", "team"].includes(cur) ? "on" : ""}" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
+        : `<button type="button" class="${["voices", "followers", "sponsors", "books", "day", "close", "people", "champions", "members", "volunteers", "groups", "circles", "traffic", "team"].includes(cur) ? "on" : ""}" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
     }).join("");
     document.querySelectorAll("[data-soon]").forEach(b => b.onclick = () => {
       let m = document.getElementById("pt-more");
@@ -2120,9 +2121,117 @@
     app.querySelectorAll("[data-folhide]").forEach(b => b.onclick = () => save(`/api/portal/updates/${b.dataset.folhide}`, { method: "PATCH", body: JSON.stringify({ hidden: b.dataset.on === "yes" }) }, "Saved"));
   }
 
+  // ---------- Money books (Follow every rupee, SURESH 26 Nov 2026, option B) ----------
+  // Every gift goes Promised -> Received -> Handed over -> Spent (with receipt) -> Books closed. Each cost and each
+  // hand-over shows on the project's money page only after a second team member (not the one who entered it) presses Check.
+  let BK = null, bkLoading = false, BK_RULE = "";
+  const HOWS = { bank: "Bank transfer", cash: "Cash in hand", other: "Another way" };
+  const rsOf = (p, n) => `${String((p && p.currency) || "Rs ")}${Math.round(num(n)).toLocaleString("en-US")}`;
+  const gotMsg = (p, h) => [`Hello ${String(h.to || "").split(/\s+/)[0]},`, "", `Raavanaa has sent you ${rsOf(p, h.amount)} for "${p.title}". Please open this link and tick that you received it:`, "", `${HERE}/got/${h.token}`, "",
+    "Then please send a photo of every bill from your day link within 14 days. Thank you!", "The Raavanaa team"].join("\n");
+  function books(slugIn) {
+    const head = sub => `<header class="pt-head"><div><h1>Money books</h1><p class="pt-sub">${sub}</p></div></header>`;
+    if (!LIVE) return head("Sign in to the live portal to keep the money books: hand-overs, costs with receipts, bank fees and closing the books.");
+    if (!BK) {
+      if (!bkLoading) { bkLoading = true; Promise.all([api("/api/portal/books"), fetch("/site.json").then(r => r.json()).catch(() => ({}))]).then(([d, st]) => { BK = d; BK_RULE = st.money_rule || ""; render(); }).catch(e => { bkLoading = false; toast(e.message || "Could not load the money books"); }); }
+      return head("Loading…");
+    }
+    const has = x => BK.costs.some(c => c.slug === x.slug) || BK.handovers.some(h => h.slug === x.slug) || BK.gifts.some(g => g.slug === x.slug);
+    const list = P.filter(x => stageNum(x) >= 2 || has(x) || x.money).sort((a, b) => (stageNum(a) === 2 ? 0 : 1) - (stageNum(b) === 2 ? 0 : 1) || a.title.localeCompare(b.title));
+    const slug = slugIn && list.some(p => p.slug === slugIn) ? slugIn : (list.find(x => x.slug === "pussellawa-kandy-trip") || list[0] || {}).slug;
+    const p = P.find(x => x.slug === slug);
+    if (!p) return head("No projects with money yet.");
+    const lines = (p.budget || []).map(x => String(x.item || "")).filter(Boolean);
+    const costs = BK.costs.filter(c => c.slug === slug), hands = BK.handovers.filter(h => h.slug === slug), gifts = BK.gifts.filter(g => g.slug === slug);
+    const closed = BK.closed.find(c => c.slug === slug && c.at);
+    const live = costs.filter(c => !c.hidden), liveH = hands.filter(h => !h.hidden);
+    const spent = live.filter(c => c.checkedAt).reduce((t, c) => t + c.amount, 0), handed = liveH.filter(h => h.checkedAt).reduce((t, h) => t + h.amount, 0);
+    const received = gifts.filter(g => g.status === "received").reduce((t, g) => t + g.counted, 0) + (p.funders || []).filter(f => f.received).reduce((t, f) => t + num(f.amount), 0);
+    const waiting = live.filter(c => !c.checkedAt).length + liveH.filter(h => !h.checkedAt).length;
+    const checkBtn = (kind, x) => x.checkedAt ? `<span class="pt-pill st-3">✓ Checked by ${esc(x.checkedBy)}</span> <button type="button" class="pt-btn ghost sm" data-bk="${kind}" data-id="${x.id}" data-check="no">Undo check</button>`
+      : x.mine ? `<span class="pt-pill st-1">Waiting: someone else on the team checks this</span>` : `<button type="button" class="pt-btn sm" data-bk="${kind}" data-id="${x.id}" data-check="yes">Check: figures and photo are right</button>`;
+    const tile = (l, v, s2) => `<div class="pt-stat"><b>${v}</b><span>${l}</span>${s2 ? `<small>${s2}</small>` : ""}</div>`;
+    return `${head("Every rupee in and out of a project, checked by two people. Whatever you enter here waits until a second team member presses Check; only then does it show on the project's money page.")}
+      <section class="pt-card"><label class="pt-field">Project<select data-bkproj>${list.map(x => `<option value="${esc(x.slug)}" ${x.slug === slug ? "selected" : ""}>${esc(x.title)}</option>`).join("")}</select></label>
+        <p class="pt-sub"><a href="/projects/${esc(slug)}/money" target="_blank" rel="noopener">Open its money page</a>${closed ? ` · <b>Books closed</b> ${ago(closed.at)} by ${esc(closed.by)}` : ""}</p>
+        <div class="pt-stats">${tile("Budget", rsOf(p, p.goal || (p.budget || []).reduce((t, x) => t + num(x.amount), 0)))}${tile("Received", rsOf(p, received))}${tile("Handed over", rsOf(p, handed), "checked")}${tile("Spent", rsOf(p, spent), "checked")}${tile("Waiting for a check", String(waiting))}</div></section>
+
+      <section class="pt-card"><h2>1. Money in: what reached the bank</h2>
+        <p class="pt-sub">Mark a gift "Gift received" in Sponsors &amp; pledges first. Then write what the giver sent in their own money, the rupees that arrived and the bank's fee. The money page shows them openly, by gift, without bank details.</p>
+        <ul class="pt-notes">${gifts.map(g => `<li><div><b>${esc(g.name)}</b> <small>${esc(g.ref)} · said "${esc(g.said)}" · counted ${rsOf(p, g.counted)}${g.country ? ` · ${esc(g.country)}` : ""}</small> <span class="pt-pill ${g.status === "received" ? "st-3" : "st-1"}">${g.status === "received" ? `Received${g.receivedOn ? " " + esc(g.receivedOn) : ""}` : "Not received yet"}</span>
+          ${g.status === "received" ? `<form class="pt-addline" data-bkgift="${esc(g.ref)}"><label>Sent${g.currency && g.currency !== "LKR" ? ` (${esc(g.currency)})` : ""}<input name="sent" inputmode="decimal" value="${g.sent || ""}" placeholder="100"></label>
+            <label>Arrived (Rs)<input name="arrived" inputmode="decimal" value="${g.arrived || ""}" placeholder="22500"></label><label>Bank fee (Rs)<input name="fee" inputmode="decimal" value="${g.fee || ""}" placeholder="500"></label>
+            <button class="pt-btn sm" type="submit">Save</button></form>` : ""}</div></li>`).join("") || `<li class="pt-empty">No gifts through the website for this project.</li>`}</ul></section>
+
+      <section class="pt-card"><h2>2. Handed over to the organiser</h2>
+        <p class="pt-sub">Each time money goes from Raavanaa to the organiser: how much, when, how and to whom. Then send them their link: they tick "I received it" on their phone.</p>
+        ${closed ? "" : `<form class="pt-note-form" data-bkhand><div class="pt-2"><label class="pt-field">Amount (Rs)<input name="amount" inputmode="decimal" required></label><label class="pt-field">Date<input type="date" name="date" value="${new Date().toISOString().slice(0, 10)}"></label></div>
+          <div class="pt-2"><label class="pt-field">How<select name="method"><option value="bank">Bank transfer</option><option value="cash">Cash in hand</option><option value="other">Another way</option></select></label>
+          <label class="pt-field">To (name)<input name="to_name" maxlength="80" required placeholder="The organiser's name"></label></div>
+          <label class="pt-field">Their role<input name="to_role" maxlength="80" placeholder="For example: organiser, teacher"></label>
+          <label class="pt-field">Note for the team (bank reference, not shown publicly)<input name="note" maxlength="300"></label>
+          <button class="pt-btn" type="submit">Write down the hand-over</button></form>`}
+        <ul class="pt-notes">${hands.map(h => `<li class="${h.hidden ? "pt-hid" : ""}"><div><b>${rsOf(p, h.amount)}</b> to ${esc(h.to)}${h.role ? `, ${esc(h.role)}` : ""} <small>${esc(h.date)} · ${esc(HOWS[h.method] || "")} · written by ${esc(h.by)}</small>
+          ${h.note ? `<p class="pt-private" style="margin:6px 0">${esc(h.note)}</p>` : ""}
+          <p class="pt-golive-btns">${h.confirmed ? `<span class="pt-pill st-3">✓ ${esc(h.confirmedName)} confirmed ${ago(h.confirmed)}</span>` : `<a class="pt-btn sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(gotMsg(p, h))}">Send their link on WhatsApp</a> <button type="button" class="pt-btn ghost sm" data-bkcopy="${esc(HERE + "/got/" + h.token)}">Copy link</button> <small>Not confirmed yet</small>`}</p>
+          <p class="pt-golive-btns">${h.hidden ? "" : checkBtn("handovers", h)} <button type="button" class="pt-btn ghost sm" data-bk="handovers" data-id="${h.id}" data-hide="${h.hidden ? "no" : "yes"}">${h.hidden ? "Put back" : "Remove (a mistake)"}</button></p></div></li>`).join("") || `<li class="pt-empty">No hand-overs written down yet.</li>`}</ul></section>
+
+      <section class="pt-card"><h2>3. Costs, each with its receipt</h2>
+        <p class="pt-sub">Bills the organiser sends from the day's phone link land here by themselves. Pick the budget line for each, look at the photo, and press Check. You can also add a cost by hand (with a photo of the bill). Cover names and phone numbers on a receipt before it goes up.</p>
+        ${closed ? "" : `<details><summary class="pt-sub"><b>Add a cost by hand</b></summary><form class="pt-note-form" data-bkcost>
+          <label class="pt-field">Budget line<select name="line">${lines.map(l => `<option value="${esc(l)}">${esc(l)}</option>`).join("")}<option value="">Something else</option></select></label>
+          <label class="pt-field">What was paid for<input name="item" maxlength="120" required></label>
+          <div class="pt-2"><label class="pt-field">Amount (Rs)<input name="amount" inputmode="decimal" required></label><label class="pt-field">Date paid<input type="date" name="date" value="${new Date().toISOString().slice(0, 10)}"></label></div>
+          <label class="pt-field">Photo of the receipt<input type="file" name="photo" accept="image/*" required></label>
+          <label class="pt-field">Short note (shown on the money page, optional)<input name="note" maxlength="300"></label>
+          <button class="pt-btn" type="submit">Add the cost</button></form></details>`}
+        <ul class="pt-notes">${costs.map(c => `<li class="${c.hidden ? "pt-hid" : ""}"><div style="display:flex;gap:12px;align-items:flex-start">
+          ${c.image ? `<a href="${esc(c.image)}" target="_blank" rel="noopener"><img src="${esc(c.image)}" alt="Receipt" style="width:84px;height:110px;object-fit:cover;border-radius:10px;flex:none"></a>` : `<span class="pt-pill st-1">No photo</span>`}
+          <form class="pt-note-form" data-bkedit="${c.id}" style="flex:1;margin:0"><div class="pt-2"><label class="pt-field">What for<input name="item" maxlength="120" value="${esc(c.item)}"></label><label class="pt-field">Amount (Rs)<input name="amount" inputmode="decimal" value="${c.amount}"></label></div>
+            <div class="pt-2"><label class="pt-field">Budget line<select name="line">${[...lines, ""].map(l => `<option value="${esc(l)}" ${l === (lines.includes(c.line) ? c.line : "") ? "selected" : ""}>${esc(l || "Something else")}</option>`).join("")}</select></label><label class="pt-field">Date<input type="date" name="date" value="${esc(c.date)}"></label></div>
+            <small>From ${esc(c.by)}${c.note ? ` · "${esc(c.note)}"` : ""}</small>
+            ${closed ? "" : `<p class="pt-golive-btns"><button class="pt-btn ghost sm" type="submit">Save changes</button> <small>(a change takes the check away)</small></p>
+            <p class="pt-golive-btns">${c.hidden ? "" : checkBtn("costs", c)} <button type="button" class="pt-btn ghost sm" data-bk="costs" data-id="${c.id}" data-hide="${c.hidden ? "no" : "yes"}">${c.hidden ? "Put back" : "Remove (a mistake)"}</button></p>`}</form></div></li>`).join("") || `<li class="pt-empty">No costs yet. They come in from the organiser's phone link on the day.</li>`}</ul></section>
+
+      <section class="pt-card"><h2>4. Close the books</h2>
+        ${closed ? `<p class="pt-sub"><b>Closed</b> ${ago(closed.at)} by ${esc(closed.by)}. Left over: <b>${rsOf(p, closed.leftover)}</b>${closed.to ? `, went to ${esc(closed.to)}` : ""}.</p>${BK.me.admin ? `<p class="pt-golive-btns"><button type="button" class="pt-btn ghost sm" data-bkreopen>Open the books again</button></p>` : ""}`
+        : `<p class="pt-sub">When every cost has its receipt and everything is checked, close the books. The money page then shows "Books closed" and what happened to any money left over. ${BK_RULE ? `The left-over rule on the website: ${esc(BK_RULE)}` : ""}</p>
+        ${waiting ? `<p class="pt-private">${waiting} ${waiting === 1 ? "entry is" : "entries are"} still waiting for a check.</p>` : ""}
+        <form class="pt-note-form" data-bkclose><div class="pt-2"><label class="pt-field">Left over (Rs)<input name="leftover" inputmode="decimal" value="${Math.max(0, Math.round((handed || received) - spent))}"></label>
+          <label class="pt-field">Where it went<input name="leftover_to" maxlength="200" placeholder="For example: the same children's next activity"></label></div>
+          <button class="pt-btn" type="submit" ${waiting ? "disabled" : ""}>Close the books</button></form>`}</section>`;
+  }
+  function wireBooks() {
+    if (!LIVE || !BK) return;
+    const sel = app.querySelector("[data-bkproj]"); if (!sel) return;
+    const slug = sel.value;
+    sel.onchange = () => { location.hash = `#/books/${sel.value}`; };
+    const save = async (url, opts, msg) => { try { BK = await api(url, opts); render(); if (msg) toast(msg); } catch (e) { toast(e.message || "Could not save"); } };
+    app.querySelectorAll("[data-bkgift]").forEach(f => f.onsubmit = e => { e.preventDefault();
+      save(`/api/portal/books/gifts/${f.dataset.bkgift}`, { method: "PATCH", body: JSON.stringify({ sent: f.elements.sent.value, arrived: f.elements.arrived.value, fee: f.elements.fee.value }) }, "Saved: the money page shows the fee and what arrived"); });
+    const hf = app.querySelector("[data-bkhand]"); if (hf) hf.onsubmit = e => { e.preventDefault(); const v = n => hf.elements[n].value;
+      save("/api/portal/books/handovers", { method: "POST", body: JSON.stringify({ slug, amount: v("amount"), date: v("date"), method: v("method"), to_name: v("to_name"), to_role: v("to_role"), note: v("note") }) }, "Written down. Send the organiser their link, and ask a second team member to check it."); };
+    const cf = app.querySelector("[data-bkcost]"); if (cf) cf.onsubmit = async e => { e.preventDefault(); const btn = cf.querySelector("button[type=submit]"); btn.disabled = true;
+      let image = ""; try { image = await smallPhoto(cf.elements.photo.files[0]); } catch (er) { toast(er.message); btn.disabled = false; return; }
+      const v = n => cf.elements[n].value;
+      save("/api/portal/books/costs", { method: "POST", body: JSON.stringify({ slug, line: v("line"), item: v("item"), amount: v("amount"), date: v("date"), note: v("note"), image }) }, "Cost added. A second team member checks it before it shows."); };
+    app.querySelectorAll("[data-bkedit]").forEach(f => f.onsubmit = e => { e.preventDefault(); const v = n => f.elements[n].value;
+      save(`/api/portal/books/costs/${f.dataset.bkedit}`, { method: "PATCH", body: JSON.stringify({ item: v("item"), amount: v("amount"), line: v("line"), date: v("date") }) }, "Saved. It needs a check again."); });
+    app.querySelectorAll("[data-bk]").forEach(b => b.onclick = () => {
+      const body = b.dataset.check ? { check: b.dataset.check === "yes" } : { hidden: b.dataset.hide === "yes" };
+      if (b.dataset.hide === "yes" && !b.dataset.sure) { b.dataset.sure = 1; b.textContent = "Press again to remove"; return; }
+      save(`/api/portal/books/${b.dataset.bk}/${b.dataset.id}`, { method: "PATCH", body: JSON.stringify(body) }, b.dataset.check === "yes" ? "Checked: it shows on the money page now" : "Saved");
+    });
+    app.querySelectorAll("[data-bkcopy]").forEach(b => b.onclick = () => { navigator.clipboard.writeText(b.dataset.bkcopy).then(() => toast("Link copied"), () => toast(b.dataset.bkcopy)); });
+    const cl = app.querySelector("[data-bkclose]"); if (cl) cl.onsubmit = e => { e.preventDefault();
+      const btn = cl.querySelector("button[type=submit]"); if (!btn.dataset.sure) { btn.dataset.sure = 1; btn.textContent = "Press again to close the books"; return; }
+      save("/api/portal/books/close", { method: "POST", body: JSON.stringify({ slug, leftover: cl.elements.leftover.value, leftover_to: cl.elements.leftover_to.value }) }, "Books closed"); };
+    const ro = app.querySelector("[data-bkreopen]"); if (ro) ro.onclick = () => save(`/api/portal/books/close/${slug}`, { method: "DELETE" }, "The books are open again");
+  }
+
   function render() {
     const [page, id] = route();
-    const cur = ["voices", "followers", "suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "members", "volunteers", "groups", "circles", "traffic", "team"].includes(page) ? page : "dashboard";
+    const cur = ["voices", "followers", "books", "suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "members", "volunteers", "groups", "circles", "traffic", "team"].includes(page) ? page : "dashboard";
     drawNav(cur);
     if (page === "suggestions" && id) { app.innerHTML = detail(id); wireDetail(id); }
     else if (page === "suggestions") { app.innerHTML = suggestions(); wireSuggestions(); }
@@ -2135,6 +2244,7 @@
     else if (page === "traffic") { app.innerHTML = traffic(); wireTraffic(); }
     else if (page === "voices") { app.innerHTML = voices(); wireVoices(); }
     else if (page === "followers") { app.innerHTML = followers(id); wireFollowers(id); }
+    else if (page === "books") { app.innerHTML = books(id); wireBooks(id); }
     else if (page === "team" && LIVE) { app.innerHTML = liveTeam(); if (ACCESS) wireLiveTeam(); }
     else if (page === "team") { app.innerHTML = team(); wireTeam(); }
     else if (page === "close") { app.innerHTML = closeDay(id); wireClose(); }
@@ -2145,7 +2255,7 @@
     else if (page === "reports" && id) { app.innerHTML = reportDetail(id); wireReport(id); }
     else if (page === "reports") { app.innerHTML = reports(); wireReports(); }
     else app.innerHTML = dashboard();
-    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", members: "Members", volunteers: "Volunteers", groups: "Groups", circles: "Family circles", traffic: "Traffic", voices: "Vouches & ratings", followers: "Followers & updates", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
+    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", members: "Members", volunteers: "Volunteers", groups: "Groups", circles: "Family circles", traffic: "Traffic", voices: "Vouches & ratings", followers: "Followers & updates", books: "Money books", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
   }
 
   Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] })).then(async d => { try { const m = await fetch("/api/projects").then(r => r.json()); const have = new Set((d.projects || []).map(p => p.slug)); d.projects = [...(d.projects || []), ...(m.projects || []).filter(p => !have.has(p.slug))]; } catch (e) { /* only projects.json */ } return d; })])
