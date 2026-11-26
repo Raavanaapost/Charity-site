@@ -142,3 +142,18 @@ a.g-soc:not([href]){cursor:default}
 .g-share h2{margin-top:0}
 .g-share-pic{display:block;width:100%;height:auto;margin-top:14px;border-radius:12px;border:1px solid #eadfc2;background:#fbf6ea}
 @media (min-width:700px){.g-share .share-row{grid-template-columns:repeat(4,1fr)}.g-share .share-row .sh-ig{grid-column:auto}}
+/* Associate ladder (26 Nov 2026) */
+.g-badge.assoc{background:#fbefd2;color:#8a5c12;border:1px solid #e6c77a}
+.g-badge.assoc.trusted{background:#1f4d3a;color:#f6e3a8;border-color:#1f4d3a}
+.g-ladder{margin:22px 0;padding:16px 18px;border:1px solid #eadfc2;border-radius:16px;background:#fffdf6}
+.g-ladder h2{margin:0 0 10px}
+.g-ladder ol{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.g-ladder li{display:flex;gap:12px;align-items:flex-start;opacity:.6}
+.g-ladder li.on{opacity:1}
+.g-ladder li i{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;border:2px solid #c9a24a;color:#8a6d2b;font-style:normal;font-weight:700}
+.g-ladder li.on i{background:#1f7a47;border-color:#1f7a47;color:#fff}
+.g-ladder li.now b{color:#1f7a47}
+.g-ladder li span{display:flex;flex-direction:column}
+.g-ladder li small{color:#6f6a5e}
+.g-ladder .g-next{background:#f3ead2;border-radius:10px;padding:8px 10px}
+.g-tag.shown{color:#1f7a47}

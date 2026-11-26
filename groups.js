@@ -102,8 +102,11 @@
     return function (data) { delete data.logo; if (logo !== undefined) data.logo = logo; if (data.type !== "organisation") { data.reg_body = ""; data.reg_number = ""; } return data; };
   };
   var STAGES = [["Initiated", "s1", "Planning it"], ["Activated", "s2", "Making it happen"], ["Impact", "s3", "Done, and what it made"]];
-  var CUR = { LKR: "Rs ", CAD: "CA$", GBP: "£", EUR: "€", USD: "US$", AUD: "A$", CHF: "CHF ", NOK: "NOK ", INR: "₹" };
-  var money = function (n, c) { return (CUR[c] || "Rs ") + Number(n || 0).toLocaleString("en-GB"); };
+  // Categories for a group's own project (the same as Raavanaa's, plus two), used in the mixed /projects list.
+  var THEMES = ["Trips & Events", "Education", "Livelihood", "Health & Care", "Other"];
+  // The associate ladder (SURESH 26 Nov 2026): earned by finished projects with Impact pages, never by money.
+  var LADDER = [["Listed", "Checked by a Raavanaa volunteer and listed"], ["Raavanaa Associate", "Signed the organiser agreement and finished one project with an Impact page"], ["Trusted Associate", "Three finished projects with Impact pages"]];
+  var levelBadge = function (g, big) { return g.level >= 2 ? '<span class="g-badge assoc' + (g.level === 3 ? " trusted" : "") + (big ? " big" : "") + '">★ ' + esc(LADDER[g.level - 1][0]) + "</span>" : ""; };
   var when = function (d) { return d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : ""; };
   var since = function (d) { return d ? new Date(d).toLocaleDateString("en-GB", { month: "long", year: "numeric" }) : ""; };
   var account = function () { try { var u = JSON.parse(localStorage.getItem("gotrue.user") || "null"); return u && u.email ? u : null; } catch (e) { return null; } };
@@ -134,23 +137,23 @@
   var SAMPLES = {
     "sample-group": { group: { slug: "sample-group", name: "Jaffna Friends Circle", type: "group", kind: "WhatsApp circle", places: "Toronto, London, Jaffna", members: 40, started: "2019",
         about: "Forty school friends from Jaffna, now in Toronto and London. Each month we put a little into our WhatsApp circle and make a day happen back home.",
-        collect: "Each of us puts in 20 dollars a month.", facebook: "https://www.facebook.com/", checked: true, status: "listed", followers: 37, since: ago(60) },
-      projects: [{ id: 1, slug: "casuarina-beach-day" },
-        { id: 2, title: "School shoes for Grade 1", place: "Point Pedro", stage: "Activated", story: "New shoes for 30 children starting school in January.", cost: 60000, collected: 45000, currency: "LKR" },
-        { id: 3, title: "Christmas lunch at the children's home", place: "Chavakachcheri", stage: "Impact", day: "25 Dec 2025", story: "Lunch and a small gift for 34 children. Paid in full by the circle.", cost: 85000, collected: 85000, currency: "LKR" }],
-      updates: [{ id: 1, body: "Shoes are ordered. We hand them over on 6 December.", by: "Ravi", project: 2, at: ago(2) }, { id: 2, body: "We collected Rs 45,000 this month. Thank you all!", by: "Ravi", at: ago(9) }] },
+        collect: "Each of us puts in 20 dollars a month.", facebook: "https://www.facebook.com/", checked: true, status: "listed", followers: 37, since: ago(60), level: 1, done: 1 },
+      projects: [{ id: 1, slug: "casuarina-beach-day" }, { id: 4, slug: "prefect-uniforms-for-students-in-valaippadu", role: "partner" },
+        { id: 2, title: "School shoes for Grade 1", place: "Point Pedro", stage: "Activated", theme: "Education", shown: true, story: "New shoes for 30 children starting school in January." },
+        { id: 3, title: "Christmas lunch at the children's home", place: "Chavakachcheri", stage: "Impact", theme: "Trips & Events", day: "25 Dec 2025", story: "Lunch and a small gift for 34 children, from the circle." }],
+      updates: [{ id: 1, body: "Shoes are ordered. We hand them over on 6 December.", by: "Ravi", project: 2, at: ago(2) }, { id: 2, body: "Thank you all for joining this month's call. Next stop: the shoe day!", by: "Ravi", at: ago(9) }] },
     "sample-organisation": { group: { slug: "sample-organisation", name: "Vanni Hope Foundation", type: "organisation", kind: "Charity or NGO", places: "Mullaitivu, Kilinochchi, London", members: 25, started: "2015",
         about: "A registered charity that runs after-school classes and school days for children in Mullaitivu and Kilinochchi.", reg_body: "NGO Secretariat", reg_number: "FL 12345",
-        website: "https://example.org/", facebook: "https://www.facebook.com/", instagram: "https://www.instagram.com/", logo: SAMPLE_LOGO, verified: true, checked: true, status: "listed", followers: 112, since: ago(120) },
+        website: "https://example.org/", facebook: "https://www.facebook.com/", instagram: "https://www.instagram.com/", logo: SAMPLE_LOGO, verified: true, checked: true, status: "listed", followers: 112, since: ago(120), agreed: true, level: 2, levelName: "Raavanaa Associate", done: 1 },
       projects: [{ id: 1, slug: "prefect-uniforms-for-students-in-valaippadu" },
-        { id: 2, title: "After-school maths class", place: "Puthukkudiyiruppu", stage: "Activated", story: "Two evenings a week for 40 children, with a trained teacher.", cost: 240000, collected: 180000, currency: "LKR" },
-        { id: 3, title: "Sports day for three schools", place: "Mullaitivu", stage: "Impact", day: "Aug 2026", story: "Races, games and lunch for 210 children.", cost: 150000, collected: 150000, currency: "LKR" }],
+        { id: 2, title: "After-school maths class", place: "Puthukkudiyiruppu", stage: "Activated", theme: "Education", story: "Two evenings a week for 40 children, with a trained teacher." },
+        { id: 3, title: "Sports day for three schools", place: "Mullaitivu", stage: "Impact", theme: "Trips & Events", shown: true, day: "Aug 2026", story: "Races, games and lunch for 210 children." }],
       updates: [{ id: 1, body: "The prefect uniforms project is now on Raavanaa. Please vouch for it if you know the school.", by: "Nila", project: 1, at: ago(1) }] },
     "sample-family": { group: { slug: "sample-family", name: "The Rajan Family", type: "group", kind: "Family", places: "Toronto, Jaffna, Chennai", members: 14, started: "2024",
         about: "Three generations of one family. Every year on Amma's remembrance day we give a day of joy to children in her village, in her memory.",
-        collect: "Brothers, sisters and cousins put in what they can before the day.", checked: true, status: "listed", followers: 22, since: ago(30) },
-      projects: [{ id: 1, title: "Amma's remembrance day 2026", place: "Uduvil", stage: "Initiated", day: "14 Mar 2026", story: "Breakfast, games and a book for every child at the village school, in Amma's memory.", cost: 70000, collected: 20000, currency: "LKR" },
-        { id: 2, title: "Amma's remembrance day 2025", place: "Uduvil", stage: "Impact", day: "14 Mar 2025", story: "Lunch and games for 52 children.", cost: 65000, collected: 65000, currency: "LKR" }],
+        collect: "Brothers, sisters and cousins put in what they can before the day.", checked: true, status: "listed", followers: 22, since: ago(30), level: 1, done: 0 },
+      projects: [{ id: 1, title: "Amma's remembrance day 2026", place: "Uduvil", stage: "Initiated", day: "14 Mar 2026", story: "Breakfast, games and a book for every child at the village school, in Amma's memory." },
+        { id: 2, title: "Amma's remembrance day 2025", place: "Uduvil", stage: "Impact", day: "14 Mar 2025", story: "Lunch and games for 52 children." }],
       updates: [{ id: 1, body: "Date fixed for 14 March. Cousins in Chennai will be there on the day.", by: "Meena", project: 1, at: ago(4) }] }
   };
 
@@ -197,7 +200,7 @@
     return '<a class="g-card" href="/g/' + encodeURIComponent(g.slug) + '">' + avatar(g) +
       '<span class="g-card-body"><b>' + esc(g.name) + "</b>" +
         '<small>' + esc(g.kind) + (g.places ? " · " + esc(g.places) : "") + "</small>" +
-        '<span class="g-chips">' + badge(g) + (g.checked && !g.verified ? '<i class="g-ok">✓ Checked by Raavanaa</i>' : "") +
+        '<span class="g-chips">' + badge(g) + levelBadge(g) + (g.checked && !g.verified ? '<i class="g-ok">✓ Checked by Raavanaa</i>' : "") +
           "<i>" + (g.projects || 0) + " project" + (g.projects === 1 ? "" : "s") + "</i><i>" + (g.followers || 0) + " follower" + (g.followers === 1 ? "" : "s") + "</i></span>" +
       "</span></a>";
   }
@@ -275,7 +278,7 @@
       (g.status !== "listed" ? '<p class="g-wait' + (fresh ? " fresh" : "") + '">' + (fresh ? "<b>Thank you! Your group is registered.</b> " : "") +
         (g.status === "hidden" ? "This page is taken off Raavanaa. Please <a href=\"/contact\">contact us</a>." : "Only you can see this page for now. A Raavanaa volunteer will call you soon, and then it goes live for everyone. You can already add your projects below.") + "</p>" : "") +
       '<header class="g-hero">' +
-        avatar(g, true) + badge(g, true) +
+        avatar(g, true) + badge(g, true) + levelBadge(g, true) +
         '<p class="vh-ribbon">' + esc(g.kind || "Community group") + "</p>" +
         '<h1 class="vh-title">' + esc(g.name) + "</h1>" +
         (g.places ? '<p class="g-places">' + esc(g.places) + "</p>" : "") +
@@ -295,9 +298,10 @@
         '<p class="g-fnote" data-fnote>' + (g.following ? "You will find their news in My account." : "Follow to see their news and projects in My account.") + "</p>") +
       "</header>" +
       '<section class="g-about"><h2>About us</h2><p>' + esc(g.about).replace(/\n/g, "<br>") + "</p>" +
-        (isOrg(g) ? '<div class="g-money"><b>Gifts to ' + esc(g.name) + " go to " + esc(g.name) + " directly.</b> " + (g.collect ? esc(g.collect) + " " : "") + "Raavanaa never holds the money. The amounts on this page are reported by the organisation.</div>"
-          : '<div class="g-money"><b>Our money stays in our own circle.</b> ' + (g.collect ? esc(g.collect) + " " : "") + "Raavanaa never holds it. The amounts on this page are reported by the group.</div>") +
-      "</section>" +
+        // SURESH 26 Nov 2026: Raavanaa does not manage a group's or organisation's own funding, so no amounts here.
+        '<div class="g-money"><b>' + (isOrg(g) ? "The organisation's own money stays with the organisation." : "Our own money stays in our own circle.") + "</b> " + (g.collect ? esc(g.collect) + " " : "") +
+          "Raavanaa does not hold or manage it. Only gifts made through Raavanaa, and help Raavanaa gives, are shown in Raavanaa's own Money books.</div>" +
+      "</section>" + ladderHTML(g) +
       (admin ? manageHTML() : "") +
       '<section class="g-projs"><h2>Our projects</h2>' +
         (total ? STAGES.map(function (s) {
@@ -383,18 +387,29 @@
       }).catch(function () { say("Could not get the picture. Please try again."); });
     };
   }
+  // The associate ladder on the profile (SURESH 26 Nov 2026): the three steps, which are done, and what comes next.
+  function ladderHTML(g) {
+    if (g.status !== "listed") return "";
+    var lv = g.level || 1, admin = g.admin || G.sample;
+    return '<section class="g-ladder"><h2>On the Raavanaa ladder</h2><ol>' + LADDER.map(function (x, i) {
+      var on = lv >= i + 1;
+      return '<li class="' + (on ? "on" : "") + (lv === i + 1 ? " now" : "") + '"><i aria-hidden="true">' + (on ? "✓" : i + 1) + "</i><span><b>" + esc(x[0]) + "</b><small>" + esc(x[1]) + "</small></span></li>";
+    }).join("") + "</ol>" +
+      '<p class="g-small">' + (g.done ? g.done + " finished project" + (g.done === 1 ? "" : "s") + " with an Impact page" : "No finished project with an Impact page yet") + (g.since ? " · on Raavanaa since " + since(g.since) : "") + ".</p>" +
+      (admin && lv < 3 ? '<p class="g-small g-next"><b>Next step:</b> ' + (lv === 1 ? (g.agreed ? "finish one project and share its Impact page." : 'read and sign the <a href="/agree">organiser agreement</a>, then finish one project with an Impact page.') : "two more finished projects with Impact pages.") + "</p>" : "") +
+      "</section>";
+  }
   function projCard(p) {
     var rp = p.slug && PROJ[p.slug], admin = G.group.admin;
     if (rp) {
       return '<a class="g-proj raav" href="/projects/' + encodeURIComponent(rp.slug) + '">' +
         (rp.cover ? '<img src="' + esc(rp.cover) + '" alt="" loading="lazy">' : "") +
-        '<span><b>' + esc(rp.title) + "</b><small>" + esc(rp.location || rp.city || "") + '</small><i class="g-tag">On Raavanaa · see the project →</i></span></a>';
+        '<span><b>' + esc(rp.title) + "</b><small>" + esc(rp.location || rp.city || "") + '</small><i class="g-tag">' + (p.role === "partner" ? "Together with others on Raavanaa" : "Run by us on Raavanaa") + ' · see the project →</i></span></a>';
     }
-    var pct = p.cost ? Math.min(100, Math.round(100 * p.collected / p.cost)) : 0;
     return '<article class="g-proj" id="gp-' + p.id + '">' +
-      '<span><b>' + esc(p.title) + "</b><small>" + [esc(p.place), esc(p.day)].filter(Boolean).join(" · ") + "</small>" +
+      '<span><b>' + esc(p.title) + "</b><small>" + [esc(p.theme), esc(p.place), esc(p.day)].filter(Boolean).join(" · ") + "</small>" +
       (p.story ? '<p>' + esc(p.story).replace(/\n/g, "<br>") + "</p>" : "") +
-      (p.cost || p.collected ? '<span class="g-bar"><span style="width:' + pct + '%"></span></span><small class="g-amt"><b>' + money(p.collected, p.currency) + "</b> collected" + (p.cost ? " of " + money(p.cost, p.currency) : "") + " · reported by the group</small>" : "") +
+      (p.shown ? '<i class="g-tag shown">Also in the Raavanaa project list</i>' : admin ? '<i class="g-tag">Only on this page. The Raavanaa team can add it to the main project list.</i>' : "") +
       (admin ? '<span class="g-pedit"><button type="button" class="g-link" data-pedit="' + p.id + '">Edit or move to the next stage</button></span>' : "") +
       "</span></article>";
   }
@@ -414,9 +429,8 @@
         '<div class="v-row"><label><span>Place</span><input name="place" maxlength="80" value="' + esc(p.place || "") + '" placeholder="Village or town"></label>' +
         '<label><span>Day <small>(if fixed)</small></span><input name="day" maxlength="40" value="' + esc(p.day || "") + '" placeholder="e.g. 6 Dec 2026"></label></div>' +
         '<label><span>What is it? <small>(no children\'s names, please)</small></span><textarea name="story" rows="3" maxlength="2000">' + esc(p.story || "") + "</textarea></label>" +
-        '<div class="v-row"><label><span>It costs</span><input name="cost" inputmode="numeric" value="' + (p.cost || "") + '"></label>' +
-        '<label><span>Collected so far</span><input name="collected" inputmode="numeric" value="' + (p.collected || "") + '"></label>' +
-        '<label><span>Currency</span><select name="currency">' + Object.keys(CUR).map(function (c) { return "<option" + (p.currency === c ? " selected" : "") + ">" + c + "</option>"; }).join("") + "</select></label></div>" +
+        '<fieldset class="g-kinds"><legend>Category</legend>' + THEMES.map(function (t) { return '<label class="v-sk"><input type="radio" name="theme" value="' + esc(t) + '"' + (p.theme === t ? " checked" : "") + "><span>" + esc(t) + "</span></label>"; }).join("") + "</fieldset>" +
+        '<p class="g-small">No amounts here: your own money stays in your circle, and Raavanaa does not manage it.' + (edit && edit.shown ? " Changing the name or the story takes it off the main Raavanaa list until the team looks again." : "") + "</p>" +
         '<p class="g-row"><button class="v-btn" type="submit">' + (edit ? "Save" : "Add the project") + "</button>" + (edit ? '<button type="button" class="g-link" data-premove="' + p.id + '">Remove this project</button>' : "") + "</p></form>";
     }
     if (OPEN === "about") body = '<form data-about class="g-mform">' +
