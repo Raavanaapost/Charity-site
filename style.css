@@ -3522,3 +3522,12 @@ html[lang="ta"] .all-chip b{font-family:"Noto Sans Tamil",var(--display),sans-se
   :root:not([data-theme="light"]) .pact-day{color:#f5d58a} :root:not([data-theme="light"]) .pact-day b{color:#fff} :root:not([data-theme="light"]) .pact-note{color:#f1e4c4} :root:not([data-theme="light"]) .pact-k{color:#ffb38a}}
 :root[data-theme="dark"] .pact{background:linear-gradient(135deg,#2e2414,#3a2b10);border-color:#b97a06}
 :root[data-theme="dark"] .pact-day{color:#f5d58a} :root[data-theme="dark"] .pact-day b{color:#fff} :root[data-theme="dark"] .pact-note{color:#f1e4c4} :root[data-theme="dark"] .pact-k{color:#ffb38a}
+/* Follow the day form inside the Activated box (SURESH 27 Nov 2026) */
+.pact-form{display:grid;gap:8px;max-width:380px;margin:4px auto 0;text-align:left}
+.pact-form[hidden]{display:none}
+.pact-form-h{margin:0 0 2px;text-align:center;font-weight:700;color:#9a2f14}
+.pact-form input:not([type=hidden]){width:100%;box-sizing:border-box;padding:12px 14px;border:1px solid #d9c6a2;border-radius:12px;background:#fff;font-size:16px;color:#2b1a08}
+.pact-form input:focus{outline:2px solid #e0780f;border-color:#e0780f}
+.pact-form .pact-follow{width:100%}
+.pact-small{margin:2px 0 0;font-size:12.5px;color:#6b5527;text-align:center}
+.pact-follow[hidden]{display:none}

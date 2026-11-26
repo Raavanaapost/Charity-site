@@ -3231,9 +3231,11 @@ window.RAAV_FEATURES = (function () {
       </form>
     </section>`;
   }
-  function wireFollowBox(root, p) {
-    const box = root.querySelector("[data-pfollow]"); if (!box) return;
-    const f = box.querySelector("[data-pf-form]"), msg = f.querySelector("[data-msg]");
+  // Every Follow form on the page: the Follow box in the side column, and the one that opens inside the Activated box
+  // when "Follow the day" is tapped (SURESH 27 Nov 2026: "Follow the day should take directly to the follow register").
+  function wireFollowBox(root, p) { root.querySelectorAll("[data-pf-form]").forEach(f => wireFollowForm(root, p, f)); }
+  function wireFollowForm(root, p, f) {
+    const msg = f.querySelector("[data-msg]");
     try { const me = account && account(); if (me && me.name && !f.name.value) f.name.value = me.name; } catch (e) { /* no account */ }
     f.addEventListener("submit", async e => {
       e.preventDefault();
@@ -3246,8 +3248,8 @@ window.RAAV_FEATURES = (function () {
         const d = await r.json().catch(() => ({}));
         if (!r.ok || !d.ok) throw new Error(d.error || "Could not save that just now. Please try again.");
         try { const l = followsHere(); if (!l.includes(slugOf(p))) localStorage.setItem(FOLLOW_KEY, JSON.stringify([...l, slugOf(p)])); } catch (er) { /* storage blocked */ }
-        f.hidden = true; box.querySelector("[data-pf-done]").hidden = false;
-        root.querySelectorAll("[data-pact-follow]").forEach(b => { b.disabled = true; b.textContent = "✓ You're following this day"; });
+        root.querySelectorAll("[data-pf-form]").forEach(x => { x.hidden = true; }); root.querySelectorAll("[data-pf-done]").forEach(x => { x.hidden = false; });
+        root.querySelectorAll("[data-pact-follow]").forEach(b => { b.hidden = false; b.disabled = true; b.textContent = "✓ You're following this day. We'll send you the day."; });
       } catch (er) { msg.hidden = false; msg.textContent = er.message; btn.disabled = false; }
     });
   }
@@ -3291,6 +3293,17 @@ window.RAAV_FEATURES = (function () {
       <p class="pact-day">${when}</p>
       <p class="pact-note">Thank you to everyone who gave. Nothing more is needed for this day. Follow it to see the day as it happens.</p>
       <button type="button" class="btn pact-follow" data-pact-follow${on ? " disabled" : ""}>${on ? "✓ You're following this day" : "Follow the day"}</button>
+      <form class="pact-form" data-pf-form data-pact-form hidden novalidate>
+        <p class="pact-form-h">Get the day on WhatsApp or by email. No sign-in.</p>
+        <p hidden><label>Leave empty <input name="bot-field"></label></p>
+        <label class="sr" for="pact-name">Your name</label>
+        <input id="pact-name" name="name" autocomplete="name" placeholder="Your name">
+        <label class="sr" for="pact-contact">WhatsApp number or email</label>
+        <input id="pact-contact" name="contact" required autocomplete="tel" inputmode="email" placeholder="WhatsApp number or email">
+        <button class="btn pact-follow" type="submit">Follow the day</button>
+        <p class="note" data-msg hidden></p>
+        <p class="pact-small">Only the team sees your number or email. Every message has a link to stop.</p>
+      </form>
     </section>`;
   }
   // The Impact page (SURESH 26 Nov 2026, thread "Redesign Impact story page"): once the day has happened, the top of the
@@ -3539,13 +3552,14 @@ window.RAAV_FEATURES = (function () {
       if (FEAT.voices) wireVoices(app, p);
       foldPanels(app);
       wireFollowBox(app, p);
-      // Activated top: "Follow the day" opens the Follow box in the side column and puts the cursor in it.
-      app.querySelectorAll("[data-pact-follow]").forEach(bt => bt.onclick = () => {
-        const box = app.querySelector("[data-pfollow]"); if (!box) return;
-        box.style.scrollMarginTop = "86px"; box.scrollIntoView({ block: "start", behavior: "smooth" });
-        const inp = box.querySelector("[data-pf-form]:not([hidden]) input[name=name]");
-        if (inp) setTimeout(() => inp.focus({ preventScroll: true }), 450);
-      });
+      // Activated top: "Follow the day" opens the Follow form right there in the box (SURESH 27 Nov 2026), with the
+      // cursor in the name. Links with ?follow=1 or #follow (the WhatsApp share, raavanaa.org/kandy) arrive with it open.
+      const openPact = (scroll) => { const pact = app.querySelector("[data-pact]"), f = pact && pact.querySelector("[data-pact-form]"), bt = pact && pact.querySelector("[data-pact-follow]");
+        if (!f || !bt || bt.disabled) return; bt.hidden = true; f.hidden = false;
+        if (scroll) { pact.style.scrollMarginTop = "76px"; pact.scrollIntoView({ block: "start", behavior: "smooth" }); }
+        const inp = f.querySelector("input[name=name]"); if (inp && !scroll) setTimeout(() => inp.focus({ preventScroll: true }), 50); };
+      app.querySelectorAll("[data-pact-follow]").forEach(bt => bt.onclick = () => openPact(false));
+      if (/[?&]follow=1\b/.test(location.search) || location.hash === "#follow") setTimeout(() => openPact(true), 300);
       // Impact page: "Share this day" uses the phone's share sheet, else copies the link.
       app.querySelectorAll("[data-imp-share]").forEach(bt => bt.onclick = async () => {
         const url = location.origin + "/projects/" + slugOf(p);
