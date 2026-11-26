@@ -354,6 +354,9 @@ window.RAAV_FEATURES = (function () {
     if (proj && !proj.closest(".nav-drop")) {
       const wrap = document.createElement("div"); wrap.className = "nav-drop";
       proj.replaceWith(wrap); wrap.appendChild(proj); proj.classList.add("nav-top");
+      // SURESH 26 Nov 2026: "Projects" itself opens the page with every project (/projects), not only Initiated.
+      proj.href = (/^\/ta(\/|$)/.test(location.pathname) ? "/ta" : "") + "/projects";
+      if (document.body.dataset.page === "projects") proj.setAttribute("aria-current", "page");
       const sub = document.createElement("div"); sub.className = "nav-sub";
       sub.innerHTML = [["Initiated", "/initiated", "s1"], ["Activated", "/activated", "s2"], ["Impact", "/impact", "s3"]]
         .map(([t, h, c]) => `<a class="${c}" href="${h}"><i aria-hidden="true"></i>${t}</a>`).join("");
