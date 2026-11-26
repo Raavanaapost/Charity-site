@@ -11,7 +11,7 @@ import { getDatabase } from "@netlify/database";
 import { dayStore, savePhoto, photoUrl } from "../lib/day.mts";
 import data from "../../projects.json" with { type: "json" };
 
-type P = { slug?: string; title?: string; goal?: number | string; budget?: { amount?: number | string }[]; currency?: string; day_steps?: string[]; places?: { name?: string }[] };
+type P = { slug?: string; title?: string; goal?: number | string; budget?: { item?: string; amount?: number | string }[]; currency?: string; day_steps?: string[]; places?: { name?: string }[] };
 const PROJECTS: P[] = ((data as { projects?: P[] }).projects || []).filter((p) => p && p.slug);
 const proj = (slug: string) => PROJECTS.find((p) => p.slug === slug);
 const num = (v: unknown) => { const n = parseFloat(String(v ?? "").replace(/[^0-9.]/g, "")); return isFinite(n) ? n : 0; };
@@ -72,6 +72,8 @@ function phonePage(token: string, p: P | undefined, slug: string, label: string)
     <textarea id="body" name="body" rows="3" maxlength="1200" placeholder="For example: The children saw the temple and the elephants. Everyone is happy."></textarea>
   </div>
   <div data-receipt hidden>
+    ${(p?.budget || []).filter((x) => x && x.item).length ? `<label>Which part of the budget?</label>
+    <div class="chips" data-lines>${(p?.budget || []).filter((x) => x && x.item).map((x) => `<button type="button" data-line="${esc(x.item)}">${esc(String(x.item).split(/[(,]/)[0].trim())}</button>`).join("")}<button type="button" data-line="">Something else</button></div>` : ""}
     <label for="item">What was paid for</label><input id="item" name="item" maxlength="120" placeholder="For example: Bus to Kandy and back">
     <label for="amount">How much (Rs)</label><input id="amount" name="amount" inputmode="decimal" placeholder="30000">
   </div>
@@ -87,10 +89,13 @@ function phonePage(token: string, p: P | undefined, slug: string, label: string)
 <script>
 (() => {
   const T = ${JSON.stringify(token)}, f = document.getElementById("f"), msg = document.getElementById("msg");
-  let kind = "live", photo = "";
+  let kind = "live", photo = "", line = "";
   const say = (t, ok) => { msg.hidden = false; msg.className = ok ? "ok" : "soft"; msg.textContent = t; };
   f.querySelectorAll("[data-k]").forEach(b => b.onclick = () => { kind = b.dataset.k; f.querySelectorAll("[data-k]").forEach(x => x.classList.toggle("on", x === b));
     f.querySelector("[data-live]").hidden = kind !== "live"; f.querySelector("[data-receipt]").hidden = kind !== "receipt"; });
+  // Each bill belongs to one line of the budget, so the money page shows planned against spent (26 Nov 2026).
+  f.querySelectorAll("[data-line]").forEach(b => b.onclick = () => { line = b.dataset.line; f.querySelectorAll("[data-line]").forEach(x => x.classList.toggle("on", x === b));
+    if (line && !f.item.value.trim()) f.item.value = b.textContent; f.item.focus(); });
   f.querySelectorAll("[data-t]").forEach(b => b.onclick = () => { f.title.value = b.dataset.t; f.querySelectorAll("[data-t]").forEach(x => x.classList.toggle("on", x === b)); f.body.focus(); });
   // Make the photo small on the phone before sending (about 1600 px, JPEG).
   document.getElementById("photo").onchange = e => {
@@ -115,7 +120,7 @@ function phonePage(token: string, p: P | undefined, slug: string, label: string)
   f.onsubmit = async e => {
     e.preventDefault();
     const btn = f.querySelector(".btn");
-    const body = { kind, title: f.title.value.trim(), body: f.body.value.trim(), item: f.item.value.trim(), amount: f.amount.value, image: photo };
+    const body = { kind, title: f.title.value.trim(), body: f.body.value.trim(), item: f.item.value.trim(), amount: f.amount.value, line: kind === "receipt" ? line : "", image: photo };
     if (kind === "live" && !body.title && !photo) return say("Pick what is happening, or add a photo.");
     if (kind === "receipt" && (!body.item || !photo)) return say("Write what was paid for and add a photo of the receipt.");
     btn.disabled = true; btn.textContent = "Posting…";
@@ -123,8 +128,8 @@ function phonePage(token: string, p: P | undefined, slug: string, label: string)
       const r = await fetch("/api/day/" + T, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const d = await r.json().catch(() => ({}));
       if (!r.ok || !d.ok) throw new Error(d.error || "Could not post just now. Please try again.");
-      f.reset(); photo = ""; document.getElementById("pick").innerHTML = "📷 <span>Take or choose a photo</span>"; f.querySelectorAll("[data-t]").forEach(x => x.classList.remove("on"));
-      say("Posted. It is on the project page now. Thank you!", true); load();
+      f.reset(); photo = ""; line = ""; f.querySelectorAll("[data-line]").forEach(x => x.classList.remove("on")); document.getElementById("pick").innerHTML = "📷 <span>Take or choose a photo</span>"; f.querySelectorAll("[data-t]").forEach(x => x.classList.remove("on"));
+      say(body.kind === "receipt" ? "Receipt sent. A Raavanaa team member checks it, then it shows on the money page. Thank you!" : "Posted. It is on the project page now. Thank you!", true); load();
     } catch (er) { say(er.message); }
     btn.disabled = false; btn.textContent = "Post now";
   };
@@ -203,7 +208,11 @@ export default async (req: Request, context: Context) => {
     const title = kind === "receipt" ? clip(b.item, 120) : clip(b.title, 120) || "From the day";
     const amount = kind === "receipt" ? Math.max(0, Math.round(num(b.amount))) : 0;
     if (kind === "receipt" && (!title || !image)) return json({ ok: false, error: "Write what was paid for and add a photo of the receipt." }, 400);
-    await db.sql`INSERT INTO project_updates (slug, title, body, posted_by, image, kind, amount) VALUES (${link.slug}, ${title}, ${lines(b.body, 1200)}, ${by}, ${image}, ${kind}, ${amount})`;
+    // A receipt names its budget line (only a line the project really has) and waits for a team member's check.
+    const items = (proj(link.slug)?.budget || []).map((x) => String(x?.item || "")).filter(Boolean);
+    const line = kind === "receipt" && items.includes(String(b.line || "")) ? String(b.line) : "";
+    const today = new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10); // Sri Lanka date
+    await db.sql`INSERT INTO project_updates (slug, title, body, posted_by, image, kind, amount, line, spent_on) VALUES (${link.slug}, ${title}, ${lines(b.body, 1200)}, ${by}, ${image}, ${kind}, ${amount}, ${line}, ${kind === "receipt" ? today : null})`;
     return json({ ok: true });
   }
   return json({ ok: false, error: "Not allowed" }, 405);
