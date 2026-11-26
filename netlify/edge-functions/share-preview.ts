@@ -138,7 +138,9 @@ export default async (request: Request, context: { next: (req?: Request) => Prom
         img = `${url.origin}/api/share-card/${slug}.jpg?v=${full ? 100 : pr.pct}`;
         // A project made in the portal has no words of its own in share.json: use its title, not the general one.
         if (!share.projects[slug]) { title = pr.title; if (pr.blurb) text = pr.blurb; }
-        text = (full ? "Fully funded. " : `${pr.pct}% funded, ${money(pr, Math.max(0, pr.goal - pr.raised))} still to go. `) + text;
+        // Fully funded: no "help make it happen" ask in the words (SURESH 26 Nov 2026), the project's own line instead.
+        if (full && pr.blurb) text = pr.blurb;
+        text = (full ? "Fully funded, thank you. " : `${pr.pct}% funded, ${money(pr, Math.max(0, pr.goal - pr.raised))} still to go. `) + text;
         // Associates (SURESH 26 Nov 2026): the group or organisation that runs it.
         const owner = await projectOwner(url.origin, slug).catch(() => "");
         if (owner) text = `Run by ${owner}. ` + text;
