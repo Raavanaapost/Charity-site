@@ -3409,3 +3409,6 @@ html[data-form-lang="ta"] .rq-done :is(h2,p,span,b,a){font-family:"Noto Sans Tam
 .plive-ded b{display:block;font-family:"Cinzel",Georgia,serif;font-size:21px;margin:2px 0}
 .plive-ded small{display:block;color:var(--muted)}
 .update-img{display:block;width:100%;max-width:560px;border-radius:12px;margin:6px 0 10px}
+
+/* At a glance on phones: the card opens under the byline at full width, so it never runs off the screen (26 Nov 2026). */
+@media (max-width:640px){.phead .byline{position:relative}.phead .glance{position:static}.phead .glance-card{left:0;right:0;width:auto}}
