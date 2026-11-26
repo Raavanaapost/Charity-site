@@ -35,14 +35,14 @@ export default async (req: Request) => {
     const ups = (await db.sql<Record<string, any>>`SELECT id, slug, title, body, image, kind, amount, created_at FROM project_updates WHERE NOT hidden ORDER BY created_at DESC LIMIT 500`) as Record<string, any>[];
     const counts = (await db.sql<Record<string, any>>`SELECT slug, COUNT(*)::int AS n FROM project_follows WHERE stopped_at IS NULL GROUP BY slug`) as Record<string, any>[];
     const updates: Record<string, unknown[]> = {};
-    // Live posts from the day carry a photo and the exact time; receipts go to the money page, not the news (26 Nov 2026).
-    const receipts: Record<string, unknown[]> = {};
+    // Live posts from the day carry a photo and the exact time. Receipts are not news: they go to the money page through
+    // /api/books, and only once a second team member has checked them (Follow every rupee, 26 Nov 2026).
     for (const u of ups) {
+      if (u.kind === "receipt") continue;
       const at = new Date(u.created_at).toISOString(), image = u.image ? `/api/day/photo/${u.image}` : "";
-      if (u.kind === "receipt") (receipts[u.slug] = receipts[u.slug] || []).push({ id: u.id, date: at.slice(0, 10), item: u.title, amount: Number(u.amount) || 0, receipt: image });
-      else (updates[u.slug] = updates[u.slug] || []).push({ id: u.id, date: at.slice(0, 10), at, title: u.title, body: u.body, image, live: u.kind === "live" });
+      (updates[u.slug] = updates[u.slug] || []).push({ id: u.id, date: at.slice(0, 10), at, title: u.title, body: u.body, image, live: u.kind === "live" });
     }
-    return json({ updates, receipts, followers: Object.fromEntries(counts.map((c) => [c.slug, c.n])) }, 200, "public, max-age=30");
+    return json({ updates, followers: Object.fromEntries(counts.map((c) => [c.slug, c.n])) }, 200, "public, max-age=30");
   }
 
   if (req.method === "POST" && !parts[0]) {
