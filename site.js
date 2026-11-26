@@ -3275,7 +3275,7 @@ window.RAAV_FEATURES = (function () {
     const realFunders = b.funders.filter(f => !/test/i.test(f.name || ""));
     const tiles = (ip.highlights || []).length ? ip.highlights : [
       ...(p.who || []).map(w => ({ value: w.value, label: w.label })), ...(p.impact || []).map(w => ({ value: w.value, label: w.label })),
-      ...(b.goal ? [{ value: money(b.raised || b.goal), label: realFunders.length ? `given by ${realFunders.length} ${realFunders.length === 1 ? "sponsor" : "sponsors"}` : "for the day" }] : [])];
+      ...(b.goal && !(p.impact || []).length ? [{ value: money(b.raised || b.goal), label: realFunders.length ? `given by ${realFunders.length} ${realFunders.length === 1 ? "sponsor" : "sponsors"}` : "for the day" }] : [])];
     const closed = !!((p.books && p.books.closed) || (ex && ip.money && ip.money.closed));
     // 6 Money: given, spent with receipts, left over.
     const spentList = ex && ip.money ? (ip.money.lines || []) : ((p.money && p.money.spent) || []).filter(x => x && x.item);
@@ -3305,7 +3305,7 @@ window.RAAV_FEATURES = (function () {
       <div class="imp-quotes">${ip.quotes.map((q, k) => `<blockquote class="imp-q${k ? "" : " first"}">${q.ta ? `<p class="imp-ta" lang="ta">“${esc(q.ta)}”</p>` : ""}${q.en ? `<p class="imp-en">“${esc(q.en)}”</p>` : ""}${q.who ? `<footer>${esc(q.who)}</footer>` : ""}</blockquote>`).join("")}</div>` : ""}
       ${thanksTo.length || ip.letter ? `${sec("Thank you", th.to || ip.letter ? exTag : "")}
       <div class="imp-thanks">
-        ${thanksTo.length ? `<h3>${esc(th.title || "From the children, to the people who gave")}</h3>
+        ${thanksTo.length ? `<h3>${esc(th.title || ((th.to || []).length ? "From the children, to the people who gave" : "Thank you to the people who gave"))}</h3>
         <ul>${thanksTo.map(t => `<li><b>Dear ${esc(t.name)},</b>${t.words ? `<span>${esc(t.words)}</span>` : `<span>thank you.</span>`}</li>`).join("")}</ul>
         ${th.from ? `<p class="imp-from">${esc(th.from)}</p>` : ""}` : ""}
         ${ip.letter ? `<div class="imp-letter"><h4>From the organisers</h4><p>“${esc(ip.letter.words)}”</p>${ip.letter.who ? `<p class="imp-from">${esc(ip.letter.who)}</p>` : ""}${ip.letter.link ? `<a href="${esc(ip.letter.link)}">Read the full letter</a>` : ""}</div>` : ""}
@@ -3314,7 +3314,7 @@ window.RAAV_FEATURES = (function () {
       ${hasLive || ex ? `<p class="imp-sub">From the Live from the day posts · Sri Lanka time</p>` : ""}
       <ol class="imp-tl">${tl.map(t => `<li><time>${esc(t.time)}</time><span>${esc(t.what)}</span></li>`).join("")}</ol>
       ${hasLive ? `<p><a class="imp-a" href="#live" data-imp-live>See every photo and post from the day</a></p>` : ""}` : ""}
-      ${given || spent ? `${sec("Where every rupee went", ex && ip.money ? exTag : "")}
+      ${spent || (given && p.money) ? `${sec("Where every rupee went", ex && ip.money ? exTag : "")}
       <div class="imp-money">
         ${closed ? `<span class="imp-stamp">Books closed</span>` : ""}
         <dl>
