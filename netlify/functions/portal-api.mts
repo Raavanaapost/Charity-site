@@ -10,6 +10,7 @@
 //   DELETE /api/portal/access/:email              admin only: take someone's access away
 //   GET/POST/DELETE /api/portal/funders           sponsors added by hand, taken off a project (admin) or put back
 //   /api/portal/followers, /api/portal/updates    Followers & updates (see below)
+//   /api/portal/books                             Money books: costs, hand-overs, bank fees, closing (see below)
 // Access: see ../lib/team-access.mts (Identity role admin/team, PORTAL_ADMINS, or added in the portal).
 import type { Config, Context } from "@netlify/functions";
 import { getDatabase } from "@netlify/database";
@@ -290,6 +291,132 @@ export default async (req: Request, context: Context) => {
       if (b.note !== undefined) await db.sql`UPDATE give_requests SET team_note = ${clip(b.note, 1000)} WHERE id = ${row.id}`;
       await db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES (${me.email}, 'give_request.update', ${ref}, ${JSON.stringify({ status: b.status, note: b.note !== undefined, country: b.country })}::jsonb)`;
       return json({ pledges: await list() });
+    }
+    return json({ error: "Not allowed" }, 405);
+  }
+
+  // Money books (Follow every rupee, SURESH 26 Nov 2026, option B). Every cost and every hand-over to an organiser is
+  // checked by a second team member (never the one who entered it) before it shows on the project's money page.
+  //   GET    /api/portal/books                      every cost (checked or not), hand-over, received gift and closed book
+  //   POST   /api/portal/books/costs                { slug, item, line, amount, date, note, image }   a cost the team enters
+  //   PATCH  /api/portal/books/costs/:id            { check } | { hidden } | { item, line, amount, date } (a change clears the check)
+  //   POST   /api/portal/books/handovers            { slug, amount, date, method, to_name, to_role, note }
+  //   PATCH  /api/portal/books/handovers/:id        { check } | { hidden }
+  //   PATCH  /api/portal/books/gifts/:ref           { sent, arrived, fee }  what the giver sent, what reached the bank, the fee
+  //   POST   /api/portal/books/close                { slug, leftover, leftover_to }   close the books (nothing waiting)
+  //   DELETE /api/portal/books/close/:slug          admin: open them again
+  if (parts[0] === "books") {
+    const all = async () => {
+      const costs = ((await db.sql`SELECT id, slug, title, body, image, amount, line, spent_on, posted_by, entered_email, checked_by, checked_email, checked_at, hidden, created_at FROM project_updates WHERE kind = 'receipt' ORDER BY created_at DESC LIMIT 1000`) as Record<string, any>[])
+        .map((c) => ({ id: c.id, slug: c.slug, item: c.title, note: c.body, image: photoUrl(c.image), amount: Number(c.amount) || 0, line: c.line, date: day(c.spent_on || c.created_at),
+          by: String(c.posted_by || "").startsWith("day:") ? "the organiser (phone link)" : c.posted_by, mine: !!c.entered_email && c.entered_email === me.email,
+          checkedBy: c.checked_by, checkedAt: c.checked_at, hidden: c.hidden }));
+      const handovers = ((await db.sql`SELECT * FROM money_handovers ORDER BY created_at DESC`) as Record<string, any>[])
+        .map((h) => ({ id: h.id, slug: h.slug, amount: Number(h.amount) || 0, date: day(h.handed_on), method: h.method, to: h.to_name, role: h.to_role, note: h.note, token: h.token,
+          confirmed: h.confirmed_at, confirmedName: h.confirmed_name, by: h.entered_by, mine: h.entered_email === me.email, checkedBy: h.checked_by, checkedAt: h.checked_at, hidden: h.hidden }));
+      const gifts = ((await db.sql`SELECT ref, name, project_slug, amount, amount_value, currency, country, sent_value, arrived_lkr, fee_lkr, received_on, status FROM give_requests WHERE project_slug <> '' AND status IN ('new', 'replied', 'received') ORDER BY received_at`) as Record<string, any>[])
+        .map((g) => ({ ref: g.ref, name: g.name, slug: g.project_slug, said: g.amount, counted: Number(g.amount_value) || 0, currency: g.currency, country: g.country,
+          sent: Number(g.sent_value) || 0, arrived: Number(g.arrived_lkr) || 0, fee: Number(g.fee_lkr) || 0, receivedOn: day(g.received_on), status: g.status }));
+      const closed = ((await db.sql`SELECT * FROM money_books`) as Record<string, any>[])
+        .map((c) => ({ slug: c.slug, leftover: Number(c.leftover_amount) || 0, to: c.leftover_to, by: c.closed_by, at: c.closed_at }));
+      return json({ costs, handovers, gifts, closed, me: { email: me.email, name: me.name, admin: me.admin } });
+    };
+    let b: Record<string, any> = {};
+    if (req.method !== "GET") { try { b = await req.json(); } catch { /* empty */ } }
+    const slugOk = (v: unknown) => /^[a-z0-9-]{1,80}$/.test(String(v || ""));
+    const date = (v: unknown) => (/^\d{4}-\d{2}-\d{2}$/.test(String(v || "")) ? String(v) : null);
+    const who = me.name || me.email;
+    const log = (action: string, target: string, details: unknown) => db.sql`INSERT INTO audit_log (actor, action, target, details) VALUES (${me.email}, ${action}, ${target}, ${JSON.stringify(details)}::jsonb)`;
+    const isClosed = async (slug: string) => ((await db.sql`SELECT 1 FROM money_books WHERE slug = ${slug} AND closed_at IS NOT NULL`) as unknown[]).length > 0;
+    const SECOND = "A second team member has to check this: you entered it. Ask someone else on the team to press Check.";
+    if (req.method === "GET" && !parts[1]) return all();
+    if (parts[1] === "costs") {
+      const id = Number(parts[2]) || 0;
+      if (req.method === "POST" && !id) {
+        const item = clip(b.item, 120), amt = amount(b.amount);
+        if (!slugOk(b.slug) || !item || !amt) return json({ error: "Pick a project, write what was paid for and the amount" }, 400);
+        if (await isClosed(String(b.slug))) return json({ error: "The books of this project are closed." }, 409);
+        const image = await savePhoto(context, String(b.slug), b.image);
+        if (image === null) return json({ error: "That photo could not be saved. Try another one." }, 400);
+        await db.sql`INSERT INTO project_updates (slug, title, body, posted_by, image, kind, amount, line, spent_on, entered_email)
+          VALUES (${String(b.slug)}, ${item}, ${lines(b.note, 600)}, ${who}, ${image}, 'receipt', ${amt}, ${clip(b.line, 200)}, ${date(b.date)}, ${me.email})`;
+        await log("books.cost.add", String(b.slug), { item, amount: amt });
+        return all();
+      }
+      if (req.method === "PATCH" && id) {
+        const [c] = (await db.sql`SELECT slug, entered_email, image FROM project_updates WHERE id = ${id} AND kind = 'receipt'`) as Record<string, any>[];
+        if (!c) return json({ error: "Not found" }, 404);
+        if (await isClosed(c.slug)) return json({ error: "The books of this project are closed." }, 409);
+        if (b.check === true) {
+          if (c.entered_email && c.entered_email === me.email) return json({ error: SECOND }, 403);
+          if (!c.image) return json({ error: "Add a photo of the receipt first: every cost needs one." }, 400);
+          await db.sql`UPDATE project_updates SET checked_by = ${who}, checked_email = ${me.email}, checked_at = NOW() WHERE id = ${id}`;
+        } else if (b.check === false) {
+          await db.sql`UPDATE project_updates SET checked_by = '', checked_email = '', checked_at = NULL WHERE id = ${id}`;
+        } else if (b.hidden !== undefined) {
+          await db.sql`UPDATE project_updates SET hidden = ${b.hidden === true} WHERE id = ${id}`;
+        } else {
+          // Any change to a cost takes its check away: the second person checks the new figures.
+          const image = b.image ? await savePhoto(context, c.slug, b.image) : "";
+          if (image === null) return json({ error: "That photo could not be saved. Try another one." }, 400);
+          await db.sql`UPDATE project_updates SET title = COALESCE(NULLIF(${clip(b.item, 120)}, ''), title), amount = ${amount(b.amount)}, line = ${clip(b.line, 200)},
+            spent_on = COALESCE(${date(b.date)}, spent_on), image = COALESCE(NULLIF(${image}, ''), image), entered_email = CASE WHEN entered_email = '' THEN entered_email ELSE ${me.email} END,
+            checked_by = '', checked_email = '', checked_at = NULL WHERE id = ${id}`;
+        }
+        await log("books.cost.update", String(id), { check: b.check, hidden: b.hidden });
+        return all();
+      }
+    }
+    if (parts[1] === "handovers") {
+      const id = Number(parts[2]) || 0;
+      if (req.method === "POST" && !id) {
+        const amt = amount(b.amount), to = clip(b.to_name, 80);
+        if (!slugOk(b.slug) || !amt || !to) return json({ error: "Pick a project and write the amount and who received it" }, 400);
+        const method = ["bank", "cash", "other"].includes(String(b.method)) ? String(b.method) : "";
+        await db.sql`INSERT INTO money_handovers (slug, amount, handed_on, method, to_name, to_role, note, entered_by, entered_email)
+          VALUES (${String(b.slug)}, ${amt}, ${date(b.date)}, ${method}, ${to}, ${clip(b.to_role, 80)}, ${lines(b.note, 600)}, ${who}, ${me.email})`;
+        await log("books.handover.add", String(b.slug), { amount: amt, to });
+        return all();
+      }
+      if (req.method === "PATCH" && id) {
+        const [h] = (await db.sql`SELECT slug, entered_email FROM money_handovers WHERE id = ${id}`) as Record<string, any>[];
+        if (!h) return json({ error: "Not found" }, 404);
+        if (b.check === true) {
+          if (h.entered_email === me.email) return json({ error: SECOND }, 403);
+          await db.sql`UPDATE money_handovers SET checked_by = ${who}, checked_email = ${me.email}, checked_at = NOW() WHERE id = ${id}`;
+        } else if (b.check === false) await db.sql`UPDATE money_handovers SET checked_by = '', checked_email = '', checked_at = NULL WHERE id = ${id}`;
+        else if (b.hidden !== undefined) await db.sql`UPDATE money_handovers SET hidden = ${b.hidden === true} WHERE id = ${id}`;
+        await log("books.handover.update", String(id), { check: b.check, hidden: b.hidden });
+        return all();
+      }
+    }
+    if (parts[1] === "gifts" && parts[2] && req.method === "PATCH") {
+      const ref = clip(parts[2], 20), num2 = (v: unknown) => Math.max(0, Math.round((Number(String(v ?? "").replace(/[^\d.]/g, "")) || 0) * 100) / 100);
+      await db.sql`UPDATE give_requests SET sent_value = ${num2(b.sent)}, arrived_lkr = ${num2(b.arrived)}, fee_lkr = ${num2(b.fee)} WHERE ref = ${ref}`;
+      await log("books.gift.bank", ref, { sent: num2(b.sent), arrived: num2(b.arrived), fee: num2(b.fee) });
+      return all();
+    }
+    if (parts[1] === "close") {
+      if (req.method === "POST" && !parts[2]) {
+        const slug = String(b.slug || "");
+        if (!slugOk(slug)) return json({ error: "Pick a project" }, 400);
+        const [w] = (await db.sql`SELECT
+          (SELECT COUNT(*) FROM project_updates WHERE slug = ${slug} AND kind = 'receipt' AND NOT hidden AND checked_at IS NULL)::int AS costs,
+          (SELECT COUNT(*) FROM money_handovers WHERE slug = ${slug} AND NOT hidden AND checked_at IS NULL)::int AS hands`) as Record<string, any>[];
+        if (w.costs || w.hands) return json({ error: "Everything has to be checked by a second team member before the books can close." }, 409);
+        const left = Math.max(0, amount(b.leftover)), to = clip(b.leftover_to, 200);
+        if (left > 0 && !to) return json({ error: "Write where the money left over went." }, 400);
+        await db.sql`INSERT INTO money_books (slug, leftover_amount, leftover_to, closed_by, closed_email, closed_at) VALUES (${slug}, ${left}, ${to}, ${who}, ${me.email}, NOW())
+          ON CONFLICT (slug) DO UPDATE SET leftover_amount = EXCLUDED.leftover_amount, leftover_to = EXCLUDED.leftover_to, closed_by = EXCLUDED.closed_by, closed_email = EXCLUDED.closed_email, closed_at = NOW()`;
+        await log("books.close", slug, { leftover: left, to });
+        return all();
+      }
+      if (req.method === "DELETE" && parts[2]) {
+        if (!me.admin) return json({ error: "Only an admin can open closed books again." }, 403);
+        await db.sql`UPDATE money_books SET closed_at = NULL WHERE slug = ${clip(parts[2], 80)}`;
+        await log("books.reopen", clip(parts[2], 80), {});
+        return all();
+      }
     }
     return json({ error: "Not allowed" }, 405);
   }
