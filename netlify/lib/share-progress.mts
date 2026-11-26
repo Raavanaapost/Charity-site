@@ -8,7 +8,7 @@
 
 export type Progress = {
   slug: string; title: string; stage: 1 | 2 | 3; goal: number; raised: number; pct: number;
-  currency: string; kids: number | null; cover: string; blurb: string;
+  currency: string; kids: number | null; cover: string; blurb: string; day: string;
 };
 type P = Record<string, any>;
 
@@ -47,6 +47,7 @@ export async function allProgress(origin: string): Promise<Record<string, Progre
     out[slug] = {
       slug, title: String(p.title), stage, goal, raised, pct: goal ? Math.min(100, Math.round(raised / goal * 100)) : 0,
       currency: String(p.currency || "$").trim() || "$", kids: kids ? +kids[0] : null, cover: String(p.cover || ""),
+      day: String((p.money && p.money.day) || ""),
       blurb: String(p.tagline || String(p.summary || "").split(/(?<=[.!?])\s/)[0] || "").trim(),
     };
   }
@@ -60,3 +61,16 @@ export const money = (pr: Progress, n: number) => `${pr.currency}${pr.currency.l
 // A preview card with the % only makes sense while money is being raised (Initiated with a budget) or once it is all
 // raised (Activated). Impact projects keep their own picture.
 export const showsProgress = (pr: Progress | undefined) => !!pr && pr.goal > 0 && pr.stage < 3;
+
+// "Happening today" / "Happening Friday" + "27 November" / "It happened on ...", by the date in Sri Lanka. Used for
+// Activated projects in the share picture and the preview words (SURESH 26 Nov 2026).
+export function happeningWhen(day: string) {
+  const d = day ? new Date(day + "T12:00:00Z") : null;
+  if (!d || isNaN(+d)) return { top: "Happening", big: "soon" };
+  const lk = new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10); // the date in Sri Lanka
+  if (day === lk) return { top: "Happening", big: "today" };
+  const wd = d.toLocaleDateString("en-GB", { weekday: "long", timeZone: "UTC" }), dm = d.toLocaleDateString("en-GB", { day: "numeric", month: "long", timeZone: "UTC" });
+  return day < lk ? { top: "It happened on", big: `${wd} ${dm}` } : { top: `Happening ${wd}`, big: dm };
+}
+// Changes each day, so the picture address (and so the apps' copy) changes when "Friday" becomes "today".
+export const lkDate = () => new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10);

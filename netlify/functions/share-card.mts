@@ -8,7 +8,7 @@ import type { Config, Context } from "@netlify/functions";
 import { Resvg } from "@resvg/resvg-js";
 import jpeg from "jpeg-js";
 import { mkdirSync, writeFileSync, existsSync } from "node:fs";
-import { allProgress, money, showsProgress, type Progress } from "../lib/share-progress.mts";
+import { allProgress, money, showsProgress, happeningWhen, type Progress } from "../lib/share-progress.mts";
 import * as A from "../lib/card-assets.mts";
 import { groupSummary, projectLine, badgeWord, projectOwner, type GroupSummary } from "../lib/group-summary.mts";
 
@@ -50,8 +50,36 @@ async function artData(origin: string, pr: Progress) {
   return "";
 }
 
+// Activated (fully funded, the day is coming): the picture shows that it is happening, not the money (SURESH 26 Nov
+// 2026: "happenings now as highlight ... Simple but dont need to focus the 100% circle").
+function happeningSVG(pr: Progress, art: string) {
+  const w = happeningWhen(pr.day), title = wrap(pr.title, 30, 2);
+  return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="fade" x1="0" x2="1"><stop offset="0" stop-color="#fbf6ea"/><stop offset="1" stop-color="#fbf6ea" stop-opacity="0"/></linearGradient>
+    <clipPath id="right"><rect x="600" y="0" width="600" height="630"/></clipPath>
+  </defs>
+  <rect width="1200" height="630" fill="#fbf6ea"/>
+  ${art ? `<image x="600" y="0" width="600" height="630" preserveAspectRatio="xMidYMid slice" clip-path="url(#right)" xlink:href="${art}" href="${art}"/>` : ""}
+  <rect x="600" y="0" width="180" height="630" fill="url(#fade)"/>
+  <image x="52" y="32" width="232" height="77" href="data:image/png;base64,${A.logoPng}" xlink:href="data:image/png;base64,${A.logoPng}"/>
+  <rect x="56" y="140" width="172" height="36" rx="18" fill="#eaa21c"/>
+  <circle cx="78" cy="158" r="6" fill="#fff"/>
+  <text x="92" y="165" font-family="Inter" font-weight="800" font-size="17" letter-spacing="2" fill="#fff">ACTIVATED</text>
+  <text x="56" y="238" font-family="Cinzel" font-weight="700" font-size="34" fill="#b97a06">${esc(w.top)}</text>
+  <text x="54" y="306" font-family="Cinzel" font-weight="700" font-size="${w.big.length > 16 ? 46 : 60}" fill="#1c2a22">${esc(w.big)}</text>
+  <rect x="56" y="336" width="84" height="5" rx="2.5" fill="#c9a24a"/>
+  ${title.map((l, i) => `<text x="56" y="${392 + i * 38}" font-family="Cinzel" font-weight="700" font-size="29" fill="#1f4d3a">${esc(l)}</text>`).join("")}
+  <g transform="translate(56 ${title.length > 1 ? 476 : 438})"><circle cx="12" cy="13" r="12" fill="#1f7a47"/><path d="M6.5 13.5l3.6 3.6 7.4-7.6" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="34" y="20" font-family="Inter" font-weight="600" font-size="20" fill="#1f7a47">Fully funded, thank you to everyone who gave</text></g>
+  <text x="56" y="592" font-family="Inter" font-weight="600" font-size="20" fill="#1f4d3a">raavanaa.org</text>
+  <text x="${56 + 150}" y="592" font-family="Inter" font-weight="600" font-size="15" letter-spacing="2.2" fill="#b0812a">FOLLOW THE DAY</text>
+</svg>`;
+}
+
 function cardSVG(pr: Progress, art: string, owner = "") {
   const full = pr.stage === 2 || pr.pct >= 100, pct = full ? 100 : pr.pct, left = Math.max(0, pr.goal - pr.raised);
+  if (pr.stage === 2) return happeningSVG(pr, art);
   const title = wrap(pr.title, 27, 2);
   const kicker = full ? "ACTIVATED" : "ACTIVATING", kc = full ? "#b97a06" : "#1f7a47";
   const who = pr.kids ? `Help ${pr.kids} children laugh.` : "Help these children laugh.";
