@@ -52,35 +52,42 @@ async function artData(origin: string, pr: Progress) {
 // Activated (fully funded, the day is coming): the picture shows that it is happening, not the money (SURESH 26 Nov
 // 2026: "happenings now as highlight ... Simple but dont need to focus the 100% circle").
 function happeningSVG(pr: Progress, art: string) {
-  // v2 (SURESH 26 Nov 2026: "make happening today stand out ... Dont need to take up so much for image"): the day in
-  // big letters across most of the card, the drawing in a narrow strip, and a "Follow the day" button.
-  const w = happeningWhen(pr.day), title = wrap(pr.title, 40, 2);
+  // v4 (SURESH 26 Nov 2026: back to the cream card, no green; title and heading toward the centre; make "Happening
+  // today" stand out): the words sit centred in the cream part, the day is white on a warm red-to-amber ribbon.
+  const w = happeningWhen(pr.day), title = wrap(pr.title, 36, 2), cx = 418;
   const top = w.top.toUpperCase(), big = w.big.toUpperCase();
-  const fsTop = Math.min(64, Math.floor(700 / (top.length * 0.8))), fsBig = Math.min(150, Math.floor(720 / (big.length * 0.8)));
-  const yBig = 170 + fsTop + Math.round(fsBig * 0.82);
-  const yTitle = yBig + 62;
+  const fsTop = Math.min(54, Math.floor(680 / (top.length * 0.8))), fsBig = Math.min(118, Math.floor(600 / (big.length * 0.8)));
+  const bw = Math.min(740, Math.round(big.length * fsBig * 0.8 + 90)), bh = Math.round(fsBig * 1.18);
+  const yTop = 162 + fsTop, yBox = yTop + 22, yBig = yBox + Math.round(bh / 2 + fsBig * 0.36);
+  const yTitle = yBox + bh + 52;
   return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
     <linearGradient id="fade" x1="0" x2="1"><stop offset="0" stop-color="#fbf6ea"/><stop offset="1" stop-color="#fbf6ea" stop-opacity="0"/></linearGradient>
-    <clipPath id="right"><rect x="820" y="0" width="380" height="630"/></clipPath>
+    <linearGradient id="rib" x1="0" x2="1"><stop offset="0" stop-color="#b8321a"/><stop offset="1" stop-color="#e0780f"/></linearGradient>
+    <clipPath id="right"><rect x="836" y="0" width="364" height="630"/></clipPath>
+    <filter id="sh" x="-10%" y="-30%" width="120%" height="160%"><feDropShadow dx="0" dy="6" stdDeviation="9" flood-color="#7a2a0a" flood-opacity=".28"/></filter>
   </defs>
   <rect width="1200" height="630" fill="#fbf6ea"/>
-  ${art ? `<image x="820" y="0" width="380" height="630" preserveAspectRatio="xMidYMid slice" clip-path="url(#right)" xlink:href="${art}" href="${art}"/>` : ""}
-  <rect x="820" y="0" width="120" height="630" fill="url(#fade)"/>
-  <image x="52" y="30" width="200" height="66" href="data:image/png;base64,${A.logoPng}" xlink:href="data:image/png;base64,${A.logoPng}"/>
-  <rect x="56" y="118" width="172" height="36" rx="18" fill="#eaa21c"/>
-  <circle cx="78" cy="136" r="6" fill="#fff"/>
-  <text x="92" y="143" font-family="Inter" font-weight="800" font-size="17" letter-spacing="2" fill="#fff">ACTIVATED</text>
-  <text x="52" y="${170 + fsTop}" font-family="Cinzel" font-weight="700" font-size="${fsTop}" fill="#b97a06">${esc(top)}</text>
-  <text x="48" y="${yBig}" font-family="Cinzel" font-weight="700" font-size="${fsBig}" fill="#d9661a">${esc(big)}</text>
-  ${title.map((l, i) => `<text x="56" y="${yTitle + i * 34}" font-family="Cinzel" font-weight="700" font-size="27" fill="#1f4d3a">${esc(l)}</text>`).join("")}
-  <g transform="translate(56 534)">
-    <rect width="290" height="60" rx="30" fill="#1f4d3a"/>
-    <text x="34" y="39" font-family="Inter" font-weight="800" font-size="23" fill="#fff">Follow the day</text>
-    <circle cx="252" cy="30" r="19" fill="#eaa21c"/><path d="M245 21l11 9-11 9" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  ${art ? `<image x="836" y="0" width="364" height="630" preserveAspectRatio="xMidYMid slice" clip-path="url(#right)" xlink:href="${art}" href="${art}"/>` : ""}
+  <rect x="836" y="0" width="90" height="630" fill="url(#fade)"/>
+  <image x="${cx - 105}" y="26" width="210" height="70" href="data:image/png;base64,${A.logoPng}" xlink:href="data:image/png;base64,${A.logoPng}"/>
+  <rect x="${cx - 80}" y="110" width="160" height="34" rx="17" fill="#eaa21c"/>
+  <circle cx="${cx - 58}" cy="127" r="5.5" fill="#fff"/>
+  <text x="${cx + 8}" y="133.5" text-anchor="middle" font-family="Inter" font-weight="800" font-size="16" letter-spacing="2" fill="#fff">ACTIVATED</text>
+  <text x="${cx}" y="${yTop}" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="${fsTop}" fill="#4a2a06">${esc(top)}</text>
+  <rect x="${cx - bw / 2}" y="${yBox}" width="${bw}" height="${bh}" rx="${Math.round(bh / 2)}" fill="url(#rib)" filter="url(#sh)"/>
+  <text x="${cx}" y="${yBig}" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="${fsBig}" fill="#fff">${esc(big)}</text>
+  ${title.map((l, i) => `<text x="${cx}" y="${yTitle + i * 38}" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="31" fill="#3a2410">${esc(l)}</text>`).join("")}
+  <g transform="translate(${cx - 310} 538)">
+    <rect width="280" height="58" rx="29" fill="#4a2a06"/>
+    <text x="32" y="37" font-family="Inter" font-weight="800" font-size="22" fill="#fff">Follow the day</text>
+    <circle cx="244" cy="29" r="18" fill="#eaa21c"/><path d="M237 20.5l11 8.5-11 8.5" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
-  <g transform="translate(372 548)"><circle cx="12" cy="16" r="12" fill="#1f7a47"/><path d="M6.5 16.5l3.6 3.6 7.4-7.6" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
-    <text x="32" y="23" font-family="Inter" font-weight="600" font-size="19" fill="#1f7a47">Fully funded, thank you</text></g>
+  <g transform="translate(${cx - 10} 538)">
+    <rect width="320" height="58" rx="29" fill="#fff" stroke="#e0780f" stroke-width="2.5"/>
+    <path d="M38 22c-3.6-4.6-11-3-11 3 0 5 6.5 9 11 13 4.5-4 11-8 11-13 0-6-7.4-7.6-11-3z" fill="#c8381e"/>
+    <text x="62" y="37" font-family="Inter" font-weight="800" font-size="20" fill="#4a2a06">Thanks for the moment</text>
+  </g>
 </svg>`;
 }
 
