@@ -1,0 +1,208 @@
+{
+  "day": "2026-11-25",
+  "from": "2026-11-25T00:00:00.000Z",
+  "to": "2026-11-26T00:00:00.000Z",
+  "tz": "UTC",
+  "now": {
+    "views": 95,
+    "visits": 61,
+    "shares": 0,
+    "give": 1,
+    "memory": 0,
+    "request": 0,
+    "vouch": 0,
+    "install": 0,
+    "app_visits": 0
+  },
+  "daily": [
+    {
+      "day": "2026-11-25",
+      "views": 95,
+      "visits": 61,
+      "actions": 1,
+      "shares": 0
+    }
+  ],
+  "sources": [
+    {
+      "key": "direct",
+      "visits": 51,
+      "acted": 1,
+      "shares": 0,
+      "pages": 1.7
+    },
+    {
+      "key": "facebook",
+      "visits": 10,
+      "acted": 0,
+      "shares": 0,
+      "pages": 1
+    }
+  ],
+  "campaigns": [],
+  "pages": [
+    {
+      "key": "/projects/pussellawa-kandy-trip",
+      "views": 40,
+      "visits": 39
+    },
+    {
+      "key": "/overview",
+      "views": 25,
+      "visits": 19
+    },
+    {
+      "key": "/projects/prefect-uniforms-for-students-in-valaippadu",
+      "views": 7,
+      "visits": 7
+    },
+    {
+      "key": "/impact",
+      "views": 6,
+      "visits": 5
+    },
+    {
+      "key": "/projects/pussellawa-kids-trip",
+      "views": 5,
+      "visits": 3
+    },
+    {
+      "key": "/projects/casuarina-beach-day",
+      "views": 3,
+      "visits": 3
+    },
+    {
+      "key": "/projects",
+      "views": 2,
+      "visits": 2
+    },
+    {
+      "key": "/initiated",
+      "views": 2,
+      "visits": 2
+    },
+    {
+      "key": "/projects/yogapuram-preschool-day",
+      "views": 2,
+      "visits": 1
+    },
+    {
+      "key": "/room",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/projects/mums-and-kids-day-out",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/about",
+      "views": 1,
+      "visits": 1
+    }
+  ],
+  "countries": [
+    {
+      "key": "CA",
+      "visits": 47
+    },
+    {
+      "key": "US",
+      "visits": 10
+    },
+    {
+      "key": "SE",
+      "visits": 2
+    },
+    {
+      "key": "IE",
+      "visits": 1
+    },
+    {
+      "key": "TH",
+      "visits": 1
+    }
+  ],
+  "devices": [
+    {
+      "key": "phone",
+      "visits": 51
+    },
+    {
+      "key": "computer",
+      "visits": 10
+    }
+  ],
+  "hours": [
+    {
+      "key": 0,
+      "views": 3
+    },
+    {
+      "key": 1,
+      "views": 4
+    },
+    {
+      "key": 2,
+      "views": 16
+    },
+    {
+      "key": 3,
+      "views": 1
+    },
+    {
+      "key": 13,
+      "views": 16
+    },
+    {
+      "key": 14,
+      "views": 11
+    },
+    {
+      "key": 15,
+      "views": 10
+    },
+    {
+      "key": 16,
+      "views": 12
+    },
+    {
+      "key": 17,
+      "views": 3
+    },
+    {
+      "key": 19,
+      "views": 3
+    },
+    {
+      "key": 21,
+      "views": 3
+    },
+    {
+      "key": 23,
+      "views": 13
+    }
+  ],
+  "weekdays": [
+    {
+      "key": 3,
+      "views": 95
+    }
+  ],
+  "shares": [],
+  "refs": [
+    {
+      "key": "facebook.com",
+      "visits": 5
+    },
+    {
+      "key": "m.facebook.com",
+      "visits": 4
+    },
+    {
+      "key": "lm.facebook.com",
+      "visits": 1
+    }
+  ]
+}
