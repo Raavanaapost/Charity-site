@@ -154,7 +154,8 @@ export default async (request: Request, context: { next: (req?: Request) => Prom
         img = `${url.origin}/api/share-card/${slug}.jpg?v=i1${live ? "&gifts=live" : ""}`;
         if (!share.projects[slug]) title = pr.title;
         const who = madePossibleBy(pr);
-        text = `${smilesLine(pr)}.${who ? ` Moment made possible by ${who}.` : ""}`;
+        // SURESH 27 Nov 2026: no "52 smiles made" here, the picture already says it.
+        text = who ? `Moment made possible by ${who}.` : pr.blurb || smilesLine(pr) + ".";
       }
     } catch (_) { /* keep the usual picture */ }
   }
