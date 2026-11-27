@@ -3160,7 +3160,9 @@ window.RAAV_FEATURES = (function () {
       const who = names.length > 1 ? names.slice(0, -1).join(", ") + " and " + names[names.length - 1] : names[0] || "";
       const kids = (plain(p.reach).match(/\d+/) || [])[0];
       const short = LIVE_GIFTS ? url.replace(/^https?:\/\//, "") : p.short ? `${location.host}/${p.short}` : url.replace(/^https?:\/\//, "").replace(/\?.*$/, "");
-      return [`\u{1F31F} *${kids ? `${kids} SMILES MADE` : "MOMENT CREATED"}* \u{1F31F}`, "", `*${plain(p.title)}*`, ...(who ? [`\u{1F49B} Made possible by ${who}`] : []), "", "\u{1F4F8} *See the day*", `\u{1F449} ${short}`].join("\n"); }
+      // SURESH 27 Nov 2026: "dont need the title, just the Pic with information and below the names". "?day" gives the link
+      // a new address, so WhatsApp fetches the Impact picture instead of the saved Activated one.
+      return [...(who ? [`\u{1F49B} *Made possible by ${who}*`, ""] : []), "\u{1F4F8} *See the day*", `\u{1F449} ${short}${p.short && !LIVE_GIFTS ? "?day" : ""}`].join("\n"); }
     const head = "\u{1F331} *A need on Raavanaa*";
     const facts = [
       when && `\u{1F4C5} ${when}`,
