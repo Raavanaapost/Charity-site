@@ -3505,9 +3505,8 @@ window.RAAV_FEATURES = (function () {
     const pic = ip.picture || {};
     return `<section class="imp" aria-label="What this day made happen">
       ${ex ? `<p class="imp-banner"><b>Preview.</b> This is how the page will look after the day. The words marked <em>Example words</em> are made up; the real ones come from the children, teachers and organisers.</p>` : ""}
-      <p class="imp-pills"><span class="imp-pill">Impact · It happened</span>${dayTxt ? `<span class="imp-date">${esc(dayTxt)}</span>` : ""}</p>
-      ${sec("The impact", ip.line ? exTag : "")}
       <p class="imp-line">${esc(ip.line || p.tagline || p.summary || "")}</p>
+      <p class="imp-pills"><span class="imp-pill">Impact · It happened</span>${dayTxt ? `<span class="imp-date">${esc(dayTxt)}</span>` : ""}${ip.line ? exTag : ""}</p>
       <figure class="imp-pic">
         ${pic.image ? `<img src="${esc(imgUrl(pic.image, 1200))}" alt="${esc(pic.caption || "")}"${pic.position ? ` style="object-position:${esc(pic.position)}"` : ""}>` : `<div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, "", 1200)}</div>`}
         <figcaption>${esc(pic.caption || "Best picture of the day")}</figcaption>
@@ -3653,11 +3652,12 @@ window.RAAV_FEATURES = (function () {
       app.innerHTML = `
         ${chooseBarHTML(slugOf(p))}
         ${p.sample ? `<p class="sample-note"><b>Sample page.</b> This shows how a project page looks once it is filled in. The project, the figures and the names are examples, not real.</p>` : ""}
-        <nav class="crumbs"><a href="/projects">Projects</a>${p.theme ? ` / ${esc(p.theme)}` : ""}</nav>
-        <div class="layout">
+        <nav class="crumbs${st === 3 ? " crumbs-imp" : ""}"><a href="/projects">Projects</a>${p.theme ? ` / ${st === 3 ? `<span class="crumb-cat">${esc(p.theme)}</span>` : esc(p.theme)}` : ""}</nav>
+        <div class="layout${st === 3 ? " imp-layout" : ""}">
           <div style="min-width:0">
-            <header class="phead">
-              ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
+            ${st === 3 ? stageJourneyHTML(p) : ""}
+            <header class="phead${st === 3 ? " phead-imp" : ""}">
+              ${p.theme && st !== 3 ? `<span class="tag">${esc(p.theme)}</span>` : ""}
               <h1>${esc(p.title)}</h1>
               <div class="byline">${p.organization ? `<span>Submitted by <strong>${esc(p.submitted_by || p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> ${esc(vLabel(p))}</span>` : ""}${FEAT.voices && !p.sample && stageNum(p) === 3 ? `<a class="rate-chip" href="#voices-h" data-rate-chip hidden></a>` : ""}
               <div class="glance">
@@ -3679,7 +3679,7 @@ window.RAAV_FEATURES = (function () {
               </div>
               ${madeByHTML(p)}
             </header>
-            ${stageJourneyHTML(p)}
+            ${st === 3 ? "" : stageJourneyHTML(p)}
             <div class="pmeta-low">${FEAT.groups && !p.sample ? `<span class="started-by" data-started-by hidden></span>` : ""}${!p.sample ? `<span class="verified" data-agree-tick hidden></span>` : ""}</div>
             ${st === 3 ? `${impactTopHTML(p, site, i)}
             <h2 class="imp-more">The full story, from the start</h2>

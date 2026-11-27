@@ -3617,3 +3617,18 @@ html[lang="ta"] .all-chip b{font-family:"Noto Sans Tamil",var(--display),sans-se
 .pmeta-low{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0 0;font-family:var(--display);font-size:15px}
 .pmeta-low .verified{margin-left:0}
 .pmeta-low:empty{display:none}
+
+/* Impact page top, simple and small (SURESH 27 Nov 2026): category once (in the breadcrumb), journey first,
+   smaller title, givers plaque with a light gold bar on the left, "Impact · It happened" right above the picture. */
+.crumbs .crumb-cat{display:inline-block;padding:2px 10px;border-radius:999px;background:#fbefd9;color:#8a5c12;font-weight:600}
+.imp-layout .pjourney,.imp-layout > div > :first-child{margin-top:6px}
+.phead-imp{gap:8px}
+.phead-imp h1{font-size:clamp(24px,6.4vw,34px);max-width:none}
+.phead-imp .byline{font-size:14px}
+.phead-imp .madeby{text-align:left;border-left:5px solid #d9bd78;padding:12px 16px 10px;box-shadow:none;background:#fdf6e6}
+.phead-imp .madeby .mb-name{font-size:22px}
+.phead-imp .madeby .mb-orn{justify-content:flex-start}
+.imp .imp-line{margin-top:0}
+.imp .imp-pills{margin:14px 0 8px;flex-wrap:nowrap;align-items:center}
+.imp .imp-pills .imp-pill,.imp .imp-pills .imp-date{font-size:12px;padding:5px 10px;white-space:nowrap}
+.verified[hidden]{display:none}
