@@ -3130,7 +3130,11 @@ window.RAAV_FEATURES = (function () {
       const short = LIVE_GIFTS ? url.replace(/^https?:\/\//, "") : p.short ? `${location.host}/${p.short}` : url.replace(/^https?:\/\//, "").replace(/\?.*$/, "");
       // SURESH 27 Nov 2026: thank the sponsors by name first (only names they let us show; Anonymous stays out), then
       // the title, the date and the place. No "Happening today" here: the picture already says it.
-      const names = [...new Set(b.funders.map(f => plain(f.name)).filter(x => x && !/^(anonymous|anon|a friend|unnamed)$/i.test(x)))];
+      const ANON = /^(anonymous|anon|a friend|unnamed)$/i;
+      const names = [...new Set(b.funders.map(f => plain(f.name)).filter(x => x && !ANON.test(x)))];
+      // Anonymous gifts are thanked without a name, as giving sites do (SURESH 27 Nov 2026).
+      const anon = b.funders.filter(f => ANON.test(plain(f.name))).length;
+      if (anon) names.push(anon > 1 ? "our anonymous friends" : "an anonymous friend");
       const list = names.length > 1 ? names.slice(0, -1).join(", ") + " and " + names[names.length - 1] : names[0] || "";
       const thanks = list ? `\u{1F49B} *Thank you ${list}, and everyone who made this possible*` : "\u{1F49B} *Thank you to everyone who made this possible*";
       return [thanks, "", `*${plain(p.title)}*`, when && `\u{1F4C5} ${when}`, p.location && `\u{1F4CD} ${plain(p.location)}`, "", "\u{1F4F8} *Follow the day*", `\u{1F449} ${short}`].filter(x => x !== false && x !== undefined && x !== null).join("\n").replace(/\n{3,}/g, "\n\n"); }
@@ -3522,7 +3526,6 @@ window.RAAV_FEATURES = (function () {
       return;
     }
     document.title = `${p.title} · ${site.name}`;
-    const initials = String(p.organization || site.name || "").split(/\s+/).map(w => w[0]).slice(0, 2).join("").toUpperCase();
     const updates = (p.updates || []).slice().sort((a, b) => String(b.date).localeCompare(String(a.date)));
     const photos = p.photos || [];
     const media = p.media || [];
@@ -3626,7 +3629,7 @@ window.RAAV_FEATURES = (function () {
             <header class="phead">
               ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
               <h1>${esc(p.title)}</h1>
-              <div class="byline">${p.organization ? `<span class="avatar">${esc(initials)}</span><span>Submitted by <strong>${esc(p.submitted_by || p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> ${esc(vLabel(p))}</span>` : ""}${FEAT.voices && !p.sample && stageNum(p) === 3 ? `<a class="rate-chip" href="#voices-h" data-rate-chip hidden></a>` : ""}${FEAT.groups && !p.sample ? `<span class="started-by" data-started-by hidden></span>` : ""}
+              <div class="byline">${p.organization ? `<span>Submitted by <strong>${esc(p.submitted_by || p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> ${esc(vLabel(p))}</span>` : ""}${FEAT.voices && !p.sample && stageNum(p) === 3 ? `<a class="rate-chip" href="#voices-h" data-rate-chip hidden></a>` : ""}${FEAT.groups && !p.sample ? `<span class="started-by" data-started-by hidden></span>` : ""}
               <div class="glance">
                 <button type="button" class="glance-btn" aria-expanded="false" aria-controls="glance-card"><span>At a glance</span><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
                 <div class="panel glance-card" id="glance-card">
