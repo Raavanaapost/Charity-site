@@ -3499,9 +3499,9 @@ window.RAAV_FEATURES = (function () {
     const anonN = fs.filter(isAnon).length;
     const lines = [...named, ...(anonN ? [anonN === 1 ? (named.length ? "an anonymous individual" : "An anonymous individual") : `${anonN} anonymous individuals`] : [])];
     // SURESH 27 Nov 2026: no red; a quiet plaque in the cream-and-gold look, like the dedication in a book.
-    return `<div class="madeby"><p class="mb-k">This moment was made possible by</p>
-      <p class="mb-names"><span class="mb-name">${lines.map(esc).map((n, k) => k === 0 ? n : (k === lines.length - 1 ? " and " : ", ") + n).join("")}</span></p>
-      <span class="mb-orn" aria-hidden="true"><i></i><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 20s-7-4.4-7-9.6A4.2 4.2 0 0 1 12 7.7a4.2 4.2 0 0 1 7 2.7C19 15.6 12 20 12 20z" fill="currentColor"/></svg><i></i></span></div>`;
+    // SURESH 27 Nov 2026 (23:25Z): simple, like the "Visited and verified" pill, not a big plaque.
+    const names = lines.map(n => `<b>${esc(n)}</b>`).map((n, k) => k === 0 ? n : (k === lines.length - 1 ? " and " : ", ") + n).join("");
+    return `<p class="madeby-line"><span class="mb-pill"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 20s-7-4.4-7-9.6A4.2 4.2 0 0 1 12 7.7a4.2 4.2 0 0 1 7 2.7C19 15.6 12 20 12 20z" fill="currentColor"/></svg><span>Made possible by ${names}</span></span></p>`;
   }
   // Impact: the day it happened, right under the stages (SURESH 27 Nov 2026).
   function impDateHTML(p) {
