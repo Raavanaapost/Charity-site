@@ -4223,6 +4223,7 @@ window.RAAV_FEATURES = (function () {
             <button class="btn give-pay" type="submit">${HEART_SVG}<span>Create the moment</span></button>
             ${(x.money && x.money.rule) || site.money_rule ? `<p class="note give-rule"><span>${esc((x.money && x.money.rule) || site.money_rule)}${x.money ? ` <a href="/projects/${esc(slugOf(x))}/money">See every rupee</a>` : ""}</span></p>` : ""}
             ${SAFE}
+            <p class="note fine give-between">Raavanaa shares every update of the day with you. To protect the children and families, we never pass on contact details either way. Any message goes through our team.</p>
             <p class="note give-msg" role="status" hidden></p>
           </form>
         </div>

@@ -160,7 +160,7 @@ ${t.from_line ? `<p class="from">With love and thanks,<br>${esc(t.from_line)}</p
 ${part ? `<section class="card part"><div class="ring" style="background:conic-gradient(var(--red) ${pct * 3.6}deg,#f0e4d3 0)"><span style="background:var(--card);width:66px;height:66px;border-radius:50%;display:grid;place-items:center">${pct}%</span></div>
 <div><b>Your part of the day</b><br>${esc(rs(part, cur))} of the ${esc(rs(goal, cur))} it cost${p?.title ? ` for “${esc(p.title)}”` : ""}. It happened because of you.</div></section>` : ""}
 <section class="card"><a class="btn" href="/projects/${esc(t.slug)}#live">See the day as it happened</a><a class="btn ghost" href="/projects/${esc(t.slug)}/money">See where every rupee went</a></section>
-<p class="soft" style="text-align:center">This page was made just for you. Shared with you by Raavanaa.</p>`);
+<p class="soft" style="text-align:center">This page was made just for you. Shared with you by Raavanaa.<br>To protect the children and families, Raavanaa never passes on contact details. To send them a message, reply to the Raavanaa volunteer who sent you this page.</p>`);
 }
 
 export default async (req: Request, context: Context) => {
