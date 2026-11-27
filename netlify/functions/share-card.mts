@@ -59,7 +59,10 @@ function happeningSVG(pr: Progress, art: string) {
   const fsTop = Math.min(54, Math.floor(680 / (top.length * 0.8))), fsBig = Math.min(118, Math.floor(600 / (big.length * 0.8)));
   const bw = Math.min(740, Math.round(big.length * fsBig * 0.8 + 90)), bh = Math.round(fsBig * 1.18);
   const yTop = 162 + fsTop, yBox = yTop + 22, yBig = yBox + Math.round(bh / 2 + fsBig * 0.36);
-  const yTitle = yBox + bh + 52;
+  const yTitle = yBox + bh + 46;
+  // SURESH 27 Nov 2026: the place and the date under the title, as in the first glance.
+  const dateTxt = pr.day ? new Date(pr.day + "T12:00:00Z").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }) : "";
+  const facts = [w.big === "today" || w.top === "It happened on" ? dateTxt : "", (pr.place || "").length <= 34 ? pr.place : (pr.place || "").split(",")[0]].filter(Boolean).join("  \u00b7  ");
   return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
     <linearGradient id="fade" x1="0" x2="1"><stop offset="0" stop-color="#fbf6ea"/><stop offset="1" stop-color="#fbf6ea" stop-opacity="0"/></linearGradient>
@@ -78,6 +81,7 @@ function happeningSVG(pr: Progress, art: string) {
   <rect x="${cx - bw / 2}" y="${yBox}" width="${bw}" height="${bh}" rx="${Math.round(bh / 2)}" fill="url(#rib)" filter="url(#sh)"/>
   <text x="${cx}" y="${yBig}" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="${fsBig}" fill="#fff">${esc(big)}</text>
   ${title.map((l, i) => `<text x="${cx}" y="${yTitle + i * 38}" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="31" fill="#3a2410">${esc(l)}</text>`).join("")}
+  ${facts ? `<text x="${cx}" y="${yTitle + (title.length - 1) * 38 + 44}" text-anchor="middle" font-family="Inter" font-weight="600" font-size="21" fill="#8a3a14">${esc(facts)}</text>` : ""}
   <g transform="translate(${cx - 310} 538)">
     <rect width="280" height="58" rx="29" fill="url(#rib)"/>
     <text x="32" y="37" font-family="Inter" font-weight="800" font-size="22" fill="#fff">Follow the day</text>
