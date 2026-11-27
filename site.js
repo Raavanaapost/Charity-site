@@ -3039,7 +3039,9 @@ window.RAAV_FEATURES = (function () {
       const short = p.short ? `${location.host}/${p.short}` : url.replace(/^https?:\/\//, "").replace(/\?.*$/, "");
       // SURESH 27 Nov 2026: "dont need the title, just the Pic with information and below the names". "?day" gives the link
       // a new address, so WhatsApp fetches the Impact picture instead of the saved Activated one.
-      return [...(who ? ["\u2728 \u{1D4DC}\u{1D4F8}\u{1D4F6}\u{1D4EE}\u{1D4F7}\u{1D4FD} \u{1D4F6}\u{1D4EA}\u{1D4ED}\u{1D4EE} \u{1D4F9}\u{1D4F8}\u{1D4FC}\u{1D4FC}\u{1D4F2}\u{1D4EB}\u{1D4F5}\u{1D4EE} \u{1D4EB}\u{1D502} \u2728", `*${who}*`, ""] : []), "\u{1F4F8} *See the day*", `\u{1F449} ${short}${p.short ? "?day" : ""}`].join("\n"); }
+      // SURESH 27 Nov 2026: plain words in the same layout as the Activated share (script letters "look like AI"): the
+      // thanks line, the title, then See the day and the link. No "52 smiles made" here, the picture says it.
+      return [...(who ? [`\u{1F49B} *Moment made possible by ${who}*`, ""] : []), `*${plain(p.title)}*`, "", "\u{1F4F8} *See the day*", `\u{1F449} ${short}${p.short ? "?day" : ""}`].join("\n"); }
     const head = "\u{1F331} *A need on Raavanaa*";
     const facts = [
       when && `\u{1F4C5} ${when}`,
@@ -3311,6 +3313,9 @@ window.RAAV_FEATURES = (function () {
   // keep the same template; on Activated the top says plainly that the day is fully funded and when it happens, in
   // place of any ask to give, and offers Follow so people come back for the day. The day comes from "day" or
   // money.day (YYYY-MM-DD) in projects.json, else from date_text or the "When" line of At a glance.
+  // "Make the next moment happen" box at the foot of the Impact page: taken off (SURESH 27 Nov 2026), kept here for
+  // later (on his to-do list). Set to true to bring it back.
+  const IMP_NEXT = false;
   const actDayISO = p => String(p.day || (p.money && p.money.day) || "").slice(0, 10);
   function activatedTopHTML(p) {
     const iso = actDayISO(p), slug = slugOf(p), on = followsHere().includes(slug);
@@ -3437,12 +3442,12 @@ window.RAAV_FEATURES = (function () {
         ${Object.keys(byLine).length ? `<p class="imp-lines">${Object.entries(byLine).map(([k, v]) => `${esc(k)} ${money(v)}`).join(" · ")}</p>` : ""}
         ${p.money ? `<a class="imp-a" href="/projects/${slugOf(p)}/money">Follow every rupee: the full money page</a>` : ""}
       </div>` : ""}
-      <div class="imp-next">
+      ${IMP_NEXT ? `<div class="imp-next">
         <h3>Make the next moment happen</h3>
         <p>Another school is waiting for its first day out.</p>
         <a class="btn imp-go" href="/projects">See projects waiting</a>
         <button type="button" class="btn ghost" data-imp-share>Share this day</button>
-      </div>
+      </div>` : ""}
     </section>`;
   }
   function renderProject(app, site, projects, slug) {
