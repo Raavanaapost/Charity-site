@@ -576,3 +576,23 @@ body.pt-signedout .pt-main,body.pt-signedout .pt-shell{padding-top:0}body.pt-sig
 .pt-btn.ag-wa{background:#25d366;border-color:#25d366;color:#fff}
 .ag-warn{background:#fff3dc;color:#7a5203;border-radius:10px;padding:10px 12px;font-size:13.5px;margin:12px 0 0}
 .pt-field select[data-agproj]{max-width:100%;min-width:0;width:100%;text-overflow:ellipsis}
+
+/* Today's materials (27 Nov 2026) */
+.mt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin:8px 0}
+.mt-tile{margin:0;background:var(--bg);border-radius:12px;overflow:hidden;border:2px solid transparent}
+.mt-tile.face{border-color:#e4a23a}
+.mt-tile img{display:block;width:100%;aspect-ratio:1;object-fit:cover}
+.mt-tile figcaption{padding:6px 8px 8px;font-size:12.5px;display:flex;flex-direction:column;gap:3px}
+.mt-tile small{color:var(--muted)}
+.mt-wait{aspect-ratio:1;display:grid;place-items:center;color:var(--muted);font-size:13px;text-align:center;padding:8px}
+.mt-badge{background:#fff1d6;color:#8a5a00;border-radius:6px;padding:2px 6px;font-weight:600}
+.mt-acts{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}.mt-acts select{max-width:100%;font-size:12px}
+.mt-pub{margin-top:12px;border-top:1px solid var(--line,#e7dccb);padding-top:12px}
+.mt-bill{display:grid;grid-template-columns:120px 1fr;gap:12px;padding:10px 0;border-top:1px solid var(--line,#e7dccb)}
+.mt-bill img{width:120px;border-radius:10px}
+.mt-voice{padding:10px 0;border-top:1px solid var(--line,#e7dccb)}.mt-voice audio,.mt-voice video{width:100%;max-width:520px}
+.mt-quote{font-style:italic}.mt-text{margin:6px 0}.mt-link{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.mt-row{display:flex;gap:8px;flex-wrap:wrap}.mt-row input{flex:1;min-width:180px}
+.mt-setup{border-left:4px solid #e4a23a}
+.mt-sec>summary{cursor:pointer}.mt-sec>summary h2{display:inline}
+@media (max-width:560px){.mt-bill{grid-template-columns:1fr}.mt-grid{grid-template-columns:repeat(2,1fr)}}

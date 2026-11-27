@@ -38,6 +38,7 @@
     project: { label: "Became a project", c: "s-project" }
   };
   const ICON = {
+    materials: '<rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-8 8"/>',
     dashboard: '<path d="M4 13h7V4H4zM13 20h7v-9h-7zM4 20h7v-5H4zM13 4v5h7V4z"/>',
     suggestions: '<path d="M4 6.5h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H10l-4 3v-3H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z"/><path d="M7 10.5h8M7 13.5h5"/>',
     projects: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
@@ -61,7 +62,7 @@
   };
   const svg = (d, s = 20) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
   const MENU = [
-    ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true], ["voices", "Vouches & ratings", true], ["followers", "Followers & updates", true], ["agreements", "People in charge", true],
+    ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true], ["voices", "Vouches & ratings", true], ["followers", "Followers & updates", true], ["materials", "Today's materials", true], ["agreements", "People in charge", true],
     ["sponsors", "Sponsors & pledges", true], ["books", "Money books", true], ["day", "Day preparation", true], ["close", "Close the day", true],
     ["people", "People", true], ["champions", "Champions", true], ["members", "Members", true], ["volunteers", "Volunteers", true], ["groups", "Groups", true], ["circles", "Family circles", true], ["traffic", "Traffic", true], ["team", "Team & logins", true]
   ];
@@ -2349,9 +2350,125 @@
       save(`/api/agreements/${encodeURIComponent(slug)}/signatures`, { method: "POST", body: JSON.stringify({ name: v("name"), role: v("role"), organisation: v("organisation"), phone: v("phone"), signed_at: v("signed_at") ? new Date(v("signed_at")).toISOString() : "", person_id: v("person_id") }) }, "Signature saved"); };
   }
 
+  // Today's materials (SURESH 27 Nov 2026): everything organisers send to the Raavanaa WhatsApp number, their phone link
+  // for the day and their private album, filed by project. The checks sort it; nothing is public until the team ticks it.
+  let MATALL = null; const MAT = {}, matLoading = {};
+  const matLoad = (key, url, store) => { if (matLoading[key]) return; matLoading[key] = true;
+    api(url).then(d => { store(d); matLoading[key] = false; render(); }).catch(e => { matLoading[key] = false; toast(e.message || "Could not load"); }); };
+  const MAT_DAY_NOTE = "Good morning from Raavanaa! Today, please send 3 or 4 photos during the day to the Raavanaa WhatsApp number, so the givers can follow along. After the trip, choose your best 10 photos and send only those. Keep the rest on your phone; you can add them to the school's private album later. Write \"bill\" with each receipt photo. Please no children's names. Thank you!";
+  function materials(slugIn) {
+    const head = sub => `<header class="pt-head"><div><h1>Today's materials</h1><p class="pt-sub">${sub}</p></div></header>`;
+    if (!LIVE) return head("This screen works on the real portal once you are signed in.");
+    if (!MATALL) { matLoad("_all", "/api/materials", d => { MATALL = d; }); return head("Loading…"); }
+    const list = MATALL.projects.slice().sort((a, b) => (b.fresh - a.fresh) || (b.items - a.items) || a.title.localeCompare(b.title));
+    const slug = slugIn === "_unsorted" || list.some(p => p.slug === slugIn) ? slugIn : ((list.find(p => p.items) || list[0] || {}).slug || "_unsorted");
+    const wa = MATALL.whatsapp, ready = wa.token && wa.secret && wa.verify;
+    const setup = `${!ready ? `<section class="pt-card mt-setup"><h2>The Raavanaa WhatsApp number is not connected yet</h2>
+        <p class="pt-sub">Until then, organisers use their phone link for the day and the private album. What is still missing in Netlify: ${[!wa.token && "WHATSAPP_TOKEN", !wa.secret && "WHATSAPP_APP_SECRET", !wa.verify && "WHATSAPP_VERIFY_TOKEN"].filter(Boolean).join(", ")}.
+        The address to give Meta for the webhook: <code>${esc(wa.webhook)}</code></p></section>` : ""}
+      ${!MATALL.gemini ? `<section class="pt-card mt-setup"><p class="pt-sub">GEMINI_API_KEY is not set, so only the free checks run (blurry, dark, near-duplicate).</p></section>` : ""}`;
+    const picker = `<section class="pt-card"><label class="pt-field">Project<select data-matproj>
+        ${MATALL.unsorted ? `<option value="_unsorted" ${slug === "_unsorted" ? "selected" : ""}>Not sorted yet (${MATALL.unsorted})</option>` : ""}
+        ${list.map(p => `<option value="${esc(p.slug)}" ${p.slug === slug ? "selected" : ""}>${esc(p.title)}${p.items ? ` · ${p.items} item${p.items === 1 ? "" : "s"}${p.fresh ? `, ${p.fresh} new` : ""}` : ""}</option>`).join("")}</select></label>
+        <p class="pt-sub"><button type="button" class="pt-btn ghost sm" data-matreload>Refresh</button></p></section>`;
+    const d = MAT[slug];
+    if (!d) { matLoad(slug, `/api/materials/${encodeURIComponent(slug)}`, x => { MAT[slug] = x; }); return head("Loading…") + setup + picker; }
+    const it = d.items, sugg = new Set(d.suggested);
+    const when = iso => new Date(iso).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Colombo" });
+    const from = m => m.source === "whatsapp" ? `WhatsApp ${esc(m.senderName || "")} +${esc(m.sender)}` : m.source === "day" ? "Phone link" : m.source === "album" ? "Album" : esc(m.source);
+    const aiNote = m => m.aiStatus === "fetch" || m.aiStatus === "fetch-running" ? "Downloading…" : m.aiStatus === "queued" || m.aiStatus === "queued-running" ? "Checking…" : m.aiStatus === "failed" ? `Check failed <button type="button" class="pt-btn ghost sm" data-matcheck="${m.id}">Try again</button>` : "";
+    const tile = (m, tick) => `<figure class="mt-tile${m.ai.child_face ? " face" : ""}">
+        ${m.url ? `<a href="${esc(m.url)}" target="_blank" rel="noopener"><img loading="lazy" src="${esc(m.url)}" alt=""></a>` : `<div class="mt-wait">${aiNote(m) || "Waiting"}</div>`}
+        <figcaption>${tick ? `<label><input type="checkbox" data-matpick="${m.id}" ${sugg.has(m.id) ? "checked" : ""}> Publish</label>` : ""}
+          ${m.ai.child_face ? `<span class="mt-badge">Child's face: needs the parents' yes</span>` : ""}
+          ${m.ai.quality ? `<small>Score ${m.ai.quality}/10${m.ai.caption ? ` · ${esc(m.ai.caption)}` : ""}</small>` : ""}
+          ${m.reason && m.status === "set_aside" ? `<small>Set aside: ${esc(m.reason)}</small>` : ""}
+          ${m.caption ? `<small>“${esc(m.caption)}”</small>` : ""}<small>${from(m)} · ${when(m.at)}</small> ${aiNote(m) && m.url ? `<small>${aiNote(m)}</small>` : ""}
+          <span class="mt-acts">${m.status === "set_aside" || m.status === "hidden" ? `<button type="button" class="pt-btn ghost sm" data-matst="${m.id}" data-to="new">Bring back</button>` : m.status === "new" ? `<button type="button" class="pt-btn ghost sm" data-matst="${m.id}" data-to="set_aside">Set aside</button>` : ""}
+          ${m.status !== "hidden" && m.status !== "published" ? `<button type="button" class="pt-btn ghost sm" data-matst="${m.id}" data-to="hidden">Hide</button>` : ""}
+          ${slug === "_unsorted" ? `<select data-matfile="${m.id}"><option value="">File under…</option>${list.map(p => `<option value="${esc(p.slug)}">${esc(p.title)}</option>`).join("")}</select>` : ""}</span></figcaption></figure>`;
+    const photos = it.filter(m => m.kind === "photo");
+    const isBill = m => m.status === "new" && (m.ai.receipt || m.ai.hint === "bill");
+    const bills = photos.filter(isBill);
+    const best = photos.filter(m => sugg.has(m.id));
+    const rest = photos.filter(m => m.status === "new" && !sugg.has(m.id) && !isBill(m));
+    const aside = photos.filter(m => m.status === "set_aside");
+    const done = photos.filter(m => m.status === "published" || m.status === "bill_added");
+    const voices = it.filter(m => m.kind === "audio" && m.status !== "hidden"), videos = it.filter(m => m.kind === "video" && m.status !== "hidden");
+    const docs = it.filter(m => m.kind === "document" && m.status !== "hidden"), texts = it.filter(m => m.kind === "text" && m.status !== "hidden");
+    const hidden = it.filter(m => m.status === "hidden");
+    const sec = (title, sub, body, open = true) => body ? `<section class="pt-card"><details class="mt-sec" ${open ? "open" : ""}><summary><h2>${title}</h2></summary>${sub ? `<p class="pt-sub">${sub}</p>` : ""}${body}</details></section>` : "";
+    const grid = (ms, tick) => ms.length ? `<div class="mt-grid">${ms.map(m => tile(m, tick)).join("")}</div>` : "";
+    if (slug === "_unsorted") return head("Messages from phones we don't know yet, or from someone who still has to pick a project. File each one under its project; the rest from the same phone follows.") + setup + picker
+      + sec(`Not sorted yet <span class="pt-count">${it.length}</span>`, "", grid(it.filter(m => m.kind !== "text")) + texts.map(m => `<p class="mt-text">“${esc(m.caption)}” <small>${from(m)} · ${when(m.at)}</small></p>`).join("")) ;
+    const people = d.people.filter(x => x.phone);
+    const dayNote = people.length ? `<section class="pt-card"><h2>Morning note to the organisers</h2><p class="pt-sub">Opens WhatsApp with the note written for you (free). It asks for a few photos on the day and only the best 10 after.</p>
+        <p class="pt-golive-btns">${people.map(x => `<a class="pt-btn ghost sm" target="_blank" rel="noopener" href="https://wa.me/${esc(x.phone)}?text=${encodeURIComponent(MAT_DAY_NOTE)}">Send to ${esc(x.name || x.role)}</a>`).join("")}</p></section>`
+      : `<section class="pt-card"><p class="pt-sub">Add the organisers' WhatsApp numbers under <a href="#/agreements/${esc(slug)}">People in charge</a>: that is how the Raavanaa number knows which project their photos are for.</p></section>`;
+    const albums = `<section class="pt-card"><h2>Private album for the school and organisers</h2>
+        <p class="pt-sub">Everything sent for this event, by private link only. Never public, never for givers. They can add their other photos there too.</p>
+        ${d.albums.filter(a => !a.stopped).map(a => { const u = `${location.origin}/album/${a.token}`; return `<p class="mt-link"><b>${esc(a.label || "Album link")}</b> <a href="${esc(u)}" target="_blank" rel="noopener">Open</a>
+          <button type="button" class="pt-btn ghost sm" data-matcopy="${esc(u)}">Copy</button>
+          <a class="pt-btn ghost sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(`Your private Raavanaa album for this event: ${u}\nOnly for the school and the organisers. Please do not forward it.`)}">Send on WhatsApp</a>
+          <button type="button" class="pt-btn ghost sm" data-matstop="${esc(a.token)}">Stop</button></p>`; }).join("")}
+        <form data-matalbum class="mt-row"><input name="label" maxlength="80" placeholder="Who it is for, e.g. the principal"><button class="pt-btn sm" type="submit">Make an album link</button></form></section>`;
+    const pub = best.length || rest.length ? `<form data-matpub class="mt-pub"><label class="pt-field">Title for the project page<input name="title" maxlength="120" placeholder="For example: At the Temple of the Tooth"></label>
+        <label class="pt-field">A line or two (optional)<textarea name="body" rows="2" maxlength="1200"></textarea></label>
+        ${photos.some(m => m.ai.child_face && m.status === "new") ? `<label class="pt-fol-tick"><input type="checkbox" name="permission"> The parents agreed to the ticked photos that show a child's face</label>` : ""}
+        <button class="pt-btn" type="submit">Publish the ticked photos</button><small class="pt-sub"> They go to "Live from the day" on the project page and to followers.</small></form>` : "";
+    const billBox = m => `<form class="mt-bill" data-matbill="${m.id}"><a href="${esc(m.url)}" target="_blank" rel="noopener"><img loading="lazy" src="${esc(m.url)}" alt="Receipt"></a><div>
+        <p class="pt-sub">${m.ai.shop ? `Read: <b>${esc(m.ai.shop)}</b>${m.ai.date ? `, ${esc(m.ai.date)}` : ""}${m.ai.amount ? `, total ${esc(m.ai.currency || "")} ${esc(m.ai.amount)}` : ""}. Check it against the photo.` : aiNote(m) || "Type what the receipt says."} <small>${from(m)} · ${when(m.at)}</small></p>
+        <label class="pt-field">What was paid for<input name="item" maxlength="120" value="${esc(m.ai.what || "")}"></label>
+        <label class="pt-field">Amount (Rs)<input name="amount" inputmode="decimal" value="${esc(String(m.ai.amount || "").replace(/[^\d.]/g, ""))}"></label>
+        ${d.budget.length ? `<label class="pt-field">Budget line<select name="line"><option value="">Something else</option>${d.budget.map(x => `<option>${esc(x)}</option>`).join("")}</select></label>` : ""}
+        <button class="pt-btn sm" type="submit">Send to Money books</button> <button type="button" class="pt-btn ghost sm" data-matnotbill="${m.id}">Not a bill</button>
+        <small class="pt-sub"> A second team member checks it there before it shows on the money page.</small></div></form>`;
+    const voice = m => `<div class="mt-voice">${m.url ? `<audio controls preload="none" src="${esc(m.url)}"></audio>` : aiNote(m)}
+        ${m.ai.english ? `<p><b>English:</b> ${esc(m.ai.english)}</p>${m.ai.original ? `<details><summary class="pt-sub">${esc(m.ai.language || "Original")}</summary><p>${esc(m.ai.original)}</p></details>` : ""}
+          ${m.ai.quote ? `<p class="mt-quote">“${esc(m.ai.quote)}” <button type="button" class="pt-btn ghost sm" data-matcopy="${esc(m.ai.quote)}">Copy for Impact</button></p>` : ""}` : m.url ? `<p class="pt-sub">${aiNote(m) || "Not written out yet."}</p>` : ""}
+        <small class="pt-sub">${from(m)} · ${when(m.at)}</small></div>`;
+    const title = (list.find(p => p.slug === slug) || {}).title || slug;
+    return head(`For <b>${esc(title)}</b>: what the organisers sent. Blurry, dark and repeated photos are set aside for you, and the best ${best.length || 8} are ticked. Nothing is public until you press Publish.`) + setup + picker + dayNote
+      + (it.length ? "" : `<section class="pt-card"><p class="pt-sub">Nothing has come in for this project yet.</p></section>`)
+      + sec(`Suggested best photos <span class="pt-count">${best.length}</span>`, "", grid(best, true) + (rest.length ? "" : pub))
+      + sec(`More photos <span class="pt-count">${rest.length}</span>`, "Tick any you would rather use.", grid(rest, true) + pub, !best.length)
+      + sec(`Bills <span class="pt-count">${bills.length}</span>`, "", bills.map(billBox).join(""))
+      + sec(`Voice notes <span class="pt-count">${voices.length}</span>`, "Written out and translated, for the Impact page. Take out any child's name before using a line.", voices.map(voice).join(""))
+      + sec(`Videos <span class="pt-count">${videos.length}</span>`, "Kept in the private album.", videos.map(m => `<div class="mt-voice">${m.url ? `<video controls preload="none" src="${esc(m.url)}"></video>` : aiNote(m)}<small class="pt-sub">${m.caption ? `“${esc(m.caption)}” · ` : ""}${from(m)} · ${when(m.at)}</small></div>`).join(""), false)
+      + sec(`Documents <span class="pt-count">${docs.length}</span>`, "", docs.map(m => `<p class="mt-text">${m.url ? `<a href="${esc(m.url)}" target="_blank" rel="noopener">${esc(m.name || "Document")}</a>` : aiNote(m)} <small>${from(m)} · ${when(m.at)}</small></p>`).join(""), false)
+      + sec(`Messages <span class="pt-count">${texts.length}</span>`, "", texts.map(m => `<p class="mt-text">“${esc(m.caption)}” <small>${from(m)} · ${when(m.at)}</small></p>`).join(""), false)
+      + sec(`Set aside <span class="pt-count">${aside.length}</span>`, "Blurry, too dark, or another shot of the same moment. Kept in the album.", grid(aside), false)
+      + sec(`Already used <span class="pt-count">${done.length}</span>`, "", grid(done), false)
+      + sec(`Hidden <span class="pt-count">${hidden.length}</span>`, "", grid(hidden.filter(m => m.kind === "photo")), false)
+      + albums;
+  }
+  function wireMaterials(slugIn) {
+    const sel = app.querySelector("[data-matproj]"); if (!sel) return;
+    const slug = sel.value;
+    const again = () => { delete MAT[slug]; MATALL = null; render(); };
+    sel.onchange = () => { location.hash = `#/materials/${sel.value}`; };
+    const call = async (url, opts, msg) => { try { const r = await api(url, opts); toast(msg); again(); return r; } catch (e) { toast(e.message || "Could not save"); } };
+    app.querySelector("[data-matreload]").onclick = again;
+    app.querySelectorAll("[data-matst]").forEach(b => b.onclick = () => call(`/api/materials/item/${b.dataset.matst}`, { method: "PATCH", body: JSON.stringify({ status: b.dataset.to }) }, { new: "Brought back", set_aside: "Set aside", hidden: "Hidden" }[b.dataset.to]));
+    app.querySelectorAll("[data-matnotbill]").forEach(b => b.onclick = () => call(`/api/materials/item/${b.dataset.matnotbill}`, { method: "PATCH", body: JSON.stringify({ status: "set_aside" }) }, "Moved out of Bills"));
+    app.querySelectorAll("[data-matcheck]").forEach(b => b.onclick = () => call(`/api/materials/item/${b.dataset.matcheck}/check`, { method: "POST", body: "{}" }, "Checking again"));
+    app.querySelectorAll("[data-matfile]").forEach(s => s.onchange = () => s.value && call(`/api/materials/item/${s.dataset.matfile}`, { method: "PATCH", body: JSON.stringify({ slug: s.value }) }, "Filed"));
+    app.querySelectorAll("[data-matcopy]").forEach(b => b.onclick = () => { navigator.clipboard.writeText(b.dataset.matcopy).then(() => toast("Copied"), () => toast(b.dataset.matcopy)); });
+    app.querySelectorAll("[data-matstop]").forEach(b => b.onclick = () => { if (!b.dataset.sure) { b.dataset.sure = 1; b.textContent = "Press again to stop"; return; } call(`/api/materials/albums/${b.dataset.matstop}`, { method: "DELETE" }, "Link stopped"); });
+    const al = app.querySelector("[data-matalbum]");
+    if (al) al.onsubmit = e => { e.preventDefault(); call("/api/materials/albums", { method: "POST", body: JSON.stringify({ slug, label: al.elements.label.value }) }, "Album link made. Send it with the button."); };
+    const pub = app.querySelector("[data-matpub]");
+    if (pub) pub.onsubmit = e => { e.preventDefault();
+      const ids = [...app.querySelectorAll("[data-matpick]:checked")].map(x => +x.dataset.matpick);
+      if (!ids.length) return toast("Tick at least one photo");
+      call("/api/materials/publish", { method: "POST", body: JSON.stringify({ ids, title: pub.elements.title.value, body: pub.elements.body.value, permission: !!(pub.elements.permission && pub.elements.permission.checked) }) }, `Published ${ids.length} photo${ids.length === 1 ? "" : "s"}`); };
+    app.querySelectorAll("[data-matbill]").forEach(f => f.onsubmit = e => { e.preventDefault(); const v = k => (f.elements[k] || {}).value || "";
+      call(`/api/materials/bill/${f.dataset.matbill}`, { method: "POST", body: JSON.stringify({ item: v("item"), amount: v("amount"), line: v("line") }) }, "Sent to Money books for a second check"); });
+  }
+
   function render() {
     const [page, id] = route();
-    const cur = ["voices", "followers", "agreements", "books", "suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "members", "volunteers", "groups", "circles", "traffic", "team"].includes(page) ? page : "dashboard";
+    const cur = ["voices", "followers", "materials", "agreements", "books", "suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "members", "volunteers", "groups", "circles", "traffic", "team"].includes(page) ? page : "dashboard";
     drawNav(cur);
     if (page === "suggestions" && id) { app.innerHTML = detail(id); wireDetail(id); }
     else if (page === "suggestions") { app.innerHTML = suggestions(); wireSuggestions(); }
@@ -2364,6 +2481,7 @@
     else if (page === "traffic") { app.innerHTML = traffic(); wireTraffic(); }
     else if (page === "voices") { app.innerHTML = voices(); wireVoices(); }
     else if (page === "followers") { app.innerHTML = followers(id); wireFollowers(id); }
+    else if (page === "materials") { app.innerHTML = materials(id); wireMaterials(id); }
     else if (page === "agreements") { app.innerHTML = agreements(id); wireAgreements(id); }
     else if (page === "books") { app.innerHTML = books(id); wireBooks(id); }
     else if (page === "team" && LIVE) { app.innerHTML = liveTeam(); if (ACCESS) wireLiveTeam(); }
@@ -2376,7 +2494,7 @@
     else if (page === "reports" && id) { app.innerHTML = reportDetail(id); wireReport(id); }
     else if (page === "reports") { app.innerHTML = reports(); wireReports(); }
     else app.innerHTML = dashboard();
-    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", members: "Members", volunteers: "Volunteers", groups: "Groups", circles: "Family circles", traffic: "Traffic", voices: "Vouches & ratings", followers: "Followers & updates", agreements: "People in charge", books: "Money books", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
+    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", members: "Members", volunteers: "Volunteers", groups: "Groups", circles: "Family circles", traffic: "Traffic", voices: "Vouches & ratings", followers: "Followers & updates", materials: "Today's materials", agreements: "People in charge", books: "Money books", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
   }
 
   Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] })).then(async d => { try { const m = await fetch("/api/projects").then(r => r.json()); const have = new Set((d.projects || []).map(p => p.slug)); d.projects = [...(d.projects || []), ...(m.projects || []).filter(p => !have.has(p.slug))]; } catch (e) { /* only projects.json */ } return d; })])
