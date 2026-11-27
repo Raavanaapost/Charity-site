@@ -3638,3 +3638,5 @@ html[lang="ta"] .all-chip b{font-family:"Noto Sans Tamil",var(--display),sans-se
 .phead-imp .madeby .mb-name{font-size:21px;line-height:1.35}
 .phead-imp .by-place{color:var(--muted)}
 .imp .imp-k:first-of-type{margin-top:4px}
+.imp-topdate{margin:8px 0 0;text-align:center}
+.imp-topdate time{display:inline-block;padding:5px 14px;border-radius:999px;background:#f6e2c7;color:#8a2c12;font-family:var(--display);font-weight:600;font-size:14px}
