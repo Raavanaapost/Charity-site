@@ -3380,6 +3380,24 @@ window.RAAV_FEATURES = (function () {
     const t = new Date(iso + "T12:00:00").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
     return `<p class="imp-topdate"><time datetime="${esc(iso)}">${esc(t)}</time></p>`;
   }
+  // Impact: the day's photos turn at the top of the page with the title written over them (SURESH 27 Nov 2026).
+  // projects.json impact_page.slides [{image, caption, position}] picks them; else the impact picture + the project photos.
+  function impSlides(p) {
+    if (p.sample) return [];
+    const ip = p.impact_page || {}, seen = new Set();
+    const list = (ip.slides || []).length ? ip.slides : [ip.picture, ...(p.photos || [])];
+    return list.filter(x => x && x.image && !/\.svg$/i.test(x.image) && !seen.has(x.image) && seen.add(x.image));
+  }
+  function impHeroHTML(p) {
+    const sl = impSlides(p); if (!sl.length) return "";
+    return `<section class="imp-hero" data-imp-hero aria-label="Photos from the day">
+      ${sl.map((x, k) => `<img class="ih-img${k ? "" : " on"}" src="${esc(imgUrl(x.image, 1200))}" alt="${esc(x.caption || "")}"${x.position ? ` style="object-position:${esc(x.position)}"` : ""}${k ? ` loading="lazy"` : ""}>`).join("")}
+      <div class="ih-shade"></div>
+      <span class="ih-pill">Impact · It happened</span>
+      <h1 class="ih-title">${esc(p.title)}</h1>
+      ${sl.length > 1 ? `<p class="ih-dots" aria-hidden="true">${sl.map((_, k) => `<i${k ? "" : ' class="on"'}></i>`).join("")}</p>` : ""}
+    </section>`;
+  }
   function impactTopHTML(p, site, i) {
     const ip = p.impact_page || {}, b = budgetOf(p), money = n => moneyOf(site, n, p), ex = !!ip.example;
     const exTag = ex ? `<span class="imp-ex">Example words</span>` : "";
@@ -3409,11 +3427,11 @@ window.RAAV_FEATURES = (function () {
       ${ex ? `<p class="imp-banner"><b>Preview.</b> This is how the page will look after the day. The words marked <em>Example words</em> are made up; the real ones come from the children, teachers and organisers.</p>` : ""}
       ${sec("The impact", ip.line ? exTag : "")}
       <p class="imp-line">${esc(ip.line || p.tagline || p.summary || "")}</p>
-      <p class="imp-pills"><span class="imp-pill">Impact · It happened</span>${ip.line ? exTag : ""}</p>
-      <figure class="imp-pic">
+      ${impSlides(p).length ? "" : `<p class="imp-pills"><span class="imp-pill">Impact · It happened</span>${ip.line ? exTag : ""}</p>`}
+      ${impSlides(p).length ? "" : `      <figure class="imp-pic">
         ${pic.image ? `<img src="${esc(imgUrl(pic.image, 1200))}" alt="${esc(pic.caption || "")}"${pic.position ? ` style="object-position:${esc(pic.position)}"` : ""}>` : `<div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, "", 1200)}</div>`}
         <figcaption>${esc(pic.caption || "Best picture of the day")}</figcaption>
-      </figure>
+      </figure>`}
       ${tiles.length || closed ? `${sec("Highlights at a glance", (ip.highlights || []).length ? exTag : "")}
       <div class="imp-tiles">${tiles.map(t => `<div class="imp-tile"><b>${esc(t.value)}</b><span>${esc(t.label)}</span></div>`).join("")}${closed ? `<div class="imp-tile done"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 12.5l5 5L20 6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg><b>Books closed</b><span>every rupee shown</span></div>` : ""}</div>` : ""}
       ${ip.coming ? `<p class="imp-coming">${esc(ip.coming)}</p>` : ""}
@@ -3558,10 +3576,10 @@ window.RAAV_FEATURES = (function () {
         <nav class="crumbs${st === 3 ? " crumbs-imp" : ""}"><a href="/projects">Projects</a>${p.theme ? ` / ${st === 3 ? `<span class="crumb-cat">${esc(p.theme)}</span>` : esc(p.theme)}` : ""}</nav>
         <div class="layout${st === 3 ? " imp-layout" : ""}">
           <div style="min-width:0">
-            ${st === 3 ? stageJourneyHTML(p) + impDateHTML(p) : ""}
+            ${st === 3 ? impHeroHTML(p) + stageJourneyHTML(p) + impDateHTML(p) : ""}
             <header class="phead${st === 3 ? " phead-imp" : ""}">
               ${p.theme && st !== 3 ? `<span class="tag">${esc(p.theme)}</span>` : ""}
-              <h1>${esc(p.title)}</h1>
+              ${st === 3 && impSlides(p).length ? "" : `<h1>${esc(p.title)}</h1>`}
               <div class="byline">${p.organization ? `<span>Submitted by <strong>${esc(p.submitted_by || p.organization)}</strong>${p.location ? (st === 3 ? `<br><span class="by-place">${esc(p.location)}</span>` : ` · ${esc(p.location)}`) : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> ${esc(vLabel(p))}</span>` : ""}${FEAT.voices && !p.sample && stageNum(p) === 3 ? `<a class="rate-chip" href="#voices-h" data-rate-chip hidden></a>` : ""}
               <div class="glance">
                 <button type="button" class="glance-btn" aria-expanded="false" aria-controls="glance-card"><span>At a glance</span><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
@@ -3628,6 +3646,11 @@ window.RAAV_FEATURES = (function () {
       app.querySelectorAll("[data-pact-follow]").forEach(bt => bt.onclick = () => openPact(false));
       // SURESH 27 Nov 2026: the page opens as usual (no form open on arrival); the form opens only when "Follow the day" is tapped.
       // Impact page: "Share this day" uses the phone's share sheet, else copies the link.
+      { const hero = app.querySelector("[data-imp-hero]"), imgs = hero ? [...hero.querySelectorAll(".ih-img")] : [], dots = hero ? [...hero.querySelectorAll(".ih-dots i")] : [];
+        clearInterval(window.__impHeroT);
+        if (imgs.length > 1 && !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) { let k = 0;
+          window.__impHeroT = setInterval(() => { if (!document.body.contains(hero)) return clearInterval(window.__impHeroT);
+            imgs[k].classList.remove("on"); dots[k] && dots[k].classList.remove("on"); k = (k + 1) % imgs.length; imgs[k].classList.add("on"); dots[k] && dots[k].classList.add("on"); }, 4500); } }
       app.querySelectorAll("[data-imp-share]").forEach(bt => bt.onclick = async () => {
         const url = location.origin + "/projects/" + slugOf(p);
         try { if (navigator.share) { await navigator.share({ title: p.title, url }); return; } await navigator.clipboard.writeText(url); bt.textContent = "Link copied"; } catch (e) {}

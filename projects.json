@@ -48,9 +48,21 @@
    "verified": true,
    "volunteers": false,
    "expectations": [
-    {"text": "Every prefect has a special uniform, like prefects in urban schools", "result": "", "note": ""},
-    {"text": "Stronger discipline, leadership and confidence among the student leaders", "result": "", "note": ""},
-    {"text": "Families spared an extra cost in hard times", "result": "", "note": ""}
+    {
+     "text": "Every prefect has a special uniform, like prefects in urban schools",
+     "result": "",
+     "note": ""
+    },
+    {
+     "text": "Stronger discipline, leadership and confidence among the student leaders",
+     "result": "",
+     "note": ""
+    },
+    {
+     "text": "Families spared an extra cost in hard times",
+     "result": "",
+     "note": ""
+    }
    ],
    "from_request": "S-1004",
    "organization": "Raavanaa",
@@ -780,7 +792,34 @@
       "label": "bus and food, every bill shown"
      }
     ],
-    "coming": "Still to come: the children's own drawings and letters about the day, and a note from their teacher. We add them here as soon as they arrive."
+    "coming": "Still to come: the children's own drawings and letters about the day, and a note from their teacher. We add them here as soon as they arrive.",
+    "slides": [
+     {
+      "image": "/img/projects/pussellawa-kandy/day-walking-gardens.jpg",
+      "caption": "Peradeniya gardens, 27 November 2026",
+      "position": "50% 55%"
+     },
+     {
+      "image": "/img/projects/pussellawa-kandy/day-group-photo.jpg",
+      "caption": "Everyone together at the Peradeniya gardens",
+      "position": "50% 40%"
+     },
+     {
+      "image": "/img/projects/pussellawa-kandy/day-crossing-lawn.jpg",
+      "caption": "Crossing the great lawn",
+      "position": "50% 30%"
+     },
+     {
+      "image": "/img/projects/pussellawa-kandy/day-walking-with-teachers.jpg",
+      "caption": "Walking with their teachers",
+      "position": "50% 45%"
+     },
+     {
+      "image": "/img/projects/pussellawa-kandy/day-fountain.jpg",
+      "caption": "By the fountain and the flower beds",
+      "position": "50% 55%"
+     }
+    ]
    },
    "photos_consent": "Parents agreed (SURESH, 27 Nov 2026)"
   }
