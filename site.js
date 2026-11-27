@@ -3134,9 +3134,9 @@ window.RAAV_FEATURES = (function () {
       const names = [...new Set(b.funders.map(f => plain(f.name)).filter(x => x && !ANON.test(x)))];
       // Anonymous gifts are thanked without a name, as giving sites do (SURESH 27 Nov 2026).
       const anon = b.funders.filter(f => ANON.test(plain(f.name))).length;
-      if (anon) names.push(anon > 1 ? "our anonymous friends" : "an anonymous friend");
-      const list = names.join(", ");
-      const thanks = list ? `\u{1F49B} *Thank you ${list}, and everyone who made this possible*` : "\u{1F49B} *Thank you to everyone who made this possible*";
+      if (anon) names.push(anon > 1 ? "anonymous sponsors" : "an anonymous sponsor");
+      const list = names.length > 1 ? names.slice(0, -1).join(", ") + " and " + names[names.length - 1] : names[0] || "";
+      const thanks = list ? `\u{1F49B} *Thank you ${list}, who made this possible*` : "\u{1F49B} *Thank you to everyone who made this possible*";
       return [thanks, "", `*${plain(p.title)}*`, when && `\u{1F4C5} ${when}`, p.location && `\u{1F4CD} ${plain(p.location)}`, "", "\u{1F4F8} *Follow the day*", `\u{1F449} ${short}`].filter(x => x !== false && x !== undefined && x !== null).join("\n").replace(/\n{3,}/g, "\n\n"); }
     const head = n === 3 ? "\u{1F389} *The day happened*" : "\u{1F331} *A need on Raavanaa*";
     const facts = [

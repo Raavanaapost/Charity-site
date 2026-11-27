@@ -143,9 +143,9 @@ export default async (request: Request, context: { next: (req?: Request) => Prom
         if (full && pr.blurb) text = pr.blurb;
         // Activated: just that it is happening, and thank you (SURESH 26 Nov 2026: "happenings now as highlight").
         text = (full ? "Fully funded, thank you. " : `${pr.pct}% funded, ${money(pr, Math.max(0, pr.goal - pr.raised))} still to go. `) + text;
-        if (pr.stage === 2) { const w = happeningWhen(pr.day); const n = pr.names || [], who = n.join(", ");
+        if (pr.stage === 2) { const w = happeningWhen(pr.day); const n = pr.names || [], who = n.length > 1 ? n.slice(0, -1).join(", ") + " and " + n[n.length - 1] : n[0] || "";
           const d = pr.day ? new Date(pr.day + "T12:00:00Z").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }) : "";
-          text = `Thank you ${who ? who + ", and everyone" : "to everyone"} who made this possible.${d ? " " + d : ""}${pr.place ? ", " + pr.place : ""}.`; }
+          text = `Thank you ${who ? who + "," : "to everyone"} who made this possible.${d ? " " + d : ""}${pr.place ? ", " + pr.place : ""}.`; }
         // Associates (SURESH 26 Nov 2026): the group or organisation that runs it.
         const owner = await projectOwner(url.origin, slug).catch(() => "");
         if (owner) text = `Run by ${owner}. ` + text;
