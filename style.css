@@ -3588,3 +3588,7 @@ html[lang="ta"] .all-chip b{font-family:"Noto Sans Tamil",var(--display),sans-se
 /* Share as a share icon that opens when tapped (SURESH 27 Nov 2026) */
 .share-ico{display:inline-grid;place-items:center;width:36px;height:36px;margin-right:10px;border-radius:50%;background:linear-gradient(90deg,#b8321a,#e0780f);color:#fff;vertical-align:middle}
 .share-ico svg{width:18px;height:18px}
+
+/* Impact page: what is still to come (the children's letters, the teacher's note), 27 Nov 2026 */
+.imp-coming{margin:14px 0 0;padding:12px 14px;border:1px dashed #c8381e;border-radius:12px;background:#fff8ef;color:#5a3a1a;font-size:15px;line-height:1.5}
+.mny-wait-chk{display:block;color:#9a6a06;font-size:12px}

@@ -3480,11 +3480,12 @@ window.RAAV_FEATURES = (function () {
       ${sec("The impact", ip.line ? exTag : "")}
       <p class="imp-line">${esc(ip.line || p.tagline || p.summary || "")}</p>
       <figure class="imp-pic">
-        ${pic.image ? `<img src="${esc(imgUrl(pic.image, 1200))}" alt="${esc(pic.caption || "")}">` : `<div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, "", 1200)}</div>`}
+        ${pic.image ? `<img src="${esc(imgUrl(pic.image, 1200))}" alt="${esc(pic.caption || "")}"${pic.position ? ` style="object-position:${esc(pic.position)}"` : ""}>` : `<div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, "", 1200)}</div>`}
         <figcaption>${esc(pic.caption || "Best picture of the day")}</figcaption>
       </figure>
       ${tiles.length || closed ? `${sec("Highlights at a glance", (ip.highlights || []).length ? exTag : "")}
       <div class="imp-tiles">${tiles.map(t => `<div class="imp-tile"><b>${esc(t.value)}</b><span>${esc(t.label)}</span></div>`).join("")}${closed ? `<div class="imp-tile done"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 12.5l5 5L20 6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg><b>Books closed</b><span>every rupee shown</span></div>` : ""}</div>` : ""}
+      ${ip.coming ? `<p class="imp-coming">${esc(ip.coming)}</p>` : ""}
       ${(ip.quotes || []).length ? `${sec("In their words", exTag)}
       <div class="imp-quotes">${ip.quotes.map((q, k) => `<blockquote class="imp-q${k ? "" : " first"}">${q.ta ? `<p class="imp-ta" lang="ta">“${esc(q.ta)}”</p>` : ""}${q.en ? `<p class="imp-en">“${esc(q.en)}”</p>` : ""}${q.who ? `<footer>${esc(q.who)}</footer>` : ""}</blockquote>`).join("")}</div>` : ""}
       ${thanksTo.length || ip.letter ? `${sec("Thank you", th.to || ip.letter ? exTag : "")}
@@ -3786,7 +3787,8 @@ window.RAAV_FEATURES = (function () {
       return bits.length ? `<small class="mny-bank">${bits.join(" · ")}</small>` : ""; };
     const fees = b.funders.reduce((t, f) => t + numOf(f.bank && f.bank.fee), 0);
     const checkers = [...new Set([...spent.map(x => x.checked_by), ...hand.map(h => h.checked_by)].filter(Boolean))];
-    const waiting = (bk.waiting || 0) + (bk.handover_waiting || 0);
+    // Costs written in projects.json with "check": "waiting" show now, marked until a second team member checks them (27 Nov 2026).
+    const waiting = (bk.waiting || 0) + (bk.handover_waiting || 0) + spent.filter(x => x.check === "waiting" && !x.checked_by).length;
     app.innerHTML = `
       <nav class="crumbs"><a href="/projects">Projects</a> / <a href="/projects/${slugOf(p)}">${esc(p.title)}</a></nav>
       <section class="mny">
@@ -3838,7 +3840,7 @@ window.RAAV_FEATURES = (function () {
           </table>` : ""}
           ${spent.length ? `<h3 class="money-h">Every bill</h3><table class="mny-table">
             <thead><tr><th scope="col">Date</th><th scope="col">What for</th><th scope="col" class="num">Amount</th></tr></thead>
-            <tbody>${spent.map(x => `<tr><td><time>${short(x.date)}</time></td><td>${esc(x.item)}${x.note ? `<small>${esc(x.note)}</small>` : ""}${x.receipt ? ` <a class="mny-rc" href="${esc(x.receipt)}" target="_blank" rel="noopener">See receipt</a>` : ""}${x.checked_by ? `<small class="mny-ok">✓ Checked by ${esc(x.checked_by)}</small>` : ""}</td><td class="num">${money(numOf(x.amount))}</td></tr>`).join("")}</tbody>
+            <tbody>${spent.map(x => `<tr><td><time>${short(x.date)}</time></td><td>${esc(x.item)}${x.note ? `<small>${esc(x.note)}</small>` : ""}${x.receipt ? ` <a class="mny-rc" href="${esc(x.receipt)}" target="_blank" rel="noopener">See receipt</a>` : ""}${x.checked_by ? `<small class="mny-ok">✓ Checked by ${esc(x.checked_by)}</small>` : x.check === "waiting" ? `<small class="mny-wait-chk">Waiting for a second team member's check</small>` : ""}</td><td class="num">${money(numOf(x.amount))}</td></tr>`).join("")}</tbody>
             <tfoot><tr><th scope="row" colspan="2">Total spent</th><td class="num">${money(out)}</td></tr></tfoot>
           </table>` : `<p class="mny-wait"><b>Nothing has been spent yet.</b> <span>Each cost is written here when it is paid, with its receipt.</span></p>
           ${m.day ? `<p class="mny-day"><span>The day:</span> <time datetime="${esc(m.day)}">${day(m.day)}</time></p>` : ""}`}
