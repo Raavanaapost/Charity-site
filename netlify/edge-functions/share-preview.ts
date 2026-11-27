@@ -5,7 +5,7 @@
 // No children's names and no school names go in share.json (SURESH, 9 Nov 2026).
 // While SITE_PASSWORD is set, the apps can only reach the open pages (/e/ vouching links); project
 // previews start working for everyone once the password is removed at launch.
-import { allProgress, money, showsProgress, happeningWhen, lkDate } from "../lib/share-progress.mts";
+import { allProgress, money, showsProgress, showsImpact, madePossibleBy, smilesLine, happeningWhen, lkDate } from "../lib/share-progress.mts";
 
 type Card = { title: string; text: string; title_ta?: string; text_ta?: string };
 type Share = { default: Card; vouch?: Card; moment?: Card; projects: Record<string, Card> };
@@ -117,6 +117,12 @@ export default async (request: Request, context: { next: (req?: Request) => Prom
         if (pr.stage === 2) { const w = happeningWhen(pr.day); const n = pr.names || [], who = n.length > 1 ? n.slice(0, -1).join(", ") + " and " + n[n.length - 1] : n[0] || "";
           const d = pr.day ? new Date(pr.day + "T12:00:00Z").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }) : "";
           text = `Thank you ${who ? who + "," : "to everyone"} who made this possible.${d ? " " + d : ""}${pr.place ? ", " + pr.place : ""}.`; }
+      } else if (pr && showsImpact(pr)) {
+        // Impact (SURESH 27 Nov 2026): "52 smiles made", the givers by name, a picture from the day; no date.
+        img = `${url.origin}/api/share-card/${slug}.jpg?v=i1`;
+        if (!share.projects[slug]) title = pr.title;
+        const who = madePossibleBy(pr);
+        text = `${smilesLine(pr)}.${who ? ` Made possible by ${who}.` : ""}`;
       }
     } catch (_) { /* keep the usual picture */ }
   }
