@@ -21,7 +21,7 @@ const ANON = /^(anonymous|anon|a friend|unnamed)$/i;
 function namesOf(funders: P[]) {
   const all = funders.map((f) => String(f && f.name || "").trim()).filter(Boolean);
   const out = [...new Set(all.filter((x) => !ANON.test(x)))], anon = all.filter((x) => ANON.test(x)).length;
-  if (anon) out.push(anon > 1 ? "our anonymous friends" : "an anonymous friend");
+  if (anon) out.push(anon > 1 ? "anonymous sponsors" : "an anonymous sponsor");
   return out;
 }
 const caches: Record<string, { at: number; data: Record<string, Progress> }> = {};
