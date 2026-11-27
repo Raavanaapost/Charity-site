@@ -3577,3 +3577,9 @@ html[lang="ta"] .all-chip b{font-family:"Noto Sans Tamil",var(--display),sans-se
 .imp .imp-pills{margin:14px 0 8px;flex-wrap:nowrap;align-items:center}
 .imp .imp-pills .imp-pill,.imp .imp-pills .imp-date{font-size:12px;padding:5px 10px;white-space:nowrap}
 .verified[hidden]{display:none}
+
+/* Impact top, round 2 (SURESH 27 Nov 2026): the plaque's opening words in their own font and colour; names flow in one line */
+.phead-imp .madeby .mb-k{font-family:"Literata",Georgia,serif;font-style:italic;font-size:17px;letter-spacing:0;text-transform:none;color:#b8440a;font-weight:600}
+.phead-imp .madeby .mb-name{font-size:21px;line-height:1.35}
+.phead-imp .by-place{color:var(--muted)}
+.imp .imp-k:first-of-type{margin-top:4px}

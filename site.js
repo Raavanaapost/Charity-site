@@ -3349,10 +3349,11 @@ window.RAAV_FEATURES = (function () {
     // SURESH 27 Nov 2026: every giver gets the same weight, one per line; an anonymous gift reads "An anonymous individual".
     const isAnon = f => /^anonymous/i.test(String(f.name || "").trim());
     const named = [...new Set(fs.filter(f => !isAnon(f)).map(f => String(f.name).trim()))];
-    const lines = [...named, ...fs.filter(isAnon).map(() => "An anonymous individual")];
+    const anonN = fs.filter(isAnon).length;
+    const lines = [...named, ...(anonN ? [anonN === 1 ? (named.length ? "an anonymous individual" : "An anonymous individual") : `${anonN} anonymous individuals`] : [])];
     // SURESH 27 Nov 2026: no red; a quiet plaque in the cream-and-gold look, like the dedication in a book.
     return `<div class="madeby"><p class="mb-k">This moment was made possible by</p>
-      <p class="mb-names">${lines.map(n => `<span class="mb-name">${esc(n)}</span>`).join("")}</p>
+      <p class="mb-names"><span class="mb-name">${lines.map(esc).map((n, k) => k === 0 ? n : (k === lines.length - 1 ? " and " : ", ") + n).join("")}</span></p>
       <span class="mb-orn" aria-hidden="true"><i></i><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 20s-7-4.4-7-9.6A4.2 4.2 0 0 1 12 7.7a4.2 4.2 0 0 1 7 2.7C19 15.6 12 20 12 20z" fill="currentColor"/></svg><i></i></span></div>`;
   }
   function impactTopHTML(p, site, i) {
@@ -3382,6 +3383,7 @@ window.RAAV_FEATURES = (function () {
     const pic = ip.picture || {};
     return `<section class="imp" aria-label="What this day made happen">
       ${ex ? `<p class="imp-banner"><b>Preview.</b> This is how the page will look after the day. The words marked <em>Example words</em> are made up; the real ones come from the children, teachers and organisers.</p>` : ""}
+      ${sec("The impact", ip.line ? exTag : "")}
       <p class="imp-line">${esc(ip.line || p.tagline || p.summary || "")}</p>
       <p class="imp-pills"><span class="imp-pill">Impact · It happened</span>${dayTxt ? `<span class="imp-date">${esc(dayTxt)}</span>` : ""}${ip.line ? exTag : ""}</p>
       <figure class="imp-pic">
@@ -3536,7 +3538,7 @@ window.RAAV_FEATURES = (function () {
             <header class="phead${st === 3 ? " phead-imp" : ""}">
               ${p.theme && st !== 3 ? `<span class="tag">${esc(p.theme)}</span>` : ""}
               <h1>${esc(p.title)}</h1>
-              <div class="byline">${p.organization ? `<span>Submitted by <strong>${esc(p.submitted_by || p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> ${esc(vLabel(p))}</span>` : ""}${FEAT.voices && !p.sample && stageNum(p) === 3 ? `<a class="rate-chip" href="#voices-h" data-rate-chip hidden></a>` : ""}
+              <div class="byline">${p.organization ? `<span>Submitted by <strong>${esc(p.submitted_by || p.organization)}</strong>${p.location ? (st === 3 ? `<br><span class="by-place">${esc(p.location)}</span>` : ` · ${esc(p.location)}`) : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> ${esc(vLabel(p))}</span>` : ""}${FEAT.voices && !p.sample && stageNum(p) === 3 ? `<a class="rate-chip" href="#voices-h" data-rate-chip hidden></a>` : ""}
               <div class="glance">
                 <button type="button" class="glance-btn" aria-expanded="false" aria-controls="glance-card"><span>At a glance</span><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
                 <div class="panel glance-card" id="glance-card">
