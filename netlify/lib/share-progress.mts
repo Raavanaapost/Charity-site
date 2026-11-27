@@ -16,6 +16,14 @@ const numOf = (v: unknown) => { const n = parseFloat(String(v == null ? "" : v).
 const slugify = (s: string) => String(s || "").toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").trim().replace(/[\s_]+/g, "-").replace(/-+/g, "-");
 const slugOf = (p: P) => slugify(p.slug || p.title);
 
+// Sponsors who let their name show, then "an anonymous friend" for gifts given anonymously (SURESH 27 Nov 2026).
+const ANON = /^(anonymous|anon|a friend|unnamed)$/i;
+function namesOf(funders: P[]) {
+  const all = funders.map((f) => String(f && f.name || "").trim()).filter(Boolean);
+  const out = [...new Set(all.filter((x) => !ANON.test(x)))], anon = all.filter((x) => ANON.test(x)).length;
+  if (anon) out.push(anon > 1 ? "our anonymous friends" : "an anonymous friend");
+  return out;
+}
 const caches: Record<string, { at: number; data: Record<string, Progress> }> = {};
 
 async function getJSON(url: URL, ms = 2500) {
@@ -51,7 +59,7 @@ export async function allProgress(origin: string, liveGifts = false): Promise<Re
       currency: String(p.currency || "$").trim() || "$", kids: kids ? +kids[0] : null, cover: String(p.cover || ""),
       day: String((p.money && p.money.day) || ""), place: String(p.location || "").trim(),
       // Sponsors who let their name show (Anonymous stays out), for the Activated thank-you (SURESH 27 Nov 2026).
-      names: [...new Set(funders.map((f) => String(f && f.name || "").trim()).filter((x) => x && !/^(anonymous|anon|a friend|unnamed)$/i.test(x)))],
+      names: namesOf(funders),
       blurb: String(p.tagline || String(p.summary || "").split(/(?<=[.!?])\s/)[0] || "").trim(),
     };
   }
