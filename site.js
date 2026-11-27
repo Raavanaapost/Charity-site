@@ -3128,9 +3128,16 @@ window.RAAV_FEATURES = (function () {
       </div>
       <p class="share-tip note" hidden></p>
     </div>`;
+  const SHARE_WORDS = false;
   // The WhatsApp message from a project's Share box, as a neat glance that fits the stage (SURESH 26 Nov 2026: "Not
   // professional. Can you create a nice glance when shared"). Bold title, one line, then when / where / who and the money.
   function glanceText(p, site, url) {
+    // SURESH 27 Nov 2026: "just that image and the hyperlink to that page": the picture says it all, so the message is
+    // only the link (WhatsApp needs the link to show the picture and to have something to tap). The fuller words for
+    // each stage are kept below; set SHARE_WORDS to true to bring them back.
+    if (!SHARE_WORDS) { const n0 = stageNum(p);
+      if (LIVE_GIFTS) return url.replace(/^https?:\/\//, "");
+      return p.short && n0 > 1 ? `${location.host}/${p.short}${n0 === 3 ? "?day" : ""}` : url.replace(/^https?:\/\//, ""); }
     const plain = t => String(t || "").replace(/[*_~`]/g, "").replace(/\s+/g, " ").trim();
     const n = stageNum(p), b = budgetOf(p), money = v => moneyOf(site, v, p).replace(/&amp;/g, "&");
     const line = plain(p.tagline) || (plain(p.summary).match(/^.+?[.!?](\s|$)/) || [""])[0].trim();
