@@ -2997,7 +2997,9 @@ window.RAAV_FEATURES = (function () {
       while (sec.firstChild) body.appendChild(sec.firstChild);
       d.appendChild(body); sec.appendChild(d); sec.classList.add("folded");
       // Comments and Share start open (SURESH 26 Nov); Vouched for by and The journey start closed.
-      if (sec.matches(".v-talk, .share-box")) d.open = true;
+      // SURESH 27 Nov 2026: Share is just a share icon that opens when tapped.
+      if (sec.matches(".v-talk")) d.open = true;
+      if (sec.matches(".share-box")) h.insertAdjacentHTML("afterbegin", `<span class="share-ico" aria-hidden="true">${SHARE_ICONS.more}</span>`);
     });
     // Order (SURESH 26 Nov): 1 Comments, 2 Share, then Vouched for by, then The journey.
     const v = root.querySelector("[data-voices]"), sh = root.querySelector(".share-box"), talk = v && v.querySelector(".v-talk");
@@ -3126,7 +3128,12 @@ window.RAAV_FEATURES = (function () {
     if (n === 2) { const h = happeningNow(day);
       // A short address with no https:// (WhatsApp cannot hide a link behind words, but it still makes this one tappable).
       const short = LIVE_GIFTS ? url.replace(/^https?:\/\//, "") : p.short ? `${location.host}/${p.short}` : url.replace(/^https?:\/\//, "").replace(/\?.*$/, "");
-      return [`\u2728 *${h.top.toUpperCase()} ${h.big.toUpperCase()}* \u2728`, "", `*${plain(p.title)}*`, "\u{1F49B} Thanks for the moment, to everyone who gave", "", "\u{1F4F8} *Follow the day*", `\u{1F449} ${short}`].join("\n"); }
+      // SURESH 27 Nov 2026: thank the sponsors by name first (only names they let us show; Anonymous stays out), then
+      // the title, the date and the place. No "Happening today" here: the picture already says it.
+      const names = [...new Set(b.funders.map(f => plain(f.name)).filter(x => x && !/^(anonymous|anon|a friend|unnamed)$/i.test(x)))];
+      const list = names.length > 1 ? names.slice(0, -1).join(", ") + " and " + names[names.length - 1] : names[0] || "";
+      const thanks = list ? `\u{1F49B} *Thank you ${list}, and everyone who made this possible*` : "\u{1F49B} *Thank you to everyone who made this possible*";
+      return [thanks, "", `*${plain(p.title)}*`, when && `\u{1F4C5} ${when}`, p.location && `\u{1F4CD} ${plain(p.location)}`, "", "\u{1F4F8} *Follow the day*", `\u{1F449} ${short}`].filter(x => x !== false && x !== undefined && x !== null).join("\n").replace(/\n{3,}/g, "\n\n"); }
     const head = n === 3 ? "\u{1F389} *The day happened*" : "\u{1F331} *A need on Raavanaa*";
     const facts = [
       when && `\u{1F4C5} ${when}`,
@@ -3684,7 +3691,7 @@ window.RAAV_FEATURES = (function () {
         if (scroll) { pact.style.scrollMarginTop = "76px"; pact.scrollIntoView({ block: "start", behavior: "smooth" }); }
         const inp = f.querySelector("input[name=name]"); if (inp && !scroll) setTimeout(() => inp.focus({ preventScroll: true }), 50); };
       app.querySelectorAll("[data-pact-follow]").forEach(bt => bt.onclick = () => openPact(false));
-      if (/[?&]follow=1\b/.test(location.search) || location.hash === "#follow") setTimeout(() => openPact(true), 300);
+      // SURESH 27 Nov 2026: the page opens as usual (no form open on arrival); the form opens only when "Follow the day" is tapped.
       // Impact page: "Share this day" uses the phone's share sheet, else copies the link.
       app.querySelectorAll("[data-imp-share]").forEach(bt => bt.onclick = async () => {
         const url = location.origin + "/projects/" + slugOf(p);
