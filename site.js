@@ -2382,7 +2382,21 @@ window.RAAV_FEATURES = (function () {
     return `
         <p class="b-top"><b>${money(b.goal)}</b> <span>budget</span> <em class="b-full">✓ Fully funded</em></p>
         ${funders("Made possible by")}
-        ${st === 3 ? listOf("Where the money went", "Total spent") : ""}`;
+        ${st === 3 ? (billsHTML(p, money) || listOf("Where the money went", "Total spent")) : ""}`;
+  }
+  // Impact: the real bills, each with its receipt picture, right in the Budget section (SURESH 27 Nov 2026,
+  // "Place the bill pictures there in the budget section"). Falls back to the planned lines when there are no bills.
+  function billsHTML(p, money) {
+    const m = p.money || {}, spent = (m.spent || []).filter(x => x && x.item);
+    if (!spent.length) return "";
+    const out = spent.reduce((t, x) => t + numOf(x.amount), 0);
+    const extra = (m.receipts || []).filter(x => x && x.image);
+    const pic = (src, cap) => `<a class="bill-pic" href="${esc(src)}" target="_blank" rel="noopener"><img src="${esc(imgUrl(src, 480))}" alt="${esc(cap ? "Receipt: " + cap : "Receipt")}" loading="lazy"></a>`;
+    return `<h3 class="money-h">Where the money went</h3>
+        <ul class="bills">${spent.map(x => `<li>${x.receipt ? pic(x.receipt, x.item) : ""}<div class="bill-txt"><span>${esc(x.item)}</span>${x.note ? `<small>${esc(x.note)}</small>` : ""}${x.checked_by ? `<small class="mny-ok">✓ Checked by ${esc(x.checked_by)}</small>` : x.check === "waiting" ? `<small class="mny-wait-chk">Waiting for a second team member's check</small>` : ""}<b>${money(numOf(x.amount))}</b></div></li>`).join("")}</ul>
+        <p class="bx-total"><span>Total spent</span><b>${money(out)}</b></p>
+        ${extra.length ? `<div class="bills-extra">${extra.map(r => `<figure>${pic(r.image, r.caption)}${r.caption ? `<figcaption>${esc(r.caption)}</figcaption>` : ""}</figure>`).join("")}</div>` : ""}
+        <p class="note">Names, phone numbers and signatures are covered on the receipts. Tap a receipt to see it full size.</p>`;
   }
   // Expected impact: set by the organizers while a project is Activated, closed with a tick for each one after the day.
   function expectHTML(p) {
