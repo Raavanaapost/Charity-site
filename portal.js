@@ -2412,7 +2412,7 @@
           <a class="pt-btn ghost sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(`Your private Raavanaa album for this event: ${u}\nOnly for the school and the organisers. Please do not forward it.`)}">Send on WhatsApp</a>
           <button type="button" class="pt-btn ghost sm" data-matstop="${esc(a.token)}">Stop</button></p>`; }).join("")}
         <form data-matalbum class="mt-row"><input name="label" maxlength="80" placeholder="Who it is for, e.g. the principal"><button class="pt-btn sm" type="submit">Make an album link</button></form></section>`;
-    const pub = best.length || rest.length ? `<form data-matpub class="mt-pub"><label class="pt-field">Title for the project page<input name="title" maxlength="120" placeholder="For example: At the Temple of the Tooth"></label>
+    const pub = best.length || rest.length ? `<form data-matpub><label class="pt-field">Title for the project page<input name="title" maxlength="120" placeholder="For example: At the Temple of the Tooth"></label>
         <label class="pt-field">A line or two (optional)<textarea name="body" rows="2" maxlength="1200"></textarea></label>
         ${photos.some(m => m.ai.child_face && m.status === "new") ? `<label class="pt-fol-tick"><input type="checkbox" name="permission"> The parents agreed to the ticked photos that show a child's face</label>` : ""}
         <button class="pt-btn" type="submit">Publish the ticked photos</button><small class="pt-sub"> They go to "Live from the day" on the project page and to followers.</small></form>` : "";
@@ -2430,8 +2430,9 @@
     const title = (list.find(p => p.slug === slug) || {}).title || slug;
     return head(`For <b>${esc(title)}</b>: what the organisers sent. Blurry, dark and repeated photos are set aside for you, and the best ${best.length || 8} are ticked. Nothing is public until you press Publish.`) + setup + picker + dayNote
       + (it.length ? "" : `<section class="pt-card"><p class="pt-sub">Nothing has come in for this project yet.</p></section>`)
-      + sec(`Suggested best photos <span class="pt-count">${best.length}</span>`, "", grid(best, true) + (rest.length ? "" : pub))
-      + sec(`More photos <span class="pt-count">${rest.length}</span>`, "Tick any you would rather use.", grid(rest, true) + pub, !best.length)
+      + sec(`Suggested best photos <span class="pt-count">${best.length}</span>`, "", grid(best, true))
+      + sec(`More photos <span class="pt-count">${rest.length}</span>`, "Tick any you would rather use.", grid(rest, true), !best.length)
+      + (pub ? `<section class="pt-card">${pub}</section>` : "")
       + sec(`Bills <span class="pt-count">${bills.length}</span>`, "", bills.map(billBox).join(""))
       + sec(`Voice notes <span class="pt-count">${voices.length}</span>`, "Written out and translated, for the Impact page. Take out any child's name before using a line.", voices.map(voice).join(""))
       + sec(`Videos <span class="pt-count">${videos.length}</span>`, "Kept in the private album.", videos.map(m => `<div class="mt-voice">${m.url ? `<video controls preload="none" src="${esc(m.url)}"></video>` : aiNote(m)}<small class="pt-sub">${m.caption ? `“${esc(m.caption)}” · ` : ""}${from(m)} · ${when(m.at)}</small></div>`).join(""), false)
