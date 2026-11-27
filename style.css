@@ -3605,3 +3605,7 @@ html[lang="ta"] .all-chip b{font-family:"Noto Sans Tamil",var(--display),sans-se
 .imp-hero .ih-dots i.on{background:#fff}
 @media (prefers-reduced-motion:reduce){.imp-hero .ih-img{transition:none}}
 .imp-hero .ih-pill{position:absolute;left:12px;top:12px;padding:5px 11px;border-radius:999px;background:#c8381e;color:#fff;font-family:var(--display);font-weight:700;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase}
+/* SURESH 27 Nov 23:35Z: photos after "Made possible by", title back in the heading, date plain and to the left */
+.imp-hero{margin:14px 0 8px}
+.imp-topdate{text-align:left;margin:8px 0 0}
+.imp-topdate time{display:inline;padding:0;border-radius:0;background:none;color:var(--muted);font-weight:500;font-size:14px}
