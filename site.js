@@ -3346,13 +3346,12 @@ window.RAAV_FEATURES = (function () {
     if (stageNum(p) !== 3 || p.sample) return "";
     const fs = budgetOf(p).funders.filter(f => f.list !== false && !/test/i.test(f.name || ""));
     if (!fs.length) return "";
-    const anon = fs.filter(f => /^anonymous/i.test(String(f.name || "").trim())).length;
-    const named = [...new Set(fs.filter(f => !/^anonymous/i.test(String(f.name || "").trim())).map(f => String(f.name).trim()))];
-    const anonTxt = anon ? (anon === 1 ? "one friend who gave quietly" : `${anon} friends who gave quietly`) : "";
-    const all = [...named.map(n => `<b>${esc(n)}</b>`), ...(anonTxt ? [`<span>${anonTxt}</span>`] : [])];
-    const list = all.length > 1 ? all.slice(0, -1).join(", ") + " and " + all[all.length - 1] : all[0];
+    // SURESH 27 Nov 2026: every giver gets the same weight, one per line; an anonymous gift reads "An anonymous individual".
+    const isAnon = f => /^anonymous/i.test(String(f.name || "").trim());
+    const named = [...new Set(fs.filter(f => !isAnon(f)).map(f => String(f.name).trim()))];
+    const lines = [...named, ...fs.filter(isAnon).map(() => "An anonymous individual")];
     return `<div class="madeby"><span class="mb-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 20s-7-4.4-7-9.6A4.2 4.2 0 0 1 12 7.7a4.2 4.2 0 0 1 7 2.7C19 15.6 12 20 12 20z" fill="currentColor"/></svg></span>
-      <p><span class="mb-k">Moment made possible by</span><span class="mb-names">${list}</span></p></div>`;
+      <p><span class="mb-k">Moment made possible by</span>${lines.map(n => `<b class="mb-name">${esc(n)}</b>`).join("")}</p></div>`;
   }
   function impactTopHTML(p, site, i) {
     const ip = p.impact_page || {}, b = budgetOf(p), money = n => moneyOf(site, n, p), ex = !!ip.example;
