@@ -154,7 +154,7 @@ export default async (request: Request, context: { next: (req?: Request) => Prom
         img = `${url.origin}/api/share-card/${slug}.jpg?v=i1${live ? "&gifts=live" : ""}`;
         if (!share.projects[slug]) title = pr.title;
         const who = madePossibleBy(pr);
-        text = `${smilesLine(pr)}.${who ? ` Made possible by ${who}.` : ""}`;
+        text = `${smilesLine(pr)}.${who ? ` Moment created by ${who}.` : ""}`;
       }
     } catch (_) { /* keep the usual picture */ }
   }
