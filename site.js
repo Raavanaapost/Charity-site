@@ -3036,7 +3036,7 @@ window.RAAV_FEATURES = (function () {
       if (anon) names.push(anon > 1 ? "anonymous individuals" : "an anonymous individual");
       const who = names.length > 1 ? names.slice(0, -1).join(", ") + " and " + names[names.length - 1] : names[0] || "";
       const kids = (plain(p.reach).match(/\d+/) || [])[0];
-      const short = LIVE_GIFTS ? url.replace(/^https?:\/\//, "") : p.short ? `${location.host}/${p.short}` : url.replace(/^https?:\/\//, "").replace(/\?.*$/, "");
+      const short = p.short ? `${location.host}/${p.short}` : url.replace(/^https?:\/\//, "").replace(/\?.*$/, "");
       return [`\u{1F31F} *${kids ? `${kids} SMILES MADE` : "MOMENT CREATED"}* \u{1F31F}`, "", `*${plain(p.title)}*`, ...(who ? [`\u{1F49B} Made possible by ${who}`] : []), "", "\u{1F4F8} *See the day*", `\u{1F449} ${short}`].join("\n"); }
     const head = "\u{1F331} *A need on Raavanaa*";
     const facts = [
