@@ -8,7 +8,7 @@
 
 export type Progress = {
   slug: string; title: string; stage: 1 | 2 | 3; goal: number; raised: number; pct: number;
-  currency: string; kids: number | null; cover: string; blurb: string; day: string; place: string; names: string[];
+  currency: string; kids: number | null; cover: string; blurb: string; day: string; place: string; names: string[]; pic: string;
 };
 type P = Record<string, any>;
 
@@ -60,6 +60,8 @@ export async function allProgress(origin: string, liveGifts = false): Promise<Re
       day: String((p.money && p.money.day) || ""), place: String(p.location || "").trim(),
       // Sponsors who let their name show (Anonymous stays out), for the Activated thank-you (SURESH 27 Nov 2026).
       names: namesOf(funders),
+      // Impact: the picture from the day (impact_page.picture, else the first photo), for the share card (SURESH 27 Nov 2026).
+      pic: String((p.impact_page && p.impact_page.picture && p.impact_page.picture.image) || (p.photos && p.photos[0] && p.photos[0].image) || ""),
       blurb: String(p.tagline || String(p.summary || "").split(/(?<=[.!?])\s/)[0] || "").trim(),
     };
   }
@@ -73,6 +75,15 @@ export const money = (pr: Progress, n: number) => `${pr.currency}${pr.currency.l
 // A preview card with the % only makes sense while money is being raised (Initiated with a budget) or once it is all
 // raised (Activated). Impact projects keep their own picture.
 export const showsProgress = (pr: Progress | undefined) => !!pr && pr.goal > 0 && pr.stage < 3;
+// Impact projects get their own "smiles made" card (SURESH 27 Nov 2026).
+export const showsImpact = (pr: Progress | undefined) => !!pr && pr.stage === 3;
+// "Srikantha and an anonymous individual": the givers, as the Impact plaque names them.
+export const madePossibleBy = (pr: Progress) => {
+  const n = (pr.names || []).map((x) => x === "an anonymous sponsor" ? "an anonymous individual" : x === "anonymous sponsors" ? "anonymous individuals" : x);
+  return n.length > 1 ? n.slice(0, -1).join(", ") + " and " + n[n.length - 1] : n[0] || "";
+};
+// The big words on the Impact card: "52 smiles made", or "Moment created" when no number is known.
+export const smilesLine = (pr: Progress) => pr.kids ? `${pr.kids} smiles made` : "Moment created";
 
 // "Happening today" / "Happening Friday" + "27 November" / "It happened on ...", by the date in Sri Lanka. Used for
 // Activated projects in the share picture and the preview words (SURESH 26 Nov 2026).

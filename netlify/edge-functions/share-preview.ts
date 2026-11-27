@@ -5,7 +5,7 @@
 // No children's names and no school names go in share.json (SURESH, 9 Nov 2026).
 // While SITE_PASSWORD is set, the apps can only reach the open pages (/e/ vouching links); project
 // previews start working for everyone once the password is removed at launch.
-import { allProgress, money, showsProgress, happeningWhen, lkDate } from "../lib/share-progress.mts";
+import { allProgress, money, showsProgress, showsImpact, madePossibleBy, smilesLine, happeningWhen, lkDate } from "../lib/share-progress.mts";
 import { groupSummary, projectLine, badgeWord, projectOwner } from "../lib/group-summary.mts";
 
 type Card = { title: string; text: string; title_ta?: string; text_ta?: string };
@@ -149,6 +149,12 @@ export default async (request: Request, context: { next: (req?: Request) => Prom
         // Associates (SURESH 26 Nov 2026): the group or organisation that runs it.
         const owner = await projectOwner(url.origin, slug).catch(() => "");
         if (owner) text = `Run by ${owner}. ` + text;
+      } else if (pr && showsImpact(pr)) {
+        // Impact (SURESH 27 Nov 2026): "52 smiles made", the givers by name, a picture from the day; no date.
+        img = `${url.origin}/api/share-card/${slug}.jpg?v=i1${live ? "&gifts=live" : ""}`;
+        if (!share.projects[slug]) title = pr.title;
+        const who = madePossibleBy(pr);
+        text = `${smilesLine(pr)}.${who ? ` Made possible by ${who}.` : ""}`;
       }
     } catch (_) { /* keep the usual picture */ }
   }

@@ -8,7 +8,7 @@ import type { Config, Context } from "@netlify/functions";
 import { Resvg } from "@resvg/resvg-js";
 import jpeg from "jpeg-js";
 import { mkdirSync, writeFileSync, existsSync } from "node:fs";
-import { allProgress, money, showsProgress, happeningWhen, type Progress } from "../lib/share-progress.mts";
+import { allProgress, money, showsProgress, showsImpact, madePossibleBy, smilesLine, happeningWhen, type Progress } from "../lib/share-progress.mts";
 import * as A from "../lib/card-assets.mts";
 import { groupSummary, projectLine, badgeWord, projectOwner, type GroupSummary } from "../lib/group-summary.mts";
 
@@ -96,9 +96,51 @@ function happeningSVG(pr: Progress, art: string) {
 </svg>`;
 }
 
+function impactSVG(pr: Progress, art: string) {
+  // Impact (SURESH 27 Nov 2026: "what is the highlight to outstand for impact, may be smile, moment created"; no date):
+  // the same cream card as Activated, "52 SMILES MADE" in white on a gold ribbon, the givers by name, a picture from the day.
+  const title = wrap(pr.title, 36, 2), cx = 418, top = "MOMENT CREATED", big = smilesLine(pr).toUpperCase();
+  const who = madePossibleBy(pr), by = who ? wrap(`Made possible by ${who}`, 58, 2) : [];
+  const fsTop = 46, fsBig = Math.min(104, Math.floor(690 / (big.length * 0.7)));
+  const bw = Math.min(780, Math.round(big.length * fsBig * 0.7 + 90)), bh = Math.round(fsBig * 1.25);
+  const yTop = 156 + fsTop, yBox = yTop + 22, yBig = yBox + Math.round(bh / 2 + fsBig * 0.36);
+  const yTitle = yBox + bh + 50, yBy = yTitle + (title.length - 1) * 36 + 44;
+  return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="fade" x1="0" x2="1"><stop offset="0" stop-color="#fbf6ea"/><stop offset="1" stop-color="#fbf6ea" stop-opacity="0"/></linearGradient>
+    <linearGradient id="gold" x1="0" x2="1"><stop offset="0" stop-color="#9c6604"/><stop offset="1" stop-color="#e0a21c"/></linearGradient>
+    <clipPath id="right"><rect x="836" y="0" width="364" height="630"/></clipPath>
+    <filter id="sh" x="-10%" y="-30%" width="120%" height="160%"><feDropShadow dx="0" dy="6" stdDeviation="9" flood-color="#6b4a06" flood-opacity=".28"/></filter>
+  </defs>
+  <rect width="1200" height="630" fill="#fbf6ea"/>
+  ${art ? `<image x="836" y="0" width="364" height="630" preserveAspectRatio="xMidYMid slice" clip-path="url(#right)" xlink:href="${art}" href="${art}"/>` : ""}
+  <rect x="836" y="0" width="60" height="630" fill="url(#fade)"/>
+  <image x="${cx - 105}" y="22" width="210" height="70" href="data:image/png;base64,${A.logoPng}" xlink:href="data:image/png;base64,${A.logoPng}"/>
+  <rect x="${cx - 62}" y="104" width="124" height="34" rx="17" fill="#c8381e"/>
+  <circle cx="${cx - 40}" cy="121" r="5.5" fill="#fff"/>
+  <text x="${cx + 8}" y="127.5" text-anchor="middle" font-family="Inter" font-weight="800" font-size="16" letter-spacing="2" fill="#fff">IMPACT</text>
+  <text x="${cx}" y="${yTop}" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="${fsTop}" fill="#4a2a06">${top}</text>
+  <rect x="${cx - bw / 2}" y="${yBox}" width="${bw}" height="${bh}" rx="${Math.round(bh / 2)}" fill="url(#gold)" filter="url(#sh)"/>
+  <text x="${cx}" y="${yBig}" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="${fsBig}" fill="#fff">${esc(big)}</text>
+  ${title.map((l, i) => `<text x="${cx}" y="${yTitle + i * 36}" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="29" fill="#3a2410">${esc(l)}</text>`).join("")}
+  ${by.map((l, i) => `<text x="${cx}" y="${yBy + i * 28}" text-anchor="middle" font-family="Inter" font-weight="600" font-size="21" fill="#8a5a04">${esc(l)}</text>`).join("")}
+  <g transform="translate(${cx - 300} 548)">
+    <rect width="270" height="56" rx="28" fill="url(#gold)"/>
+    <text x="32" y="36" font-family="Inter" font-weight="800" font-size="22" fill="#fff">See the day</text>
+    <circle cx="234" cy="28" r="17" fill="#fff"/><path d="M227.5 20l10.5 8-10.5 8" fill="none" stroke="#9c6604" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g transform="translate(${cx - 10} 548)">
+    <rect width="310" height="56" rx="28" fill="#fff" stroke="#e0a21c" stroke-width="2.5"/>
+    <path d="M38 21c-3.6-4.6-11-3-11 3 0 5 6.5 9 11 13 4.5-4 11-8 11-13 0-6-7.4-7.6-11-3z" fill="#c8381e"/>
+    <text x="60" y="36" font-family="Inter" font-weight="800" font-size="20" fill="#4a2a06">Thanks for the moment</text>
+  </g>
+</svg>`;
+}
+
 function cardSVG(pr: Progress, art: string, owner = "") {
   const full = pr.stage === 2 || pr.pct >= 100, pct = full ? 100 : pr.pct, left = Math.max(0, pr.goal - pr.raised);
   if (pr.stage === 2) return happeningSVG(pr, art);
+  if (pr.stage === 3) return impactSVG(pr, art);
   const title = wrap(pr.title, 27, 2);
   const kicker = full ? "ACTIVATED" : "ACTIVATING", kc = full ? "#b97a06" : "#1f7a47";
   const who = pr.kids ? `Help ${pr.kids} children laugh.` : "Help these children laugh.";
@@ -178,6 +220,10 @@ function toJpeg(svg: string, width = 1200) {
 export const renderCard = (pr: Progress, art: string, owner = "") => toJpeg(cardSVG(pr, art, owner));
 export const renderSite = (c: SiteCounts, art: string, stages: string[]) => toJpeg(siteSVG(c, art, stages));
 
+async function picData(origin: string, path: string) {
+  try { const r = await fetch(new URL(path, origin)); if (r.ok) return `data:${/\.png/i.test(path) ? "image/png" : "image/jpeg"};base64,${Buffer.from(await r.arrayBuffer()).toString("base64")}`; } catch (_) { /* left out */ }
+  return "";
+}
 async function dataUrl(origin: string, path: string) {
   try { const r = await fetch(new URL(path, origin)); if (r.ok) return `data:image/svg+xml;base64,${Buffer.from(await r.arrayBuffer()).toString("base64")}`; } catch (_) { /* left out */ }
   return "";
@@ -288,8 +334,10 @@ export default async (req: Request, context: Context) => {
   }
   const pr = all[slug];
   // Not a project with a budget (or Impact): send the project's usual picture instead.
-  if (!showsProgress(pr)) return Response.redirect(new URL(`/img/share/default.jpg`, url.origin), 302);
-  const [art, owner] = await Promise.all([artData(url.origin, pr!), projectOwner(url.origin, slug).catch(() => "")]);
+  if (!showsProgress(pr) && !showsImpact(pr)) return Response.redirect(new URL(`/img/share/default.jpg`, url.origin), 302);
+  // Impact: a picture from the day when there is one (photos shared with the parents' agreement), else the drawing.
+  const artP = showsImpact(pr) && pr!.pic.startsWith("/") ? picData(url.origin, pr!.pic).then((d) => d || artData(url.origin, pr!)) : artData(url.origin, pr!);
+  const [art, owner] = await Promise.all([artP, projectOwner(url.origin, slug).catch(() => "")]);
   const img = renderCard(pr!, art, owner);
   return new Response(img, { headers: {
     "Content-Type": "image/jpeg",
