@@ -213,6 +213,14 @@ export default async (req: Request, context: Context) => {
     const line = kind === "receipt" && items.includes(String(b.line || "")) ? String(b.line) : "";
     const today = new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10); // Sri Lanka date
     await db.sql`INSERT INTO project_updates (slug, title, body, posted_by, image, kind, amount, line, spent_on) VALUES (${link.slug}, ${title}, ${lines(b.body, 1200)}, ${by}, ${image}, ${kind}, ${amount}, ${line}, ${kind === "receipt" ? today : null})`;
+    // The same photo also goes into the event's private album (Today's materials, 27 Nov 2026). Best effort only.
+    if (image) {
+      try {
+        await db.sql`INSERT INTO event_materials (slug, source, sender, kind, mime, store, blob, caption, status, reason)
+          VALUES (${link.slug}, 'day', ${`day:${link.label || "phone link"}`}, 'photo', ${/\.png$/.test(image) ? "image/png" : /\.webp$/.test(image) ? "image/webp" : "image/jpeg"}, 'day', ${image},
+            ${title}, ${kind === "receipt" ? "bill_added" : "published"}, ${kind === "receipt" ? "sent as a receipt" : "posted from the phone link"})`;
+      } catch (e) { console.log("day: could not add to the album", e); }
+    }
     return json({ ok: true });
   }
   return json({ ok: false, error: "Not allowed" }, 405);
