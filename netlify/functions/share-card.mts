@@ -100,7 +100,7 @@ function impactSVG(pr: Progress, art: string) {
   // Impact (SURESH 27 Nov 2026: "what is the highlight to outstand for impact, may be smile, moment created"; no date):
   // the same cream card as Activated, "52 SMILES MADE" in white on a gold ribbon, the givers by name, a picture from the day.
   const title = wrap(pr.title, 36, 2), cx = 418, top = "MOMENT CREATED", big = smilesLine(pr).toUpperCase();
-  const who = madePossibleBy(pr), by = who ? wrap(`Moment created by ${who}`, 58, 2) : [];
+  const who = madePossibleBy(pr), by = who ? wrap(`Moment made possible by ${who}`, 58, 2) : [];
   const fsTop = 46, fsBig = Math.min(104, Math.floor(690 / (big.length * 0.7)));
   const bw = Math.min(780, Math.round(big.length * fsBig * 0.7 + 90)), bh = Math.round(fsBig * 1.25);
   const yTop = 156 + fsTop, yBox = yTop + 22, yBig = yBox + Math.round(bh / 2 + fsBig * 0.36);
