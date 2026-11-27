@@ -2935,7 +2935,7 @@ window.RAAV_FEATURES = (function () {
             ${[1, 2, 3, 4, 5].map(n => `<label title="${n} star${n > 1 ? "s" : ""}"><input type="radio" name="stars" value="${n}"><i>${STAR}</i><span class="sr">${n}</span></label>`).join("")}
           </fieldset>
           <label>How were you involved?<select name="involved" required><option value="">Choose one</option><option value="day">I was there on the day</option><option value="parent">Parent or teacher</option><option value="organised">I helped organise it</option><option value="gave">I gave to it</option><option value="community">From the community there</option></select></label>
-          <label>A few words <small>Optional. How did the day go? Please don't name any child.</small><textarea name="comment" maxlength="1000" rows="3"></textarea></label>
+          <label>How did the day go? <small>A few words, shown with your stars. Please don't name any child.</small><textarea name="comment" maxlength="1000" rows="3"></textarea></label>
           <label>Your name <small>Shown with your stars</small><input name="name" maxlength="80" autocomplete="name" required></label>
           <button class="btn" type="submit">Send my rating</button>${signin("rate")}
           <p class="v-err" data-v-err hidden></p>
@@ -2976,7 +2976,7 @@ window.RAAV_FEATURES = (function () {
     const cm = d.comments || [];
     box.querySelector("[data-c-count]").textContent = cm.length || "";
     const c2 = root.querySelector("[data-c-count2]"); if (c2) c2.textContent = cm.length || "";
-    box.querySelector("[data-v-comments]").innerHTML = cm.length ? cm.slice(0, 50).map(c => `<li>${c.stars ? starsHTML(c.stars, "sm") : ""}<p>${esc(c.comment)}</p><small>${esc(c.name)}${c.involved ? `, ${esc(c.involved)}` : ""} · ${fmtDate(c.at)}</small></li>`).join("") : `<li class="v-none">No comments yet. Be the first.</li>`;
+    box.querySelector("[data-v-comments]").innerHTML = cm.length ? cm.slice(0, 50).map(c => `<li>${c.stars ? starsHTML(c.stars, "sm") : ""}${c.comment ? `<p>${esc(c.comment)}</p>` : ""}<small>${esc(c.name)}${c.involved ? `, ${esc(c.involved)}` : ""} · ${fmtDate(c.at)}</small></li>`).join("") : `<li class="v-none">No comments yet. Be the first.</li>`;
     const r = d.rating || {}, avg = box.querySelector("[data-v-avg]");
     if (avg) avg.innerHTML = r.count
       ? `${starsHTML(r.average)} <b>${r.average.toFixed(1)}</b> <span>from ${r.count} rating${r.count > 1 ? "s" : ""}</span>`
