@@ -3165,15 +3165,15 @@ window.RAAV_FEATURES = (function () {
       // SURESH 27 Nov 2026: plain words in the same layout as the Activated share (script letters "look like AI"): the
       // thanks line, the title, then See the day and the link. No "52 smiles made" here, the picture says it.
       return [...(who ? [`\u{1F49B} *Moment made possible by ${who}*`, ""] : []), `*${plain(p.title)}*`, "", "\u{1F4F8} *See the day*", `\u{1F449} ${short}${p.short && !LIVE_GIFTS ? "?day" : ""}`].join("\n"); }
-    const head = "\u{1F331} *A need on Raavanaa*";
+    // Initiated, in the same layout as the Activated and Impact messages (SURESH 27 Nov 2026: one family): a bold
+    // first line, the title, the date, the place and the %, then "Be the smile" and the link on its own line.
+    const link = url.replace(/^https?:\/\//, "");
     const facts = [
       when && `\u{1F4C5} ${when}`,
       p.location && `\u{1F4CD} ${plain(p.location)}`,
-      who && `\u{1F465} ${who}`,
-      n === 1 && b.goal > 0 ? `\u{1F3AF} ${b.pct}% funded · ${money(Math.max(0, b.goal - b.raised))} still to go` : n === 2 && b.goal ? `\u{1F49B} ${money(b.goal)} raised, every rupee shown openly` : "",
+      b.goal > 0 ? `\u{1F3AF} ${b.pct}% funded \u00b7 ${money(Math.max(0, b.goal - b.raised))} still to go` : "",
     ].filter(Boolean);
-    const ask = n === 1 ? "Help make it happen \u{1F447}" : n === 2 ? "Follow the day \u{1F447}" : "See the story \u{1F447}";
-    return [head, "", `*${plain(p.title)}*`, ...(line ? [`_${line}_`] : []), ...(facts.length ? ["", ...facts] : []), "", ask, url].join("\n");
+    return ["\u{1F49B} *Let's make this moment happen*", "", `*${plain(p.title)}*`, ...facts, "", "\u{1F64C} *Be the smile*", `\u{1F449} ${link}`].join("\n");
   }
   // "Happening today" / "Happening Friday 27 November" / "It happened on ...", by the date in Sri Lanka (as in share-progress.mts).
   function happeningNow(day) {
