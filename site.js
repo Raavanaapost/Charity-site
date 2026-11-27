@@ -3629,7 +3629,7 @@ window.RAAV_FEATURES = (function () {
             <header class="phead">
               ${p.theme ? `<span class="tag">${esc(p.theme)}</span>` : ""}
               <h1>${esc(p.title)}</h1>
-              <div class="byline">${p.organization ? `<span>Submitted by <strong>${esc(p.submitted_by || p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> ${esc(vLabel(p))}</span>` : ""}${FEAT.voices && !p.sample && stageNum(p) === 3 ? `<a class="rate-chip" href="#voices-h" data-rate-chip hidden></a>` : ""}${FEAT.groups && !p.sample ? `<span class="started-by" data-started-by hidden></span>` : ""}
+              <div class="byline">${p.organization ? `<span>Submitted by <strong>${esc(p.submitted_by || p.organization)}</strong>${p.location ? ` · ${esc(p.location)}` : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> ${esc(vLabel(p))}</span>` : ""}${FEAT.voices && !p.sample && stageNum(p) === 3 ? `<a class="rate-chip" href="#voices-h" data-rate-chip hidden></a>` : ""}${FEAT.groups && !p.sample ? `<span class="started-by" data-started-by hidden></span>` : ""}${!p.sample ? `<span class="verified" data-agree-tick hidden></span>` : ""}
               <div class="glance">
                 <button type="button" class="glance-btn" aria-expanded="false" aria-controls="glance-card"><span>At a glance</span><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
                 <div class="panel glance-card" id="glance-card">
@@ -3702,6 +3702,12 @@ window.RAAV_FEATURES = (function () {
       });
       // "Started by" (SURESH 25 Nov 2026, groups and organisations): the group or organisation the team linked to this
       // project, with its badge, opens its profile /g/<name>.
+      // "Agreement signed" (SURESH 27 Nov 2026): a tick once the people in charge have signed the organiser agreement. No names.
+      if (!p.sample) fetch("/api/agree/status/" + encodeURIComponent(slugOf(p))).then(r => r.ok ? r.json() : null).then(d => {
+        const t = app.querySelector("[data-agree-tick]"); if (!t || !d || !d.signed) return;
+        t.hidden = false;
+        t.innerHTML = `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Organisers' agreement signed`;
+      }).catch(() => {});
       if (FEAT.groups && !p.sample) groupLinks().then(m => {
         // SURESH 26 Nov 2026: "Run by <name>" beside the stage, and "Together with" for partner groups. A project no
         // group runs says "Run by Raavanaa".

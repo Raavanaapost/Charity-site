@@ -53,7 +53,7 @@ export function message(kind: Kind, r: Row, p: Person, slug = "", data?: Row): M
     return { to: p, subject: `We received your request (${r.ref})`, text: `${hi}\n\n${body}\n\n${end}` };
   }
   const url = `${SITE}/projects/${slug}`;
-  const body = `Good news: "${title}" is now listed on raavanaa.org as an Initiated project.\n\nYou can follow it here:\n${url}\n\nPlease share the link with people who may want to help. We will keep you posted as it moves from Initiated to Activated and then Impact.`;
+  const body = `Good news: "${title}" is now listed on raavanaa.org as an Initiated project.\n\nYou can follow it here:\n${url}\n\nPlease share the link with people who may want to help. We will keep you posted as it moves from Initiated to Activated and then Impact.${p.who === "vouched" ? "" : `\n\nOne step before the day: each adult in charge reads and signs our short agreement (English and Tamil, about a minute). The day is run by you and the school; Raavanaa's part is finding the funding. Sign here:\n${SITE}/agree?p=${slug}${p.who === "in charge" ? "&role=person%20in%20charge" : "&role=organiser"}`}`;
   return { to: p, subject: `Your project is listed on Raavanaa`, text: `${hi}\n\n${body}\n\n${end}` };
 }
 
