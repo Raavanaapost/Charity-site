@@ -3436,6 +3436,9 @@ window.RAAV_FEATURES = (function () {
   // keep the same template; on Activated the top says plainly that the day is fully funded and when it happens, in
   // place of any ask to give, and offers Follow so people come back for the day. The day comes from "day" or
   // money.day (YYYY-MM-DD) in projects.json, else from date_text or the "When" line of At a glance.
+  // "Make the next moment happen" box at the foot of the Impact page: taken off (SURESH 27 Nov 2026), kept here for
+  // later (on his to-do list). Set to true to bring it back.
+  const IMP_NEXT = false;
   const actDayISO = p => String(p.day || (p.money && p.money.day) || "").slice(0, 10);
   function activatedTopHTML(p) {
     const iso = actDayISO(p), slug = slugOf(p), on = followsHere().includes(slug);
@@ -3562,12 +3565,12 @@ window.RAAV_FEATURES = (function () {
         ${Object.keys(byLine).length ? `<p class="imp-lines">${Object.entries(byLine).map(([k, v]) => `${esc(k)} ${money(v)}`).join(" · ")}</p>` : ""}
         ${p.money ? `<a class="imp-a" href="/projects/${slugOf(p)}/money">Follow every rupee: the full money page</a>` : ""}
       </div>` : ""}
-      <div class="imp-next">
+      ${IMP_NEXT ? `<div class="imp-next">
         <h3>Make the next moment happen</h3>
         <p>Another school is waiting for its first day out.</p>
         <a class="btn imp-go" href="/projects">See projects waiting</a>
         <button type="button" class="btn ghost" data-imp-share>Share this day</button>
-      </div>
+      </div>` : ""}
     </section>`;
   }
   function renderProject(app, site, projects, slug) {
