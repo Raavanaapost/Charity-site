@@ -3029,7 +3029,16 @@ window.RAAV_FEATURES = (function () {
       const list = names.length > 1 ? names.slice(0, -1).join(", ") + " and " + names[names.length - 1] : names[0] || "";
       const thanks = list ? `\u{1F49B} *Thank you ${list}, who made this possible*` : "\u{1F49B} *Thank you to everyone who made this possible*";
       return [thanks, "", `*${plain(p.title)}*`, when && `\u{1F4C5} ${when}`, p.location && `\u{1F4CD} ${plain(p.location)}`, "", "\u{1F4F8} *Follow the day*", `\u{1F449} ${short}`].filter(x => x !== false && x !== undefined && x !== null).join("\n").replace(/\n{3,}/g, "\n\n"); }
-    const head = n === 3 ? "\u{1F389} *The day happened*" : "\u{1F331} *A need on Raavanaa*";
+    // Impact (SURESH 27 Nov 2026): "52 smiles made", the title, who made it possible, and See the day. No date.
+    if (n === 3) {
+      const ANON = /^(anonymous|anon|a friend|unnamed)$/i, names = [...new Set(b.funders.map(f => plain(f.name)).filter(x => x && !ANON.test(x)))];
+      const anon = b.funders.filter(f => ANON.test(plain(f.name))).length;
+      if (anon) names.push(anon > 1 ? "anonymous individuals" : "an anonymous individual");
+      const who = names.length > 1 ? names.slice(0, -1).join(", ") + " and " + names[names.length - 1] : names[0] || "";
+      const kids = (plain(p.reach).match(/\d+/) || [])[0];
+      const short = LIVE_GIFTS ? url.replace(/^https?:\/\//, "") : p.short ? `${location.host}/${p.short}` : url.replace(/^https?:\/\//, "").replace(/\?.*$/, "");
+      return [`\u{1F31F} *${kids ? `${kids} SMILES MADE` : "MOMENT CREATED"}* \u{1F31F}`, "", `*${plain(p.title)}*`, ...(who ? [`\u{1F49B} Made possible by ${who}`] : []), "", "\u{1F4F8} *See the day*", `\u{1F449} ${short}`].join("\n"); }
+    const head = "\u{1F331} *A need on Raavanaa*";
     const facts = [
       when && `\u{1F4C5} ${when}`,
       p.location && `\u{1F4CD} ${plain(p.location)}`,
@@ -3050,6 +3059,7 @@ window.RAAV_FEATURES = (function () {
   }
   // The picture that goes with it: the funding card for Initiated / Activated projects, else the project's own share picture.
   const glancePic = (p, own) => { const n = stageNum(p), b = budgetOf(p);
+    if (n === 3) return `/api/share-card/${slugOf(p)}.jpg?v=i1`; // Impact: "52 smiles made" (SURESH 27 Nov 2026)
     return n < 3 && b.goal > 0 ? `/api/share-card/${slugOf(p)}.jpg?v=${n === 2 ? "a" + new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10) : b.pct >= 100 ? 100 : b.pct}` : `/img/share/${own ? slugOf(p) : "default"}.jpg`; };
 
   async function wireShare(root) {
