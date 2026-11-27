@@ -52,7 +52,7 @@ async function view(db: DB, slug: string) {
   const spread = [1, 2, 3, 4, 5].map((n) => rated.filter((r) => Number(r.stars) === n).length);
   const words = (await db.sql<Row>`
     SELECT kind, name, role, stars, comment, comment_ok, updated_at FROM project_voices
-    WHERE slug = ${slug} AND kind IN ('rating', 'comment') AND comment <> '' AND NOT hidden ORDER BY updated_at DESC LIMIT 200`) as Row[];
+    WHERE slug = ${slug} AND kind IN ('rating', 'comment') AND (comment <> '' OR kind = 'rating') AND NOT hidden ORDER BY updated_at DESC LIMIT 200`) as Row[];
   const comments = words.filter((r) => r.comment_ok || !CHECK_FIRST)
     .map((r) => ({ name: r.name, involved: r.kind === "rating" ? r.role : "", stars: r.kind === "rating" ? Number(r.stars) : 0, comment: r.comment, at: r.updated_at }));
   return { vouches, rating: { count, average: count ? Math.round((sum / count) * 10) / 10 : 0, spread }, comments };
