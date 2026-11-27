@@ -3162,7 +3162,8 @@ window.RAAV_FEATURES = (function () {
       const short = LIVE_GIFTS ? url.replace(/^https?:\/\//, "") : p.short ? `${location.host}/${p.short}` : url.replace(/^https?:\/\//, "").replace(/\?.*$/, "");
       // SURESH 27 Nov 2026: "dont need the title, just the Pic with information and below the names". "?day" gives the link
       // a new address, so WhatsApp fetches the Impact picture instead of the saved Activated one.
-      return [...(who ? ["\u2728 \u{1D4DC}\u{1D4F8}\u{1D4F6}\u{1D4EE}\u{1D4F7}\u{1D4FD} \u{1D4F6}\u{1D4EA}\u{1D4ED}\u{1D4EE} \u{1D4F9}\u{1D4F8}\u{1D4FC}\u{1D4FC}\u{1D4F2}\u{1D4EB}\u{1D4F5}\u{1D4EE} \u{1D4EB}\u{1D502} \u2728", `*${who}*`, ""] : []), "\u{1F4F8} *See the day*", `\u{1F449} ${short}${p.short && !LIVE_GIFTS ? "?day" : ""}`].join("\n"); }
+      // SURESH 27 Nov 2026: nothing but the "Moment made possible by" line, the names and the link; no icons.
+      return [...(who ? ["\u{1D4DC}\u{1D4F8}\u{1D4F6}\u{1D4EE}\u{1D4F7}\u{1D4FD} \u{1D4F6}\u{1D4EA}\u{1D4ED}\u{1D4EE} \u{1D4F9}\u{1D4F8}\u{1D4FC}\u{1D4FC}\u{1D4F2}\u{1D4EB}\u{1D4F5}\u{1D4EE} \u{1D4EB}\u{1D502}", `*${who}*`, ""] : []), `${short}${p.short && !LIVE_GIFTS ? "?day" : ""}`].join("\n"); }
     const head = "\u{1F331} *A need on Raavanaa*";
     const facts = [
       when && `\u{1F4C5} ${when}`,
