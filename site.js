@@ -3356,6 +3356,13 @@ window.RAAV_FEATURES = (function () {
       <p class="mb-names"><span class="mb-name">${lines.map(esc).map((n, k) => k === 0 ? n : (k === lines.length - 1 ? " and " : ", ") + n).join("")}</span></p>
       <span class="mb-orn" aria-hidden="true"><i></i><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 20s-7-4.4-7-9.6A4.2 4.2 0 0 1 12 7.7a4.2 4.2 0 0 1 7 2.7C19 15.6 12 20 12 20z" fill="currentColor"/></svg><i></i></span></div>`;
   }
+  // Impact: the day it happened, right under the stages (SURESH 27 Nov 2026).
+  function impDateHTML(p) {
+    const iso = (p.impact_page && p.impact_page.date) || (p.money && p.money.day) || "";
+    if (!iso) return "";
+    const t = new Date(iso + "T12:00:00").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    return `<p class="imp-topdate"><time datetime="${esc(iso)}">${esc(t)}</time></p>`;
+  }
   function impactTopHTML(p, site, i) {
     const ip = p.impact_page || {}, b = budgetOf(p), money = n => moneyOf(site, n, p), ex = !!ip.example;
     const exTag = ex ? `<span class="imp-ex">Example words</span>` : "";
@@ -3385,7 +3392,7 @@ window.RAAV_FEATURES = (function () {
       ${ex ? `<p class="imp-banner"><b>Preview.</b> This is how the page will look after the day. The words marked <em>Example words</em> are made up; the real ones come from the children, teachers and organisers.</p>` : ""}
       ${sec("The impact", ip.line ? exTag : "")}
       <p class="imp-line">${esc(ip.line || p.tagline || p.summary || "")}</p>
-      <p class="imp-pills"><span class="imp-pill">Impact · It happened</span>${dayTxt ? `<span class="imp-date">${esc(dayTxt)}</span>` : ""}${ip.line ? exTag : ""}</p>
+      <p class="imp-pills"><span class="imp-pill">Impact · It happened</span>${ip.line ? exTag : ""}</p>
       <figure class="imp-pic">
         ${pic.image ? `<img src="${esc(imgUrl(pic.image, 1200))}" alt="${esc(pic.caption || "")}"${pic.position ? ` style="object-position:${esc(pic.position)}"` : ""}>` : `<div class="hero cover" style="${coverStyle(p, i)}">${coverHTML(p, i, "", 1200)}</div>`}
         <figcaption>${esc(pic.caption || "Best picture of the day")}</figcaption>
@@ -3534,7 +3541,7 @@ window.RAAV_FEATURES = (function () {
         <nav class="crumbs${st === 3 ? " crumbs-imp" : ""}"><a href="/projects">Projects</a>${p.theme ? ` / ${st === 3 ? `<span class="crumb-cat">${esc(p.theme)}</span>` : esc(p.theme)}` : ""}</nav>
         <div class="layout${st === 3 ? " imp-layout" : ""}">
           <div style="min-width:0">
-            ${st === 3 ? stageJourneyHTML(p) : ""}
+            ${st === 3 ? stageJourneyHTML(p) + impDateHTML(p) : ""}
             <header class="phead${st === 3 ? " phead-imp" : ""}">
               ${p.theme && st !== 3 ? `<span class="tag">${esc(p.theme)}</span>` : ""}
               <h1>${esc(p.title)}</h1>
