@@ -3340,6 +3340,20 @@ window.RAAV_FEATURES = (function () {
   //   { "line", "date", "picture": {image, caption}, "highlights": [{value,label}], "quotes": [{ta,en,who}],
   //     "thanks": {title, to: [{name, words}], from}, "letter": {words, who, link}, "timeline": [{time, what}] }
   // Missing parts fall back to what the project already has (tagline, cover, who, funders, live posts, money books).
+  // Impact: the people who gave stand out right under "Visited and verified" (SURESH 27 Nov 2026: "say the people
+  // sponsored, to outstand their name"). Only givers who chose to be listed by name; anonymous gifts are counted, never named.
+  function madeByHTML(p) {
+    if (stageNum(p) !== 3 || p.sample) return "";
+    const fs = budgetOf(p).funders.filter(f => f.list !== false && !/test/i.test(f.name || ""));
+    if (!fs.length) return "";
+    const anon = fs.filter(f => /^anonymous/i.test(String(f.name || "").trim())).length;
+    const named = [...new Set(fs.filter(f => !/^anonymous/i.test(String(f.name || "").trim())).map(f => String(f.name).trim()))];
+    const anonTxt = anon ? (anon === 1 ? "one friend who gave quietly" : `${anon} friends who gave quietly`) : "";
+    const all = [...named.map(n => `<b>${esc(n)}</b>`), ...(anonTxt ? [`<span>${anonTxt}</span>`] : [])];
+    const list = all.length > 1 ? all.slice(0, -1).join(", ") + " and " + all[all.length - 1] : all[0];
+    return `<div class="madeby"><span class="mb-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 20s-7-4.4-7-9.6A4.2 4.2 0 0 1 12 7.7a4.2 4.2 0 0 1 7 2.7C19 15.6 12 20 12 20z" fill="currentColor"/></svg></span>
+      <p><span class="mb-k">Moment made possible by</span><span class="mb-names">${list}</span></p></div>`;
+  }
   function impactTopHTML(p, site, i) {
     const ip = p.impact_page || {}, b = budgetOf(p), money = n => moneyOf(site, n, p), ex = !!ip.example;
     const exTag = ex ? `<span class="imp-ex">Example words</span>` : "";
@@ -3537,6 +3551,7 @@ window.RAAV_FEATURES = (function () {
                 </div>
               </div>
               </div>
+              ${madeByHTML(p)}
             </header>
             ${stageJourneyHTML(p)}
             ${st === 3 ? `${impactTopHTML(p, site, i)}
