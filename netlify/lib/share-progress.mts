@@ -24,7 +24,7 @@ function namesOf(funders: P[]) {
   if (anon) out.push(anon > 1 ? "anonymous sponsors" : "an anonymous sponsor");
   return out;
 }
-const caches: Record<string, { at: number; data: Record<string, Progress> }> = {};
+let cache: { at: number; data: Record<string, Progress> } | null = null;
 
 async function getJSON(url: URL, ms = 2500) {
   const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), ms);
