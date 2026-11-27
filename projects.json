@@ -589,16 +589,28 @@
    "slug": "pussellawa-kandy-trip",
    "short": "kandy",
    "glance": [
-    {"k": "Where", "v": "Kandy: Temple of the Tooth, then Peradeniya gardens"},
-    {"k": "When", "v": "Friday 27 Nov 2026"},
-    {"k": "Who", "v": "52 children and 6 teachers from Pussellawa"},
-    {"k": "Cost", "v": "Rs 61,000 for bus and food, fully funded"}
+    {
+     "k": "Where",
+     "v": "Kandy: Temple of the Tooth, then Peradeniya gardens"
+    },
+    {
+     "k": "When",
+     "v": "Friday 27 Nov 2026"
+    },
+    {
+     "k": "Who",
+     "v": "52 children and 6 teachers from Pussellawa"
+    },
+    {
+     "k": "Cost",
+     "v": "Rs 61,000 for bus and food, fully funded"
+    }
    ],
    "main_story": true,
    "hidden": false,
    "featured": false,
    "theme": "Trips & Events",
-   "status": "Planning",
+   "status": "Completed",
    "location": "Pussellawa, Kandy District",
    "organization": "Raavanaa",
    "submitted_by": "Balasubramaniam Kandiah",
@@ -696,6 +708,11 @@
    "impact": [],
    "updates": [
     {
+     "date": "2026-11-27",
+     "title": "The day happened",
+     "body": "The children went to Kandy on Friday 27 November and walked together through the Peradeniya gardens. The bills for the bus and food are on the money page. The children's drawings and letters, and their teacher's note, are on their way."
+    },
+    {
      "date": "2026-11-06",
      "title": "New date: 27 November",
      "body": "The trip to Kandy has moved to Friday 27 November 2026. Everything else stays the same: the Temple of the Tooth, the Peradeniya gardens and Rs 61,000 for the bus and food."
@@ -707,6 +724,14 @@
     }
    ],
    "photos": [
+    {
+     "image": "/img/projects/pussellawa-kandy/day-walking-gardens.jpg",
+     "caption": "Walking together through the Peradeniya gardens, 27 November 2026"
+    },
+    {
+     "image": "/img/projects/pussellawa-kandy/day-crossing-lawn.jpg",
+     "caption": "Crossing the great lawn at Peradeniya"
+    },
     {
      "image": "/img/projects/pussellawa-kandy/school-sign.jpg",
      "caption": "Choughleigh Tamil Vidyalayam, Pussellawa"
@@ -733,10 +758,43 @@
     }
    ],
    "money": {
-    "as_of": "2026-11-12",
+    "as_of": "2026-11-27",
     "day": "2026-11-27",
-    "spent": [],
-    "receipts": []
+    "spent": [
+     {
+      "date": "2026-11-27",
+      "item": "Breakfast: 60 items from Champi Bake House, Gampola",
+      "amount": 9500,
+      "line": "Food for the whole group",
+      "receipt": "/img/projects/pussellawa-kandy/receipts/receipt-bakery.jpg",
+      "note": "Bill no. 7823",
+      "check": "waiting"
+     },
+     {
+      "date": "2026-11-27",
+      "item": "Lunch: 50 meals from New Avansala, Talatuoya",
+      "amount": 19000,
+      "line": "Food for the whole group",
+      "receipt": "/img/projects/pussellawa-kandy/receipts/receipt-lunch.jpg",
+      "note": "Bill no. 0850",
+      "check": "waiting"
+     },
+     {
+      "date": "2026-11-27",
+      "item": "Bus hire, school to Kandy and back",
+      "amount": 32500,
+      "line": "Bus to Kandy and back (about 50 km each way)",
+      "receipt": "/img/projects/pussellawa-kandy/receipts/receipt-bus.jpg",
+      "note": "Hire note signed by the organiser",
+      "check": "waiting"
+     }
+    ],
+    "receipts": [
+     {
+      "image": "/img/projects/pussellawa-kandy/receipts/organiser-summary.jpg",
+      "caption": "The organiser's summary of the day's costs (Tamil): breakfast 9,500, lunch 19,000, bus 32,500, total 61,000"
+     }
+    ]
    },
    "give_amounts": [
     {
@@ -755,7 +813,31 @@
      "amount": 11000,
      "label": "about ten children's day in Kandy"
     }
-   ]
+   ],
+   "impact_page": {
+    "date": "2026-11-27",
+    "line": "On Friday 27 November 2026 the children of a small Tamil school in Pussellawa went on their first ever school trip, to Kandy and the Peradeniya gardens.",
+    "picture": {
+     "image": "/img/projects/pussellawa-kandy/day-walking-gardens.jpg",
+     "caption": "Peradeniya gardens, 27 November 2026",
+     "position": "50% 50%"
+    },
+    "highlights": [
+     {
+      "value": "1st",
+      "label": "school trip for these children"
+     },
+     {
+      "value": "Kandy",
+      "label": "and the Peradeniya gardens"
+     },
+     {
+      "value": "Rs 61,000",
+      "label": "bus and food, every bill shown"
+     }
+    ],
+    "coming": "Still to come: the children's own drawings and letters about the day, and a note from their teacher. We add them here as soon as they arrive."
+   }
   }
  ]
 }
