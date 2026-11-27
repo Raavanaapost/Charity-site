@@ -3350,8 +3350,10 @@ window.RAAV_FEATURES = (function () {
     const isAnon = f => /^anonymous/i.test(String(f.name || "").trim());
     const named = [...new Set(fs.filter(f => !isAnon(f)).map(f => String(f.name).trim()))];
     const lines = [...named, ...fs.filter(isAnon).map(() => "An anonymous individual")];
-    return `<div class="madeby"><span class="mb-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 20s-7-4.4-7-9.6A4.2 4.2 0 0 1 12 7.7a4.2 4.2 0 0 1 7 2.7C19 15.6 12 20 12 20z" fill="currentColor"/></svg></span>
-      <p><span class="mb-k">Moment made possible by</span>${lines.map(n => `<b class="mb-name">${esc(n)}</b>`).join("")}</p></div>`;
+    // SURESH 27 Nov 2026: no red; a quiet plaque in the cream-and-gold look, like the dedication in a book.
+    return `<div class="madeby"><p class="mb-k">This moment was made possible by</p>
+      <p class="mb-names">${lines.map(n => `<span class="mb-name">${esc(n)}</span>`).join("")}</p>
+      <span class="mb-orn" aria-hidden="true"><i></i><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 20s-7-4.4-7-9.6A4.2 4.2 0 0 1 12 7.7a4.2 4.2 0 0 1 7 2.7C19 15.6 12 20 12 20z" fill="currentColor"/></svg><i></i></span></div>`;
   }
   function impactTopHTML(p, site, i) {
     const ip = p.impact_page || {}, b = budgetOf(p), money = n => moneyOf(site, n, p), ex = !!ip.example;
