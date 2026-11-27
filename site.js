@@ -3184,7 +3184,7 @@ window.RAAV_FEATURES = (function () {
   }
   // The picture that goes with it: the funding card for Initiated / Activated projects, else the project's own share picture.
   const glancePic = (p, own) => { const n = stageNum(p), b = budgetOf(p);
-    if (n === 3) return `/api/share-card/${slugOf(p)}.jpg?v=i5`; // Impact: "52 smiles made" (SURESH 27 Nov 2026)
+    if (n === 3) return `/api/share-card/${slugOf(p)}.jpg?v=i1`; // Impact: "52 smiles made" (SURESH 27 Nov 2026)
     return n < 3 && b.goal > 0 ? `/api/share-card/${slugOf(p)}.jpg?v=${n === 2 ? "a" + new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10) : b.pct >= 100 ? 100 : b.pct}` : `/img/share/${own ? slugOf(p) : "default"}.jpg`; };
 
   async function wireShare(root) {
