@@ -3522,7 +3522,9 @@ window.RAAV_FEATURES = (function () {
     const sl = impSlides(p); if (!sl.length) return "";
     return `<section class="imp-hero" data-imp-hero aria-label="Photos from the day">
       ${sl.map((x, k) => `<img class="ih-img${k ? "" : " on"}" src="${esc(imgUrl(x.image, 1200))}" alt="${esc(x.caption || "")}"${x.position ? ` style="object-position:${esc(x.position)}"` : ""}${k ? ` loading="lazy"` : ""}>`).join("")}
+      <div class="ih-shade"></div>
       <span class="ih-pill">Impact · It happened</span>
+      <h1 class="ih-title">${esc(p.title)}</h1>
       ${sl.length > 1 ? `<p class="ih-dots" aria-hidden="true">${sl.map((_, k) => `<i${k ? "" : ' class="on"'}></i>`).join("")}</p>` : ""}
     </section>`;
   }
@@ -3707,7 +3709,7 @@ window.RAAV_FEATURES = (function () {
             ${st === 3 ? stageJourneyHTML(p) + impDateHTML(p) : ""}
             <header class="phead${st === 3 ? " phead-imp" : ""}">
               ${p.theme && st !== 3 ? `<span class="tag">${esc(p.theme)}</span>` : ""}
-              <h1>${esc(p.title)}</h1>
+              ${st === 3 && impSlides(p).length ? "" : `<h1>${esc(p.title)}</h1>`}
               <div class="byline">${p.organization ? `<span>Submitted by <strong>${esc(p.submitted_by || p.organization)}</strong>${p.location ? (st === 3 ? `<br><span class="by-place">${esc(p.location)}</span>` : ` · ${esc(p.location)}`) : ""}</span>` : ""}${p.verified ? `<span class="verified"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> ${esc(vLabel(p))}</span>` : ""}${FEAT.voices && !p.sample && stageNum(p) === 3 ? `<a class="rate-chip" href="#voices-h" data-rate-chip hidden></a>` : ""}
               <div class="glance">
                 <button type="button" class="glance-btn" aria-expanded="false" aria-controls="glance-card"><span>At a glance</span><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
