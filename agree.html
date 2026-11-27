@@ -97,6 +97,7 @@ input[type=text],input[type=tel],input[type=email],select{width:100%;font:inheri
     <input type="hidden" name="language" value="English">
     <input type="hidden" name="agreement_version" value="v1 26 Nov 2026 (9 points)">
     <input type="hidden" name="agreed_at" value="">
+    <input type="hidden" name="t" value="">
     <p hidden><label>Leave empty <input name="bot-field"></label></p>
 
     <label for="a-name"><span data-l="en">Your full name</span><span data-l="ta" hidden>உங்கள் முழுப் பெயர்</span></label>
@@ -160,6 +161,17 @@ input[type=text],input[type=tel],input[type=email],select{width:100%;font:inheri
   // ?role=principal picks the role for them (SURESH 26 Nov: "just say Principal for now"); they type their own name.
   var role = (q.get("role") || "").toLowerCase();
   Array.prototype.forEach.call(f.role.options, function (o) { if (o.value.toLowerCase() === role || o.value.toLowerCase() === role.replace(/-/g, " ")) f.role.value = o.value; });
+  // A personal link (/agree?p=<slug>&t=<token>, from the portal's People in charge box) fills in their name and role.
+  var tok = (q.get("t") || "").replace(/[^a-f0-9]/g, "").slice(0, 40);
+  if (tok) {
+    f.t.value = tok;
+    fetch("/api/agree/person/" + tok).then(function (r) { return r.ok ? r.json() : null; }).then(function (p) {
+      if (!p) return;
+      if (p.name && !f.name.value) f.name.value = p.name;
+      if (p.role) { var hit = false; Array.prototype.forEach.call(f.role.options, function (o) { if (o.value.toLowerCase() === String(p.role).toLowerCase()) { f.role.value = o.value; hit = true; } });
+        if (!hit) { var o = document.createElement("option"); o.value = o.textContent = p.role; f.role.appendChild(o); f.role.value = p.role; } }
+    }).catch(function () {});
+  }
   if (q.get("sent")) { f.hidden = true; document.getElementById("done").hidden = false; }
 
   f.addEventListener("submit", function (e) {
@@ -174,9 +186,16 @@ input[type=text],input[type=tel],input[type=email],select{width:100%;font:inheri
     }
     f.agreed_at.value = new Date().toISOString();
     btn.disabled = true; msg.hidden = true;
-    fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams(new FormData(f)).toString() })
-      .then(function (r) {
-        if (!r.ok) throw new Error(r.status);
+    var fd = new FormData(f);
+    // The signature is saved against the project (portal tracker, 27 Nov 2026) and also sent as the Netlify form (email to the team).
+    var body = {}; fd.forEach(function (v, k) { body[k] = v; });
+    var toDb = fetch("/api/agree", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      .then(function (r) { return r.ok; }).catch(function () { return false; });
+    var toForm = fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams(fd).toString() })
+      .then(function (r) { return r.ok; }).catch(function () { return false; });
+    Promise.all([toDb, toForm])
+      .then(function (res) {
+        if (!res[0] && !res[1]) throw new Error("not sent");
         f.hidden = true; document.getElementById("done").hidden = false; window.scrollTo(0, 0);
       })
       .catch(function () {
