@@ -558,3 +558,20 @@ body.pt-signedout .pt-main,body.pt-signedout .pt-shell{padding-top:0}body.pt-sig
 .pt-addline label{display:grid;gap:3px;flex:1 1 110px;font-size:12.5px;color:var(--muted)}
 .pt-addline label input{width:100%}
 .pt-stat small{font-size:12px;color:var(--muted)}
+
+/* People in charge: the project tracker (27 Nov 2026) */
+.ag-stages{display:flex;gap:6px;margin:0 0 14px}
+.ag-stages span{flex:1;text-align:center;font-size:12.5px;font-weight:700;padding:6px 0;border-radius:999px;background:var(--line);color:var(--muted)}
+.ag-stages .g{background:#1f7a47;color:#fff}
+.ag-stages .lock{background:#fff3dc;color:#b97a06;border:1.5px dashed #b97a06}
+.ag-steps{list-style:none;margin:0;padding:0;position:relative}
+.ag-steps:before{content:"";position:absolute;left:15px;top:10px;bottom:10px;width:2px;background:var(--line)}
+.ag-steps li{display:flex;gap:12px;align-items:flex-start;padding:7px 0;position:relative}
+.ag-dot{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-weight:800;z-index:1;background:var(--surface);border:2px solid var(--line);color:var(--muted)}
+.ag-ok .ag-dot{background:#1f7a47;border-color:#1f7a47;color:#fff}
+.ag-miss .ag-dot{border:2.5px solid #b97a06;color:#b97a06}
+.ag-steps b{display:block;font-size:14.5px}.ag-steps small{color:var(--muted);font-size:13px}
+.ag-miss b{color:#b97a06}.ag-later b{color:var(--muted)}
+.ag-steps .pt-golive-btns{margin:6px 0 0}
+.pt-btn.ag-wa{background:#25d366;border-color:#25d366;color:#fff}
+.ag-warn{background:#fff3dc;color:#7a5203;border-radius:10px;padding:10px 12px;font-size:13.5px;margin:12px 0 0}

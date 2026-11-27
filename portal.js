@@ -54,13 +54,14 @@
     members: '<circle cx="12" cy="8" r="3.4"/><path d="M5 20c.6-4 3.2-6.3 7-6.3s6.4 2.3 7 6.3"/><path d="M18.5 4.5v4M16.5 6.5h4"/>',
     groups: '<circle cx="8" cy="9" r="2.6"/><circle cx="16" cy="9" r="2.6"/><circle cx="12" cy="5.5" r="2.3"/><path d="M3 19c.4-3.2 2.3-5 5-5 1.6 0 2.9.6 3.8 1.8M21 19c-.4-3.2-2.3-5-5-5-1.6 0-2.9.6-3.8 1.8M8.5 20c.4-2.6 1.6-3.8 3.5-3.8s3.1 1.2 3.5 3.8"/>',
     traffic: '<path d="M4 19V11M9.3 19V6M14.6 19v-5M20 19V9"/><path d="M3 21h18"/>',
+    agreements: '<path d="M9 11l2 2 4-4"/><path d="M6 3h9l4 4v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>',
     followers: '<path d="M4 11v2a1 1 0 0 0 1 1h2l5 4V6L7 10H5a1 1 0 0 0-1 1z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>',
     books: '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11M9 8h6M9 11h4"/>',
     more: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'
   };
   const svg = (d, s = 20) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
   const MENU = [
-    ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true], ["voices", "Vouches & ratings", true], ["followers", "Followers & updates", true],
+    ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true], ["voices", "Vouches & ratings", true], ["followers", "Followers & updates", true], ["agreements", "People in charge", true],
     ["sponsors", "Sponsors & pledges", true], ["books", "Money books", true], ["day", "Day preparation", true], ["close", "Close the day", true],
     ["people", "People", true], ["champions", "Champions", true], ["members", "Members", true], ["volunteers", "Volunteers", true], ["groups", "Groups", true], ["circles", "Family circles", true], ["traffic", "Traffic", true], ["team", "Team & logins", true]
   ];
@@ -99,7 +100,7 @@
     document.getElementById("pt-tabbar").innerHTML = [["dashboard", "Home"], ["suggestions", "Suggestions"], ["projects", "Projects"], ["reports", "Reports"], ["more", "More"]].map(([k, l]) => {
       const ready = k !== "more";
       return ready ? `<a href="#/${k}" class="${cur === k ? "on" : ""}">${svg(ICON[k], 22)}<span>${l}</span>${k === "sponsors" && newAsk ? `<b class="pt-badge">${newAsk}</b>` : k === "suggestions" && newCount ? `<b class="pt-badge">${newCount}</b>` : k === "reports" && openRep ? `<b class="pt-badge">${openRep}</b>` : ""}</a>`
-        : `<button type="button" class="${["voices", "followers", "sponsors", "books", "day", "close", "people", "champions", "members", "volunteers", "groups", "circles", "traffic", "team"].includes(cur) ? "on" : ""}" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
+        : `<button type="button" class="${["voices", "followers", "agreements", "sponsors", "books", "day", "close", "people", "champions", "members", "volunteers", "groups", "circles", "traffic", "team"].includes(cur) ? "on" : ""}" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
     }).join("");
     document.querySelectorAll("[data-soon]").forEach(b => b.onclick = () => {
       let m = document.getElementById("pt-more");
@@ -130,6 +131,7 @@
       if (n === 1 && b.goal && b.raised < b.goal) attention.push({ c: "a-fund", t: `Initiated · ${money(b.goal - b.raised)} still needed`, s: p.title });
       if (n === 2 && !p.volunteers) attention.push({ c: "a-day", t: "Activated · volunteers not ready", s: p.title });
       if (n === 2 && !p.date_set) attention.push({ c: "a-day", t: "Activated · date not confirmed", s: p.title });
+      if (n === 2 && LIVE && AGALL && !(AGALL[p.slug] && AGALL[p.slug].signed)) attention.push({ c: "a-report", t: "Activated · organiser agreement not signed", s: p.title, href: `#/agreements/${p.slug}` });
     });
     const funding = st[0].reduce((a, p) => { const b = budget(p); a.goal += b.goal; a.raised += b.raised; return a; }, { goal: 0, raised: 0 });
     const pct = funding.goal ? Math.round(funding.raised / funding.goal * 100) : 0;
@@ -2236,9 +2238,120 @@
     const ro = app.querySelector("[data-bkreopen]"); if (ro) ro.onclick = () => save(`/api/portal/books/close/${slug}`, { method: "DELETE" }, "The books are open again");
   }
 
+  // People in charge and the project tracker (SURESH 27 Nov 2026, to-do 24): who asked, who vouched, who approved, each
+  // adult in charge's signed agreement, then money, receipts and thank-yous. Activated waits for the person in charge to sign.
+  let AG = {}, AGALL = null, agLoading = {};
+  const agFirst = n => String(n || "").trim().split(/\s+/).filter(w => !/^(mr|mrs|ms|miss|dr|rev|fr|sir|madam)\.?$/i.test(w))[0] || "";
+  const agLink = (slug, x) => `${HERE}/agree?p=${encodeURIComponent(slug)}${x && x.token ? `&t=${x.token}` : x && x.role ? `&role=${encodeURIComponent(String(x.role).toLowerCase())}` : ""}`;
+  const agMsg = (p, x) => [`${agFirst(x.name) ? `Hello ${agFirst(x.name)},` : "Hello,"}`, "",
+    `Before "${p.title}", Raavanaa asks each adult in charge to read and sign a short agreement: the day is run by you and the school, and Raavanaa's part is finding the funding. It is in English and Tamil and takes about a minute:`,
+    agLink(p.slug, x), "", "Thank you,", "The Raavanaa team"].join("\n");
+  // Signed means the person in charge signed; when nobody is marked in charge yet, any signature counts.
+  const agSigned = a => { if (!a) return false; const ic = a.people.filter(x => x.in_charge); return ic.length ? ic.some(x => x.signed) : a.signatures.some(s => !s.hidden); };
+  const agDay = iso => iso ? new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) + " " + new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : "";
+  const AG_ROLES = ["Person in charge", "Principal", "Teacher", "Organiser", "Other"];
+
+  function agreements(slugIn) {
+    const head = sub => `<header class="pt-head"><div><h1>People in charge</h1><p class="pt-sub">${sub}</p></div></header>`;
+    if (!LIVE) return head("This screen works on the real portal once you are signed in.");
+    const order = x => ({ 2: 0, 1: 1, 3: 2 })[stageNum(x)];
+    const list = P.slice().sort((a, b) => order(a) - order(b) || a.title.localeCompare(b.title));
+    const slug = slugIn && P.some(p => p.slug === slugIn) ? slugIn : (list[0] || {}).slug;
+    const p = P.find(x => x.slug === slug);
+    if (!p) return head("No projects yet.");
+    if (!AGALL && !agLoading._all) { agLoading._all = true; api("/api/agreements").then(d => { AGALL = d.projects || {}; render(); }).catch(() => { AGALL = {}; }); }
+    const a = AG[slug];
+    if (!a) {
+      if (!agLoading[slug]) { agLoading[slug] = true; api(`/api/agreements/${encodeURIComponent(slug)}`).then(d => { AG[slug] = d; agLoading[slug] = false; render(); }).catch(e => { agLoading[slug] = false; toast(e.message || "Could not load"); }); }
+      return head("Loading…");
+    }
+    const n = stageNum(p), b = budget(p), signed = agSigned(a);
+    const cnt = s => { const x = (AGALL || {})[s]; return x ? ` · ${x.signed} signed` : ""; };
+    const step = (state, title, sub, extra = "") => `<li class="ag-${state}"><span class="ag-dot">${state === "ok" ? "✓" : state === "miss" ? "!" : "·"}</span><div><b>${title}</b>${sub ? `<small>${sub}</small>` : ""}${extra}</div></li>`;
+    const vouchesHere = (VOICES_P || []).filter(v => v.slug === slug && v.kind === "vouch" && !v.hidden);
+    const vNames = [...a.vouches.map(v => v.name), ...vouchesHere.map(v => v.name)].filter(Boolean);
+    const personStep = x => {
+      const wa = /\d{7,}/.test(String(x.contact).replace(/\D/g, "")) ? waNum(x.contact) : "", em = /@/.test(x.contact) ? x.contact : "";
+      const btns = x.signed ? "" : `<p class="pt-golive-btns">
+          ${wa ? `<a class="pt-btn sm ag-wa" data-agask="${x.id}" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent(agMsg(p, x))}">Ask to sign on WhatsApp</a>`
+            : `<a class="pt-btn sm ag-wa" data-agask="${x.id}" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(agMsg(p, x))}">Ask to sign on WhatsApp</a>`}
+          ${em ? `<a class="pt-btn ghost sm" data-agask="${x.id}" href="mailto:${esc(em)}?subject=${encodeURIComponent("Please sign: " + p.title)}&body=${encodeURIComponent(agMsg(p, x))}">Email</a>` : ""}
+          <button type="button" class="pt-btn ghost sm" data-agcopy="${esc(agLink(slug, x))}">Copy link</button>
+          <button type="button" class="pt-btn ghost sm" data-agrm="${x.id}">Remove</button></p>`;
+      return step(x.signed ? "ok" : "miss", `Agreement: ${esc(x.role)}${x.signed ? "" : " · Not yet"}`,
+        x.signed ? `${esc(x.signed.name)} · signed ${agDay(x.signed.at)}${x.signed.source === "email" ? " (by email)" : ""}`
+          : `${x.name ? esc(x.name) + " · " : ""}${x.asked_at ? `asked ${ago(x.asked_at)}` : "not asked yet"}${x.in_charge ? " · in charge" : ""}`, btns);
+    };
+    const matched = new Set(a.people.filter(x => x.signed).map(x => x.signed.id));
+    const extraSigs = a.signatures.filter(s => !s.hidden && !matched.has(s.id));
+    const steps = [
+      step(a.request || p.submitted_by ? "ok" : "later", "Requested by", a.request ? `${esc(a.request.by)} · ${a.request.ref}` : esc(p.submitted_by || "Not recorded")),
+      step(vNames.length ? "ok" : "later", "Vouched by", vNames.length ? esc(vNames.slice(0, 4).join(", ")) + (vNames.length > 4 ? ` and ${vNames.length - 4} more` : "") : "No vouches yet (not needed to go live)"),
+      step(p.verified ? "ok" : "miss", "Approved and posted", p.verified ? (a.approved ? `${esc(a.approved.by || "The team")} · ${agDay(a.approved.at)}` : esc(p.verified_label || "Checked by Raavanaa")) : "Waiting for your approval"),
+      ...a.people.map(personStep),
+      ...extraSigs.map(s => step("ok", `Agreement: ${esc(s.role || "signed")}`, `${esc(s.name)}${s.organisation ? " · " + esc(s.organisation) : ""} · signed ${agDay(s.signed_at)}${s.source === "email" ? " (by email)" : ""}`,
+        ` <button type="button" class="pt-btn ghost sm" data-aghide="${s.id}">Hide</button>`)),
+      ...(!a.people.length && !extraSigs.length ? [step("miss", "Agreement · nobody asked yet", "Add the person in charge below, then send them their link.")] : []),
+      step(b.goal && b.raised >= b.goal ? "ok" : "later", "Funding found", b.goal ? `Rs ${Math.round(b.raised).toLocaleString("en-US")} of Rs ${Math.round(b.goal).toLocaleString("en-US")}` : "No goal set"),
+      step(a.handed && a.handed.n ? "ok" : "later", "Money handed over", a.handed && a.handed.n ? `Rs ${Math.round(a.handed.total).toLocaleString("en-US")} · ${a.handed.n} hand-over${a.handed.n > 1 ? "s" : ""}` : signed ? "Not yet" : "After the agreement is signed"),
+      step(a.receipts.n ? "ok" : "later", "Receipts in", a.receipts.n ? `${a.receipts.n} receipt${a.receipts.n > 1 ? "s" : ""} · Rs ${Math.round(a.receipts.total).toLocaleString("en-US")}` : "Due 14 days after the day"),
+      step(a.thanks.n ? "ok" : "later", "Thank-you sent to sponsors", a.thanks.n ? `${a.thanks.n} page${a.thanks.n > 1 ? "s" : ""} · ${a.thanks.opened} opened` : "From the children and the school")
+    ];
+    const done = steps.filter(s => s.startsWith('<li class="ag-ok"')).length;
+    const have = new Set(a.people.map(x => (x.name || "").toLowerCase()));
+    const sugg = [];
+    if (a.request && a.request.in_charge && !have.has(String(a.request.in_charge.name).toLowerCase())) sugg.push({ name: a.request.in_charge.name, role: "Person in charge", contact: a.request.in_charge.phone || a.request.in_charge.email || "", in_charge: true });
+    if (a.request && a.request.by && !have.has(a.request.by.toLowerCase())) sugg.push({ name: a.request.by, role: "Organiser", contact: "", in_charge: !(a.request.in_charge) });
+    if (!a.request && p.submitted_by && !have.has(String(p.submitted_by).toLowerCase())) sugg.push({ name: p.submitted_by, role: "Organiser", contact: "", in_charge: false });
+    if (!a.people.some(x => /principal/i.test(x.role))) sugg.push({ name: "", role: "Principal", contact: "", in_charge: true });
+    return `${head("One agreement for everyone; each adult in charge signs it on their own phone. Signatures land here by themselves and tick the project's steps. A project waits for the person in charge to sign before it counts as Activated.")}
+      <section class="pt-card"><label class="pt-field">Project<select data-agproj>${list.map(x => `<option value="${esc(x.slug)}" ${x.slug === slug ? "selected" : ""}>${esc(x.title)} · ${["Initiated", "Activated", "Impact"][stageNum(x) - 1]}${cnt(x.slug)}</option>`).join("")}</select></label>
+        <p class="pt-sub"><a href="/projects/${esc(slug)}" target="_blank" rel="noopener">Open the project page</a> · <a href="${esc(agLink(slug))}" target="_blank" rel="noopener">Open the agreement page</a></p></section>
+      <section class="pt-card ag-track"><h2>Who is behind this project <span class="pt-count">${done} of ${steps.length} done</span></h2>
+        <div class="ag-stages"><span class="g">Initiated</span><span class="${n >= 2 && signed ? "g" : n >= 2 || (b.goal && b.raised >= b.goal) ? "lock" : ""}">${n >= 2 && !signed ? "🔒 " : ""}Activated</span><span class="${n === 3 ? "g" : ""}">Impact</span></div>
+        <ol class="ag-steps">${steps.join("")}</ol>
+        ${!signed ? `<p class="ag-warn">🔒 Until the person in charge signs, this project should not move to <b>Activated</b> and no money is handed over.${n >= 2 ? " It is fully funded and shows as Activated on the website: ask them to sign today." : ""}</p>` : ""}</section>
+      <section class="pt-card"><h2>Add someone who must sign</h2>
+        ${sugg.length ? `<p class="pt-golive-btns">${sugg.map((s, i) => `<button type="button" class="pt-btn ghost sm" data-agsug="${i}">+ ${esc(s.name ? `${s.name} (${s.role})` : s.role)}</button>`).join("")}</p>` : ""}
+        <form data-agadd><label class="pt-field">Name (leave empty if you don't know it; they type it)<input name="name" maxlength="120"></label>
+          <label class="pt-field">Role<select name="role">${AG_ROLES.map(r => `<option>${r}</option>`).join("")}</select></label>
+          <label class="pt-field">WhatsApp number or email (private)<input name="contact" maxlength="120" placeholder="077 123 4567"></label>
+          <label class="pt-fol-tick"><input type="checkbox" name="in_charge"> In charge of the day (their signature unlocks Activated)</label>
+          <button class="pt-btn" type="submit">Add</button></form></section>
+      <section class="pt-card"><details><summary class="pt-sub">A signature that came by email or WhatsApp (before this screen existed)</summary>
+        <form data-agsig><label class="pt-field">Name<input name="name" maxlength="120" required></label>
+          <label class="pt-field">Role<select name="role">${AG_ROLES.map(r => `<option>${r}</option>`).join("")}</select></label>
+          <label class="pt-field">School or organisation<input name="organisation" maxlength="160"></label>
+          <label class="pt-field">Phone<input name="phone" maxlength="40"></label>
+          <label class="pt-field">When they signed<input name="signed_at" type="datetime-local"></label>
+          ${a.people.length ? `<label class="pt-field">Is this one of the people above?<select name="person_id"><option value="">No</option>${a.people.filter(x => !x.signed).map(x => `<option value="${x.id}">${esc(x.name || x.role)} (${esc(x.role)})</option>`).join("")}</select></label>` : ""}
+          <button class="pt-btn" type="submit">Save the signature</button></form></details></section>
+      ${a.signatures.some(s => s.hidden) ? `<section class="pt-card"><h2>Hidden signatures</h2><ul class="pt-notes">${a.signatures.filter(s => s.hidden).map(s => `<li class="pt-hid"><div><b>${esc(s.name)}</b> <small>${esc(s.role)} · ${agDay(s.signed_at)}</small> <button type="button" class="pt-btn ghost sm" data-agshow="${s.id}">Show again</button></div></li>`).join("")}</ul></section>` : ""}
+      <script type="application/json" id="ag-sugg">${JSON.stringify(sugg).replace(/</g, "\\u003c")}</script>`;
+  }
+  function wireAgreements(slugIn) {
+    const sel = app.querySelector("[data-agproj]"); if (!sel) return;
+    const slug = sel.value;
+    sel.onchange = () => { location.hash = `#/agreements/${sel.value}`; };
+    const save = async (url, opts, msg) => { try { AG[slug] = await api(url, opts); AGALL = null; agLoading._all = false; render(); toast(msg); } catch (e) { toast(e.message || "Could not save"); } };
+    const add = body => save(`/api/agreements/${encodeURIComponent(slug)}/people`, { method: "POST", body: JSON.stringify(body) }, "Added. Now send them their link.");
+    const f = app.querySelector("[data-agadd]");
+    if (f) f.onsubmit = e => { e.preventDefault(); add({ name: f.elements.name.value, role: f.elements.role.value, contact: f.elements.contact.value, in_charge: f.elements.in_charge.checked }); };
+    let sugg = []; try { sugg = JSON.parse((app.querySelector("#ag-sugg") || {}).textContent || "[]"); } catch (e) { /* none */ }
+    app.querySelectorAll("[data-agsug]").forEach(b => b.onclick = () => add(sugg[+b.dataset.agsug]));
+    app.querySelectorAll("[data-agask]").forEach(b => b.addEventListener("click", () => { api(`/api/agreements/people/${b.dataset.agask}`, { method: "PATCH", body: JSON.stringify({ asked: true }) }).then(d => { AG[slug] = d; }).catch(() => {}); }));
+    app.querySelectorAll("[data-agcopy]").forEach(b => b.onclick = () => { navigator.clipboard.writeText(b.dataset.agcopy).then(() => toast("Link copied"), () => toast(b.dataset.agcopy)); });
+    app.querySelectorAll("[data-agrm]").forEach(b => b.onclick = () => { if (!b.dataset.sure) { b.dataset.sure = 1; b.textContent = "Press again to remove"; return; } save(`/api/agreements/people/${b.dataset.agrm}`, { method: "PATCH", body: JSON.stringify({ removed: true }) }, "Removed"); });
+    app.querySelectorAll("[data-aghide]").forEach(b => b.onclick = () => save(`/api/agreements/signatures/${b.dataset.aghide}`, { method: "PATCH", body: JSON.stringify({ hidden: true }) }, "Hidden"));
+    app.querySelectorAll("[data-agshow]").forEach(b => b.onclick = () => save(`/api/agreements/signatures/${b.dataset.agshow}`, { method: "PATCH", body: JSON.stringify({ hidden: false }) }, "Shown again"));
+    const g = app.querySelector("[data-agsig]");
+    if (g) g.onsubmit = e => { e.preventDefault(); const v = k => (g.elements[k] || {}).value || "";
+      save(`/api/agreements/${encodeURIComponent(slug)}/signatures`, { method: "POST", body: JSON.stringify({ name: v("name"), role: v("role"), organisation: v("organisation"), phone: v("phone"), signed_at: v("signed_at") ? new Date(v("signed_at")).toISOString() : "", person_id: v("person_id") }) }, "Signature saved"); };
+  }
+
   function render() {
     const [page, id] = route();
-    const cur = ["voices", "followers", "books", "suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "members", "volunteers", "groups", "circles", "traffic", "team"].includes(page) ? page : "dashboard";
+    const cur = ["voices", "followers", "agreements", "books", "suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "members", "volunteers", "groups", "circles", "traffic", "team"].includes(page) ? page : "dashboard";
     drawNav(cur);
     if (page === "suggestions" && id) { app.innerHTML = detail(id); wireDetail(id); }
     else if (page === "suggestions") { app.innerHTML = suggestions(); wireSuggestions(); }
@@ -2251,6 +2364,7 @@
     else if (page === "traffic") { app.innerHTML = traffic(); wireTraffic(); }
     else if (page === "voices") { app.innerHTML = voices(); wireVoices(); }
     else if (page === "followers") { app.innerHTML = followers(id); wireFollowers(id); }
+    else if (page === "agreements") { app.innerHTML = agreements(id); wireAgreements(id); }
     else if (page === "books") { app.innerHTML = books(id); wireBooks(id); }
     else if (page === "team" && LIVE) { app.innerHTML = liveTeam(); if (ACCESS) wireLiveTeam(); }
     else if (page === "team") { app.innerHTML = team(); wireTeam(); }
@@ -2262,7 +2376,7 @@
     else if (page === "reports" && id) { app.innerHTML = reportDetail(id); wireReport(id); }
     else if (page === "reports") { app.innerHTML = reports(); wireReports(); }
     else app.innerHTML = dashboard();
-    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", members: "Members", volunteers: "Volunteers", groups: "Groups", circles: "Family circles", traffic: "Traffic", voices: "Vouches & ratings", followers: "Followers & updates", books: "Money books", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
+    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", members: "Members", volunteers: "Volunteers", groups: "Groups", circles: "Family circles", traffic: "Traffic", voices: "Vouches & ratings", followers: "Followers & updates", agreements: "People in charge", books: "Money books", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
   }
 
   Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] })).then(async d => { try { const m = await fetch("/api/projects").then(r => r.json()); const have = new Set((d.projects || []).map(p => p.slug)); d.projects = [...(d.projects || []), ...(m.projects || []).filter(p => !have.has(p.slug))]; } catch (e) { /* only projects.json */ } return d; })])
@@ -2278,7 +2392,7 @@
           D.suggestions = r.suggestions; C = await api("/api/portal/champions").then(x => ({ list: x.champions, districts: x.districts })).catch(() => C);
           ASKS = await api("/api/portal/pledges").then(x => x.pledges || []).catch(() => []);
           FOFF = await api("/api/portal/funders").then(x => x.removed || []).catch(() => null); if (FOFF) applyOff();
-          VOICES_P = await api("/api/portal/voices").then(x => x.voices || []).catch(() => []); D.user = { name: ME.name, role: ME.admin ? "Admin" : "Team" };
+          VOICES_P = await api("/api/portal/voices").then(x => x.voices || []).catch(() => []); AGALL = await api("/api/agreements").then(x => x.projects || {}).catch(() => null); agLoading._all = !!AGALL; D.user = { name: ME.name, role: ME.admin ? "Admin" : "Team" };
           if (!D.team.includes(ME.name)) D.team = [ME.name, ...D.team];
           LIVE = true; NOW = new Date();
         } catch (e) {
