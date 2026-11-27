@@ -3162,7 +3162,7 @@ window.RAAV_FEATURES = (function () {
       const short = LIVE_GIFTS ? url.replace(/^https?:\/\//, "") : p.short ? `${location.host}/${p.short}` : url.replace(/^https?:\/\//, "").replace(/\?.*$/, "");
       // SURESH 27 Nov 2026: "dont need the title, just the Pic with information and below the names". "?day" gives the link
       // a new address, so WhatsApp fetches the Impact picture instead of the saved Activated one.
-      return [...(who ? ["*MOMENT MADE POSSIBLE BY*", who, ""] : []), "\u{1F4F8} *See the day*", `\u{1F449} ${short}${p.short && !LIVE_GIFTS ? "?day" : ""}`].join("\n"); }
+      return [...(who ? ["*_MOMENT_ MADE POSSIBLE BY*", who, ""] : []), "\u{1F4F8} *See the day*", `\u{1F449} ${short}${p.short && !LIVE_GIFTS ? "?day" : ""}`].join("\n"); }
     const head = "\u{1F331} *A need on Raavanaa*";
     const facts = [
       when && `\u{1F4C5} ${when}`,
@@ -3184,7 +3184,7 @@ window.RAAV_FEATURES = (function () {
   }
   // The picture that goes with it: the funding card for Initiated / Activated projects, else the project's own share picture.
   const glancePic = (p, own) => { const n = stageNum(p), b = budgetOf(p);
-    if (n === 3) return `/api/share-card/${slugOf(p)}.jpg?v=i3`; // Impact: "52 smiles made" (SURESH 27 Nov 2026)
+    if (n === 3) return `/api/share-card/${slugOf(p)}.jpg?v=i4`; // Impact: "52 smiles made" (SURESH 27 Nov 2026)
     return n < 3 && b.goal > 0 ? `/api/share-card/${slugOf(p)}.jpg?v=${n === 2 ? "a" + new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10) : b.pct >= 100 ? 100 : b.pct}` : `/img/share/${own ? slugOf(p) : "default"}.jpg`; };
 
   async function wireShare(root) {

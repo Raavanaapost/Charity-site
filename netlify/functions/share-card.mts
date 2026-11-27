@@ -123,7 +123,10 @@ function impactSVG(pr: Progress, art: string) {
   <rect x="${cx - bw / 2}" y="${yBox}" width="${bw}" height="${bh}" rx="${Math.round(bh / 2)}" fill="url(#gold)" filter="url(#sh)"/>
   <text x="${cx}" y="${yBig}" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="${fsBig}" fill="#fff">${esc(big)}</text>
   ${title.map((l, i) => `<text x="${cx}" y="${yTitle + i * 36}" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="29" fill="#3a2410">${esc(l)}</text>`).join("")}
-  ${by.map((l, i) => `<text x="${cx}" y="${yBy + i * 28}" text-anchor="middle" font-family="Inter" font-weight="600" font-size="21" fill="#8a5a04">${i === 0 && l.startsWith("Moment ") ? `<tspan fill="#c8381e" font-weight="800">Moment</tspan>${esc(l.slice(6))}` : esc(l)}</text>`).join("")}
+  ${by.map((l, i) => { // "Moment" in red and slanted (SURESH 27 Nov 2026); no italic font here, so the word is skewed.
+    if (i === 0 && l.startsWith("Moment ")) { const rest = l.slice(7), wM = 104, wR = rest.length * 10.95, x0 = cx - (wM + 8 + wR) / 2;
+      return `<text transform="translate(${x0} ${yBy}) skewX(-14)" font-family="Inter" font-weight="800" font-size="25" fill="#c8381e">Moment</text><text x="${x0 + wM + 8}" y="${yBy}" font-family="Inter" font-weight="600" font-size="21" fill="#8a5a04">${esc(rest)}</text>`; }
+    return `<text x="${cx}" y="${yBy + i * 28}" text-anchor="middle" font-family="Inter" font-weight="600" font-size="21" fill="#8a5a04">${esc(l)}</text>`; }).join("")}
   <g transform="translate(${cx - 300} 548)">
     <rect width="270" height="56" rx="28" fill="url(#gold)"/>
     <text x="32" y="36" font-family="Inter" font-weight="800" font-size="22" fill="#fff">See the day</text>

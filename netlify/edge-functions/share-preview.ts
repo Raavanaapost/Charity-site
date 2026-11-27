@@ -151,7 +151,7 @@ export default async (request: Request, context: { next: (req?: Request) => Prom
         if (owner) text = `Run by ${owner}. ` + text;
       } else if (pr && showsImpact(pr)) {
         // Impact (SURESH 27 Nov 2026): "52 smiles made", the givers by name, a picture from the day; no date.
-        img = `${url.origin}/api/share-card/${slug}.jpg?v=i3${live ? "&gifts=live" : ""}`;
+        img = `${url.origin}/api/share-card/${slug}.jpg?v=i4${live ? "&gifts=live" : ""}`;
         if (!share.projects[slug]) title = pr.title;
         const who = madePossibleBy(pr);
         text = `${smilesLine(pr)}.${who ? ` Moment made possible by ${who}.` : ""}`;
