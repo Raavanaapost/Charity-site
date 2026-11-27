@@ -8,7 +8,7 @@
 
 export type Progress = {
   slug: string; title: string; stage: 1 | 2 | 3; goal: number; raised: number; pct: number;
-  currency: string; kids: number | null; cover: string; blurb: string; day: string;
+  currency: string; kids: number | null; cover: string; blurb: string; day: string; place: string; names: string[];
 };
 type P = Record<string, any>;
 
@@ -49,7 +49,9 @@ export async function allProgress(origin: string, liveGifts = false): Promise<Re
     out[slug] = {
       slug, title: String(p.title), stage, goal, raised, pct: goal ? Math.min(100, Math.round(raised / goal * 100)) : 0,
       currency: String(p.currency || "$").trim() || "$", kids: kids ? +kids[0] : null, cover: String(p.cover || ""),
-      day: String((p.money && p.money.day) || ""),
+      day: String((p.money && p.money.day) || ""), place: String(p.location || "").trim(),
+      // Sponsors who let their name show (Anonymous stays out), for the Activated thank-you (SURESH 27 Nov 2026).
+      names: [...new Set(funders.map((f) => String(f && f.name || "").trim()).filter((x) => x && !/^(anonymous|anon|a friend|unnamed)$/i.test(x)))],
       blurb: String(p.tagline || String(p.summary || "").split(/(?<=[.!?])\s/)[0] || "").trim(),
     };
   }
