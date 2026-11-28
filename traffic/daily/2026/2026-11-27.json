@@ -1,0 +1,183 @@
+{
+  "day": "2026-11-27",
+  "from": "2026-11-27T00:00:00.000Z",
+  "to": "2026-11-28T00:00:00.000Z",
+  "tz": "UTC",
+  "now": {
+    "views": 46,
+    "visits": 38,
+    "shares": 0,
+    "give": 0,
+    "memory": 0,
+    "request": 0,
+    "vouch": 0,
+    "install": 0,
+    "app_visits": 0
+  },
+  "daily": [
+    {
+      "day": "2026-11-27",
+      "views": 46,
+      "visits": 38,
+      "actions": 0,
+      "shares": 0
+    }
+  ],
+  "sources": [
+    {
+      "key": "direct",
+      "visits": 33,
+      "acted": 0,
+      "shares": 0,
+      "pages": 1.2
+    },
+    {
+      "key": "facebook",
+      "visits": 5,
+      "acted": 0,
+      "shares": 0,
+      "pages": 1
+    }
+  ],
+  "campaigns": [],
+  "pages": [
+    {
+      "key": "/projects/pussellawa-kandy-trip",
+      "views": 30,
+      "visits": 30
+    },
+    {
+      "key": "/overview",
+      "views": 9,
+      "visits": 8
+    },
+    {
+      "key": "/projects",
+      "views": 3,
+      "visits": 3
+    },
+    {
+      "key": "/projects/pussellawa-kids-trip",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/projects/prefect-uniforms-for-students-in-valaippadu",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/projects/casuarina-beach-day",
+      "views": 1,
+      "visits": 1
+    },
+    {
+      "key": "/projects/pussellawa-kandy-trip/money",
+      "views": 1,
+      "visits": 1
+    }
+  ],
+  "countries": [
+    {
+      "key": "CA",
+      "visits": 20
+    },
+    {
+      "key": "US",
+      "visits": 14
+    },
+    {
+      "key": "GB",
+      "visits": 1
+    },
+    {
+      "key": "IE",
+      "visits": 1
+    },
+    {
+      "key": "LK",
+      "visits": 1
+    },
+    {
+      "key": "TH",
+      "visits": 1
+    }
+  ],
+  "devices": [
+    {
+      "key": "phone",
+      "visits": 36
+    },
+    {
+      "key": "computer",
+      "visits": 2
+    }
+  ],
+  "hours": [
+    {
+      "key": 0,
+      "views": 1
+    },
+    {
+      "key": 1,
+      "views": 2
+    },
+    {
+      "key": 2,
+      "views": 9
+    },
+    {
+      "key": 3,
+      "views": 1
+    },
+    {
+      "key": 6,
+      "views": 1
+    },
+    {
+      "key": 8,
+      "views": 1
+    },
+    {
+      "key": 10,
+      "views": 6
+    },
+    {
+      "key": 13,
+      "views": 1
+    },
+    {
+      "key": 16,
+      "views": 2
+    },
+    {
+      "key": 17,
+      "views": 3
+    },
+    {
+      "key": 21,
+      "views": 5
+    },
+    {
+      "key": 23,
+      "views": 14
+    }
+  ],
+  "weekdays": [
+    {
+      "key": 5,
+      "views": 46
+    }
+  ],
+  "shares": [],
+  "refs": [
+    {
+      "key": "m.facebook.com",
+      "visits": 3
+    },
+    {
+      "key": "lm.facebook.com",
+      "visits": 2
+    }
+  ]
+}
