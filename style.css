@@ -3610,3 +3610,15 @@ html[lang="ta"] .all-chip b{font-family:"Noto Sans Tamil",var(--display),sans-se
 .imp-topdate{text-align:left;margin:8px 0 0}
 .imp-topdate time{display:inline;padding:0;border-radius:0;background:none;color:var(--muted);font-weight:500;font-size:14px}
 /* SURESH 27 Nov 23:43Z: title written over the photos again (photos stay after Made possible by) */
+
+/* Impact page top lined up (SURESH 28 Nov 2026): date, Submitted by, Visited and verified, Made possible by share one
+   left edge, the same gaps, and the same pill size. */
+.phead-imp{gap:10px;padding-block:8px 4px}
+.imp-layout .imp-topdate{margin:12px 0 0;padding:0;line-height:1.3}
+.phead-imp .byline{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0}
+.phead-imp .byline > span:first-child{flex-basis:100%;line-height:1.45}
+.phead-imp .byline .verified,.phead-imp .mb-pill{margin:0;padding:6px 12px;font-size:13.5px;border-radius:999px;line-height:1.35}
+.phead-imp .glance{margin:0}
+.phead-imp .madeby-line{margin:0}
+.phead-imp .mb-pill{border-radius:14px}
+.imp-next-under{margin:18px 0 6px}

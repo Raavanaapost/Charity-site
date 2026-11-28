@@ -3316,6 +3316,13 @@ window.RAAV_FEATURES = (function () {
   // "Make the next moment happen" box at the foot of the Impact page: taken off (SURESH 27 Nov 2026), kept here for
   // later (on his to-do list). Set to true to bring it back.
   const IMP_NEXT = false;
+  // SURESH 28 Nov 2026: "place that back under the story": the same box, now below the story tabs on Impact pages.
+  const impNextHTML = () => `<div class="imp-next imp-next-under">
+        <h3>Make the next moment happen</h3>
+        <p>Another school is waiting for its first day out.</p>
+        <a class="btn imp-go" href="/projects">See projects waiting</a>
+        <button type="button" class="btn ghost" data-imp-share>Share this day</button>
+      </div>`;
   const actDayISO = p => String(p.day || (p.money && p.money.day) || "").slice(0, 10);
   function activatedTopHTML(p) {
     const iso = actDayISO(p), slug = slugOf(p), on = followsHere().includes(slug);
@@ -3615,6 +3622,7 @@ window.RAAV_FEATURES = (function () {
               ${tabs.map(([k, l]) => `<button class="tab t-${k}" role="tab" aria-selected="${k === tab}" data-t="${k}">${TAB_ICONS[k]}<span>${l}</span></button>`).join("")}
             </div>
             <section class="folder t-${tab}" role="tabpanel">${panes[tab]}</section>
+            ${st === 3 && !p.sample ? impNextHTML() : ""}
             ${FEAT.voices && !p.sample ? `<div class="v-jumps"><button type="button" class="v-jump" data-v-jump="comment"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.6A8 8 0 1 1 21 12z"/></svg><span>Comment</span><b data-c-count2></b></button><button type="button" class="v-jump" data-v-jump="vouch"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Vouch</span></button></div>${voicesHTML(p)}` : ""}
           </div>
           <aside class="side">
