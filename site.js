@@ -3603,7 +3603,7 @@ window.RAAV_FEATURES = (function () {
         </dl>
         ${given && spent ? `<div class="imp-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100, Math.round(spent / given * 100))}" aria-label="Share of the money spent"><i style="width:${Math.min(100, Math.round(spent / given * 100))}%"></i></div>` : ""}
         ${Object.keys(byLine).length ? `<p class="imp-lines">${Object.entries(byLine).map(([k, v]) => `${esc(k)} ${money(v)}`).join(" · ")}</p>` : ""}
-        ${p.money ? `<a class="imp-a imp-a-btn" href="/projects/${slugOf(p)}/money"><span class="imp-a-ico" aria-hidden="true">₹</span><span><b>See the full budget</b><small>Every rupee in and out, with the bills</small></span><span class="imp-a-go" aria-hidden="true">→</span></a>` : ""}
+        ${p.money ? `<a class="imp-a imp-a-btn" href="/projects/${slugOf(p)}/money"><span class="imp-a-ico" aria-hidden="true">Rs</span><span><b>See the full budget</b><small>Every rupee in and out, with the bills</small></span><span class="imp-a-go" aria-hidden="true">→</span></a>` : ""}
       </div>` : ""}
       ${IMP_NEXT ? `<div class="imp-next">
         <h3>Make the next moment happen</h3>
