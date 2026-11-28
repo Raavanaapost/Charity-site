@@ -55,6 +55,7 @@
     members: '<circle cx="12" cy="8" r="3.4"/><path d="M5 20c.6-4 3.2-6.3 7-6.3s6.4 2.3 7 6.3"/><path d="M18.5 4.5v4M16.5 6.5h4"/>',
     groups: '<circle cx="8" cy="9" r="2.6"/><circle cx="16" cy="9" r="2.6"/><circle cx="12" cy="5.5" r="2.3"/><path d="M3 19c.4-3.2 2.3-5 5-5 1.6 0 2.9.6 3.8 1.8M21 19c-.4-3.2-2.3-5-5-5-1.6 0-2.9.6-3.8 1.8M8.5 20c.4-2.6 1.6-3.8 3.5-3.8s3.1 1.2 3.5 3.8"/>',
     traffic: '<path d="M4 19V11M9.3 19V6M14.6 19v-5M20 19V9"/><path d="M3 21h18"/>',
+    albums: '<path d="M4 7h5l2 2h9v10H4z"/><circle cx="12" cy="14" r="2.4"/><path d="M10 4h4"/>',
     agreements: '<path d="M9 11l2 2 4-4"/><path d="M6 3h9l4 4v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>',
     followers: '<path d="M4 11v2a1 1 0 0 0 1 1h2l5 4V6L7 10H5a1 1 0 0 0-1 1z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>',
     books: '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11M9 8h6M9 11h4"/>',
@@ -62,7 +63,7 @@
   };
   const svg = (d, s = 20) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
   const MENU = [
-    ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true], ["voices", "Vouches & ratings", true], ["followers", "Followers & updates", true], ["materials", "Today's materials", true], ["agreements", "People in charge", true],
+    ["dashboard", "Dashboard", true], ["suggestions", "Suggestions", true], ["projects", "Projects", true], ["reports", "Reports & feedback", true], ["voices", "Vouches & ratings", true], ["followers", "Followers & updates", true], ["materials", "Today's materials", true], ["albums", "Family albums", true], ["agreements", "People in charge", true],
     ["sponsors", "Sponsors & pledges", true], ["books", "Money books", true], ["day", "Day preparation", true], ["close", "Close the day", true],
     ["people", "People", true], ["champions", "Champions", true], ["members", "Members", true], ["volunteers", "Volunteers", true], ["groups", "Groups", true], ["circles", "Family circles", true], ["traffic", "Traffic", true], ["team", "Team & logins", true]
   ];
@@ -101,7 +102,7 @@
     document.getElementById("pt-tabbar").innerHTML = [["dashboard", "Home"], ["suggestions", "Suggestions"], ["projects", "Projects"], ["reports", "Reports"], ["more", "More"]].map(([k, l]) => {
       const ready = k !== "more";
       return ready ? `<a href="#/${k}" class="${cur === k ? "on" : ""}">${svg(ICON[k], 22)}<span>${l}</span>${k === "sponsors" && newAsk ? `<b class="pt-badge">${newAsk}</b>` : k === "suggestions" && newCount ? `<b class="pt-badge">${newCount}</b>` : k === "reports" && openRep ? `<b class="pt-badge">${openRep}</b>` : ""}</a>`
-        : `<button type="button" class="${["voices", "followers", "agreements", "sponsors", "books", "day", "close", "people", "champions", "members", "volunteers", "groups", "circles", "traffic", "team"].includes(cur) ? "on" : ""}" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
+        : `<button type="button" class="${["voices", "followers", "agreements", "albums", "sponsors", "books", "day", "close", "people", "champions", "members", "volunteers", "groups", "circles", "traffic", "team"].includes(cur) ? "on" : ""}" data-soon>${svg(ICON[k], 22)}<span>${l}</span></button>`;
     }).join("");
     document.querySelectorAll("[data-soon]").forEach(b => b.onclick = () => {
       let m = document.getElementById("pt-more");
@@ -2467,9 +2468,80 @@
       call(`/api/materials/bill/${f.dataset.matbill}`, { method: "POST", body: JSON.stringify({ item: v("item"), amount: v("amount"), line: v("line") }) }, "Sent to Money books for a second check"); });
   }
 
+  // Family albums (SURESH 28 Nov 2026, option C): each event's photos stay in its own Google Drive folder; every family
+  // gets its own code for raavanaa.org/photos/<project>, and the team sees who opened it and what they downloaded.
+  let FAALL = null; const FA = {}, faLoading = {}, FACHK = {};
+  const faLoad = (key, url, store) => { if (faLoading[key]) return; faLoading[key] = true;
+    api(url).then(d => { store(d); faLoading[key] = false; render(); }).catch(e => { faLoading[key] = false; toast(e.message || "Could not load"); }); };
+  const faMsg = (title, link, code) => `Hello from Raavanaa! The photos from ${title} are ready in your family album.\n\nOpen: ${link}\nYour family code: ${code}\n\nThis code is just for your family. Please do not share the code or post the photos on Facebook, Instagram or WhatsApp groups. Thank you!`;
+  function albums(slugIn) {
+    const head = sub => `<header class="pt-head"><div><h1>Family albums</h1><p class="pt-sub">${sub}</p></div></header>`;
+    if (!LIVE) return head("This screen works on the real portal once you are signed in.");
+    if (!FAALL) { faLoad("_all", "/api/family-albums", d => { FAALL = d; }); return head("Loading…"); }
+    const list = FAALL.projects.slice().sort((a, b) => (b.folder - a.folder) || a.title.localeCompare(b.title));
+    const slug = list.some(p => p.slug === slugIn) ? slugIn : ((list.find(p => p.folder) || list[0] || {}).slug || "");
+    const picker = `<section class="pt-card"><label class="pt-field">Project<select data-faproj>${list.map(p => `<option value="${esc(p.slug)}" ${p.slug === slug ? "selected" : ""}>${esc(p.title)}${p.folder ? ` · album ${p.open ? "open" : "closed"}, ${p.codes} famil${p.codes === 1 ? "y" : "ies"}` : ""}</option>`).join("")}</select></label></section>`;
+    const setup = !FAALL.robot ? `<section class="pt-card mt-setup"><h2>Connect Google Drive once</h2>
+        <p class="pt-sub">The photos stay in Google Drive. A read-only Raavanaa robot (a Google "service account") shows them to families who have a code. It can look, never change or delete.</p>
+        <ol class="pt-sub"><li>In <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud</a> make a project, turn on the <b>Google Drive API</b>, then IAM &amp; Admin &gt; Service accounts &gt; Create. Under Keys, add a JSON key and download it.</li>
+        <li>In Netlify (Project configuration &gt; Environment variables) add <code>GOOGLE_SERVICE_ACCOUNT_JSON</code> and paste the whole file.</li>
+        <li>In Drive, share the <b>Raavanaa – Projects</b> folder with the robot's email (it ends in iam.gserviceaccount.com) as <b>Viewer</b>.</li></ol></section>` : "";
+    if (!slug) return head("No projects yet.") + setup;
+    const d = FA[slug];
+    if (!d) { faLoad(slug, `/api/family-albums/${encodeURIComponent(slug)}`, x => { FA[slug] = x; }); return head("Loading…") + setup + picker; }
+    const title = (list.find(p => p.slug === slug) || {}).title || slug, a = d.album;
+    const when = iso => iso ? new Date(iso).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Colombo" }) : "";
+    const chk = FACHK[slug];
+    const folder = `<section class="pt-card"><h2>1 · The Drive folder</h2>
+        <p class="pt-sub">In Drive, make a folder <b>Family album</b> inside this event's folder and put in <b>only the photos the parents agreed to</b>. Sub-folders show as sections (for example "Morning", "At the gardens").${FAALL.robot ? ` The robot's email to share with: <code>${esc(FAALL.robot)}</code>` : ""}</p>
+        <form data-fasave><label class="pt-field">Drive folder link<input name="folder" placeholder="https://drive.google.com/drive/folders/…" value="${esc(a ? a.folderUrl : "")}"></label>
+        <label class="pt-field">Closes by itself on<input type="date" name="closes_on" value="${esc(a ? a.closesOn : "")}"></label>
+        <p class="pt-sub"><button class="pt-btn sm" type="submit">Save</button> ${a && a.folderId ? `<button type="button" class="pt-btn ghost sm" data-facheck>Look in the folder</button>
+          <button type="button" class="pt-btn ghost sm" data-faopen="${a.open ? 0 : 1}">${a.open ? "Close the album" : "Open the album again"}</button>` : ""}</p></form>
+        ${chk ? `<p class="pt-sub">${chk.error ? `⚠ ${esc(chk.error)}` : `✓ Found <b>${chk.photos}</b> photo${chk.photos === 1 ? "" : "s"}${chk.videos ? ` and ${chk.videos} video${chk.videos === 1 ? "" : "s"}` : ""} in “${esc(chk.name)}”${chk.folders.length ? ` (sections: ${chk.folders.map(esc).join(", ")})` : ""}.`}</p>` : ""}
+        ${a && a.folderId ? `<p class="pt-sub">Album page: <a href="${esc(d.link)}" target="_blank" rel="noopener">${esc(d.link)}</a> · ${a.closed ? "<b>Closed</b>: families see “This album is closed”." : "<b>Open</b>"}</p>` : ""}</section>`;
+    const live = d.codes.filter(c => !c.stopped), stopped = d.codes.filter(c => c.stopped);
+    const row = c => { const msg = faMsg(title, d.link, c.code);
+      return `<li class="fa-code"><div><b>${esc(c.family)}</b>${c.phone ? ` <small>${esc(c.phone)}</small>` : ""}<br><span class="fa-pin">${esc(c.code)}</span>
+        <small class="pt-sub">${c.opens ? `Opened ${c.opens} time${c.opens === 1 ? "" : "s"}, last ${when(c.lastSeen)}` : "Not opened yet"}${c.downloads ? ` · ${c.downloads} download${c.downloads === 1 ? "" : "s"}` : ""}</small></div>
+        ${c.stopped ? `<small class="pt-sub">Stopped</small>` : `<span class="mt-acts">${c.phone ? `<a class="pt-btn sm" target="_blank" rel="noopener" href="https://wa.me/${digits(c.phone)}?text=${encodeURIComponent(msg)}">Send on WhatsApp</a>` : ""}
+          <button type="button" class="pt-btn ghost sm" data-facopy="${esc(msg)}">Copy message</button>
+          <button type="button" class="pt-btn ghost sm" data-farenew="${c.id}">New code</button>
+          <button type="button" class="pt-btn ghost sm" data-fastop="${c.id}">Stop</button></span>`}</li>`; };
+    const fams = `<section class="pt-card"><h2>2 · Families <span class="pt-count">${live.length}</span></h2>
+        <p class="pt-sub">One code for each family. If a code is passed around, press <b>New code</b> (the old one stops at once) or <b>Stop</b>. Use the parent's name, never a child's.</p>
+        <form data-faadd class="fa-add"><label class="pt-field">Parent's name<input name="family" maxlength="80" required placeholder="e.g. Mrs Kamala (Grade 4 parent)"></label>
+        <label class="pt-field">WhatsApp number<input name="phone" inputmode="tel" placeholder="07X XXX XXXX"></label>
+        <button class="pt-btn sm" type="submit" ${a && a.folderId ? "" : "disabled"}>Make a code</button></form>
+        ${live.length ? `<ul class="fa-codes">${live.map(row).join("")}</ul>` : `<p class="pt-sub">No families yet.</p>`}
+        ${stopped.length ? `<details><summary class="pt-sub">Stopped codes (${stopped.length})</summary><ul class="fa-codes">${stopped.map(row).join("")}</ul></details>` : ""}</section>`;
+    const word = { open: "opened the album", download: "downloaded", wrong: "wrong code tried" };
+    const log = `<section class="pt-card"><details class="mt-sec" open><summary><h2>3 · Who opened it <span class="pt-count">${d.log.length}</span></h2></summary>
+        ${d.log.length ? `<ul class="fa-log">${d.log.map(l => `<li><time>${when(l.at)}</time> <b>${esc(l.family || "Someone")}</b> ${word[l.action] || esc(l.action)}${l.detail ? ` <small>${esc(l.detail)}</small>` : ""}</li>`).join("")}</ul>` : `<p class="pt-sub">Nobody has opened it yet.</p>`}</details></section>`;
+    return head(`For <b>${esc(title)}</b>: the photos stay in Google Drive. Each family opens them at raavanaa.org with its own code, and you see who opened them.`) + setup + picker + folder + fams + log;
+  }
+  function wireAlbums() {
+    const sel = app.querySelector("[data-faproj]"); if (!sel) return;
+    const slug = sel.value, base = `/api/family-albums/${encodeURIComponent(slug)}`;
+    const again = () => { delete FA[slug]; FAALL = null; render(); };
+    sel.onchange = () => { location.hash = `#/albums/${sel.value}`; };
+    const call = async (url, opts, msg) => { try { const r = await api(url, opts); if (msg) toast(msg); again(); return r; } catch (e) { toast(e.message || "Could not save"); } };
+    const f = app.querySelector("[data-fasave]");
+    if (f) f.onsubmit = e => { e.preventDefault(); delete FACHK[slug]; call(base, { method: "PUT", body: JSON.stringify({ folder: f.elements.folder.value, closes_on: f.elements.closes_on.value }) }, "Saved"); };
+    const ck = app.querySelector("[data-facheck]");
+    if (ck) ck.onclick = () => { ck.disabled = true; ck.textContent = "Looking…"; api(`${base}/check`, { method: "POST", body: "{}" }).then(x => { FACHK[slug] = x; render(); }).catch(e => { FACHK[slug] = { error: e.message || "Could not look" }; render(); }); };
+    const op = app.querySelector("[data-faopen]");
+    if (op) op.onclick = () => call(base, { method: "PUT", body: JSON.stringify({ open: op.dataset.faopen === "1" }) }, op.dataset.faopen === "1" ? "Album open" : "Album closed");
+    const add = app.querySelector("[data-faadd]");
+    if (add) add.onsubmit = e => { e.preventDefault(); call(`${base}/codes`, { method: "POST", body: JSON.stringify({ family: add.elements.family.value, phone: add.elements.phone.value }) }, "Code made. Now send it on WhatsApp."); };
+    app.querySelectorAll("[data-facopy]").forEach(b => b.onclick = () => navigator.clipboard.writeText(b.dataset.facopy).then(() => toast("Message copied"), () => toast("Could not copy")));
+    app.querySelectorAll("[data-farenew]").forEach(b => b.onclick = () => { if (!b.dataset.sure) { b.dataset.sure = 1; b.textContent = "Press again: old code stops"; return; } call(`/api/family-albums/codes/${b.dataset.farenew}/renew`, { method: "POST", body: "{}" }, "New code made. Send it again."); });
+    app.querySelectorAll("[data-fastop]").forEach(b => b.onclick = () => { if (!b.dataset.sure) { b.dataset.sure = 1; b.textContent = "Press again to stop"; return; } call(`/api/family-albums/codes/${b.dataset.fastop}`, { method: "DELETE" }, "Code stopped"); });
+  }
+
   function render() {
     const [page, id] = route();
-    const cur = ["voices", "followers", "materials", "agreements", "books", "suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "members", "volunteers", "groups", "circles", "traffic", "team"].includes(page) ? page : "dashboard";
+    const cur = ["voices", "followers", "materials", "albums", "agreements", "books", "suggestions", "reports", "projects", "sponsors", "day", "close", "people", "champions", "members", "volunteers", "groups", "circles", "traffic", "team"].includes(page) ? page : "dashboard";
     drawNav(cur);
     if (page === "suggestions" && id) { app.innerHTML = detail(id); wireDetail(id); }
     else if (page === "suggestions") { app.innerHTML = suggestions(); wireSuggestions(); }
@@ -2484,6 +2556,7 @@
     else if (page === "followers") { app.innerHTML = followers(id); wireFollowers(id); }
     else if (page === "materials") { app.innerHTML = materials(id); wireMaterials(id); }
     else if (page === "agreements") { app.innerHTML = agreements(id); wireAgreements(id); }
+    else if (page === "albums") { app.innerHTML = albums(id); wireAlbums(id); }
     else if (page === "books") { app.innerHTML = books(id); wireBooks(id); }
     else if (page === "team" && LIVE) { app.innerHTML = liveTeam(); if (ACCESS) wireLiveTeam(); }
     else if (page === "team") { app.innerHTML = team(); wireTeam(); }
@@ -2495,7 +2568,7 @@
     else if (page === "reports" && id) { app.innerHTML = reportDetail(id); wireReport(id); }
     else if (page === "reports") { app.innerHTML = reports(); wireReports(); }
     else app.innerHTML = dashboard();
-    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", members: "Members", volunteers: "Volunteers", groups: "Groups", circles: "Family circles", traffic: "Traffic", voices: "Vouches & ratings", followers: "Followers & updates", materials: "Today's materials", agreements: "People in charge", books: "Money books", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
+    document.title = `${{ suggestions: "Suggestions", reports: "Reports & feedback", projects: "Projects", sponsors: "Sponsors & pledges", day: "Day preparation", close: "Close the day", people: "People", champions: "Champions", members: "Members", volunteers: "Volunteers", groups: "Groups", circles: "Family circles", traffic: "Traffic", voices: "Vouches & ratings", followers: "Followers & updates", materials: "Today's materials", albums: "Family albums", agreements: "People in charge", books: "Money books", team: "Team & logins" }[page] || "Dashboard"} · Team Portal · Raavanaa`;
   }
 
   Promise.all([fetch("/portal-demo.json").then(r => r.json()), fetch("/projects.json").then(r => r.json()).catch(() => ({ projects: [] })).then(async d => { try { const m = await fetch("/api/projects").then(r => r.json()); const have = new Set((d.projects || []).map(p => p.slug)); d.projects = [...(d.projects || []), ...(m.projects || []).filter(p => !have.has(p.slug))]; } catch (e) { /* only projects.json */ } return d; })])
