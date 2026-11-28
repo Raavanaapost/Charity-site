@@ -449,7 +449,7 @@ window.RAAV_FEATURES = (function () {
       ${warn ? `<p class="note error">${esc(warn)}</p>` : ""}
       <p class="rq-next">${esc(L.next)}</p>
       <ol class="rq-steps">${L.s.map((x, i) => `<li><i>${i + 1}</i><span><b>${esc(x[0])}</b> ${esc(x[1])}</span></li>`).join("")}</ol>
-      <div class="rq-btns"><a class="i-submit" href="/members">${esc(L.acc)}</a><a class="rq-home" href="/overview">${esc(L.home)}</a></div>`;
+      <div class="rq-btns">${f.dataset.member ? `<a class="i-submit" href="/members">${esc(L.acc)}</a>` : ""}<a class="rq-home" href="/overview">${esc(L.home)}</a></div>`;
     f.hidden = true; const lang = document.querySelector(".i-lang"); if (lang) lang.hidden = true;
     f.parentNode.insertBefore(card, f);
     card.scrollIntoView({ behavior: "smooth", block: "start" }); card.focus({ preventScroll: true });
@@ -4910,13 +4910,18 @@ window.RAAV_FEATURES = (function () {
             }
           }
         }
-        // Step 1 of 2: only members can send a request (SURESH, 9 Nov 2026). Not signed in: show the sign-in card instead.
+        // Anyone can send a request, no sign-in needed (SURESH 28 Nov 2026; members only from 9 Nov, which lost most
+        // people at the sign-in step). Guests give a phone, WhatsApp or email; signed-in members get their name filled
+        // in and the phone becomes optional, because their account email reaches them.
         const gate = document.querySelector("[data-gate]"), oform = document.querySelector('form[name="opportunity"]');
         if (gate && oform) {
-          oform.hidden = true;
+          gate.hidden = true; oform.hidden = false;
           import("/members.js").then(m => m.getMember()).catch(() => null).then(me => {
-            if (!me) { gate.hidden = false; return; }
-            oform.hidden = false;
+            if (!me) return;
+            oform.dataset.member = "1";
+            const rc = oform.querySelector("#o-reach"); if (rc) rc.required = false;
+            oform.querySelectorAll("[data-opt-signed]").forEach(el => { el.hidden = false; });
+            oform.querySelectorAll("[data-req-guest]").forEach(el => { el.hidden = true; });
             const c = oform.querySelector("#o-contact"), nm = me.name || (me.userMetadata && me.userMetadata.full_name) || (me.user_metadata && me.user_metadata.full_name) || "";
             if (c && !c.value && nm) c.value = nm;
             // A small line, not a big welcome: the person sees whose account sends the request.

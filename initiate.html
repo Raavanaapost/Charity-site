@@ -132,9 +132,9 @@
             <label class="i-field" for="o-contact"><span><span data-t="name">Your name</span> <b class="req" aria-hidden="true">*</b></span>
               <input id="o-contact" name="contact" required maxlength="120" autocomplete="name" placeholder="Your name, and organisation if any" data-tp="name" aria-describedby="o-contact-note">
               <small class="i-note" id="o-contact-note" data-t="namenote">It may be shown on the project page. A nickname is fine.</small></label>
-            <!-- Phone is optional, and the email comes from the signed-in account (SURESH 23 Nov 2026) -->
-            <label class="i-field" for="o-reach"><span class="i-sub"><span data-t="phone">Your phone or WhatsApp</span> <u class="opt" data-t="opt">(optional)</u></span>
-              <input id="o-reach" name="reach" maxlength="120" autocomplete="tel" inputmode="tel" placeholder="So we can call you back" data-tp="phone">
+            <!-- No sign-in needed (SURESH 28 Nov 2026): guests must give a phone, WhatsApp or email; signed in, it is optional (their account email is used) -->
+            <label class="i-field" for="o-reach"><span class="i-sub"><span data-t="phone">Your phone, WhatsApp or email</span> <u class="opt" data-t="opt" data-opt-signed hidden>(optional)</u><b class="req" aria-hidden="true" data-req-guest>*</b></span>
+              <input id="o-reach" name="reach" maxlength="120" autocomplete="tel" placeholder="So we can call you back" data-tp="phone" required>
               <small class="i-note" data-email-note hidden></small></label>
             <input type="hidden" name="email" value="" data-member-email>
             <input type="hidden" name="form_lang" value="English">

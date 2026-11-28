@@ -23,10 +23,11 @@ export default async (req: Request) => {
   }
   if (clip(f["bot-field"], 10)) return Response.json({ ok: true }); // robots fill the hidden field
 
-  // Only members can send a request, so every request is tied to an account (SURESH, 9 Nov 2026).
+  // Anyone can send a request; signing in is no longer needed (SURESH 28 Nov 2026, was members only since 9 Nov).
+  // Signed in: the request is tied to the account and the email is used to reach them. Not signed in: they give
+  // a phone, WhatsApp or email in "reach". SURESH still approves every request before anything goes public.
   const user = await getUser().catch(() => null);
-  if (!user || !user.email) return Response.json({ ok: false, error: "Please sign in first." }, { status: 401 });
-  const memberEmail = user.email.toLowerCase();
+  const memberEmail = user && user.email ? user.email.toLowerCase() : null;
 
   const s = {
     title: clip(f.title, 120),
@@ -40,7 +41,7 @@ export default async (req: Request) => {
     children: clip(f.children, 30),
     contact: clip(f.contact, 120),
     // Phone is optional now; without one the team reaches the person on their signed-in email (SURESH 23 Nov 2026).
-    reach: clip(f.reach, 120) || memberEmail,
+    reach: clip(f.reach, 120) || memberEmail || "",
     trusted: clip(f.trusted_contact, 200),
     additional: clipText(f.additional, 1000),
     requestType: f.request_type === "referred" ? "referred" : "open",
@@ -68,6 +69,7 @@ export default async (req: Request) => {
   const first = s.description.split(/[.!?\n]/)[0];
   if (!s.title) s.title = first ? clip(first, 70) + (first.length > 70 ? "…" : "") : s.kind ? `${s.kind} in ${s.village || s.city}` : "";
   if (!s.description) s.description = s.kind;
+  if (!s.reach) return Response.json({ ok: false, error: "Please add a phone, WhatsApp or email so we can reach you." }, { status: 400 });
   if (!s.title || !s.description || !s.city || !s.village || !s.children || !s.contact || !s.reach) {
     return Response.json({ ok: false, error: "Please fill in every required field." }, { status: 400 });
   }
