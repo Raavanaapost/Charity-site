@@ -3378,7 +3378,13 @@ window.RAAV_FEATURES = (function () {
     // SURESH 27 Nov 2026: no red; a quiet plaque in the cream-and-gold look, like the dedication in a book.
     // SURESH 27 Nov 2026 (23:25Z): simple, like the "Visited and verified" pill, not a big plaque.
     const names = lines.map(n => `<b>${esc(n)}</b>`).map((n, k) => k === 0 ? n : (k === lines.length - 1 ? " and " : ", ") + n).join("");
-    return `<p class="madeby-line"><span class="mb-pill"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 20s-7-4.4-7-9.6A4.2 4.2 0 0 1 12 7.7a4.2 4.2 0 0 1 7 2.7C19 15.6 12 20 12 20z" fill="currentColor"/></svg><span>Made possible by ${names}</span></span></p>`;
+    // SURESH 28 Nov 2026: "like a table with two columns": who submitted it, where, and who made the moment.
+    const row = (k, v) => v ? `<tr><th scope="row">${k}</th><td>${v}</td></tr>` : "";
+    return `<table class="imp-facts"><tbody>
+      ${row("Submitted by", p.submitted_by || p.organization ? esc(p.submitted_by || p.organization) : "")}
+      ${row("Where", p.location ? esc(p.location) : "")}
+      ${row("Moment created by", names)}
+    </tbody></table>`;
   }
   // Impact: the day it happened, right under the stages (SURESH 27 Nov 2026).
   function impDateHTML(p) {
@@ -3583,7 +3589,7 @@ window.RAAV_FEATURES = (function () {
         <nav class="crumbs${st === 3 ? " crumbs-imp" : ""}"><a href="/projects">Projects</a>${p.theme ? ` / ${st === 3 ? `<span class="crumb-cat">${esc(p.theme)}</span>` : esc(p.theme)}` : ""}</nav>
         <div class="layout${st === 3 ? " imp-layout" : ""}">
           <div style="min-width:0">
-            ${st === 3 ? stageJourneyHTML(p) + impDateHTML(p) : ""}
+            ${st === 3 ? stageJourneyHTML(p) + impDateHTML(p) + impHeroHTML(p) : ""}
             <header class="phead${st === 3 ? " phead-imp" : ""}">
               ${p.theme && st !== 3 ? `<span class="tag">${esc(p.theme)}</span>` : ""}
               ${st === 3 && impSlides(p).length ? "" : `<h1>${esc(p.title)}</h1>`}
@@ -3605,7 +3611,6 @@ window.RAAV_FEATURES = (function () {
               </div>
               ${madeByHTML(p)}
             </header>
-            ${st === 3 ? impHeroHTML(p) : ""}
             ${st === 3 ? "" : stageJourneyHTML(p)}
             ${st === 3 ? `${impactTopHTML(p, site, i)}
             <h2 class="imp-more">The full story, from the start</h2>
