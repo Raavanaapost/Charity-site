@@ -44,7 +44,7 @@
     </div>
     <p class="care-urgent"><b>A child in danger right now?</b> Do not wait for us. In Sri Lanka call the National Child Protection Authority on <a href="tel:1929">1929</a> or the police on <a href="tel:119">119</a>.</p>
     <form class="care-card" name="concern" method="POST" action="/report?sent=1" data-netlify="true" netlify-honeypot="bot-field" data-ajax data-done="Thank you. Your report has been received and will be looked into. You did the right thing.">
-      <input type="hidden" name="form-name" value="concern">
+      <input type="hidden" name="form-name" value="concern"><input type="hidden" name="about" value="">
       <p hidden><label>Leave empty <input name="bot-field"></label></p>
       <fieldset class="i-field"><legend>How serious is it? <b class="req" aria-hidden="true">*</b></legend>
         <div class="care-chips" role="radiogroup"><label><input type="radio" name="level" value="feedback" required><span>Feedback or an idea</span></label><label><input type="radio" name="level" value="unhappy"><span>Something was not right</span></label><label><input type="radio" name="level" value="serious"><span>A serious concern</span></label><label><input type="radio" name="level" value="child-risk"><span>A child may be at risk</span></label></div></fieldset>

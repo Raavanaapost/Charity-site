@@ -93,7 +93,7 @@ input[type=text],input[type=tel],input[type=email],select{width:100%;font:inheri
   </section>
 
   <form class="card" id="agree" name="organiser-agreement" method="POST" action="/agree?sent=1" data-netlify="true" netlify-honeypot="bot-field">
-    <input type="hidden" name="form-name" value="organiser-agreement">
+    <input type="hidden" name="form-name" value="organiser-agreement"><input type="hidden" name="about" value="">
     <input type="hidden" name="project" value="">
     <input type="hidden" name="project_title" value="">
     <input type="hidden" name="language" value="English">
@@ -137,6 +137,7 @@ input[type=text],input[type=tel],input[type=email],select{width:100%;font:inheri
     <p><span data-l="en">Your agreement has reached the Raavanaa team. Other adults in charge can open the same link and agree too.</span><span data-l="ta" hidden>உங்கள் ஒப்பந்தம் இராவணா குழுவுக்குக் கிடைத்துவிட்டது. பொறுப்பான மற்ற பெரியவர்களும் இதே இணைப்பைத் திறந்து ஒப்புக்கொள்ளலாம்.</span></p>
   </section>
 </main>
+<script src="/form-alert.js?v=1"></script>
 <script>
 (function () {
   var q = new URLSearchParams(location.search);

@@ -1,5 +1,7 @@
 /* Shared site script: loads content/*.json and renders the current page.
    Content is edited from /admin — no code changes needed for new projects. */
+/* Clear form alert emails: every form entry gets a plain "about" line first (form-alert.js, SURESH 28 Nov 2026). */
+(function () { if (window.__raavAbout) return; var s = document.createElement("script"); s.src = "/form-alert.js?v=1"; document.head.appendChild(s); })();
 /* ---------- Feature switches (SURESH, 14 Nov 2026: "go feature by feature") ----------
    The launch carries ONE feature: giving in loving memory of someone, with one simple page for that person (/m/<code>).
    Everything else stays built and comes back one at a time: set its switch to true and publish.

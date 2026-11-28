@@ -40,7 +40,7 @@
       <p><a href="/volunteers"><b>Meet our volunteers →</b></a></p>
     </section>
     <form class="panel form" name="volunteer" method="POST" action="/volunteer?sent=1" data-netlify="true" netlify-honeypot="bot-field" data-ajax data-done="Thank you for stepping up! One of our team will be in touch soon.">
-      <input type="hidden" name="form-name" value="volunteer">
+      <input type="hidden" name="form-name" value="volunteer"><input type="hidden" name="about" value="">
       <p hidden><label>Leave empty <input name="bot-field"></label></p>
       <label for="v-name">Your name<input id="v-name" name="name" required autocomplete="name"></label>
       <label for="v-email">Email<input id="v-email" name="email" type="email" required autocomplete="email"></label>
