@@ -100,12 +100,15 @@ export async function fileInAlbum(root: string, id: string): Promise<Row | null>
   return null;
 }
 
-// A small copy (Drive's own thumbnail at the size asked) or the original file, streamed through to the family.
-export async function fetchFile(f: Row, size: number | null, range?: string | null): Promise<Response> {
-  const auth = { Authorization: `Bearer ${await token()}` };
-  if (size && f.thumbnailLink) {
-    const res = await fetch(String(f.thumbnailLink).replace(/=s\d+$/, `=s${size}`), { headers: auth });
-    if (res.ok) return res;
-  }
-  return fetch(`${API}/files/${f.id}?alt=media&supportsAllDrives=true`, { headers: { ...auth, ...(range ? { Range: range } : {}) } });
+// A small copy: Drive's own thumbnail at the size asked (photos and videos both have one).
+export async function fetchThumb(f: Row, size: number): Promise<Response | null> {
+  if (!f.thumbnailLink) return null;
+  const res = await fetch(String(f.thumbnailLink).replace(/=s\d+$/, `=s${size}`), { headers: { Authorization: `Bearer ${await token()}` } });
+  return res.ok ? res : null;
+}
+
+// Part of the original file (bytes start..end). Netlify functions cannot send very big answers in one go,
+// so videos and downloads always come in pieces of a few MB (the video player and the download button ask piece by piece).
+export async function fetchBytes(f: Row, start: number, end: number): Promise<Response> {
+  return fetch(`${API}/files/${f.id}?alt=media&supportsAllDrives=true`, { headers: { Authorization: `Bearer ${await token()}`, Range: `bytes=${start}-${end}` } });
 }

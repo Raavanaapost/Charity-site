@@ -19,7 +19,8 @@ import { getDatabase } from "@netlify/database";
 import { createHash, createHmac, randomInt, timingSafeEqual } from "node:crypto";
 import { teamAccess } from "../lib/team-access.mts";
 import { projectTitles } from "../lib/materials.mts";
-import { robot, folderId, listAlbum, fileInAlbum, fetchFile } from "../lib/drive.mts";
+import { robot, folderId, listAlbum, fileInAlbum, fetchThumb, fetchBytes } from "../lib/drive.mts";
+import CONFIG from "../../family-albums.json" with { type: "json" };
 
 type Row = Record<string, any>;
 const json = (body: unknown, status = 200, headers: Record<string, string> = {}) => Response.json(body, { status, headers: { "Cache-Control": "no-store", ...headers } });
@@ -28,6 +29,15 @@ const esc = (s: unknown) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "
 const SLUG = /^[a-z0-9][a-z0-9-]{0,79}$/;
 const DAYS30 = 30 * 86400;
 const SIZES: Record<string, number> = { small: 480, big: 1600 };
+const CHUNK = 4 * 1024 * 1024; // one piece of a video or download
+// Albums set up in family-albums.json (slug -> Drive folder id) work before anyone saves them in the portal.
+// A portal save (family_albums row) always wins.
+const albumOf = async (db: ReturnType<typeof getDatabase>, slug: string): Promise<Row | undefined> => {
+  const [a] = (await db.sql`SELECT * FROM family_albums WHERE slug = ${slug}`) as Row[];
+  if (a) return a;
+  const c = (CONFIG as Record<string, any>)[slug];
+  return c && c.folder ? { slug, folder_id: String(c.folder), folder_url: `https://drive.google.com/drive/folders/${c.folder}`, is_open: true, closes_on: c.closes_on || null, fromFile: true } : undefined;
+};
 
 // The key that signs the "code remembered on this phone" cookie.
 const secret = () => Netlify.env.get("FAMILY_ALBUM_SECRET") || robot()?.key || "";
@@ -93,7 +103,26 @@ ${state === "none" ? `<p class="soft">There is no family album for this event.</
   let all = [], at = 0;
   const open = i => { at = (i + all.length) % all.length; const x = all[at], u = A + "/file/" + x.id;
     $("vs").innerHTML = x.kind === "video" ? '<video controls autoplay playsinline src="' + u + '?s=play"></video>' : '<img alt="" src="' + u + '?s=big">';
-    $("vd").href = u + "?s=download"; $("vn").textContent = (at + 1) + " / " + all.length; $("v").hidden = false; };
+    $("vd").onclick = e => { e.preventDefault(); save(x); }; $("vn").textContent = (at + 1) + " / " + all.length; $("v").hidden = false; };
+  // Download in pieces (the website cannot send a big video in one go), then hand the whole file to the phone.
+  const save = async x => {
+    const b = $("vd"), u = A + "/file/" + x.id, parts = []; let at0 = 0, total = 1, first = true;
+    b.textContent = "Downloading…";
+    try {
+      while (at0 < total) {
+        const r = await fetch(u + (first ? "?s=download" : "?s=part"), { headers: { Range: "bytes=" + at0 + "-" } });
+        if (r.status !== 206 && r.status !== 200) throw new Error();
+        const m = /\/(\d+)$/.exec(r.headers.get("content-range") || ""); total = m ? +m[1] : 0;
+        const blob = await r.blob(); parts.push(blob); at0 += blob.size; first = false;
+        if (!total || !blob.size) break;
+        b.textContent = Math.round(at0 * 100 / total) + "%";
+      }
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(parts, { type: x.kind === "video" ? "video/mp4" : "image/jpeg" }));
+      a.download = x.name || (x.kind === "video" ? "video.mp4" : "photo.jpg"); document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 60000); b.textContent = "Saved ✓";
+    } catch (er) { b.textContent = "Try again"; }
+    setTimeout(() => { b.textContent = "Download"; }, 2500);
+  };
   $("vx").onclick = () => { $("v").hidden = true; $("vs").innerHTML = ""; };
   $("vp").onclick = () => open(at - 1); $("vf").onclick = () => open(at + 1);
   document.addEventListener("keydown", e => { if ($("v").hidden) return; if (e.key === "Escape") $("vx").onclick(); if (e.key === "ArrowLeft") open(at - 1); if (e.key === "ArrowRight") open(at + 1); });
@@ -103,7 +132,7 @@ ${state === "none" ? `<p class="soft">There is no family album for this event.</
     $("album").innerHTML = '<section class="card"><div class="top"><div><span class="lock">🔒 Family album</span><h1>' + h(d.title) + '</h1><p class="soft">' + n + ' photo' + (n === 1 ? '' : 's') + '. Tap one to see it big or download it.</p></div>'
       + '<p class="who">Opened with the code for ' + h(d.family || "your family") + '<br><button class="link" id="out" type="button">Not you? Forget the code on this phone</button></p></div></section>'
       + (n ? secs.map(s => '<section class="card sec">' + (s.name ? '<h2>' + h(s.name) + '</h2>' : '') + '<div class="grid">' + s.items.map(x => { const i = all.push(x) - 1;
-          return '<button type="button" data-i="' + i + '"><img loading="lazy" alt="" src="' + A + '/file/' + x.id + '?s=small">' + (x.kind === "video" ? '<span class="play">▶ Video</span>' : '') + '</button>'; }).join("") + '</div></section>').join("")
+          return '<button type="button" data-i="' + i + '"><img loading="lazy" alt="" src="' + A + '/file/' + x.id + '?s=small" onerror="this.remove()">' + (x.kind === "video" ? '<span class="play">▶ Video</span>' : '') + '</button>'; }).join("") + '</div></section>').join("")
         : '<section class="card"><p class="soft">No photos have been added yet. Please check again in a few days.</p></section>');
     $("album").hidden = false;
     document.querySelectorAll("[data-i]").forEach(b => b.onclick = () => open(+b.dataset.i));
@@ -129,7 +158,7 @@ export default async (req: Request, context: Context) => {
   if (path.startsWith("/photos/") || path.startsWith("/api/photos/")) {
     if (!m || !SLUG.test(m[2])) return new Response("Not found", { status: 404 });
     const api = !!m[1], slug = m[2], what = m[3] || "", fid = m[4] || "";
-    const [alb] = (await db.sql`SELECT * FROM family_albums WHERE slug = ${slug}`) as Row[];
+    const alb = await albumOf(db, slug);
     const live = alb && alb.folder_id && robot();
     if (!api) return page(slug, (await projectTitles(db)).get(slug) || "Raavanaa", !live ? "none" : isClosed(alb) ? "closed" : "ready");
     if (!live) return json({ error: "There is no family album for this event." }, 404);
@@ -160,21 +189,34 @@ export default async (req: Request, context: Context) => {
       try {
         const a = await listAlbum(alb.folder_id);
         await db.sql`UPDATE family_album_codes SET last_seen = NOW() WHERE id = ${code.id}`;
-        return json({ title: (await projectTitles(db)).get(slug) || a.name, family: code.family, sections: a.sections.map((s) => ({ name: s.name, items: s.items.map((x) => ({ id: x.id, kind: x.kind })) })) });
+        return json({ title: (await projectTitles(db)).get(slug) || a.name, family: code.family, sections: a.sections.map((s) => ({ name: s.name, items: s.items.map((x) => ({ id: x.id, kind: x.kind, name: x.name })) })) });
       } catch { return json({ error: "The album could not be opened just now. Please try again later." }, 502); }
     }
     if (fid && req.method === "GET") {
       const f = await fileInAlbum(alb.folder_id, fid);
       if (!f) return new Response("Not found", { status: 404 });
       const s = url.searchParams.get("s") || "small";
-      if (s === "download") await log(code, "download", f.name);
-      const res = await fetchFile(f, f.mimeType.startsWith("image/") ? SIZES[s] ?? null : null, s === "play" ? req.headers.get("range") : null);
-      if (!res.ok && res.status !== 206) return new Response("Not found", { status: 404 });
-      const type = String(res.headers.get("content-type") || f.mimeType);
-      const h: Record<string, string> = { "Content-Type": /^(image|video)\//.test(type) ? type : "application/octet-stream", "Cache-Control": "private, max-age=86400", "X-Content-Type-Options": "nosniff", "X-Robots-Tag": "noindex" };
-      for (const k of ["content-length", "content-range", "accept-ranges"]) { const v = res.headers.get(k); if (v) h[k] = v; }
-      if (s === "download") h["Content-Disposition"] = `attachment; filename="${String(f.name || "photo").replace(/[^\w.-]/g, "_")}"`;
-      return new Response(res.body, { status: res.status, headers: h });
+      const base: Record<string, string> = { "Cache-Control": "private, max-age=86400", "X-Content-Type-Options": "nosniff", "X-Robots-Tag": "noindex" };
+      if (s === "small" || s === "big") {
+        const t = await fetchThumb(f, SIZES[s]);
+        if (!t) return new Response("No picture", { status: 404 });
+        return new Response(t.body, { headers: { ...base, "Content-Type": /^image\//.test(String(t.headers.get("content-type"))) ? String(t.headers.get("content-type")) : "image/jpeg" } });
+      }
+      // The original, in pieces: s=play (video player), s=download (first piece of a download, logged), s=part (the rest).
+      const total = Number(f.size) || 0;
+      const r = /bytes=(\d*)-(\d*)/.exec(req.headers.get("range") || "");
+      const start = r && r[1] ? Number(r[1]) : 0;
+      const end = Math.min(r && r[2] ? Number(r[2]) : start + CHUNK - 1, start + CHUNK - 1, total ? total - 1 : Infinity);
+      if (total && start >= total) return new Response("", { status: 416, headers: { "Content-Range": `bytes */${total}` } });
+      if (s === "download" && start === 0) await log(code, "download", f.name);
+      const res = await fetchBytes(f, start, end);
+      if (!res.ok) return new Response("Not found", { status: 404 });
+      const type = String(f.mimeType || "application/octet-stream");
+      const h: Record<string, string> = { ...base, "Content-Type": /^(image|video)\//.test(type) ? type : "application/octet-stream", "Accept-Ranges": "bytes" };
+      const cr = res.headers.get("content-range"), cl = res.headers.get("content-length");
+      if (cr) h["Content-Range"] = cr; else if (total) h["Content-Range"] = `bytes ${start}-${end}/${total}`;
+      if (cl) h["Content-Length"] = cl;
+      return new Response(res.body, { status: 206, headers: h });
     }
     return json({ error: "Not allowed" }, 405);
   }
@@ -194,7 +236,8 @@ export default async (req: Request, context: Context) => {
     const titles = await projectTitles(db);
     const albums = (await db.sql`SELECT a.slug, a.folder_id, a.is_open, a.closes_on, (SELECT COUNT(*)::int FROM family_album_codes c WHERE c.slug = a.slug AND c.stopped_at IS NULL) AS codes FROM family_albums a`) as Row[];
     return json({ robot: r ? r.email : "", base, projects: [...titles].map(([slug, title]) => { const a = albums.find((x) => x.slug === slug);
-      return { slug, title, folder: !!a?.folder_id, open: a ? !isClosed(a) : false, codes: a?.codes || 0 }; }) });
+      const cf = (CONFIG as Record<string, any>)[slug];
+      return { slug, title, folder: !!(a?.folder_id || cf?.folder), open: a ? !isClosed(a) : !!cf?.folder, codes: a?.codes || 0 }; }) });
   }
 
   if (parts[0] === "codes" && parts[1]) {
@@ -219,7 +262,7 @@ export default async (req: Request, context: Context) => {
   if (!SLUG.test(slug || "")) return json({ error: "Pick a project" }, 400);
 
   if (parts.length === 1 && req.method === "GET") {
-    const [a] = (await db.sql`SELECT * FROM family_albums WHERE slug = ${slug}`) as Row[];
+    const a = await albumOf(db, slug);
     const codes = (await db.sql`SELECT c.*, (SELECT COUNT(*)::int FROM family_album_log l WHERE l.code_id = c.id AND l.action = 'open') AS opens,
         (SELECT COUNT(*)::int FROM family_album_log l WHERE l.code_id = c.id AND l.action = 'download') AS downloads
       FROM family_album_codes c WHERE c.slug = ${slug} ORDER BY c.stopped_at IS NOT NULL, c.created_at DESC`) as Row[];
@@ -233,7 +276,7 @@ export default async (req: Request, context: Context) => {
   }
 
   if (parts.length === 1 && req.method === "PUT") {
-    const [old] = (await db.sql`SELECT * FROM family_albums WHERE slug = ${slug}`) as Row[];
+    const old = await albumOf(db, slug);
     const url2 = b.folder !== undefined ? clip(b.folder, 300) : old?.folder_url || "";
     const fid = folderId(url2);
     if (url2 && !fid) return json({ error: "That does not look like a Google Drive folder link." }, 400);
@@ -247,7 +290,7 @@ export default async (req: Request, context: Context) => {
   }
 
   if (parts[1] === "check" && req.method === "POST") {
-    const [a] = (await db.sql`SELECT folder_id FROM family_albums WHERE slug = ${slug}`) as Row[];
+    const a = await albumOf(db, slug);
     if (!a?.folder_id) return json({ error: "Paste the Drive folder link first." }, 400);
     if (!r) return json({ error: "The Drive robot is not set up yet." }, 400);
     try {
