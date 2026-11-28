@@ -2473,7 +2473,7 @@
   let FAALL = null; const FA = {}, faLoading = {}, FACHK = {};
   const faLoad = (key, url, store) => { if (faLoading[key]) return; faLoading[key] = true;
     api(url).then(d => { store(d); faLoading[key] = false; render(); }).catch(e => { faLoading[key] = false; toast(e.message || "Could not load"); }); };
-  const faMsg = (title, link, code) => `Hello from Raavanaa! The photos from ${title} are ready in your family album.\n\nOpen: ${link}\nYour family code: ${code}\n\nThis code is just for your family. Please do not share the code or post the photos on Facebook, Instagram or WhatsApp groups. Thank you!`;
+  const faMsg = (title, link, code) => `Hello from Raavanaa! The photos from ${title} are ready in your family album.\n\nOpen: ${link}\nYour family code: ${code}\n\nThis code is just for your family. Please do not share the code or post the photos on Facebook, Instagram or WhatsApp groups. Thank you!\n\nRaavanaa-விலிருந்து வணக்கம்! ${title} புகைப்படங்கள் உங்கள் குடும்ப ஆல்பத்தில் தயாராக உள்ளன.\nதிறக்க: ${link}\nஉங்கள் குடும்பக் குறியீடு: ${code}\nஇந்தக் குறியீட்டை யாருடனும் பகிர வேண்டாம். நன்றி!`;
   function albums(slugIn) {
     const head = sub => `<header class="pt-head"><div><h1>Family albums</h1><p class="pt-sub">${sub}</p></div></header>`;
     if (!LIVE) return head("This screen works on the real portal once you are signed in.");
