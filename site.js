@@ -3007,9 +3007,15 @@ window.RAAV_FEATURES = (function () {
       </div>
       <p class="share-tip note" hidden></p>
     </div>`;
+  const SHARE_WORDS = false;
   // The WhatsApp message from a project's Share box, as a neat glance that fits the stage (SURESH 26 Nov 2026: "Not
   // professional. Can you create a nice glance when shared"). Bold title, one line, then when / where / who and the money.
   function glanceText(p, site, url) {
+    // SURESH 27 Nov 2026: "just that image and the hyperlink to that page": the picture says it all, so the message is
+    // only the link (WhatsApp needs the link to show the picture and to have something to tap). The fuller words for
+    // each stage are kept below; set SHARE_WORDS to true to bring them back.
+    if (!SHARE_WORDS) { const n0 = stageNum(p);
+      return p.short && n0 > 1 ? `${location.host}/${p.short}${n0 === 3 ? "?day" : ""}` : url.replace(/^https?:\/\//, ""); }
     const plain = t => String(t || "").replace(/[*_~`]/g, "").replace(/\s+/g, " ").trim();
     const n = stageNum(p), b = budgetOf(p), money = v => moneyOf(site, v, p).replace(/&amp;/g, "&");
     const line = plain(p.tagline) || (plain(p.summary).match(/^.+?[.!?](\s|$)/) || [""])[0].trim();
@@ -3044,15 +3050,15 @@ window.RAAV_FEATURES = (function () {
       // SURESH 27 Nov 2026: plain words in the same layout as the Activated share (script letters "look like AI"): the
       // thanks line, the title, then See the day and the link. No "52 smiles made" here, the picture says it.
       return [...(who ? [`\u{1F49B} *Moment made possible by ${who}*`, ""] : []), `*${plain(p.title)}*`, "", "\u{1F4F8} *See the day*", `\u{1F449} ${short}${p.short ? "?day" : ""}`].join("\n"); }
-    const head = "\u{1F331} *A need on Raavanaa*";
+    // Initiated, in the same layout as the Activated and Impact messages (SURESH 27 Nov 2026: one family): a bold
+    // first line, the title, the date, the place and the %, then "Be the smile" and the link on its own line.
+    const link = url.replace(/^https?:\/\//, "");
     const facts = [
       when && `\u{1F4C5} ${when}`,
       p.location && `\u{1F4CD} ${plain(p.location)}`,
-      who && `\u{1F465} ${who}`,
-      n === 1 && b.goal > 0 ? `\u{1F3AF} ${b.pct}% funded · ${money(Math.max(0, b.goal - b.raised))} still to go` : n === 2 && b.goal ? `\u{1F49B} ${money(b.goal)} raised, every rupee shown openly` : "",
+      b.goal > 0 ? `\u{1F3AF} ${b.pct}% funded \u00b7 ${money(Math.max(0, b.goal - b.raised))} still to go` : "",
     ].filter(Boolean);
-    const ask = n === 1 ? "Help make it happen \u{1F447}" : n === 2 ? "Follow the day \u{1F447}" : "See the story \u{1F447}";
-    return [head, "", `*${plain(p.title)}*`, ...(line ? [`_${line}_`] : []), ...(facts.length ? ["", ...facts] : []), "", ask, url].join("\n");
+    return ["\u{1F49B} *Let's make this moment happen*", "", `*${plain(p.title)}*`, ...facts, "", "\u{1F64C} *Be the smile*", `\u{1F449} ${link}`].join("\n");
   }
   // "Happening today" / "Happening Friday 27 November" / "It happened on ...", by the date in Sri Lanka (as in share-progress.mts).
   function happeningNow(day) {

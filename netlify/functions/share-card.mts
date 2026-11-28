@@ -136,10 +136,54 @@ function impactSVG(pr: Progress, art: string) {
 </svg>`;
 }
 
+function initiatedSVG(pr: Progress, art: string, owner = "") {
+  // Initiated, in the same family as Activated and Impact (SURESH 27 Nov 2026: "make this into a nice design"): cream
+  // card, words centred, the % funded in white on a green ribbon (Initiated green), the drawing in a strip on the right.
+  const title = wrap(pr.title, 36, 2), cx = 418, top = "LET'S MAKE IT HAPPEN", big = `${pr.pct}% FUNDED`;
+  const left = Math.max(0, pr.goal - pr.raised), place = (pr.place || "").length <= 30 ? pr.place : (pr.place || "").split(",")[0];
+  const facts = [`${money(pr, left)} still to go`, place].filter(Boolean).join("  \u00b7  ");
+  const fsTop = 44, fsBig = Math.min(104, Math.floor(690 / (big.length * 0.7)));
+  const bw = Math.min(780, Math.round(big.length * fsBig * 0.7 + 90)), bh = Math.round(fsBig * 1.2);
+  const yTop = 156 + fsTop, yBox = yTop + 22, yBig = yBox + Math.round(bh / 2 + fsBig * 0.36);
+  const yTitle = yBox + bh + 48, yF = yTitle + (title.length - 1) * 36 + 42;
+  return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="fade" x1="0" x2="1"><stop offset="0" stop-color="#fbf6ea"/><stop offset="1" stop-color="#fbf6ea" stop-opacity="0"/></linearGradient>
+    <linearGradient id="grn" x1="0" x2="1"><stop offset="0" stop-color="#17603a"/><stop offset="1" stop-color="#2f9a5c"/></linearGradient>
+    <clipPath id="right"><rect x="836" y="0" width="364" height="630"/></clipPath>
+    <filter id="sh" x="-10%" y="-30%" width="120%" height="160%"><feDropShadow dx="0" dy="6" stdDeviation="9" flood-color="#123f28" flood-opacity=".26"/></filter>
+  </defs>
+  <rect width="1200" height="630" fill="#fbf6ea"/>
+  ${art ? `<image x="836" y="0" width="364" height="630" preserveAspectRatio="xMidYMid slice" clip-path="url(#right)" xlink:href="${art}" href="${art}"/>` : ""}
+  <rect x="836" y="0" width="90" height="630" fill="url(#fade)"/>
+  <image x="${cx - 105}" y="22" width="210" height="70" href="data:image/png;base64,${A.logoPng}" xlink:href="data:image/png;base64,${A.logoPng}"/>
+  <rect x="${cx - 76}" y="104" width="152" height="34" rx="17" fill="#1f7a47"/>
+  <circle cx="${cx - 54}" cy="121" r="5.5" fill="#fff"/>
+  <text x="${cx + 8}" y="127.5" text-anchor="middle" font-family="Inter" font-weight="800" font-size="16" letter-spacing="2" fill="#fff">INITIATED</text>
+  <text x="${cx}" y="${yTop}" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="${fsTop}" fill="#4a2a06">${esc(top)}</text>
+  <rect x="${cx - bw / 2}" y="${yBox}" width="${bw}" height="${bh}" rx="${Math.round(bh / 2)}" fill="url(#grn)" filter="url(#sh)"/>
+  <text x="${cx}" y="${yBig}" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="${fsBig}" fill="#fff">${esc(big)}</text>
+  ${title.map((l, i) => `<text x="${cx}" y="${yTitle + i * 36}" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="29" fill="#3a2410">${esc(l)}</text>`).join("")}
+  <text x="${cx}" y="${yF}" text-anchor="middle" font-family="Inter" font-weight="600" font-size="21" fill="#1f7a47">${esc(facts)}</text>
+  ${owner ? `<text x="${cx}" y="${yF + 28}" text-anchor="middle" font-family="Inter" font-weight="600" font-size="16" letter-spacing="1.5" fill="#6f6a5e">RUN BY ${esc(wrap(owner.toUpperCase(), 40, 1)[0])}</text>` : ""}
+  <g transform="translate(${cx - 300} 548)">
+    <rect width="250" height="56" rx="28" fill="url(#grn)"/>
+    <text x="32" y="36" font-family="Inter" font-weight="800" font-size="22" fill="#fff">Be the smile</text>
+    <circle cx="214" cy="28" r="17" fill="#fff"/><path d="M207.5 20l10.5 8-10.5 8" fill="none" stroke="#17603a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g transform="translate(${cx - 30} 548)">
+    <rect width="330" height="56" rx="28" fill="#fff" stroke="#2f9a5c" stroke-width="2.5"/>
+    <path d="M38 21c-3.6-4.6-11-3-11 3 0 5 6.5 9 11 13 4.5-4 11-8 11-13 0-6-7.4-7.6-11-3z" fill="#c8381e"/>
+    <text x="60" y="36" font-family="Inter" font-weight="800" font-size="19" fill="#4a2a06">Every rupee shown openly</text>
+  </g>
+</svg>`;
+}
+
 function cardSVG(pr: Progress, art: string) {
   const full = pr.stage === 2 || pr.pct >= 100, pct = full ? 100 : pr.pct, left = Math.max(0, pr.goal - pr.raised);
   if (pr.stage === 2) return happeningSVG(pr, art);
   if (pr.stage === 3) return impactSVG(pr, art);
+  if (pr.stage === 1 && pr.pct < 100) return initiatedSVG(pr, art);
   const title = wrap(pr.title, 27, 2);
   const kicker = full ? "ACTIVATED" : "ACTIVATING", kc = full ? "#b97a06" : "#1f7a47";
   const who = pr.kids ? `Help ${pr.kids} children laugh.` : "Help these children laugh.";
