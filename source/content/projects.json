@@ -366,49 +366,83 @@
   "organization": "Raavanaa",
   "location": "Pussellawa, Kandy District",
   "started": "October 2026",
-  "status": "Planning",
+  "status": "Complete",
   "quote": "These students have never been anywhere on an excursion.",
-  "people": {"approved_by": "Raavanaa", "approved_on": "2026-11-06"},
-  "tagline": "The 52 children of Choughleigh Tamil Vidyalayam in Pussellawa have never been on a school trip, and on Friday 27 November they hope to see Kandy.",
+  "people": {
+   "approved_by": "Raavanaa",
+   "approved_on": "2026-11-06"
+  },
+  "tagline": "On Friday 27 November 2026 the 52 children of Choughleigh Tamil Vidyalayam in Pussellawa went on their first ever school trip, to Kandy and the Peradeniya gardens.",
   "verified": true,
   "goal": 61000,
   "budget": [
    {
-    "item": "Bus to Kandy and back (about 50 km each way)",
-    "amount": 30000
+    "item": "Bus hire, school to Kandy and back",
+    "amount": 32500
    },
    {
-    "item": "Food for the whole group",
-    "amount": 31000
+    "item": "Breakfast for the group",
+    "amount": 9500
+   },
+   {
+    "item": "Lunch for the group",
+    "amount": 19000
    }
   ],
-  "funders": [],
+  "funders": [
+   {
+    "name": "Srikantha",
+    "amount": 37793
+   },
+   {
+    "name": "An anonymous giver",
+    "amount": 23207
+   }
+  ],
   "currency": "Rs ",
   "reach": "52 children and 6 teachers",
   "date_set": true,
-  "booked": false,
+  "booked": true,
   "volunteers": false,
   "steps": [],
-  "impact": [],
+  "impact": [
+   {
+    "value": "1st",
+    "label": "school trip for these children"
+   },
+   {
+    "value": "52",
+    "label": "children, with 6 teachers"
+   },
+   {
+    "value": "Rs 61,000",
+    "label": "spent, every bill shown"
+   }
+  ],
   "expectations": [
    {
     "text": "Every child travels safely to Kandy and back",
-    "result": "",
-    "note": ""
+    "result": "met",
+    "note": "The bus took the whole group to Kandy and back on 27 November."
    },
    {
     "text": "The whole group shares a good meal together",
-    "result": "",
-    "note": ""
+    "result": "met",
+    "note": "Breakfast from a bakery in Gampola and lunch for the group in Talatuoya."
    },
    {
     "text": "The children visit the Temple of the Tooth and the Peradeniya gardens",
-    "result": "",
-    "note": ""
+    "result": "met",
+    "note": "Photos from the Peradeniya gardens are shared; the teacher's note on the rest of the day is on its way."
    }
   ],
   "story": true,
   "updates": [
+   {
+    "date": "2026-11-27",
+    "title": "The day happened",
+    "body": "The children went to Kandy on Friday 27 November and walked together through the Peradeniya gardens. Rs 61,000 was spent on the bus and food, exactly what was given. The children's drawings and letters, and their teacher's note, are on their way."
+   },
    {
     "date": "2026-11-06",
     "title": "New date: 27 November",
@@ -420,6 +454,6 @@
     "body": "The day is set for 27 November 2026: the Temple of the Tooth in Kandy, then the Peradeniya gardens. The cost is Rs 61,000 for the bus and food, and the school has permission from the Department of Education."
    }
   ],
-  "pictures": 0
+  "pictures": 5
  }
 }

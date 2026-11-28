@@ -79,6 +79,12 @@ $ph = array(
 	'pus_hills'   => n_photo( 'pussellawa/hills-view.jpg', 'The view from Hanuman Kovil' ),
 	'pus_look'    => n_photo( 'pussellawa/looking-out.jpg', 'A quiet moment with the view' ),
 	'kt_sign'     => n_photo( 'pussellawa-kandy/school-sign.jpg', 'Choughleigh Tamil Vidyalayam, Pussellawa' ),
+	/* The Kandy trip day, 27 Nov 2026 (parents agreed to the photos; SURESH, 27 Nov 2026). */
+	'kt_walk'     => n_photo( 'pussellawa-kandy/day-walking-gardens.jpg', 'Walking together through the Peradeniya gardens, 27 November 2026' ),
+	'kt_group'    => n_photo( 'pussellawa-kandy/day-group-photo.jpg', 'Everyone together at the Peradeniya gardens' ),
+	'kt_lawn'     => n_photo( 'pussellawa-kandy/day-crossing-lawn.jpg', 'Crossing the great lawn at Peradeniya' ),
+	'kt_teach'    => n_photo( 'pussellawa-kandy/day-walking-with-teachers.jpg', 'Walking with their teachers through the gardens' ),
+	'kt_fountain' => n_photo( 'pussellawa-kandy/day-fountain.jpg', 'By the fountain and the flower beds' ),
 );
 
 /* Fixed to when the stories were first published, so a rebuild keeps their dates. */
@@ -110,34 +116,36 @@ $stories = array(
 	array(
 		'key'     => 'KT',
 		'project' => 'pussellawa-kandy-trip',
-		'title'   => 'A first school trip: Pussellawa pupils hope to see Kandy',
+		// Same web address as before the trip, so shared links and followers still reach it (28 Nov 2026).
+		'slug'    => 'a-first-school-trip-pussellawa-pupils-hope-to-see-kandy',
+		'title'   => 'Their first school trip: Pussellawa pupils spend a day in Kandy',
 		'art'     => 'kandy-trip',
-		'thumb'   => 'kt_sign', // the school sign is the main picture (SURESH, 25 Nov 2026)
-		'cats'    => array( 'community-needs', 'sri-lanka' ),
+		'thumb'   => 'kt_walk', // the day itself is the main picture now (28 Nov 2026)
+		'cats'    => array( 'real-impact', 'sri-lanka' ),
 		'place'   => 'Pussellawa, Kandy District',
-		'excerpt' => 'The children of Choughleigh Tamil Vidyalayam, a small primary school in Pussellawa\'s tea country, have never been on a school trip. On Friday 27 November they hope to visit the Temple of the Tooth and the Peradeniya gardens.',
-		'stage'   => 'reported',
-		'update'  => 'Visited and verified. On Friday 27 November the children go to the Temple of the Tooth and the Peradeniya gardens. The Rs 61,000 for the bus and food is still to be covered.',
+		'excerpt' => 'On Friday 27 November the children of Choughleigh Tamil Vidyalayam, a small primary school in Pussellawa\'s tea country, went on their first ever school trip, to Kandy and the Peradeniya gardens.',
+		'stage'   => 'solved',
+		'update'  => 'The day happened on Friday 27 November. The full Rs 61,000 went to the bus and food, and every bill is shown on raavanaa.org.',
 		'highlights' => array(
-			'52 children have never been on a school trip',
-			'Friday 27 November: the Temple of the Tooth, Kandy',
-			'Then the Peradeniya gardens on the way home',
-			'Rs 61,000 for the bus and food for about 55 people',
+			'The first school trip these children have ever had',
+			'Friday 27 November 2026: Kandy and the Peradeniya gardens',
+			'Rs 61,000 given, Rs 61,000 spent, every bill shown',
+			'Made possible by Srikantha and an anonymous giver',
 		),
-		'hours'   => -68,
+		'hours'   => -92,
 		'views'   => 30,
-		'body'    => n_p( 'The second request from Pussellawa has been checked and is now a project. It comes from Choughleigh Tamil Vidyalayam, a small Tamil primary school in the tea country, with 52 children and 6 teachers. The principal calls it a fully disadvantaged school, and says these children have never been anywhere on an excursion.' )
-			. n_p( 'The school\'s vision is to give society primary pupils with sound skills and good character. Its mission is to give every pupil all the core skills and the chance to go on to secondary education.' )
-			. n_h( 'The plan' )
-			. n_p( 'On Friday 27 November 2026, about 55 children and teachers travel by bus to Kandy, about 50 km away. They visit the Sri Dalada Maligawa, the Temple of the Tooth, and stop at the Peradeniya gardens on the way back. The school has permission for the trip from the Department of Education.' )
-			. n_h( 'Where they go' )
-			. n_ul( array( '<strong>First stop: the Temple of the Tooth</strong> (Sri Dalada Maligawa), the famous temple in the heart of Kandy', '<strong>On the way home: the Peradeniya Botanical Gardens</strong>, the great gardens beside the Mahaweli river, with wide lawns and giant trees' ) )
-			. n_h( 'The impact it will make' )
-			. n_ul( array( '52 children who have never been on a school trip get their first one', 'A new experience, just as the principal asked for: two of Sri Lanka\'s best-known places in one day', 'The whole group travels safely there and back and shares a meal', 'After the day, the story and pictures (no children\'s faces) are shared here, and every rupee is shown' ) )
-			. n_h( 'What it costs' )
-			. n_ul( array( 'Bus to Kandy and back: about Rs 30,000', 'Food for the whole group: about Rs 31,000' ) )
-			. n_p( 'Rs 61,000 in all. After the day we will share the story and the pictures here.' )
-			. n_p( 'See the project and give on <a href="https://raavanaa.org/projects/pussellawa-kandy-trip">raavanaa.org</a>.' ),
+		'body'    => n_p( 'On Friday 27 November 2026, the children of Choughleigh Tamil Vidyalayam, a small Tamil primary school in Pussellawa\'s tea country, went on their first ever school trip. The principal had told us these children had never been anywhere on an excursion. This time the bus took them, with their teachers, to Kandy, about 50 km away.' )
+			. '%IMG_KT_GROUP%'
+			. n_p( 'The children walked together through the Royal Botanical Gardens at Peradeniya, crossed its great lawn, and stopped by the fountain and the flower beds. Their teachers walked with them all day.' )
+			. '%IMG_KT_DAY%'
+			. n_h( 'Where the money went' )
+			. n_ul( array( 'Bus hire, school to Kandy and back: Rs 32,500', 'Breakfast from a bakery in Gampola: Rs 9,500', 'Lunch for the group from a restaurant in Talatuoya: Rs 19,000' ) )
+			. n_p( 'Rs 61,000 was spent, exactly what was given, so nothing was left over and nothing was missing. The bus cost Rs 2,500 more than planned and the food Rs 2,500 less. Photos of every bill are on the project\'s money page.' )
+			. n_h( 'Who made it possible' )
+			. n_p( 'The whole Rs 61,000 was given by Srikantha and by one giver who chose to stay anonymous. Thank you both.' )
+			. n_h( 'Still to come' )
+			. n_p( 'The children are drawing and writing about their day, and their teacher is writing a note. We will add them here as soon as they arrive.' )
+			. n_p( 'See the photos, every bill and the full story on <a href="https://raavanaa.org/projects/pussellawa-kandy-trip">raavanaa.org</a>.' ),
 	),
 	array(
 		'key'     => 'F',
@@ -391,6 +399,8 @@ foreach ( $stories as $s ) {
 	}
 	$body = str_replace( '%IMG_GRASS%', n_img( $ph['maha_grass'], 'Ice cream on the grass by the river' ), $body );
 	$body = str_replace( '%IMG_HALL%', n_img( $ph['maha_hall'], 'Inside Banalingeswaram temple' ), $body );
+	$body = str_replace( '%IMG_KT_GROUP%', n_img( $ph['kt_group'], 'Everyone together at the Peradeniya gardens, 27 November 2026' ), $body );
+	$body = str_replace( '%IMG_KT_DAY%', n_img( $ph['kt_lawn'], 'Crossing the great lawn at Peradeniya' ) . n_img( $ph['kt_teach'], 'Walking with their teachers through the gardens' ) . n_img( $ph['kt_fountain'], 'By the fountain and the flower beds' ), $body );
 	$body = str_replace( '%IMG_GAMES%', n_img( $ph['pus_games'], 'Games on the lawn' ), $body );
 	$body = str_replace(
 		'%IMG_PUS_ALL%',
@@ -406,6 +416,7 @@ foreach ( $stories as $s ) {
 			'post_type'     => 'post',
 			'post_status'   => 'publish',
 			'post_title'    => $s['title'],
+			'post_name'     => isset( $s['slug'] ) ? $s['slug'] : '',
 			'post_excerpt'  => $s['excerpt'],
 			'post_content'  => $body,
 			'post_category' => array_map( function ( $c ) use ( $cat ) { return $cat[ $c ]; }, $s['cats'] ),
