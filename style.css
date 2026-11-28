@@ -3677,3 +3677,14 @@ html[lang="ta"] .all-chip b{font-family:"Noto Sans Tamil",var(--display),sans-se
 .phead-imp .madeby-line{margin:0}
 .phead-imp .mb-pill{border-radius:14px}
 .imp-next-under{margin:18px 0 6px}
+
+/* Impact top as a two-column table; Visited and verified + At a glance row taken off (SURESH 28 Nov 2026) */
+.phead-imp .byline{display:none}
+.imp-facts{width:100%;border-collapse:collapse;margin:2px 0 0;font-size:14.5px;background:#fffdf7;border:1px solid #ecdcb6;border-radius:12px;overflow:hidden}
+.imp-facts th,.imp-facts td{text-align:left;vertical-align:top;padding:9px 12px;border-top:1px solid #f0e4c6;line-height:1.4}
+.imp-facts tr:first-child th,.imp-facts tr:first-child td{border-top:0}
+.imp-facts th{width:38%;font-family:var(--display);font-weight:600;color:#8a6a1f;font-size:13px;background:#fbf3df}
+.imp-facts td{color:#1f2b24;font-weight:500}
+.imp-facts td b{color:#1f4d3a}
+.imp-layout .imp-hero{margin:10px 0 6px}
+.imp-layout .imp-tiles{grid-template-columns:repeat(auto-fit,minmax(110px,1fr))}
